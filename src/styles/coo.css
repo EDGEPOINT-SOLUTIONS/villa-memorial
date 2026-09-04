@@ -1,0 +1,34 @@
+/* ============================================================================
+   coo.css — Tailwind entry for the COO's Stitch design pages.
+   Imported FIRST (before tokens/base/components) so Tailwind utilities compile
+   early; legacy component classes that intentionally repeat a property still
+   win by source order where the two systems share generic element rules.
+   COO pages reproduce the stitch.withgoogle.com mockups exactly.
+   ========================================================================== */
+
+@layer base, components, legacy, utilities;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Symbols Outlined — recommended defaults (from Google Fonts).
+   Declared inside @layer components so Tailwind utility classes
+   (text-[16px], etc.) can override the size per icon. */
+@layer components {
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+}

@@ -1,0 +1,125 @@
+// ============================================================================
+// ClientNotificationsPage — Client (family) portal → Notifications.
+// Lists CLIENT_NOTIFICATIONS inside the shared PortalFrame; unread items get a
+// tinted card + dot + bolder title; "Mark all read" clears local unread state.
+// Demo only — toasts for actions, no backend.
+// ============================================================================
+
+import { useState } from "react";
+import { PortalFrame } from "../components/PortalFrame";
+import { CLIENT_NAV } from "../lib/portalNav";
+import { CLIENT_NOTIFICATIONS } from "../lib/portalData";
+import { useToast } from "../components/toast";
+
+function iconFor(title: string): string {
+  const t = title.toLowerCase();
+  if (t.includes("payment") || t.includes("installment")) return "payments";
+  if (t.includes("document")) return "article";
+  if (t.includes("request")) return "local_florist";
+  return "notifications";
+}
+
+export function ClientNotificationsPage() {
+  const { toast } = useToast();
+  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+
+  const isUnread = (id: string, unread: boolean) => unread && !readIds.has(id);
+
+  function markAllRead() {
+    setReadIds(new Set(CLIENT_NOTIFICATIONS.map((n) => n.id)));
+    toast("All notifications marked as read.", "success");
+  }
+
+  function openNotification(title: string) {
+    toast(`Notification: ${title} (demo)`);
+  }
+
+  return (
+    <PortalFrame
+      items={CLIENT_NAV}
+      brandLabel="Client Portal"
+      topNote="Villa Memorial · Family account"
+      logoutTo="/client/login"
+    >
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-label-md font-label-md uppercase tracking-wider text-primary">
+            Family portal
+          </p>
+          <h1 className="mt-1 font-serif text-3xl font-semibold text-on-surface md:text-4xl">
+            Notifications
+          </h1>
+          <p className="mt-2 max-w-xl text-body-md text-on-surface-variant">
+            Updates about payments, requests, and documents.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={markAllRead}
+          className="self-start rounded-full border-2 border-primary px-5 py-2.5 text-label-md font-label-md text-primary transition-colors hover:bg-primary-fixed cursor-pointer sm:self-auto"
+        >
+          Mark all read
+        </button>
+      </div>
+
+      {/* Notification list */}
+      <div className="flex flex-col gap-3">
+        {CLIENT_NOTIFICATIONS.map((n) => {
+          const unread = isUnread(n.id, n.unread);
+          return (
+            <button
+              key={n.id}
+              type="button"
+              onClick={() => openNotification(n.title)}
+              className={`flex w-full items-start gap-4 rounded-xl border bg-surface-container-lowest p-5 text-left shadow-ambient transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift cursor-pointer ${
+                unread
+                  ? "border-primary-container/60 border-l-4 border-l-primary"
+                  : "border-outline-variant/50"
+              }`}
+            >
+              {/* Icon chip */}
+              <span
+                className={`mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full ${
+                  unread ? "bg-primary-fixed text-primary" : "bg-surface-container-high text-on-surface-variant"
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className="material-symbols-outlined"
+                  style={{ fontSize: 20 }}
+                >
+                  {iconFor(n.title)}
+                </span>
+              </span>
+
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2">
+                  <span
+                    className={`truncate text-label-md font-label-md ${
+                      unread ? "font-bold text-on-surface" : "text-on-surface"
+                    }`}
+                  >
+                    {n.title}
+                  </span>
+                  {unread && (
+                    <span
+                      aria-label="Unread"
+                      className="h-2 w-2 flex-shrink-0 rounded-full bg-primary"
+                    />
+                  )}
+                </span>
+                <span className="mt-1 block text-body-md leading-relaxed text-on-surface-variant">
+                  {n.detail}
+                </span>
+                <span className="mt-2 block text-xs font-medium uppercase tracking-wider text-on-surface-variant/70">
+                  {n.time} ago
+                </span>
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </PortalFrame>
+  );
+}

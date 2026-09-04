@@ -1,0 +1,161 @@
+/* ============================================================================
+   tokens.css — single source of truth for every visual decision.
+   Re-themed to the COO's Stitch design (stitch.withgoogle.com, Serene Legacy
+   "Radiant Compassion" family): warm paper backgrounds (#fbf9f8), sky-blue
+   primary, classic gold CTA, charcoal text, Playfair Display + Inter.
+   COO page mockups (ui-ux-demo/stitch_villa_memorial_digital_platform) render
+   their own exact colors via Tailwind; this sheet themes the remaining demo.
+   Pure :root custom properties only.
+   ========================================================================== */
+
+:root {
+  /* --- Neutral (charcoal / surface ramp) ---------------------------------- */
+  --granite-50: #f5f7fa;
+  --granite-100: #eef1f5;
+  --granite-200: #dfe4ea;
+  --granite-300: #c6cdd6;
+  --granite-400: #98a2ad;
+  --granite-500: #6e7881;
+  --granite-600: #4b545c;
+  --granite-700: #3e4850;
+  --granite-800: #2c3135;
+  --granite-900: #171c20; /* charcoal */
+
+  /* --- Warm paper surfaces (COO Serene Legacy) ----------------------------- */
+  --marble-50: #ffffff;
+  --marble-100: #fbf9f8; /* warm paper page background */
+  --marble-200: #f6f3f2;
+  --marble-300: #f0eded;
+
+  /* --- Gold (COO classic gold, "Light of Legacy") -------------------------- */
+  --brass-300: #f3e0b0; /* light gold */
+  --brass-400: #d4af37; /* gold CTA */
+  --brass-500: #c29f32; /* gold strong */
+  --brass-600: #735c00; /* gold dark (text-on-gold) */
+
+  /* --- Sky blue primary ---------------------------------------------------- */
+  --sky-100: #e0f2fb;
+  --sky-200: #bde6fa;
+  --sky-300: #82cfff;
+  --sky-400: #00aeef;
+  --sky-500: #00658d;
+  --sky-600: #005279;
+  --sky-700: #004c6b;
+
+  /* --- Status hues (blue/gold-harmonized, desaturated) --------------------- */
+  --sage-500: #1f8a70; /* success (teal-green) */
+  --sage-100: #e2f4ee;
+  --clay-500: #ba1a1a; /* danger (error red) */
+  --clay-100: #ffdad6;
+  --amber-500: #b07a00; /* warning */
+  --amber-100: #f7ecd2;
+  --slate-info: #00658d; /* info (deep blue) */
+  --slate-info-100: #e0f2fb;
+
+  /* --- Asset-status primitives (generic) ----------------------------------- */
+  --steel-500: #00aeef; /* reserved — bright sky */
+  --steel-100: #e0f2fb;
+  --taupe-500: #785900; /* sold — gold dark */
+  --taupe-100: #f7ecd2;
+  --indigo-500: #005279; /* transferred — deep blue */
+  --indigo-100: #e0f2fb;
+
+  /* --- Semantic roles ------------------------------------------------------ */
+  --color-bg-page: var(--marble-100);
+  --color-bg-surface: var(--marble-50);
+  --color-bg-surface-raised: #ffffff;
+  --color-bg-inverse: #303030; /* charcoal inverse surface (COO Serene) */
+  --color-bg-subtle: var(--granite-50);
+
+  --color-text-primary: #1b1c1c; /* charcoal-text */
+  --color-text-secondary: var(--granite-600);
+  --color-text-muted: var(--granite-400);
+  --color-text-inverse: #ffffff;
+  --color-text-inverse-muted: #b6bcc2;
+
+  --color-border: var(--granite-200);
+  --color-border-strong: var(--granite-300);
+  --color-border-inverse: #454b51;
+
+  /* Blue = links, focus, active; Gold = CTA / ceremonial */
+  --color-primary: var(--sky-500);
+  --color-primary-strong: var(--sky-600);
+  --color-accent: var(--sky-400); /* bright blue */
+  --color-accent-strong: var(--sky-500);
+  --color-focus-ring: var(--sky-400);
+
+  --color-gold: var(--brass-400);
+  --color-gold-strong: var(--brass-600);
+  --color-gold-ink: #1b1c1c; /* charcoal text on gold */
+
+  --color-status-success: var(--sage-500);
+  --color-status-success-bg: var(--sage-100);
+  --color-status-danger: var(--clay-500);
+  --color-status-danger-bg: var(--clay-100);
+  --color-status-warning: var(--amber-500);
+  --color-status-warning-bg: var(--amber-100);
+  --color-status-info: var(--slate-info);
+  --color-status-info-bg: var(--slate-info-100);
+
+  --color-status-available: var(--sage-500);
+  --color-status-available-bg: var(--sage-100);
+  --color-status-reserved: var(--steel-500);
+  --color-status-reserved-bg: var(--steel-100);
+  --color-status-sold: var(--taupe-500);
+  --color-status-sold-bg: var(--taupe-100);
+  --color-status-occupied: var(--granite-600);
+  --color-status-occupied-bg: var(--granite-100);
+  --color-status-maintenance: var(--amber-500);
+  --color-status-maintenance-bg: var(--amber-100);
+  --color-status-transferred: var(--indigo-500);
+  --color-status-transferred-bg: var(--indigo-100);
+
+  /* Ceremonial surface — soft sky-to-gold wash */
+  --color-surface-memorial: linear-gradient(180deg, #ffffff 0%, var(--marble-200) 100%);
+
+  /* --- Type --------------------------------------------------------------- */
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.9375rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.6;
+
+  /* --- Spacing / radii / shadows ------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-section: 5rem; /* ~80px section gap */
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Ambient shadows (soft, blue-tinted) + glassmorphism */
+  --shadow-card: 0 1px 2px rgb(0 82 121 / 0.05), 0 4px 16px rgb(0 82 121 / 0.06);
+  --shadow-raised: 0 2px 6px rgb(0 82 121 / 0.07), 0 10px 30px rgb(0 82 121 / 0.09);
+  --shadow-overlay: 0 16px 48px rgb(0 82 121 / 0.16);
+  --shadow-focus: 0 0 0 3px var(--sky-300);
+  --glass: rgba(255, 255, 255, 0.6);
+  --glass-blur: 16px;
+
+  /* --- Motion ------------------------------------------------------------- */
+  --motion-fast: 120ms ease-out;
+  --motion-base: 180ms ease-out;
+  --motion-slow: 200ms ease-out;
+  --motion-emphasis: 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
