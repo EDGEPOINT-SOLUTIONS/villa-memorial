@@ -37,7 +37,9 @@ export function CustomerDetailPage() {
             <Button variant="secondary" size="sm">
               Communication log
             </Button>
-            <Button size="sm">Edit</Button>
+            <Link to={`/customers/new?edit=${customer.id}`}>
+              <Button size="sm">Edit</Button>
+            </Link>
           </>
         }
       />

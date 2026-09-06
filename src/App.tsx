@@ -61,6 +61,21 @@ import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminWorkflowsPage } from "./pages/AdminWorkflowsPage";
 import { AdminAuditPage } from "./pages/AdminAuditPage";
 import { AdminSettingsPage } from "./pages/AdminSettingsPage";
+import { CustomerNewPage } from "./pages/CustomerNewPage";
+import { InquiryNewPage } from "./pages/InquiryNewPage";
+import { CatalogNewPage } from "./pages/CatalogNewPage";
+import { PlanNewPage } from "./pages/PlanNewPage";
+import { BookingNewPage } from "./pages/BookingNewPage";
+import { EmployeeNewPage } from "./pages/EmployeeNewPage";
+import { DocumentNewPage } from "./pages/DocumentNewPage";
+import { UserNewPage } from "./pages/UserNewPage";
+import { WorkflowNewPage } from "./pages/WorkflowNewPage";
+import { InventoryPage } from "./pages/InventoryPage";
+import { PricingPage } from "./pages/PricingPage";
+import { DispatchPage } from "./pages/DispatchPage";
+import { WorkOrdersPage } from "./pages/WorkOrdersPage";
+import { NotificationsPage } from "./pages/NotificationsPage";
+import { PipelinePage } from "./pages/PipelinePage";
 
 // Agent + family portal logins (COO pages include their own portal frames)
 import { AgentLoginPage } from "./pages/AgentLoginPage";
@@ -187,26 +202,41 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/customers" element={<CustomersPage />} />
+          <Route path="/customers/new" element={<CustomerNewPage />} />
           <Route path="/customers/:id" element={<CustomerDetailPage />} />
           <Route path="/inquiries" element={<InquiriesPage />} />
+          <Route path="/inquiries/new" element={<InquiryNewPage />} />
           <Route path="/plans" element={<PlansPage />} />
+          <Route path="/plans/new" element={<PlanNewPage />} />
           <Route path="/plans/:id" element={<PlanDetailPage />} />
           <Route path="/catalog" element={<CatalogPage />} />
+          <Route path="/catalog/new" element={<CatalogNewPage />} />
+          <Route path="/inventory" element={<InventoryPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/pipeline" element={<PipelinePage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/cases" element={<CasesPage />} />
           <Route path="/cases/new" element={<CaseNewPage />} />
           <Route path="/cases/:id" element={<CaseDetailPage />} />
           <Route path="/schedule" element={<SchedulePage />} />
+          <Route path="/schedule/new" element={<BookingNewPage />} />
+          <Route path="/dispatch" element={<DispatchPage />} />
           <Route path="/property" element={<PropertyPage />} />
           <Route path="/property/:id" element={<LotDetailPage />} />
+          <Route path="/work-orders" element={<WorkOrdersPage />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/billing" element={<BillingPage />} />
           <Route path="/accounting" element={<AccountingPage />} />
           <Route path="/hr" element={<HrPage />} />
+          <Route path="/hr/new" element={<EmployeeNewPage />} />
           <Route path="/hr/:id" element={<HrDetailPage />} />
           <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/documents/new" element={<DocumentNewPage />} />
           <Route path="/documents/:id" element={<DocumentDetailPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/users/new" element={<UserNewPage />} />
           <Route path="/admin/workflows" element={<AdminWorkflowsPage />} />
+          <Route path="/admin/workflows/new" element={<WorkflowNewPage />} />
           <Route path="/admin/audit" element={<AdminAuditPage />} />
           <Route path="/admin/settings" element={<AdminSettingsPage />} />
         </Route>

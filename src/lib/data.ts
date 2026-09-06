@@ -587,3 +587,129 @@ export const TERMINOLOGY = [
   { key: "case", default: "Case", villa: "Case", loyola: "Service" },
   { key: "package", default: "Package", villa: "Package", loyola: "Bundle" },
 ];
+
+// --- Inventory (Module C) --------------------------------------------------
+export type StockItem = {
+  id: string;
+  name: string;
+  category: "Casket" | "Urn" | "Flowers" | "Marker" | "Keepsake";
+  onHand: number;
+  reorderAt: number;
+  unit: string;
+};
+
+export const INVENTORY: StockItem[] = [
+  { id: "inv-1", name: "Premium hardwood casket", category: "Casket", onHand: 4, reorderAt: 2, unit: "pcs" },
+  { id: "inv-2", name: "Classic metal casket", category: "Casket", onHand: 1, reorderAt: 3, unit: "pcs" },
+  { id: "inv-3", name: "Oak keepsake urn", category: "Urn", onHand: 12, reorderAt: 5, unit: "pcs" },
+  { id: "inv-4", name: "Ceramic memorial urn", category: "Urn", onHand: 8, reorderAt: 5, unit: "pcs" },
+  { id: "inv-5", name: "White lily arrangement", category: "Flowers", onHand: 6, reorderAt: 3, unit: "sets" },
+  { id: "inv-6", name: "Rose memorial spray", category: "Flowers", onHand: 2, reorderAt: 4, unit: "sets" },
+  { id: "inv-7", name: "Granite lawn marker", category: "Marker", onHand: 9, reorderAt: 4, unit: "pcs" },
+  { id: "inv-8", name: "Bronze memorial plaque", category: "Marker", onHand: 3, reorderAt: 2, unit: "pcs" },
+  { id: "inv-9", name: "Memorial candle set", category: "Keepsake", onHand: 20, reorderAt: 10, unit: "sets" },
+  { id: "inv-10", name: "Leather guest book", category: "Keepsake", onHand: 14, reorderAt: 6, unit: "pcs" },
+];
+
+// --- Pricing rules (Module C) ----------------------------------------------
+export type PricingRule = {
+  id: string;
+  scope: string;
+  appliesTo: string;
+  base: string;
+  rule: string;
+};
+
+export const PRICING_RULES: PricingRule[] = [
+  { id: "pr-1", scope: "All plans", appliesTo: "Memorial plans", base: "List price", rule: "Senior citizens receive a 5% discount" },
+  { id: "pr-2", scope: "Garden of Roses", appliesTo: "Plan", base: "₱ 120,000", rule: "10% down · balance over 5 years" },
+  { id: "pr-3", scope: "Heritage Bronze", appliesTo: "Plan", base: "₱ 85,000", rule: "10% down · balance over 3 years" },
+  { id: "pr-4", scope: "Chapel viewing", appliesTo: "Service", base: "₱ 6,000", rule: "Day 4+ billed at 50%" },
+  { id: "pr-5", scope: "Cremation package", appliesTo: "Package", base: "₱ 68,500", rule: "Includes urn (base model)" },
+  { id: "pr-6", scope: "Flowers", appliesTo: "Merchandise", base: "List price", rule: "Wake bookings receive 10% off" },
+];
+
+// --- Vehicle dispatch (Module H) -------------------------------------------
+export type DispatchTrip = {
+  id: string;
+  vehicle: string;
+  driver: string;
+  title: string;
+  date: string;
+  status: "Assigned" | "In transit" | "Completed";
+};
+
+export const DISPATCH_TRIPS: DispatchTrip[] = [
+  { id: "tr-1", vehicle: "Hearse 1", driver: "Reynaldo Cruz", title: "Dela Cruz — chapel to park", date: "2026-09-03 09:00", status: "Assigned" },
+  { id: "tr-2", vehicle: "Van 2", driver: "Reynaldo Cruz", title: "Santos — retrieval", date: "2026-09-04 13:00", status: "In transit" },
+  { id: "tr-3", vehicle: "Family SUV", driver: "B. Ocampo", title: "Mercado — family procession", date: "2026-09-03 14:00", status: "Completed" },
+];
+
+// --- Work orders / maintenance (Module D) ----------------------------------
+export type WorkOrder = {
+  id: string;
+  lot: string;
+  title: string;
+  priority: "Low" | "Medium" | "High";
+  status: "Open" | "In progress" | "Done";
+  opened: string;
+  assignee: string;
+};
+
+export const WORK_ORDERS: WorkOrder[] = [
+  { id: "WO-501", lot: "A-108", title: "Reset leaning lawn marker", priority: "Medium", status: "In progress", opened: "2026-08-15", assignee: "Grounds team" },
+  { id: "WO-502", lot: "B-204", title: "Clear overgrowth around lot", priority: "Low", status: "Open", opened: "2026-09-01", assignee: "Grounds team" },
+  { id: "WO-503", lot: "C-302", title: "Repair pathway paver near lot", priority: "High", status: "Open", opened: "2026-09-02", assignee: "Maintenance" },
+  { id: "WO-504", lot: "A-105", title: "Restore urn vase", priority: "Low", status: "Done", opened: "2026-08-20", assignee: "Grounds team" },
+];
+
+// --- Staff notifications (admin/ops) ---------------------------------------
+export type StaffNotice = {
+  id: string;
+  title: string;
+  detail: string;
+  channel: string;
+  time: string;
+  unread: boolean;
+};
+
+export const STAFF_NOTICES: StaffNotice[] = [
+  { id: "SN-1", title: "New web order placed", detail: "ORD-5021 from the public site is awaiting confirmation.", channel: "Commerce", time: "2h", unread: true },
+  { id: "SN-2", title: "Case ready for intake", detail: "CS-1042 needs the deceased's details completed.", channel: "Operations", time: "4h", unread: true },
+  { id: "SN-3", title: "Payment received", detail: "INV-7698 installment of ₱3,600 was collected.", channel: "Finance", time: "1d", unread: true },
+  { id: "SN-4", title: "Low stock alert", detail: "Classic metal casket is below its reorder point.", channel: "Catalog", time: "1d", unread: false },
+  { id: "SN-5", title: "Website inquiry", detail: "Marites Aquino asked about chapel packages.", channel: "CRM", time: "2d", unread: false },
+];
+
+// --- Sales pipeline (Module A/B staff view) --------------------------------
+export type PipelineStage = {
+  id: string;
+  name: string;
+  count: number;
+  amount: string;
+};
+
+export const PIPELINE: PipelineStage[] = [
+  { id: "ps-1", name: "New inquiry", count: 5, amount: "₱ 0" },
+  { id: "ps-2", name: "Consultation booked", count: 3, amount: "₱ 0" },
+  { id: "ps-3", name: "Quote sent", count: 4, amount: "₱ 640,000" },
+  { id: "ps-4", name: "Arrangement / contract", count: 2, amount: "₱ 380,000" },
+  { id: "ps-5", name: "Closed", count: 6, amount: "₱ 920,000" },
+];
+
+export type PipelineRow = {
+  id: string;
+  name: string;
+  interest: string;
+  stage: string;
+  value: string;
+  owner: string;
+};
+
+export const PIPELINE_ROWS: PipelineRow[] = [
+  { id: "P-2101", name: "Sarah Jenkins", interest: "Traditional Burial Plan", stage: "Quote sent", value: "₱ 120,000", owner: "Maria F." },
+  { id: "P-2098", name: "Michael Torres", interest: "Cremation Memorial", stage: "Consultation booked", value: "₱ 85,000", owner: "Maria F." },
+  { id: "P-2095", name: "Eleanor Vance", interest: "Pre-need Package", stage: "New inquiry", value: "₱ 96,000", owner: "Maria F." },
+  { id: "P-2090", name: "Angelo Reyes", interest: "Premium Lawn Lot", stage: "Arrangement / contract", value: "₱ 185,000", owner: "Maria F." },
+  { id: "P-2087", name: "Carmen Lee", interest: "Garden Niches", stage: "Quote sent", value: "₱ 567,000", owner: "Maria F." },
+];

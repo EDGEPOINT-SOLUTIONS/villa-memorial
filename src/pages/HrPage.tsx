@@ -31,7 +31,7 @@ export function HrPage() {
       <PageHeader
         eyebrow="Operations"
         title="Staff directory"
-        actions={<Button size="sm">+ New employee</Button>}
+        actions={<Link to="/hr/new"><Button size="sm">+ New employee</Button></Link>}
       />
       <DataTable columns={columns} rows={EMPLOYEES} rowKey={(e) => e.id} />
     </>

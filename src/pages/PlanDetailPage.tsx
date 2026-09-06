@@ -40,7 +40,7 @@ export function PlanDetailPage() {
       <PageHeader
         eyebrow={<Link to="/plans">Plans</Link>}
         title={plan.name}
-        actions={<Button size="sm">Edit plan</Button>}
+        actions={<Link to={`/plans/new?edit=${plan.id}`}><Button size="sm">Edit plan</Button></Link>}
       />
 
       <div className="split">

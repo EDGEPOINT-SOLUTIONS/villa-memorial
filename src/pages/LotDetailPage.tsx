@@ -35,7 +35,7 @@ export function LotDetailPage() {
       <PageHeader
         eyebrow={<Link to="/property">Property map</Link>}
         title={`Lot ${lot.code}`}
-        actions={<Button size="sm">Edit lot</Button>}
+        actions={<Link to="/property"><Button size="sm">Manage lots</Button></Link>}
       />
 
       <div className="split">

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { PageHeader, Badge, Button } from "../components/ui";
 import { DataTable, type Column } from "../components/DataTable";
 import { INQUIRIES, type Inquiry } from "../lib/data";
@@ -36,7 +37,7 @@ export function InquiriesPage() {
       <PageHeader
         eyebrow="Relationships"
         title="Inquiries"
-        actions={<Button size="sm">+ New inquiry</Button>}
+        actions={<Link to="/inquiries/new"><Button size="sm">+ New inquiry</Button></Link>}
       />
       <p className="small muted" style={{ marginBottom: "var(--space-4)" }}>
         Lead → Inquiry → Consultation → Arrangement → Customer

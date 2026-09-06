@@ -66,6 +66,8 @@ npm run dev        # → http://localhost:5173
 
 - **Tenant switcher** (top bar): Villa Memorial ↔ Loyola Gardens ↔ Golden Haven — shows "build once, configure many".
 - **Role switcher** (top bar, "View as:"): Executive → Manager → Accountant → Embalmer → Cashier — the sidebar and dashboard change per role.
+- **Create flows** — nearly every list now has a real "+ New" form: New customer (`/customers/new`), New inquiry, New plan, New catalog item, New employee, New booking, Generate document, Invite user, New workflow. Detail "Edit" buttons reuse the same forms pre-filled (customer / plan / employee / document).
+- **New staff modules** (now in the sidebar): Inventory (low-stock), Pricing rules, Sales pipeline (kanban-style KPI columns + open leads), Vehicle dispatch, Work orders (lot maintenance), and staff Notifications.
 - **Customers** (`/customers` → click a row): family record with linked deceased, plans, lots, service history.
 - **Cases** (`/cases` → "+ New case"): step-by-step arrangement wizard (Deceased → Family → Services → Schedule → Documents → Bill → Review & confirm).
 - **Property map** (`/property`): admin mode — click empty ground to place a named dot, drag dots to move them, switch to List view.

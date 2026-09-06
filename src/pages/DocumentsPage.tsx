@@ -32,7 +32,7 @@ export function DocumentsPage() {
       <PageHeader
         eyebrow="Operations"
         title="Documents"
-        actions={<Button size="sm">+ Generate document</Button>}
+        actions={<Link to="/documents/new"><Button size="sm">+ Generate document</Button></Link>}
       />
       <p className="small muted" style={{ marginBottom: "var(--space-4)" }}>
         Contracts, certificates, and official receipts. Templates are configurable per tenant;

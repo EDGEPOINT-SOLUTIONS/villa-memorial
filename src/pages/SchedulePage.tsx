@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { PageHeader, Badge, Card, Button } from "../components/ui";
 import { SCHEDULE, type Booking } from "../lib/data";
 
@@ -15,7 +16,7 @@ export function SchedulePage() {
       <PageHeader
         eyebrow="Operations"
         title="Schedule"
-        actions={<Button size="sm">+ New booking</Button>}
+        actions={<Link to="/schedule/new"><Button size="sm">+ New booking</Button></Link>}
       />
 
       <Card title="Week at a glance">

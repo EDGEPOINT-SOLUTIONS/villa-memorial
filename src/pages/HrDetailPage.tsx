@@ -20,7 +20,7 @@ export function HrDetailPage() {
       <PageHeader
         eyebrow={<Link to="/hr">Staff directory</Link>}
         title={emp.name}
-        actions={<Button size="sm">Edit record</Button>}
+        actions={<Link to={`/hr/new?edit=${emp.id}`}><Button size="sm">Edit record</Button></Link>}
       />
 
       <div className="split">

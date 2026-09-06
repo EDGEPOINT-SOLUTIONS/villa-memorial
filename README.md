@@ -6,9 +6,8 @@ Playfair Display + Inter). This is the **visual reference** for the full system:
 marketing site, the family and agent portals, and the internal staff app — with no backend, no
 real auth, and no real data.
 
-> Design tokens are in `src/styles/tokens.css`. The COO's original Stitch mockups
-> (`stitch_villa_memorial_digital_platform/`) are kept outside this repo — ask the design owner
-> if you need the source design set.
+> Design tokens are in `src/styles/tokens.css`; the source design systems (Stitch export) live
+> in `stitch_villa_memorial_digital_platform/` (reference only — not served by the app).
 >
 > **Walkthrough / presenting to clients:** see [`NAVIGATION.md`](NAVIGATION.md).
 
@@ -113,18 +112,21 @@ uses server-side sessions (see the production `web/` app).
 | Area | Route |
 |---|---|
 | Dashboard / Reports | `/dashboard`, `/reports` |
-| Customers | `/customers`, `/customers/:id` |
-| Inquiries | `/inquiries` |
-| Plans | `/plans`, `/plans/:id` |
-| Catalog / Orders | `/catalog`, `/orders` |
+| Customers | `/customers`, `/customers/new`, `/customers/:id` |
+| Inquiries | `/inquiries`, `/inquiries/new` |
+| Plans | `/plans`, `/plans/new`, `/plans/:id` |
+| Catalog | `/catalog`, `/catalog/new`, `/inventory`, `/pricing` |
+| Orders | `/orders` |
+| Sales pipeline | `/pipeline` |
 | Cases | `/cases`, `/cases/new`, `/cases/:id` |
-| Schedule | `/schedule` |
-| Property map | `/property`, `/property/:id` |
+| Schedule | `/schedule`, `/schedule/new`, `/dispatch` |
+| Property map | `/property`, `/property/:id`, `/work-orders` |
+| Notifications | `/notifications` |
 | Billing / Accounting | `/billing`, `/accounting` |
-| Staff directory | `/hr`, `/hr/:id` |
-| Documents | `/documents`, `/documents/:id` |
-| Users & roles | `/admin/users` |
-| Workflows | `/admin/workflows` |
+| Staff directory | `/hr`, `/hr/new`, `/hr/:id` |
+| Documents | `/documents`, `/documents/new`, `/documents/:id` |
+| Users & roles | `/admin/users`, `/admin/users/new` |
+| Workflows | `/admin/workflows`, `/admin/workflows/new` |
 | Audit trail | `/admin/audit` |
 | Tenant settings | `/admin/settings` |
 

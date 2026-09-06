@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { PageHeader, Card, Badge, Button, Field, Input, Select } from "../components/ui";
 import { WORKFLOWS, type WorkflowStage } from "../lib/data";
 
@@ -11,7 +12,7 @@ export function AdminWorkflowsPage() {
       <PageHeader
         eyebrow="Administration"
         title="Workflows"
-        actions={<Button size="sm">+ New workflow</Button>}
+        actions={<Link to="/admin/workflows/new"><Button size="sm">+ New workflow</Button></Link>}
       />
 
       <div className="toolbar">

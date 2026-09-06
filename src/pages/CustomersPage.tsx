@@ -27,7 +27,9 @@ export function CustomersPage() {
         eyebrow="Relationships"
         title="Customers"
         actions={
-          <Button size="sm">+ New customer</Button>
+          <Link to="/customers/new">
+            <Button size="sm">+ New customer</Button>
+          </Link>
         }
       />
       <DataTable columns={columns} rows={CUSTOMERS} rowKey={(c) => c.id} />

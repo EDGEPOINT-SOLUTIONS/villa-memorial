@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { PageHeader, Badge, Button } from "../components/ui";
 import { DataTable, type Column } from "../components/DataTable";
 import { CATALOG, type CatalogItem } from "../lib/data";
@@ -23,7 +24,7 @@ export function CatalogPage() {
       <PageHeader
         eyebrow="Commerce"
         title="Catalog & packages"
-        actions={<Button size="sm">+ New item</Button>}
+        actions={<Link to="/catalog/new"><Button size="sm">+ New item</Button></Link>}
       />
       <p className="small muted" style={{ marginBottom: "var(--space-4)" }}>
         Services, merchandise, and packages are all configurable per tenant — prices, bundles,

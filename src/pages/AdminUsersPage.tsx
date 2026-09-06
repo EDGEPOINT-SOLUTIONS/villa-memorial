@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { PageHeader, Card, Badge, Button, Tabs } from "../components/ui";
 import { DataTable, type Column } from "../components/DataTable";
 import { USERS, ROLES, type User } from "../lib/data";
@@ -29,7 +30,7 @@ export function AdminUsersPage() {
       <PageHeader
         eyebrow="Administration"
         title="Users & roles"
-        actions={<Button size="sm">+ Invite user</Button>}
+        actions={<Link to="/admin/users/new"><Button size="sm">+ Invite user</Button></Link>}
       />
 
       <Tabs tabs={["Users", "Roles", "Permission matrix"]} active={tab} onChange={setTab} />

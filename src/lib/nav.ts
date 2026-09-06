@@ -20,6 +20,7 @@ export const NAV: NavSection[] = [
     label: "Overview",
     items: [
       { href: "/dashboard", label: "Dashboard", scopes: [] },
+      { href: "/notifications", label: "Notifications", scopes: [] },
       { href: "/reports", label: "Reports", scopes: ["billing:read", "accounting:read", "cases:read"] },
     ],
   },
@@ -28,6 +29,7 @@ export const NAV: NavSection[] = [
     items: [
       { href: "/customers", label: "Customers", scopes: ["cases:read"] },
       { href: "/inquiries", label: "Inquiries", scopes: ["cases:read"] },
+      { href: "/pipeline", label: "Sales pipeline", scopes: ["cases:read"] },
     ],
   },
   {
@@ -35,6 +37,8 @@ export const NAV: NavSection[] = [
     items: [
       { href: "/plans", label: "Plans", scopes: ["catalog:read"] },
       { href: "/catalog", label: "Catalog", scopes: ["catalog:read"] },
+      { href: "/inventory", label: "Inventory", scopes: ["catalog:read"] },
+      { href: "/pricing", label: "Pricing rules", scopes: ["catalog:read"] },
       { href: "/orders", label: "Orders", scopes: ["orders:read"] },
     ],
   },
@@ -50,7 +54,9 @@ export const NAV: NavSection[] = [
     items: [
       { href: "/cases", label: "Cases", scopes: ["cases:read"] },
       { href: "/schedule", label: "Schedule", scopes: ["scheduling:read"] },
+      { href: "/dispatch", label: "Vehicle dispatch", scopes: ["scheduling:read"] },
       { href: "/property", label: "Property map", scopes: ["property:read"] },
+      { href: "/work-orders", label: "Work orders", scopes: ["property:read"] },
       { href: "/hr", label: "Staff directory", scopes: ["hr:read"] },
       { href: "/documents", label: "Documents", scopes: ["documents:read"] },
     ],

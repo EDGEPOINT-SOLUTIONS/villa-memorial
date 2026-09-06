@@ -29,7 +29,7 @@ export function PlansPage() {
       <PageHeader
         eyebrow="Commerce"
         title="Memorial plans"
-        actions={<Button size="sm">+ New plan</Button>}
+        actions={<Link to="/plans/new"><Button size="sm">+ New plan</Button></Link>}
       />
       <DataTable columns={columns} rows={PLANS} rowKey={(p) => p.id} />
       <div className="grid grid--3" style={{ marginTop: "var(--space-6)" }}>
