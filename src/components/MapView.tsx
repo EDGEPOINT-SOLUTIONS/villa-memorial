@@ -54,16 +54,23 @@ export function MapLegend() {
 
 type Pos = { x: number; y: number }; // percentages 0..100
 
-// Spread lots across the image by section (percent positions).
+// Spread lots across the image by section (percent positions). Section names
+// match the canonical lot lines (see catalog.ts LOTS_CATALOG).
 const SECTION_POS: Record<string, Pos[]> = {
-  "Garden of Roses": [
-    { x: 18, y: 26 }, { x: 36, y: 24 }, { x: 54, y: 28 }, { x: 24, y: 38 }, { x: 44, y: 40 },
+  Mausoleum: [
+    { x: 18, y: 26 }, { x: 36, y: 24 },
   ],
-  "Garden of Remembrance": [
-    { x: 18, y: 58 }, { x: 36, y: 56 }, { x: 54, y: 60 }, { x: 26, y: 70 }, { x: 46, y: 72 },
+  "Garden Niches": [
+    { x: 18, y: 40 }, { x: 34, y: 38 }, { x: 52, y: 40 }, { x: 70, y: 42 },
   ],
-  "Evergreen Hill": [
-    { x: 74, y: 28 }, { x: 88, y: 26 }, { x: 76, y: 46 }, { x: 90, y: 48 },
+  "Prime Lots": [
+    { x: 54, y: 26 }, { x: 72, y: 24 },
+  ],
+  "Premium Lots": [
+    { x: 24, y: 58 }, { x: 44, y: 56 }, { x: 64, y: 58 },
+  ],
+  "Condo-type": [
+    { x: 80, y: 58 }, { x: 40, y: 74 }, { x: 62, y: 76 },
   ],
 };
 

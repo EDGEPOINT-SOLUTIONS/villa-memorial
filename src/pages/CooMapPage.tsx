@@ -29,9 +29,9 @@ const LOT_BY_CODE: Record<string, Lot> = {
   "M-2": { code: "M-2", kind: "mausoleum", status: "available" },
 };
 
-// showLotDetails logic in the source: mausoleum lots show ₱450,000 / Family
-// Mausoleum; lawn lots show ₱75,000 / Premium Lawn.
-const KIND_PRICE: Record<LotKind, string> = { lawn: "₱75,000", mausoleum: "₱450,000" };
+// Interactive map lots show the canonical (catalog) starting prices so the map
+// agrees with the Lots listing and plans pages.
+const KIND_PRICE: Record<LotKind, string> = { lawn: "₱114,000", mausoleum: "₱1,135,000" };
 const KIND_TYPE: Record<LotKind, string> = { lawn: "Premium Lawn", mausoleum: "Family Mausoleum" };
 
 // Status pill classes (exact hexes) — full literals so Tailwind JIT keeps them.

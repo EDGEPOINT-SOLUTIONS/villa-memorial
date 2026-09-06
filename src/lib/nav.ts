@@ -39,6 +39,7 @@ export const NAV: NavSection[] = [
       { href: "/catalog", label: "Catalog", scopes: ["catalog:read"] },
       { href: "/inventory", label: "Inventory", scopes: ["catalog:read"] },
       { href: "/pricing", label: "Pricing rules", scopes: ["catalog:read"] },
+      { href: "/admin/store", label: "Store & content", scopes: ["catalog:read"] },
       { href: "/orders", label: "Orders", scopes: ["orders:read"] },
     ],
   },

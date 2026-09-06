@@ -1,28 +1,14 @@
+// Staff plan detail — reads the same store record the public site uses.
+
 import { Link, useParams } from "react-router-dom";
-import { PageHeader, Card, Badge, KeyValue, Button } from "../components/ui";
-import { DataTable, type Column } from "../components/DataTable";
-import { PLANS, type Plan } from "../lib/data";
-
-type Installment = Plan["installments"][number];
-
-const columns: Column<Installment>[] = [
-  { key: "due", label: "Due date" },
-  { key: "amount", label: "Amount", numeric: true },
-  { key: "paid", label: "Paid", numeric: true },
-  {
-    key: "status",
-    label: "Status",
-    render: (i) => (
-      <Badge tone={i.status === "Paid" ? "success" : i.status === "Overdue" ? "danger" : "warning"}>
-        {i.status}
-      </Badge>
-    ),
-  },
-];
+import { PageHeader, Card, Badge, KeyValue } from "../components/ui";
+import { useStore } from "../lib/store";
+import { money } from "../lib/catalog";
 
 export function PlanDetailPage() {
-  const { id } = useParams();
-  const plan = PLANS.find((p) => p.id === id);
+  const { id = "" } = useParams();
+  const { get } = useStore();
+  const plan = get(id) ?? get(`plan-${id}`);
 
   if (!plan) {
     return (
@@ -40,23 +26,26 @@ export function PlanDetailPage() {
       <PageHeader
         eyebrow={<Link to="/plans">Plans</Link>}
         title={plan.name}
-        actions={<Link to={`/plans/new?edit=${plan.id}`}><Button size="sm">Edit plan</Button></Link>}
+        actions={
+          <Link to="/admin/store">
+            <button className="btn btn--secondary btn--sm">Manage in Store</button>
+          </Link>
+        }
       />
 
       <div className="split">
         <Card title="Plan details">
           <KeyValue
             items={[
-              ["Price", plan.price],
-              ["Term", plan.term],
-              ["Holders", plan.holders],
-              ["Status", <Badge key="s" tone={plan.status === "Active" ? "success" : "accent"}>{plan.status}</Badge>],
+              ["Price", plan.price === null ? "On arrangement" : money(plan.price)],
+              ["Status", <Badge key="s" tone={plan.active ? "success" : "danger"}>{plan.active ? "On sale" : "Hidden"}</Badge>],
+              ["Category", plan.kind],
             ]}
           />
         </Card>
-        <Card title="Benefits">
+        <Card title="What's included">
           <div className="stack">
-            {plan.benefits.map((b) => (
+            {plan.features.map((b) => (
               <div key={b}>• {b}</div>
             ))}
           </div>
@@ -64,8 +53,8 @@ export function PlanDetailPage() {
       </div>
 
       <div style={{ marginTop: "var(--space-6)" }}>
-        <Card title="Installment schedule">
-          <DataTable columns={columns} rows={plan.installments} rowKey={(i) => i.due} />
+        <Card title="Description">
+          <p className="muted">{plan.detail}</p>
         </Card>
       </div>
     </>

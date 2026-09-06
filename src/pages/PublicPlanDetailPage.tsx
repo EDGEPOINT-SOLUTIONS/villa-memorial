@@ -1,19 +1,28 @@
 // Public plan detail — a single pre-need memorial plan with payment calculator,
-// benefits, and add-to-cart. Content mirrors the COO Plans listing card.
+// benefits, and add-to-cart. Reads the admin's shelf (Store) so price/name/copy
+// edits reflect live.
 
 import { useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { PUBLIC_PLANS, publicPlanBySlug } from "../lib/publicCatalog";
+import { useStore } from "../lib/store";
 import { useCart } from "../lib/cart";
-import { money } from "../lib/shop";
+import { money } from "../lib/catalog";
 import { useToast } from "../components/toast";
 
 const SELECT_CLASS =
   "w-full bg-surface-container-lowest border border-outline-variant rounded focus:ring-1 text-body-md font-body-md text-on-surface h-10 px-2";
 
+const TERM_OPTIONS = [1, 3, 5, 10];
+
+function sqmOf(features: string[]): string {
+  const m = features.find((f) => /sqm/i.test(f));
+  return m?.replace(/\s*Area\s*/i, "") ?? "—";
+}
+
 export function PublicPlanDetailPage() {
   const { slug = "" } = useParams();
-  const maybe = publicPlanBySlug(slug);
+  const { get } = useStore();
+  const maybe = get(slug) ?? get(`plan-${slug}`);
   const { add } = useCart();
   const { toast } = useToast();
   const [term, setTerm] = useState("5");
@@ -22,12 +31,20 @@ export function PublicPlanDetailPage() {
   if (!maybe) return <Navigate to="/site/plans" replace />;
   const plan = maybe;
   const gold = plan.accent === "gold";
+  const sqm = sqmOf(plan.features);
 
   const totalPayments = Number(term) * Number(freq);
-  const installment = (plan.total * 0.9) / totalPayments;
+  const installment = (plan.price ?? 0) * 0.9 / totalPayments;
 
   function addToCart() {
-    add({ id: `plan-${plan.slug}`, name: plan.name, kindLabel: "Memorial plan", detail: `${plan.sqm} sqm · pre-need`, unit: plan.total });
+    add({
+      id: plan.sku,
+      name: plan.name,
+      kindLabel: "Memorial plan",
+      detail: `${sqm} sqm · pre-need`,
+      image: plan.image,
+      unit: plan.price,
+    });
     toast(`${plan.name} added to your cart.`, "success");
   }
 
@@ -44,7 +61,7 @@ export function PublicPlanDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter items-start">
           <div className="rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(51,51,51,0.08)]">
-            <img className="w-full h-full object-cover aspect-[4/3]" src={plan.imgSrc} alt={plan.imgAlt} />
+            <img className="w-full h-full object-cover aspect-[4/3]" src={plan.image} alt={plan.imageAlt ?? plan.name} />
           </div>
 
           <div className="lg:pl-4">
@@ -52,15 +69,15 @@ export function PublicPlanDetailPage() {
               {plan.name}
             </h1>
             <p className="text-headline-md font-headline-md text-secondary font-semibold mb-6">
-              {plan.totalLabel} total value
+              {plan.price === null ? "On arrangement" : money(plan.price)} total value
             </p>
             <p className="text-body-md font-body-md text-on-surface-variant mb-6">
-              Pre-need memorial plan covering a {plan.sqm} sqm area. Lock in today's price and
+              Pre-need memorial plan covering a {sqm} area. Lock in today's price and
               protect your family from rising costs, with funds held in a trusted trust fund.
             </p>
 
             <ul className="space-y-3 mb-8">
-              {plan.bullets.map((b) => (
+              {plan.features.map((b) => (
                 <li key={b} className="flex items-start gap-3 text-body-md font-body-md text-on-surface">
                   <span className={`material-symbols-outlined ${gold ? "text-secondary" : "text-primary"} mt-0.5`} aria-hidden="true">
                     check_circle
@@ -81,7 +98,7 @@ export function PublicPlanDetailPage() {
                     Term
                   </label>
                   <select id="pd-term" className={SELECT_CLASS} value={term} onChange={(e) => setTerm(e.target.value)}>
-                    {plan.years.map((y) => (
+                    {TERM_OPTIONS.map((y) => (
                       <option key={y} value={y}>
                         {y} {y === 1 ? "Year" : "Years"}
                       </option>
@@ -102,7 +119,7 @@ export function PublicPlanDetailPage() {
               <div className="flex justify-between items-baseline">
                 <span className="text-body-md font-body-md text-on-surface-variant">Estimated Installment:</span>
                 <span className={`text-headline-sm font-headline-sm font-bold ${gold ? "text-secondary" : "text-primary"}`}>
-                  {money(installment)}
+                  {plan.price === null ? "—" : money(installment)}
                 </span>
               </div>
             </div>
@@ -129,7 +146,7 @@ export function PublicPlanDetailPage() {
         {/* Cross-link: compare all plans */}
         <div className="mt-16 text-center bg-surface-container-low rounded-xl p-8">
           <p className="text-body-md font-body-md text-on-surface-variant mb-4">
-            Not sure which plan fits? See how all {PUBLIC_PLANS.length} plans compare.
+            Not sure which plan fits? See how our plans compare.
           </p>
           <Link
             to="/site/plans/compare"

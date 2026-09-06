@@ -36,7 +36,15 @@ export type PlacedOrder = {
   status: string;
   date: string;
   /** Snapshot of the cart at placement, for the confirmation/receipt page. */
-  lines: { id: string; name: string; kindLabel?: string; detail?: string; unit: number | null; qty: number }[];
+  lines: {
+    id: string;
+    name: string;
+    kindLabel?: string;
+    detail?: string;
+    image?: string;
+    unit: number | null;
+    qty: number;
+  }[];
 };
 
 type CartState = {

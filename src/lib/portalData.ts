@@ -42,10 +42,10 @@ export type AgentSale = {
 };
 
 export const AGENT_PROSPECTS: AgentProspect[] = [
-  { id: "P-2101", name: "Sarah Jenkins", interest: "Traditional Burial Plan", channel: "Facebook", date: "Oct 12", status: "Contacted" },
-  { id: "P-2098", name: "Michael Torres", interest: "Cremation Memorial", channel: "Walk-in", date: "Oct 10", status: "Consultation" },
-  { id: "P-2095", name: "Eleanor Vance", interest: "Pre-need Package", channel: "Referral", date: "Oct 08", status: "New" },
-  { id: "P-2090", name: "Angelo Reyes", interest: "Premium Lawn Lot", channel: "Call-in", date: "Oct 04", status: "Arranged" },
+  { id: "P-2101", name: "Sarah Jenkins", interest: "Garden Niches", channel: "Facebook", date: "Oct 12", status: "Contacted" },
+  { id: "P-2098", name: "Michael Torres", interest: "Mausoleum", channel: "Walk-in", date: "Oct 10", status: "Consultation" },
+  { id: "P-2095", name: "Eleanor Vance", interest: "Premium Lots", channel: "Referral", date: "Oct 08", status: "New" },
+  { id: "P-2090", name: "Angelo Reyes", interest: "Premium Lots", channel: "Call-in", date: "Oct 04", status: "Arranged" },
   { id: "P-2087", name: "Carmen Lee", interest: "Garden Niches", channel: "Facebook", date: "Oct 01", status: "New" },
 ];
 
@@ -58,19 +58,19 @@ export const AGENT_CLIENTS: AgentClient[] = [
 ];
 
 export const AGENT_APPLICATIONS: AgentApplication[] = [
-  { id: "APP-458", name: "Sarah Jenkins", plan: "Traditional Burial Plan", submitted: "Oct 12", status: "Processing" },
-  { id: "APP-455", name: "Michael Torres", plan: "Cremation Memorial", submitted: "Oct 10", status: "Approved" },
-  { id: "APP-451", name: "Eleanor Vance", plan: "Pre-need Package", submitted: "Oct 08", status: "Pending Info" },
-  { id: "APP-447", name: "Angelo Reyes", plan: "Premium Lawn Lot", submitted: "Oct 04", status: "Approved" },
+  { id: "APP-458", name: "Sarah Jenkins", plan: "Garden Niches", submitted: "Oct 12", status: "Processing" },
+  { id: "APP-455", name: "Michael Torres", plan: "Mausoleum", submitted: "Oct 10", status: "Approved" },
+  { id: "APP-451", name: "Eleanor Vance", plan: "Premium Lots", submitted: "Oct 08", status: "Pending Info" },
+  { id: "APP-447", name: "Angelo Reyes", plan: "Premium Lots", submitted: "Oct 04", status: "Approved" },
   { id: "APP-440", name: "Carmen Lee", plan: "Garden Niches", submitted: "Oct 01", status: "Draft" },
 ];
 
 export const AGENT_SALES: AgentSale[] = [
-  { id: "S-881", date: "Oct 12", client: "Angelo Reyes", item: "Premium Lawn Lot", amount: "₱120,000", commission: "₱6,000" },
-  { id: "S-879", date: "Oct 10", client: "Michael Torres", item: "Cremation Memorial", amount: "₱85,000", commission: "₱4,250" },
-  { id: "S-874", date: "Oct 06", client: "Rosario Dela Cruz", item: "Garden of Roses Plan", amount: "₱120,000", commission: "₱6,000" },
-  { id: "S-869", date: "Oct 02", client: "Imelda Rivera", item: "Heritage Bronze Plan", amount: "₱85,000", commission: "₱4,250" },
-  { id: "S-862", date: "Sep 28", client: "Benedict Ramos", item: "Legacy Platinum Plan", amount: "₱250,000", commission: "₱12,500" },
+  { id: "S-881", date: "Oct 12", client: "Angelo Reyes", item: "Premium Lots", amount: "₱114,000", commission: "₱5,700" },
+  { id: "S-879", date: "Oct 10", client: "Michael Torres", item: "Mausoleum", amount: "₱1,135,000", commission: "₱56,750" },
+  { id: "S-874", date: "Oct 06", client: "Rosario Dela Cruz", item: "Garden Niches", amount: "₱629,000", commission: "₱31,450" },
+  { id: "S-869", date: "Oct 02", client: "Imelda Rivera", item: "Garden Niches", amount: "₱629,000", commission: "₱31,450" },
+  { id: "S-862", date: "Sep 28", client: "Benedict Ramos", item: "Premium Lots", amount: "₱114,000", commission: "₱5,700" },
 ];
 
 export const AGENT_MARKETING = [
@@ -101,8 +101,8 @@ export type ClientPlan = {
 };
 
 export const CLIENT_PLANS: ClientPlan[] = [
-  { id: "PL-1001", name: "Premium Lawn Lot — Block 4", holder: "Maria Dela Cruz", status: "Active", purchased: "Jul 2024", value: "₱200,000" },
-  { id: "PL-1004", name: "Garden of Roses Plan", holder: "Ernesto Dela Cruz †", status: "Completed", purchased: "2019", value: "₱120,000" },
+  { id: "PL-1001", name: "Premium Lots — Lawn A (L-01)", holder: "Maria Dela Cruz", status: "Active", purchased: "Jul 2024", value: "₱114,000" },
+  { id: "PL-1004", name: "Garden Niches — Completed", holder: "Ernesto Dela Cruz †", status: "Completed", purchased: "2019", value: "₱629,000" },
 ];
 
 export type ClientPayment = {
@@ -114,17 +114,17 @@ export type ClientPayment = {
 };
 
 export const CLIENT_PAYMENTS: ClientPayment[] = [
-  { id: "R-4401", date: "Sep 15, 2024", description: "Monthly Installment", amount: "₱2,500", status: "Completed" },
-  { id: "R-4402", date: "Aug 15, 2024", description: "Monthly Installment", amount: "₱2,500", status: "Completed" },
-  { id: "R-4403", date: "Jul 15, 2024", description: "Monthly Installment", amount: "₱2,500", status: "Completed" },
-  { id: "R-4404", date: "Oct 15, 2024", description: "Monthly Installment", amount: "₱2,500", status: "Upcoming" },
+  { id: "R-4401", date: "Sep 15, 2024", description: "Monthly Installment", amount: "₱1,710", status: "Completed" },
+  { id: "R-4402", date: "Aug 15, 2024", description: "Monthly Installment", amount: "₱1,710", status: "Completed" },
+  { id: "R-4403", date: "Jul 15, 2024", description: "Monthly Installment", amount: "₱1,710", status: "Completed" },
+  { id: "R-4404", date: "Oct 15, 2024", description: "Monthly Installment", amount: "₱1,710", status: "Upcoming" },
 ];
 
 export const CLIENT_CONTRACT = {
-  title: "Premium Lawn Lot — Block 4",
-  property: "Serenity Gardens · Phase 1 · Block 4, Lot 12",
-  total: "₱200,000",
-  paid: "₱135,000",
+  title: "Premium Lots — Lawn A (L-01)",
+  property: "Sanctuario Memorial Park · Premium Lots · Lawn A",
+  total: "₱114,000",
+  paid: "₱74,100",
   progress: 65,
 };
 
@@ -136,8 +136,8 @@ export type ClientProperty = {
 };
 
 export const CLIENT_PROPERTIES: ClientProperty[] = [
-  { id: "L-12", label: "Block 4, Lot 12", detail: "Serenity Gardens Phase 1 · Premium Lawn", status: "Owned" },
-  { id: "L-27", label: "Block 2, Lot 27", detail: "Serenity Gardens Phase 1 · Premium Lawn", status: "Reserved" },
+  { id: "L-01", label: "Premium Lots · Lawn A", detail: "Sanctuario Memorial Park · L-01", status: "Owned" },
+  { id: "L-02", label: "Premium Lots · Lawn A", detail: "Sanctuario Memorial Park · L-02", status: "Reserved" },
 ];
 
 export type ClientRequest = {
@@ -150,7 +150,7 @@ export type ClientRequest = {
 
 export const CLIENT_REQUESTS: ClientRequest[] = [
   { id: "REQ-301", title: "Floral Arrangement Upgrade", detail: "Add premium flower arrangement for October visit.", status: "Pending", date: "Oct 10" },
-  { id: "REQ-298", title: "Maintenance Request", detail: "Please clean around Block 4, Lot 12 marker.", status: "In Progress", date: "Oct 02" },
+  { id: "REQ-298", title: "Maintenance Request", detail: "Please clean around L-01 marker in Premium Lots.", status: "In Progress", date: "Oct 02" },
   { id: "REQ-290", title: "Document Request", detail: "Copy of service contract and receipts.", status: "Completed", date: "Sep 20" },
 ];
 
@@ -163,8 +163,8 @@ export type ClientNotification = {
 };
 
 export const CLIENT_NOTIFICATIONS: ClientNotification[] = [
-  { id: "N-501", title: "Payment due Oct 15", detail: "Your monthly installment of ₱2,500 is scheduled.", time: "2h", unread: true },
-  { id: "N-499", title: "Request update", detail: "Maintenance around Block 4, Lot 12 is in progress.", time: "1d", unread: true },
+  { id: "N-501", title: "Payment due Oct 15", detail: "Your monthly installment for L-01 is scheduled.", time: "2h", unread: true },
+  { id: "N-499", title: "Request update", detail: "Maintenance around L-01 in Premium Lots is in progress.", time: "1d", unread: true },
   { id: "N-494", title: "New document available", detail: "Official receipt R-4403 is ready to download.", time: "3d", unread: true },
   { id: "N-488", title: "Payment received", detail: "Your September installment was received. Thank you.", time: "5d", unread: false },
 ];
@@ -181,9 +181,9 @@ export type ClientDocument = {
 };
 
 export const CLIENT_DOCUMENTS: ClientDocument[] = [
-  { id: "CD-1", name: "Lot Purchase Agreement — Block 4, Lot 12", type: "Purchase agreement", related: "PL-1001", issued: "Jul 2024", status: "Ready" },
+  { id: "CD-1", name: "Lot Purchase Agreement — L-01", type: "Purchase agreement", related: "PL-1001", issued: "Jul 2024", status: "Ready" },
   { id: "CD-2", name: "Official Receipt R-4403", type: "Official receipt", related: "R-4403", issued: "Sep 15, 2024", status: "Ready" },
-  { id: "CD-3", name: "Certificate of Ownership — Block 4, Lot 12", type: "Certificate", related: "PL-1001", issued: "Aug 2024", status: "Ready" },
+  { id: "CD-3", name: "Certificate of Ownership — L-01", type: "Certificate", related: "PL-1001", issued: "Aug 2024", status: "Ready" },
   { id: "CD-4", name: "Plan Statement of Account", type: "Statement", related: "PL-1004", issued: "Oct 01, 2024", status: "Processing" },
   { id: "CD-5", name: "Interment Authorization Form", type: "Authorization", related: "PL-1004", issued: "—", status: "Requested" },
 ];
@@ -201,7 +201,7 @@ export type ClientMemorial = {
 };
 
 export const CLIENT_MEMORIALS: ClientMemorial[] = [
-  { id: "M-2001", name: "Ernesto Dela Cruz", years: "1948 – 2026", location: "Block 4, Lot 12 · Serenity Gardens", status: "Published", visitors: 148, updated: "Oct 12, 2024" },
+  { id: "M-2001", name: "Ernesto Dela Cruz", years: "1948 – 2026", location: "Premium Lots · Lawn A · L-01", status: "Published", visitors: 148, updated: "Oct 12, 2024" },
 ];
 
 // ---------- Client funeral cases (My Funeral Cases) ------------------------
@@ -243,7 +243,7 @@ export type ClientAppointment = {
 };
 
 export const CLIENT_APPOINTMENTS: ClientAppointment[] = [
-  { id: "AP-701", title: "Visit Block 4, Lot 12", date: "Oct 20, 2024", time: "10:00 am", with: "Park grounds team", status: "Upcoming" },
+  { id: "AP-701", title: "Visit L-01 in Premium Lots", date: "Oct 20, 2024", time: "10:00 am", with: "Park grounds team", status: "Upcoming" },
   { id: "AP-699", title: "Planning consultation", date: "Oct 12, 2024", time: "2:00 pm", with: "Care team advisor", status: "Completed" },
   { id: "AP-705", title: "Annual garden cleanup review", date: "Requested", time: "—", with: "Care team", status: "Requested" },
 ];

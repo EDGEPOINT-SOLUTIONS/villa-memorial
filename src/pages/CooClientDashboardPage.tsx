@@ -120,7 +120,7 @@ export function CooClientDashboardPage() {
         <div className="md:col-span-8 bg-surface-container-lowest rounded-xl p-8 shadow-ambient border border-outline-variant/30 flex flex-col justify-between">
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-headline-sm font-headline-sm text-on-surface">Premium Lawn Lot - Block 4</h3>
+              <h3 className="text-headline-sm font-headline-sm text-on-surface">Premium Lots · L-01</h3>
               <Link
                 to="/client/plans"
                 className="text-label-md font-label-md text-primary hover:text-primary-container transition-colors hover:no-underline!"
@@ -136,7 +136,7 @@ export function CooClientDashboardPage() {
               <div className="w-full bg-surface-container-high rounded-full h-2.5 overflow-hidden">
                 <div className="bg-primary h-2.5 rounded-full" style={{ width: "65%" }} />
               </div>
-              <p className="text-body-sm text-on-surface-variant mt-3 text-right">₱135,000 paid of ₱200,000</p>
+              <p className="text-body-sm text-on-surface-variant mt-3 text-right">₱74,100 paid of ₱114,000</p>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -175,8 +175,8 @@ export function CooClientDashboardPage() {
                 <Icon name="location_on" />
               </div>
               <div>
-                <p className="text-label-md font-label-md text-on-surface">Block 4, Lot 12</p>
-                <p className="text-body-sm text-on-surface-variant">Serenity Gardens Phase 1</p>
+                <p className="text-label-md font-label-md text-on-surface">Premium Lots · Lawn A</p>
+                <p className="text-body-sm text-on-surface-variant">Sanctuario Memorial Park · L-01</p>
               </div>
             </div>
           </div>

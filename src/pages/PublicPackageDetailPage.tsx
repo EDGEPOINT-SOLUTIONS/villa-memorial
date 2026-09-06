@@ -1,14 +1,15 @@
-// Public package detail — a single wake/funeral package with its inclusions,
-// "price on arrangement", and add-to-cart. Content mirrors CooPackagesPage.
+// Public package detail — reads the admin's shelf (Store) so package name,
+// description and features reflect staff edits.
 
 import { Link, Navigate, useParams } from "react-router-dom";
-import { publicPackageBySlug } from "../lib/publicCatalog";
+import { useStore } from "../lib/store";
 import { useCart } from "../lib/cart";
 import { useToast } from "../components/toast";
 
 export function PublicPackageDetailPage() {
   const { slug = "" } = useParams();
-  const found = publicPackageBySlug(slug);
+  const { get } = useStore();
+  const found = get(slug) ?? get(`package-${slug}`);
   const { add } = useCart();
   const { toast } = useToast();
 
@@ -16,7 +17,7 @@ export function PublicPackageDetailPage() {
   const pkg = found;
 
   function addToCart() {
-    add({ id: `package-${pkg.slug}`, name: pkg.name, kindLabel: "Funeral package", detail: pkg.tagline, unit: null });
+    add({ id: pkg.sku, name: pkg.name, kindLabel: "Funeral package", detail: pkg.blurb, unit: pkg.price });
     toast(`${pkg.name} added to your cart — our care team will confirm pricing.`, "success");
   }
 
@@ -32,7 +33,7 @@ export function PublicPackageDetailPage() {
         </nav>
 
         <div className="bg-surface-container-lowest rounded-xl shadow-[0_8px_30px_rgb(51,51,51,0.06)] border border-surface-variant overflow-hidden">
-          {pkg.popular ? (
+          {pkg.accent === "gold" ? (
             <div className="bg-secondary text-on-secondary text-label-md font-label-md px-5 py-2">
               MOST POPULAR
             </div>
@@ -46,23 +47,14 @@ export function PublicPackageDetailPage() {
             <h1 className="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-primary mb-3">
               {pkg.name}
             </h1>
-            <p className="text-body-lg font-body-lg text-on-surface-variant mb-8">{pkg.tagline}</p>
+            <p className="text-body-lg font-body-lg text-on-surface-variant mb-8">{pkg.blurb}</p>
 
             <h2 className="text-headline-sm font-headline-sm text-on-surface mb-4">What's included</h2>
             <ul className="space-y-4 mb-10">
-              {pkg.included.map((item) => (
-                <li key={item.text} className="flex items-start gap-3 text-body-md font-body-md">
-                  {item.excluded ? (
-                    <>
-                      <span className="material-symbols-outlined text-on-surface-variant mt-0.5" aria-hidden="true">cancel</span>
-                      <span className="text-on-surface-variant line-through">{item.text}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-primary mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
-                      <span className="text-on-surface">{item.text}</span>
-                    </>
-                  )}
+              {pkg.features.map((f) => (
+                <li key={f} className="flex items-start gap-3 text-body-md font-body-md">
+                  <span className="material-symbols-outlined text-primary mt-0.5" style={{ fontVariationSettings: "'FILL' 1" }} aria-hidden="true">check_circle</span>
+                  <span className="text-on-surface">{f}</span>
                 </li>
               ))}
             </ul>
@@ -70,7 +62,9 @@ export function PublicPackageDetailPage() {
             <div className="bg-surface-container-low rounded-xl p-6 mb-8 flex items-center justify-between flex-wrap gap-4">
               <div>
                 <p className="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider mb-1">Pricing</p>
-                <p className="text-headline-sm font-headline-sm text-secondary font-semibold">On arrangement</p>
+                <p className="text-headline-sm font-headline-sm text-secondary font-semibold">
+                  {pkg.price === null ? "On arrangement" : `₱ ${pkg.price.toLocaleString()}`}
+                </p>
               </div>
               <p className="text-body-md font-body-md text-on-surface-variant max-w-xs">
                 Pricing depends on the casket and options chosen — our care team will confirm a

@@ -6,6 +6,11 @@ Playfair Display + Inter). This is the **visual reference** for the full system:
 marketing site, the family and agent portals, and the internal staff app — with no backend, no
 real auth, and no real data.
 
+> Prices are in Philippine pesos (₱) throughout. The demo catalogue and public-site copy live in
+> one editable store — the admin can change what the funeral home sells from **Staff → Store &
+> content** (`/admin/store`) and those edits show on the product/plan/lot/package pages, cart,
+> checkout, and receipts until the page is refreshed.
+
 > Design tokens are in `src/styles/tokens.css`; the source design systems (Stitch export) live
 > in `stitch_villa_memorial_digital_platform/` (reference only — not served by the app).
 >
@@ -126,6 +131,7 @@ uses server-side sessions (see the production `web/` app).
 | Staff directory | `/hr`, `/hr/new`, `/hr/:id` |
 | Documents | `/documents`, `/documents/new`, `/documents/:id` |
 | Users & roles | `/admin/users`, `/admin/users/new` |
+| Store & content | `/admin/store` |
 | Workflows | `/admin/workflows`, `/admin/workflows/new` |
 | Audit trail | `/admin/audit` |
 | Tenant settings | `/admin/settings` |

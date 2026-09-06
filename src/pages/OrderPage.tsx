@@ -64,17 +64,34 @@ export function OrderPage() {
 
         <div className="flex flex-col gap-4">
           {order.lines.map((l) => (
-            <div key={l.id} className="flex items-center justify-between text-body-md font-body-md">
-              <div>
+            <div key={l.id} className="flex items-center gap-4 text-body-md font-body-md">
+              {l.image ? (
+                <img src={l.image} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />
+              ) : (
+                <div className="w-16 h-16 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
+                  <span className="material-symbols-outlined" style={{ fontSize: 22 }} aria-hidden="true">
+                    {l.kindLabel === "Memorial plan" ? "description" : l.kindLabel === "Memorial lot" ? "park" : "package_2"}
+                  </span>
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
                 <p className="text-on-surface">{l.name}</p>
                 {l.kindLabel ? (
                   <p className="text-xs text-on-surface-variant uppercase tracking-wider">{l.kindLabel}</p>
                 ) : null}
+                {l.detail ? (
+                  <p className="text-xs text-on-surface-variant truncate">{l.detail}</p>
+                ) : null}
                 {l.qty > 1 ? <p className="text-xs text-on-surface-variant">Qty {l.qty}</p> : null}
               </div>
-              <span className="text-secondary font-semibold">
-                {l.unit === null ? "On arrangement" : money(l.unit * l.qty)}
-              </span>
+              <div className="text-right shrink-0">
+                {l.unit !== null && l.qty > 1 ? (
+                  <p className="text-xs text-on-surface-variant">{money(l.unit)} each</p>
+                ) : null}
+                <p className="text-secondary font-semibold">
+                  {l.unit === null ? "On arrangement" : money(l.unit * l.qty)}
+                </p>
+              </div>
             </div>
           ))}
         </div>

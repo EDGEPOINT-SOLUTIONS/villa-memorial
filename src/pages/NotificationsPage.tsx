@@ -1,9 +1,10 @@
 // Staff notifications — cross-module alerts for the operations staff.
+// Reads the shared notifications context so the header bell's unread count
+// clears when items are read here.
 
-import { useState } from "react";
 import { PageHeader, Badge } from "../components/ui";
 import { useToast } from "../components/toast";
-import { STAFF_NOTICES } from "../lib/data";
+import { useNotifications } from "../lib/notifications";
 
 function iconFor(channel: string): string {
   switch (channel) {
@@ -17,12 +18,10 @@ function iconFor(channel: string): string {
 
 export function NotificationsPage() {
   const { toast } = useToast();
-  const [readIds, setReadIds] = useState<Set<string>>(new Set());
+  const { items, unread, markAllRead } = useNotifications();
 
-  const unread = (id: string) => STAFF_NOTICES.find((n) => n.id === id)?.unread && !readIds.has(id);
-
-  function markAllRead() {
-    setReadIds(new Set(STAFF_NOTICES.map((n) => n.id)));
+  function markAll() {
+    markAllRead();
     toast("All notifications marked as read.", "success");
   }
 
@@ -32,13 +31,18 @@ export function NotificationsPage() {
         eyebrow="Overview"
         title="Notifications"
         actions={
-          <button className="btn btn--secondary btn--sm" onClick={markAllRead}>
+          <button className="btn btn--secondary btn--sm" onClick={markAll}>
             Mark all read
           </button>
         }
       />
+      {unread > 0 ? (
+        <p className="small muted" style={{ marginBottom: "var(--space-4)" }}>
+          {unread} unseen notification{unread === 1 ? "" : "s"}.
+        </p>
+      ) : null}
       <div className="stack">
-        {STAFF_NOTICES.map((n) => (
+        {items.map((n) => (
           <div
             key={n.id}
             className="card"
@@ -47,7 +51,7 @@ export function NotificationsPage() {
               alignItems: "flex-start",
               gap: "var(--space-3)",
               padding: "var(--space-4)",
-              borderLeft: unread(n.id) ? "3px solid var(--color-accent)" : undefined,
+              borderLeft: n.unread ? "3px solid var(--color-accent)" : undefined,
             }}
           >
             <span
@@ -55,13 +59,12 @@ export function NotificationsPage() {
               style={{ flexShrink: 0 }}
               aria-hidden="true"
             >
-              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{iconFor(n.channel)}</span>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{iconFor(n.meta ?? "")}</span>
             </span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", gap: "var(--space-2)", alignItems: "center", flexWrap: "wrap" }}>
                 <strong>{n.title}</strong>
-                <Badge tone="neutral">{n.channel}</Badge>
-                {unread(n.id) && <Badge tone="info">New</Badge>}
+                {n.unread && <Badge tone="info">New</Badge>}
               </div>
               <p className="muted" style={{ marginTop: "var(--space-1)" }}>{n.detail}</p>
               <div className="small muted" style={{ marginTop: "var(--space-1)" }}>{n.time} ago</div>

@@ -64,6 +64,7 @@ export function CheckoutPage() {
       name: l.name,
       kindLabel: l.kindLabel,
       detail: l.detail,
+      image: l.image,
       unit: l.unit,
       qty: l.qty,
     }));
@@ -209,13 +210,25 @@ export function CheckoutPage() {
                 </div>
                 <div className="flex flex-col gap-3">
                   {lines.map((l) => (
-                    <div key={l.id} className="flex items-center justify-between text-body-md font-body-md">
-                      <div>
-                        <span className="text-on-surface">{l.name}</span>
-                        {l.qty > 1 ? <span className="text-on-surface-variant"> × {l.qty}</span> : null}
+                    <div key={l.id} className="flex items-center gap-4 text-body-md font-body-md">
+                      {l.image ? (
+                        <img src={l.image} alt="" className="w-14 h-14 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-lg bg-surface-container-high flex items-center justify-center text-on-surface-variant shrink-0">
+                          <span className="material-symbols-outlined" style={{ fontSize: 20 }} aria-hidden="true">
+                            {l.kindLabel === "Memorial plan" ? "description" : l.kindLabel === "Memorial lot" ? "park" : "package_2"}
+                          </span>
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-on-surface">{l.name}</p>
+                        {l.kindLabel ? (
+                          <p className="text-xs text-on-surface-variant uppercase tracking-wider">{l.kindLabel}</p>
+                        ) : null}
+                        {l.qty > 1 ? <p className="text-xs text-on-surface-variant">Qty {l.qty}</p> : null}
                       </div>
-                      <span className="text-secondary font-semibold">
-                        {l.unit === null ? "On arrangement" : money(l.unit * l.qty)}
+                      <span className="text-secondary font-semibold shrink-0">
+                        {l.unit === null ? "On arrangement" : l.qty > 1 ? `${money(l.unit * l.qty)}` : money(l.unit)}
                       </span>
                     </div>
                   ))}

@@ -6,6 +6,7 @@ import { AuthProvider } from "./lib/auth";
 import { DemoProvider } from "./lib/demo";
 import { CartProvider } from "./lib/cart";
 import { InboxProvider } from "./lib/inbox";
+import { StoreProvider } from "./lib/store";
 import { ToastProvider } from "./components/toast";
 import "./styles/coo.css";
 import "./styles/tokens.css";
@@ -17,13 +18,15 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <AuthProvider>
         <DemoProvider>
-          <CartProvider>
-            <InboxProvider>
-              <ToastProvider>
-                <App />
-              </ToastProvider>
-            </InboxProvider>
-          </CartProvider>
+          <StoreProvider>
+            <CartProvider>
+              <InboxProvider>
+                <ToastProvider>
+                  <App />
+                </ToastProvider>
+              </InboxProvider>
+            </CartProvider>
+          </StoreProvider>
         </DemoProvider>
       </AuthProvider>
     </BrowserRouter>

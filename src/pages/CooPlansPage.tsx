@@ -13,6 +13,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useToast } from "../components/toast";
 import { useCart } from "../lib/cart";
+import { useStore } from "../lib/store";
+import { money, type CatalogRecord } from "../lib/catalog";
 
 // --- Exact image URLs from the mockup (byte-for-byte) ------------------------
 const HERO_IMG =
@@ -35,50 +37,34 @@ type PlanSpec = {
   accent: Accent;
 };
 
-const PLANS: PlanSpec[] = [
-  {
-    id: "silver",
-    slug: "garden-niches",
-    name: "Garden Niches",
-    sqm: "12.00",
-    total: 629000,
-    totalLabel: "₱629,000",
-    imgSrc:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuDYlYkozT7TsBmBNMCvkEFMsEcoBVtGXaHo_YRo4H3hW0T3GyOjc45aaqxnfKwTIw0kEUXn9zSMnazYPnWYaBMXSjZl2GXUQWueFWh-upbdlCrYi2NyDWGI20QSaOzss3KcS6mnMsPck_Q-NEK99l1Tq0gZ9um-I7TWZQOf3fEpJcjX8vI9-dv-mzJPX7O74SwzBj6NA82Pc-I-BQq4bTLVnF2cRncLPFnmpiITymlOR_R7q_9ugjdh",
-    imgAlt:
-      "A serene, soft-focus image of a beautifully arranged modest funeral wake. White lilies and soft warm lighting create a peaceful, hopeful atmosphere. Modern minimalist styling with light airy colors, avoiding dark or somber tones.",
-    years: [1, 3, 5],
-    accent: "blue",
-  },
-  {
-    id: "gold",
-    slug: "mausoleum",
-    name: "Mausoleum",
-    sqm: "24.00",
-    total: 1135000,
-    totalLabel: "₱1,135,000",
-    imgSrc:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBl5wqOJTZQne-cConDockYJ4_K8rWofbTsaZctUkg4er6YXnzgxw_BHUZT_XDptxQfS1CyWmDnIKWCVB0gelrTSutEQ5Lu5HUleT9ch7C4uQKTUJp0RXNR4fCyp9bA2UVIsXCeGcl06gMTo6-hfwWksSNKCmhaBw1qhyaaPKpUxZ6fNY3MhuKOPfJchE2nW-0AammosIxRzSoKCkiEEr9IQ3hm359MpyFccsr0NoRx1ObbgqIRaJ-N",
-    imgAlt:
-      "A premium memorial chapel interior filled with abundant natural light. Golden hour sunshine streams through large windows onto elegant floral arrangements. The scene conveys profound peace, dignity, and luminous comfort, using a soft, airy color palette.",
-    years: [1, 3, 5, 10],
-    accent: "gold",
-  },
-  {
-    id: "platinum",
-    slug: "premium-lots",
-    name: "Premium Lots",
-    sqm: "2.50",
-    total: 176000,
-    totalLabel: "₱176,000",
-    imgSrc:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuBS4a2wVjsf0nZMtB25iUMnB1KOv64pGG4YMaORbOzB_NilkFrlNdQGSV1_0mJtBcRFaO4lqr6qplrmJwzCX2DAD0rZU0doPnoQJYmmIGgEsmlzZp5DbS2Pihf8T-zLsVtoU9WygNMbWIlpJdJLOHtxMUTYfJFUAdyaYALWaoejxHzC37z9SZ7hzuHLT8JBQt7BSDaKpKzlVLeLeVpG8HdBr6m2bcsbEpDY1lJ7YFbbvhx2P-Pf2S7g",
-    imgAlt:
-      "An expansive, high-end memorial park landscape at sunrise. Mist gently rolling over manicured green lawns. A profound sense of legacy and eternal peace. The visual style is editorial, bright, and hopeful, avoiding gloomy cliches.",
-    years: [1, 3, 5, 10],
-    accent: "blue",
-  },
-];
+/** Term options shown in the calculator — derived per plan. */
+const PLAN_YEARS: Record<string, number[]> = {
+  "plan-garden-niches": [1, 3, 5],
+  "plan-mausoleum": [1, 3, 5, 10],
+  "plan-premium-lots": [1, 3, 5, 10],
+};
+
+function sqmOf(features: string[]): string {
+  const m = features.find((f) => /sqm/i.test(f));
+  return m?.replace(/\s*Area\s*/i, "") ?? "—";
+}
+
+/** Build a card's view shape from a store catalogue record. */
+function toSpec(r: CatalogRecord): PlanSpec {
+  const gold = r.accent === "gold";
+  return {
+    id: r.sku,
+    slug: r.sku.replace(/^plan-/, ""),
+    name: r.name,
+    sqm: sqmOf(r.features),
+    total: r.price ?? 0,
+    totalLabel: r.price === null ? "On arrangement" : money(r.price),
+    imgSrc: r.image ?? "",
+    imgAlt: r.imageAlt ?? r.name,
+    years: PLAN_YEARS[r.sku] ?? [1, 3, 5, 10],
+    accent: gold ? "gold" : "blue",
+  };
+}
 
 const SELECT_CLASS =
   "w-full bg-surface-container-lowest border border-outline-variant rounded focus:ring-1 text-body-md font-body-md text-on-surface h-10 px-2";
@@ -87,11 +73,6 @@ const APPLY_CLASS =
   "w-full h-12 bg-secondary hover:bg-secondary-container text-on-secondary hover:text-on-secondary-container text-label-md font-label-md rounded-lg transition-colors flex items-center justify-center";
 
 const BODY_COPY_CLASS = "text-body-md font-body-md text-on-surface-variant";
-
-/** ₱ + integer with thousands separators — the mockup's output format. */
-function money(n: number): string {
-  return "₱" + Math.round(n).toLocaleString("en-US");
-}
 
 function PlanCalculator({ spec, accentClass }: { spec: PlanSpec; accentClass: string }) {
   const [term, setTerm] = useState("5");
@@ -230,11 +211,12 @@ function PlanCard({ spec }: { spec: PlanSpec }) {
             className={addClass}
             onClick={() => {
               add({
-                id: `plan-${spec.slug}`,
+                id: spec.id,
                 name: spec.name,
                 kindLabel: "Memorial plan",
                 detail: `${spec.sqm} sqm · pre-need`,
-                unit: spec.total,
+                image: spec.imgSrc,
+                unit: spec.total === 0 ? null : spec.total,
               });
               toast(`${spec.name} added to your cart.`, "success");
             }}
@@ -251,6 +233,9 @@ function PlanCard({ spec }: { spec: PlanSpec }) {
 }
 
 export function CooPlansPage() {
+  const { byKind, copy } = useStore();
+  const plans = byKind("Plan", { activeOnly: true }).map(toSpec);
+
   return (
     <div className="text-on-surface">
       {/* Hero image */}
@@ -266,7 +251,7 @@ export function CooPlansPage() {
       <section className="bg-surface py-12 px-margin-mobile md:px-margin-desktop">
         <div className="max-w-3xl mx-auto text-center text-on-surface">
           <h1 className="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg mb-6 text-primary">
-            Prepare Today. Give Your Family Peace of Mind Tomorrow.
+            {copy["plans.headline"]}
           </h1>
           <p className="text-body-lg font-body-lg text-on-surface-variant">
             Our pre-need memorial plans are thoughtfully designed to provide clarity and comfort.
@@ -279,7 +264,7 @@ export function CooPlansPage() {
       {/* Main content */}
       <div className="pb-section-gap px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto w-full">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-section-gap">
-          {PLANS.map((spec) => (
+          {plans.map((spec) => (
             <PlanCard key={spec.id} spec={spec} />
           ))}
         </div>

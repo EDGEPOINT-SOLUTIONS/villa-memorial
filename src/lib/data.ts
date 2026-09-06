@@ -345,7 +345,7 @@ export type LotStatus =
 export type Lot = {
   id: string;
   code: string;
-  section: string;
+  section: string; // canonical lot line (matches catalog.ts LOTS_CATALOG names)
   block: string;
   status: LotStatus;
   price: string;
@@ -355,21 +355,25 @@ export type Lot = {
   history: { event: string; date: string }[];
 };
 
+// Lot inventory demo rows. `section` is the canonical sellable lot line (same
+// names as the store's Lot catalog) so the staff property map and the public
+// lots page talk about the same products. Prices match the catalog.
 export const LOTS: Lot[] = [
-  { id: "lot-104", code: "A-104", section: "Garden of Roses", block: "Block A", status: "Available", price: "₱ 120,000", x: 18, y: 22, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
-  { id: "lot-105", code: "A-105", section: "Garden of Roses", block: "Block A", status: "Sold", price: "₱ 120,000", x: 26, y: 22, owner: "Benedict Ramos", history: [{ event: "Sold to Benedict Ramos", date: "2025-03-20" }] },
-  { id: "lot-106", code: "A-106", section: "Garden of Roses", block: "Block A", status: "Reserved", price: "₱ 120,000", x: 34, y: 22, history: [{ event: "Reserved", date: "2026-08-30" }] },
-  { id: "lot-107", code: "A-107", section: "Garden of Roses", block: "Block A", status: "Occupied", price: "₱ 120,000", x: 42, y: 22, owner: "Del Rosario family", history: [{ event: "Interment", date: "2024-11-02" }] },
-  { id: "lot-108", code: "A-108", section: "Garden of Roses", block: "Block A", status: "Maintenance", price: "₱ 120,000", x: 50, y: 22, history: [{ event: "Work order opened", date: "2026-08-15" }] },
-  { id: "lot-201", code: "B-201", section: "Garden of Remembrance", block: "Block B", status: "Available", price: "₱ 185,000", x: 18, y: 40, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
-  { id: "lot-202", code: "B-202", section: "Garden of Remembrance", block: "Block B", status: "Sold", price: "₱ 185,000", x: 26, y: 40, owner: "Dela Cruz family", history: [{ event: "Sold", date: "2019-06-11" }] },
-  { id: "lot-203", code: "B-203", section: "Garden of Remembrance", block: "Block B", status: "Transferred", price: "₱ 185,000", x: 34, y: 40, owner: "Lim family", history: [{ event: "Transferred", date: "2026-01-12" }] },
-  { id: "lot-204", code: "B-204", section: "Garden of Remembrance", block: "Block B", status: "Available", price: "₱ 185,000", x: 42, y: 40, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
-  { id: "lot-205", code: "B-205", section: "Garden of Remembrance", block: "Block B", status: "Occupied", price: "₱ 185,000", x: 50, y: 40, owner: "Santos family", history: [{ event: "Interment", date: "2026-07-20" }] },
-  { id: "lot-301", code: "C-301", section: "Evergreen Hill", block: "Block C", status: "Available", price: "₱ 250,000", x: 18, y: 58, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
-  { id: "lot-302", code: "C-302", section: "Evergreen Hill", block: "Block C", status: "Reserved", price: "₱ 250,000", x: 26, y: 58, history: [{ event: "Reserved", date: "2026-08-28" }] },
-  { id: "lot-303", code: "C-303", section: "Evergreen Hill", block: "Block C", status: "Sold", price: "₱ 250,000", x: 34, y: 58, owner: "Uy family", history: [{ event: "Sold", date: "2024-04-15" }] },
-  { id: "lot-304", code: "C-304", section: "Evergreen Hill", block: "Block C", status: "Available", price: "₱ 250,000", x: 42, y: 58, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
+  { id: "lot-mausoleum-1", code: "M-01", section: "Mausoleum", block: "Estate 1", status: "Available", price: "₱ 1,135,000", x: 18, y: 22, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
+  { id: "lot-mausoleum-2", code: "M-02", section: "Mausoleum", block: "Estate 1", status: "Sold", price: "₱ 1,135,000", x: 26, y: 22, owner: "Dela Cruz family", history: [{ event: "Sold to Dela Cruz family", date: "2025-03-20" }] },
+  { id: "lot-niches-1", code: "N-01", section: "Garden Niches", block: "Serene Gardens", status: "Available", price: "₱ 629,000", x: 34, y: 22, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
+  { id: "lot-niches-2", code: "N-02", section: "Garden Niches", block: "Serene Gardens", status: "Reserved", price: "₱ 629,000", x: 42, y: 22, history: [{ event: "Reserved", date: "2026-08-30" }] },
+  { id: "lot-niches-3", code: "N-03", section: "Garden Niches", block: "Serene Gardens", status: "Occupied", price: "₱ 629,000", x: 50, y: 22, owner: "Del Rosario family", history: [{ event: "Interment", date: "2024-11-02" }] },
+  { id: "lot-niches-4", code: "N-04", section: "Garden Niches", block: "Serene Gardens", status: "Maintenance", price: "₱ 629,000", x: 58, y: 22, history: [{ event: "Work order opened", date: "2026-08-15" }] },
+  { id: "lot-prime-1", code: "P-01", section: "Prime Lots", block: "Prime Row A", status: "Available", price: "₱ 128,000", x: 18, y: 40, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
+  { id: "lot-prime-2", code: "P-02", section: "Prime Lots", block: "Prime Row A", status: "Sold", price: "₱ 128,000", x: 26, y: 40, owner: "Lim family", history: [{ event: "Sold", date: "2019-06-11" }] },
+  { id: "lot-prime-3", code: "P-03", section: "Prime Lots", block: "Prime Row A", status: "Transferred", price: "₱ 128,000", x: 34, y: 40, owner: "Santos family", history: [{ event: "Transferred", date: "2026-01-12" }] },
+  { id: "lot-premium-1", code: "L-01", section: "Premium Lots", block: "Lawn A", status: "Available", price: "₱ 114,000", x: 42, y: 40, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
+  { id: "lot-premium-2", code: "L-02", section: "Premium Lots", block: "Lawn A", status: "Occupied", price: "₱ 114,000", x: 50, y: 40, owner: "Ramos family", history: [{ event: "Interment", date: "2026-07-20" }] },
+  { id: "lot-premium-3", code: "L-03", section: "Premium Lots", block: "Lawn A", status: "Available", price: "₱ 114,000", x: 58, y: 40, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
+  { id: "lot-condo-1", code: "C-01", section: "Condo-type", block: "Garden Villa", status: "Reserved", price: "₱ 75,000", x: 18, y: 58, history: [{ event: "Reserved", date: "2026-08-28" }] },
+  { id: "lot-condo-2", code: "C-02", section: "Condo-type", block: "Garden Villa", status: "Sold", price: "₱ 75,000", x: 26, y: 58, owner: "Uy family", history: [{ event: "Sold", date: "2024-04-15" }] },
+  { id: "lot-condo-3", code: "C-03", section: "Condo-type", block: "Garden Villa", status: "Available", price: "₱ 75,000", x: 34, y: 58, history: [{ event: "Lot surveyed", date: "2021-05-01" }] },
 ];
 
 // --- Billing (Module E) ----------------------------------------------------

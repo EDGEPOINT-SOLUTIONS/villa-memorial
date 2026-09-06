@@ -1,15 +1,22 @@
-// Public lot detail + reservation — a single memorial lot product with features,
-// price, and a "reserve" action that adds it to the cart. Content mirrors the
-// CooLotsPage card.
+// Public lot detail + reservation — reads the admin's shelf (Store) so price,
+// name, image and features reflect the latest staff edits.
 
+import { useMemo } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
-import { PUBLIC_LOTS, publicLotBySlug } from "../lib/publicCatalog";
+import { useStore } from "../lib/store";
+import { money, type CatalogRecord } from "../lib/catalog";
 import { useCart } from "../lib/cart";
 import { useToast } from "../components/toast";
 
+function slugOf(l: CatalogRecord): string {
+  return l.sku.replace(/^lot-/, "");
+}
+
 export function PublicLotDetailPage() {
   const { slug = "" } = useParams();
-  const found = publicLotBySlug(slug);
+  const { get, byKind } = useStore();
+  const found = get(slug) ?? get(`lot-${slug}`);
+  const lots = useMemo(() => byKind("Lot", { activeOnly: true }), [byKind]);
   const { add } = useCart();
   const { toast } = useToast();
 
@@ -18,10 +25,11 @@ export function PublicLotDetailPage() {
 
   function reserve() {
     add({
-      id: `lot-${lot.slug}`,
+      id: lot.sku,
       name: lot.name,
       kindLabel: "Memorial lot",
       detail: `Reservation · ${lot.chip ?? "Sanctuario Memorial Park"}`,
+      image: lot.image,
       unit: lot.price,
     });
     toast(`${lot.name} added to your cart to complete your reservation.`, "success");
@@ -40,7 +48,7 @@ export function PublicLotDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter items-start">
           <div className="relative rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(51,51,51,0.08)]">
-            <img className="w-full h-full object-cover aspect-[4/3]" src={lot.imgSrc} alt={lot.imgAlt} />
+            <img className="w-full h-full object-cover aspect-[4/3]" src={lot.image} alt={lot.imageAlt ?? lot.name} />
             {lot.chip ? (
               <span className="absolute top-4 left-4 bg-primary-container/90 backdrop-blur-sm text-on-primary-container px-3 py-1 rounded-full text-label-md font-label-md shadow-sm">
                 {lot.chip}
@@ -52,13 +60,13 @@ export function PublicLotDetailPage() {
             <h1 className="text-headline-lg-mobile md:text-headline-lg font-headline-lg-mobile md:font-headline-lg text-primary mb-3">
               {lot.name}
             </h1>
-            <p className="text-body-lg font-body-lg text-on-surface-variant mb-6">{lot.desc}</p>
+            <p className="text-body-lg font-body-lg text-on-surface-variant mb-6">{lot.detail}</p>
 
             <ul className="space-y-3 mb-8">
               {lot.features.map((f) => (
-                <li key={f.label} className="flex items-center text-body-md font-body-md text-on-surface">
-                  <span className="material-symbols-outlined text-primary mr-3" aria-hidden="true">{f.icon}</span>
-                  {f.label}
+                <li key={f} className="flex items-center text-body-md font-body-md text-on-surface">
+                  <span className="material-symbols-outlined text-primary mr-3" aria-hidden="true">check_circle</span>
+                  {f}
                 </li>
               ))}
             </ul>
@@ -68,7 +76,9 @@ export function PublicLotDetailPage() {
                 <p className="text-label-md font-label-md text-on-surface-variant uppercase tracking-wider block mb-1">
                   Starting Price
                 </p>
-                <p className="text-headline-md font-headline-md text-primary font-semibold">{lot.priceLabel}</p>
+                <p className="text-headline-md font-headline-md text-primary font-semibold">
+                  {lot.price === null ? "On arrangement" : money(lot.price)}
+                </p>
               </div>
             </div>
 
@@ -101,16 +111,18 @@ export function PublicLotDetailPage() {
         <div className="mt-16">
           <h2 className="text-headline-md font-headline-md text-primary mb-6">Explore other lots</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-            {PUBLIC_LOTS.filter((l) => l.slug !== lot.slug).map((l) => (
+            {lots.filter((l) => l.sku !== lot.sku).map((l) => (
               <Link
-                key={l.slug}
-                to={`/site/lots/${l.slug}`}
+                key={l.sku}
+                to={`/site/lots/${slugOf(l)}`}
                 className="group bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_30px_rgb(51,51,51,0.06)] hover:shadow-[0_8px_30px_rgb(51,51,51,0.12)] transition-shadow border border-surface-variant hover:no-underline!"
               >
-                <img className="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" src={l.imgSrc} alt={l.imgAlt} />
+                <img className="h-40 w-full object-cover group-hover:scale-105 transition-transform duration-500" src={l.image} alt={l.imageAlt ?? l.name} />
                 <div className="p-5">
                   <h3 className="text-headline-sm font-headline-sm text-primary mb-1">{l.name}</h3>
-                  <p className="text-body-md font-body-md text-on-surface-variant">{l.priceLabel}</p>
+                  <p className="text-body-md font-body-md text-on-surface-variant">
+                    {l.price === null ? "On arrangement" : money(l.price)}
+                  </p>
                 </div>
               </Link>
             ))}

@@ -68,10 +68,10 @@ export function ClientDashboardPage() {
 
           <div className="grid grid--3" style={{ marginTop: "var(--space-6)" }}>
             <Card title="My plans">
-              <KeyValue items={[["Plan", "Garden of Roses"], ["Status", "Active"], ["Term", "5 years"]]} />
+                <KeyValue items={[["Plan", "Premium Lots · L-01"], ["Status", "Active"], ["Term", "5 years"]]} />
             </Card>
             <Card title="My lots">
-              <KeyValue items={[["Lots", "2"], ["Sections", "Garden of Roses · Remembrance"]]} />
+              <KeyValue items={[["Lots", "2"], ["Sections", "Premium Lots · Lawn A"]]} />
             </Card>
             <Card title="My documents">
               <div className="stack">

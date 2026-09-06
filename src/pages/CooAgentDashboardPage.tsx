@@ -132,7 +132,7 @@ export function CooAgentDashboardPage() {
               </span>
               <span className="material-symbols-outlined text-primary">point_of_sale</span>
             </div>
-            <div className="text-headline-md font-headline-md text-on-surface">$24.5k</div>
+            <div className="text-headline-md font-headline-md text-on-surface">₱ 1.4M</div>
             <div className="text-sm text-primary mt-2 flex items-center gap-1">
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
                 trending_up
@@ -148,7 +148,7 @@ export function CooAgentDashboardPage() {
               </span>
               <span className="material-symbols-outlined text-secondary">account_balance_wallet</span>
             </div>
-            <div className="text-headline-md font-headline-md text-on-surface">$3,250</div>
+            <div className="text-headline-md font-headline-md text-on-surface">₱ 70,000</div>
             <div className="text-sm text-on-surface-variant mt-2">Accrued this period</div>
           </div>
         </div>

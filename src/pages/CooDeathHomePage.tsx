@@ -12,21 +12,21 @@ const SERVICES = [
     name: "Dignified Home Pickup",
     description:
       "Our professional transfer team arrives discreetly in an unmarked vehicle to bring your loved one into our care, ensuring a respectful and gentle transition from the home.",
-    price: "$450",
+    price: "₱ 8,500",
   },
   {
     icon: "spa",
     name: "Embalming & Grooming",
     description:
       "Expert preparation, dressing, and gentle cosmetizing specifically suited for home viewings, allowing family and friends to say goodbye in a peaceful, natural state.",
-    price: "$850",
+    price: "₱ 18,000",
   },
   {
     icon: "chair",
     name: "Home Viewing Setup",
     description:
       "Complete rental and arrangement of necessary equipment for a comfortable home vigil, including supportive seating, appropriate lighting, and elegant drapery or small tents if requested.",
-    price: "$600",
+    price: "₱ 12,000",
   },
 ];
 

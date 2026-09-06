@@ -4,6 +4,7 @@
 
 import { useToast } from "../components/toast";
 import { useCart } from "../lib/cart";
+import { useStore } from "../lib/store";
 
 const HEARSE_IMG =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuDKmC_fRK-wjM2vEVaHObTo0HV0u3t7FsBIgFZ7A-YxXDbUEDeyn5KgjY1c8FF6rHbQxwLngcMD429ZeYoOuNzQxofUjhEB3Eew_BhJCeWBm3HvMj5R6n2oYviEo7LKztLFb9muF4LUkhOgOI4HQECBzI3Mx3cjprdDl1Gf9gCKdqG0LCNgnrpumcNm70N6REQnEs4T4Rr71fv5WT8dGMVXVwzXb5H5XnKSb3Omst0Fh3hhUi2U-16Hx";
@@ -12,9 +13,10 @@ const FAMILY_IMG =
 
 type VehicleCard = {
   id: string;
+  /** Canonical store sku (transport-*). */
+  sku: string;
   title: string;
   desc: string;
-  price: string;
   image?: string;
   /** Icon rendered centered in the h-48 media block (Escort Vehicle fallback). */
   mediaIcon?: string;
@@ -27,42 +29,42 @@ type VehicleCard = {
 const VEHICLES: VehicleCard[] = [
   {
     id: "hearse",
+    sku: "transport-hearse",
     title: "Funeral Hearse",
     desc: "A selection of dignified, modern hearses for the graceful conveyance of your loved one to their final resting place. Maintained to the highest standards.",
-    price: "Starts at $450",
     image: HEARSE_IMG,
     kind: "add",
   },
   {
     id: "family",
+    sku: "transport-family",
     title: "Family Vehicle",
     desc: "Comfortable, spacious limousines or luxury SUVs designed to transport immediate family members together, providing privacy and support during the procession.",
-    price: "Starts at $300",
     image: FAMILY_IMG,
     kind: "add",
   },
   {
     id: "escort",
+    sku: "transport-escort",
     title: "Escort Vehicle",
     desc: "Professional escort services to ensure a safe, uninterrupted, and respectful procession from the service location to the memorial site.",
-    price: "Starts at $150",
     mediaIcon: "directions_car",
     kind: "add",
   },
   {
     id: "long-distance",
+    sku: "transport-long-distance",
     title: "Long-Distance Transfer",
     desc: "Careful and respectful transportation across provincial or state lines. We handle all logistics and necessary permits for extended journeys.",
-    price: "Custom Quote",
     circleIcon: "map",
     circleIconFilled: true,
-    kind: "inquire",
+    kind: "add",
   },
   {
     id: "airport",
+    sku: "transport-airport",
     title: "Airport Transfer",
     desc: "Specialized coordination for receiving or sending remains via air transit. Includes secure transport to/from the airport and liaison with cargo handlers.",
-    price: "Custom Quote",
     circleIcon: "flight_land",
     circleIconFilled: true,
     kind: "inquire",
@@ -72,12 +74,24 @@ const VEHICLES: VehicleCard[] = [
 export function CooTransportPage() {
   const { toast } = useToast();
   const { add } = useCart();
+  const { get } = useStore();
 
-  function handleAdd(title: string, priceLabel: string) {
-    // Transport prices are shown in $ on the approved mockup (flagged for dev);
-    // adding the line with unit null keeps totals honest until that's decided.
-    add({ id: `transport-${title}`, name: title, kindLabel: "Transportation", detail: priceLabel, unit: null });
-    toast(`${title} added to your selection`, "success");
+  function priceLabel(sku: string): string {
+    const item = get(sku);
+    return item ? (item.price === null ? "Price on arrangement" : `Starts at ₱${item.price.toLocaleString("en-US")}`) : "Price on arrangement";
+  }
+
+  function handleAdd(v: VehicleCard) {
+    const item = get(v.sku);
+    add({
+      id: v.sku,
+      name: item?.name ?? v.title,
+      kindLabel: "Transportation",
+      detail: item?.blurb ?? v.desc,
+      image: item?.image,
+      unit: item?.price ?? null,
+    });
+    toast(`${v.title} added to your selection`, "success");
   }
 
   function handleInquire(title: string) {
@@ -148,11 +162,11 @@ export function CooTransportPage() {
                   </p>
 
                   <div className="flex items-center justify-between mt-auto pt-4 border-t border-surface-variant">
-                    <span className="font-label-md text-label-md text-primary">{v.price}</span>
+                    <span className="font-label-md text-label-md text-primary">{priceLabel(v.sku)}</span>
                     {v.kind === "add" ? (
                       <button
                         type="button"
-                        onClick={() => handleAdd(v.title, v.price)}
+                        onClick={() => handleAdd(v)}
                         className="bg-primary-container text-on-primary-container px-4 py-2 rounded hover:bg-primary hover:text-on-primary transition-colors font-label-md text-label-md flex items-center gap-2 cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-[18px]">shopping_cart</span>

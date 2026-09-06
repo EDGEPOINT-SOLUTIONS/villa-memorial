@@ -58,13 +58,12 @@ import { HrDetailPage } from "./pages/HrDetailPage";
 import { DocumentsPage } from "./pages/DocumentsPage";
 import { DocumentDetailPage } from "./pages/DocumentDetailPage";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
+import { AdminStorePage } from "./pages/AdminStorePage";
 import { AdminWorkflowsPage } from "./pages/AdminWorkflowsPage";
 import { AdminAuditPage } from "./pages/AdminAuditPage";
 import { AdminSettingsPage } from "./pages/AdminSettingsPage";
 import { CustomerNewPage } from "./pages/CustomerNewPage";
 import { InquiryNewPage } from "./pages/InquiryNewPage";
-import { CatalogNewPage } from "./pages/CatalogNewPage";
-import { PlanNewPage } from "./pages/PlanNewPage";
 import { BookingNewPage } from "./pages/BookingNewPage";
 import { EmployeeNewPage } from "./pages/EmployeeNewPage";
 import { DocumentNewPage } from "./pages/DocumentNewPage";
@@ -207,10 +206,8 @@ export default function App() {
           <Route path="/inquiries" element={<InquiriesPage />} />
           <Route path="/inquiries/new" element={<InquiryNewPage />} />
           <Route path="/plans" element={<PlansPage />} />
-          <Route path="/plans/new" element={<PlanNewPage />} />
           <Route path="/plans/:id" element={<PlanDetailPage />} />
           <Route path="/catalog" element={<CatalogPage />} />
-          <Route path="/catalog/new" element={<CatalogNewPage />} />
           <Route path="/inventory" element={<InventoryPage />} />
           <Route path="/pricing" element={<PricingPage />} />
           <Route path="/pipeline" element={<PipelinePage />} />
@@ -235,6 +232,7 @@ export default function App() {
           <Route path="/documents/:id" element={<DocumentDetailPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/users/new" element={<UserNewPage />} />
+          <Route path="/admin/store" element={<AdminStorePage />} />
           <Route path="/admin/workflows" element={<AdminWorkflowsPage />} />
           <Route path="/admin/workflows/new" element={<WorkflowNewPage />} />
           <Route path="/admin/audit" element={<AdminAuditPage />} />
