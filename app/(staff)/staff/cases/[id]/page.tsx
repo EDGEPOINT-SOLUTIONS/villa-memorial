@@ -203,7 +203,11 @@ export default async function CaseDetailPage({
                   </tr>
                   <tr>
                     <th scope="row">Senior citizen</th>
-                    <td>{item.intake.senior_citizen ? "Yes" : "No"}</td>
+                    <td>
+                      {item.intake.senior_citizen
+                        ? "Yes"
+                        : "—" /* claim-only: never assert a "No" nobody gave */}
+                    </td>
                   </tr>
                   <tr>
                     <th scope="row">Client</th>

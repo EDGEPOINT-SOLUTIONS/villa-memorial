@@ -156,7 +156,11 @@ export function ServiceContractScreen({
                 </tr>
                 <tr>
                   <th scope="row">Senior citizen</th>
-                  <td>{intake.senior_citizen ? "Yes" : "No"}</td>
+                  <td>
+                    {intake.senior_citizen
+                      ? "Yes"
+                      : "—" /* claim-only: never assert a "No" nobody gave */}
+                  </td>
                 </tr>
                 <tr>
                   <th scope="row">Client</th>
