@@ -110,6 +110,7 @@ function drawTable(cursor: Cursor, table: PaperTable): void {
       const text = cellText(part.cell);
       if (isHead) {
         doc.rect(x, rowTop, part.width, row.height).fillColor("#ececec").fill();
+        doc.fillColor("#000000");
       }
       doc.rect(x, rowTop, part.width, row.height).lineWidth(0.5).strokeColor("#000000").stroke();
       if (text !== "") {
