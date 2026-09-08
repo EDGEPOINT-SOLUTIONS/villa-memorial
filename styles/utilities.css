@@ -1,0 +1,38 @@
+/* ============================================================================
+   utilities.css — one-off, single-purpose helpers. Use sparingly; anything
+   used in >= 3 places should become a component class instead.
+   ========================================================================== */
+
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mb-4 { margin-bottom: var(--space-4); }
+
+.stack-3 > * + * { margin-top: var(--space-3); }
+.stack-4 > * + * { margin-top: var(--space-4); }
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.row--wrap {
+  flex-wrap: wrap;
+}
+
+.text-muted { color: var(--color-text-muted); }
+.text-sm { font-size: var(--text-sm); }
+
+/* Stack + row spacing helpers (stack used by shipped client forms; was referenced but
+   never defined — demo provenance has it as flex column with --space-4 gap). */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.row--space {
+  justify-content: space-between;
+}

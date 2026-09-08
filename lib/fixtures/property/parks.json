@@ -1,0 +1,1469 @@
+{
+ "provenance": "PROVISIONAL demo park maps. Villa = linked squares (size 9). Loyola/Golden = sample squares at size 2. Free-form coords; real geometry/media/persistence await the dev contract. Villa rows: A=PRIMARY LOTS · B=PREMIUM LOTS · C=GARDEN NICHES · D=MAUSOLEUM (D-001…D-004 added per Villa layout).",
+ "parks": [
+  {
+   "id": "villa",
+   "name": "Villa Memorial",
+   "branch": "Isabela City",
+   "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg",
+   "plots": [
+    {
+     "id": "lot-a-001",
+     "code": "A-001",
+     "lot_id": "00000000-0000-4000-8000-000000000D01",
+     "status": "available",
+     "typeId": "lt-primary",
+     "sectionBlock": "A · 1",
+     "outline": [
+      [
+       14,
+       8.5
+      ],
+      [
+       23,
+       8.5
+      ],
+      [
+       23,
+       17.5
+      ],
+      [
+       14,
+       17.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-a-002",
+     "code": "A-002",
+     "lot_id": "00000000-0000-4000-8000-000000000D02",
+     "status": "reserved",
+     "typeId": "lt-primary",
+     "sectionBlock": "A · 2",
+     "outline": [
+      [
+       35,
+       8.5
+      ],
+      [
+       44,
+       8.5
+      ],
+      [
+       44,
+       17.5
+      ],
+      [
+       35,
+       17.5
+      ]
+     ],
+     "owner": "Marites Santos"
+    },
+    {
+     "id": "lot-a-003",
+     "code": "A-003",
+     "lot_id": "00000000-0000-4000-8000-000000000D03",
+     "status": "sold",
+     "typeId": "lt-primary",
+     "sectionBlock": "A · 3",
+     "outline": [
+      [
+       56,
+       8.5
+      ],
+      [
+       65,
+       8.5
+      ],
+      [
+       65,
+       17.5
+      ],
+      [
+       56,
+       17.5
+      ]
+     ],
+     "owner": "Roberto Santos"
+    },
+    {
+     "id": "lot-a-004",
+     "code": "A-004",
+     "lot_id": "00000000-0000-4000-8000-000000000D04",
+     "status": "available",
+     "typeId": "lt-primary",
+     "sectionBlock": "A · 4",
+     "outline": [
+      [
+       77,
+       8.5
+      ],
+      [
+       86,
+       8.5
+      ],
+      [
+       86,
+       17.5
+      ],
+      [
+       77,
+       17.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-b-001",
+     "code": "B-001",
+     "lot_id": "00000000-0000-4000-8000-000000000D05",
+     "status": "occupied",
+     "typeId": "lt-premium",
+     "sectionBlock": "B · 1",
+     "outline": [
+      [
+       14,
+       23.5
+      ],
+      [
+       23,
+       23.5
+      ],
+      [
+       23,
+       32.5
+      ],
+      [
+       14,
+       32.5
+      ]
+     ],
+     "owner": "Liwayway Cruz"
+    },
+    {
+     "id": "lot-b-002",
+     "code": "B-002",
+     "lot_id": "00000000-0000-4000-8000-000000000D06",
+     "status": "available",
+     "typeId": "lt-premium",
+     "sectionBlock": "B · 2",
+     "outline": [
+      [
+       35,
+       23.5
+      ],
+      [
+       44,
+       23.5
+      ],
+      [
+       44,
+       32.5
+      ],
+      [
+       35,
+       32.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-b-003",
+     "code": "B-003",
+     "lot_id": "00000000-0000-4000-8000-000000000D07",
+     "status": "reserved",
+     "typeId": "lt-premium",
+     "sectionBlock": "B · 3",
+     "outline": [
+      [
+       56,
+       23.5
+      ],
+      [
+       65,
+       23.5
+      ],
+      [
+       65,
+       32.5
+      ],
+      [
+       56,
+       32.5
+      ]
+     ],
+     "owner": "Danilo Reyes"
+    },
+    {
+     "id": "lot-b-004",
+     "code": "B-004",
+     "lot_id": "00000000-0000-4000-8000-000000000D08",
+     "status": "available",
+     "typeId": "lt-premium",
+     "sectionBlock": "B · 4",
+     "outline": [
+      [
+       77,
+       23.5
+      ],
+      [
+       86,
+       23.5
+      ],
+      [
+       86,
+       32.5
+      ],
+      [
+       77,
+       32.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-c-001",
+     "code": "C-001",
+     "lot_id": "00000000-0000-4000-8000-000000000D09",
+     "status": "sold",
+     "typeId": "lt-niches",
+     "sectionBlock": "C · 1",
+     "outline": [
+      [
+       14,
+       38.5
+      ],
+      [
+       23,
+       38.5
+      ],
+      [
+       23,
+       47.5
+      ],
+      [
+       14,
+       47.5
+      ]
+     ],
+     "owner": "Juan Dela Cruz"
+    },
+    {
+     "id": "lot-c-002",
+     "code": "C-002",
+     "lot_id": "00000000-0000-4000-8000-000000000D0A",
+     "status": "available",
+     "typeId": "lt-niches",
+     "sectionBlock": "C · 2",
+     "outline": [
+      [
+       35,
+       38.5
+      ],
+      [
+       44,
+       38.5
+      ],
+      [
+       44,
+       47.5
+      ],
+      [
+       35,
+       47.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-c-003",
+     "code": "C-003",
+     "lot_id": "00000000-0000-4000-8000-000000000D0B",
+     "status": "available",
+     "typeId": "lt-niches",
+     "sectionBlock": "C · 3",
+     "outline": [
+      [
+       56,
+       38.5
+      ],
+      [
+       65,
+       38.5
+      ],
+      [
+       65,
+       47.5
+      ],
+      [
+       56,
+       47.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-c-004",
+     "code": "C-004",
+     "lot_id": "00000000-0000-4000-8000-000000000D0C",
+     "status": "reserved",
+     "typeId": "lt-niches",
+     "sectionBlock": "C · 4",
+     "outline": [
+      [
+       77,
+       38.5
+      ],
+      [
+       86,
+       38.5
+      ],
+      [
+       86,
+       47.5
+      ],
+      [
+       77,
+       47.5
+      ]
+     ],
+     "owner": "Ana Gonzales"
+    },
+    {
+     "id": "lot-d-001",
+     "code": "D-001",
+     "lot_id": null,
+     "status": "available",
+     "typeId": "lt-mausoleum",
+     "sectionBlock": "D · 1",
+     "outline": [
+      [
+       14,
+       53.5
+      ],
+      [
+       23,
+       53.5
+      ],
+      [
+       23,
+       62.5
+      ],
+      [
+       14,
+       62.5
+      ]
+     ]
+    },
+    {
+     "id": "lot-d-002",
+     "code": "D-002",
+     "lot_id": null,
+     "status": "reserved",
+     "typeId": "lt-mausoleum",
+     "sectionBlock": "D · 2",
+     "outline": [
+      [
+       35,
+       53.5
+      ],
+      [
+       44,
+       53.5
+      ],
+      [
+       44,
+       62.5
+      ],
+      [
+       35,
+       62.5
+      ]
+     ],
+     "owner": "Ana Gonzales"
+    },
+    {
+     "id": "lot-d-003",
+     "code": "D-003",
+     "lot_id": null,
+     "status": "sold",
+     "typeId": "lt-mausoleum",
+     "sectionBlock": "D · 3",
+     "outline": [
+      [
+       56,
+       53.5
+      ],
+      [
+       65,
+       53.5
+      ],
+      [
+       65,
+       62.5
+      ],
+      [
+       56,
+       62.5
+      ]
+     ],
+     "owner": "Liwayway Cruz"
+    },
+    {
+     "id": "lot-d-004",
+     "code": "D-004",
+     "lot_id": null,
+     "status": "available",
+     "typeId": "lt-mausoleum",
+     "sectionBlock": "D · 4",
+     "outline": [
+      [
+       77,
+       53.5
+      ],
+      [
+       86,
+       53.5
+      ],
+      [
+       86,
+       62.5
+      ],
+      [
+       77,
+       62.5
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "id": "loyola",
+   "name": "Loyola Gardens",
+   "branch": "Quezon City",
+   "image": "/media/hero-1.jpg",
+   "plots": [
+    {
+     "id": "lg-01",
+     "code": "LG-01",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       14.8
+      ],
+      [
+       17.5,
+       14.8
+      ],
+      [
+       17.5,
+       16.8
+      ],
+      [
+       15.5,
+       16.8
+      ]
+     ],
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "lg-02",
+     "code": "LG-02",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       14.8
+      ],
+      [
+       34.3,
+       14.8
+      ],
+      [
+       34.3,
+       16.8
+      ],
+      [
+       32.3,
+       16.8
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "lg-03",
+     "code": "LG-03",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       14.8
+      ],
+      [
+       51.1,
+       14.8
+      ],
+      [
+       51.1,
+       16.8
+      ],
+      [
+       49.1,
+       16.8
+      ]
+     ],
+     "owner": "Maria Lopez",
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "lg-04",
+     "code": "LG-04",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       14.8
+      ],
+      [
+       67.9,
+       14.8
+      ],
+      [
+       67.9,
+       16.8
+      ],
+      [
+       65.9,
+       16.8
+      ]
+     ],
+     "typeId": "lt-niches"
+    },
+    {
+     "id": "lg-05",
+     "code": "LG-05",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       14.8
+      ],
+      [
+       84.7,
+       14.8
+      ],
+      [
+       84.7,
+       16.8
+      ],
+      [
+       82.7,
+       16.8
+      ]
+     ],
+     "owner": "Elena Garcia",
+     "typeId": "lt-mausoleum"
+    },
+    {
+     "id": "lg-06",
+     "code": "LG-06",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       30.3
+      ],
+      [
+       17.5,
+       30.3
+      ],
+      [
+       17.5,
+       32.3
+      ],
+      [
+       15.5,
+       32.3
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "lg-07",
+     "code": "LG-07",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       30.3
+      ],
+      [
+       34.3,
+       30.3
+      ],
+      [
+       34.3,
+       32.3
+      ],
+      [
+       32.3,
+       32.3
+      ]
+     ],
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "lg-08",
+     "code": "LG-08",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       30.3
+      ],
+      [
+       51.1,
+       30.3
+      ],
+      [
+       51.1,
+       32.3
+      ],
+      [
+       49.1,
+       32.3
+      ]
+     ],
+     "owner": "Antonio Reyes",
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "lg-09",
+     "code": "LG-09",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       30.3
+      ],
+      [
+       67.9,
+       30.3
+      ],
+      [
+       67.9,
+       32.3
+      ],
+      [
+       65.9,
+       32.3
+      ]
+     ],
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "lg-10",
+     "code": "LG-10",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       30.3
+      ],
+      [
+       84.7,
+       30.3
+      ],
+      [
+       84.7,
+       32.3
+      ],
+      [
+       82.7,
+       32.3
+      ]
+     ],
+     "owner": "Rosa Mendoza",
+     "typeId": "lt-niches"
+    },
+    {
+     "id": "lg-11",
+     "code": "LG-11",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       45.8
+      ],
+      [
+       17.5,
+       45.8
+      ],
+      [
+       17.5,
+       47.8
+      ],
+      [
+       15.5,
+       47.8
+      ]
+     ],
+     "typeId": "lt-mausoleum"
+    },
+    {
+     "id": "lg-12",
+     "code": "LG-12",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       45.8
+      ],
+      [
+       34.3,
+       45.8
+      ],
+      [
+       34.3,
+       47.8
+      ],
+      [
+       32.3,
+       47.8
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "lg-13",
+     "code": "LG-13",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       45.8
+      ],
+      [
+       51.1,
+       45.8
+      ],
+      [
+       51.1,
+       47.8
+      ],
+      [
+       49.1,
+       47.8
+      ]
+     ],
+     "owner": "Maria Lopez",
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "lg-14",
+     "code": "LG-14",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       45.8
+      ],
+      [
+       67.9,
+       45.8
+      ],
+      [
+       67.9,
+       47.8
+      ],
+      [
+       65.9,
+       47.8
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "lg-15",
+     "code": "LG-15",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       45.8
+      ],
+      [
+       84.7,
+       45.8
+      ],
+      [
+       84.7,
+       47.8
+      ],
+      [
+       82.7,
+       47.8
+      ]
+     ],
+     "owner": "Elena Garcia",
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "lg-16",
+     "code": "LG-16",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       61.3
+      ],
+      [
+       17.5,
+       61.3
+      ],
+      [
+       17.5,
+       63.3
+      ],
+      [
+       15.5,
+       63.3
+      ]
+     ],
+     "typeId": "lt-niches"
+    },
+    {
+     "id": "lg-17",
+     "code": "LG-17",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       61.3
+      ],
+      [
+       34.3,
+       61.3
+      ],
+      [
+       34.3,
+       63.3
+      ],
+      [
+       32.3,
+       63.3
+      ]
+     ],
+     "typeId": "lt-mausoleum"
+    },
+    {
+     "id": "lg-18",
+     "code": "LG-18",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       61.3
+      ],
+      [
+       51.1,
+       61.3
+      ],
+      [
+       51.1,
+       63.3
+      ],
+      [
+       49.1,
+       63.3
+      ]
+     ],
+     "owner": "Antonio Reyes",
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "lg-19",
+     "code": "LG-19",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       61.3
+      ],
+      [
+       67.9,
+       61.3
+      ],
+      [
+       67.9,
+       63.3
+      ],
+      [
+       65.9,
+       63.3
+      ]
+     ],
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "lg-20",
+     "code": "LG-20",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       61.3
+      ],
+      [
+       84.7,
+       61.3
+      ],
+      [
+       84.7,
+       63.3
+      ],
+      [
+       82.7,
+       63.3
+      ]
+     ],
+     "owner": "Rosa Mendoza",
+     "typeId": "lt-primary"
+    }
+   ]
+  },
+  {
+   "id": "golden",
+   "name": "Golden Haven",
+   "branch": "Las Piñas",
+   "image": "/media/hero-1.jpg",
+   "plots": [
+    {
+     "id": "gh-01",
+     "code": "GH-01",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       14.8
+      ],
+      [
+       17.5,
+       14.8
+      ],
+      [
+       17.5,
+       16.8
+      ],
+      [
+       15.5,
+       16.8
+      ]
+     ],
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "gh-02",
+     "code": "GH-02",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       14.8
+      ],
+      [
+       34.3,
+       14.8
+      ],
+      [
+       34.3,
+       16.8
+      ],
+      [
+       32.3,
+       16.8
+      ]
+     ],
+     "typeId": "lt-niches"
+    },
+    {
+     "id": "gh-03",
+     "code": "GH-03",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       14.8
+      ],
+      [
+       51.1,
+       14.8
+      ],
+      [
+       51.1,
+       16.8
+      ],
+      [
+       49.1,
+       16.8
+      ]
+     ],
+     "owner": "Pedro Lim",
+     "typeId": "lt-mausoleum"
+    },
+    {
+     "id": "gh-04",
+     "code": "GH-04",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       14.8
+      ],
+      [
+       67.9,
+       14.8
+      ],
+      [
+       67.9,
+       16.8
+      ],
+      [
+       65.9,
+       16.8
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "gh-05",
+     "code": "GH-05",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       14.8
+      ],
+      [
+       84.7,
+       14.8
+      ],
+      [
+       84.7,
+       16.8
+      ],
+      [
+       82.7,
+       16.8
+      ]
+     ],
+     "owner": "Carmen Torres",
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "gh-06",
+     "code": "GH-06",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       30.3
+      ],
+      [
+       17.5,
+       30.3
+      ],
+      [
+       17.5,
+       32.3
+      ],
+      [
+       15.5,
+       32.3
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "gh-07",
+     "code": "GH-07",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       30.3
+      ],
+      [
+       34.3,
+       30.3
+      ],
+      [
+       34.3,
+       32.3
+      ],
+      [
+       32.3,
+       32.3
+      ]
+     ],
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "gh-08",
+     "code": "GH-08",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       30.3
+      ],
+      [
+       51.1,
+       30.3
+      ],
+      [
+       51.1,
+       32.3
+      ],
+      [
+       49.1,
+       32.3
+      ]
+     ],
+     "owner": "Ana Villanueva",
+     "typeId": "lt-niches"
+    },
+    {
+     "id": "gh-09",
+     "code": "GH-09",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       30.3
+      ],
+      [
+       67.9,
+       30.3
+      ],
+      [
+       67.9,
+       32.3
+      ],
+      [
+       65.9,
+       32.3
+      ]
+     ],
+     "typeId": "lt-mausoleum"
+    },
+    {
+     "id": "gh-10",
+     "code": "GH-10",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       30.3
+      ],
+      [
+       84.7,
+       30.3
+      ],
+      [
+       84.7,
+       32.3
+      ],
+      [
+       82.7,
+       32.3
+      ]
+     ],
+     "owner": "Jose Ramirez",
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "gh-11",
+     "code": "GH-11",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       45.8
+      ],
+      [
+       17.5,
+       45.8
+      ],
+      [
+       17.5,
+       47.8
+      ],
+      [
+       15.5,
+       47.8
+      ]
+     ],
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "gh-12",
+     "code": "GH-12",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       45.8
+      ],
+      [
+       34.3,
+       45.8
+      ],
+      [
+       34.3,
+       47.8
+      ],
+      [
+       32.3,
+       47.8
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "gh-13",
+     "code": "GH-13",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       45.8
+      ],
+      [
+       51.1,
+       45.8
+      ],
+      [
+       51.1,
+       47.8
+      ],
+      [
+       49.1,
+       47.8
+      ]
+     ],
+     "owner": "Pedro Lim",
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "gh-14",
+     "code": "GH-14",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       45.8
+      ],
+      [
+       67.9,
+       45.8
+      ],
+      [
+       67.9,
+       47.8
+      ],
+      [
+       65.9,
+       47.8
+      ]
+     ],
+     "typeId": "lt-niches"
+    },
+    {
+     "id": "gh-15",
+     "code": "GH-15",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       45.8
+      ],
+      [
+       84.7,
+       45.8
+      ],
+      [
+       84.7,
+       47.8
+      ],
+      [
+       82.7,
+       47.8
+      ]
+     ],
+     "owner": "Carmen Torres",
+     "typeId": "lt-mausoleum"
+    },
+    {
+     "id": "gh-16",
+     "code": "GH-16",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       15.5,
+       61.3
+      ],
+      [
+       17.5,
+       61.3
+      ],
+      [
+       17.5,
+       63.3
+      ],
+      [
+       15.5,
+       63.3
+      ]
+     ],
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "gh-17",
+     "code": "GH-17",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       32.3,
+       61.3
+      ],
+      [
+       34.3,
+       61.3
+      ],
+      [
+       34.3,
+       63.3
+      ],
+      [
+       32.3,
+       63.3
+      ]
+     ],
+     "typeId": "lt-premium"
+    },
+    {
+     "id": "gh-18",
+     "code": "GH-18",
+     "lot_id": null,
+     "status": "sold",
+     "outline": [
+      [
+       49.1,
+       61.3
+      ],
+      [
+       51.1,
+       61.3
+      ],
+      [
+       51.1,
+       63.3
+      ],
+      [
+       49.1,
+       63.3
+      ]
+     ],
+     "owner": "Ana Villanueva",
+     "typeId": "lt-primary"
+    },
+    {
+     "id": "gh-19",
+     "code": "GH-19",
+     "lot_id": null,
+     "status": "available",
+     "outline": [
+      [
+       65.9,
+       61.3
+      ],
+      [
+       67.9,
+       61.3
+      ],
+      [
+       67.9,
+       63.3
+      ],
+      [
+       65.9,
+       63.3
+      ]
+     ],
+     "typeId": "lt-garden"
+    },
+    {
+     "id": "gh-20",
+     "code": "GH-20",
+     "lot_id": null,
+     "status": "occupied",
+     "outline": [
+      [
+       82.7,
+       61.3
+      ],
+      [
+       84.7,
+       61.3
+      ],
+      [
+       84.7,
+       63.3
+      ],
+      [
+       82.7,
+       63.3
+      ]
+     ],
+     "owner": "Jose Ramirez",
+     "typeId": "lt-niches"
+    }
+   ]
+  }
+ ]
+}

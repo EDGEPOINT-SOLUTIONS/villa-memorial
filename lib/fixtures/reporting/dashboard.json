@@ -1,0 +1,36 @@
+{
+  "comment": [
+    "Fixture summary data for Module I dashboard screens. Shapes follow docs/04-modules/",
+    "reporting-dashboards.md (daily operations + executive dashboards). NO frozen API",
+    "contract exists — reporting-analytics service is unbuilt; these records are UI demo",
+    "data with provenance, to be replaced by recorded contract fixtures once Keb freezes",
+    "the reporting contract. Tenant matches identity seeds."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "summary": {
+    "cases": {
+      "total": 6,
+      "active": 5,
+      "completed": 1,
+      "new_today": 1
+    },
+    "lots": {
+      "total": 12,
+      "available": 6,
+      "reserved": 3,
+      "sold": 2,
+      "occupied": 1
+    },
+    "finance": {
+      "total_invoices": 8,
+      "overdue_count": 2,
+      "total_outstanding_cents": 2110000,
+      "collections_this_month_cents": 640000,
+      "currency": "PHP"
+    },
+    "activity": {
+      "new_inquiries_this_month": 3,
+      "orders_this_month": 2
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "comment": [
+    "Fixture personas mirroring platform/services/identity-access/db/seeds.rb.",
+    "Passwords are the DEV-ONLY seed defaults; never use outside local/demo.",
+    "Tokens are NOT issued by this file — stub-auth builds unsigned structural",
+    "JWTs from these claim templates at request time so sessions don't expire",
+    "mid-demo. Fixture mode never runs in production."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "password": "Demo-Passw0rd!",
+  "personas": [
+    {
+      "email": "admin@vm.demo",
+      "display_name": "Ada Admin",
+      "user_id": "00000000-0000-4000-8000-000000000011",
+      "scopes": [
+        "identity:roles:read",
+        "identity:users:manage",
+        "tenancy:tenants:manage",
+        "tenancy:modules:read",
+        "audit:events:read",
+        "catalog:read",
+        "catalog:write",
+        "orders:read",
+        "orders:write",
+        "billing:read",
+        "billing:write",
+        "accounting:read",
+        "accounting:post",
+        "cases:read",
+        "cases:write",
+        "scheduling:read",
+        "scheduling:write",
+        "property:read",
+        "property:write",
+        "hr:read",
+        "hr:write",
+        "documents:read",
+        "documents:write"
+      ]
+    },
+    {
+      "email": "staff@vm.demo",
+      "display_name": "Sam Staff",
+      "user_id": "00000000-0000-4000-8000-000000000012",
+      "scopes": [
+        "tenancy:modules:read",
+        "catalog:read",
+        "orders:read",
+        "orders:write",
+        "billing:read",
+        "billing:write",
+        "cases:read",
+        "cases:write",
+        "scheduling:read",
+        "scheduling:write",
+        "property:read",
+        "hr:read",
+        "documents:read",
+        "documents:write"
+      ]
+    },
+    {
+      "email": "agent@vm.demo",
+      "display_name": "Alex Agent",
+      "user_id": "00000000-0000-4000-8000-000000000013",
+      "scopes": [
+        "tenancy:modules:read",
+        "catalog:read",
+        "orders:read",
+        "orders:write",
+        "property:read"
+      ]
+    },
+    {
+      "email": "customer@vm.demo",
+      "display_name": "Cory Customer",
+      "user_id": "00000000-0000-4000-8000-000000000014",
+      "scopes": ["tenancy:modules:read", "catalog:read"]
+    }
+  ]
+}

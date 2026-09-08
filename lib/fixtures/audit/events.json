@@ -1,0 +1,55 @@
+{
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "events": [
+    {
+      "id": "30000000-0000-4000-8000-0000000000a1",
+      "actor_user_id": "00000000-0000-4000-8000-0000000000a1",
+      "action": "user.logged_in",
+      "resource_type": "session",
+      "resource_id": "30000000-0000-4000-8000-0000000000a1",
+      "outcome": "succeeded",
+      "occurred_at": "2026-09-20T08:02:11Z",
+      "correlation_id": "2d6f4b19-3f0d-4d2b-9c2e-aa1d62e18c01"
+    },
+    {
+      "id": "30000000-0000-4000-8000-0000000000a2",
+      "actor_user_id": "00000000-0000-4000-8000-0000000000a2",
+      "action": "user.created",
+      "resource_type": "user",
+      "resource_id": "00000000-0000-4000-8000-0000000000a3",
+      "outcome": "succeeded",
+      "occurred_at": "2026-09-20T09:31:44Z",
+      "correlation_id": "7c1a9d30-8b4e-4c63-b2d5-08f3a91e5c22"
+    },
+    {
+      "id": "30000000-0000-4000-8000-0000000000a3",
+      "actor_user_id": "00000000-0000-4000-8000-0000000000a1",
+      "action": "role.assigned",
+      "resource_type": "user",
+      "resource_id": "00000000-0000-4000-8000-0000000000a3",
+      "outcome": "succeeded",
+      "occurred_at": "2026-09-20T09:32:05Z",
+      "correlation_id": "7c1a9d30-8b4e-4c63-b2d5-08f3a91e5c22"
+    },
+    {
+      "id": "30000000-0000-4000-8000-0000000000a4",
+      "actor_user_id": "00000000-0000-4000-8000-0000000000a2",
+      "action": "property.access_denied",
+      "resource_type": "lot",
+      "resource_id": "00000000-0000-4000-8000-0000000000a2",
+      "outcome": "denied",
+      "occurred_at": "2026-09-20T12:15:30Z",
+      "correlation_id": "9f2d8e73-c1a4-4b05-9f88-6d20ab51e693"
+    },
+    {
+      "id": "30000000-0000-4000-8000-0000000000a5",
+      "actor_user_id": "",
+      "action": "tenant.provisioned",
+      "resource_type": "tenant",
+      "resource_id": "00000000-0000-4000-8000-000000000001",
+      "outcome": "succeeded",
+      "occurred_at": "2026-09-20T13:47:19Z",
+      "correlation_id": "5b3c9e21-0d7a-4f92-b1c8-3e74d9a60f55"
+    }
+  ]
+}

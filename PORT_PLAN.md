@@ -1,68 +1,57 @@
-# Frontend Final Design — Port Plan (web/ → villa-memorial)
+# villa-memorial — real frontend home (migration status)
 
-Status: in progress (Sep 2026) — Slices 1 & 2 done · Owner: Gabriel R. (non-dev builder) · Reviewer: dev (Keb)
+## What this repo is now
 
-## Why this exists
+This repo holds the **real production frontend** — the full In-Memoriam web
+application (Next.js + TypeScript), copied in whole from the `web/` folder of
+the `in-memoriam` monorepo. Every feature built there — including the premium
+public storefront, real 2026 content, and the park-map work (PR #65) — is
+therefore present here by construction, not by re-implementation.
 
-The dev decided that **villa-memorial is the final home of the frontend design**.
-Everything premium that was built into the In-Memoriam production frontend
-(`web/`, Next.js — pull request #65 on `in-memoriam`, branch
-`non-dev/web-property-map`) must be **applied here**, because this repo is the
-single final design reference.
+**Why:** the dev decided villa-memorial is where the client-facing frontend
+lives and is deployed, aligned with the project's real stack (React/Next.js
+frontend; Rails/Puma + PostgreSQL services behind the gateway). The old
+clickable mockup (React + Vite) was a design prototype only; it is archived
+under [`legacy-mockup/`](legacy-mockup/) and preserved in git at the tag
+`mockup-design-final`.
 
-Rules for this port:
+## Layout
 
-1. **Palette stays the original COO blue/gold** ("Radiant Compassion" — sky blue,
-   classic gold, warm paper, Playfair Display + Inter). The granite/marble/brass
-   re-theme experiment (PR #62 / `non-dev/ui-ux-doc-palette`) is **not** carried
-   over.
-2. Port = re-implement each web/ change inside this demo's own conventions
-   (React + Vite, `src/lib/store.tsx` editable catalogue, tokens in
-   `src/styles/tokens.css`). Never copy Next.js plumbing.
-3. No backend wiring, no contracts, no money math — demo stays frontend-only,
-   honest "not wired" states included.
-4. Push to `main` directly is authorized here by the dev (admin access). The
-   `in-memoriam` repo keeps its strict branch + PR workflow and is **not**
-   modified by this work.
+| Path | What it is |
+|---|---|
+| `app/ components/ lib/ styles/ stub-gateway/ tests/` | The frontend app (source of truth: `in-memoriam/web`) |
+| `legacy-mockup/` | Archived COO blue/gold clickable prototype (design reference only) |
+| `.env.example` | Environment contract — gateway URL unset ⇒ BFF serves recorded fixtures (standalone demo mode) |
+| `README.md`, `AGENTS.md` | App docs & rules (from the monorepo `web/`) |
 
-## Source of the changes: PR #65 themes → where they land here
+## How to run
 
-| # | What PR #65 added to web/ | Target in villa-memorial | Notes |
-|---|---|---|---|
-| A | Real Villa 2026 products, plans & full price list (single source `lib/villa-pricing.ts`) | `src/lib/catalog.ts` + `/admin/store` editable store | Replace demo values with the real sheets; keep the store editable |
-| B | Real uploaded photos used by name; never cropped/stretched (natural-aspect) | `public/` images + every page that shows a photo | Demo images must match real Villa imagery |
-| C | Premium storefront heroes: plans, plan detail, services (+death-at-home/hospital), transport, lots, map, cart, products, packages, compare, senior benefits, one-page Villa Memorial Plan & 2026 Price List | `Coo*` public pages + `/site/*` routes | Restyle in blue/gold; add one-pager if missing |
-| D | Landing: "The First Ever Memorial Park in Basilan" showcase + live park map embed + store section + lot→map deep link + honest buy CTA | `CooHomePage` / `/` | Not present here yet — add in blue/gold |
-| E | Multi-park interactive map: Villa Memorial, Loyola Gardens, Golden Haven; staff editor (upload/resize/lock image, plots add/move/remove/lock, size slider); plot-type Legend (unlimited types, colours + photos); type on every plot; 52 public plots; Villa rows A–D typed PRIMARY/PREMIUM/GARDEN NICHES/MAUSOLEUM | `MapView`, `PublicMapPage`, `CooLotsPage`, `CooMapPage`, staff property screens | Port the editor + legend behaviour; demo map is simpler today |
-| F | Site-wide polish: nav active states, serif/sans pairing, one focus ring, hover/motion, back-pills (no dead ends), related cross-link chips; clean link crawl | shared shells + all pages | Re-verify every route is reachable |
-| G | Checkout header + back-to-cart pill | `CartPage`, `CheckoutPage` | Small |
+```bash
+npm ci
+npm run dev        # demo/fixture mode on :4000 (no gateway needed)
+```
 
-Out of scope / skipped PRs: #60 (design proposal docs), #62 (wrong palette),
-#63 (backend notification service — not a frontend change), #61 (superseded —
-its content already lives on this repo's `main`).
+Point `.env.local` at the live edge gateway to run against real services
+(see `.env.example`). Build + test + lint scripts match the monorepo `web/`.
 
-## Slice order
+## Open decisions for the dev (no work done on these yet)
 
-1. **Content first (A, B)** — real 2026 catalogue + real photos; every other
-   slice renders against it. *(done: real `villa-pricing.ts` mirror, real lot
-   photos + Lot-Only starting prices in `catalog.ts`/`publicCatalog.ts`, real
-   media folder mirrored from the web uploads; remaining: pages still on AI
-   heroes get swapped in slices 2–4)*
-2. **Landing showcase (D)** — premium hero + live map embed. *(done: real
-   hero photo, “The very first memorial park in Basilan” showcase with the real
-   aerial + lot-type quick links, and a “from the store” trio with real photos;
-   live map embed comes with the Slice 4 map upgrade)*
-3. **Public storefront heroes + one-pager (C).**
-4. **Park map upgrade (E)** — legend types + staff editor + 52 plots + multi-park.
-5. **Polish pass (F, G)** — nav/typography/focus/back-pills/link crawl.
+1. **Palette** — this app currently carries the DOC granite/marble/brass
+   tokens. The archived mockup is the COO blue/gold "Radiant Compassion" look.
+   Which palette is the deployed product? (Re-theme is a contained tokens-only
+   task once decided.)
+2. **Source-of-truth policy** — `in-memoriam/web` is still the monorepo's
+   frontend. Recommend: keep that as the canonical repo; villa-memorial is the
+   deployment copy, refreshed with one sync (`cp` from `in-memoriam/web`) after
+   the dev merges PR #65 and later changes. Alternative: split web/ out of the
+   monorepo entirely (bigger change — dev decision).
+3. **Deployment** — Vercel/other build config to be set by the dev/ops once
+   the gateway URL + secrets are provided.
 
-Each slice: implement → run the app → screenshot/walkthrough → commit to `main`
-with a plain-language message naming the slice.
+## What happened to the earlier hand-port plan
 
-## Decisions made for the non-dev
-
-- Palette: COO blue/gold wins over the DOC granite/marble/brass experiment.
-- villa-memorial is the final design; `web/` PR #65 stays untouched as the
-  reference source while this port is in flight.
-- All 2026 prices remain display content only (same rule as web/) — never used
-  in checkout math.
+The `PORT_PLAN.md` slices (1–6) were a hand-port of web/ features into the Vite
+mockup. Superseded by this migration — the mockup no longer needs feature
+porting because the real app now lives here. Slice-1/2 changes (real 2026 data
+mirror, real photos) that are still useful live on in the app's own files:
+`lib/villa-pricing.ts`, `public/media/*` (real uploads), catalogue prices.

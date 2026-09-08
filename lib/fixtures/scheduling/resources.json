@@ -1,0 +1,9 @@
+{
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "resources": [
+    { "id": "10000000-0000-4000-8000-0000000000c1", "name": "Chapel A", "resource_type": "chapel", "capacity": 120 },
+    { "id": "10000000-0000-4000-8000-0000000000c2", "name": "Chapel B", "resource_type": "chapel", "capacity": 60 },
+    { "id": "10000000-0000-4000-8000-0000000000c3", "name": "Preparation Room 1", "resource_type": "preparation_room", "capacity": 2 },
+    { "id": "10000000-0000-4000-8000-0000000000c4", "name": "Hearse 1", "resource_type": "vehicle", "capacity": 1 }
+  ]
+}

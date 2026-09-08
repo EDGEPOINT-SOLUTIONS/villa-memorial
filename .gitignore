@@ -1,7 +1,7 @@
-node_modules
-dist
-dist-ssr
-*.local
+node_modules/
+.next/
+out/
 *.tsbuildinfo
-.DS_Store
-stitch_villa_memorial_digital_platform/
+next-env.d.ts
+.env*.local
+coverage/

@@ -1,0 +1,133 @@
+{
+  "comment": [
+    "Fixture records for Module HR screens (employees, attendance, leave). Shapes follow",
+    "docs/08-delivery/service-priorities.md D13 (employee records, attendance, leave).",
+    "NO frozen API contract exists — hr service is unbuilt (D13 gap resolved 2026-08-24);",
+    "these records are UI demo data with provenance, to be replaced by recorded contract",
+    "fixtures once Keb freezes the hr contract. IDs are deterministic UUIDs; tenant",
+    "matches identity seeds."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "employees": [
+    {
+      "id": "00000000-0000-4000-8000-000000000A01",
+      "employee_number": "EMP-001",
+      "first_name": "Elena",
+      "last_name": "Villanueva",
+      "role": "Funeral Director",
+      "department": "operations",
+      "employment_status": "active",
+      "hire_date": "2023-03-15",
+      "phone": "+63 917 100 1001",
+      "email": "elena.villanueva@example.com",
+      "attendance": [
+        { "date": "2026-08-25", "status": "present" },
+        { "date": "2026-08-26", "status": "present" },
+        { "date": "2026-08-27", "status": "late" },
+        { "date": "2026-08-28", "status": "present" }
+      ],
+      "leave": [
+        { "type": "vacation", "start": "2026-09-01", "end": "2026-09-03", "status": "approved" }
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000A02",
+      "employee_number": "EMP-002",
+      "first_name": "Ricardo",
+      "last_name": "Bautista",
+      "role": "Embalmer",
+      "department": "operations",
+      "employment_status": "active",
+      "hire_date": "2024-01-10",
+      "phone": "+63 918 200 2002",
+      "email": "ricardo.bautista@example.com",
+      "attendance": [
+        { "date": "2026-08-25", "status": "present" },
+        { "date": "2026-08-26", "status": "absent" },
+        { "date": "2026-08-27", "status": "present" },
+        { "date": "2026-08-28", "status": "present" }
+      ],
+      "leave": []
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000A03",
+      "employee_number": "EMP-003",
+      "first_name": "Carmen",
+      "last_name": "Reyes",
+      "role": "Billing Clerk",
+      "department": "finance",
+      "employment_status": "active",
+      "hire_date": "2025-06-01",
+      "phone": "+63 916 300 3003",
+      "email": "carmen.reyes@example.com",
+      "attendance": [
+        { "date": "2026-08-25", "status": "present" },
+        { "date": "2026-08-26", "status": "present" },
+        { "date": "2026-08-27", "status": "present" },
+        { "date": "2026-08-28", "status": "present" }
+      ],
+      "leave": [
+        { "type": "sick", "start": "2026-08-20", "end": "2026-08-20", "status": "approved" }
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000A04",
+      "employee_number": "EMP-004",
+      "first_name": "Jose",
+      "last_name": "Mendoza",
+      "role": "Sales Representative",
+      "department": "operations",
+      "employment_status": "active",
+      "hire_date": "2024-09-20",
+      "phone": "+63 915 400 4004",
+      "email": "jose.mendoza@example.com",
+      "attendance": [
+        { "date": "2026-08-25", "status": "present" },
+        { "date": "2026-08-26", "status": "present" },
+        { "date": "2026-08-27", "status": "present" },
+        { "date": "2026-08-28", "status": "late" }
+      ],
+      "leave": []
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000A05",
+      "employee_number": "EMP-005",
+      "first_name": "Grace",
+      "last_name": "Aquino",
+      "role": "Administrative Officer",
+      "department": "admin",
+      "employment_status": "on_leave",
+      "hire_date": "2022-11-05",
+      "phone": "+63 917 500 5005",
+      "email": "grace.aquino@example.com",
+      "attendance": [
+        { "date": "2026-08-25", "status": "absent" },
+        { "date": "2026-08-26", "status": "absent" },
+        { "date": "2026-08-27", "status": "absent" },
+        { "date": "2026-08-28", "status": "absent" }
+      ],
+      "leave": [
+        { "type": "vacation", "start": "2026-08-25", "end": "2026-08-30", "status": "approved" }
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000A06",
+      "employee_number": "EMP-006",
+      "first_name": "Miguel",
+      "last_name": "Torres",
+      "role": "Driver",
+      "department": "operations",
+      "employment_status": "active",
+      "hire_date": "2025-02-14",
+      "phone": "+63 918 600 6006",
+      "email": "miguel.torres@example.com",
+      "attendance": [
+        { "date": "2026-08-25", "status": "present" },
+        { "date": "2026-08-26", "status": "present" },
+        { "date": "2026-08-27", "status": "present" },
+        { "date": "2026-08-28", "status": "present" }
+      ],
+      "leave": []
+    }
+  ]
+}

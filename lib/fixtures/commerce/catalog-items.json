@@ -1,0 +1,121 @@
+{
+  "comment": [
+    "Mirror of platform/services/catalog-pricing/db/seeds.rb (11 VM line-items).",
+    "Response shape = FROZEN docs/08-delivery/contracts/order-payment-api-v1.md",
+    "GET /api/v1/catalog_items entries. Prices are placeholders pending VM import",
+    "(documented limitation upstream). display_price is presentation-only.",
+    "catalog_item_id values are deterministic stand-ins for seeded row ids."
+  ],
+  "items": [
+    {
+      "id": 101,
+      "sku": "PKG-BASIC",
+      "name": "Basic Package",
+      "description": "Casket (standard), 1-day embalming, delivery within city",
+      "item_type": "package",
+      "unit_price_cents": 150000,
+      "currency": "PHP",
+      "display_price": "₱1,500.00"
+    },
+    {
+      "id": 102,
+      "sku": "PKG-STANDARD",
+      "name": "Standard Package",
+      "description": "Upgraded casket, 2-day embalming, lights, delivery & pick-up",
+      "item_type": "package",
+      "unit_price_cents": 280000,
+      "currency": "PHP",
+      "display_price": "₱2,800.00"
+    },
+    {
+      "id": 103,
+      "sku": "PKG-PREMIUM",
+      "name": "Premium Package",
+      "description": "Lizo JR casket, 3-day embalming, full lights, interment service",
+      "item_type": "package",
+      "unit_price_cents": 520000,
+      "currency": "PHP",
+      "display_price": "₱5,200.00"
+    },
+    {
+      "id": 104,
+      "sku": "SRV-EMBALM-D",
+      "name": "Additional Embalming Day",
+      "description": null,
+      "item_type": "service",
+      "unit_price_cents": 45000,
+      "currency": "PHP",
+      "display_price": "₱450.00"
+    },
+    {
+      "id": 105,
+      "sku": "SRV-INTERMENT",
+      "name": "Interment Service",
+      "description": null,
+      "item_type": "service",
+      "unit_price_cents": 120000,
+      "currency": "PHP",
+      "display_price": "₱1,200.00"
+    },
+    {
+      "id": 106,
+      "sku": "SRV-DELIVERY",
+      "name": "Delivery & Pick-up",
+      "description": null,
+      "item_type": "service",
+      "unit_price_cents": 35000,
+      "currency": "PHP",
+      "display_price": "₱350.00"
+    },
+    {
+      "id": 107,
+      "sku": "SRV-LIGHTS",
+      "name": "Lights & Sound Setup",
+      "description": null,
+      "item_type": "service",
+      "unit_price_cents": 60000,
+      "currency": "PHP",
+      "display_price": "₱600.00"
+    },
+    {
+      "id": 108,
+      "sku": "SRV-VIEWING",
+      "name": "Viewing Room Extension",
+      "description": null,
+      "item_type": "service",
+      "unit_price_cents": 80000,
+      "currency": "PHP",
+      "display_price": "₱800.00"
+    },
+    {
+      "id": 109,
+      "sku": "ADD-COFFIN-LIZO-SR",
+      "name": "Casket Upgrade: Lizo SR",
+      "description": null,
+      "item_type": "add_on",
+      "unit_price_cents": 85000,
+      "currency": "PHP",
+      "display_price": "₱850.00"
+    },
+    {
+      "id": 110,
+      "sku": "ADD-FLOWERS",
+      "name": "Flower Arrangement Set",
+      "description": null,
+      "item_type": "add_on",
+      "unit_price_cents": 25000,
+      "currency": "PHP",
+      "display_price": "₱250.00"
+    },
+    {
+      "id": 111,
+      "sku": "ADD-URN",
+      "name": "Keepsake Urn",
+      "description": null,
+      "item_type": "add_on",
+      "unit_price_cents": 18000,
+      "currency": "PHP",
+      "display_price": "₱180.00"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "family": {
+    "display_name": "Cory Customer",
+    "email": "customer@vm.demo",
+    "primary_contact": "0917 000 1234"
+  },
+  "loved_one": {
+    "name": "Ernesto Dela Cruz",
+    "life_dates": "1948 – 2026"
+  },
+  "plan_summary": {
+    "plan_name": "Premium Lawn · Lawn A-01",
+    "status": "Active",
+    "term": "5 years",
+    "next_due": "Sep 15, 2026 · ₱12,000"
+  },
+  "balance": {
+    "total": "₱42,000",
+    "paid": "₱20,000",
+    "remaining": "₱22,000"
+  },
+  "recent_documents": [
+    { "title": "Service contract", "status": "Generated" },
+    { "title": "Official receipt", "status": "Sent" }
+  ]
+}

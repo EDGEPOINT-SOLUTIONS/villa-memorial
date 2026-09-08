@@ -1,0 +1,68 @@
+{
+  "comment": [
+    "Fixture customers for Module A screens. Shapes follow docs/04-modules/crm-cases.md",
+    "(blueprint §25–26 customer master + family records). NO frozen API exists yet —",
+    "crm-families service is unbuilt; these records are UI demo data with provenance,",
+    "to be replaced by recorded contract fixtures once Keb freezes the D3 contract.",
+    "IDs are deterministic UUIDs; tenant matches identity seeds."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "customers": [
+    {
+      "id": "00000000-0000-4000-8000-000000000101",
+      "first_name": "Marites",
+      "last_name": "Santos",
+      "email": "marites.santos@example.com",
+      "phone": "+63 917 210 4455",
+      "status": "active",
+      "family_id": "00000000-0000-4000-8000-000000000201",
+      "registered_at": "2026-06-14T09:12:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000102",
+      "first_name": "Roberto",
+      "last_name": "Santos",
+      "email": "roberto.santos@example.com",
+      "phone": "+63 918 553 1120",
+      "status": "active",
+      "family_id": "00000000-0000-4000-8000-000000000201",
+      "registered_at": "2025-11-02T15:40:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000103",
+      "first_name": "Liwayway",
+      "last_name": "Cruz",
+      "email": "liwayway.cruz@example.com",
+      "phone": "+63 916 887 2299",
+      "status": "active",
+      "family_id": null,
+      "registered_at": "2026-01-20T10:05:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000104",
+      "first_name": "Danilo",
+      "last_name": "Reyes",
+      "email": "danilo.reyes@example.com",
+      "phone": "+63 915 442 7788",
+      "status": "inactive",
+      "family_id": null,
+      "registered_at": "2024-08-30T13:22:00Z"
+    }
+  ],
+  "families": [
+    {
+      "id": "00000000-0000-4000-8000-000000000201",
+      "name": "Santos family",
+      "members": [
+        {
+          "customer_id": "00000000-0000-4000-8000-000000000101",
+          "relationship": "daughter of"
+        },
+        {
+          "customer_id": "00000000-0000-4000-8000-000000000102",
+          "relationship": "patriarch"
+        }
+      ]
+    }
+  ]
+}

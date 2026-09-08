@@ -1,160 +1,68 @@
-# In-Memoriam — UI/UX Demo
+# web — In Memoriam frontend (Next.js, all portals + BFF)
 
-A frontend-only, clickable prototype of the In-Memoriam funeral & memorial-services
-operating platform — re-themed to the COO's **"Radiant Compassion"** design (Sky Blue + Gold,
-Playfair Display + Inter). This is the **visual reference** for the full system: the public
-marketing site, the family and agent portals, and the internal staff app — with no backend, no
-real auth, and no real data.
+> **Migration note (2026-09):** this repository is now the home of the real
+> frontend, copied in whole from `in-memoriam/web`. The former clickable
+> prototype (React + Vite) is archived under [`legacy-mockup/`](legacy-mockup/)
+> (git tag `mockup-design-final`). See [`PORT_PLAN.md`](PORT_PLAN.md) for the
+> migration status and the open dev decisions (palette, deploy, sync policy).
 
-> Prices are in Philippine pesos (₱) throughout. The demo catalogue and public-site copy live in
-> one editable store — the admin can change what the funeral home sells from **Staff → Store &
-> content** (`/admin/store`) and those edits show on the product/plan/lot/package pages, cart,
-> checkout, and receipts until the page is refreshed.
+One codebase, one deploy — **four surfaces sharing one identity**. This is the
+production-grade counterpart of the `villa-memorial` visual prototype (which remains
+the UX reference; this app is what actually runs against the platform services).
 
-> Design tokens are in `src/styles/tokens.css`; the source design systems (Stitch export) live
-> in `stitch_villa_memorial_digital_platform/` (reference only — not served by the app).
->
-> **Walkthrough / presenting to clients:** see [`NAVIGATION.md`](NAVIGATION.md).
+## The four surfaces (one product, four doors)
 
-## Run it locally
+| Surface | Door | Persona (demo) | State |
+|---|---|---|---|
+| **Public site** | `/` (landing) + `/plans` `/lots` `/map` `/packages` etc. | none | ✅ real (catalog/lot data, cart/checkout on frozen commerce contract) |
+| **Staff portal** | `/login` → `/staff/*` | `admin@vm.demo` / `staff@vm.demo` | ✅ real core (dashboard, billing, cases, schedule, property map, documents, audit) + honest "not wired yet" screens |
+| **Family portal** | `/client/login` → `/client/*` | `customer@vm.demo` | Shell: real auth + portal frame; data screens run on a recorded snapshot fixture until the family API contract freezes (dev-authored) |
+| **Agent portal** | `/agent/login` → `/agent/*` | `agent@vm.demo` | Shell: real auth + portal frame; screens labelled "coming soon" until the agent/commission contract exists |
+
+All four doors use the **same login BFF** (`POST /api/auth/login`) and the same
+httpOnly session. Doors are separate today because the JWT carries permission
+*scopes* but no role/portal claim — so the app cannot yet auto-route a user to their
+surface. When the dev adds a role/portal claim to the frozen contract, one door
+(`/login`) becomes enough; until then the **Portal switcher** (visible in every
+surface's header/sidebar) keeps the four surfaces connected.
+
+## Demo logins (fixture mode)
+
+Password for every persona: `Demo-Passw0rd!` (dev-only; opt-in via
+`NEXT_PUBLIC_DEMO_PASSWORD`, never set in production builds).
+
+| Persona | Scopes (subset) | Best door |
+|---|---|---|
+| `admin@vm.demo` | everything incl. `property:write`, `identity:users:manage` | `/login` |
+| `staff@vm.demo` | read/write operations, no admin | `/login` |
+| `agent@vm.demo` | catalog/orders/property reads | `/agent/login` |
+| `customer@vm.demo` | public storefront only | `/client/login` |
+
+## Run it
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
+npm run dev        # → http://localhost:4000 (fixture mode: no env vars needed)
+npm run lint && npm run typecheck && npm test && npm run build
 ```
 
-Production build + preview:
+Fixture mode serves recorded contract fixtures in-process so every surface demos
+standalone. Live mode = set the gateway base URLs (`.env.example`) — screens flip
+to real services with no code changes.
 
-```bash
-npm run build
-npm run preview
-```
+## "Not wired yet" labels are honest, not decoration
 
-## Demo logins
+Screens marked "not wired yet"/"coming soon" exist so the IA, design and RBAC are
+reviewable; each states **what unblocks it** (usually a dev-authored backend
+contract — crm-families, hr, reporting, family/agent APIs, catalog write, etc.).
+Nothing fake-wires data that has no backend. Tracked per route in
+`docs/08-delivery/notes/demo-web-route-coverage.md`.
 
-| Portal | Email | Password |
-|---|---|---|
-| Staff | `admin@gmail.com` | `admin123` |
-| Agent | `agent@example.com` | `agent123` |
-| Family | `family@example.com` | `family123` |
+## Structure conventions (summary — full rules in `AGENTS.md`)
 
-Logins are **cosmetic only** (checked in the browser) — not real security. A real deployment
-uses server-side sessions (see the production `web/` app).
-
-## What to try
-
-- **Public site** (`/`) — hero, services, plans, lots, packages, **products**, transport, and the
-  Sanctuario park map (interactive + master plan). **Connected buy journey**: add plans, lots,
-  packages, or products to the cart (`/cart`) → checkout (`/checkout`) → order confirmation
-  (`/order/:id`). Public forms (contact, quote, appointment, FAQ, register) feed the staff app.
-- **Family portal** (`/client/login`) — the warm, mobile-first view a grieving family sees:
-  arrangement progress, balance, plans, lots, documents.
-- **Agent portal** (`/agent/login`) — sales dashboard with leads and commission.
-- **Staff app** (`/login`) — tenant switcher (Villa Memorial / Loyola / Golden Haven) and role
-  switcher (Executive / Manager / Accountant / Embalmer / Cashier).
-- **Arrangement wizard** (`Cases → + New case`) and **confirmation dialogs** (post to ledger
-  requires typing `POST`). Orders placed on the public site appear at the top of staff
-  **Commerce → Orders**; web form submissions appear under **Relationships → Inquiries**.
-
-## Route index
-
-**Public site**
-
-| Area | Route |
-|---|---|
-| Home | `/` |
-| Services (at-need) | `/site/services` |
-| Death at home | `/site/services/death-at-home` |
-| Death at hospital | `/site/services/death-at-hospital` |
-| Plans | `/site/plans` |
-| Plan detail | `/site/plans/:slug` (e.g. `/site/plans/mausoleum`) |
-| Plan comparison | `/site/plans/compare` |
-| Senior-citizen rates | `/site/plans/senior-benefits` |
-| Lots | `/site/lots` |
-| Lot detail + reservation | `/site/lots/:slug` (e.g. `/site/lots/mausoleum`) |
-| Packages | `/site/packages` |
-| Package detail | `/site/packages/:slug` (e.g. `/site/packages/package-b`) |
-| Products & keepsakes | `/site/products` |
-| Product detail | `/site/products/:id` (e.g. `/site/products/casket-hardwood`) |
-| Transport | `/site/transport` |
-| Park map | `/site/map` |
-| Cart | `/cart` |
-| Checkout | `/checkout` |
-| Order confirmation | `/order/:reference` |
-| Contact | `/site/contact` |
-| Request a quote | `/site/quote` |
-| Book an appointment | `/site/appointments` |
-| Register | `/site/register` |
-| FAQ | `/site/faq` |
-
-**Portals**
-
-| Area | Route |
-|---|---|
-| Agent login / dashboard | `/agent/login`, `/agent/dashboard` |
-| Agent clients | `/agent/clients` |
-| Agent prospects | `/agent/prospects` |
-| Agent applications | `/agent/applications` |
-| Agent sales & commissions | `/agent/sales` |
-| Agent marketing | `/agent/marketing` |
-| Family login / dashboard | `/client/login`, `/client/dashboard` |
-| Family profile | `/client/profile` |
-| My memorial plans | `/client/plans` |
-| My payments | `/client/payments` |
-| My memorial property | `/client/property` |
-| My memorials | `/client/memorials` |
-| My funeral cases | `/client/cases` |
-| My documents | `/client/documents` |
-| My appointments | `/client/appointments` |
-| My requests | `/client/requests` |
-| Notifications | `/client/notifications` |
-| Support & tickets | `/client/support` |
-| Privacy center | `/client/privacy` |
-| Staff login | `/login` |
-
-**Staff app** (behind `/login`)
-
-| Area | Route |
-|---|---|
-| Dashboard / Reports | `/dashboard`, `/reports` |
-| Customers | `/customers`, `/customers/new`, `/customers/:id` |
-| Inquiries | `/inquiries`, `/inquiries/new` |
-| Plans | `/plans`, `/plans/new`, `/plans/:id` |
-| Catalog | `/catalog`, `/catalog/new`, `/inventory`, `/pricing` |
-| Orders | `/orders` |
-| Sales pipeline | `/pipeline` |
-| Cases | `/cases`, `/cases/new`, `/cases/:id` |
-| Schedule | `/schedule`, `/schedule/new`, `/dispatch` |
-| Property map | `/property`, `/property/:id`, `/work-orders` |
-| Notifications | `/notifications` |
-| Billing / Accounting | `/billing`, `/accounting` |
-| Staff directory | `/hr`, `/hr/new`, `/hr/:id` |
-| Documents | `/documents`, `/documents/new`, `/documents/:id` |
-| Users & roles | `/admin/users`, `/admin/users/new` |
-| Store & content | `/admin/store` |
-| Workflows | `/admin/workflows`, `/admin/workflows/new` |
-| Audit trail | `/admin/audit` |
-| Tenant settings | `/admin/settings` |
-
-## Deploy to Vercel
-
-1. Push this folder to a Git host (or drag the `ui-ux-demo` folder into Vercel's dashboard).
-2. Vercel auto-detects **Vite**; build command `npm run build`, output directory `dist`.
-3. The `vercel.json` rewrite already handles client-side routes, so deep links work.
-
-## Structure
-
-```
-src/
-├── main.tsx           # entry, providers
-├── App.tsx            # routes (public · portals · staff)
-├── styles/            # tokens.css / base.css / components.css (blue + gold)
-├── lib/               # auth (demo), demo state (tenant/role), nav, data
-├── components/        # generic UI kit (no domain vocabulary, per ⓡ rule)
-└── pages/             # one file per screen (staff + public + portals)
-```
-
-## Disclaimer
-
-This is a **prototype, not production code**. Auth is fake, data is static, and no backend is
-connected. Do not copy the login logic into a real product.
+- `app/(public)` · `app/(staff)` · `app/(family)` · `app/(agent)` — route groups per surface
+- `app/api/*` — BFF route handlers only (session, thin proxies; no business rules)
+- `components/ui/*` — shared design-system kit (tokens + BEM, zero domain vocabulary)
+- `components/*` — feature components; `lib/api-client/*` typed clients (fixture/live)
+- `lib/fixtures/*` — recorded contract fixtures (provenance in `lib/fixtures/README.md`)
+- `styles/tokens.css` — single source of truth for every visual decision (DOC palette)

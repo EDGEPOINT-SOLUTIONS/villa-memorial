@@ -1,0 +1,49 @@
+{
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "bookings": [
+    {
+      "id": "20000000-0000-4000-8000-0000000000b1",
+      "resource_id": "10000000-0000-4000-8000-0000000000c1",
+      "resource_name": "Chapel A",
+      "case_number": "CASE-2026-0001",
+      "title": "Wake — Day 1",
+      "starts_at": "2026-09-10T09:00:00Z",
+      "ends_at": "2026-09-10T17:00:00Z",
+      "status": "confirmed",
+      "conflicting": false
+    },
+    {
+      "id": "20000000-0000-4000-8000-0000000000b2",
+      "resource_id": "10000000-0000-4000-8000-0000000000c2",
+      "resource_name": "Chapel B",
+      "case_number": null,
+      "title": "Memorial service",
+      "starts_at": "2026-09-10T14:00:00Z",
+      "ends_at": "2026-09-10T16:00:00Z",
+      "status": "confirmed",
+      "conflicting": true
+    },
+    {
+      "id": "20000000-0000-4000-8000-0000000000b3",
+      "resource_id": "10000000-0000-4000-8000-0000000000c4",
+      "resource_name": "Hearse 1",
+      "case_number": "CASE-2026-0002",
+      "title": "Transfer to park",
+      "starts_at": "2026-09-11T07:30:00Z",
+      "ends_at": "2026-09-11T09:00:00Z",
+      "status": "confirmed",
+      "conflicting": false
+    },
+    {
+      "id": "20000000-0000-4000-8000-0000000000b4",
+      "resource_id": "10000000-0000-4000-8000-0000000000c3",
+      "resource_name": "Preparation Room 1",
+      "case_number": "CASE-2026-0003",
+      "title": "Preparation",
+      "starts_at": "2026-09-12T10:00:00Z",
+      "ends_at": "2026-09-12T12:00:00Z",
+      "status": "cancelled",
+      "conflicting": false
+    }
+  ]
+}

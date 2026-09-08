@@ -1,0 +1,117 @@
+/* ============================================================================
+   tokens.css — single source of truth for every visual decision.
+   Pure :root custom properties only (safe under any load order).
+   Ported from docs/02-architecture/design-system.md — do not hard-code
+   raw values in views/components; reference a token instead.
+   ========================================================================== */
+
+:root {
+  /* --- Color primitives ---------------------------------------------------
+     granite: cool slate neutrals (structure, text)
+     marble:  warm off-whites (backgrounds so screens don't feel clinical)
+     brass:   restrained accent — focus states + ceremonial moments ONLY
+  */
+  --granite-50: #f6f7f8;
+  --granite-100: #eceef0;
+  --granite-200: #d9dde1;
+  --granite-300: #bfc5cb;
+  --granite-400: #98a1aa;
+  --granite-500: #6e7883;
+  --granite-600: #525b64;
+  --granite-700: #3d444c;
+  --granite-800: #2c3238;
+  --granite-900: #1d2126;
+
+  --marble-50: #fbfaf8;
+  --marble-100: #f5f3ee;
+  --marble-200: #eae6dd;
+  --marble-300: #ddd7c9;
+
+  --brass-300: #d3b877;
+  --brass-400: #bf9f57;
+  --brass-500: #a8873f;
+  --brass-600: #86692e;
+
+  /* Status hues — desaturated by design */
+  --sage-500: #6f8f6a;
+  --sage-100: #e7ede5;
+  --clay-500: #b3695e;
+  --clay-100: #f4e4e1;
+  --amber-500: #b08a3e;
+  --amber-100: #f3ecdb;
+  --slate-info: #5b7086;
+  --slate-info-100: #e4eaf0;
+
+  /* --- Semantic roles ----------------------------------------------------- */
+  --color-bg-page: var(--marble-100);
+  --color-bg-surface: var(--marble-50);
+  --color-bg-surface-raised: #ffffff;
+  --color-bg-inverse: var(--granite-900);
+  --color-bg-subtle: var(--granite-50);
+
+  --color-text-primary: var(--granite-800);
+  --color-text-secondary: var(--granite-600);
+  --color-text-muted: var(--granite-400);
+  --color-text-inverse: var(--marble-100);
+  --color-text-inverse-muted: var(--granite-400);
+
+  --color-border: var(--granite-200);
+  --color-border-strong: var(--granite-300);
+  --color-border-inverse: var(--granite-700);
+
+  --color-accent: var(--brass-500);
+  --color-accent-strong: var(--brass-600);
+  --color-accent-soft: var(--brass-300);
+  --color-focus-ring: var(--brass-400);
+
+  --color-status-success: var(--sage-500);
+  --color-status-success-bg: var(--sage-100);
+  --color-status-danger: var(--clay-500);
+  --color-status-danger-bg: var(--clay-100);
+  --color-status-warning: var(--amber-500);
+  --color-status-warning-bg: var(--amber-100);
+  --color-status-info: var(--slate-info);
+  --color-status-info-bg: var(--slate-info-100);
+
+  /* --- Type --------------------------------------------------------------- */
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-md: 0.9375rem;  /* 15px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.375rem;   /* 22px */
+  --text-2xl: 1.75rem;   /* 28px */
+  --text-3xl: 2.25rem;   /* 36px */
+  --text-4xl: 2.75rem;   /* 44px — hero display */
+  --text-5xl: 3.25rem;   /* 52px — hero display (large) */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.55;
+
+  /* --- Spacing / radii / shadows ------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Whisper-subtle shadows — "paper on marble"; borders carry separation */
+  --shadow-card: 0 1px 2px rgb(29 33 38 / 0.05), 0 1px 6px rgb(29 33 38 / 0.04);
+  --shadow-raised: 0 2px 4px rgb(29 33 38 / 0.07), 0 4px 14px rgb(29 33 38 / 0.06);
+
+  /* --- Motion ------------------------------------------------------------- */
+  --motion-fast: 120ms ease-out;
+  --motion-base: 180ms ease-out;
+  --motion-slow: 200ms ease-out;
+}
