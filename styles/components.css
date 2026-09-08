@@ -3146,7 +3146,32 @@ a.card:hover {
   --brass-400: var(--gold-400);
   --brass-500: var(--gold-500);
   --brass-600: var(--gold-700);
+} 
+/* --- Primary actions: deep navy (Radiant Compassion) ---------------------- */
+.app-shell .btn--primary {
+  background: linear-gradient(180deg, var(--navy-700) 0%, var(--navy-900) 100%);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgb(8 28 49 / 0.3);
 }
+
+.app-shell .btn--primary:hover:not(:disabled) {
+  filter: brightness(1.14);
+}
+
+.app-shell .btn--secondary {
+  border-color: color-mix(in srgb, var(--navy-300) 70%, var(--color-border-strong));
+}
+
+.app-shell .btn--accent {
+  background: linear-gradient(180deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  color: var(--navy-950);
+  font-weight: 600;
+}
+
+.app-shell .btn--accent:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
 
 /* --- Desk-light content surface (cool paper) -------------------------------- */
 .app-shell .app-main {
@@ -3465,4 +3490,649 @@ a.card:hover {
     border: none;
     padding: 0;
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * PaperSheet — document sheet on screen (Times, bordered grids, page breaks)
+ * Rendered from the SAME PaperBlock content as the .docx/.pdf exports, so what
+ * you review on screen is what downloads. Prints to Letter as the paper doc.
+ * ------------------------------------------------------------------------- */
+.paper-sheet {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  background: var(--color-bg-desk);
+}
+
+.paper-sheet__sheet {
+  width: min(100%, 8.5in);
+  background: #ffffff;
+  color: #1a1a1a;
+  font-family: "Times New Roman", Times, Georgia, serif;
+  padding: clamp(2rem, 4vw, 3.25rem) clamp(1.75rem, 5vw, 3rem);
+  border: 1px solid #d8d2c4;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.paper-sheet .paper-line {
+  margin: 0;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.paper-line--center { text-align: center; }
+.paper-line--right { text-align: right; }
+.paper-line--justify { text-align: justify; text-justify: inter-word; }
+.paper-line--bold { font-weight: 700; }
+.paper-line--caps { text-transform: uppercase; letter-spacing: 0.02em; }
+
+.paper-sheet .paper-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0.4rem 0 0.9rem;
+  font-family: inherit;
+}
+
+.paper-sheet .paper-table th,
+.paper-sheet .paper-table td {
+  border: 1px solid #111111;
+  padding: 0.22rem 0.5rem;
+  font-size: 10.5pt;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.paper-sheet .paper-table th {
+  background: #e9e9e9;
+  font-weight: 700;
+  font-size: 10pt;
+}
+
+.paper-sheet .paper-table .paper-cell--label {
+  font-weight: 600;
+}
+
+.paper-sheet .paper-cell__text {
+  white-space: pre-line;
+  display: block;
+}
+
+.paper-sheet__pagebreak {
+  page-break-after: always;
+  break-after: page;
+  height: 0;
+  border-bottom: 1px dashed #cfc9bb;
+  margin: 1.75rem 0;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .paper-sheet,
+  .paper-sheet * {
+    visibility: visible;
+  }
+  .paper-sheet {
+    position: absolute;
+    inset: 0 auto auto 0;
+    display: block;
+    width: 100%;
+    padding: 0;
+    background: #ffffff;
+  }
+  .paper-sheet__sheet {
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+  .paper-sheet .paper-table th {
+    background: #e9e9e9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .paper-sheet__pagebreak {
+    visibility: hidden;
+    border: none;
+    margin: 0;
+    page-break-after: always;
+    break-after: page;
+  }
+  @page {
+    size: Letter;
+    margin: 0.7in;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Purchase flagship — capture + paper document (blue/gold, .app-shell only)
+ * ------------------------------------------------------------------------- */
+
+/* --- Premium form controls inside the staff portal ------------------------ */
+.app-main input:not([type="checkbox"]):not([type="radio"]),
+.app-main select,
+.app-main textarea {
+  width: 100%;
+  background: var(--color-bg-surface-raised);
+  border: 1px solid color-mix(in srgb, var(--navy-300) 55%, var(--color-border));
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.app-main input:not([type="checkbox"]):not([type="radio"]):hover,
+.app-main select:hover,
+.app-main textarea:hover {
+  border-color: var(--navy-300);
+}
+
+.app-main input:not([type="checkbox"]):not([type="radio"]):focus,
+.app-main select:focus,
+.app-main textarea:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 3px var(--gold-wash-soft);
+}
+
+.app-main input[type="checkbox"] {
+  accent-color: var(--gold-600);
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.app-main .field > label {
+  color: var(--navy-700);
+  font-weight: 600;
+}
+
+/* --- Lot hero band (page opener for the lot document work) ------------------ */
+.paper-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(640px 260px at 88% -40px, color-mix(in srgb, var(--gold-300) 20%, transparent), transparent 62%),
+    linear-gradient(135deg, var(--navy-800) 0%, var(--navy-950) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--space-7) var(--space-7) var(--space-6);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.paper-hero::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold-hairline);
+}
+
+.paper-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+@media (max-width: 52rem) {
+  .paper-hero__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.paper-hero__eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+}
+
+.paper-hero__title {
+  margin: 0;
+  font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+  line-height: 1.12;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.paper-hero__lead {
+  margin: var(--space-3) 0 0;
+  color: color-mix(in srgb, var(--navy-100) 86%, transparent);
+  max-width: 38rem;
+  font-size: 0.95rem;
+}
+
+.paper-hero__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.paper-hero__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--gold-300) 42%, transparent);
+  background: color-mix(in srgb, var(--gold-300) 12%, transparent);
+  color: var(--gold-200);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.paper-hero__price {
+  text-align: right;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--gold-300) 38%, transparent);
+  border-radius: var(--radius-lg);
+  background: rgb(255 255 255 / 0.04);
+}
+
+.paper-hero__price-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+}
+
+.paper-hero__price-value {
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: #ffffff;
+  margin-top: var(--space-1);
+  white-space: nowrap;
+}
+
+.paper-hero__price-status {
+  margin-top: var(--space-2);
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--navy-100) 80%, transparent);
+}
+
+/* --- Capture two-column layout (folio + sticky rail) ------------------------ */
+.capture-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 19.5rem;
+  gap: var(--space-6);
+  align-items: start;
+}
+
+@media (max-width: 68rem) {
+  .capture-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.capture-layout__main {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+
+/* --- Section cards that read like folios of the paper form ------------------ */
+.capture-section {
+  scroll-margin-top: var(--space-5);
+  overflow: visible;
+}
+
+.capture-section__head {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.capture-section__num {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--gold-400) 60%, transparent);
+  background: var(--gold-wash-soft);
+  color: var(--gold-700);
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: var(--text-md);
+}
+
+.capture-section__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+  letter-spacing: -0.005em;
+}
+
+.capture-section__blurb {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.capture-section__body {
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.capture-subhead {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--navy-500);
+  margin: var(--space-2) 0 0;
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+/* --- Field grids ------------------------------------------------------------ */
+.field-grid {
+  display: grid;
+  gap: var(--space-2) var(--space-4);
+  align-items: start;
+}
+
+.field-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.field-grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.field-grid--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.field-grid--1 { grid-template-columns: 1fr; }
+
+@media (max-width: 60rem) {
+  .field-grid--3,
+  .field-grid--4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .field-grid--2,
+  .field-grid--3,
+  .field-grid--4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-grid .field {
+  margin-bottom: 0;
+}
+
+/* Peso input: symbol sits inside the control like a currency field on the paper. */
+.peso-input {
+  position: relative;
+  display: block;
+}
+
+.peso-input__mark {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--navy-500);
+  font-size: var(--text-md);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.peso-input input {
+  padding-left: calc(var(--space-3) * 2 + 0.5rem);
+}
+
+/* --- Lot strip inside the financing section ---------------------------------- */
+.lot-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--navy-50), var(--color-bg-surface-raised));
+  border: 1px solid var(--color-rule);
+  font-size: var(--text-sm);
+}
+
+.lot-strip__tag {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.lot-strip__meta {
+  color: var(--color-text-secondary);
+}
+
+.lot-strip__status {
+  margin-left: auto;
+}
+
+/* --- Consent statement box ---------------------------------------------------- */
+.consent-statement {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4);
+  border-left: 3px solid var(--gold-400);
+  background: var(--navy-50);
+  border-radius: var(--radius-sm) var(--radius-md) var(--radius-md) var(--radius-sm);
+  color: var(--navy-700);
+}
+
+.consent-statement svg {
+  flex: none;
+  color: var(--gold-600);
+  margin-top: 2px;
+}
+
+.consent-statement p {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+}
+
+.check-row--consent {
+  align-items: flex-start;
+  padding: var(--space-1) 0;
+}
+
+.check-row--consent input {
+  margin-top: 2px;
+}
+
+/* --- Beneficiary cards --------------------------------------------------------- */
+.capture-beneficiary {
+  border-color: var(--color-rule);
+}
+
+.capture-beneficiary .card__body {
+  padding: var(--space-4);
+}
+
+/* --- Bottom action bar ----------------------------------------------------------- */
+.capture-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card-rest);
+}
+
+/* --- Sticky right rail -------------------------------------------------------------- */
+.capture-rail {
+  position: sticky;
+  top: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.capture-rail__card {
+  box-shadow: var(--shadow-card-rest);
+}
+
+.capture-rail__head {
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.capture-rail__eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.capture-rail__head h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.capture-rail__steps {
+  padding: var(--space-2);
+  display: grid;
+  gap: 2px;
+}
+
+.capture-rail__step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.capture-rail__step:hover {
+  background: var(--navy-50);
+  color: var(--navy-900);
+}
+
+.capture-rail__step-num {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--gold-600);
+}
+
+.capture-rail__step-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+}
+
+.capture-rail__step-arrow {
+  margin-left: auto;
+  color: var(--color-text-muted);
+}
+
+.capture-rail__checks {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-rule);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.capture-rail__checks-title {
+  margin: 0 0 var(--space-1);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--navy-500);
+}
+
+.capture-rail__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.capture-rail__check svg {
+  color: var(--color-border-strong);
+}
+
+.capture-rail__check--ok {
+  color: var(--color-text-secondary);
+}
+
+.capture-rail__check--ok svg {
+  color: var(--sage-500);
+}
+
+.capture-rail__cta {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-rule);
+  display: grid;
+  gap: var(--space-3);
+}
+
+/* --- Paper preview view toolbar ----------------------------------------------------- */
+.paper-view__toolbar {
+  overflow: visible;
+}
+
+.paper-view__toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.paper-view__toolbar-head .page-header__eyebrow {
+  margin-bottom: var(--space-1);
+}
+
+.paper-view__toolbar-head h3 {
+  margin: 0;
+  color: var(--navy-900);
+}
+
+.paper-export-actions .btn {
+  gap: var(--space-1);
+}
+
+.paper-sheet {
+  border-radius: var(--radius-lg);
 }

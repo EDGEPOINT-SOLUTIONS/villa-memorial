@@ -36,10 +36,14 @@ Point `.env.local` at the live edge gateway to run against real services
 
 ## Open decisions for the dev (no work done on these yet)
 
-1. **Palette** — this app currently carries the DOC granite/marble/brass
-   tokens. The archived mockup is the COO blue/gold "Radiant Compassion" look.
-   Which palette is the deployed product? (Re-theme is a contained tokens-only
-   task once decided.)
+1. **Palette** — the **staff/admin portal now carries the COO blue/gold
+   "Radiant Compassion" premium direction** (approved by the captain on the
+   staff-portal boundary, track C). Public/family/agent surfaces still carry the
+   DOC granite/marble/brass tokens. The product-wide palette question stays
+   open here: should the deployed product follow blue/gold everywhere? (Staff
+   adoption is engineered as a tokens-only, `.app-shell`-scoped change, so a
+   full-product re-theme later remains a contained tokens task — see
+   `docs/02-architecture/premium-admin-direction.md`.)
 2. **Source-of-truth policy** — `in-memoriam/web` is still the monorepo's
    frontend. Recommend: keep that as the canonical repo; villa-memorial is the
    deployment copy, refreshed with one sync (`cp` from `in-memoriam/web`) after

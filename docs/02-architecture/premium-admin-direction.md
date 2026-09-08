@@ -1,69 +1,58 @@
-# Premium admin direction — blue/gold sample for captain approval
+# Premium admin direction — blue/gold (Radiant Compassion)
 
-Status: **awaiting approval (Phase 1 checkpoint — revision 2, blue/gold)** · Owner: Gab ·
-Scope: villa-memorial staff/admin portal (whole-portal rollout after sign-off)
+Status: **blue/gold APPROVED on the staff-portal boundary (option 1)** · Owner: Gab ·
+Next: **purchase-form showcase checkpoint pending captain review (needs-decision
+[key=purchase-form-showcase])**
 
-Screenshots (worktree-local review copy, not committed): `.premium-review/`
-`dashboard-before.png` = original design (pre-pass baseline) ·
-`bluegold-dashboard-top.png` = the new blue/gold sample (top) ·
-`bluegold-dashboard-lower.png` = the new blue/gold sample (lower region).
+## 1. The approved direction — blue/gold for the staff portal
 
-## Why revision 2
+The COO blue/gold "Radiant Compassion" palette adapted for admin screens: deep navy
+side surface with warm gold accents, cool paper content area, navy display-serif titles,
+gold focus/active/hairline moments. Sample (staff dashboard) approved 2026-09-08; token
+decisions live in `styles/tokens.css` (navy/gold primitives + staff roles) and the
+`.app-shell`-scoped rules in `styles/components.css`. Public/family/agent surfaces still
+carry DOC granite/marble/brass — tracked as a product-wide open decision in `PORT_PLAN.md`.
 
-The first sample refined the existing granite/marble/brass identity into a "premium craft"
-treatment. The captain reviewed it and found the change **too subtle to read as a premium
-step**, and asked for the **COO blue/gold "Radiant Compassion" palette** adapted for admin
-screens instead. This sample delivers that: deep navy sidebar with warm gold accents, navy
-display titles, cool paper content area, gold focus/active/hairline moments — unmistakably
-different from the current look while staying robust (all states, RBAC and per-route titles
-intact — this pass is pure tokens + scoped CSS; no markup, behavior or fixture changed).
+## 2. Flagship — the Purchase Application & Agreement experience (pre-checkpoint work)
 
-## The direction — "Radiant Compassion" blue/gold for the staff portal
+The captain made the Villa Purchase Application and Agreement the flagship deliverable,
+then raised the bar twice (1M-peso → 2.5M flagship: meticulous spacing/typography/
+hierarchy/motion, every state polished, exports indistinguishable from a studio
+deliverable). Built on `fm/villa-admin-premium`:
 
-| Token | Value | Where it shows |
-|---|---|---|
-| `--navy-700/800/900/950` | `#1c4366 → #081c31` | Sidebar gradient, top-bar avatar, table headers (navy-600) |
-| `--gold-300/400/500/700` | `#f1cc5e / #e2b633 / #c79b1e / #7a5c00` | Sidebar bloom + active rail + brand eyebrow, hairline family, KPI arrows, ink on light surfaces |
-| `--color-bg-desk` | cool paper + sky-tinted desk light | staff content column |
-| `--color-rule*` | cool hairlines (`#dbe4ec` ladder) | card/table/top-bar separators |
-| `--gold-wash-soft/strong`, `--gold-hairline` | translucent gold washes | active nav, accent chips, 2px gold top-bar hairline |
-| `--color-figure`, `--text-title-page`, `--text-stat` | navy-900 ink; 30–36px display serif | page titles, KPI numerals |
+**What changed (fixture-first; no invented money math/contracts/receipts; honest blanks;
+RBAC and per-route titles intact):**
 
-Treatment on the sample (staff dashboard):
-- **Sidebar:** deep navy gradient with a soft gold bloom at the top; ivory serif brand; gold
-  eyebrow; active nav = gold-tinted wash + gold left rail; links lift on hover.
-- **Chrome:** 2px **gold hairline** along the top edge of the staff top bar (matching the
-  hairline family the public/family shells wear — one product, four doors); gold "Demo" chip;
-  navy avatar with a gold ring; gold focus ring across the staff portal.
-- **Page header:** gold uppercase eyebrow; page title in navy display serif (36px).
-- **KPI tiles:** navy display figures on white paper; a gold hairline draws across the top of
-  each tile on hover with a navy border lift; gold arrows travel on hover.
-- **Cards/tables:** cool hairline separators, uppercase navy column headers, sky-tinted row
-  hover — data reads like a ledger.
-- **Finance figures** keep gold ink (ceremonial key figures); status hues stay desaturated.
+| Area | Change |
+|---|---|
+| Capture screen `/staff/property/[id]/apply` | Rebuilt as a document-folio flow under the blue/gold system: navy paper-hero band (lot chips + listed price), numbered folio sections 01 Buyer → 02 Beneficiaries → 03 Lot/price/terms → 04 Consent & signatures, breathing multi-column field grids, peso-marked money fields, lot strip, consent statement block, sticky document rail (step navigation + ready-for-paper checklist + preview CTA), client-side capture gate, unchanged save behaviour through the BFF |
+| Paper document view (new `/staff/property/[id]/document` + in-flow preview) | The recorded application — or the live draft — rendered as a true document sheet (Times typeface, park letterhead, bordered buyer/property grids, numbered clauses from `villa-terms.ts`, signature + notarial blocks, DPA consent page), from the SAME blocks the exports use |
+| Export | Real **.docx** (OOXML via the `docx` library, browser-side) and real **.pdf** (pdfkit via `POST /api/export/paper-pdf`, gated on session + property read), replicating the archived `docs/07-client-villa/paper-forms/` formats (fonts, tables, clause layout, signature and notarial blocks) filled from staff-entered data; Print prints the sheet on Letter |
+| Lot detail | "Open paper document" entry point for recorded applications (read-only viewers get it too) |
+| Honesty | Amounts print as written (em dash when uncaptured), Age next to DOB is a calendar computation only, operative clauses come from `villa-terms.ts` (never authored in the builder), form chrome is transcribed from the archived paper, no service is called or rewired |
 
-## Scope consequence — this decision needs the captain's ruling
+**Verification:** lint + typecheck green; 159 tests green incl. new consumer-level export
+tests (docx is parsed as an OOXML zip and its `word/document.xml` is asserted to carry the
+captured fields; pdf asserted structurally valid); `npm run build` green.
 
-Blue/gold on the **staff portal only** visibly **splits the product**: public, family and
-agent surfaces keep the DOC granite/marble/brass look they wear today. Staff see both
-surfaces (they run the public storefront from the admin portal), so the split is real, not
-hypothetical — though only staff see the admin side. Two clean ways to rule:
+**Evidence for the captain** (worktree, `.premium-review/`):
+- `purchase-capture-top.png` / `purchase-capture-finance.png` — capture folio (hero → buyer → financing)
+- `purchase-preview-toolbar.png` — in-flow paper preview with Print / Word / PDF actions
+- `purchase-document-top.png` / `-mid` / `-clauses` / `-notarial` — the recorded paper document
+- `export-evidence/Purchase-Application-and-Agreement-Lot-A-002.docx` and `.pdf` — real downloads filled with the demo buyer's data (Marites Santos, lot A-002)
+- `dashboard-before.png` / `bluegold-dashboard-*.png` — the approved dashboard sample pair
 
-1. **Staff portal goes blue/gold now (recommended); a full-product re-theme is tracked
-   separately.** Boundary per the captain's earlier scoping answer is the staff portal, the
-   COO mockups (client-approved) already carry blue/gold, and this repo centralizes every
-   visual decision in tokens — so adopting blue/gold on staff first does not foreclose
-   moving public/family/agent later; it makes that later re-theme a contained tokens task
-   and this branch delivers the captain's ask on the agreed boundary.
-2. **Escalate the palette as a product-wide decision first**, then apply blue/gold everywhere
-   in one sweep (bigger change; public/family/agent design is COO/DOC-owned and unchanged by
-   this branch if option 1 wins).
-
-If option 1 is approved, Phase 2 rolls this system across every staff route and Phase 3 keeps
-the three paper forms document-accurate with real .docx + PDF export (same wording as
-`lib/contracts/*` + `villa-terms.ts`, honest em-dash/blank conventions intact).
+**Scope consequences to rule on (captain's choice):**
+1. The full-product palette question stays tracked in `PORT_PLAN.md` (open decision #1).
+   The captain added the **public landing page** to the blue/gold scope for the rollout
+   phase — that will make the change effectively product-wide; family/agent portals will
+   follow for coherence unless the captain says otherwise. The rollout summary will say
+   explicitly which surface keeps the old granite identity if any.
+2. After this showcase checkpoint: (3) roll blue/gold + premium robustness across the
+   whole staff portal, and (4) extend the same paper-sheet + .docx/.pdf export to the
+   funeral Service Contract so all three forms export identically.
 
 ## Approval question for the captain
 
-Approve **option 1** (blue/gold staff portal; full-product palette decision tracked
-separately — recommended), or **option 2** (product-wide blue/gold re-theme first)?
+Approve the purchase-form showcase (capture folio + document view + Word/PDF export) and
+proceed to full rollout (3) + Service Contract export (4)?
