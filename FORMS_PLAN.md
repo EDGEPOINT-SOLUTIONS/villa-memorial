@@ -42,11 +42,14 @@ details.
    contract matches `current-state-forms.md`. Payment due 9 days / instruments
    in 3 days / 10%-per-month messaging = **display-only copy** (math belongs to
    finance, dev-side).
-2. **Purchase Application Form (2026 combined, P1).** Buyer demographics (TIN,
+2. **Purchase Application Form (2026 combined, P1 — implemented, Track B).** Buyer demographics (TIN,
    GSIS/SSS, Facebook, employer), **beneficiaries (age + relationship)**,
    classification / block / lot, pricing fields + amortization mode, DPA
    consent clause, sales-agent co-signature. Feeds the purchase-agreement
-   generator already present.
+   generator (`lib/contracts/purchase-agreement.ts` now takes the captured
+   application; without one it prints an honest blank form). Capture shape is
+   PROVISIONAL — no service contract freezes it yet (see
+   `docs/07-client-villa/open-questions.md` Track B; live persistence 503s).
 3. **Provisional receipt → official receipt flow (P1 display).** Initial
    payment capture + receipt view with the honest "valid only when confirmed by
    official receipt" note; the actual OR numbering/allocation is dev/finance.
@@ -90,6 +93,7 @@ first, then the parts of 5–6 that are pure capture UI).
 
 ## Open questions for the dev (capture in commit notes / PORT_PLAN)
 - Live gateway env (when forms must persist to services)
-- Which shapes 5–6 may use; whether the 2026 agreement/application merge
-  affects the current `lib/contracts/purchase-agreement.ts`
+- Which shapes 5–6 may use (the gap-2 merge question is answered: the 2026
+  application/agreement merge is handled in `lib/contracts/purchase-agreement.ts`,
+  which renders the governing revision's fields from the captured application)
 - Final palette for the deployed product

@@ -12,6 +12,15 @@ import {
   buildPurchaseAgreement,
   canGeneratePurchaseAgreement,
 } from "@/lib/contracts/purchase-agreement";
+import type { PurchaseApplication } from "@/lib/contracts/purchase-application";
+import {
+  ageOn,
+  buyerFullName,
+  emptyPurchaseApplicationInput,
+  pesosInputToCents,
+  purchaseApplicationFromForm,
+  validatePurchaseApplication,
+} from "@/lib/contracts/purchase-application";
 
 /**
  * Villa's contract terms changed between 2025 and 2026 in ways that change money: the 2025
@@ -279,15 +288,36 @@ describe("purchase agreement payload", () => {
     expect(mcf?.note).toContain("not recorded");
   });
 
-  it("speaks Villa's classification vocabulary, not the platform's lot type", () => {
-    const particulars = buildPurchaseAgreement({
-      lot: RESERVED,
-      tenantName: "Villa Memoria",
-      signedOn: "2026-08-29",
-    }).variables.particulars as Array<{ label: string; value: string }>;
-    expect(particulars.find((p) => p.label === "Classification")?.value).toBe(
-      "Lawn Lot — Family Garden",
-    );
+  it("only prints a Villa classification the governing revision actually lists", () => {
+    const particularsOf = (signedOn: string) =>
+      (buildPurchaseAgreement({
+        lot: RESERVED,
+        tenantName: "Villa Memoria",
+        signedOn,
+      }).variables.particulars as Array<{ label: string; value: string }>).find(
+        (p) => p.label === "Classification",
+      );
+
+    // 2025 revision: the platform's `family` type maps onto the 2025 paper's list.
+    expect(particularsOf("2025-11-02")?.value).toBe("Lawn Lot — Family Garden");
+    // 2026 revision: that word is NOT on the 2026 paper — a legal artifact must not print
+    // a classification from the other revision, so it stays blank until the purchase
+    // application names one (the platform lot type cannot express Villa's 2026 list).
+    expect(particularsOf("2026-08-29")?.value).toBe("");
+  });
+
+  it("prints the estate (mausoleum) guess only where the revision lists Mausoleum", () => {
+    const estate: Lot = { ...RESERVED, type: "estate" };
+    const particularsOf = (signedOn: string) =>
+      (buildPurchaseAgreement({
+        lot: estate,
+        tenantName: "Villa Memoria",
+        signedOn,
+      }).variables.particulars as Array<{ label: string; value: string }>).find(
+        (p) => p.label === "Classification",
+      );
+    expect(particularsOf("2025-11-02")?.value).toBe("Mausoleum");
+    expect(particularsOf("2026-08-29")?.value).toBe("Mausoleum");
   });
 });
 
@@ -345,5 +375,303 @@ describe("service contract with intake captured", () => {
     // Falls back to the purchaser when nobody has said who the client is.
     expect(build().variables.party_second).toBe("Juan dela Cruz");
     expect(build().variables.party_third).toBeUndefined();
+  });
+});
+
+describe("purchase agreement payload with a captured application", () => {
+  const RESERVED: Lot = {
+    id: "lot-uuid-1",
+    lot_number: "SEC-A-B2-014",
+    section: "Section A",
+    block: "B2",
+    type: "family",
+    status: "reserved",
+    area_sqm: 6,
+    price_cents: 32_000_000,
+    currency: "PHP",
+    owner_name: null,
+    reserved_at: "2026-08-20T00:00:00Z",
+    sold_at: null,
+  };
+
+  /** A 2026-combined-form application as a counter would have captured it. */
+  const APPLICATION: PurchaseApplication = {
+    ...emptyPurchaseApplicationInput(RESERVED),
+    lot_id: RESERVED.id,
+    lot_number: RESERVED.lot_number,
+    created_at: "2026-08-20T00:00:00Z",
+    updated_at: "2026-08-20T00:00:00Z",
+    application_date: "2026-08-20",
+    last_name: "Santos",
+    first_name: "Maria",
+    middle_name: "D.",
+    date_of_birth: "1975-06-14",
+    civil_status: "married",
+    gender: "female",
+    religion: "Roman Catholic",
+    contact_number: "0917 555 0000",
+    email: "maria.santos@example.com",
+    tin: "123-456-789-000",
+    gsis_sss_number: "11-2233445-6",
+    address: "Aguada, Isabela City",
+    occupation: "Teacher",
+    employer: "DepEd Isabela",
+    classification: "Lawn Lot Standard",
+    basic_price_cents: 30_000_000,
+    total_contract_price_cents: 33_600_000,
+    mcf_cents: 3_600_000,
+    vat_cents: 3_590_000,
+    mode_of_payment: "monthly",
+    amortization_value: 24,
+    amortization_unit: "months",
+    dpa_consent: true,
+    sales_agent_name: "Elena Villanueva",
+    beneficiaries: [
+      { name: "Alyanna Santos", age: 17, relationship: "Daughter" },
+      { name: "Miguel Santos", age: 14, relationship: "Son" },
+    ],
+  };
+
+  function build(overrides: Partial<Parameters<typeof buildPurchaseAgreement>[0]> = {}) {
+    return buildPurchaseAgreement({
+      lot: RESERVED,
+      application: APPLICATION,
+      tenantName: "Villa Memoria",
+      signedOn: "2026-08-29",
+      ...overrides,
+    });
+  }
+
+  const byLabel = (rows: Array<{ label: string; value: string }>, label: string) =>
+    rows.find((r) => r.label === label)?.value ?? "";
+
+  it("names the buyer in full from the application's name parts", () => {
+    expect(build().variables.party_second).toBe("Maria D. Santos");
+    expect(buyerFullName(APPLICATION)).toBe("Maria D. Santos");
+  });
+
+  it("prints the 2026 merged form's buyer block as particulars", () => {
+    const particulars = build().variables.particulars as Array<{
+      label: string;
+      value: string;
+    }>;
+    expect(byLabel(particulars, "Last name")).toBe("Santos");
+    expect(byLabel(particulars, "First name")).toBe("Maria");
+    expect(byLabel(particulars, "Date of birth")).toBe("1975-06-14");
+    // Age is a calendar computation next to Date of Birth on the paper — not money math.
+    expect(byLabel(particulars, "Age")).toBe("51");
+    expect(byLabel(particulars, "Civil status")).toBe("Married");
+    expect(byLabel(particulars, "GSIS/SSS No.")).toBe("11-2233445-6");
+    expect(byLabel(particulars, "Employer")).toBe("DepEd Isabela");
+    expect(byLabel(particulars, "Classification")).toBe("Lawn Lot Standard");
+  });
+
+  it("flattens beneficiaries with age and relationship onto the form", () => {
+    const particulars = build().variables.particulars as Array<{
+      label: string;
+      value: string;
+    }>;
+    expect(byLabel(particulars, "Beneficiary 1 — name")).toBe("Alyanna Santos");
+    expect(byLabel(particulars, "Beneficiary 1 — age")).toBe("17");
+    expect(byLabel(particulars, "Beneficiary 1 — relationship")).toBe("Daughter");
+    expect(byLabel(particulars, "Beneficiary 2 — name")).toBe("Miguel Santos");
+  });
+
+  it("prints the mode of payment and the amortisation term it was captured with", () => {
+    const particulars = build().variables.particulars as Array<{
+      label: string;
+      value: string;
+    }>;
+    expect(byLabel(particulars, "Mode of payment")).toBe("Monthly");
+    expect(byLabel(particulars, "Amortisation")).toBe("24 months");
+  });
+
+  it("carries the written MCF, VAT and total contract price instead of notes", () => {
+    const schedule = build().variables.schedule as Array<{
+      label: string;
+      amount_minor_units?: number;
+      note?: string;
+    }>;
+    const totals = build().variables.totals as Array<{
+      label: string;
+      amount_minor_units?: number;
+      note?: string;
+    }>;
+    expect(schedule.find((r) => r.label.startsWith("Maintenance Care Fund"))).toMatchObject({
+      amount_minor_units: 3_600_000,
+    });
+    expect(schedule.find((r) => r.label === "VAT")?.amount_minor_units).toBe(3_590_000);
+    expect(totals.find((r) => r.label === "Total contract price")?.amount_minor_units).toBe(
+      33_600_000,
+    );
+    expect(totals.find((r) => r.label === "Total contract price")?.note).toBeUndefined();
+  });
+
+  it("adds the sales agent as a co-signatory where the 2026 paper has one", () => {
+    const signatories = build().variables.signatories as Array<{ name: string; role: string }>;
+    expect(signatories.map((s) => s.name)).toEqual([
+      "Armando A. Villa",
+      "Maria D. Santos",
+      "Elena Villanueva",
+    ]);
+  });
+
+  it("resolves classifications and term text by signing date, application or not", () => {
+    expect(build({ signedOn: "2025-11-02" }).variables.terms_version).toBe(
+      "lot-purchase-2025",
+    );
+    expect(build().variables.terms_version).toBe("lot-purchase-2026");
+  });
+
+  it("prints the 2025 buyer table and Others/Insurance row on a 2025-governed artifact", () => {
+    const y2025 = build({
+      signedOn: "2025-11-02",
+      application: {
+        ...APPLICATION,
+        citizenship: "Filipino",
+        others_insurance: "Villa Memorial Plan",
+        interment_funeral_bundle_inclusion: null,
+      },
+    });
+    const particulars = y2025.variables.particulars as Array<{ label: string; value: string }>;
+    expect(byLabel(particulars, "Name")).toBe("Maria D. Santos");
+    expect(byLabel(particulars, "Citizenship")).toBe("Filipino");
+    expect(byLabel(particulars, "E-mail address")).toBe("maria.santos@example.com");
+    expect(byLabel(particulars, "Others / Insurance")).toBe("Villa Memorial Plan");
+    // The 2026-only interment row must not appear on the 2025 paper's artifact.
+    expect(particulars.find((p) => p.label.includes("Funeral Bundle"))).toBeUndefined();
+  });
+
+  it("can generate from an application even when the lot record carries no owner yet", () => {
+    expect(canGeneratePurchaseAgreement(RESERVED, APPLICATION)).toBe(true);
+    // Without an application a nameless lot is still a blank form.
+    expect(canGeneratePurchaseAgreement(RESERVED, null)).toBe(false);
+  });
+});
+
+describe("purchase application capture helpers", () => {
+  it("computes the paper's Age cell as calendar years, never negative", () => {
+    expect(ageOn("1975-06-14", "2026-08-29")).toBe(51);
+    expect(ageOn("1975-12-01", "2026-08-29")).toBe(50); // birthday not yet reached
+    expect(ageOn("2005-02-28", "2005-03-01")).toBe(0);
+    expect(ageOn(null, "2026-08-29")).toBeNull();
+    expect(ageOn("not-a-date", "2026-08-29")).toBeNull();
+  });
+
+  it("reads pesos as a counter types them into integer minor units", () => {
+    expect(pesosInputToCents("32000")).toBe(3_200_000);
+    expect(pesosInputToCents("1,500.50")).toBe(150_050);
+    expect(pesosInputToCents("")).toBeNull();
+    expect(pesosInputToCents("   ")).toBeNull();
+    expect(() => pesosInputToCents("abc")).toThrow();
+    expect(() => pesosInputToCents("-1")).toThrow();
+    expect(() => pesosInputToCents("1.234")).toThrow();
+  });
+
+  it("normalises a form body the same way in the BFF and on the screen", () => {
+    const input = purchaseApplicationFromForm({
+      application_date: "2026-08-20",
+      first_name: "Maria",
+      middle_name: "D.",
+      last_name: "Santos",
+      date_of_birth: "1975-06-14",
+      gender: "female",
+      civil_status: "married",
+      basic_price_cents: "30000",
+      mcf_cents: "3600",
+      mode_of_payment: "monthly",
+      amortization_value: 24,
+      amortization_unit: "months",
+      dpa_consent: true,
+      beneficiaries: [
+        { name: "Alyanna Santos", age: "17", relationship: "Daughter" },
+        { name: "", age: "", relationship: "" },
+      ],
+      untouched_field: "ignored",
+    });
+    expect(input.last_name).toBe("Santos");
+    expect(input.basic_price_cents).toBe(3_000_000);
+    expect(input.mcf_cents).toBe(360_000);
+    expect(input.amortization_value).toBe(24);
+    expect(input.dpa_consent).toBe(true);
+    expect(input.beneficiaries).toEqual([
+      { name: "Alyanna Santos", age: 17, relationship: "Daughter" },
+    ]);
+    expect(input.classification).toBeUndefined();
+    expect(input.religion).toBeUndefined();
+  });
+
+  it("rejects malformed money when normalising — a legal artifact never carries junk", () => {
+    expect(() =>
+      purchaseApplicationFromForm({ vat_cents: "eleventy" }),
+    ).toThrow(/not a valid peso amount/);
+  });
+
+  it("validates the minimum a legal capture needs: a name and the DPA consent", () => {
+    const base = purchaseApplicationFromForm({ application_date: "2026-08-20", dpa_consent: true });
+    expect(buyerFullName(base)).toBe("");
+    const terms2026 = termsByVersion("lot-purchase-2026")!;
+    expect(Object.keys(validatePurchaseApplication(base, terms2026))).toContain("name");
+
+    const named = purchaseApplicationFromForm({
+      application_date: "2026-08-20",
+      first_name: "Maria",
+      last_name: "Santos",
+      dpa_consent: false,
+    });
+    expect(Object.keys(validatePurchaseApplication(named, terms2026))).toContain("dpa_consent");
+
+    const ok = purchaseApplicationFromForm({
+      application_date: "2026-08-20",
+      first_name: "Maria",
+      last_name: "Santos",
+      dpa_consent: true,
+    });
+    expect(validatePurchaseApplication(ok, terms2026)).toEqual({});
+  });
+
+  it("rejects a half-entered amortisation term instead of dropping it", () => {
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "24", amortization_unit: "" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: 24 }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "0", amortization_unit: "months" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "abc", amortization_unit: "months" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "-3", amortization_unit: "years" }),
+    ).toThrow(/amortization/);
+  });
+
+  it("accepts any positive amortisation figure and leaves blanks blank", () => {
+    expect(
+      purchaseApplicationFromForm({ amortization_value: 200, amortization_unit: "months" })
+        .amortization_value,
+    ).toBe(200);
+    const blank = purchaseApplicationFromForm({});
+    expect(blank.amortization_value).toBeUndefined();
+    expect(blank.amortization_unit).toBeUndefined();
+  });
+
+  it("rejects a non-numeric beneficiary age instead of storing it as unknown", () => {
+    expect(() =>
+      purchaseApplicationFromForm({
+        beneficiaries: [{ name: "Alyanna Santos", age: "twelve", relationship: "Daughter" }],
+      }),
+    ).toThrow(/beneficiary age/);
+    expect(() =>
+      purchaseApplicationFromForm({
+        beneficiaries: [{ name: "Miguel Santos", age: "-1", relationship: "Son" }],
+      }),
+    ).toThrow(/beneficiary age/);
+    const blankAge = purchaseApplicationFromForm({
+      beneficiaries: [{ name: "Alyanna Santos", age: "", relationship: "Daughter" }],
+    });
+    expect(blankAge.beneficiaries[0]?.age).toBeNull();
   });
 });

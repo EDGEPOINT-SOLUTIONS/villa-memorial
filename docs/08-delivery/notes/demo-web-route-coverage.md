@@ -54,7 +54,8 @@
 | `/cases` + `/new` + `/:id` | same | ✅ |
 | `/schedule` + `/schedule/new` | `/staff/schedule` | ✅ (new = inline form) |
 | `/dispatch` | `/staff/dispatch` | ⚠ |
-| `/property` + `/:id` | `/staff/property` + `[id]` | ✅ map pilot |
+| `/property` + `/:id` | `/staff/property` + `[id]` | ✅ map pilot + purchase-application section (reads fixture application where captured) |
+| — | `/staff/property/[id]/apply` | ✅ fixture-backed purchase-application capture (fixture mode; live 503 — no application contract frozen yet) |
 | `/work-orders` | `/staff/work-orders` | ⚠ |
 | `/notifications` | — | ❌ (no scope/contract) |
 | `/billing` | `/staff/billing` | ✅ |

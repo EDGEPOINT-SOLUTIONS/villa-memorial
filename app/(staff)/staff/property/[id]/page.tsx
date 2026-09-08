@@ -6,6 +6,8 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getLot } from "@/lib/api-client/property";
+import { getPurchaseApplicationForLot } from "@/lib/api-client/purchase-applications";
+import { buyerFullName } from "@/lib/contracts/purchase-application";
 import { ReserveLotForm } from "./reserve-lot";
 import { GenerateAgreementForm } from "./generate-agreement";
 import { canGeneratePurchaseAgreement } from "@/lib/contracts/purchase-agreement";
@@ -48,6 +50,7 @@ export default async function LotDetailPage({
 
   const canReserve = hasAnyScope(session.scopes, ["property:write"]);
   const canGenerateDocuments = hasAnyScope(session.scopes, ["documents:write"]);
+  const canCaptureApplication = canReserve;
   const { id } = await params;
 
   let lot;
@@ -63,6 +66,21 @@ export default async function LotDetailPage({
       </>
     );
   }
+
+  // The purchase application (if any) names the buyer in full and carries the sale's
+  // written figures; the agreement generator reads it server-side. Live mode has no
+  // purchase-application API yet, so an unavailable read is a real state, not a bug.
+  let application: Awaited<ReturnType<typeof getPurchaseApplicationForLot>> | "unavailable" =
+    null;
+  try {
+    application = await getPurchaseApplicationForLot(id);
+  } catch {
+    application = "unavailable";
+  }
+  const applicationRecord =
+    application !== null && application !== "unavailable" ? application : null;
+  const hasApplication = applicationRecord !== null;
+  const buyerName = applicationRecord ? buyerFullName(applicationRecord) : lot.owner_name;
 
   return (
     <>
@@ -135,14 +153,149 @@ export default async function LotDetailPage({
         </Card>
       </PageSection>
 
-      {canGeneratePurchaseAgreement(lot) ? (
+      <PageSection>
+        <Card header={<h3>Purchase application</h3>}>
+          {application === "unavailable" ? (
+            <p className="text-sm text-muted">
+              Purchase applications are unavailable in live mode — no contract is frozen
+              yet (waits on dev). Run the app in fixture mode to see the capture flow.
+            </p>
+          ) : applicationRecord ? (
+            <div className="stack">
+              <div className="table-wrapper">
+                <table className="table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">Buyer</th>
+                      <td><strong>{buyerFullName(applicationRecord)}</strong></td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Applied on</th>
+                      <td>{applicationRecord.application_date}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Contact / email</th>
+                      <td>
+                        {[applicationRecord.contact_number, applicationRecord.email].filter(Boolean).join(" · ") ||
+                          "—"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Beneficiaries</th>
+                      <td>
+                        {applicationRecord.beneficiaries.length > 0
+                          ? applicationRecord.beneficiaries
+                              .map(
+                                (b) =>
+                                  `${b.name}${b.relationship ? ` (${b.relationship})` : ""}${b.age !== null ? `, age ${b.age}` : ""}`,
+                              )
+                              .join("; ")
+                          : "—"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Classification</th>
+                      <td>{applicationRecord.classification ?? "—"}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Basic price</th>
+                      <td>{formatMinorUnits(applicationRecord.basic_price_cents ?? lot.price_cents, lot.currency)}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">MCF / VAT / Total</th>
+                      <td>
+                        {[
+                          applicationRecord.mcf_cents !== null
+                            ? `MCF ${formatMinorUnits(applicationRecord.mcf_cents, lot.currency)}`
+                            : "",
+                          applicationRecord.vat_cents !== null
+                            ? `VAT ${formatMinorUnits(applicationRecord.vat_cents, lot.currency)}`
+                            : "",
+                          applicationRecord.total_contract_price_cents !== null
+                            ? `Total ${formatMinorUnits(applicationRecord.total_contract_price_cents, lot.currency)}`
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Mode / term</th>
+                      <td>
+                        {[applicationRecord.mode_of_payment, applicationRecord.amortization_unit ? `${applicationRecord.amortization_value} ${applicationRecord.amortization_unit}` : ""]
+                          .filter(Boolean)
+                          .join(" · ") || "—"}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">DPA consent</th>
+                      <td>
+                        {applicationRecord.dpa_consent ? "Consented" : "Not recorded"}
+                        {applicationRecord.dpa_consented_at ? ` on ${applicationRecord.dpa_consented_at.slice(0, 10)}` : ""}
+                      </td>
+                    </tr>
+                    {applicationRecord.sales_agent_name ? (
+                      <tr>
+                        <th scope="row">Sales agent</th>
+                        <td>{applicationRecord.sales_agent_name}</td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
+              {canCaptureApplication ? (
+                <div>
+                  <Link
+                    href={`/staff/property/${encodeURIComponent(lot.id)}/apply`}
+                    className="btn btn--secondary btn--sm"
+                  >
+                    Review / edit purchase application
+                  </Link>
+                </div>
+              ) : (
+                <p className="text-sm text-muted">
+                  Editing the application needs <code>property:write</code>.
+                </p>
+              )}
+            </div>
+          ) : (
+            <div className="stack">
+              <p className="text-sm text-muted">
+                No purchase application has been captured for this lot yet. The paper form
+                — buyer demographics, beneficiaries, classification, the price rows and the
+                financing terms — is what makes the agreement below print real values
+                instead of blanks.
+              </p>
+              {canCaptureApplication ? (
+                <div>
+                  <Link
+                    href={`/staff/property/${encodeURIComponent(lot.id)}/apply`}
+                    className="btn btn--secondary btn--sm"
+                  >
+                    {lot.status === "available"
+                      ? "Take purchase application"
+                      : "Record purchase application"}
+                  </Link>
+                </div>
+              ) : (
+                <p className="text-sm text-muted">
+                  Capturing a purchase application needs <code>property:write</code>.
+                </p>
+              )}
+            </div>
+          )}
+        </Card>
+      </PageSection>
+
+      {canGeneratePurchaseAgreement(lot, applicationRecord) ? (
         <PageSection>
           <Card header={<h3>Purchase agreement</h3>}>
             {canGenerateDocuments ? (
               <GenerateAgreementForm
                 lotId={lot.id}
                 lotNumber={lot.lot_number}
-                buyerName={lot.owner_name ?? ""}
+                buyerName={buyerName ?? ""}
+                hasApplication={hasApplication}
               />
             ) : (
               <p className="text-sm text-muted">
