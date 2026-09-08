@@ -101,11 +101,15 @@ export function ServiceContractScreen({
     }
   }
 
+  const signedOn = useMemo(
+    () => intake?.contract_date ?? new Date().toISOString(),
+    [intake],
+  );
   // The export renders the SAME working draft through the shared paper grammar
   // (lib/contracts/service-paper.ts) that feeds the .docx/.pdf renderers.
   const paperDoc = useMemo(
-    () => buildServicePaper({ kase, intake: intake ?? null, order, draft, terms }),
-    [kase, intake, order, draft, terms],
+    () => buildServicePaper({ kase, intake: intake ?? null, order, draft, terms, signedOn }),
+    [kase, intake, order, draft, terms, signedOn],
   );
   const paperStem = useMemo(
     () => paperFileStem([`Service-Contract-${kase.case_number}`, kase.deceased_name === "Pending intake" ? undefined : kase.deceased_name]),
@@ -120,7 +124,7 @@ export function ServiceContractScreen({
             Back to editing
           </Button>
         </PaperExportActions>
-        <ServiceContractPaper kase={kase} intake={intake} order={order} draft={draft} terms={terms} />
+        <ServiceContractPaper kase={kase} intake={intake} order={order} draft={draft} terms={terms} signedOn={signedOn} />
       </div>
     );
   }

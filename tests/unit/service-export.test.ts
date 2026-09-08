@@ -56,7 +56,7 @@ describe("service paper model", () => {
     draft.deductions.dswd_senior = true;
 
     const terms = termsByVersion("service-contract-2025") ?? null;
-    const { blocks, terms: resolved } = buildServicePaper({ kase: KASE, intake: INTAKE, order: ORDER, draft, terms });
+    const { blocks, terms: resolved } = buildServicePaper({ kase: KASE, intake: INTAKE, order: ORDER, draft, terms, signedOn: "2026-08-28" });
     expect(resolved?.version).toBe("service-contract-2025");
     const text = blocks
       .filter((b) => b.kind === "table")
@@ -79,7 +79,7 @@ describe("service contract docx export", () => {
     draft.deductions.sss_id = "33-4455-6677";
 
     const terms = termsByVersion("service-contract-2025") ?? null;
-    const { blocks } = buildServicePaper({ kase: KASE, intake: INTAKE, order: ORDER, draft, terms });
+    const { blocks } = buildServicePaper({ kase: KASE, intake: INTAKE, order: ORDER, draft, terms, signedOn: "2026-08-28" });
     const buffer = await paperToDocxBuffer(blocks);
 
     const zip = await JSZip.loadAsync(buffer);
@@ -100,7 +100,7 @@ describe("service contract pdf export", () => {
   it("produces a structurally valid PDF", async () => {
     const draft = emptyDraftForCase({ services: [] });
     const terms = termsByVersion("service-contract-2025") ?? null;
-    const { blocks } = buildServicePaper({ kase: KASE, intake: INTAKE, order: null, draft, terms });
+    const { blocks } = buildServicePaper({ kase: KASE, intake: INTAKE, order: null, draft, terms, signedOn: "2026-08-28" });
     const buffer = await paperToPdfBuffer(blocks);
     expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     const text = buffer.toString("latin1");

@@ -101,19 +101,20 @@ function drawTable(cursor: Cursor, table: PaperTable): void {
     return { parts, height };
   });
 
-  for (const row of measured) {
+  for (const [index, row] of measured.entries()) {
+    const isHead = Boolean(table.head) && index === 0;
     ensureRoom(cursor, row.height);
     const rowTop = cursor.y;
     let x = MARGIN;
     for (const part of row.parts) {
       const text = cellText(part.cell);
-      doc.rect(x, rowTop, part.width, row.height).lineWidth(0.5).strokeColor("#000000").stroke();
-      if (table.head) {
+      if (isHead) {
         doc.rect(x, rowTop, part.width, row.height).fillColor("#ececec").fill();
       }
+      doc.rect(x, rowTop, part.width, row.height).lineWidth(0.5).strokeColor("#000000").stroke();
       if (text !== "") {
-        doc.font(table.head ? FONT_BOLD : FONT_REGULAR).fontSize(table.head ? 9.5 : 10);
-        drawWrapped(doc, text, x + CELL_PAD, rowTop + CELL_PAD, part.width - CELL_PAD * 2, table.head ? "center" : "left");
+        doc.font(isHead ? FONT_BOLD : FONT_REGULAR).fontSize(isHead ? 9.5 : 10);
+        drawWrapped(doc, text, x + CELL_PAD, rowTop + CELL_PAD, part.width - CELL_PAD * 2, isHead ? "center" : "left");
       }
       x += part.width;
     }

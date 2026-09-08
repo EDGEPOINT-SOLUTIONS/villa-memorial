@@ -97,7 +97,7 @@ function sanitizeBlocks(raw: unknown): PaperBlock[] | null {
         break;
       }
       case "table": {
-        const columns = Math.min(Number(block.columns) || 2, 12);
+        const columns = Math.min(Math.max(Math.floor(Number(block.columns)) || 2, 1), 12);
         const head = Array.isArray(block.head)
           ? block.head
               .filter((h): h is string => typeof h === "string")
@@ -120,7 +120,7 @@ function sanitizeBlocks(raw: unknown): PaperBlock[] | null {
                 ? { label: cell.label.slice(0, 200) }
                 : {}),
               value: cell.value.slice(0, MAX_BLOCK_TEXT),
-              ...(typeof cell.span === "number" ? { span: Math.min(Math.max(cell.span, 1), columns) } : {}),
+              ...(typeof cell.span === "number" ? { span: Math.min(Math.max(Math.floor(cell.span) || 1, 1), columns) } : {}),
             });
           }
           if (row.length > 0) rows.push(row);

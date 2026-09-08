@@ -49,6 +49,7 @@ type ServicePaperInput = {
   order: OrderResponse | null;
   draft: ServiceContractDraft;
   terms: TermsRevision | null;
+  signedOn: string;
 };
 
 export function buildServicePaper(input: ServicePaperInput): {
@@ -56,8 +57,8 @@ export function buildServicePaper(input: ServicePaperInput): {
   title: string;
   terms: TermsRevision | null;
 } {
-  const { kase, intake, order, draft, terms } = input;
-  const contractDate = displayDate(intake?.contract_date) || displayDate(new Date().toISOString());
+  const { kase, intake, order, draft, terms, signedOn } = input;
+  const contractDate = (intake?.contract_date || signedOn).slice(0, 10);
   const dueDate = addDays(contractDate, PAYMENT_TERM_DAYS);
   const seniorClaimed = intake?.senior_citizen === true;
   const blocks: PaperBlock[] = [];

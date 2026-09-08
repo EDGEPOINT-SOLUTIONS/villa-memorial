@@ -531,14 +531,16 @@ function agreementBody(
 /* ------------------------------- signature --------------------------------- */
 
 function signatureBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] {
-  const buyerName = paperValue(
-    buyerFullName({ first_name: data.buyer.first, middle_name: data.buyer.middle, last_name: data.buyer.last }),
-  );
+  const buyerName = buyerFullName({
+    first_name: data.buyer.first,
+    middle_name: data.buyer.middle,
+    last_name: data.buyer.last,
+  }).trim();
   const blocks: PaperBlock[] = [];
   const twoCol: PaperCell[][] = [
     [
-      { label: undefined, value: `${buyerName}\n\nSANCTUARIO DE MERCEDES Y GLORIA\nBy:`, span: 2 },
-      { label: undefined, value: `\n\nBUYER (Signature over Printed Name)`, span: 2 },
+      { label: undefined, value: `SANCTUARIO DE MERCEDES Y GLORIA\n\nBy:`, span: 2 },
+      { label: undefined, value: `${buyerName}\n\nBUYER (Signature over Printed Name)`, span: 2 },
     ],
   ];
   blocks.push(space(2));
@@ -615,11 +617,17 @@ function dpaBlock(data: PurchasePaperData): PaperBlock[] {
       spaceAfter: 16,
     }),
   );
+  const buyerName = buyerFullName({
+    first_name: data.buyer.first,
+    middle_name: data.buyer.middle,
+    last_name: data.buyer.last,
+  }).trim();
+  const agentName = (data.salesAgent ?? "").trim();
   blocks.push(
     table(4, [
       [
-        { label: undefined, value: `${paperValue(data.salesAgent) ? `${data.salesAgent}\n\n` : "\n"}Signature over Printed Name of Buyer`, span: 2 },
-        { label: undefined, value: `\nSignature over Printed Name of Sales Agent`, span: 2 },
+        { label: undefined, value: `${buyerName}\n\nSignature over Printed Name of Buyer`, span: 2 },
+        { label: undefined, value: `${agentName}\n\nSignature over Printed Name of Sales Agent`, span: 2 },
       ],
     ], { widths: [0.5, 0.5], emphasizeFirstCell: false }),
   );
