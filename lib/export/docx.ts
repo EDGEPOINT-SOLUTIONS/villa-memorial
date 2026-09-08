@@ -118,7 +118,7 @@ function tableWidthFor(
   span: number,
 ): { size: number; type: (typeof WidthType)[keyof typeof WidthType] } {
   const widths = table.widths ?? [];
-  if (widths.length === 0) {
+  if (widths.length !== table.columns) {
     return { size: Math.round((100 * span) / table.columns), type: WidthType.PERCENTAGE };
   }
   let fraction = 0;
