@@ -1,6 +1,6 @@
 # Frontend Final Design — Port Plan (web/ → villa-memorial)
 
-Status: in progress (Sep 2026) — Slice 1 (real content & photos) first pass done · Owner: Gabriel R. (non-dev builder) · Reviewer: dev (Keb)
+Status: in progress (Sep 2026) — Slices 1 & 2 done · Owner: Gabriel R. (non-dev builder) · Reviewer: dev (Keb)
 
 ## Why this exists
 
@@ -48,7 +48,10 @@ its content already lives on this repo's `main`).
    photos + Lot-Only starting prices in `catalog.ts`/`publicCatalog.ts`, real
    media folder mirrored from the web uploads; remaining: pages still on AI
    heroes get swapped in slices 2–4)*
-2. **Landing showcase (D)** — premium hero + live map embed.
+2. **Landing showcase (D)** — premium hero + live map embed. *(done: real
+   hero photo, “The very first memorial park in Basilan” showcase with the real
+   aerial + lot-type quick links, and a “from the store” trio with real photos;
+   live map embed comes with the Slice 4 map upgrade)*
 3. **Public storefront heroes + one-pager (C).**
 4. **Park map upgrade (E)** — legend types + staff editor + 52 plots + multi-park.
 5. **Polish pass (F, G)** — nav/typography/focus/back-pills/link crawl.

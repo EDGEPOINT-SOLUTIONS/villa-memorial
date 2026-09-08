@@ -8,9 +8,19 @@
 
 import { Link } from "react-router-dom";
 
-// Verbatim asset from the mockup file (decoded, byte-exact).
-const HERO_IMG =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBQq-UOJ0KfuIVqfbiMlShkwLI_FdfmEjiWlcH6qCzXZixqAOS1TpPyuAzN-Be_5ubGK8qucL2x-whForb4qFh8SB-wYDTlYNayGuY7zJ0VtS-5aca7umxYBIKsM37FnKCgk-B4WQRaF9wVZFUsBGFQpxNvj_kxH2fenMHpi3-QeznQsHcxpysy4ftMmEZMC3B7zsQqKiIPWZZ5fvhIUadkb44Jtt_yvDiMvc3ifyuiNkWe4gtLvsq3P5E8jMdHnp_-7Q";
+// Real uploaded photos (mirrored from the production web app's uploads).
+const HERO_IMG = "/media/hero-1.jpg";
+const STORE_PACKAGES_IMG = "/media/plan-packages.png";
+const STORE_PRODUCTS_IMG = "/media/gold-casket.jpg";
+const STORE_TRANSPORT_IMG = "/media/transport.jpg";
+const PARK_AERIAL_IMG = "/media/villa-park-aerial.jpg";
+
+const SHOWCASE_TYPES = [
+  { img: "/media/lot-primary.png", label: "Primary lots", to: "/site/lots" },
+  { img: "/media/lot-premium.png", label: "Premium lots", to: "/site/lots" },
+  { img: "/media/lot-garden-niches.png", label: "Garden niches", to: "/site/lots" },
+  { img: "/media/lot-mausoleum.png", label: "Mausoleum", to: "/site/lots" },
+] as const;
 
 const BENTO_CARDS = [
   {
@@ -90,6 +100,117 @@ export function CooHomePage() {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* The very first memorial park in Basilan — premium showcase */}
+      <section className="py-section-gap px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-gutter items-center">
+          <div>
+            <p className="text-label-md font-label-md tracking-[0.14em] uppercase text-secondary">
+              Villa Memorial · Isabela City, Basilan
+            </p>
+            <h2 className="mt-3 font-serif text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight text-primary">
+              The very first memorial park in Basilan
+            </h2>
+            <p className="mt-4 text-body-lg font-body-lg text-on-surface-variant leading-relaxed">
+              Serene, landscaped grounds created to give Mindanao families a place of quiet
+              rest — planned ahead or at the moment of need, close to home.
+            </p>
+            <ul className="mt-6 space-y-3 text-body-md font-body-md text-on-surface-variant">
+              {[
+                "Walk the grounds online — zoom and pan the park map and find any lot.",
+                "Every plot carries its type: Primary lots, Premium lots, Garden niches and Mausoleum.",
+                "Browse every lot with its real 2026 asking price — no surprises.",
+              ].map((b) => (
+                <li key={b} className="flex items-start gap-3">
+                  <span className="material-symbols-outlined text-secondary mt-0.5">check_circle</span>
+                  <span>{b}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Link
+                to="/site/map"
+                className="bg-secondary hover:bg-secondary-fixed-dim text-on-secondary hover:text-on-secondary-fixed text-label-md font-label-md px-6 py-3 rounded-lg transition-colors duration-300 min-h-[48px] flex items-center justify-center gap-2 hover:no-underline!"
+              >
+                Explore the interactive map
+                <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              </Link>
+              <Link
+                to="/site/lots"
+                className="border border-primary-container text-primary hover:bg-primary-fixed text-label-md font-label-md px-6 py-3 rounded-lg transition-colors duration-300 min-h-[48px] flex items-center justify-center hover:no-underline!"
+              >
+                See lots &amp; prices
+              </Link>
+            </div>
+          </div>
+          <figure className="rounded-xl overflow-hidden shadow-ambient bg-surface-container-low">
+            <img
+              src={PARK_AERIAL_IMG}
+              alt="Aerial view of the first memorial park in Basilan"
+              className="w-full h-auto object-cover"
+              loading="lazy"
+            />
+            <figcaption className="text-label-md font-label-md text-on-surface-variant text-center py-3 italic">
+              The First Ever Memorial Park in Basilan
+            </figcaption>
+          </figure>
+        </div>
+
+        {/* Lot-type quick links under the showcase */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-gutter mt-section-gap">
+          {SHOWCASE_TYPES.map((x) => (
+            <Link
+              key={x.label}
+              to={x.to}
+              className="group rounded-xl overflow-hidden border border-[#eaeef4] shadow-ambient hover:shadow-[0_16px_32px_-12px_rgba(51,51,51,0.18)] transition-all duration-300 hover:no-underline!"
+            >
+              <img
+                src={x.img}
+                alt={x.label}
+                loading="lazy"
+                className="w-full h-36 md:h-44 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <span className="block text-center text-label-md font-label-md text-primary py-3 bg-surface-container-lowest">
+                {x.label} <span aria-hidden="true">→</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* From the store — packages, products, transport */}
+      <section className="pb-section-gap px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto">
+        <p className="text-label-md font-label-md tracking-[0.14em] uppercase text-secondary text-center">
+          From the store
+        </p>
+        <h2 className="mt-2 text-headline-lg-mobile md:text-headline-md font-headline-lg-mobile md:font-headline-md text-primary text-center mb-section-gap">
+          Packages, products &amp; transport
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+          {[
+            { img: STORE_PACKAGES_IMG, title: "Packages", blurb: "Thoughtfully bundled services at one clear price.", to: "/site/packages" },
+            { img: STORE_PRODUCTS_IMG, title: "Products &amp; keepsakes", blurb: "Caskets, urns and keepsakes for remembrance.", to: "/site/products" },
+            { img: STORE_TRANSPORT_IMG, title: "Transport", blurb: "Dignified transport, day or night.", to: "/site/transport" },
+          ].map((c) => (
+            <Link
+              key={c.title}
+              to={c.to}
+              className="group rounded-xl overflow-hidden bg-surface-container-lowest border border-[#eaeef4] shadow-ambient hover:-translate-y-1 hover:shadow-[0_16px_32px_-12px_rgba(51,51,51,0.18)] transition-all duration-300 hover:no-underline!"
+            >
+              <img
+                src={c.img}
+                alt={c.title.replace(/&amp;/g, "&")}
+                loading="lazy"
+                className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="p-6">
+                <h3 className="text-headline-sm font-headline-sm text-on-surface mb-1" dangerouslySetInnerHTML={{ __html: c.title }} />
+                <p className="text-body-md font-body-md text-on-surface-variant">{c.blurb}</p>
+              </div>
+            </Link>
+          ))}
         </div>
       </section>
 
