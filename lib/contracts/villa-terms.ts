@@ -45,6 +45,14 @@ export type TermsRevision = {
   partySecondRole: string;
   /** Present only where the paper form has a third signatory block. */
   partyThirdRole?: string;
+  /**
+   * The memorial-lot classifications Villa prints on that revision's form, in the paper's
+   * own words. The two revisions list different products (2026 drops Family Garden,
+   * Premium and Condo-type Vaults; adds Lawn Lot Standard and plain Condo-type), and a
+   * printed contract must use the vocabulary of the revision it was signed under.
+   * Present only on `lot_purchase` revisions; the service contract has no lot list.
+   */
+  classifications?: string[];
   scheduleTitle: string;
   adjustmentsTitle?: string;
   clauses: string[];
@@ -117,6 +125,15 @@ const LOT_PURCHASE_2025: TermsRevision = {
   title: "Purchase Agreement",
   effectiveFrom: "2025-01-01",
   effectiveUntil: "2026-01-01",
+  // 2025 standalone agreement's own list ("Block /Row No." row, per the paper).
+  classifications: [
+    "Mausoleum",
+    "Garden Niche",
+    "Lawn Lot — Family Garden",
+    "Lawn Lot — Prime",
+    "Lawn Lot — Premium",
+    "Condo-type Vaults",
+  ],
   partyFirst:
     "AA Villa Memorial Park Development Service, owner and developer of Sanctuario de Mercedes y Gloria, represented by its President, Armando A. Villa",
   partyFirstRole: "Seller",
@@ -148,6 +165,14 @@ const LOT_PURCHASE_2026: TermsRevision = {
   title: "Purchase Application and Agreement",
   effectiveFrom: "2026-01-01",
   effectiveUntil: null,
+  // 2026 combined form's own list; Family Garden, Premium and Condo-type Vaults are gone.
+  classifications: [
+    "Mausoleum",
+    "Garden Niche",
+    "Lawn Lot Prime",
+    "Lawn Lot Standard",
+    "Condo-type",
+  ],
   partyFirst:
     "AA Villa Memorial Park Development Services, owner and developer of Sanctuario de Mercedes y Gloria, represented by its President, Armando A. Villa",
   partyFirstRole: "Seller",

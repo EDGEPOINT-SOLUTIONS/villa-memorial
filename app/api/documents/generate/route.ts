@@ -5,6 +5,7 @@ import { getCase } from "@/lib/api-client/operations";
 import { getOrderByNumber } from "@/lib/api-client/commerce";
 import { getLot } from "@/lib/api-client/property";
 import { generateDocument } from "@/lib/api-client/documents";
+import { getPurchaseApplicationForLot } from "@/lib/api-client/purchase-applications";
 import { buildServiceContract } from "@/lib/contracts/service-contract";
 import { buildPurchaseAgreement } from "@/lib/contracts/purchase-agreement";
 import { ACCESS_COOKIE, parseAccessTokenClaims } from "@/lib/auth/session";
@@ -69,7 +70,16 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "lot_id required" }, { status: 400 });
       }
       const lot = await getLot(lotId);
-      payload = buildPurchaseAgreement({ lot, tenantName, signedOn });
+      // The captured purchase application supplies the buyer's demographics and the
+      // financing values so the agreement prints real figures. A missing application is a
+      // real state (an unreserved blank form) — the builder blanks those fields honestly.
+      let application = null;
+      try {
+        application = await getPurchaseApplicationForLot(lotId);
+      } catch {
+        application = null;
+      }
+      payload = buildPurchaseAgreement({ lot, application, tenantName, signedOn });
     } else {
       return NextResponse.json({ error: `unknown document kind ${kind}` }, { status: 400 });
     }
