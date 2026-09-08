@@ -8,8 +8,8 @@
 const HERO_IMG =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuD1r1DyzxSvPNBeXL4jlsHc2om0oNQ_ifOcV3HseINbe9zTej2xZAxckMNo9t3nSZWDcQLJJ7SBYFMEKWukdvpAOSxRRyU4hvmSZvTVoBINP8kTGLO6RgmXqwqRr2uPvOv42YekpFrGVaAXyzMn8-dmpdpC1w3xo-mcGV4sDzqwfOkKlRDqEWV19Hd7_SBhFuU7nUA01d8z_610P6eC7FC8Exfi6PjhMukhyPe5ys-4xVfgIfAFOPy13fDla6ZF3VSdbg";
 
-const GOLD_CASKET_IMG =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAgZTgvZPi4jiWlssXfx9GNqT40wKXObFeAH-Oaq4DkNuopWKt_8B9D8b8PLEoCeOmvmTXChG5x9DoOy9k1aUv3iNwM5gFQjjFcHvCyn7snJpniCZwmOgBLwY3fgx6cEFxob1Tv_3dagS1oTJ9e8leaI-jKkaH8-D6XlZThxyQnKdf0vVzhiz-qYbyleYT1ziK-NLFqVo8iDK_xPitFQqK-YQZJFpRuZ2s03E4ZZhrLBgYFIDPL2N9m0mGfxO5ADgVLWA";
+// Real uploaded photo (mirrored from the production web app's uploads).
+const GOLD_CASKET_IMG = "/media/gold-casket.jpg";
 
 type RateRow = { label: string; value: string };
 

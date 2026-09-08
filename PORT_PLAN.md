@@ -1,6 +1,6 @@
 # Frontend Final Design — Port Plan (web/ → villa-memorial)
 
-Status: in progress (Sep 2026) · Owner: Gabriel R. (non-dev builder) · Reviewer: dev (Keb)
+Status: in progress (Sep 2026) — Slice 1 (real content & photos) first pass done · Owner: Gabriel R. (non-dev builder) · Reviewer: dev (Keb)
 
 ## Why this exists
 
@@ -44,7 +44,10 @@ its content already lives on this repo's `main`).
 ## Slice order
 
 1. **Content first (A, B)** — real 2026 catalogue + real photos; every other
-   slice renders against it.
+   slice renders against it. *(done: real `villa-pricing.ts` mirror, real lot
+   photos + Lot-Only starting prices in `catalog.ts`/`publicCatalog.ts`, real
+   media folder mirrored from the web uploads; remaining: pages still on AI
+   heroes get swapped in slices 2–4)*
 2. **Landing showcase (D)** — premium hero + live map embed.
 3. **Public storefront heroes + one-pager (C).**
 4. **Park map upgrade (E)** — legend types + staff editor + 52 plots + multi-park.

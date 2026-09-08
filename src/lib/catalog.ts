@@ -6,10 +6,12 @@
 // receipts all read from this shelf so admin edits show up everywhere.
 // Demo-only seed content for the frontend prototype (no backend).
 //
-// NOTE: earlier COO mockup pages disagreed on prices for the same item
-// (Mausoleum ₱1,135,000 on Plans vs ₱1,073,000 on Lots vs ₱450,000 on the map).
-// This file is the single canonical price source; pages were normalized to it.
-// Items marked "price on arrangement" (price === null) need staff confirmation.
+// NOTE: prices are Villa's REAL 2026 figures (see src/lib/villa-pricing.ts).
+// Plans carry the real "Lot + Interment + VMP" bundle totals; lots carry the
+// real "1. Lot Only" selling price (the honest starting price on cards). The
+// full 2026 price list with every section (regular + senior) renders from
+// villa-pricing.ts. Items marked "price on arrangement" (price === null) need
+// staff confirmation.
 // ============================================================================
 
 export type ItemKind =
@@ -71,16 +73,9 @@ export const SITE_COPY_DEFAULTS: SiteCopy = {
   "contact.blurb": "Our compassionate team is available 24/7.",
 };
 
-const IMG = {
-  mausoleum:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuBl5wqOJTZQne-cConDockYJ4_K8rWofbTsaZctUkg4er6YXnzgxw_BHUZT_XDptxQfS1CyWmDnIKWCVB0gelrTSutEQ5Lu5HUleT9ch7C4uQKTUJp0RXNR4fCyp9bA2UVIsXCeGcl06gMTo6-hfwWksSNKCmhaBw1qhyaaPKpUxZ6fNY3MhuKOPfJchE2nW-0AammosIxRzSoKCkiEEr9IQ3hm359MpyFccsr0NoRx1ObbgqIRaJ-N",
-  garden:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuDYlYkozT7TsBmBNMCvkEFMsEcoBVtGXaHo_YRo4H3hW0T3GyOjc45aaqxnfKwTIw0kEUXn9zSMnazYPnWYaBMXSjZl2GXUQWueFWh-upbdlCrYi2NyDWGI20QSaOzss3KcS6mnMsPck_Q-NEK99l1Tq0gZ9um-I7TWZQOf3fEpJcjX8vI9-dv-mzJPX7O74SwzBj6NA82Pc-I-BQq4bTLVnF2cRncLPFnmpiITymlOR_R7q_9ugjdh",
-  premium:
-    "https://lh3.googleusercontent.com/aida-public/AB6AXuBS4a2wVjsf0nZMtB25iUMnB1KOv64pGG4YMaORbOzB_NilkFrlNdQGSV1_0mJtBcRFaO4lqr6qplrmJwzCX2DAD0rZU0doPnoQJYmmIGgEsmlzZp5DbS2Pihf8T-zLsVtoU9WygNMbWIlpJdJLOHtxMUTYfJFUAdyaYALWaoejxHzC37z9SZ7hzuHLT8JBQt7BSDaKpKzlVLeLeVpG8HdBr6m2bcsbEpDY1lJ7YFbbvhx2P-Pf2S7g",
-};
-
 // --- Plans (pre-need) -------------------------------------------------------
+// Real imagery: the uploaded Villa lot photos, referenced by name under
+// /public/media (mirrored from the production web app's uploads).
 export const CATALOG: CatalogRecord[] = [
   {
     sku: "plan-garden-niches",
@@ -90,7 +85,7 @@ export const CATALOG: CatalogRecord[] = [
     detail:
       "Pre-need memorial plan covering a 12.00 sqm garden-niche setting. Lock in today's price with funds held in a trusted trust fund.",
     price: 629000,
-    image: IMG.garden,
+    image: "/media/lot-garden-niches.png",
     imageAlt: "Garden niches memorial setting",
     features: ["12.00 sqm Area", "6 Years Amortization", "Includes Interment + VMP"],
     active: true,
@@ -104,7 +99,7 @@ export const CATALOG: CatalogRecord[] = [
     detail:
       "Our grandest pre-need offering: a 24.00 sqm private mausoleum sanctuary with timeless elegance.",
     price: 1135000,
-    image: IMG.mausoleum,
+    image: "/media/lot-mausoleum.png",
     imageAlt: "Mausoleum plan",
     features: ["24.00 sqm Area", "6 Years Amortization", "Includes Interment + VMP"],
     active: true,
@@ -118,7 +113,7 @@ export const CATALOG: CatalogRecord[] = [
     detail:
       "Pre-need memorial plan for a 2.50 sqm premium lawn lot within the memorial park.",
     price: 176000,
-    image: IMG.premium,
+    image: "/media/lot-premium.png",
     imageAlt: "Premium lots plan",
     features: ["2.50 sqm Area", "6 Years Amortization", "Includes Interment + VMP"],
     active: true,
@@ -135,8 +130,8 @@ export const LOTS_CATALOG: CatalogRecord[] = [
     chip: "Premium Estate",
     blurb: "Our grandest offering — an exclusive private sanctuary for family heritage.",
     detail: "24.00 sqm mausoleum estate with multi-vault capacity and bespoke landscaping.",
-    price: 1135000,
-    image: IMG.mausoleum,
+    price: 1073000,
+    image: "/media/lot-mausoleum.png",
     imageAlt: "Mausoleum",
     features: ["24.00 sqm", "Multi-vault Capacity", "Bespoke Landscaping"],
     active: true,
@@ -148,8 +143,8 @@ export const LOTS_CATALOG: CatalogRecord[] = [
     chip: "Serene Gardens",
     blurb: "Peaceful, landscaped enclosures in a tranquil open-air setting.",
     detail: "12.00 sqm garden niche with floral borders and memorial seating.",
-    price: 629000,
-    image: IMG.garden,
+    price: 567000,
+    image: "/media/lot-garden-niches.png",
     imageAlt: "Garden Niches",
     features: ["12.00 sqm", "Integrated Floral Borders", "Memorial Seating"],
     active: true,
@@ -162,7 +157,7 @@ export const LOTS_CATALOG: CatalogRecord[] = [
     blurb: "Dignified spaces with excellent proximity to main pathways.",
     detail: "2.50 sqm prime lawn lot, highly accessible with serene vistas.",
     price: 128000,
-    image: IMG.premium,
+    image: "/media/lot-primary.png",
     imageAlt: "Prime Lots",
     features: ["2.50 sqm", "Premium Accessibility", "Lawn Level Marker"],
     active: true,
@@ -174,7 +169,7 @@ export const LOTS_CATALOG: CatalogRecord[] = [
     blurb: "A simple, elegant tribute within lush, expansive lawns.",
     detail: "2.50 sqm standard lawn lot surrounded by nature's quiet comfort.",
     price: 114000,
-    image: IMG.premium,
+    image: "/media/lot-premium.png",
     imageAlt: "Premium Lots",
     features: ["2.50 sqm", "Single Interments", "Lawn Level Marker"],
     active: true,
@@ -186,7 +181,7 @@ export const LOTS_CATALOG: CatalogRecord[] = [
     blurb: "A modern, space-efficient structure that maintains dignity and grace.",
     detail: "Structured, elegant resting option within a contemporary setting.",
     price: 75000,
-    image: IMG.garden,
+    image: "/media/lot-premium.png",
     imageAlt: "Condo-type",
     features: ["Structured Leveling", "Well-lit Pathways"],
     active: true,
