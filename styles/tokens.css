@@ -110,7 +110,44 @@
   --shadow-card: 0 1px 2px rgb(29 33 38 / 0.05), 0 1px 6px rgb(29 33 38 / 0.04);
   --shadow-raised: 0 2px 4px rgb(29 33 38 / 0.07), 0 4px 14px rgb(29 33 38 / 0.06);
 
-  /* --- Motion ------------------------------------------------------------- */
+  /* --- Premium ledger roles (staff premium pass) -----------------------------
+     Direction: "granite & brass at premium craft" — the existing DOC identity
+     (granite structure / marble paper / restrained brass) elevated for the
+     staff portal. Additive tokens; base palette values are untouched so public
+     + family + agent surfaces keep their exact current look.
+  */
+  /* Desk-light: warm light falling on the work surface from above. */
+  --color-bg-desk:
+    radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.9), transparent 62%),
+    var(--color-bg-page);
+  /* Hairline + rule ladder: structure lines vs stronger separators. */
+  --color-rule: var(--granite-200);
+  --color-rule-strong: var(--granite-300);
+  --color-rule-inverse: rgb(255 255 255 / 0.08);
+
+  /* Brass containment: washes stay translucent so brass never floods a surface. */
+  --brass-wash-soft: color-mix(in srgb, var(--brass-300) 14%, transparent);
+  --brass-wash: color-mix(in srgb, var(--brass-300) 22%, transparent);
+  --brass-wash-strong: color-mix(in srgb, var(--brass-300) 34%, transparent);
+  --brass-hairline: linear-gradient(90deg, transparent, var(--brass-400), transparent);
+
+  /* Elevation ladder — paper on marble, refined for hover/pop layers. */
+  --shadow-paper: 0 1px 1px rgb(29 33 38 / 0.04), 0 1px 3px rgb(29 33 38 / 0.05);
+  --shadow-card-rest:
+    0 1px 2px rgb(29 33 38 / 0.05),
+    0 3px 10px -2px rgb(29 33 38 / 0.07);
+  --shadow-card-hover:
+    0 2px 5px rgb(29 33 38 / 0.08),
+    0 14px 30px -10px rgb(29 33 38 / 0.18);
+
+  /* Serif figure colour for ceremonial numerals (ledger key figures). */
+  --color-figure: var(--granite-900);
+
+  /* Display type for the staff portal (page titles, headline figures). */
+  --text-title-page: clamp(1.85rem, 1.35rem + 1.4vw, 2.25rem);
+  --text-stat: 1.875rem;
+
+  /* Motion ------------------------------------------------------------- */
   --motion-fast: 120ms ease-out;
   --motion-base: 180ms ease-out;
   --motion-slow: 200ms ease-out;
