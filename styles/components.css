@@ -30,12 +30,14 @@
 }
 
 .btn--primary {
-  background: var(--granite-800);
-  color: var(--color-text-inverse);
+  background: linear-gradient(180deg, var(--navy-700) 0%, var(--navy-900) 100%);
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgb(8 28 49 / 0.3);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--granite-700);
+  background: var(--navy-800);
+  filter: brightness(1.12);
 }
 
 .btn--secondary {
@@ -45,7 +47,7 @@
 }
 
 .btn--secondary:hover:not(:disabled) {
-  border-color: var(--granite-400);
+  border-color: var(--navy-300);
 }
 
 .btn--ghost {
@@ -69,12 +71,13 @@
 
 /* Ceremonial accent button */
 .btn--accent {
-  background: var(--brass-500);
-  color: #ffffff;
+  background: linear-gradient(180deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  color: var(--navy-950);
+  font-weight: 600;
 }
 
 .btn--accent:hover:not(:disabled) {
-  background: var(--brass-600);
+  filter: brightness(1.06);
 }
 
 .btn--sm {
@@ -85,6 +88,42 @@
 .btn--lg {
   padding: var(--space-3) var(--space-5);
   font-size: var(--text-base);
+}
+
+/* --- Form controls: bordered, radius, cool focus ring (product-wide) --------- */
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  width: 100%;
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):hover,
+select:hover,
+textarea:hover {
+  border-color: var(--navy-300);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--gold-500);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-300) 30%, transparent);
+}
+
+input[type="checkbox"] {
+  accent-color: var(--gold-600);
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 /* --- Cards ---------------------------------------------------------------- */
@@ -198,9 +237,11 @@
 }
 
 .table thead th {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy-600);
   background: var(--color-bg-surface);
 }
 
@@ -209,7 +250,7 @@
 }
 
 .table tbody tr:hover td {
-  background: var(--color-bg-subtle);
+  background: color-mix(in srgb, var(--navy-100) 55%, transparent);
 }
 
 .table__numeric {
@@ -270,10 +311,10 @@
 .page-header__eyebrow {
   font-family: var(--font-sans);
   font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--gold-700);
   margin-bottom: var(--space-1);
 }
 
@@ -321,9 +362,9 @@
   border-radius: var(--radius-sm);
   background: linear-gradient(
     90deg,
-    var(--granite-100) 25%,
-    var(--granite-50) 50%,
-    var(--granite-100) 75%
+    var(--navy-100) 25%,
+    var(--navy-50) 50%,
+    var(--navy-100) 75%
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s ease infinite;
@@ -910,10 +951,10 @@
   font-size: var(--text-sm);
 }
 
-/* Eyebrows: brass on public/family warmth; muted grey stays for staff chrome. */
+/* Eyebrows: gold ink on the light public/family surfaces. */
 .public-main .page-header__eyebrow,
 .family-shell__main .page-header__eyebrow {
-  color: var(--brass-500);
+  color: var(--gold-700);
   letter-spacing: 0.14em;
 }
 
@@ -942,7 +983,7 @@
 }
 
 .eyebrow-label {
-  color: var(--brass-500);
+  color: var(--gold-700);
   font-size: var(--text-sm);
   font-weight: 600;
   letter-spacing: 0.16em;
@@ -1151,8 +1192,8 @@
 /* CTA band */
 .landing__cta {
   background:
-    radial-gradient(80% 140% at 90% 0%, var(--granite-700) 0%, transparent 60%),
-    var(--color-bg-inverse);
+    radial-gradient(80% 140% at 90% 0%, var(--navy-700) 0%, transparent 60%),
+    var(--navy-900);
   border: none;
   border-radius: var(--radius-lg);
 }
@@ -1170,13 +1211,14 @@
 }
 
 .landing__cta .text-muted {
-  color: var(--color-text-inverse-muted);
+  color: color-mix(in srgb, var(--navy-100) 72%, transparent);
 }
 
 /* Premium accent CTA (ceremonial emphasis — landing + family portal) */
-.landing .btn--accent {
-  background: linear-gradient(180deg, var(--brass-500) 0%, var(--brass-600) 100%);
-  color: var(--marble-50);
+.landing .btn--accent,
+.landing__cta .btn--accent {
+  background: linear-gradient(180deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  color: var(--navy-950);
   border: none;
   box-shadow: var(--shadow-raised);
 }
@@ -1294,7 +1336,7 @@
 }
 
 .family-shell__brand-sub {
-  color: var(--brass-500);
+  color: var(--gold-700);
   font-size: var(--text-md);
 }
 
@@ -2494,8 +2536,8 @@
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(720px circle at 88% 12%, rgba(168, 135, 63, 0.14), transparent 58%),
-    linear-gradient(180deg, var(--granite-900), var(--granite-800));
+    radial-gradient(720px circle at 88% 12%, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 58%),
+    linear-gradient(180deg, var(--navy-900), var(--navy-950));
   color: var(--color-text-inverse);
   padding-block: clamp(3.5rem, 7vw, 6rem);
   margin-block: var(--space-6);
@@ -2734,9 +2776,9 @@
 }
 
 .seg-filter .pill-toggle--active {
-  background: var(--granite-800);
-  color: var(--color-text-inverse);
-  border-color: var(--granite-800);
+  background: var(--navy-800);
+  color: #ffffff;
+  border-color: var(--navy-800);
 }
 
 /* Related-page quick chips */
@@ -3137,22 +3179,6 @@ a.card:hover {
  *  - navy primary interactions; gold reserved for ceremonial moments
  */
 
-/* --- Gold focus ring + gold-in-staff token remaps --------------------------- */
-.app-shell {
-  --color-focus-ring: var(--gold-500);
-  /* Shared kit pieces that are brass elsewhere read gold inside the staff
-     portal (chips, bell hovers, portal-switch accents, link hovers). */
-  --brass-300: var(--gold-300);
-  --brass-400: var(--gold-400);
-  --brass-500: var(--gold-500);
-  --brass-600: var(--gold-700);
-} 
-/* --- Primary actions: deep navy (Radiant Compassion) ---------------------- */
-.app-shell .btn--primary {
-  background: linear-gradient(180deg, var(--navy-700) 0%, var(--navy-900) 100%);
-  color: #ffffff;
-  box-shadow: 0 1px 2px rgb(8 28 49 / 0.3);
-}
 
 .app-shell .btn--primary:hover:not(:disabled) {
   filter: brightness(1.14);
@@ -3613,47 +3639,6 @@ a.card:hover {
 /* ---------------------------------------------------------------------------
  * Purchase flagship — capture + paper document (blue/gold, .app-shell only)
  * ------------------------------------------------------------------------- */
-
-/* --- Premium form controls inside the staff portal ------------------------ */
-.app-main input:not([type="checkbox"]):not([type="radio"]),
-.app-main select,
-.app-main textarea {
-  width: 100%;
-  background: var(--color-bg-surface-raised);
-  border: 1px solid color-mix(in srgb, var(--navy-300) 55%, var(--color-border));
-  border-radius: var(--radius-md);
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-md);
-  color: var(--color-text-primary);
-  transition:
-    border-color var(--motion-fast),
-    box-shadow var(--motion-fast);
-}
-
-.app-main input:not([type="checkbox"]):not([type="radio"]):hover,
-.app-main select:hover,
-.app-main textarea:hover {
-  border-color: var(--navy-300);
-}
-
-.app-main input:not([type="checkbox"]):not([type="radio"]):focus,
-.app-main select:focus,
-.app-main textarea:focus {
-  outline: none;
-  border-color: var(--gold-500);
-  box-shadow: 0 0 0 3px var(--gold-wash-soft);
-}
-
-.app-main input[type="checkbox"] {
-  accent-color: var(--gold-600);
-  width: 1.05rem;
-  height: 1.05rem;
-}
-
-.app-main .field > label {
-  color: var(--navy-700);
-  font-weight: 600;
-}
 
 /* --- Lot hero band (page opener for the lot document work) ------------------ */
 .paper-hero {

@@ -1,8 +1,8 @@
-# Premium admin direction — blue/gold (Radiant Compassion)
+# Premium admin direction — blue/gold (Radiant Compassion), product-wide
 
-Status: **blue/gold APPROVED on the staff-portal boundary (option 1)** · Owner: Gab ·
-Next: **purchase-form showcase checkpoint pending captain review (needs-decision
-[key=purchase-form-showcase])**
+Status: **purchase showcase APPROVED; full-product rollout complete on
+`fm/villa-admin-premium` (staff · family · agent · landing) + Service Contract
+export — pending final CI via no-mistakes** · Owner: Gab
 
 ## 1. The approved direction — blue/gold for the staff portal
 
@@ -56,3 +56,48 @@ captured fields; pdf asserted structurally valid); `npm run build` green.
 
 Approve the purchase-form showcase (capture folio + document view + Word/PDF export) and
 proceed to full rollout (3) + Service Contract export (4)?
+
+## 3. Product-wide rollout (captain's mandate, 2026-09-08)
+
+The captain approved the showcase and expanded the mandate: *apply this UI/UX
+throughout all pages — admin panel, agent, family, staff, and the landing page.* One
+product, one premium look, same 2.5M-peso bar. Implemented in one sweep (staff → family
+→ agent → landing), followed by the Service Contract export so all three forms export
+identically.
+
+### How it was done
+- **Tokens, product-wide:** the semantic roles and brass primitives in `styles/tokens.css`
+  were re-pointed to the navy/gold family (cool paper surfaces, navy ink, gold accents,
+  gold focus/hairlines). Every surface shares one palette by construction — the
+  per-tenant theming the design system promised is exactly this.
+- **Shared kit upgrades:** navy primary buttons, gold accent buttons with navy text,
+  real form-control styling (inputs/selects/textareas/checkboxes were browser-default in
+  most portals — now bordered with gold focus rings), ledger column headers + cool row
+  hover on tables, cool loading skeleton, cool empty/alert states.
+- **Folio welcome bands:** the family and agent dashboards open with the same deep-navy
+  hero band as the purchase capture (eyebrow, display serif, chips, gold price panel).
+- **Landing:** dark showcase + CTA bands are now deep navy with gold blooms; eyebrows,
+  stats and steps read gold; accent CTAs are gold-on-navy-text. The landing stays a
+  photo-led marketing surface (deliberate — see deviations).
+- **Service Contract export:** `lib/contracts/service-paper.ts` builds the same
+  PaperBlock grammar as the purchase papers from the case intake + working draft +
+  linked order; the paper screen's preview now carries Print / Word (.docx) / PDF via the
+  shared export actions. Consumer tests assert the .docx OOXML carries the filled fields
+  and the versioned clause wording.
+
+### Intentional deviations (named for the captain)
+- The **family "memorial card"** keeps its warm ivory gradient — remembrance warmth on
+  the family home is deliberate, not a miss.
+- **Family/agent sidebars stay light** (near-white with navy text and gold active wash)
+  rather than the staff portal's deep-navy sidebar — the airier COO portal look inside
+  the same navy/gold language, keeping portals distinct at a glance.
+- The **landing hero stays photo-first** (white/navy text over photography) with navy
+  showcase and CTA bands carrying the premium depth; it does not copy the folio's navy
+  full-bleed header because that would fight the photography.
+
+### Evidence (worktree, `.premium-review/`)
+- `public-landing-v2.png`, `public-plans-v2.png` — public landing + plans under blue/gold
+- `family-dashboard-v2.png`, `agent-dashboard-v2.png` — folio welcome bands
+- `service-contract-preview.png` — service contract paper preview with export toolbar
+- `export-evidence/Service-Contract-CASE-2026-0001.docx/.pdf` — real exports
+- earlier: purchase folio + document screenshots and `Purchase-Application-and-Agreement-Lot-A-002.docx/.pdf`

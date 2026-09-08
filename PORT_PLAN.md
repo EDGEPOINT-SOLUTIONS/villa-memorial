@@ -34,16 +34,18 @@ npm run dev        # demo/fixture mode on :4000 (no gateway needed)
 Point `.env.local` at the live edge gateway to run against real services
 (see `.env.example`). Build + test + lint scripts match the monorepo `web/`.
 
-## Open decisions for the dev (no work done on these yet)
+## Open decisions for the dev
 
-1. **Palette** — the **staff/admin portal now carries the COO blue/gold
-   "Radiant Compassion" premium direction** (approved by the captain on the
-   staff-portal boundary, track C). Public/family/agent surfaces still carry the
-   DOC granite/marble/brass tokens. The product-wide palette question stays
-   open here: should the deployed product follow blue/gold everywhere? (Staff
-   adoption is engineered as a tokens-only, `.app-shell`-scoped change, so a
-   full-product re-theme later remains a contained tokens task — see
-   `docs/02-architecture/premium-admin-direction.md`.)
+1. **Palette — DECIDED (2026-09-08).** The captain approved the COO blue/gold
+   "Radiant Compassion" premium direction and expanded it to the WHOLE product —
+   staff portal, family portal, agent portal and the public landing experience now
+   carry the same navy/gold folio design language on one shared token system
+   (`styles/tokens.css` re-points semantic roles + brass primitives to the
+   navy/gold family). DOC granite/marble is retired as the product face (its
+   neutrals remain as structure primitives). See
+   `docs/02-architecture/premium-admin-direction.md`. No further palette decision
+   pending.
+
 2. **Source-of-truth policy** — `in-memoriam/web` is still the monorepo's
    frontend. Recommend: keep that as the canonical repo; villa-memorial is the
    deployment copy, refreshed with one sync (`cp` from `in-memoriam/web`) after

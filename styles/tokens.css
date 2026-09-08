@@ -27,10 +27,14 @@
   --marble-200: #eae6dd;
   --marble-300: #ddd7c9;
 
-  --brass-300: #d3b877;
-  --brass-400: #bf9f57;
-  --brass-500: #a8873f;
-  --brass-600: #86692e;
+  /* Brass primitives now carry the Radiant Compassion gold family product-wide
+     (captain-approved blue/gold, 2026-09-08): decorative golds for hairlines,
+     washes and focus; a dark gold-ink for text-on-light so small accents keep
+     WCAG contrast. The porcelain-neutral granite/marble scales above stay. */
+  --brass-300: #f1cc5e;
+  --brass-400: #e2b633;
+  --brass-500: #c79b1e;
+  --brass-600: #7a5c00;
 
   /* Status hues — desaturated by design */
   --sage-500: #6f8f6a;
@@ -43,21 +47,21 @@
   --slate-info-100: #e4eaf0;
 
   /* --- Semantic roles ----------------------------------------------------- */
-  --color-bg-page: var(--marble-100);
-  --color-bg-surface: var(--marble-50);
+  --color-bg-page: var(--navy-50);
+  --color-bg-surface: #fbfdff;
   --color-bg-surface-raised: #ffffff;
-  --color-bg-inverse: var(--granite-900);
-  --color-bg-subtle: var(--granite-50);
+  --color-bg-inverse: var(--navy-900);
+  --color-bg-subtle: var(--navy-100);
 
-  --color-text-primary: var(--granite-800);
-  --color-text-secondary: var(--granite-600);
-  --color-text-muted: var(--granite-400);
+  --color-text-primary: var(--navy-900);
+  --color-text-secondary: var(--navy-700);
+  --color-text-muted: var(--navy-500);
   --color-text-inverse: var(--marble-100);
-  --color-text-inverse-muted: var(--granite-400);
+  --color-text-inverse-muted: var(--navy-200);
 
-  --color-border: var(--granite-200);
-  --color-border-strong: var(--granite-300);
-  --color-border-inverse: var(--granite-700);
+  --color-border: var(--navy-200);
+  --color-border-strong: var(--navy-300);
+  --color-border-inverse: var(--navy-700);
 
   --color-accent: var(--brass-500);
   --color-accent-strong: var(--brass-600);

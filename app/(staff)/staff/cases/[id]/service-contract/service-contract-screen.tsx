@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
+import { PaperExportActions } from "@/components/paper/paper-export-actions";
+import { buildServicePaper } from "@/lib/contracts/service-paper";
+import { paperFileStem } from "@/lib/export/types";
 import type { Case } from "@/lib/api-client/operations";
 import type { OrderResponse } from "@/lib/api-client/commerce";
 import type { TermsRevision } from "@/lib/contracts/villa-terms";
@@ -98,17 +101,25 @@ export function ServiceContractScreen({
     }
   }
 
+  // The export renders the SAME working draft through the shared paper grammar
+  // (lib/contracts/service-paper.ts) that feeds the .docx/.pdf renderers.
+  const paperDoc = useMemo(
+    () => buildServicePaper({ kase, intake: intake ?? null, order, draft, terms }),
+    [kase, intake, order, draft, terms],
+  );
+  const paperStem = useMemo(
+    () => paperFileStem([`Service-Contract-${kase.case_number}`, kase.deceased_name === "Pending intake" ? undefined : kase.deceased_name]),
+    [kase],
+  );
+
   if (preview) {
     return (
       <div className="stack">
-        <div className="btn-group">
+        <PaperExportActions blocks={paperDoc.blocks} filename={paperStem}>
           <Button type="button" size="sm" variant="secondary" onClick={() => setPreview(false)}>
             Back to editing
           </Button>
-          <Button type="button" size="sm" onClick={() => window.print()}>
-            Print paper contract
-          </Button>
-        </div>
+        </PaperExportActions>
         <ServiceContractPaper kase={kase} intake={intake} order={order} draft={draft} terms={terms} />
       </div>
     );

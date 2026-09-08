@@ -28,7 +28,36 @@ export default async function ClientDashboardPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Family portal" title="Welcome" />
+      <div className="paper-hero">
+        <div className="paper-hero__grid">
+          <div>
+            <p className="paper-hero__eyebrow">Family portal · Dashboard</p>
+            <h1 className="paper-hero__title">Welcome home</h1>
+            <p className="paper-hero__lead">
+              Your arrangement for {loved_one.name} is looked after here — the plan,
+              the balance and every document issued, together in one place.
+            </p>
+            <div className="paper-hero__chips">
+              <span className="paper-hero__chip">{plan_summary.plan_name}</span>
+              <span className="paper-hero__chip">{plan_summary.term}</span>
+              <span className="paper-hero__chip">
+                {recent_documents.length > 0
+                  ? `${recent_documents.length} document${recent_documents.length === 1 ? "" : "s"} issued`
+                  : "No documents issued yet"}
+              </span>
+            </div>
+          </div>
+          <div className="paper-hero__price">
+            <p className="paper-hero__price-label">Balance</p>
+            <p className="paper-hero__price-value">{balance.total}</p>
+            <p className="paper-hero__price-status">
+              {balance.paid === balance.total
+                ? "Fully paid — thank you."
+                : `next due ${plan_summary.next_due}`}
+            </p>
+          </div>
+        </div>
+      </div>
 
       <PageSection>
         <div className="memorial-card">
