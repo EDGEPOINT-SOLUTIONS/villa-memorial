@@ -358,7 +358,7 @@ export function ServiceContractScreen({
       ) : null}
 
       <div className="btn-group">
-        <Button type="button" size="sm" onClick={openPreview} disabled={!canWrite}>
+        <Button type="button" size="sm" onClick={openPreview}>
           Preview paper contract
         </Button>
       </div>
