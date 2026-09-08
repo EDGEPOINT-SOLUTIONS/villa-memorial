@@ -285,13 +285,12 @@ export default async function CaseDetailPage({
             — the deceased/client header from intake plus the services-vs-deals table, the
             deductions block and the contract terms, ready to print for signature.
           </p>
-          {canWriteCases ? (
-            <div style={{ marginTop: "1rem" }}>
-              <Link href={`/staff/cases/${item.id}/service-contract`} className="btn btn--secondary btn--sm">
-                Open the service contract form
-              </Link>
-            </div>
-          ) : (
+          <div style={{ marginTop: "1rem" }}>
+            <Link href={`/staff/cases/${item.id}/service-contract`} className="btn btn--secondary btn--sm">
+              {canWriteCases ? "Open the service contract form" : "View the service contract (read-only)"}
+            </Link>
+          </div>
+          {canWriteCases ? null : (
             <p className="text-sm text-muted">
               Editing the service contract needs <code>cases:write</code>.
             </p>
