@@ -23,7 +23,7 @@ details.
 | Area | In this repo |
 |---|---|
 | Case intake (funeral case data) | `components/intake-form.tsx`, `/staff/cases/new`, case page |
-| Funeral Service Contract render | `lib/contracts/service-contract.ts`, generate on case page |
+| Funeral Service Contract render | `lib/contracts/service-contract.ts`, generate on case page; paper capture screen at `/staff/cases/[id]/service-contract` (`service-contract-screen.tsx` + `service-contract-paper.tsx`, model in `lib/contracts/service-contract-capture.ts`) |
 | Lot Purchase Agreement render | `lib/contracts/purchase-agreement.ts`, generate on property detail |
 | Customer / family accounts | `/staff/customers/new` |
 | Inquiries | `/staff/inquiries/new` |
@@ -34,12 +34,12 @@ details.
 
 ## Gap list (the real forms still to capture fully)
 
-1. **Funeral Service Contract — capture completeness (P1).** Verify the intake
-   screen captures every header field (deceased, client, co-maker, IDs, senior
-   flag), every line item (ROD, coffin tier, embalming days, lizo, delivery,
-   viewing, interment, extension) and the **deductions block** (LGU / DSWD /
-   Senior / SSS-GSIS / life-plan) as structured inputs; confirm the printed
-   contract matches `current-state-forms.md`. Payment due 9 days / instruments
+1. **Funeral Service Contract — capture completeness (P1 — implemented, Track A).** The intake
+   screen captures every header field (deceased, client incl. gender/civil status/Facebook/email,
+   co-maker, IDs, senior flag), and the case's service-contract screen captures every line item
+   (ROD, coffin tier, embalming days, lizo, delivery, viewing, interment, extension) and the
+   **deductions block** (LGU / DSWD / Senior / SSS-GSIS / life-plan) as structured inputs; the
+   printed paper preview matches `current-state-forms.md` §1. Payment due 9 days / instruments
    in 3 days / 10%-per-month messaging = **display-only copy** (math belongs to
    finance, dev-side).
 2. **Purchase Application Form (2026 combined, P1 — implemented, Track B).** Buyer demographics (TIN,

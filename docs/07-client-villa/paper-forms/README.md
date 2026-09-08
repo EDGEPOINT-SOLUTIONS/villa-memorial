@@ -23,7 +23,7 @@ Rules (per the captain's approval):
   included) lives in `word/document.xml` — extract with python3 `zipfile` /
   `xml.etree` (ElementTree) when a field-by-field reading is needed, or read
   the transcript below for the field inventory.
-- Legal wording on the printed contract comes from `web/lib/contracts/villa-terms.ts`
+- Legal wording on the printed contract comes from `lib/contracts/villa-terms.ts`
   (versioned by effective date), never from this file at render time.
 
 ## Funeral Service Contract — field inventory (transcript of the .docx)
@@ -65,5 +65,5 @@ Co-Maker / Armando Villa, Funeraria Villa) · notarial acknowledgement with Doc/
 Book/Series lines.
 
 See `docs/07-client-villa/current-state-forms.md` §1 for the business rules extracted
-from this paper, and `web/lib/contracts/villa-terms.ts` for the versioned clause
+from this paper, and `lib/contracts/villa-terms.ts` for the versioned clause
 wording the app prints.
