@@ -46,9 +46,11 @@ export function ServiceContractPaper({
 }) {
   const contractDate = displayDate(intake?.contract_date) || displayDate(new Date().toISOString());
   const dueDate = addDays(contractDate, PAYMENT_TERM_DAYS);
-  // Tri-state: uncaptured intake prints no tick (a printed "No" nobody claimed would be
-  // as wrong as a printed "Yes"); captured false prints "No", captured true "Yes".
-  const senior = intake?.senior_citizen ?? null;
+  // The frozen intake shape carries senior-citizen as a plain boolean, so a stored
+  // false is the service default rather than an answer nobody can distinguish from
+  // one. Only a claimed "Yes" ticks a box here; anything else prints unticked, which
+  // is also what Generate files (omit-when-false).
+  const seniorClaimed = intake?.senior_citizen === true;
 
   const rows = appliedRows(draft);
   const noServices = rows.length === 0;
@@ -113,11 +115,11 @@ export function ServiceContractPaper({
               <td colSpan={2}>{displayDate(intake?.deceased_date_of_birth)}</td>
               <td colSpan={2} className="paper-artifact__ticks">
                 Senior Citizen?&nbsp;
-                <span className={senior === true ? "paper-artifact__tick paper-artifact__tick--on" : "paper-artifact__tick"}>
-                  {senior === true ? "☒" : "☐"} Yes
+                <span className={seniorClaimed ? "paper-artifact__tick paper-artifact__tick--on" : "paper-artifact__tick"}>
+                  {seniorClaimed ? "☒" : "☐"} Yes
                 </span>
-                <span className={senior === false ? "paper-artifact__tick paper-artifact__tick--on" : "paper-artifact__tick"}>
-                  {senior === false ? "☒" : "☐"} No
+                <span className="paper-artifact__tick">
+                  ☐ No
                 </span>
               </td>
             </tr>

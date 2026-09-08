@@ -28,7 +28,7 @@
  * intake (see `lib/api-client/operations.ts` `CaseIntake`); this module covers the
  * rest of the paper below the header.
  */
-import type { Case, CaseIntake } from "@/lib/api-client/operations";
+import type { Case } from "@/lib/api-client/operations";
 
 /* ------------------------------------------------------------------ */
 /* The paper's discrete rows                                           */
@@ -295,45 +295,10 @@ export function validateDraft(draft: ServiceContractDraft): DraftErrors {
   return { badDays, longDetails };
 }
 
-export function draftIsValid(draft: ServiceContractDraft): boolean {
-  const errors = validateDraft(draft);
-  return errors.badDays.length === 0 && errors.longDetails.length === 0;
-}
-
 /* ------------------------------------------------------------------ */
-/* Header helpers shared by the capture screen and the paper preview   */
+/* Header letters as the paper prints them, for the preview's tick layout */
 /* ------------------------------------------------------------------ */
 
 /** Gender/civil-status letters as the paper prints them, for the preview's tick layout. */
 export const GENDER_LETTER = { male: "M", female: "F" } as const;
 export const CIVIL_STATUS_LETTER = { single: "S", married: "M", other: "O" } as const;
-
-export type ClientChannels = {
-  telephone: string | null;
-  facebook: string | null;
-  email: string | null;
-};
-
-export function channelsFromIntake(intake: CaseIntake | null): ClientChannels {
-  return {
-    telephone: intake?.client_contact ?? null,
-    facebook: intake?.client_facebook ?? null,
-    email: intake?.client_email ?? null,
-  };
-}
-
-/** The paper's "Gender:" line for one party: letters ticked when the intake says so. */
-export function genderOptions(value: string | null | undefined): { letter: string; checked: boolean }[] {
-  return (["male", "female"] as const).map((g) => ({
-    letter: GENDER_LETTER[g],
-    checked: value === g,
-  }));
-}
-
-/** The paper's "Civil Status: S M O" line: letters ticked when the intake says so. */
-export function civilStatusOptions(value: string | null | undefined): { letter: string; checked: boolean }[] {
-  return (["single", "married", "other"] as const).map((s) => ({
-    letter: CIVIL_STATUS_LETTER[s],
-    checked: value === s,
-  }));
-}

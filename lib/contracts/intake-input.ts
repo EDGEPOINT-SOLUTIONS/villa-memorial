@@ -39,7 +39,8 @@ export function intakeFromForm(body: unknown): CaseIntakeInput {
       out[field] = value;
     }
   }
-  // A checkbox is meaningful in both states, so it is sent whenever the form supplied it.
+  // An answered senior-citizen question is meaningful in both states, so it is sent
+  // whenever the form supplied one; a blank stays absent rather than becoming "No".
   if (typeof raw.senior_citizen === "boolean") {
     out.senior_citizen = raw.senior_citizen;
   }

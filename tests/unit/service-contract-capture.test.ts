@@ -3,12 +3,10 @@ import {
   ALL_ROWS,
   appliedRows,
   CIVIL_STATUS_LETTER,
-  civilStatusOptions,
   DEAL_ROWS,
   emptyDraft,
   emptyDraftForCase,
   GENDER_LETTER,
-  genderOptions,
   printedRowLabel,
   SERVICE_ROWS,
   validateDraft,
@@ -138,22 +136,13 @@ describe("validation is structural, never monetary", () => {
   });
 });
 
-describe("header option helpers", () => {
-  it("maps male/female to the paper's M/F letters", () => {
-    expect(genderOptions("female")).toEqual([
-      { letter: "M", checked: false },
-      { letter: "F", checked: true },
-    ]);
-    expect(GENDER_LETTER.male).toBe("M");
+describe("header letters match the paper's ticks", () => {
+  it("prints gender as M/F", () => {
+    expect(GENDER_LETTER).toEqual({ male: "M", female: "F" });
   });
 
-  it("maps single/married/other to the paper's S/M/O letters", () => {
-    expect(civilStatusOptions("other")).toEqual([
-      { letter: "S", checked: false },
-      { letter: "M", checked: false },
-      { letter: "O", checked: true },
-    ]);
-    expect(CIVIL_STATUS_LETTER.married).toBe("M");
+  it("prints civil status as S/M/O", () => {
+    expect(CIVIL_STATUS_LETTER).toEqual({ single: "S", married: "M", other: "O" });
   });
 });
 
@@ -184,6 +173,46 @@ describe("intake round-trip carries the paper's client-channel fields", () => {
     expect(values.client_civil_status).toBe("married");
     expect(values.client_facebook).toBe("fb.com/ana.santos");
     expect(values.client_email).toBe("ana.santos@example.com");
+    expect(values.senior_citizen).toBe(true);
+  });
+
+  it("keeps an answered senior-citizen denial through intakeToValues", () => {
+    const values = intakeToValues(
+      {
+        date_of_death: null,
+        deceased_date_of_birth: null,
+        deceased_gender: null,
+        deceased_civil_status: null,
+        senior_citizen: false,
+        client_name: null,
+        client_gender: null,
+        client_civil_status: null,
+        client_address: null,
+        client_contact: null,
+        client_facebook: null,
+        client_email: null,
+        client_relationship: null,
+        client_id_presented: null,
+        client_id_number: null,
+        co_maker_name: null,
+        contract_date: null,
+        completed_at: null,
+      },
+      {},
+    );
+    expect(values.senior_citizen).toBe(false);
+  });
+
+  it("keeps an unanswered senior-citizen question blank through the form round-trip", () => {
+    expect(emptyIntake().senior_citizen).toBeNull();
+    expect(intakeToValues(null, {}).senior_citizen).toBeNull();
+    expect(intakeFromForm({})).not.toHaveProperty("senior_citizen");
+    expect(intakeFromForm({ senior_citizen: null })).not.toHaveProperty("senior_citizen");
+  });
+
+  it("forwards an answered senior-citizen question either way", () => {
+    expect(intakeFromForm({ senior_citizen: true })).toMatchObject({ senior_citizen: true });
+    expect(intakeFromForm({ senior_citizen: false })).toMatchObject({ senior_citizen: false });
   });
 
   it("treats an uncaptured intake as blank form values, not nulls", () => {

@@ -8,6 +8,10 @@ import type { CaseIntake } from "@/lib/api-client/operations";
  * a blank form field is `""`, an uncaptured record field is `null`, and the mapping
  * keeps the two honest rather than blurring them.
  *
+ * Senior-citizen rides tri-state here (`null` = nobody answered yet) even though the
+ * frozen `CaseIntake` shape only carries a boolean: a blank must survive the form and
+ * the submit payload rather than collapsing to an unclaimed "No".
+ *
  * Client-visible wording is the component's job; this module only carries values.
  */
 export type IntakeValues = {
@@ -17,7 +21,7 @@ export type IntakeValues = {
   deceased_date_of_birth: string;
   deceased_gender: string;
   deceased_civil_status: string;
-  senior_citizen: boolean;
+  senior_citizen: boolean | null;
   client_name: string;
   client_gender: string;
   client_civil_status: string;
@@ -40,7 +44,7 @@ export function emptyIntake(overrides: Partial<IntakeValues> = {}): IntakeValues
     deceased_date_of_birth: "",
     deceased_gender: "",
     deceased_civil_status: "",
-    senior_citizen: false,
+    senior_citizen: null,
     client_name: "",
     client_gender: "",
     client_civil_status: "",
@@ -67,7 +71,7 @@ export function intakeToValues(
     deceased_date_of_birth: intake?.deceased_date_of_birth ?? "",
     deceased_gender: intake?.deceased_gender ?? "",
     deceased_civil_status: intake?.deceased_civil_status ?? "",
-    senior_citizen: intake?.senior_citizen ?? false,
+    senior_citizen: intake?.senior_citizen ?? null,
     client_name: intake?.client_name ?? "",
     client_gender: intake?.client_gender ?? "",
     client_civil_status: intake?.client_civil_status ?? "",

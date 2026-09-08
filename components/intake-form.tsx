@@ -126,14 +126,19 @@ export function IntakeForm({
         htmlFor="senior_citizen"
         hint="Carries a discount entitlement; prints on the contract only when claimed."
       >
-        <input
+        <select
           id="senior_citizen"
           name="senior_citizen"
-          type="checkbox"
           disabled={pending}
-          checked={values.senior_citizen}
-          onChange={(e) => set("senior_citizen", e.target.checked)}
-        />
+          value={values.senior_citizen === true ? "yes" : values.senior_citizen === false ? "no" : ""}
+          onChange={(e) =>
+            set("senior_citizen", e.target.value === "" ? null : e.target.value === "yes")
+          }
+        >
+          <option value="">—</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
       </Field>
 
       <h4>The client</h4>
