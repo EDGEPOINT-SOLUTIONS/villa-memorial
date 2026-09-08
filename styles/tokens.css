@@ -110,38 +110,62 @@
   --shadow-card: 0 1px 2px rgb(29 33 38 / 0.05), 0 1px 6px rgb(29 33 38 / 0.04);
   --shadow-raised: 0 2px 4px rgb(29 33 38 / 0.07), 0 4px 14px rgb(29 33 38 / 0.06);
 
-  /* --- Premium ledger roles (staff premium pass) -----------------------------
-     Direction: "granite & brass at premium craft" — the existing DOC identity
-     (granite structure / marble paper / restrained brass) elevated for the
-     staff portal. Additive tokens; base palette values are untouched so public
-     + family + agent surfaces keep their exact current look.
+  /* --- Radiant Compassion (staff premium) — COO blue/gold ------------------
+     The captain's requested premium direction for the staff portal: the COO
+     "Radiant Compassion" blue/gold palette adapted for admin screens — deep
+     navy surfaces with warm gold accents, cool paper content area, display
+     serif titles in navy ink. These primitives are consumed ONLY by the
+     .app-shell premium rules (components.css); public/family/agent surfaces
+     keep the DOC granite/marble/brass roles defined above.
   */
-  /* Desk-light: warm light falling on the work surface from above. */
+  --navy-50: #f3f7fb;
+  --navy-100: #e6eef6;
+  --navy-200: #c8d9e9;
+  --navy-300: #9fbdd7;
+  --navy-500: #41709c;
+  --navy-600: #2b5680;
+  --navy-700: #1c4366;
+  --navy-800: #12324e;
+  --navy-900: #0d2942;
+  --navy-950: #081c31;
+
+  --gold-100: #fdf4d7;
+  --gold-200: #f8e5ab;
+  --gold-300: #f1cc5e;
+  --gold-400: #e2b633;
+  --gold-500: #c79b1e;
+  --gold-600: #a67f12;
+  --gold-700: #7a5c00;
+  --gold-800: #574300;
+
+  /* Cool paper + sky-tinted desk light for the staff content area. */
   --color-bg-desk:
-    radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.9), transparent 62%),
-    var(--color-bg-page);
-  /* Hairline + rule ladder: structure lines vs stronger separators. */
-  --color-rule: var(--granite-200);
-  --color-rule-strong: var(--granite-300);
-  --color-rule-inverse: rgb(255 255 255 / 0.08);
+    radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.95), transparent 60%),
+    radial-gradient(760px 320px at 92% -140px, rgb(198 217 233 / 0.55), transparent 60%),
+    #f5f8fb;
 
-  /* Brass containment: washes stay translucent so brass never floods a surface. */
-  --brass-wash-soft: color-mix(in srgb, var(--brass-300) 14%, transparent);
-  --brass-wash: color-mix(in srgb, var(--brass-300) 22%, transparent);
-  --brass-wash-strong: color-mix(in srgb, var(--brass-300) 34%, transparent);
-  --brass-hairline: linear-gradient(90deg, transparent, var(--brass-400), transparent);
+  /* Hairline + rule ladder — cool hairlines under the blue/gold direction. */
+  --color-rule: #dbe4ec;
+  --color-rule-strong: #bcceda;
+  --color-rule-inverse: rgb(255 255 255 / 0.09);
 
-  /* Elevation ladder — paper on marble, refined for hover/pop layers. */
-  --shadow-paper: 0 1px 1px rgb(29 33 38 / 0.04), 0 1px 3px rgb(29 33 38 / 0.05);
+  /* Gold containment: washes stay translucent so gold never floods a surface. */
+  --gold-wash-soft: color-mix(in srgb, var(--gold-300) 16%, transparent);
+  --gold-wash: color-mix(in srgb, var(--gold-300) 26%, transparent);
+  --gold-wash-strong: color-mix(in srgb, var(--gold-300) 40%, transparent);
+  --gold-hairline: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+
+  /* Elevation ladder — paper on a cool desk, refined for hover/pop layers. */
+  --shadow-paper: 0 1px 1px rgb(10 30 52 / 0.05), 0 1px 3px rgb(10 30 52 / 0.06);
   --shadow-card-rest:
-    0 1px 2px rgb(29 33 38 / 0.05),
-    0 3px 10px -2px rgb(29 33 38 / 0.07);
+    0 1px 2px rgb(10 30 52 / 0.06),
+    0 3px 10px -2px rgb(10 30 52 / 0.08);
   --shadow-card-hover:
-    0 2px 5px rgb(29 33 38 / 0.08),
-    0 14px 30px -10px rgb(29 33 38 / 0.18);
+    0 2px 5px rgb(10 30 52 / 0.1),
+    0 16px 32px -10px rgb(10 30 52 / 0.24);
 
-  /* Serif figure colour for ceremonial numerals (ledger key figures). */
-  --color-figure: var(--granite-900);
+  /* Display figure colour for the staff portal (titles, headline numerals). */
+  --color-figure: var(--navy-900);
 
   /* Display type for the staff portal (page titles, headline figures). */
   --text-title-page: clamp(1.85rem, 1.35rem + 1.4vw, 2.25rem);

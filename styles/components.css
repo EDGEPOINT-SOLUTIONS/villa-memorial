@@ -3118,31 +3118,42 @@ a.card:hover {
 }
 
 /* ---------------------------------------------------------------------------
- * STAFF PORTAL PREMIUM — "granite & brass at premium craft"
+ * STAFF PORTAL PREMIUM — "Radiant Compassion" blue/gold for admin
  * ---------------------------------------------------------------------------
- * Phase 1 of the admin premium pass: ONE coherent direction applied to the
- * staff portal chrome + the dashboard sample page. Token decisions live in
- * tokens.css ("Premium ledger roles"). Everything here is scoped to the staff
- * shell (.app-shell / .app-main) so public, family and agent surfaces keep
- * their exact current look — the shared kit gains these rules without shifting
- * any other portal materially.
+ * Phase 1 (captain's revision) of the admin premium pass: ONE coherent
+ * direction applied to the staff portal chrome + the dashboard sample page.
+ * Direction = the COO blue/gold "Radiant Compassion" palette adapted for
+ * admin screens — deep navy sidebar with warm gold accents, cool paper
+ * content, navy display titles, gold focus/active states. Token decisions
+ * live in tokens.css (navy/gold primitives + staff roles). Everything here is
+ * scoped to the staff shell (.app-shell / .app-main) so public, family and
+ * agent surfaces keep their exact DOC granite/marble/brass look.
  *
- * Motifs (see PREMIUM_DIRECTION.md for the full write-up):
- *  - desk-light content surface: warm light falling on the work area
- *  - brass hairline family: top edge of the staff topbar matches the public /
- *    family / sign-in shells — one product, four doors
- *  - ceremonial brass stays restrained: eyebrows, key figures, focus, active
- *    nav, card arrows; never floods operational UI
- *  - paper-on-marble elevation ladder; hairlines carry separation
- *  - serif display numerals for headline figures; tabular figures in tables
+ * Motifs (see docs/02-architecture/premium-admin-direction.md):
+ *  - deep navy side surface with a soft gold bloom and ivory type
+ *  - gold hairline family: top edge of the staff top bar + page-header rules
+ *  - display serif titles in navy ink; gold eyebrows on light content
+ *  - cool paper desk-light content surface; hairlines carry separation
+ *  - navy primary interactions; gold reserved for ceremonial moments
  */
 
-/* --- Desk-light content surface ------------------------------------------- */
+/* --- Gold focus ring + gold-in-staff token remaps --------------------------- */
+.app-shell {
+  --color-focus-ring: var(--gold-500);
+  /* Shared kit pieces that are brass elsewhere read gold inside the staff
+     portal (chips, bell hovers, portal-switch accents, link hovers). */
+  --brass-300: var(--gold-300);
+  --brass-400: var(--gold-400);
+  --brass-500: var(--gold-500);
+  --brass-600: var(--gold-700);
+}
+
+/* --- Desk-light content surface (cool paper) -------------------------------- */
 .app-shell .app-main {
   background: var(--color-bg-desk);
 }
 
-/* --- Top bar: brass hairline + quieter chrome ------------------------------ */
+/* --- Top bar: gold hairline + cool chrome ----------------------------------- */
 .app-shell .app-topbar {
   position: relative;
   background: var(--color-bg-surface-raised);
@@ -3156,16 +3167,14 @@ a.card:hover {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--brass-hairline);
+  background: var(--gold-hairline);
 }
 
-/* --- Inverse sidebar: anchored dark surface with a hairline seam ----------- */
+/* --- Inverse sidebar: deep navy with a soft gold bloom ----------------------- */
 .app-shell .app-sidebar {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-bg-inverse) 92%, var(--color-bg-surface-raised)) 0%,
-    var(--color-bg-inverse) 16rem
-  );
+  background:
+    radial-gradient(560px 220px at 24% -60px, color-mix(in srgb, var(--gold-300) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, var(--navy-800) 0%, var(--navy-900) 52%, var(--navy-950) 100%);
   box-shadow: inset -1px 0 0 var(--color-rule-inverse);
 }
 
@@ -3176,19 +3185,19 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar__eyebrow {
-  color: var(--brass-300);
+  color: var(--gold-300);
   letter-spacing: 0.18em;
 }
 
 .app-shell .app-sidebar__title {
   font-size: var(--text-xl);
-  color: var(--marble-50);
+  color: #ffffff;
   letter-spacing: 0.01em;
   margin-top: var(--space-2);
 }
 
 .app-shell .app-sidebar__link {
-  color: color-mix(in srgb, var(--marble-200) 88%, transparent);
+  color: color-mix(in srgb, var(--navy-100) 88%, transparent);
   border-radius: var(--radius-md);
   transition:
     background-color var(--motion-fast),
@@ -3197,19 +3206,23 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar__link:hover {
-  background: rgb(255 255 255 / 0.06);
-  color: var(--color-text-inverse);
+  background: rgb(255 255 255 / 0.07);
+  color: #ffffff;
   transform: translateX(2px);
 }
 
 .app-shell .app-sidebar__link--active {
-  background: var(--brass-wash-soft);
-  color: var(--color-text-inverse);
-  box-shadow: inset 2px 0 0 var(--brass-400);
+  background: var(--gold-wash-soft);
+  color: #ffffff;
+  box-shadow: inset 2px 0 0 var(--gold-300);
 }
 
 .app-shell .app-sidebar__link--active:hover {
-  background: var(--brass-wash);
+  background: var(--gold-wash);
+}
+
+.app-shell .app-sidebar__label {
+  color: color-mix(in srgb, var(--navy-200) 72%, transparent);
 }
 
 .app-shell .app-sidebar__footer {
@@ -3217,13 +3230,35 @@ a.card:hover {
   box-shadow: inset 0 1px 0 var(--color-rule-inverse);
 }
 
-/* --- Page header: brass eyebrow + display serif title ----------------------- */
+.app-shell .app-sidebar__footer .btn--ghost {
+  color: color-mix(in srgb, var(--navy-100) 85%, transparent);
+}
+
+/* --- Top bar chrome details -------------------------------------------------- */
+.app-shell .topbar-avatar {
+  background: var(--navy-800);
+  color: var(--gold-200);
+  border: 1px solid color-mix(in srgb, var(--gold-300) 45%, transparent);
+}
+
+.app-shell .chip {
+  color: var(--gold-700);
+  border-color: color-mix(in srgb, var(--gold-400) 55%, transparent);
+  background: var(--gold-100);
+}
+
+.app-shell .notice-bell:hover {
+  color: var(--gold-700);
+  border-color: var(--gold-400);
+}
+
+/* --- Page header: gold eyebrow + navy display serif title --------------------- */
 .app-shell .app-main .page-header {
   align-items: flex-end;
 }
 
 .app-shell .app-main .page-header__eyebrow {
-  color: var(--brass-600);
+  color: var(--gold-700);
   letter-spacing: 0.18em;
 }
 
@@ -3237,11 +3272,12 @@ a.card:hover {
   color: var(--color-text-secondary);
 }
 
-/* --- Section titles: serif + short brass underline -------------------------- */
+/* --- Section titles: serif + short gold underline ----------------------------- */
 .app-shell .app-main .page-section-title {
   font-size: var(--text-xl);
   letter-spacing: -0.005em;
   padding-bottom: var(--space-2);
+  color: var(--navy-900);
 }
 
 .app-shell .app-main .page-section-title::after {
@@ -3250,29 +3286,48 @@ a.card:hover {
   width: 3rem;
   height: 2px;
   margin-top: var(--space-2);
-  background: linear-gradient(90deg, var(--brass-400), transparent);
+  background: linear-gradient(90deg, var(--gold-400), transparent);
 }
 
-/* --- Ledger cards (KPI tiles): display figures on paper ---------------------- */
+/* --- KPI tiles: navy display figures on paper, gold lift on hover -------------- */
 .app-shell .app-main .kpi-card {
   background: var(--color-bg-surface-raised);
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card-rest);
+  border-top: 2px solid transparent;
   transition:
     box-shadow var(--motion-base),
     border-color var(--motion-base),
+    border-top-color var(--motion-base),
     transform var(--motion-base);
 }
 
+.app-shell .app-main .kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-400), color-mix(in srgb, var(--gold-400) 30%, transparent));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  opacity: 0;
+  transition: opacity var(--motion-base);
+}
+
 .app-shell .app-main .kpi-card:hover {
-  border-color: color-mix(in srgb, var(--brass-400) 55%, var(--color-border));
+  border-color: color-mix(in srgb, var(--navy-300) 70%, var(--color-border));
   box-shadow: var(--shadow-card-hover);
   transform: translateY(-2px);
 }
 
+.app-shell .app-main .kpi-card:hover::before {
+  opacity: 1;
+}
+
 .app-shell .app-main .kpi-card__label {
-  color: var(--granite-500);
+  color: var(--navy-500);
   letter-spacing: 0.1em;
 }
 
@@ -3287,7 +3342,7 @@ a.card:hover {
 }
 
 .app-shell .app-main .kpi-card__arrow {
-  color: var(--brass-500);
+  color: var(--gold-500);
   transition: transform var(--motion-fast);
 }
 
@@ -3304,10 +3359,6 @@ a.card:hover {
   border-bottom: 1px solid var(--color-rule);
 }
 
-.app-shell .app-main .card__body {
-  padding: var(--space-5);
-}
-
 .app-shell .app-main .card__header h3 {
   font-size: var(--text-md);
   letter-spacing: 0.01em;
@@ -3321,12 +3372,12 @@ a.card:hover {
 
 /* --- Finance glance (ledger rows) -------------------------------------------- */
 .app-shell .app-main .finance-glance__label {
-  color: var(--granite-500);
+  color: var(--navy-500);
   letter-spacing: 0.1em;
 }
 
 .app-shell .app-main .finance-glance__amount {
-  color: var(--brass-600);
+  color: var(--gold-700);
   font-size: var(--text-2xl);
 }
 
@@ -3334,7 +3385,7 @@ a.card:hover {
   border-bottom: 1px solid var(--color-rule);
 }
 
-/* --- Tables: ledger hairlines ------------------------------------------------- */
+/* --- Tables: cool ledger hairlines ------------------------------------------- */
 .app-shell .app-main .table-wrapper {
   border-radius: var(--radius-lg);
   border-color: var(--color-rule);
@@ -3345,7 +3396,7 @@ a.card:hover {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.6875rem;
-  color: var(--granite-500);
+  color: var(--navy-600);
   background: var(--color-bg-surface);
 }
 
@@ -3355,28 +3406,28 @@ a.card:hover {
 }
 
 .app-shell .app-main .table tbody tr:hover td {
-  background: color-mix(in srgb, var(--marble-100) 70%, transparent);
+  background: var(--navy-50);
 }
 
 /* --- Stacked status bars ------------------------------------------------------ */
 .app-shell .app-main .stackbar {
-  background: color-mix(in srgb, var(--granite-200) 45%, transparent);
+  background: color-mix(in srgb, var(--navy-200) 55%, transparent);
 }
 
-/* --- Accent badge: brass chip -------------------------------------------------- */
+/* --- Accent badge: gold chip --------------------------------------------------- */
 .app-shell .app-main .badge--accent {
-  background: var(--brass-wash-soft);
-  color: var(--brass-600);
-  border: 1px solid color-mix(in srgb, var(--brass-400) 40%, transparent);
+  background: var(--gold-wash-soft);
+  color: var(--gold-700);
+  border: 1px solid color-mix(in srgb, var(--gold-400) 50%, transparent);
 }
 
-/* --- Collapsible session card -------------------------------------------------- */
+/* --- Collapsible session card --------------------------------------------------- */
 .app-shell .app-main .details-card summary {
   transition: background-color var(--motion-fast);
 }
 
 .app-shell .app-main .details-card summary:hover {
-  background: var(--color-bg-subtle);
+  background: var(--navy-50);
 }
 
 /* --- Small refinements shared by every staff page ------------------------------ */
@@ -3384,12 +3435,12 @@ a.card:hover {
   color: var(--color-text-muted);
 }
 
-.app-shell .app-main .text-muted {
-  color: var(--color-text-muted);
+.app-shell .app-main .link-muted:hover {
+  color: var(--gold-700);
 }
 
-.app-shell .app-main .link-muted:hover {
-  color: var(--brass-600);
+.app-main .empty-state__title {
+  color: var(--color-figure);
 }
 
 /* Print: only the paper artifact leaves the printer. */

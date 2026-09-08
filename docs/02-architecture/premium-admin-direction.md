@@ -1,72 +1,69 @@
-# Premium admin direction — sample for captain approval
+# Premium admin direction — blue/gold sample for captain approval
 
-Status: **awaiting approval (Phase 1 checkpoint)** · Owner: Gab · Scope: villa-memorial staff/admin portal (whole-portal rollout after sign-off)
+Status: **awaiting approval (Phase 1 checkpoint — revision 2, blue/gold)** · Owner: Gab ·
+Scope: villa-memorial staff/admin portal (whole-portal rollout after sign-off)
 
-Screenshots (worktree-local review copy, not committed): `.premium-review/premium-sample-dashboard.png` (top of the sample page) and `premium-sample-dashboard-lower.png` (cards/tables region). `dashboard-before.png` is the pre-pass state for comparison.
+Screenshots (worktree-local review copy, not committed): `.premium-review/`
+`dashboard-before.png` = original design (pre-pass baseline) ·
+`bluegold-dashboard-top.png` = the new blue/gold sample (top) ·
+`bluegold-dashboard-lower.png` = the new blue/gold sample (lower region).
 
-## The direction — "Granite & brass at premium craft" (the Villa Ledger)
+## Why revision 2
 
-The staff portal is where Villa's arrangements are made real. The premium treatment turns every
-admin screen into a page in a beautifully kept ledger: quiet **granite** structure, warm
-**marble paper** surfaces, and **brass** kept strictly ceremonial (eyebrows, key figures, focus,
-active nav, card arrows) so it never floods operational UI. This **extends the app's current DOC
-identity** — the same granite/marble/brass the public, family and agent surfaces already speak —
-rather than importing the COO blue/gold "Radiant Compassion" mockup palette into the staff portal
-alone.
+The first sample refined the existing granite/marble/brass identity into a "premium craft"
+treatment. The captain reviewed it and found the change **too subtle to read as a premium
+step**, and asked for the **COO blue/gold "Radiant Compassion" palette** adapted for admin
+screens instead. This sample delivers that: deep navy sidebar with warm gold accents, navy
+display titles, cool paper content area, gold focus/active/hairline moments — unmistakably
+different from the current look while staying robust (all states, RBAC and per-route titles
+intact — this pass is pure tokens + scoped CSS; no markup, behavior or fixture changed).
 
-**Why not blue/gold here:** flipping one portal to blue/gold while the deployed public + family +
-agent product stays granite would split the product; and the COO mockup never designed staff-admin
-screens (only the public/portal doors), so there is no client-approved blue/gold admin language to
-adopt. Blue/gold remains a candidate only as a *full-product* re-theme — a separate,
-client-owned decision already tracked in `PORT_PLAN.md` (open decision #1). This direction keeps
-that door open: everything is token-driven, so a product-wide palette change stays a contained
-tokens-only task.
+## The direction — "Radiant Compassion" blue/gold for the staff portal
 
-## Token decisions (all additive — base palette values untouched)
+| Token | Value | Where it shows |
+|---|---|---|
+| `--navy-700/800/900/950` | `#1c4366 → #081c31` | Sidebar gradient, top-bar avatar, table headers (navy-600) |
+| `--gold-300/400/500/700` | `#f1cc5e / #e2b633 / #c79b1e / #7a5c00` | Sidebar bloom + active rail + brand eyebrow, hairline family, KPI arrows, ink on light surfaces |
+| `--color-bg-desk` | cool paper + sky-tinted desk light | staff content column |
+| `--color-rule*` | cool hairlines (`#dbe4ec` ladder) | card/table/top-bar separators |
+| `--gold-wash-soft/strong`, `--gold-hairline` | translucent gold washes | active nav, accent chips, 2px gold top-bar hairline |
+| `--color-figure`, `--text-title-page`, `--text-stat` | navy-900 ink; 30–36px display serif | page titles, KPI numerals |
 
-| Token (tokens.css) | Value / role |
-|---|---|
-| `--color-bg-desk` | radial desk-light gradient over marble — warm light falling on the work surface |
-| `--color-rule` / `--color-rule-strong` / `--color-rule-inverse` | hairline ladder: structure lines vs stronger separators vs white-on-dark seams |
-| `--brass-wash-soft` / `--brass-wash` / `--brass-wash-strong` | translucent brass tints (active nav, accent chips) — brass never floods |
-| `--brass-hairline` | the gradient brass hairline family already used by public/family/sign-in shells |
-| `--shadow-paper` / `--shadow-card-rest` / `--shadow-card-hover` | elevation ladder — paper → resting card → lifted card |
-| `--color-figure` | serif display figure ink (deep granite) for headline numerals |
-| `--text-title-page` / `--text-stat` | page-title clamp (≈30–36px) and stat-figure (30px) display type |
+Treatment on the sample (staff dashboard):
+- **Sidebar:** deep navy gradient with a soft gold bloom at the top; ivory serif brand; gold
+  eyebrow; active nav = gold-tinted wash + gold left rail; links lift on hover.
+- **Chrome:** 2px **gold hairline** along the top edge of the staff top bar (matching the
+  hairline family the public/family shells wear — one product, four doors); gold "Demo" chip;
+  navy avatar with a gold ring; gold focus ring across the staff portal.
+- **Page header:** gold uppercase eyebrow; page title in navy display serif (36px).
+- **KPI tiles:** navy display figures on white paper; a gold hairline draws across the top of
+  each tile on hover with a navy border lift; gold arrows travel on hover.
+- **Cards/tables:** cool hairline separators, uppercase navy column headers, sky-tinted row
+  hover — data reads like a ledger.
+- **Finance figures** keep gold ink (ceremonial key figures); status hues stay desaturated.
 
-## How the treatment reads on the sample (staff dashboard)
+## Scope consequence — this decision needs the captain's ruling
 
-- **Chrome:** sidebar becomes an anchored dark surface (soft top-light gradient + white hairline
-  seam), brand eyebrow lifts to brass with wide tracking, active nav = translucent brass wash with
-  a brass left rail; the staff top bar gains the same 2px **brass hairline** the public/family
-  shells wear — one product, four doors.
-- **Page header:** brass uppercase eyebrow (like public/family warmth), title set in display serif
-  at up to 36px in deep granite ink.
-- **KPI tiles** ("ledger cards"): paper shadow, serif figures at 30px in figure ink, brass arrow
-  that lifts on hover with a brass-tinted border.
-- **Section titles:** serif with a short fading **brass underline** rule.
-- **Tables:** uppercase hairline column headers, soft row hover — data reads like a ledger.
-- Finance figures keep brass (ceremonial key figures); status hues stay desaturated.
+Blue/gold on the **staff portal only** visibly **splits the product**: public, family and
+agent surfaces keep the DOC granite/marble/brass look they wear today. Staff see both
+surfaces (they run the public storefront from the admin portal), so the split is real, not
+hypothetical — though only staff see the admin side. Two clean ways to rule:
 
-## Extending to the rest of the portal (rollout plan, Phase 2)
+1. **Staff portal goes blue/gold now (recommended); a full-product re-theme is tracked
+   separately.** Boundary per the captain's earlier scoping answer is the staff portal, the
+   COO mockups (client-approved) already carry blue/gold, and this repo centralizes every
+   visual decision in tokens — so adopting blue/gold on staff first does not foreclose
+   moving public/family/agent later; it makes that later re-theme a contained tokens task
+   and this branch delivers the captain's ask on the agreed boundary.
+2. **Escalate the palette as a product-wide decision first**, then apply blue/gold everywhere
+   in one sweep (bigger change; public/family/agent design is COO/DOC-owned and unchanged by
+   this branch if option 1 wins).
 
-The sample is **pure tokens + CSS** — no page markup changed. Everything lands inside the shared
-kit under the `.app-shell` scope, so rolling out is extending the same scoped system to the
-classes the other ~40 staff routes use (list pages, detail pages, capture forms, the two paper
-screens), plus a "robust states to a premium standard" sweep (validation, empty/error/loading,
-RBAC-gated entry, per-route titles) reusing `components/ui/states.tsx`. Because rules are scoped
-to `.app-shell`, public/family/agent surfaces keep their exact look; any incidental shared-kit
-drift gets flagged in the PR summary.
-
-## Phase 3 note (forms as documents)
-
-The paper screens already read as documents; Phase 3 makes each of the three forms read as a true
-document page and adds real `.docx` + PDF export replicating the archived
-`docs/07-client-villa/paper-forms/*.docx`, filled from captured data — same wording as
-`lib/contracts/*` + `villa-terms.ts`, honest em-dash/blank conventions intact.
+If option 1 is approved, Phase 2 rolls this system across every staff route and Phase 3 keeps
+the three paper forms document-accurate with real .docx + PDF export (same wording as
+`lib/contracts/*` + `villa-terms.ts`, honest em-dash/blank conventions intact).
 
 ## Approval question for the captain
 
-1. Approve "granite & brass at premium craft" for full staff-portal rollout (recommended), or
-2. prefer the COO blue/gold palette for the staff portal only (not recommended — portal split), or
-3. want the blue/gold question escalated as a product-wide re-theme decision before Phase 2.
+Approve **option 1** (blue/gold staff portal; full-product palette decision tracked
+separately — recommended), or **option 2** (product-wide blue/gold re-theme first)?
