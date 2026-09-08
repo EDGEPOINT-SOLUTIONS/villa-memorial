@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import type { CaseIntake } from "@/lib/api-client/operations";
+import {
+  emptyIntake,
+  intakeToValues,
+  type IntakeValues,
+} from "@/lib/contracts/intake";
 
 /**
  * Villa's Service Contract intake block, as one form.
@@ -13,67 +17,15 @@ import type { CaseIntake } from "@/lib/api-client/operations";
  * fulfilled order — the fields are identical, only the verb differs. Every field is
  * optional: staff take what the family can give them on the day, and the contract prints
  * an em dash for the rest rather than blocking on a complete record.
+ *
+ * The block mirrors the paper's header (`docs/07-client-villa/paper-forms/` transcript):
+ * the deceased's identity and the client's identity + contact channels, where the paper
+ * has discrete fields — gender M/F, civil status S/M/O, telephone numbers, Facebook,
+ * email, ID presented + number, co-maker. The services/deals table and the deductions
+ * block below the header are captured on the case's service-contract screen, not here.
  */
-export type IntakeValues = {
-  deceased_name: string;
-  assigned_coordinator: string;
-  date_of_death: string;
-  deceased_date_of_birth: string;
-  deceased_gender: string;
-  deceased_civil_status: string;
-  senior_citizen: boolean;
-  client_name: string;
-  client_address: string;
-  client_contact: string;
-  client_relationship: string;
-  client_id_presented: string;
-  client_id_number: string;
-  co_maker_name: string;
-  contract_date: string;
-};
-
-export function emptyIntake(overrides: Partial<IntakeValues> = {}): IntakeValues {
-  return {
-    deceased_name: "",
-    assigned_coordinator: "",
-    date_of_death: "",
-    deceased_date_of_birth: "",
-    deceased_gender: "",
-    deceased_civil_status: "",
-    senior_citizen: false,
-    client_name: "",
-    client_address: "",
-    client_contact: "",
-    client_relationship: "",
-    client_id_presented: "",
-    client_id_number: "",
-    co_maker_name: "",
-    contract_date: "",
-    ...overrides,
-  };
-}
-
-export function intakeToValues(
-  intake: CaseIntake | null,
-  base: Partial<IntakeValues>,
-): IntakeValues {
-  return emptyIntake({
-    ...base,
-    date_of_death: intake?.date_of_death ?? "",
-    deceased_date_of_birth: intake?.deceased_date_of_birth ?? "",
-    deceased_gender: intake?.deceased_gender ?? "",
-    deceased_civil_status: intake?.deceased_civil_status ?? "",
-    senior_citizen: intake?.senior_citizen ?? false,
-    client_name: intake?.client_name ?? "",
-    client_address: intake?.client_address ?? "",
-    client_contact: intake?.client_contact ?? "",
-    client_relationship: intake?.client_relationship ?? "",
-    client_id_presented: intake?.client_id_presented ?? "",
-    client_id_number: intake?.client_id_number ?? "",
-    co_maker_name: intake?.co_maker_name ?? "",
-    contract_date: intake?.contract_date ?? "",
-  });
-}
+export { emptyIntake, intakeToValues };
+export type { IntakeValues };
 
 export function IntakeForm({
   initial,
@@ -119,6 +71,42 @@ export function IntakeForm({
     </Field>
   );
 
+  const gender = (key: "deceased_gender" | "client_gender", label: string) => (
+    <Field label={label} htmlFor={key}>
+      <select
+        id={key}
+        name={key}
+        disabled={pending}
+        value={values[key] as string}
+        onChange={(e) => set(key, e.target.value as IntakeValues[typeof key])}
+      >
+        <option value="">—</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+      </select>
+    </Field>
+  );
+
+  const civilStatus = (
+    key: "deceased_civil_status" | "client_civil_status",
+    label: string,
+  ) => (
+    <Field label={label} htmlFor={key}>
+      <select
+        id={key}
+        name={key}
+        disabled={pending}
+        value={values[key] as string}
+        onChange={(e) => set(key, e.target.value as IntakeValues[typeof key])}
+      >
+        <option value="">—</option>
+        <option value="single">Single</option>
+        <option value="married">Married</option>
+        <option value="other">Other (widowed, separated…)</option>
+      </select>
+    </Field>
+  );
+
   return (
     <form onSubmit={submit} className="stack">
       {error ? (
@@ -131,52 +119,36 @@ export function IntakeForm({
       {text("deceased_name", "Name of deceased")}
       {text("date_of_death", "Date of death", undefined, "date")}
       {text("deceased_date_of_birth", "Date of birth", undefined, "date")}
-      <Field label="Gender" htmlFor="deceased_gender">
-        <select
-          id="deceased_gender"
-          name="deceased_gender"
-          disabled={pending}
-          value={values.deceased_gender}
-          onChange={(e) => set("deceased_gender", e.target.value)}
-        >
-          <option value="">—</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-      </Field>
-      <Field label="Civil status" htmlFor="deceased_civil_status">
-        <select
-          id="deceased_civil_status"
-          name="deceased_civil_status"
-          disabled={pending}
-          value={values.deceased_civil_status}
-          onChange={(e) => set("deceased_civil_status", e.target.value)}
-        >
-          <option value="">—</option>
-          <option value="single">Single</option>
-          <option value="married">Married</option>
-          <option value="other">Other</option>
-        </select>
-      </Field>
+      {gender("deceased_gender", "Gender")}
+      {civilStatus("deceased_civil_status", "Civil status")}
       <Field
         label="Senior citizen"
         htmlFor="senior_citizen"
         hint="Carries a discount entitlement; prints on the contract only when claimed."
       >
-        <input
+        <select
           id="senior_citizen"
           name="senior_citizen"
-          type="checkbox"
           disabled={pending}
-          checked={values.senior_citizen}
-          onChange={(e) => set("senior_citizen", e.target.checked)}
-        />
+          value={values.senior_citizen === true ? "yes" : values.senior_citizen === false ? "no" : ""}
+          onChange={(e) =>
+            set("senior_citizen", e.target.value === "" ? null : e.target.value === "yes")
+          }
+        >
+          <option value="">—</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
       </Field>
 
       <h4>The client</h4>
       {text("client_name", "Name of client", "The person who signs and owes — not always the deceased's next of kin.")}
+      {gender("client_gender", "Gender")}
+      {civilStatus("client_civil_status", "Civil status")}
       {text("client_address", "Address")}
-      {text("client_contact", "Telephone / mobile")}
+      {text("client_contact", "Telephone numbers", "Landline or mobile the counter can reach the client on.")}
+      {text("client_facebook", "Facebook", "The paper prints this blank; used as a contact channel.")}
+      {text("client_email", "Email", undefined, "email")}
       {text("client_relationship", "Relationship to deceased")}
       {text("client_id_presented", "ID presented", "e.g. Driver's License, UMID, Passport")}
       {text("client_id_number", "ID number")}
