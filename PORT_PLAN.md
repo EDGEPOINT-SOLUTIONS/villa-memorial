@@ -55,3 +55,22 @@ mockup. Superseded by this migration — the mockup no longer needs feature
 porting because the real app now lives here. Slice-1/2 changes (real 2026 data
 mirror, real photos) that are still useful live on in the app's own files:
 `lib/villa-pricing.ts`, `public/media/*` (real uploads), catalogue prices.
+
+## Alignment checklist (status 2026-09-08)
+
+Done:
+- [x] Real frontend in repo (root) — verified build/tests/typecheck/lint green
+- [x] Mockup archived (`legacy-mockup/`, tag `mockup-design-final`)
+- [x] Full docs snapshot in [`docs/`](docs/README.md) (client/forms context + frozen contracts + frontend exemplars)
+
+Still needed (each is a one-time item, mostly dev-provided):
+- [ ] **Sync policy** — a documented one-command refresh from `in-memoriam/web`
+      after the dev merges PR #65 / later changes (avoid drift between repos)
+- [ ] **Live gateway env** — `.env.local` with the gateway URL + secrets so the
+      app runs against real services (dev provides; until then, fixture mode)
+- [ ] **Deployment** — host/build config for the villa-memorial deploy (dev/ops)
+- [ ] **Palette decision** — DOC granite/marble/brass (current) vs COO blue/gold
+      (see `legacy-mockup/`) for the deployed product
+- [ ] **Forms work plan** — next step: pick the forms to build first from
+      `docs/07-client-villa/current-state-forms.md`, fixture-first, honest
+      not-wired states, nothing invented against frozen contracts

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>IN MEMORIAM — Delivery Plan: August Demo → September 30 Launch</title>
+<style>
+  @page { size: A4; margin: 16mm 14mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 9.5pt; color: #1a1a2e; line-height: 1.45; margin: 0; }
+  h1 { font-size: 19pt; margin: 0 0 2mm; color: #16213e; letter-spacing: .5px; }
+  h2 { font-size: 12.5pt; margin: 7mm 0 2.5mm; color: #16213e; border-bottom: 2px solid #0f3460; padding-bottom: 1.2mm; page-break-after: avoid; }
+  h3 { font-size: 10.5pt; margin: 4.5mm 0 1.5mm; color: #0f3460; page-break-after: avoid; }
+  .subtitle { font-size: 10pt; color: #555; margin-bottom: 1.5mm; }
+  .meta { background: #f0f4f8; border-left: 3.5px solid #0f3460; padding: 2.5mm 3.5mm; margin: 3mm 0 4mm; font-size: 9pt; }
+  .meta b { color: #16213e; }
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 3.5mm; font-size: 8.4pt; page-break-inside: avoid; }
+  th { background: #16213e; color: #fff; text-align: left; padding: 1.6mm 2mm; font-weight: 600; }
+  td { border: 0.5pt solid #c5ccd6; padding: 1.5mm 2mm; vertical-align: top; }
+  tr:nth-child(even) td { background: #f7f9fb; }
+  td.date, td:first-child { white-space: nowrap; font-weight: 600; color: #16213e; }
+  ul { margin: 1mm 0 3mm; padding-left: 5mm; }
+  li { margin-bottom: 0.8mm; }
+  .milestone { background: #e8f0e8; }
+  .freeze  { background: #fdf0e8; }
+  .launch  { background: #16213e; color: #fff; font-weight: 700; }
+  .launch td { color: #fff; border-color: #16213e; }
+  .owner-keb  { border-left: 3px solid #0f3460; }
+  .owner-jawi { border-left: 3px solid #7b2d26; }
+  .owner-gab  { border-left: 3px solid #2d6a4f; }
+  .legend span { display: inline-block; margin-right: 5mm; font-size: 8.5pt; }
+  .keypoint { background: #fffbe8; border-left: 3.5px solid #b8860b; padding: 2.2mm 3.5mm; margin: 2.5mm 0; font-size: 9pt; }
+  footer { position: fixed; bottom: 6mm; left: 0; right: 0; font-size: 7.5pt; color: #888; text-align: center; }
+  .pb { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>IN MEMORIAM — Delivery Plan</h1>
+<div class="subtitle">August Client Demo → September 30 Production Launch · Core Features Scope</div>
+<div class="meta">
+  <b>Team:</b> Keb (Platform/Commerce) · Jawi (Operations/GIS) · Gab (Experience/Family) &nbsp;·&nbsp;
+  <b>Client:</b> AA Villa Memorial Park / Funeraria Villa &nbsp;·&nbsp;
+  <b>Prepared:</b> Aug 23, 2026<br>
+  <b>Key dates:</b> Client demo <b>Mon Aug 31</b> · Feature freeze <b>Tue Sep 22</b> · UAT <b>Sep 24–26</b> · Go/no-go &amp; prod deploy <b>Mon Sep 28</b> · <b>Launch Wed Sep 30</b>
+</div>
+
+<h2>Milestone Calendar</h2>
+<table>
+  <tr><th style="width:22mm">Date</th><th>Milestone</th></tr>
+  <tr><td class="date">Fri Aug 28</td><td><b>M0-dry</b> — internal walkthrough; all three demo segments run on staging</td></tr>
+  <tr class="milestone"><td class="date">Mon Aug 31</td><td><b>M0 — CLIENT DEMO</b>: walking skeleton of full flow on seeded sandbox data</td></tr>
+  <tr class="milestone"><td class="date">Fri Sep 4</td><td><b>M1 — Commerce live</b>: real orders end-to-end (scenarios A–D)</td></tr>
+  <tr class="milestone"><td class="date">Fri Sep 11</td><td><b>M2 — Operations live</b>: paid order creates case + bookings + tasks (scenario H)</td></tr>
+  <tr class="milestone"><td class="date">Fri Sep 18</td><td><b>M3 — Property + Family live</b>: lot reserve→interment link, family portal, QR memorial (F, G, I, J)</td></tr>
+  <tr class="freeze"><td class="date">Tue Sep 22</td><td><b>FEATURE FREEZE</b> — bug fixes only; new work requires Keb's explicit approval</td></tr>
+  <tr class="freeze"><td class="date">Thu Sep 24</td><td><b>M4 — UAT begins</b>: client staff test staging against scenario checklist</td></tr>
+  <tr><td class="date">Mon Sep 28</td><td><b>Go/no-go meeting → production deploy</b>, smoke tests</td></tr>
+  <tr class="launch"><td class="date">Wed Sep 30</td><td>LAUNCH — stable; no deploys unless critical</td></tr>
+</table>
+
+<h2 class="pb">Track Assignments (one vertical slice per person)</h2>
+<table>
+  <tr><th style="width:38mm">Track</th><th style="width:16mm">Owner</th><th>Scope through Sep 30</th></tr>
+  <tr><td class="owner-keb">A — Core + Commerce + Money</td><td>Keb</td>
+    <td>Tenancy/RBAC/audit foundation · catalog → pricing rules → cart/order/checkout · payment gateway + idempotent webhooks · order→fulfillment events · order→case automation · dashboard v1 · security/release gate</td></tr>
+  <tr><td class="owner-jawi">B — Operations + Property/GIS</td><td>Jawi</td>
+    <td>Funeral case + deceased records · embalming/preparation · chapel booking + shared availability service · ops board/tasks/checklists · PostGIS lot model + map search API · lot reservation/sale/ownership · interment linked to case</td></tr>
+  <tr><td class="owner-gab">C — Experience + Family</td><td>Gab</td>
+    <td>Design system (full UI states) · staff/admin shell · checkout, ops, scheduling UIs · lot map UI · customer/family portal (payments/orders/documents) · digital memorial + QR + tribute flow · seed/demo master data</td></tr>
+</table>
+<div class="keypoint"><b>Cut line if any week slips</b> (in order): map search filters → tribute approval flow → collections views → vehicle tasks.
+<b>Never slips:</b> payment correctness, tenancy isolation, audit trail. Pre-need plans (E), AI assistant (L), CRM/commissions are post-launch.</div>
+
+<h2>Demo Week — Day by Day (Aug 24–31)</h2>
+<p>Goal: one continuous story on seeded data — browse services → add to cart → checkout (sandbox pay) → order appears on staff board → lot visible on map. Staging deploys from Thursday.</p>
+<table>
+  <tr><th style="width:20mm">Day</th><th>Keb</th><th>Jawi</th><th>Gab</th></tr>
+  <tr><td>Mon 24</td><td>Postgres/PostGIS merged; tenancy scoping + RBAC patterns merged (W1 gate)</td><td>Funeral case + deceased models on Keb's patterns</td><td>Design tokens + app shell (staff nav, public header/footer)</td></tr>
+  <tr><td>Tue 25</td><td>Catalog CRUD (products/services/packages) + seeds</td><td>Availability service interface drafted; chapel model</td><td>Public catalog pages reading Keb's API</td></tr>
+  <tr><td>Wed 26</td><td>Cart + order + fake payment adapter; fulfillment event schema frozen</td><td>Chapel booking + ops board backend (fixture-first)</td><td>Cart/checkout UX; staff order view</td></tr>
+  <tr><td>Thu 27</td><td>Order→event emitted live; wire Jawi's board; staging v0.1 deployed</td><td>Lot GeoJSON endpoint (rectangles fine); interment stub</td><td>Map page rendering lots; demo script written</td></tr>
+  <tr class="milestone"><td>Fri 28</td><td colspan="3"><b>M0-dry run</b> — fix integration breaks, security baseline pass, presentable demo data</td></tr>
+  <tr><td>Sat 29 – Sun 30</td><td colspan="3">Buffer: bug fixes only, no new features</td></tr>
+  <tr class="milestone"><td>Mon 31</td><td colspan="3"><b>CLIENT DEMO</b> — Keb drives, Gab presents UI, Jawi covers ops/map</td></tr>
+</table>
+<p><b>M0 acceptance (client sees):</b> tenant-branded public site → pick package/service → cart → checkout (sandbox pay) → order created → appears on staff ops board → chapel booking shown → memorial park map with selectable lot. Explicitly presented as seeded sandbox data.</p>
+
+<h2 class="pb">September Weekly Deliverables</h2>
+
+<h3>Week 1 (Sep 1–6) — M1: Commerce Live</h3>
+<ul>
+  <li><span class="legend"><span><b>Keb:</b> real payment gateway (sandbox→live keys), pricing rules engine, order state machine, receipts/notifications; scenarios A–D passing</span></span></li>
+  <li><span class="legend"><span><b>Jawi:</b> embalming/preparation records; retrieval/transfer minimal task flow</span></span></li>
+  <li><span class="legend"><span><b>Gab:</b> checkout hardening (validation/error states); staff catalog management screens; seed data v2</span></span></li>
+</ul>
+
+<h3>Week 2 (Sep 7–13) — M2: Operations Live</h3>
+<ul>
+  <li><b>Keb:</b> order→case automation (H); audit trail verification; manager dashboard v1 (K)</li>
+  <li><b>Jawi:</b> case workflow complete (booking→tasks/checklists→completion); vehicles minimal; lot reservation ↔ order linkage (F starts)</li>
+  <li><b>Gab:</b> ops board UX complete; chapel calendar UI; family portal scaffold (I)</li>
+</ul>
+
+<h3>Week 3 (Sep 14–20) — M3: Property + Family Live</h3>
+<ul>
+  <li><b>Keb:</b> reservation→sale contract→payment records; ownership record; minimal collections list</li>
+  <li><b>Jawi:</b> interment scheduling linked to case + lot (G); lot status lifecycle enforced; map search filters</li>
+  <li><b>Gab:</b> family portal (I): payments/orders/documents view; digital memorial + QR page + tribute approval (J)</li>
+</ul>
+
+<h3>Week 4 (Sep 21–26) — Freeze &amp; UAT</h3>
+<ul>
+  <li><b>Tue 22 feature freeze.</b> Keb: security pass, backup/restore drill, perf sanity, regression owner</li>
+  <li><b>Jawi:</b> migration tooling for Villa's real master data (catalog, park map, staff accounts)</li>
+  <li><b>Gab:</b> UAT support, UI polish, empty/permission states, training quick-reference doc</li>
+  <li><b>Thu 24 UAT begins</b> on staging; Sat 26 defect triage + go/no-go criteria review</li>
+</ul>
+
+<h3>Launch Week (Sep 28–30)</h3>
+<ul>
+  <li><b>Mon 28:</b> go/no-go (Keb + JBR) → Kamal production deploy, smoke tests</li>
+  <li><b>Tue 29:</b> hypercare — monitoring, fast-turn defects, client staff support</li>
+  <li><b>Wed 30:</b> LAUNCH — stable, no deploys unless critical</li>
+</ul>
+
+<h2 class="pb">Standing Rules Through September</h2>
+<ol>
+  <li><b>Friday demo is mandatory and integrated</b> — trunk must run all green scenarios so far.</li>
+  <li><b>Contract changes after Aug 31</b> require producer + consumer sign-off (Keb arbitrates). Cross-track contracts frozen in W1: fulfillment event schema (Keb→Jawi), availability service interface (Jawi→Gab), GeoJSON map API (Jawi→Gab), order/payment/case APIs (Keb→Gab).</li>
+  <li><b>System specs ship with every feature card</b> before its Friday demo — no exceptions given no dedicated QA staff.</li>
+  <li><b>Risks:</b> bus factor = 1 per domain → pair on cross-track changes, no private branches older than 2 days. Keb is the overload point → pre-need (E) and AI (L) are the designed pressure valves.</li>
+  <li><b>Staging deploys daily</b> from Aug 31; production deploy rehearsed once before Sep 28.</li>
+</ol>
+
+<footer>IN MEMORIAM · Delivery Plan v1 · Aug 23, 2026 · docs/08-delivery/august-september-schedule.md</footer>
+</body>
+</html>
