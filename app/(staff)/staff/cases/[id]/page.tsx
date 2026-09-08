@@ -210,12 +210,27 @@ export default async function CaseDetailPage({
                     <td>{item.intake.client_name ?? "—"}</td>
                   </tr>
                   <tr>
+                    <th scope="row">Client gender / civil status</th>
+                    <td>
+                      {item.intake.client_gender ?? "—"} ·{" "}
+                      {item.intake.client_civil_status ?? "—"}
+                    </td>
+                  </tr>
+                  <tr>
                     <th scope="row">Relationship</th>
                     <td>{item.intake.client_relationship ?? "—"}</td>
                   </tr>
                   <tr>
-                    <th scope="row">Contact</th>
+                    <th scope="row">Telephone</th>
                     <td>{item.intake.client_contact ?? "—"}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Facebook</th>
+                    <td>{item.intake.client_facebook ?? "—"}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Email</th>
+                    <td>{item.intake.client_email ?? "—"}</td>
                   </tr>
                   <tr>
                     <th scope="row">Address</th>
@@ -254,6 +269,27 @@ export default async function CaseDetailPage({
           ) : (
             <p className="text-sm text-muted">
               Capturing intake needs <code>cases:write</code>.
+            </p>
+          )}
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card header={<h3>Service contract (paper form)</h3>}>
+          <p className="text-sm text-muted">
+            The capture screen mirrors the paper <strong>Service Contract Form</strong>{" "}
+            — the deceased/client header from intake plus the services-vs-deals table, the
+            deductions block and the contract terms, ready to print for signature.
+          </p>
+          {canWriteCases ? (
+            <div style={{ marginTop: "1rem" }}>
+              <Link href={`/staff/cases/${item.id}/service-contract`} className="btn btn--secondary btn--sm">
+                Open the service contract form
+              </Link>
+            </div>
+          ) : (
+            <p className="text-sm text-muted">
+              Editing the service contract needs <code>cases:write</code>.
             </p>
           )}
         </Card>

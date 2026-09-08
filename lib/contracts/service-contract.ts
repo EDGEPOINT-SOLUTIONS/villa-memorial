@@ -13,9 +13,13 @@
  * no intake until staff complete it, and those fields print as an em dash rather than a
  * guess: a printed legal artifact is the last place to fabricate data.
  *
- * STILL NOT CAPTURED: the guarantee deductions (LGU / DSWD / SSS / GSIS / life plan),
- * which are third-party receivables with their own 3-day deadline and reversal rule, not
- * a form field. Until that sub-ledger exists the deductions section is omitted.
+ * STILL NOT CAPTURED ON THE CASE RECORD: the guarantee deductions (LGU / DSWD / SSS /
+ * GSIS / life plan) and the services/deals table below the header, which are third-party
+ * receivables with their own 3-day deadline and reversal rule, not form fields. They are
+ * capturable on the case's service-contract paper screen (`service-contract-capture.ts`)
+ * but no shape on the case record holds them yet — until the dev freezes that draft shape
+ * and the guarantee sub-ledger exists, the deductions section of the generated contract is
+ * omitted and the paper screen says so honestly.
  */
 import type { Case } from "@/lib/api-client/operations";
 import type { OrderResponse } from "@/lib/api-client/commerce";
@@ -124,8 +128,14 @@ export function buildServiceContract({
     // explicit "no" on a contract reads as a claim nobody made.
     ...(intake?.senior_citizen ? [{ label: "Senior citizen", value: "Yes" }] : []),
     { label: "Name of client", value: intake?.client_name ?? order?.customer_name ?? "" },
+    {
+      label: "Client gender / civil status",
+      value: [intake?.client_gender, intake?.client_civil_status].filter(Boolean).join(" · "),
+    },
     { label: "Address", value: intake?.client_address ?? "" },
-    { label: "Contact", value: intake?.client_contact ?? "" },
+    { label: "Telephone", value: intake?.client_contact ?? "" },
+    { label: "Facebook", value: intake?.client_facebook ?? "" },
+    { label: "Email", value: intake?.client_email ?? "" },
     { label: "Relationship to deceased", value: intake?.client_relationship ?? "" },
     { label: "ID presented", value: idPresented },
     { label: "Case number", value: kase.case_number },

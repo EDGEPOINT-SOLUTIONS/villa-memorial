@@ -68,9 +68,9 @@ export function GenerateContractForm({ caseId }: { caseId: string }) {
     <div className="stack">
       <p className="text-sm text-muted">
         Builds the contract from this case and its linked order, under the terms revision in
-        force today. Fields Villa captures on paper but the platform does not hold yet — date
-        of death, civil status, relationship, ID presented, co-maker and the guarantee
-        deductions — print as an em dash rather than a guess.
+        force today. The intake header prints when staff have captured it; what no shape on
+        the case record holds yet — the guarantee deductions, which belong to the dev-owned
+        sub-ledger — is omitted rather than guessed.
       </p>
       {error ? <Alert tone="danger" title="Generation failed">{error}</Alert> : null}
       <div>

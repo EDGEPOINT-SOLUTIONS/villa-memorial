@@ -51,8 +51,12 @@ const INTAKE: NonNullable<Case["intake"]> = {
   deceased_civil_status: "married",
   senior_citizen: true,
   client_name: "Ana Santos",
+  client_gender: "female",
+  client_civil_status: "married",
   client_address: "Aguada, Isabela City",
   client_contact: "0917 000 1111",
+  client_facebook: "fb.com/ana.santos",
+  client_email: "ana.santos@example.com",
   client_relationship: "Daughter",
   client_id_presented: "Driver's License",
   client_id_number: "N01-23-456789",
@@ -354,6 +358,11 @@ describe("service contract with intake captured", () => {
     expect(byLabel("Relationship to deceased")).toBe("Daughter");
     expect(byLabel("ID presented")).toBe("Driver's License — N01-23-456789");
     expect(byLabel("Senior citizen")).toBe("Yes");
+    // The client block's channel fields print from the additive intake fields.
+    expect(byLabel("Client gender / civil status")).toBe("female · married");
+    expect(byLabel("Telephone")).toBe("0917 000 1111");
+    expect(byLabel("Facebook")).toBe("fb.com/ana.santos");
+    expect(byLabel("Email")).toBe("ana.santos@example.com");
   });
 
   it("omits the senior-citizen line entirely when it is not claimed", () => {

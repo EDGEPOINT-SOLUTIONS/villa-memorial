@@ -6,7 +6,8 @@
     "provenance, to be replaced by recorded contract fixtures once Keb freezes the",
     "case.stage.changed contract family. IDs are deterministic UUIDs; tenant matches",
     "identity seeds.",
-    "Order numbers use a 9xxxx band so demo data never collides with numbers commerce-ordering really issues (ORD-<year>-00001 upward)."
+    "Order numbers use a 9xxxx band so demo data never collides with numbers commerce-ordering really issues (ORD-<year>-00001 upward).",
+    "Intake seeds (Service Contract header): CASE-2026-0001 and CASE-2026-0007 carry a complete intake incl. the client-channel fields added additively to the case contract (client_gender/civil_status/facebook/email) so the header capture and the service-contract paper screen demo fully populated."
   ],
   "tenant_id": "00000000-0000-4000-8000-000000000001",
   "cases": [
@@ -41,7 +42,27 @@
           "title": "Prepare ceremony program",
           "status": "pending"
         }
-      ]
+      ],
+      "intake": {
+        "date_of_death": "2026-08-27",
+        "deceased_date_of_birth": "1948-03-11",
+        "deceased_gender": "male",
+        "deceased_civil_status": "married",
+        "senior_citizen": true,
+        "client_name": "Ana Santos",
+        "client_gender": "female",
+        "client_civil_status": "married",
+        "client_address": "Aguada, Isabela City",
+        "client_contact": "0917 000 1111",
+        "client_facebook": "fb.com/ana.santos",
+        "client_email": "ana.santos@example.com",
+        "client_relationship": "Daughter",
+        "client_id_presented": "Driver's License",
+        "client_id_number": "N01-23-456789",
+        "co_maker_name": "Ramon Santos",
+        "contract_date": "2026-08-28",
+        "completed_at": "2026-08-29T01:00:00Z"
+      }
     },
     {
       "id": "00000000-0000-4000-8000-000000000C02",
@@ -190,6 +211,47 @@
           "status": "pending"
         }
       ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000C07",
+      "case_number": "CASE-2026-0007",
+      "deceased_name": "Rosa Jimenez",
+      "stage": "inquiry",
+      "assigned_coordinator": "Elena Villanueva",
+      "linked_order_number": null,
+      "services": [],
+      "created_at": "2026-08-28T14:00:00Z",
+      "updated_at": "2026-08-28T14:00:00Z",
+      "tasks": [
+        {
+          "title": "Initial family consultation",
+          "status": "pending"
+        },
+        {
+          "title": "Service arrangement meeting",
+          "status": "pending"
+        }
+      ],
+      "intake": {
+        "date_of_death": "2026-08-28",
+        "deceased_date_of_birth": "1939-12-02",
+        "deceased_gender": "female",
+        "deceased_civil_status": "other",
+        "senior_citizen": true,
+        "client_name": "Marco Jimenez",
+        "client_gender": "male",
+        "client_civil_status": "married",
+        "client_address": "R.T. Lim Blvd, Zamboanga City",
+        "client_contact": "(062) 955 1234",
+        "client_facebook": "",
+        "client_email": "marco.jimenez@example.com",
+        "client_relationship": "Son",
+        "client_id_presented": "UMID",
+        "client_id_number": "0824-1234567-8",
+        "co_maker_name": "",
+        "contract_date": "2026-08-28",
+        "completed_at": "2026-08-28T14:30:00Z"
+      }
     }
   ]
 }

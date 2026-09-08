@@ -64,4 +64,42 @@ describe("operations fixtures follow the documented domain shapes", () => {
       }
     }
   });
+
+  it("an uncaptured intake answers null, never an empty object", async () => {
+    const cases = await listCases();
+    const untouched = cases.find((c) => c.case_number === "CASE-2026-0002");
+    expect(untouched).toBeDefined();
+    expect(untouched!.intake).toBeNull();
+  });
+
+  it("seeded cases carry a full Service Contract header incl. the client-channel fields", async () => {
+    const cases = await listCases();
+    for (const caseNumber of ["CASE-2026-0001", "CASE-2026-0007"]) {
+      const kase = cases.find((c) => c.case_number === caseNumber);
+      expect(kase).toBeDefined();
+      const intake = kase!.intake;
+      expect(intake).not.toBeNull();
+      expect(intake!.completed_at).not.toBeNull();
+      expect(intake!.deceased_gender).toBeTruthy();
+      expect(intake!.deceased_civil_status).toBeTruthy();
+      expect(intake!.client_name).toBeTruthy();
+      expect(intake!.client_gender).toBeTruthy();
+      expect(intake!.client_civil_status).toBeTruthy();
+      expect(intake!.client_address).toBeTruthy();
+      expect(intake!.client_contact).toBeTruthy();
+      // Facebook may legitimately be blank (a family with none); the field still exists.
+      expect("client_facebook" in intake!).toBe(true);
+      expect("client_email" in intake!).toBe(true);
+      expect(intake!.client_relationship).toBeTruthy();
+      expect(intake!.client_id_presented).toBeTruthy();
+      expect(intake!.client_id_number).toBeTruthy();
+    }
+  });
+
+  it("reads a no-order case (intake precedes checkout) with intake but no price lines", async () => {
+    const kase = await getCase("00000000-0000-4000-8000-000000000C07");
+    expect(kase.linked_order_number).toBeNull();
+    expect(kase.services).toEqual([]);
+    expect(kase.intake?.contract_date).toBe("2026-08-28");
+  });
 });

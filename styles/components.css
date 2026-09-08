@@ -2903,3 +2903,240 @@ a.card:hover {
   border-color: var(--brass-400);
   color: var(--color-accent-strong);
 }
+
+/* --- Service contract capture (paper form) --------------------------------- */
+/* The case-level paper-form screen: services/deals rows + deductions, and the */
+/* printed artifact. New capture styles only — no existing component is restyled. */
+
+.contract-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.contract-rows__col h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-1);
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  margin-bottom: var(--space-2);
+}
+
+.service-row {
+  margin-bottom: var(--space-3);
+}
+
+.service-row .check-row {
+  margin-bottom: var(--space-1);
+}
+
+.service-row__blank {
+  width: 100%;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.service-row__days {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.service-row__blank--days {
+  width: 4.5rem;
+}
+
+/* --- Paper artifact (print preview of the Service Contract) --------------- */
+
+.paper-artifact {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+
+.paper-artifact__doc {
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-border-strong);
+  padding: var(--space-6);
+}
+
+.paper-artifact__ref {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-3);
+}
+
+.paper-artifact__ref-date {
+  float: right;
+}
+
+.paper-artifact__title {
+  font-size: var(--text-xl);
+  text-align: center;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--space-5);
+}
+
+.paper-artifact__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.paper-artifact__table th,
+.paper-artifact__table td {
+  border: 1px solid var(--color-border-strong);
+  padding: var(--space-2);
+  text-align: left;
+  vertical-align: top;
+  background: var(--color-bg-surface-raised);
+}
+
+.paper-artifact__table th[scope="row"] {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.paper-artifact__ticks {
+  white-space: nowrap;
+}
+
+.paper-artifact__tick {
+  margin-right: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.paper-artifact__tick--on {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.paper-artifact__colhead {
+  background: var(--color-bg-subtle) !important;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.paper-artifact__amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.paper-artifact__amount--total {
+  font-weight: 700;
+}
+
+.paper-artifact__total {
+  text-transform: uppercase;
+}
+
+.paper-artifact__heading {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: 600;
+  margin: var(--space-5) 0 var(--space-2);
+  text-transform: uppercase;
+}
+
+.paper-artifact__body {
+  font-size: var(--text-sm);
+  text-align: justify;
+}
+
+.paper-artifact__clauses {
+  font-size: var(--text-sm);
+  text-align: justify;
+  padding-left: var(--space-5);
+}
+
+.paper-artifact__clauses li {
+  margin-bottom: var(--space-2);
+}
+
+.paper-artifact__deductions {
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-3);
+}
+
+.paper-artifact__note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.paper-artifact__muted {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.paper-artifact__signatures {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-6);
+  margin: var(--space-6) 0;
+  text-align: center;
+}
+
+.paper-artifact__signline {
+  min-width: 10rem;
+  border-bottom: 1px solid var(--color-border-strong);
+  padding: 0 var(--space-3) var(--space-1);
+  min-height: 1.6em;
+  font-weight: 600;
+}
+
+.paper-artifact__signrole {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+.paper-artifact__notarial {
+  font-size: var(--text-sm);
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-3);
+  white-space: pre-line;
+}
+
+/* Print: only the paper artifact leaves the printer. */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .paper-artifact,
+  .paper-artifact * {
+    visibility: visible;
+  }
+  .paper-artifact {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+  }
+  .paper-artifact__doc {
+    border: none;
+    padding: 0;
+  }
+}

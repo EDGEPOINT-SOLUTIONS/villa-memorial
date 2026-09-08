@@ -155,6 +155,15 @@ is distinguishable from "intake with empty answers".
 `contract_date` is the date the counter wrote, not the row's `created_at` — a contract
 signed Monday and keyed in Tuesday is due nine days from Monday.
 
+**Intake client-channel completeness (additive 2026-09-08).** The client block of the
+paper Service Contract Form (`docs/07-client-villa/paper-forms/` transcript) carries
+four more discrete fields than the original intake list: `client_gender`,
+`client_civil_status`, `client_facebook`, `client_email`. They join the intake object as
+nullable additive fields — the same tolerant-reader rule applies (consumers that do not
+know them ignore them), and `client_contact` stays the telephone-numbers field. No
+frozen field or event changes, so again no version bump. Like the rest of `client_*`,
+these move to the customer record when crm-families exists (#39).
+
 **Where `client_*` belongs eventually.** On a customer record, not on the case. crm-families
 does not exist (#39), so these live on the case, prefixed, and move when it does — a rename,
 not a re-capture. `senior_citizen` carries a discount entitlement and is deliberately

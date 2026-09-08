@@ -49,6 +49,11 @@ export type CaseTask = {
  * The counter's intake block, as Villa's Service Contract prints it. Additive to the
  * frozen `Case` shape and null until somebody captures it: a case born from
  * `order.fulfilled` carries the purchaser, never the deceased.
+ *
+ * The client-contact channel fields were extended additively (2026-09-08) to match the
+ * paper's client block (gender/civil status/telephone numbers/Facebook/email) — see the
+ * additive note in docs/08-delivery/contracts/case-events-v1.md. Consumers that predate
+ * them ignore them (tolerant reader), exactly as they already ignore `tasks[].id`.
  */
 export type CaseIntake = {
   date_of_death: string | null;
@@ -57,8 +62,12 @@ export type CaseIntake = {
   deceased_civil_status: string | null;
   senior_citizen: boolean;
   client_name: string | null;
+  client_gender: string | null;
+  client_civil_status: string | null;
   client_address: string | null;
   client_contact: string | null;
+  client_facebook: string | null;
+  client_email: string | null;
   client_relationship: string | null;
   client_id_presented: string | null;
   client_id_number: string | null;
@@ -129,8 +138,12 @@ function toIntake(raw: unknown): CaseIntake | null {
     deceased_civil_status: str("deceased_civil_status"),
     senior_citizen: r.senior_citizen === true,
     client_name: str("client_name"),
+    client_gender: str("client_gender"),
+    client_civil_status: str("client_civil_status"),
     client_address: str("client_address"),
     client_contact: str("client_contact"),
+    client_facebook: str("client_facebook"),
+    client_email: str("client_email"),
     client_relationship: str("client_relationship"),
     client_id_presented: str("client_id_presented"),
     client_id_number: str("client_id_number"),
