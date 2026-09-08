@@ -300,12 +300,36 @@ export function purchaseApplicationFromForm(body: unknown): PurchaseApplicationI
   if (raw.interment_funeral_bundle_inclusion === "included" || raw.interment_funeral_bundle_inclusion === "not_included") {
     out.interment_funeral_bundle_inclusion = raw.interment_funeral_bundle_inclusion;
   }
-  if (raw.amortization_unit === "years" || raw.amortization_unit === "months") {
-    const value = typeof raw.amortization_value === "number" ? raw.amortization_value : Number(raw.amortization_value);
-    if (Number.isInteger(value) && value > 0 && value <= 120) {
-      out.amortization_value = value;
-      out.amortization_unit = raw.amortization_unit;
+  const amortizationUnitRaw =
+    typeof raw.amortization_unit === "string"
+      ? raw.amortization_unit.trim()
+      : (raw.amortization_unit as unknown);
+  const amortizationValueRaw = raw.amortization_value;
+  const amortizationUnitPresent =
+    typeof amortizationUnitRaw === "string"
+      ? amortizationUnitRaw !== ""
+      : amortizationUnitRaw !== undefined && amortizationUnitRaw !== null;
+  const amortizationValuePresent =
+    typeof amortizationValueRaw === "string"
+      ? amortizationValueRaw.trim() !== ""
+      : amortizationValueRaw !== undefined && amortizationValueRaw !== null;
+  if (amortizationUnitPresent || amortizationValuePresent) {
+    if (amortizationUnitRaw !== "years" && amortizationUnitRaw !== "months") {
+      throw new Error("amortization unit is required when an amortization term is entered (years or months)");
     }
+    const value =
+      typeof amortizationValueRaw === "number"
+        ? amortizationValueRaw
+        : Number(
+            typeof amortizationValueRaw === "string"
+              ? amortizationValueRaw.trim()
+              : (amortizationValueRaw as unknown as string),
+          );
+    if (!Number.isInteger(value) || value <= 0) {
+      throw new Error("amortization value must be a positive whole number of years or months");
+    }
+    out.amortization_value = value;
+    out.amortization_unit = amortizationUnitRaw;
   }
   if (typeof raw.dpa_consent === "boolean") {
     out.dpa_consent = raw.dpa_consent;
@@ -321,15 +345,27 @@ export function purchaseApplicationFromForm(body: unknown): PurchaseApplicationI
       const name = text(row, "name");
       if (name === "") continue;
       const ageRaw = row.age;
-      const age =
-        typeof ageRaw === "number"
-          ? ageRaw
-          : typeof ageRaw === "string" && ageRaw.trim() !== ""
-            ? Number(ageRaw)
-            : null;
+      let age: number | null = null;
+      if (typeof ageRaw === "number") {
+        if (!Number.isInteger(ageRaw) || ageRaw < 0) {
+          throw new Error(`${String(ageRaw)} is not a valid beneficiary age (a whole number of years)`);
+        }
+        age = ageRaw;
+      } else if (typeof ageRaw === "string") {
+        const trimmed = ageRaw.trim();
+        if (trimmed !== "") {
+          const parsed = Number(trimmed);
+          if (!Number.isInteger(parsed) || parsed < 0) {
+            throw new Error(`${trimmed} is not a valid beneficiary age (a whole number of years)`);
+          }
+          age = parsed;
+        }
+      } else if (ageRaw !== undefined && ageRaw !== null) {
+        throw new Error(`${String(ageRaw)} is not a valid beneficiary age (a whole number of years)`);
+      }
       beneficiaries.push({
         name,
-        age: age !== null && Number.isInteger(age) && age >= 0 ? age : null,
+        age,
         relationship: text(row, "relationship"),
       });
     }
@@ -356,7 +392,7 @@ export function validatePurchaseApplication(
   if (input.classification && !(terms.classifications ?? []).includes(input.classification)) {
     errors.classification = `Not one of the classifications on the ${terms.title} (${terms.version}).`;
   }
-  if (input.amortization_unit && input.amortization_value === null) {
+  if (input.amortization_unit && input.amortization_value == null) {
     errors.amortization = "Enter the number of years or months.";
   }
   if (!input.dpa_consent) {

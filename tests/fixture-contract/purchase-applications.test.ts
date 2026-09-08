@@ -98,6 +98,30 @@ describe("recording a purchase application (fixture demo store)", () => {
   });
 });
 
+describe("invalid written figures surface instead of printing blank", () => {
+  it("rejects a half-entered amortisation term at capture time", () => {
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "24", first_name: "Juan" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({
+        amortization_value: "",
+        amortization_unit: "months",
+        first_name: "Juan",
+      }),
+    ).toThrow(/amortization/);
+  });
+
+  it("rejects a non-numeric beneficiary age at capture time", () => {
+    expect(() =>
+      purchaseApplicationFromForm({
+        first_name: "Juan",
+        beneficiaries: [{ name: "Juana Dela Cruz", age: "twelve", relationship: "Spouse" }],
+      }),
+    ).toThrow(/beneficiary age/);
+  });
+});
+
 describe("a seeded application feeds the agreement generator real values", () => {
   it("prints Marites's written figures on her lot's agreement", async () => {
     const lot = await getLot(A002);

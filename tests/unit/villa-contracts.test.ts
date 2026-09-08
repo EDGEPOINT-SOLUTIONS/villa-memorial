@@ -629,4 +629,49 @@ describe("purchase application capture helpers", () => {
     });
     expect(validatePurchaseApplication(ok, terms2026)).toEqual({});
   });
+
+  it("rejects a half-entered amortisation term instead of dropping it", () => {
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "24", amortization_unit: "" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: 24 }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "0", amortization_unit: "months" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "abc", amortization_unit: "months" }),
+    ).toThrow(/amortization/);
+    expect(() =>
+      purchaseApplicationFromForm({ amortization_value: "-3", amortization_unit: "years" }),
+    ).toThrow(/amortization/);
+  });
+
+  it("accepts any positive amortisation figure and leaves blanks blank", () => {
+    expect(
+      purchaseApplicationFromForm({ amortization_value: 200, amortization_unit: "months" })
+        .amortization_value,
+    ).toBe(200);
+    const blank = purchaseApplicationFromForm({});
+    expect(blank.amortization_value).toBeUndefined();
+    expect(blank.amortization_unit).toBeUndefined();
+  });
+
+  it("rejects a non-numeric beneficiary age instead of storing it as unknown", () => {
+    expect(() =>
+      purchaseApplicationFromForm({
+        beneficiaries: [{ name: "Alyanna Santos", age: "twelve", relationship: "Daughter" }],
+      }),
+    ).toThrow(/beneficiary age/);
+    expect(() =>
+      purchaseApplicationFromForm({
+        beneficiaries: [{ name: "Miguel Santos", age: "-1", relationship: "Son" }],
+      }),
+    ).toThrow(/beneficiary age/);
+    const blankAge = purchaseApplicationFromForm({
+      beneficiaries: [{ name: "Alyanna Santos", age: "", relationship: "Daughter" }],
+    });
+    expect(blankAge.beneficiaries[0]?.age).toBeNull();
+  });
 });

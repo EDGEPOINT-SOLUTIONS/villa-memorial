@@ -21,7 +21,7 @@ import type {
   PurchaseApplicationInput,
 } from "@/lib/contracts/purchase-application";
 
-const NOT_WIRED =
+export const NOT_WIRED =
   "live purchase applications are not wired: no purchase-application contract is frozen " +
   "yet (FORMS_PLAN gap 2 — waits on dev). Fixture mode records demo applications in-process.";
 

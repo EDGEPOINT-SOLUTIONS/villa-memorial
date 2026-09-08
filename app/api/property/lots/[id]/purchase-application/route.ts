@@ -1,8 +1,11 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-client/api-error";
-import { getLot, reserveLot } from "@/lib/api-client/property";
-import { savePurchaseApplication } from "@/lib/api-client/purchase-applications";
+import { getLot, propertyLiveModeEnabled, reserveLot } from "@/lib/api-client/property";
+import {
+  NOT_WIRED as PURCHASE_APPLICATIONS_NOT_WIRED,
+  savePurchaseApplication,
+} from "@/lib/api-client/purchase-applications";
 import { ACCESS_COOKIE, parseAccessTokenClaims } from "@/lib/auth/session";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import {
@@ -41,6 +44,9 @@ export async function POST(
   if (!hasAnyScope(claims.scopes, ["property:write"])) {
     return NextResponse.json({ error: "property:write required" }, { status: 403 });
   }
+  if (propertyLiveModeEnabled()) {
+    return NextResponse.json({ error: PURCHASE_APPLICATIONS_NOT_WIRED }, { status: 503 });
+  }
 
   let body: unknown;
   try {
@@ -64,7 +70,15 @@ export async function POST(
 
   // Validate against the revision the application's own date resolves to, so the
   // classification list offered on the form and the one enforced here are the same paper's.
-  const terms = purchaseTerms(input.application_date ?? new Date().toISOString().slice(0, 10));
+  let terms;
+  try {
+    terms = purchaseTerms(input.application_date ?? new Date().toISOString().slice(0, 10));
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "invalid application date" },
+      { status: 422 },
+    );
+  }
   const fieldErrors = validatePurchaseApplication(input, terms);
   if (Object.keys(fieldErrors).length > 0) {
     return NextResponse.json({ error: Object.values(fieldErrors)[0] }, { status: 422 });
