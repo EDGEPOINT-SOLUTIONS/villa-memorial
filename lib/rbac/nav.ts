@@ -56,6 +56,10 @@ export const STAFF_NAV: NavSection[] = [
       { href: "/staff/inventory", label: "Inventory", scopes: ["catalog:write"] },
       { href: "/staff/pricing", label: "Pricing rules", scopes: ["catalog:write"] },
       { href: "/staff/store", label: "Store & content", scopes: ["catalog:write"] },
+      // Landing page editor — front-end CMS seam (approved villa-landing-plan); gates on
+      // catalog:write provisionally (same precedent as Store & content) until the content
+      // contract freezes its own scope. See app/staff/landing + lib/api-client/landing.ts.
+      { href: "/staff/landing", label: "Landing page", scopes: ["catalog:write"] },
       { href: "/staff/orders", label: "Orders", scopes: ["orders:read"] },
     ],
   },

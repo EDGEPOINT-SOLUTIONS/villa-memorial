@@ -1,0 +1,328 @@
+{
+  "comment": [
+    "Fixture store for the Landing Page content model — the public home (localhost:4000 /)",
+    "renders ONLY from this document (plus the real lots/catalogue reads for the live map),",
+    "and the staff 'Landing Page' editor persists into the same store.",
+    "",
+    "PROVENANCE: no upstream CMS/content contract exists yet (front-end CMS seam, approved in",
+    "the Lavish villa-landing-plan — three-column anchored catalogue home). Shape is owned by",
+    "lib/api-client/landing.ts (types + tolerant reader + validator). Marked clearly: this is",
+    "an app-authored model, not a recorded service response; it is replaced by recorded",
+    "contract fixtures once a content contract freezes (fixtures/README rule).",
+    "",
+    "CONTENT HONESTY: marketing prices shown here come from the REAL 2026 product & price",
+    "content (lib/villa-pricing.ts) — plan/rail price strings equal php() of the regular",
+    "selling prices and the Villa Memorial Plan monthly rate; nothing invented. Fixture-",
+    "contract tests recompute the prices from villa-pricing and pin this file to them.",
+    "Blog media photos are the real uploaded park/product assets in /public/media."
+  ],
+  "content": {
+    "version": 1,
+    "updated_at": null,
+    "logo": {
+      "wordmark": "Villa Memorial Park",
+      "markImage": null
+    },
+    "contact": {
+      "phoneLabel": "24/7 Assistance Line",
+      "phoneDisplay": "0917 000 1234",
+      "phoneHref": "tel:+639170001234",
+      "location": "Isabela City, Basilan"
+    },
+    "hero": {
+      "eyebrow": "Memorial & funeral services · Isabela City, Basilan",
+      "headline": "Honoring every life with dignity and light.",
+      "subline": "Whatever brings you here today, you are not alone — we will guide every step with care, honestly and at your pace.",
+      "primaryCta": { "label": "I need help now", "href": "/services" },
+      "secondaryCta": { "label": "Plan ahead", "href": "/plans" }
+    },
+    "rails": {
+      "left": {
+        "heading": "Care & services",
+        "items": [
+          {
+            "id": "rl-death-at-home",
+            "kind": "service",
+            "title": "Death at home",
+            "caption": "Immediate care · 24/7",
+            "price": null,
+            "image": "/media/death_at_home.jpg",
+            "href": "/services/death-at-home"
+          },
+          {
+            "id": "rl-death-at-hospital",
+            "kind": "service",
+            "title": "Death at hospital",
+            "caption": "Coordination & transport",
+            "price": null,
+            "image": "/media/death_at_hospital.jpg",
+            "href": "/services/death-at-hospital"
+          },
+          {
+            "id": "rl-packages",
+            "kind": "product",
+            "title": "Memorial packages",
+            "caption": "Bundled at one clear price",
+            "price": null,
+            "image": "/media/plan-packages.png",
+            "href": "/packages"
+          },
+          {
+            "id": "rl-caskets",
+            "kind": "product",
+            "title": "Caskets & keepsakes",
+            "caption": "Browse the collection",
+            "price": null,
+            "image": "/media/gold-casket.jpg",
+            "href": "/products"
+          },
+          {
+            "id": "rl-transport",
+            "kind": "service",
+            "title": "Hearse & transport",
+            "caption": "Dignified fleet, day or night",
+            "price": null,
+            "image": "/media/transport.jpg",
+            "href": "/transport"
+          }
+        ]
+      },
+      "right": {
+        "heading": "Plans & lots",
+        "items": [
+          {
+            "id": "rr-premium-lot",
+            "kind": "plan",
+            "title": "Premium Lot",
+            "caption": "2.5 sqm · lot only",
+            "price": "₱114,000",
+            "image": "/media/lot-premium.png",
+            "href": "/lots/price-list-2026"
+          },
+          {
+            "id": "rr-prime-lot",
+            "kind": "plan",
+            "title": "Prime Lot",
+            "caption": "2.5 sqm · lot only",
+            "price": "₱128,000",
+            "image": "/media/lot-primary.png",
+            "href": "/lots/price-list-2026"
+          },
+          {
+            "id": "rr-garden-niches",
+            "kind": "plan",
+            "title": "Garden Niches",
+            "caption": "12 sqm · lot only",
+            "price": "₱567,000",
+            "image": "/media/lot-garden-niches.png",
+            "href": "/lots/price-list-2026"
+          },
+          {
+            "id": "rr-mausoleum",
+            "kind": "plan",
+            "title": "Mausoleum",
+            "caption": "24 sqm · lot only",
+            "price": "₱1,073,000",
+            "image": "/media/lot-mausoleum.png",
+            "href": "/lots/price-list-2026"
+          },
+          {
+            "id": "rr-vmp",
+            "kind": "plan",
+            "title": "Villa Memorial Plan",
+            "caption": "Complete memorial service",
+            "price": "from ₱500/month",
+            "image": "/media/plan-packages.png",
+            "href": "/plans/villa-memorial-plan"
+          }
+        ]
+      }
+    },
+    "about": {
+      "heading": "About Villa Memorial Park",
+      "story": "A family-run memorial park in Isabela City, Basilan — founded on the belief that every life deserves a resting place of beauty and peace, and that the families who love them deserve honesty, warmth and time.",
+      "mission": "To walk beside every family with honesty and warmth — clear guidance, dignified care and no hidden costs, whether the need is today or years from now.",
+      "vision": "A park where remembrance becomes a source of comfort — serene grounds, honest planning and a community that honors every life.",
+      "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg"
+    },
+    "services": {
+      "heading": "Services in full detail",
+      "intro": "Every service below is a full editorial section — what happens, what it includes, and how to begin. Click any one for its full page.",
+      "items": [
+        {
+          "id": "svc-death-at-home",
+          "title": "Death at home",
+          "tagline": "You should not manage the next steps alone.",
+          "image": "/media/death_at_home.jpg",
+          "body": [
+            "When a loved one passes at home, our coordinators arrange transport, dignified preparation, and guide you through the service options that fit your family — at your pace, with no pressure."
+          ],
+          "bullets": ["Available 24/7", "Transport from your home", "Guidance through every option"],
+          "link": { "label": "Read the full service", "href": "/services/death-at-home" }
+        },
+        {
+          "id": "svc-death-at-hospital",
+          "title": "Death at hospital",
+          "tagline": "We liaise with the facility, you focus on your family.",
+          "image": "/media/death_at_hospital.jpg",
+          "body": [
+            "We coordinate directly with the hospital so you are not left to manage paperwork and transport alone. A coordinator takes the next steps in care from there."
+          ],
+          "bullets": ["Hospital coordination", "Transport arrangements", "Next-step guidance"],
+          "link": { "label": "Read the full service", "href": "/services/death-at-hospital" }
+        },
+        {
+          "id": "svc-retrieval",
+          "title": "Retrieval & delivery",
+          "tagline": "Part of the complete Villa Memorial Plan.",
+          "image": "/media/transport.jpg",
+          "body": [
+            "Retrieval of the deceased to the morgue and delivery in casket — good for the first 25 km only — handled with care and respect."
+          ],
+          "bullets": ["First 25 km covered", "Careful, dignified handling"],
+          "link": { "label": "See plan inclusions", "href": "/plans/villa-memorial-plan" }
+        },
+        {
+          "id": "svc-preparation",
+          "title": "Preparation & casketing",
+          "tagline": "Seven days of embalming, make-up and dressing.",
+          "image": "/media/gold-casket.jpg",
+          "body": [
+            "7 days of embalming with make-up and dressing. The type of coffin differs per plan — Bronze, Silver or Gold — each with elegant handles and beautiful interiors."
+          ],
+          "bullets": ["7 days embalming", "Make-up & dressing", "Coffin tier per plan"],
+          "link": { "label": "Compare coffin tiers", "href": "/plans/villa-memorial-plan" }
+        },
+        {
+          "id": "svc-viewing",
+          "title": "Viewing equipment & rites",
+          "tagline": "State-of-the-art, classy equipment for the wake.",
+          "image": "/media/at_need_services.jpg",
+          "body": [
+            "Lights, curtains and carpets arranged with care, so the family can gather in a space that feels calm and dignified. All packages include free flowers and a tarpaulin."
+          ],
+          "bullets": ["Lights, curtains & carpets", "Free flowers & tarpaulin", "Funeral & memorial rites"],
+          "link": { "label": "Plan inclusions", "href": "/plans/villa-memorial-plan" }
+        },
+        {
+          "id": "svc-interment",
+          "title": "Interment",
+          "tagline": "Several cars ready to bring your loved one home.",
+          "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg",
+          "body": [
+            "The final journey is conducted with dignity — several cars are ready to bring the deceased to its final resting place in the park."
+          ],
+          "bullets": ["Funeral convoy", "Final resting place in the park"],
+          "link": { "label": "View the 2026 price list", "href": "/lots/price-list-2026" }
+        }
+      ]
+    },
+    "plans": {
+      "heading": "Memorial plans & garden lots",
+      "intro": "Choose what fits your family — every card shows a real photo, a name and an honest price from the 2026 list. Admin adds as many plans as he wants here.",
+      "note": "Prices shown are the regular \"lot only\" selling prices and the Villa Memorial Plan monthly rate from the 2026 price list. Senior, installment and interment options are on each plan page.",
+      "items": [
+        {
+          "id": "plan-premium",
+          "badge": "Garden lot",
+          "name": "Premium Lot",
+          "price": "₱114,000",
+          "note": "2.5 sqm · lot only · regular",
+          "image": "/media/lot-premium.png",
+          "href": "/lots/price-list-2026"
+        },
+        {
+          "id": "plan-prime",
+          "badge": "Garden lot",
+          "name": "Prime Lot",
+          "price": "₱128,000",
+          "note": "2.5 sqm · lot only · regular",
+          "image": "/media/lot-primary.png",
+          "href": "/lots/price-list-2026"
+        },
+        {
+          "id": "plan-niches",
+          "badge": "Structure",
+          "name": "Garden Niches",
+          "price": "₱567,000",
+          "note": "12 sqm · lot only · regular",
+          "image": "/media/lot-garden-niches.png",
+          "href": "/lots/price-list-2026"
+        },
+        {
+          "id": "plan-mausoleum",
+          "badge": "Structure",
+          "name": "Mausoleum",
+          "price": "₱1,073,000",
+          "note": "24 sqm · lot only · regular",
+          "image": "/media/lot-mausoleum.png",
+          "href": "/lots/price-list-2026"
+        },
+        {
+          "id": "plan-vmp",
+          "badge": "Life plan",
+          "name": "Villa Memorial Plan",
+          "price": "from ₱500/month",
+          "note": "Complete memorial service · assignable & transferable",
+          "image": "/media/plan-packages.png",
+          "href": "/plans/villa-memorial-plan"
+        }
+      ]
+    },
+    "blog": {
+      "heading": "News from the park",
+      "intro": "A newsfeed of moments, guides and stories from Villa Memorial Park — no noise, just the park.",
+      "posts": [
+        {
+          "id": "post-golden-hour",
+          "author": "Villa Memorial Park",
+          "date": "2026-09-06",
+          "caption": "A peaceful corner of the garden at golden hour — planning a memorial service with your family is a gift of time and light. 🌿",
+          "media": [
+            { "kind": "photo", "src": "/media/lot-premium.png", "alt": "Premium garden lot at golden hour", "poster": null },
+            { "kind": "photo", "src": "/media/lot-primary.png", "alt": "Prime garden lot at golden hour", "poster": null },
+            { "kind": "photo", "src": "/media/lot-garden-niches.png", "alt": "Garden niches at golden hour", "poster": null },
+            { "kind": "photo", "src": "/media/hero-1.jpg", "alt": "A calm corner of the park", "poster": null }
+          ]
+        },
+        {
+          "id": "post-why-families-plan",
+          "author": "Villa Memorial Park",
+          "date": "2026-09-01",
+          "caption": "Why families plan ahead — pre-arranged memorials protect the people you love from hard decisions at a hard time. A short film on the gift of pre-arranged memorials.",
+          "media": [
+            {
+              "kind": "video",
+              "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+              "alt": "Why families plan ahead — short film",
+              "poster": "/media/hero-1.jpg"
+            }
+          ]
+        },
+        {
+          "id": "post-new-niches",
+          "author": "Villa Memorial Park",
+          "date": "2026-08-22",
+          "caption": "Our newest garden niches are open for viewing — walk the grounds in person or online, and ask us about the 2026 list.",
+          "media": [
+            { "kind": "photo", "src": "/media/lot-garden-niches.png", "alt": "New garden niches", "poster": null },
+            { "kind": "photo", "src": "/media/plan-packages.png", "alt": "Plans and packages brochure", "poster": null }
+          ]
+        },
+        {
+          "id": "post-single-moment",
+          "author": "Villa Memorial Park",
+          "date": "2026-08-15",
+          "caption": "One of the reasons families choose Villa — a serene, landscaped resting place close to home, in the first memorial park of Basilan.",
+          "media": [
+            { "kind": "photo", "src": "/media/hero-1.jpg", "alt": "Serene landscaped grounds at Villa Memorial Park", "poster": null }
+          ]
+        }
+      ]
+    },
+    "map": {
+      "heading": "Browse the grounds, live",
+      "intro": "Zoom, pan and click every plot — walk the park before you visit, or share any plot deep link with your family."
+    }
+  }
+}
