@@ -98,39 +98,62 @@ function sanitizeBlocks(raw: unknown): PaperBlock[] | null {
       }
       case "table": {
         const columns = Math.min(Math.max(Math.floor(Number(block.columns)) || 2, 1), 12);
-        const head = Array.isArray(block.head)
-          ? block.head
-              .slice(0, columns)
-              .map((h): PaperHeadSanitized | null => {
-                if (typeof h === "string") return { text: h.slice(0, 200), span: 1 };
-                if (typeof h !== "object" || h === null) return null;
-                const entry = h as Record<string, unknown>;
-                if (typeof entry.text !== "string") return null;
-                const span =
-                  typeof entry.span === "number" && Number.isFinite(entry.span)
-                    ? Math.min(Math.max(Math.floor(entry.span) || 1, 1), columns)
-                    : 1;
-                return { text: entry.text.slice(0, 200), span };
-              })
-              .filter((h): h is PaperHeadSanitized => h !== null)
-          : undefined;
+        // Head and body cells may only occupy the grid's declared columns. Each span is
+        // clamped to the columns still unused so a malformed row (spans summing past the
+        // width) is trimmed to the grid instead of drawing cells off the page margin.
+        const head = (() => {
+          if (!Array.isArray(block.head)) return undefined;
+          const out: PaperHeadSanitized[] = [];
+          let used = 0;
+          for (const h of block.head) {
+            if (used >= columns) break;
+            if (typeof h === "string") {
+              out.push({ text: h.slice(0, 200), span: 1 });
+              used += 1;
+              continue;
+            }
+            if (typeof h !== "object" || h === null) continue;
+            const entry = h as Record<string, unknown>;
+            if (typeof entry.text !== "string") continue;
+            const span = Math.min(
+              Math.max(
+                typeof entry.span === "number" && Number.isFinite(entry.span)
+                  ? Math.floor(entry.span)
+                  : 1,
+                1,
+              ),
+              columns - used,
+            );
+            out.push({ text: entry.text.slice(0, 200), span });
+            used += span;
+          }
+          return out.length > 0 ? out : undefined;
+        })();
         const rowsRaw = Array.isArray(block.rows) ? block.rows.slice(0, MAX_TABLE_ROWS) : null;
         if (!rowsRaw) return null;
         const rows: PaperCellSanitized[][] = [];
         for (const rowRaw of rowsRaw) {
           if (!Array.isArray(rowRaw)) return null;
           const row: PaperCellSanitized[] = [];
+          let used = 0;
           for (const cellRaw of rowRaw) {
+            if (used >= columns) break;
             if (typeof cellRaw !== "object" || cellRaw === null) return null;
             const cell = cellRaw as Record<string, unknown>;
             if (typeof cell.label !== "undefined" && typeof cell.label !== "string") return null;
             if (typeof cell.value !== "string") return null;
+            const span =
+              typeof cell.span === "number" && Number.isFinite(cell.span)
+                ? Math.floor(cell.span)
+                : 1;
+            const fit = Math.min(Math.max(span, 1), columns - used);
+            used += fit;
             row.push({
               ...(typeof cell.label === "string" && cell.label !== ""
                 ? { label: cell.label.slice(0, 200) }
                 : {}),
               value: cell.value.slice(0, MAX_BLOCK_TEXT),
-              ...(typeof cell.span === "number" ? { span: Math.min(Math.max(Math.floor(cell.span) || 1, 1), columns) } : {}),
+              ...(typeof cell.span === "number" ? { span: fit } : {}),
             });
           }
           if (row.length > 0) rows.push(row);
