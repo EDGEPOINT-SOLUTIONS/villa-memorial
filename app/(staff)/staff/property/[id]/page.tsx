@@ -244,18 +244,29 @@ export default async function LotDetailPage({
                 </table>
               </div>
               {canCaptureApplication ? (
-                <div>
+                <div className="row row--wrap">
                   <Link
                     href={`/staff/property/${encodeURIComponent(lot.id)}/apply`}
                     className="btn btn--secondary btn--sm"
                   >
                     Review / edit purchase application
                   </Link>
+                  <Link
+                    href={`/staff/property/${encodeURIComponent(lot.id)}/document`}
+                    className="btn btn--primary btn--sm"
+                  >
+                    Open paper document
+                  </Link>
                 </div>
               ) : (
-                <p className="text-sm text-muted">
-                  Editing the application needs <code>property:write</code>.
-                </p>
+                <div>
+                  <Link
+                    href={`/staff/property/${encodeURIComponent(lot.id)}/document`}
+                    className="btn btn--primary btn--sm"
+                  >
+                    Open paper document
+                  </Link>
+                </div>
               )}
             </div>
           ) : (

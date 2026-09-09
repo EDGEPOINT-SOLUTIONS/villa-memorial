@@ -27,10 +27,14 @@
   --marble-200: #eae6dd;
   --marble-300: #ddd7c9;
 
-  --brass-300: #d3b877;
-  --brass-400: #bf9f57;
-  --brass-500: #a8873f;
-  --brass-600: #86692e;
+  /* Brass primitives now carry the Radiant Compassion gold family product-wide
+     (captain-approved blue/gold, 2026-09-08): decorative golds for hairlines,
+     washes and focus; a dark gold-ink for text-on-light so small accents keep
+     WCAG contrast. The porcelain-neutral granite/marble scales above stay. */
+  --brass-300: #f1cc5e;
+  --brass-400: #e2b633;
+  --brass-500: #c79b1e;
+  --brass-600: #7a5c00;
 
   /* Status hues — desaturated by design */
   --sage-500: #6f8f6a;
@@ -43,21 +47,21 @@
   --slate-info-100: #e4eaf0;
 
   /* --- Semantic roles ----------------------------------------------------- */
-  --color-bg-page: var(--marble-100);
-  --color-bg-surface: var(--marble-50);
+  --color-bg-page: var(--navy-50);
+  --color-bg-surface: #fbfdff;
   --color-bg-surface-raised: #ffffff;
-  --color-bg-inverse: var(--granite-900);
-  --color-bg-subtle: var(--granite-50);
+  --color-bg-inverse: var(--navy-900);
+  --color-bg-subtle: var(--navy-100);
 
-  --color-text-primary: var(--granite-800);
-  --color-text-secondary: var(--granite-600);
-  --color-text-muted: var(--granite-400);
+  --color-text-primary: var(--navy-900);
+  --color-text-secondary: var(--navy-700);
+  --color-text-muted: var(--navy-500);
   --color-text-inverse: var(--marble-100);
-  --color-text-inverse-muted: var(--granite-400);
+  --color-text-inverse-muted: var(--navy-200);
 
-  --color-border: var(--granite-200);
-  --color-border-strong: var(--granite-300);
-  --color-border-inverse: var(--granite-700);
+  --color-border: var(--navy-200);
+  --color-border-strong: var(--navy-300);
+  --color-border-inverse: var(--navy-700);
 
   --color-accent: var(--brass-500);
   --color-accent-strong: var(--brass-600);
@@ -110,7 +114,68 @@
   --shadow-card: 0 1px 2px rgb(29 33 38 / 0.05), 0 1px 6px rgb(29 33 38 / 0.04);
   --shadow-raised: 0 2px 4px rgb(29 33 38 / 0.07), 0 4px 14px rgb(29 33 38 / 0.06);
 
-  /* --- Motion ------------------------------------------------------------- */
+  /* --- Radiant Compassion (staff premium) — COO blue/gold ------------------
+     The captain's requested premium direction for the staff portal: the COO
+     "Radiant Compassion" blue/gold palette adapted for admin screens — deep
+     navy surfaces with warm gold accents, cool paper content area, display
+     serif titles in navy ink. These primitives are consumed ONLY by the
+     .app-shell premium rules (components.css); public/family/agent surfaces
+     keep the DOC granite/marble/brass roles defined above.
+  */
+  --navy-50: #f3f7fb;
+  --navy-100: #e6eef6;
+  --navy-200: #c8d9e9;
+  --navy-300: #9fbdd7;
+  --navy-500: #41709c;
+  --navy-600: #2b5680;
+  --navy-700: #1c4366;
+  --navy-800: #12324e;
+  --navy-900: #0d2942;
+  --navy-950: #081c31;
+
+  --gold-100: #fdf4d7;
+  --gold-200: #f8e5ab;
+  --gold-300: #f1cc5e;
+  --gold-400: #e2b633;
+  --gold-500: #c79b1e;
+  --gold-600: #a67f12;
+  --gold-700: #7a5c00;
+  --gold-800: #574300;
+
+  /* Cool paper + sky-tinted desk light for the staff content area. */
+  --color-bg-desk:
+    radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.95), transparent 60%),
+    radial-gradient(760px 320px at 92% -140px, rgb(198 217 233 / 0.55), transparent 60%),
+    #f5f8fb;
+
+  /* Hairline + rule ladder — cool hairlines under the blue/gold direction. */
+  --color-rule: #dbe4ec;
+  --color-rule-strong: #bcceda;
+  --color-rule-inverse: rgb(255 255 255 / 0.09);
+
+  /* Gold containment: washes stay translucent so gold never floods a surface. */
+  --gold-wash-soft: color-mix(in srgb, var(--gold-300) 16%, transparent);
+  --gold-wash: color-mix(in srgb, var(--gold-300) 26%, transparent);
+  --gold-wash-strong: color-mix(in srgb, var(--gold-300) 40%, transparent);
+  --gold-hairline: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+
+  /* Elevation ladder — paper on a cool desk, refined for hover/pop layers. */
+  --shadow-paper: 0 1px 1px rgb(10 30 52 / 0.05), 0 1px 3px rgb(10 30 52 / 0.06);
+  --shadow-card-rest:
+    0 1px 2px rgb(10 30 52 / 0.06),
+    0 3px 10px -2px rgb(10 30 52 / 0.08);
+  --shadow-card-hover:
+    0 2px 5px rgb(10 30 52 / 0.1),
+    0 16px 32px -10px rgb(10 30 52 / 0.24);
+
+  /* Display figure colour for the staff portal (titles, headline numerals). */
+  --color-figure: var(--navy-900);
+
+  /* Display type for the staff portal (page titles, headline figures). */
+  --text-title-page: clamp(1.85rem, 1.35rem + 1.4vw, 2.25rem);
+  --text-stat: 1.875rem;
+
+  /* Motion ------------------------------------------------------------- */
   --motion-fast: 120ms ease-out;
   --motion-base: 180ms ease-out;
   --motion-slow: 200ms ease-out;

@@ -37,14 +37,16 @@ export function ServiceContractPaper({
   order,
   draft,
   terms,
+  signedOn,
 }: {
   kase: Pick<Case, "case_number" | "deceased_name">;
   intake: Case["intake"];
   order: OrderResponse | null;
   draft: ServiceContractDraft;
   terms: TermsRevision | null;
+  signedOn: string;
 }) {
-  const contractDate = displayDate(intake?.contract_date) || displayDate(new Date().toISOString());
+  const contractDate = (intake?.contract_date || signedOn).slice(0, 10);
   const dueDate = addDays(contractDate, PAYMENT_TERM_DAYS);
   // The frozen intake shape carries senior-citizen as a plain boolean, so a stored
   // false is the service default rather than an answer nobody can distinguish from

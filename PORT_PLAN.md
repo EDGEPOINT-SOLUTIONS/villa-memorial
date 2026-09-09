@@ -34,12 +34,18 @@ npm run dev        # demo/fixture mode on :4000 (no gateway needed)
 Point `.env.local` at the live edge gateway to run against real services
 (see `.env.example`). Build + test + lint scripts match the monorepo `web/`.
 
-## Open decisions for the dev (no work done on these yet)
+## Open decisions for the dev
 
-1. **Palette** — this app currently carries the DOC granite/marble/brass
-   tokens. The archived mockup is the COO blue/gold "Radiant Compassion" look.
-   Which palette is the deployed product? (Re-theme is a contained tokens-only
-   task once decided.)
+1. **Palette — DECIDED (2026-09-08).** The captain approved the COO blue/gold
+   "Radiant Compassion" premium direction and expanded it to the WHOLE product —
+   staff portal, family portal, agent portal and the public landing experience now
+   carry the same navy/gold folio design language on one shared token system
+   (`styles/tokens.css` re-points semantic roles + brass primitives to the
+   navy/gold family). DOC granite/marble is retired as the product face (its
+   neutrals remain as structure primitives). See
+   `docs/02-architecture/premium-admin-direction.md`. No further palette decision
+   pending.
+
 2. **Source-of-truth policy** — `in-memoriam/web` is still the monorepo's
    frontend. Recommend: keep that as the canonical repo; villa-memorial is the
    deployment copy, refreshed with one sync (`cp` from `in-memoriam/web`) after

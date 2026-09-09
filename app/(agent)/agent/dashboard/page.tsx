@@ -1,4 +1,4 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageSection } from "@/components/ui/page";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FamilyComingSoon } from "@/components/family-coming-soon";
 
@@ -18,7 +18,34 @@ export default async function AgentDashboardPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Agent portal" title="Dashboard" />
+      <div className="paper-hero">
+        <div className="paper-hero__grid">
+          <div>
+            <p className="paper-hero__eyebrow">Agent portal · Dashboard</p>
+            <h1 className="paper-hero__title">Your sales workspace</h1>
+            <p className="paper-hero__lead">
+              Your book of business at a glance — clients, prospects, applications and
+              commissions. The figures below light up when the agent workspace connects
+              (waits on the agent/commission contract, dev-authored).
+            </p>
+            <div className="paper-hero__chips">
+              <span className="paper-hero__chip">Signed in · {session.email}</span>
+              {ghost.map((g) => (
+                <span key={g.label} className="paper-hero__chip">
+                  {g.label}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="paper-hero__price">
+            <p className="paper-hero__price-label">Commissions</p>
+            <p className="paper-hero__price-value">—</p>
+            <p className="paper-hero__price-status">
+              Earned this period — arrives with the agent/commission contract.
+            </p>
+          </div>
+        </div>
+      </div>
 
       <div className="kpi-grid">
         {ghost.map((g) => (
