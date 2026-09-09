@@ -5,7 +5,7 @@
  * Every region of the anchored catalogue is editable here and saves through the
  * BFF (POST /api/landing/content), which validates + persists into the same
  * fixture store the public page renders from. Mirrors the approved click-to-edit
- * model: pin rail items per side (≤5, with photo + order), edit hero copy and
+ * model: pin rail items per side (unlimited, with photo + order), edit hero copy and
  * CTAs, about/mission/vision + image, the full service sections, unlimited plan
  * cards and unlimited blog posts with photo/video attachments.
  */
@@ -18,7 +18,6 @@ import { Field } from "@/components/ui/field";
 import { MediaPicker, RailPicker } from "@/components/landing/editor-pickers";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import {
-  MAX_RAIL_ITEMS,
   type AboutSection,
   type BlogPost,
   type Cta,
@@ -189,7 +188,6 @@ function RailEditor({
   onChange: (next: LandingContent["rails"]["left"]) => void;
 }) {
   const [picking, setPicking] = useState(false);
-  const remaining = MAX_RAIL_ITEMS - config.items.length;
 
   function move(index: number, delta: -1 | 1) {
     const next = clone(config);
@@ -207,7 +205,6 @@ function RailEditor({
   }
 
   function add(entry: CatalogueEntry) {
-    if (config.items.length >= MAX_RAIL_ITEMS) return;
     const next = clone(config);
     next.items.push({
       id: uid("pin"),
@@ -236,15 +233,12 @@ function RailEditor({
 
       <div className="row row--space" style={{ margin: "var(--space-2) 0 var(--space-1)" }}>
         <p className="ed-subhead">
-          Pinned items <Badge tone={remaining === 0 ? "success" : "info"}>{config.items.length}/{MAX_RAIL_ITEMS}</Badge>
+          Pinned items <Badge tone="info">{config.items.length}</Badge>
+          <span className="ed-muted"> — unlimited; the rail scrolls, so pin as many as you want.</span>
         </p>
-        {remaining > 0 ? (
-          <Button variant="accent" size="sm" onClick={() => setPicking(true)}>
-            <Plus size={15} aria-hidden="true" /> Pin an item
-          </Button>
-        ) : (
-          <span className="text-sm text-muted">Full — remove one to pin another.</span>
-        )}
+        <Button variant="accent" size="sm" onClick={() => setPicking(true)}>
+          <Plus size={15} aria-hidden="true" /> Pin an item
+        </Button>
       </div>
 
       {config.items.length === 0 ? (
@@ -285,7 +279,6 @@ function RailEditor({
       <RailPicker
         open={picking}
         side={side}
-        remaining={remaining}
         onClose={() => setPicking(false)}
         onAdd={add}
       />
@@ -759,13 +752,13 @@ export function LandingPageEditor({
             <h2 className="ed-band__title">Everything visitors see, one store</h2>
             <p className="ed-band__lead">
               {sessionName ? `Good day, ${sessionName} — ` : ""}the home renders only from this
-              document. Fix the rails (left {rails.left.items.length}/{MAX_RAIL_ITEMS} · right {rails.right.items.length}/{MAX_RAIL_ITEMS}),
+              document. Fix the rails (left {rails.left.items.length} · right {rails.right.items.length}),
               hero, about, services, {plans.items.length} plan card{plans.items.length === 1 ? "" : "s"} and {blog.posts.length} blog post{blog.posts.length === 1 ? "" : "s"},
               then publish below.
             </p>
             <div className="row" style={{ gap: "var(--space-2)", marginTop: "var(--space-3)", flexWrap: "wrap" }}>
-              <Badge tone="info">Left rail {rails.left.items.length}/5</Badge>
-              <Badge tone="info">Right rail {rails.right.items.length}/5</Badge>
+              <Badge tone="info">Left rail {rails.left.items.length}</Badge>
+              <Badge tone="info">Right rail {rails.right.items.length}</Badge>
               <Badge tone="neutral">{plans.items.length} plans</Badge>
               <Badge tone="neutral">{blog.posts.length} posts</Badge>
               {content.updated_at ? <Badge tone="success">Live on /</Badge> : <Badge tone="warning">Seed content</Badge>}
@@ -818,11 +811,11 @@ export function LandingPageEditor({
         {ctaFields(hero.secondaryCta, (next) => patch((d) => void (d.hero.secondaryCta = next)), "secondary", "Plan ahead button")}
       </EdSection>
 
-      <EdSection num="03" title="Left fixed rail" hint="Pinned care & services — up to 5, each with its photo. Stays frozen beside the scrolling page on desktop.">
+      <EdSection num="03" title="Left fixed rail" hint="Pinned care & services — any number, each with its photo. Stays frozen beside the scrolling page on desktop; the rail scrolls when the list grows.">
         <RailEditor side="left" config={rails.left} onChange={(next) => patch((d) => void (d.rails.left = next))} />
       </EdSection>
 
-      <EdSection num="04" title="Right fixed rail" hint="Pinned plans & lots — up to 5, each with its photo. Same anchored behaviour on the right side.">
+      <EdSection num="04" title="Right fixed rail" hint="Pinned plans & lots — any number, each with its photo. Same anchored behaviour on the right side.">
         <RailEditor side="right" config={rails.right} onChange={(next) => patch((d) => void (d.rails.right = next))} />
       </EdSection>
 

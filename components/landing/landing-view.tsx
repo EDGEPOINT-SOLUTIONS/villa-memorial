@@ -84,8 +84,11 @@ function RailItemLink({ item }: { item: RailItem }) {
 }
 
 /**
- * One fixed rail: staff-editable heading + up to MAX_RAIL_ITEMS picked items.
- * Left rail carries the always-reachable 24/7 call card above its items.
+ * One fixed rail: staff-editable heading + any number of pinned items (staff
+ * can pin as many products/services/plans/links per rail as they want — the
+ * rail scrolls internally, so an unlimited list never breaks the page).
+ * Left rail carries the always-reachable 24/7 call card above its items; it
+ * stays pinned while the rail list scrolls.
  */
 export function RailPanel({
   config,
@@ -113,7 +116,7 @@ export function RailPanel({
       ) : null}
       <h2 className="rail-heading">{config.heading}</h2>
       {config.items.length === 0 ? (
-        <p className="rail-empty">Nothing pinned here yet — staff can add up to five.</p>
+        <p className="rail-empty">Nothing pinned here yet.</p>
       ) : (
         <ul className="rail-list">
           {config.items.map((item) => (
@@ -278,25 +281,112 @@ function LandingHeader({ content }: { content: LandingContent }) {
   );
 }
 
+/* ------------------------- professional landing footer ------------------------- */
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: Array<{ label: string; href: string }>;
+}) {
+  return (
+    <div>
+      <h2 className="anchored-footer__col-title">{title}</h2>
+      <ul className="anchored-footer__links">
+        {links.map((l) => (
+          <li key={l.href}>
+            <a href={l.href}>{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function LandingFooter({ content }: { content: LandingContent }) {
+  const { logo, contact } = content;
+  const year = new Date().getFullYear();
   return (
     <footer className="anchored-footer">
-      <div className="anchored-footer__bar">
-        <a className="anchored-header__brand" href="/">
-          <BrandMark wordmark={content.logo.wordmark} markImage={content.logo.markImage} />
-          <span className="anchored-header__wordmark">{content.logo.wordmark}</span>
-        </a>
-        <nav className="anchored-footer__nav" aria-label="Information">
-          <a href="/services">Services</a>
-          <a href="/plans">Plans</a>
-          <a href="/lots">Lots</a>
-          <a href="/faq">FAQ</a>
-          <a href="/contact">Contact</a>
-        </nav>
-        <span className="anchored-footer__note">
-          {content.logo.wordmark} · {content.contact.location} ·{" "}
-          <a href={content.contact.phoneHref}>{content.contact.phoneDisplay}</a>
-        </span>
+      <div className="anchored-footer__inner">
+        <div className="anchored-footer__grid">
+          {/* Brand + one line */}
+          <div className="anchored-footer__brand-col">
+            <a className="anchored-header__brand" href="/">
+              <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} />
+              <span className="anchored-header__wordmark">{logo.wordmark}</span>
+            </a>
+            <p className="anchored-footer__blurb">
+              A family-run memorial park in <strong>{contact.location}</strong> —
+              memorial &amp; funeral care that honors every life with dignity and
+              light, day or night. The first memorial park in Basilan.
+            </p>
+          </div>
+
+          {/* Quick links */}
+          <FooterColumn
+            title="Explore"
+            links={[
+              { label: "Services", href: "/services" },
+              { label: "Memorial plans & lots", href: "/plans" },
+              { label: "Browse the lots", href: "/lots" },
+              { label: "Products & caskets", href: "/products" },
+              { label: "Transport", href: "/transport" },
+              { label: "Park map", href: "/map" },
+            ]}
+          />
+
+          {/* Services & plans links */}
+          <FooterColumn
+            title="Care & planning"
+            links={[
+              { label: "Death at home", href: "/services/death-at-home" },
+              { label: "Death at hospital", href: "/services/death-at-hospital" },
+              { label: "Villa Memorial Plan", href: "/plans/villa-memorial-plan" },
+              { label: "Compare plans", href: "/plans/compare" },
+              { label: "2026 price list", href: "/lots/price-list-2026" },
+            ]}
+          />
+
+          {/* Contact */}
+          <address className="anchored-footer__contact">
+            <div className="anchored-footer__contact-line">
+              <span className="anchored-footer__contact-label">{contact.phoneLabel}</span>
+              <a className="anchored-footer__phone" href={contact.phoneHref}>
+                {contact.phoneDisplay}
+              </a>
+            </div>
+            <div className="anchored-footer__contact-line">
+              <span className="anchored-footer__contact-label">Open</span>
+              <span className="anchored-footer__contact-value">Every hour, every day</span>
+            </div>
+            <div className="anchored-footer__contact-line">
+              <span className="anchored-footer__contact-label">Visit the park</span>
+              <span className="anchored-footer__contact-value">
+                {contact.location}
+                <br />
+                <a href="/map">Map &amp; directions →</a>
+              </span>
+            </div>
+            <div className="anchored-footer__contact-line">
+              <span className="anchored-footer__contact-label">Help</span>
+              <span className="anchored-footer__contact-value">
+                <a href="/contact">Contact us</a> · <a href="/faq">FAQ</a>
+              </span>
+            </div>
+          </address>
+        </div>
+
+        <div className="anchored-footer__bottom">
+          <span>
+            © {year} {logo.wordmark}. All rights reserved.
+          </span>
+          <span>
+            Memorial &amp; funeral services · Isabela City, Basilan ·{" "}
+            <a href="/cart">Cart</a> · <a href="/quote">Request a quote</a>
+          </span>
+        </div>
       </div>
     </footer>
   );

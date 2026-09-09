@@ -73,7 +73,11 @@ docker compose up --build                            # SSR on :3000 against stub
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
-  are hard-capped at 5 per side; empty plan/blog lists are legal).
+  hold UNLIMITED items per side — empty plan/blog lists are legal). The three-
+  column anchored shell (fixed 17rem rails + centred 50rem middle) and the
+  rail/footer/section styles live in the "anchored catalogue home" block of
+  `styles/components.css`; below 75rem the rails collapse into the
+  MobileQuickMenu flyout.
 - The staff editor is the premium `app/(staff)/staff/landing` page (scope
   catalog:write, reused provisionally); its rail picker catalogue in
   `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —

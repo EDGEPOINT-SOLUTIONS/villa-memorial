@@ -1,15 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView } from "@/components/landing/landing-view";
-import { MAX_RAIL_ITEMS, listLandingContent, type LandingContent } from "@/lib/api-client/landing";
+import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
 
 /**
  * Public-interface render tests for the anchored catalogue home (executed through
  * LandingView — the exact component the root page renders, with the live-map node
  * stubbed to null so the view stays framework-free). They pin the layout contract:
  * the home renders as a three-column shell (left fixed rail + scrollable middle +
- * right fixed rail), rails stay capped at MAX_RAIL_ITEMS per side, and empty plan
- * lists / empty blog media lists render graceful states instead of crashing.
+ * right fixed rail), rails are unlimited (every pinned item renders), and empty
+ * plan lists / empty blog media lists / empty rails render graceful states instead
+ * of crashing.
  */
 const cloneDoc = (doc: LandingContent): LandingContent =>
   JSON.parse(JSON.stringify(doc)) as LandingContent;
@@ -37,7 +38,6 @@ describe("the home renders the anchored catalogue shell", () => {
       expect(html).toContain(item.title.replace(/&/g, "&amp;"));
     }
     expect(railItemCount(html)).toBe(left.items.length + right.items.length);
-    expect(railItemCount(html)).toBeLessThanOrEqual(MAX_RAIL_ITEMS * 2);
     expect(html).toContain('class="rail-thumb"');
 
     // Hero with both approved doors.
@@ -117,7 +117,7 @@ describe("the home degrades gracefully on sparse content", () => {
       LandingView({ content: empty, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("Care &amp; services");
-    expect(html).toContain("Nothing pinned here yet");
+    expect(html).toContain("Nothing pinned here yet.");
   });
 
   it("a missing live map renders a graceful fallback line inside the map section", async () => {
@@ -129,21 +129,20 @@ describe("the home degrades gracefully on sparse content", () => {
   });
 });
 
-describe("rail items stay capped at 5 through the public home read", () => {
-  it("a 7-item rail document, read through the public store read then rendered, shows at most 5", async () => {
+describe("rails are unlimited through the public home read", () => {
+  it("a 10-item rail document, read through the public store read then rendered, shows every item", async () => {
     const content = await listLandingContent();
     const oversized = cloneDoc(content);
     const base = oversized.rails.left.items[0];
-    oversized.rails.left.items = Array.from({ length: 7 }, (_, i) => ({ ...base, id: `x${i}` }));
+    oversized.rails.left.items = Array.from({ length: 10 }, (_, i) => ({ ...base, id: `x${i}` }));
 
-    // The public read clamps for display; the home page renders exactly that output.
     const { readLandingContent } = await import("@/lib/api-client/landing");
-    const clamped = readLandingContent(oversized);
-    expect(clamped.rails.left.items.length).toBeLessThanOrEqual(MAX_RAIL_ITEMS);
+    const kept = readLandingContent(oversized);
+    expect(kept.rails.left.items.length).toBe(10);
 
     const html = renderToStaticMarkup(
-      LandingView({ content: clamped, mapNode: null, mapLive: false, sectionCount: 0 }),
+      LandingView({ content: kept, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    expect(railItemCount(html)).toBeLessThanOrEqual(MAX_RAIL_ITEMS * 2);
+    expect(railItemCount(html)).toBe(10 + content.rails.right.items.length);
   });
 });

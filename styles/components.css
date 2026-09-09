@@ -4120,7 +4120,7 @@ a.card:hover {
 
 /* ===========================================================================
  * Anchored catalogue home — the approved three-column landing (Lavish
- * villa-landing-plan). Fixed left/right rails (staff-picked, ≤5 items each,
+ * villa-landing-plan). Fixed left/right rails (staff-picked, unlimited items,
  * photo thumbs, independently scrollable) flank a scrollable editorial middle.
  * Below 75rem the rails collapse into the MobileQuickMenu slide-in flyout.
  * Every colour/size resolves to a token (design-system consumption rule #1).
@@ -4276,13 +4276,22 @@ a.card:hover {
   background: var(--color-bg-subtle);
 }
 
-/* ---- three-column anchored grid ---- */
+/* ---- three-column anchored grid ----
+   Balanced anchored trio: symmetric FIXED-width rails (17rem each) flank a
+   centred middle capped at 50rem. The grid uses justify-content:center so the
+   whole trio — and therefore the middle column — stays dead-centre at every
+   desktop width, with equal margins either side. Fixed rail widths mean the
+   rails can never grow to push or overlap the middle (the old vw-based rail
+   width did). Below the collapse breakpoint the rails hide and the middle goes
+   full width (MobileQuickMenu flyout), unchanged. */
 .anchored-grid {
-  --rail-w: clamp(15.5rem, 17vw, 19.5rem);
+  --rail-w: 17rem;
+  --mid-w: 50rem;
   display: grid;
-  grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--rail-w);
+  grid-template-columns: var(--rail-w) minmax(0, var(--mid-w)) var(--rail-w);
+  justify-content: center;
   align-items: start;
-  gap: var(--space-5);
+  column-gap: clamp(1.25rem, 2vw, 2rem);
   max-width: 100rem;
   margin-inline: auto;
   padding: var(--space-5);
@@ -4292,10 +4301,14 @@ a.card:hover {
   min-width: 0;
 }
 
+/* The middle is an explicit single column capped at the track: sections are
+   grid items in a minmax(0, 1fr) track so they can never grow past the column
+   (the old implicit auto track sized to the widest section's min-content and
+   spilled 270px+ into the right-rail zone). */
 .anchored-mid__inner {
-  max-width: 54rem;
-  margin-inline: auto;
+  width: 100%;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-5);
 }
 
@@ -4312,7 +4325,8 @@ a.card:hover {
 }
 
 .rail-panel {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-3);
   background: var(--color-bg-surface-raised);
@@ -4420,7 +4434,16 @@ a.card:hover {
   padding: var(--space-1) 0;
 }
 
-/* 24/7 call card pinned atop the left rail (not one of the 5 picks). */
+/* 24/7 call card pinned atop the left rail (not one of the picks). Rides above
+   the rail list: once the (now unlimited) pinned items scroll inside the rail,
+   the call card stays visible at the top — always reachable, every hour. */
+.rail-panel--phone .rail-call {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  box-shadow: 0 10px 22px -14px rgb(10 30 52 / 0.55);
+}
+
 .rail-call {
   display: grid;
   gap: 0.2rem;
@@ -4585,6 +4608,8 @@ a.card:hover {
 
 /* ---- middle sections ---- */
 .mid-section {
+  min-width: 0;
+  overflow-wrap: break-word;
   background: var(--color-bg-surface-raised);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
@@ -4694,6 +4719,8 @@ a.card:hover {
   display: block;
   width: 100%;
   height: auto;
+  max-height: 24rem;
+  object-fit: cover;
   border-radius: calc(var(--radius-lg) - 0.3rem);
 }
 
@@ -4703,6 +4730,11 @@ a.card:hover {
   gap: var(--space-5);
 }
 
+/* Two-column editorial block: gold index numeral in the gutter, the service
+   text in a minmax(0,1fr) column, and — when staff attach a photo — a small
+   contained image beneath the text (same text column, never the numeral
+   gutter, never wider than ~34rem). Fixed 16/9 crop keeps every photo the
+   same contained size and un-distorted (object-fit cover). */
 .service-block {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -4712,11 +4744,18 @@ a.card:hover {
 }
 
 .service-block__num {
+  grid-column: 1;
+  grid-row: 1;
   font-family: var(--font-serif);
   font-weight: 800;
   color: var(--gold-400);
   font-size: 1.1rem;
-  line-height: 1.4;
+  line-height: 1.6;
+}
+
+.service-block__text {
+  grid-column: 2;
+  min-width: 0;
 }
 
 .service-block__text h3 {
@@ -4770,23 +4809,33 @@ a.card:hover {
   text-decoration: underline;
 }
 
-/* Plans — designed 3-column card grid (photo, name, honest price) */
+/* Contained service photo — sits under the text column, fixed 16/9 crop. */
+.service-block__media {
+  grid-column: 2;
+  margin: var(--space-2) 0 0;
+  max-width: 34rem;
+  min-width: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--navy-100);
+  box-shadow: var(--shadow-paper);
+}
+
+.service-block__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* Plans — designed card grid (photo, name, honest price). Cards auto-flow to
+   the width available (3-across at the full 50rem middle, fewer on narrower
+   mid columns) so a card can never clip or push the layout. */
 .plan-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
   gap: var(--space-4);
-}
-
-@media (max-width: 48rem) {
-  .plan-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 30rem) {
-  .plan-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 .plan-card {
@@ -4974,55 +5023,183 @@ a.card:hover {
   object-fit: cover;
 }
 
-/* Live park map section */
+/* Live park map section — the embed fills the column and can never force the
+   mid column wider (leaflet/schematic surfaces need an explicit bound). */
 .mid-section--map .map-embed {
   margin-top: var(--space-4);
+  width: 100%;
+  min-width: 0;
 }
 
-/* ---- footer below the anchored grid ---- */
+.mid-section--map .map-embed > * {
+  max-width: 100%;
+}
+
+/* ---- professional footer below the anchored grid ----
+   Multi-column navy folio footer (blue/gold): brand + blurb, quick links,
+   services/plans links, contact block with the 24/7 line and Isabela City
+   address, then a slim copyright bar. Stacks to one column on small screens. */
 .anchored-footer {
-  border-top: 1px solid var(--color-rule);
-  background: var(--color-bg-surface-raised);
+  position: relative;
+  overflow: hidden;
+  border-top: 2px solid var(--gold-500);
+  background:
+    radial-gradient(900px 300px at 110% -60px, rgb(241 204 94 / 0.14), transparent 55%),
+    radial-gradient(700px 260px at -10% 115%, rgb(241 204 94 / 0.08), transparent 55%),
+    linear-gradient(180deg, var(--navy-900), var(--navy-950));
+  color: var(--marble-100);
 }
 
-.anchored-footer__bar {
+.anchored-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+}
+
+.anchored-footer__inner {
   max-width: 100rem;
   margin-inline: auto;
-  padding: var(--space-6) var(--space-5);
+  padding: var(--space-7) var(--space-5) var(--space-4);
+  display: grid;
+  gap: var(--space-6);
+}
+
+.anchored-footer__grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1.4fr;
+  gap: var(--space-6);
+}
+
+@media (max-width: 64rem) {
+  .anchored-footer__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 40rem) {
+  .anchored-footer__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.anchored-footer__brand-col {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+}
+
+.anchored-footer .anchored-header__brand {
+  color: #fff;
+}
+
+.anchored-footer .anchored-header__wordmark {
+  color: #fff;
+}
+
+.anchored-footer__blurb {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  color: var(--navy-200);
+  max-width: 26rem;
+}
+
+.anchored-footer__blurb strong {
+  color: var(--gold-300);
+  font-weight: 600;
+}
+
+.anchored-footer__col-title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+}
+
+.anchored-footer__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.anchored-footer__links a {
+  color: var(--navy-200);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  transition: color var(--motion-fast);
+}
+
+.anchored-footer__links a:hover {
+  color: var(--gold-300);
+}
+
+.anchored-footer__contact {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  font-style: normal;
+}
+
+.anchored-footer__contact-line {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.anchored-footer__contact-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+}
+
+.anchored-footer__contact-value {
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--navy-100);
+}
+
+.anchored-footer__contact a.anchored-footer__phone {
+  color: #fff;
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  display: inline-block;
+}
+
+.anchored-footer__contact a.anchored-footer__phone:hover {
+  color: var(--gold-300);
+}
+
+.anchored-footer__bottom {
+  border-top: 1px solid var(--color-rule-inverse);
+  padding-top: var(--space-4);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--navy-300);
 }
 
-.anchored-footer__nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-}
-
-.anchored-footer__nav a {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+.anchored-footer__bottom a {
+  color: var(--navy-200);
   text-decoration: none;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
 }
 
-.anchored-footer__nav a:hover {
-  color: var(--gold-700);
-  background: var(--color-bg-subtle);
-}
-
-.anchored-footer__note {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.anchored-footer__note a {
-  color: var(--navy-600);
-  text-decoration: none;
+.anchored-footer__bottom a:hover {
+  color: var(--gold-300);
 }
 
 /* ---- single-column fallback + mobile quick menu ---- */
@@ -5033,6 +5210,7 @@ a.card:hover {
 @media (max-width: 74.999rem) {
   .anchored-grid {
     grid-template-columns: minmax(0, 1fr);
+    padding-inline: 0;
   }
 
   .anchored-rail {
@@ -5040,7 +5218,9 @@ a.card:hover {
   }
 
   .anchored-mid__inner {
-    max-width: 54rem;
+    max-width: 50rem;
+    margin-inline: auto;
+    padding-inline: var(--space-4);
   }
 
   .anchored-header__nav {
@@ -5062,6 +5242,14 @@ a.card:hover {
     background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
     box-shadow: 0 8px 24px -6px rgb(10 30 52 / 0.4);
     cursor: pointer;
+  }
+}
+
+/* Narrow phones: the 24/7 number lives in the quick-menu flyout (and the
+   header CTA row would otherwise overflow the bar). */
+@media (max-width: 39.999rem) {
+  .anchored-header__phone {
+    display: none;
   }
 }
 
