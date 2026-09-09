@@ -28,6 +28,8 @@ function Header() {
           Villa Memorial
         </Link>
         <nav className="public-nav" aria-label="Store">
+          {/* Explicit Home first — visitors on interior pages always see the way back. */}
+          <NavLink href="/">Home</NavLink>
           <NavLink href="/services">Services</NavLink>
           <NavLink href="/plans">Plans</NavLink>
           <NavLink href="/lots">Lots</NavLink>
@@ -67,6 +69,7 @@ export function PublicShell({
           <div className="container public-footer__bar">
             <span className="public-header__brand">Villa Memorial</span>
             <nav className="public-nav" aria-label="Information">
+              <NavLink href="/">Home</NavLink>
               <NavLink href="/services">Services</NavLink>
               <NavLink href="/plans">Plans</NavLink>
               <NavLink href="/lots">Lots</NavLink>
