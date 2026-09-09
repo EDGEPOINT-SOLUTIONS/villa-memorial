@@ -1,16 +1,35 @@
 "use client";
 
 /**
- * Landing Page editor — premium staff editor for the whole public home (/).
- * Every region of the anchored catalogue is editable here and saves through the
- * BFF (POST /api/landing/content), which validates + persists into the same
- * fixture store the public page renders from. Mirrors the approved click-to-edit
- * model: pin rail items per side (unlimited, with photo + order), edit hero copy and
- * CTAs, about/mission/vision + image, the full service sections, unlimited plan
- * cards and unlimited blog posts with photo/video attachments.
+ * Landing Page editor — the premium staff "Landing Page" surface for the whole
+ * public home (/). Every region of the anchored catalogue home is editable here
+ * and saves through the BFF (POST /api/landing/content), which validates +
+ * persists into the same fixture store the public page renders from.
+ *
+ * Structure (blue/gold folio, design-system tokens only):
+ *  - a sticky document console: sync state + Publish/Discard always in reach;
+ *  - a section navigator that mirrors the page order (map BEFORE the newsfeed —
+ *    the captain-approved reading order) with live counts and attention flags;
+ *  - one numbered folio card per content zone, grouped so staff flow top-down.
+ *
+ * Image sources are three-fold everywhere: the uploaded photo library, a REAL
+ * device upload (components/landing/device-uploader.tsx — stored through the
+ * same fixture-store save path, no backend), or a public image URL.
  */
-import { useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowUp, ExternalLink, Image as ImageIcon, Plus, Save, Trash2, Video } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Check,
+  CheckCircle2,
+  ExternalLink,
+  Image as ImageIcon,
+  Loader2,
+  Plus,
+  Save,
+  Trash2,
+  Video,
+} from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -154,25 +173,40 @@ function EdSection({
   hint,
   children,
   badge,
+  id,
 }: {
   num: string;
   title: string;
   hint?: string;
   children: React.ReactNode;
   badge?: React.ReactNode;
+  id?: string;
 }) {
   return (
-    <section className="ed-section">
+    <section className="ed-section" id={id}>
       <header className="ed-section__head">
-        <span className="ed-section__num">{num}</span>
-        <div>
+        <span className="ed-section__num" aria-hidden="true">
+          {num}
+        </span>
+        <div className="ed-section__title">
+          <p className="ed-section__kicker">Content section</p>
           <h2>{title}</h2>
-          {hint ? <p>{hint}</p> : null}
+          {hint ? <p className="ed-section__hint">{hint}</p> : null}
         </div>
         {badge ? <div className="ed-section__badge">{badge}</div> : null}
       </header>
       <div className="ed-section__body">{children}</div>
     </section>
+  );
+}
+
+/** Small count chip used in card headers + the navigator. */
+function CountChip({ count, tone = "neutral" }: { count: number; tone?: "neutral" | "warn" }) {
+  if (count === 0 && tone === "neutral") return null;
+  return (
+    <span className={`ed-chip${tone === "warn" ? " ed-chip--warn" : ""}`}>
+      {count > 0 ? count : "—"}
+    </span>
   );
 }
 
@@ -221,6 +255,14 @@ function RailEditor({
 
   return (
     <div className="ed-rail">
+      <div className="row" style={{ gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
+        <span className={`rail-side-mark rail-side-mark--${side}`} aria-hidden="true" />
+        <p className="ed-subhead" style={{ margin: 0 }}>
+          {side === "left" ? "Left rail — care & services" : "Right rail — plans & lots"}
+        </p>
+        <CountChip count={config.items.length} />
+      </div>
+
       <div className="field-grid field-grid--2">
         <TextField
           label={`${side === "left" ? "Left" : "Right"} rail heading`}
@@ -231,10 +273,10 @@ function RailEditor({
         />
       </div>
 
-      <div className="row row--space" style={{ margin: "var(--space-2) 0 var(--space-1)" }}>
-        <p className="ed-subhead">
-          Pinned items <Badge tone="info">{config.items.length}</Badge>
-          <span className="ed-muted"> — unlimited; the rail scrolls, so pin as many as you want.</span>
+      <div className="row row--space" style={{ margin: "var(--space-1) 0 var(--space-1)" }}>
+        <p className="ed-hint">
+          Unlimited — the rail scrolls, so pin as many real services, plans, products or links as
+          you want. Visitors see them in exactly this order.
         </p>
         <Button variant="accent" size="sm" onClick={() => setPicking(true)}>
           <Plus size={15} aria-hidden="true" /> Pin an item
@@ -474,6 +516,10 @@ function MediaRowEditor({
   onMove: (delta: -1 | 1) => void;
 }) {
   const [openPicker, setOpenPicker] = useState(false);
+  // A photo chosen from this device is a data URL stored with the document —
+  // too long to be an editable text value, so it gets its own compact row state
+  // (thumbnail + replace/remove) instead of a giant base64 blob in the input.
+  const isDevicePhoto = media.kind === "photo" && media.src.startsWith("data:");
   return (
     <li className="ed-media-row">
       <select
@@ -489,14 +535,35 @@ function MediaRowEditor({
         <label className="ed-label" htmlFor={`media-src-${index}-${media.kind}`}>
           {media.kind === "video" ? "Video source (mp4 URL)" : "Photo source"}
         </label>
-        <div className="row" style={{ gap: "var(--space-2)" }}>
-          <input id={`media-src-${index}-${media.kind}`} type="text" value={media.src} onChange={(e) => onChange({ ...media, src: e.target.value })} placeholder={media.kind === "video" ? "https://…/video.mp4" : "https://… or /media/…"} />
-          {media.kind === "photo" ? (
+        {isDevicePhoto ? (
+          <div className="ed-media-attached">
+            <span className="ed-media-attached__thumb">
+              {/* eslint-disable-next-line @next/next/no-img-element -- staff's own uploaded photo */}
+              <img src={media.src} alt="" />
+            </span>
+            <span className="ed-media-attached__copy">
+              <strong>Device photo attached</strong>
+              <span className="ed-media-attached__hint">
+                Stored with this post, like every other edit — no backend.
+              </span>
+            </span>
             <Button variant="secondary" size="sm" onClick={() => setOpenPicker(true)}>
-              Library
+              <ImageIcon size={14} aria-hidden="true" /> Replace
             </Button>
-          ) : null}
-        </div>
+            <Button variant="ghost" size="sm" onClick={() => onChange({ ...media, src: "" })}>
+              Remove
+            </Button>
+          </div>
+        ) : (
+          <div className="row" style={{ gap: "var(--space-2)" }}>
+            <input id={`media-src-${index}-${media.kind}`} type="text" value={media.src} onChange={(e) => onChange({ ...media, src: e.target.value })} placeholder={media.kind === "video" ? "https://…/video.mp4" : "https://… or /media/…"} />
+            {media.kind === "photo" ? (
+              <Button variant="secondary" size="sm" onClick={() => setOpenPicker(true)}>
+                <ImageIcon size={14} aria-hidden="true" /> Choose
+              </Button>
+            ) : null}
+          </div>
+        )}
       </div>
       {media.kind === "video" ? (
         <input
@@ -647,6 +714,37 @@ function BlogEditor({
   );
 }
 
+function AboutEditor({ section, onChange }: { section: AboutSection; onChange: (next: AboutSection) => void }) {
+  return (
+    <div className="stack">
+      <div className="field-grid field-grid--2">
+        <TextField label="Section heading" htmlFor="about-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
+        <ImageField label="Park photo" htmlFor="about-image" value={section.image} onChange={(v) => onChange({ ...section, image: v })} />
+      </div>
+      <TextAreaField label="Story" htmlFor="about-story" rows={4} value={section.story} onChange={(v) => onChange({ ...section, story: v })} />
+      <div className="field-grid field-grid--2">
+        <TextAreaField label="Mission" htmlFor="about-mission" rows={4} value={section.mission} onChange={(v) => onChange({ ...section, mission: v })} />
+        <TextAreaField label="Vision" htmlFor="about-vision" rows={4} value={section.vision} onChange={(v) => onChange({ ...section, vision: v })} />
+      </div>
+    </div>
+  );
+}
+
+function MapEditor({
+  section,
+  onChange,
+}: {
+  section: LandingContent["map"];
+  onChange: (next: LandingContent["map"]) => void;
+}) {
+  return (
+    <div className="field-grid field-grid--2">
+      <TextField label="Section heading" htmlFor="map-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
+      <TextField label="Section intro" htmlFor="map-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
+    </div>
+  );
+}
+
 /* ------------------------------- main editor ------------------------------ */
 
 function ctaFields(cta: Cta, onChange: (next: Cta) => void, key: string, labelPrefix: string) {
@@ -656,6 +754,26 @@ function ctaFields(cta: Cta, onChange: (next: Cta) => void, key: string, labelPr
       <TextField label={`${labelPrefix} destination`} htmlFor={`cta-${key}-href`} value={cta.href} onChange={(v) => onChange({ ...cta, href: v })} hint="Internal path or tel: link." />
     </div>
   );
+}
+
+/* Navigable zones — numbering mirrors the section cards below and the public
+   page order (the live park map card sits before the blog/newsfeed card). */
+const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: string }> = [
+  { id: "ed-brand", num: "01", label: "Brand & 24/7 line", hint: "Wordmark + mark, and the phone visitors can reach any hour." },
+  { id: "ed-hero", num: "02", label: "Hero", hint: "The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead." },
+  { id: "ed-rails", num: "03", label: "Fixed rails", hint: "The pinned side columns that stay frozen beside the scrolling home — any number of items each." },
+  { id: "ed-about", num: "04", label: "About · Mission · Vision", hint: "The family-run soul of the park, with a real photo — the trust section." },
+  { id: "ed-services", num: "05", label: "Services", hint: "Editorial sections, not cards — what happens, what's included, how to begin." },
+  { id: "ed-plans", num: "06", label: "Plans", hint: "Every card carries a real photo, name and honest price." },
+  { id: "ed-map", num: "07", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
+  { id: "ed-blog", num: "08", label: "Blog & newsfeed", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
+];
+
+function formatStamp(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
 
 export function LandingPageEditor({
@@ -669,8 +787,10 @@ export function LandingPageEditor({
   const savedJson = useRef(JSON.stringify(initialContent));
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
+  const [activeZone, setActiveZone] = useState(SECTION_ZONES[0].id);
 
   const dirty = useMemo(() => JSON.stringify(content) !== savedJson.current, [content]);
+  const lastSaved = content.updated_at;
 
   function patch(fn: (draft: LandingContent) => void) {
     setContent((prev) => {
@@ -678,12 +798,49 @@ export function LandingPageEditor({
       fn(next);
       return next;
     });
+    // A success banner refers to the previously published state — retire it as
+    // soon as staff start a new round of edits.
+    setNotice((prev) => (prev?.tone === "success" ? null : prev));
+  }
+
+  // Live attention flags per zone, shown in the navigator and card headers.
+  const flags = useMemo(() => {
+    const plans = content.plans.items.filter((c) => !c.name.trim() || !c.price.trim()).length;
+    const services = content.services.items.filter((s) => !s.title.trim()).length;
+    const media = content.blog.posts.reduce((n, p) => n + p.media.filter((m) => !m.src.trim()).length, 0);
+    const posts = content.blog.posts.filter((p) => !p.caption.trim() && p.media.length === 0).length;
+    return { plans, services, media, posts };
+  }, [content]);
+
+  // Scroll-spy: keep the navigator's active zone in step with what's on screen.
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActiveZone(entry.target.id);
+        }
+      },
+      { rootMargin: "-96px 0px -62% 0px", threshold: 0 },
+    );
+    for (const zone of SECTION_ZONES) {
+      const el = document.getElementById(zone.id);
+      if (el) observer.observe(el);
+    }
+    return () => observer.disconnect();
+  }, []);
+
+  function scrollToZone(id: string) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveZone(id);
   }
 
   function clientIssues(): string[] {
     const issues: string[] = [];
     content.plans.items.forEach((card, i) => {
       if (!card.name.trim() || !card.price.trim()) issues.push(`Plan card ${i + 1} needs a name and a price before publishing.`);
+    });
+    content.services.items.forEach((svc, i) => {
+      if (!svc.title.trim()) issues.push(`Service ${i + 1} needs a title before publishing.`);
     });
     content.blog.posts.forEach((post) => {
       post.media.forEach((m) => {
@@ -741,56 +898,125 @@ export function LandingPageEditor({
   }
 
   const { logo, contact, hero, rails, about, services, plans, blog, map } = content;
+  const attention = flags.plans + flags.services + flags.media;
+
+  const statusLine = busy
+    ? "Publishing to the content store…"
+    : dirty
+      ? "Unsaved changes — the live home still shows the last published version."
+      : lastSaved
+        ? `Published ${formatStamp(lastSaved)} — the home at / shows this document.`
+        : "Seed content — the home currently shows the recorded starter document.";
 
   return (
     <div className="stack-4">
-      {/* status band — navy folio strip with live counts + publish */}
-      <section className="ed-band">
-        <div className="ed-band__grid">
-          <div>
-            <p className="ed-band__eyebrow">Public home · localhost:4000 /</p>
-            <h2 className="ed-band__title">Everything visitors see, one store</h2>
-            <p className="ed-band__lead">
-              {sessionName ? `Good day, ${sessionName} — ` : ""}the home renders only from this
-              document. Fix the rails (left {rails.left.items.length} · right {rails.right.items.length}),
-              hero, about, services, {plans.items.length} plan card{plans.items.length === 1 ? "" : "s"} and {blog.posts.length} blog post{blog.posts.length === 1 ? "" : "s"},
-              then publish below.
+      {/* 1 · Sticky document console + navigator — status, the publish action
+          and one-tap zone jumps stay in reach the whole way down. */}
+      <div className="ed-stick">
+        <div className="ed-console" aria-label="Document status and publish">
+        <div className="ed-console__status">
+          <span className={`ed-sync${dirty || busy ? " ed-sync--dirty" : ""}`} aria-hidden="true">
+            {busy ? <Loader2 size={15} aria-hidden="true" /> : dirty ? null : <Check size={15} aria-hidden="true" />}
+          </span>
+          <div className="ed-console__copy">
+            <p className="ed-console__title">Public home · /</p>
+            <p className="ed-console__sub">
+              {sessionName ? `Good day, ${sessionName} — ` : ""}
+              {statusLine}
             </p>
-            <div className="row" style={{ gap: "var(--space-2)", marginTop: "var(--space-3)", flexWrap: "wrap" }}>
-              <Badge tone="info">Left rail {rails.left.items.length}</Badge>
-              <Badge tone="info">Right rail {rails.right.items.length}</Badge>
-              <Badge tone="neutral">{plans.items.length} plans</Badge>
-              <Badge tone="neutral">{blog.posts.length} posts</Badge>
-              {content.updated_at ? <Badge tone="success">Live on /</Badge> : <Badge tone="warning">Seed content</Badge>}
-            </div>
-          </div>
-          <div className="ed-band__actions">
-            <a href="/" target="_blank" rel="noreferrer" className="btn btn--ghost btn--sm" style={{ color: "var(--color-text-inverse)" }}>
-              <ExternalLink size={14} aria-hidden="true" /> Open live page
-            </a>
-            <Button variant="accent" size="sm" onClick={publish} disabled={busy || !dirty}>
-              <Save size={14} aria-hidden="true" /> {busy ? "Publishing…" : dirty ? "Publish changes" : "Up to date"}
-            </Button>
-            {dirty ? (
-              <Button variant="ghost" size="sm" onClick={discard} style={{ color: "var(--color-text-inverse)" }}>
-                Discard
-              </Button>
-            ) : null}
           </div>
         </div>
-      </section>
+        <div className="ed-console__actions">
+          <a href="/" target="_blank" rel="noreferrer" className="btn btn--ghost btn--sm ed-console__live">
+            <ExternalLink size={14} aria-hidden="true" /> View live page
+          </a>
+          {dirty ? (
+            <Button variant="ghost" size="sm" className="ed-console__discard" onClick={discard}>
+              Discard
+            </Button>
+          ) : null}
+          <Button variant="accent" size="sm" onClick={publish} disabled={busy || !dirty} className="ed-console__publish">
+            {busy ? (
+              <>
+                <Loader2 size={14} aria-hidden="true" /> Publishing…
+              </>
+            ) : dirty ? (
+              <>
+                <Save size={14} aria-hidden="true" /> Publish changes
+              </>
+            ) : (
+              <>
+                <CheckCircle2 size={14} aria-hidden="true" /> Up to date
+              </>
+            )}
+          </Button>
+        </div>
+        </div>
 
-      {notice ? <Alert tone={notice.tone}>{notice.msg}</Alert> : null}
+        {notice ? <Alert tone={notice.tone}>{notice.msg}</Alert> : null}
 
+        {/* 2 · Section navigator — one tap to any zone, page order, live counts */}
+        <nav className="ed-nav" aria-label="Landing page sections">
+        <ul>
+          {SECTION_ZONES.map((zone) => {
+            const count =
+              zone.id === "ed-rails"
+                ? rails.left.items.length + rails.right.items.length
+                : zone.id === "ed-services"
+                  ? services.items.length
+                  : zone.id === "ed-plans"
+                    ? plans.items.length
+                    : zone.id === "ed-blog"
+                      ? blog.posts.length
+                      : null;
+            const warn =
+              (zone.id === "ed-plans" && flags.plans > 0) ||
+              (zone.id === "ed-services" && flags.services > 0) ||
+              (zone.id === "ed-blog" && (flags.media > 0 || flags.posts > 0));
+            return (
+              <li key={zone.id}>
+                <button
+                  type="button"
+                  onClick={() => scrollToZone(zone.id)}
+                  className={`ed-nav__btn${activeZone === zone.id ? " ed-nav__btn--active" : ""}`}
+                  aria-current={activeZone === zone.id ? "true" : undefined}
+                >
+                  <span className="ed-nav__num">{zone.num}</span>
+                  <span className="ed-nav__label">{zone.label}</span>
+                  {count !== null ? (
+                    <span className={`ed-nav__count${warn ? " ed-nav__count--warn" : ""}`}>{count}</span>
+                  ) : null}
+                  {warn ? <span className="ed-nav__dot" title="Needs attention before publishing" aria-label="Needs attention" /> : null}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+      </div>
+
+      {/* 3 · The document, zone by zone */}
       <EdSection
+        id="ed-brand"
         num="01"
         title="Brand & 24/7 line"
         hint="The mark that sits top-left in the header and in the hero, and the phone visitors can reach any hour."
+        badge={
+          logo.markImage ? (
+            <span className="ed-head-tag">
+              {/* eslint-disable-next-line @next/next/no-img-element -- logo preview */}
+              <img src={logo.markImage} alt="" />
+              Mark set
+            </span>
+          ) : (
+            <span className="ed-head-tag ed-head-tag--muted">Monogram fallback</span>
+          )
+        }
       >
         <div className="field-grid field-grid--3">
           <TextField label="Wordmark" htmlFor="logo-wordmark" value={logo.wordmark} onChange={(v) => patch((d) => void (d.logo.wordmark = v))} hint="Shown beside the mark in the header, hero and footer." />
           <div className="field-grid__span2">
-            <ImageField label="Logo mark (optional)" htmlFor="logo-mark" value={logo.markImage} onChange={(v) => patch((d) => void (d.logo.markImage = v))} />
+            <ImageField label="Logo mark" htmlFor="logo-mark" value={logo.markImage} onChange={(v) => patch((d) => void (d.logo.markImage = v))} />
           </div>
         </div>
         <div className="field-grid field-grid--4">
@@ -801,7 +1027,12 @@ export function LandingPageEditor({
         </div>
       </EdSection>
 
-      <EdSection num="02" title="Hero" hint="The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead.">
+      <EdSection
+        id="ed-hero"
+        num="02"
+        title="Hero"
+        hint="The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead."
+      >
         <div className="field-grid field-grid--2">
           <TextField label="Eyebrow" htmlFor="hero-eyebrow" value={hero.eyebrow} onChange={(v) => patch((d) => void (d.hero.eyebrow = v))} />
         </div>
@@ -811,64 +1042,115 @@ export function LandingPageEditor({
         {ctaFields(hero.secondaryCta, (next) => patch((d) => void (d.hero.secondaryCta = next)), "secondary", "Plan ahead button")}
       </EdSection>
 
-      <EdSection num="03" title="Left fixed rail" hint="Pinned care & services — any number, each with its photo. Stays frozen beside the scrolling page on desktop; the rail scrolls when the list grows.">
-        <RailEditor side="left" config={rails.left} onChange={(next) => patch((d) => void (d.rails.left = next))} />
+      <EdSection
+        id="ed-rails"
+        num="03"
+        title="Fixed rails"
+        hint="The two pinned side columns flanking the home. Each can hold any number of real services, plans, products or links — the rail scrolls when the list grows, so nothing ever breaks the page."
+        badge={<span className="ed-chip">{rails.left.items.length + rails.right.items.length} pinned</span>}
+      >
+        <div className="ed-rails-grid">
+          <div className="ed-rail-card">
+            <RailEditor side="left" config={rails.left} onChange={(next) => patch((d) => void (d.rails.left = next))} />
+          </div>
+          <div className="ed-rail-card">
+            <RailEditor side="right" config={rails.right} onChange={(next) => patch((d) => void (d.rails.right = next))} />
+          </div>
+        </div>
       </EdSection>
 
-      <EdSection num="04" title="Right fixed rail" hint="Pinned plans & lots — any number, each with its photo. Same anchored behaviour on the right side.">
-        <RailEditor side="right" config={rails.right} onChange={(next) => patch((d) => void (d.rails.right = next))} />
-      </EdSection>
-
-      <EdSection num="05" title="About · Mission · Vision" hint="The family-run soul of the park, with a real photo — the trust section.">
+      <EdSection
+        id="ed-about"
+        num="04"
+        title="About · Mission · Vision"
+        hint="The family-run soul of the park, with a real photo — the trust section."
+      >
         <AboutEditor section={about} onChange={(next) => patch((d) => void (d.about = next))} />
       </EdSection>
 
-      <EdSection num="06" title="Services in full detail" hint="Editorial sections, not cards — what happens, what's included, how to begin.">
+      <EdSection
+        id="ed-services"
+        num="05"
+        title="Services"
+        hint="Editorial sections, not cards — what happens, what's included, how to begin."
+        badge={<CountChip count={services.items.length} />}
+      >
         <ServicesEditor section={services} onChange={(next) => patch((d) => void (d.services = next))} />
       </EdSection>
 
-      <EdSection num="07" title="Plans — designed card grid" hint="Every card carries a real photo, name and honest price; add as many as you want (not a spreadsheet).">
+      <EdSection
+        id="ed-plans"
+        num="06"
+        title="Plans — designed card grid"
+        hint="Every card carries a real photo, name and honest price; add as many as you want (not a spreadsheet)."
+        badge={
+          flags.plans > 0 ? (
+            <span className="ed-chip ed-chip--warn">{flags.plans} need attention</span>
+          ) : (
+            <CountChip count={plans.items.length} />
+          )
+        }
+      >
         <PlanCardsEditor section={plans} onChange={(next) => patch((d) => void (d.plans = next))} />
       </EdSection>
 
-      <EdSection num="08" title="Blog — rich newsfeed posts" hint="A caption plus as many photos/videos as you like, laid out like a newsfeed (single / pair / gallery, video inline). No like/share row — by design.">
+      <EdSection
+        id="ed-map"
+        num="07"
+        title="Live park map copy"
+        hint="The interactive map itself always shows the real lot listing; the heading + intro are yours to word. On the home the map renders right above the newsfeed."
+      >
+        <MapEditor section={map} onChange={(next) => patch((d) => void (d.map = next))} />
+      </EdSection>
+
+      <EdSection
+        id="ed-blog"
+        num="08"
+        title="Blog — rich newsfeed posts"
+        hint="A caption plus as many photos/videos as you like, laid out like a newsfeed (single / pair / gallery, video inline). No like/share row — by design."
+        badge={
+          flags.media + flags.posts > 0 ? (
+            <span className="ed-chip ed-chip--warn">Needs attention</span>
+          ) : (
+            <CountChip count={blog.posts.length} />
+          )
+        }
+      >
         <BlogEditor section={blog} onChange={(next) => patch((d) => void (d.blog = next))} />
       </EdSection>
 
-      <EdSection num="09" title="Live park map copy" hint="The interactive map itself always shows the real lot listing; the heading + intro are yours to word.">
-        <MapEditor section={map} onChange={(next) => patch((d) => void (d.map = next))} />
-      </EdSection>
-    </div>
-  );
-}
-
-function AboutEditor({ section, onChange }: { section: AboutSection; onChange: (next: AboutSection) => void }) {
-  return (
-    <div className="stack">
-      <div className="field-grid field-grid--2">
-        <TextField label="Section heading" htmlFor="about-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
-        <ImageField label="Park photo" htmlFor="about-image" value={section.image} onChange={(v) => onChange({ ...section, image: v })} />
+      {/* 4 · Closing publish row — the same obvious action, repeated at the end of the document */}
+      <div className="ed-publish-row">
+        <p className="ed-hint">
+          {attention > 0
+            ? `${attention} item${attention === 1 ? "" : "s"} flagged for review — the amber markers above show what to check.`
+            : dirty
+              ? "Your edits are ready to go live on the public home."
+              : "This document matches what visitors see on /. Nothing to publish."}
+        </p>
+        <div className="row" style={{ gap: "var(--space-2)" }}>
+          {dirty ? (
+            <Button variant="ghost" size="sm" onClick={discard}>
+              Discard
+            </Button>
+          ) : null}
+          <Button variant="accent" onClick={publish} disabled={busy || !dirty}>
+            {busy ? (
+              <>
+                <Loader2 size={15} aria-hidden="true" /> Publishing…
+              </>
+            ) : dirty ? (
+              <>
+                <Save size={15} aria-hidden="true" /> Publish changes
+              </>
+            ) : (
+              <>
+                <CheckCircle2 size={15} aria-hidden="true" /> Up to date
+              </>
+            )}
+          </Button>
+        </div>
       </div>
-      <TextAreaField label="Story" htmlFor="about-story" rows={4} value={section.story} onChange={(v) => onChange({ ...section, story: v })} />
-      <div className="field-grid field-grid--2">
-        <TextAreaField label="Mission" htmlFor="about-mission" rows={4} value={section.mission} onChange={(v) => onChange({ ...section, mission: v })} />
-        <TextAreaField label="Vision" htmlFor="about-vision" rows={4} value={section.vision} onChange={(v) => onChange({ ...section, vision: v })} />
-      </div>
-    </div>
-  );
-}
-
-function MapEditor({
-  section,
-  onChange,
-}: {
-  section: LandingContent["map"];
-  onChange: (next: LandingContent["map"]) => void;
-}) {
-  return (
-    <div className="field-grid field-grid--2">
-      <TextField label="Section heading" htmlFor="map-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
-      <TextField label="Section intro" htmlFor="map-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
     </div>
   );
 }

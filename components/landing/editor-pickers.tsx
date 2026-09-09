@@ -2,18 +2,21 @@
 
 /**
  * Editor pickers — modal pickers shared by the Landing Page editor.
- *  - MediaPicker: choose a real uploaded asset from the media library (or paste
- *    any public URL) for logos, about photos, plan cards, rail items, blog media.
+ *  - MediaPicker: attach a photo from THREE sources — the real uploaded media
+ *    library, a REAL device upload (components/landing/device-uploader.tsx,
+ *    stored through the fixture store like every edit), or any public URL —
+ *    for logos, about photos, plan cards, blog media and more.
  *  - RailPicker: choose what to pin to a fixed rail from the REAL catalogue
  *    (services/plans/products/links, priced from lib/villa-pricing.ts) — never an
  *    invented offer.
  */
 import { useEffect, useState } from "react";
-import { X, Search } from "lucide-react";
+import { X, Search, Image as ImageIcon, Link2, UploadCloud } from "lucide-react";
 import { MEDIA_LIBRARY } from "@/lib/media";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import { buildRailCatalogue } from "@/lib/landing/catalogue";
 import type { RailItemKind } from "@/lib/api-client/landing";
+import { DeviceUploader } from "@/components/landing/device-uploader";
 
 /* --------------------------------- shell ---------------------------------- */
 
@@ -54,6 +57,16 @@ function ModalShell({
 
 /* -------------------------------- media picker ---------------------------- */
 
+/** Three ways to attach a photo — the same real uploaded library, a file from
+ * the staff device (stored through the fixture store), or any public URL. */
+type MediaSourceTab = "library" | "device" | "url";
+
+const MEDIA_TABS: Array<{ id: MediaSourceTab; label: string; icon: React.ReactNode }> = [
+  { id: "library", label: "Photo library", icon: <ImageIcon size={15} aria-hidden="true" /> },
+  { id: "device", label: "Upload from device", icon: <UploadCloud size={15} aria-hidden="true" /> },
+  { id: "url", label: "Image URL", icon: <Link2 size={15} aria-hidden="true" /> },
+];
+
 export function MediaPicker({
   open,
   onClose,
@@ -63,62 +76,98 @@ export function MediaPicker({
   onClose: () => void;
   onPick: (src: string) => void;
 }) {
+  const [tab, setTab] = useState<MediaSourceTab>("library");
   const [customUrl, setCustomUrl] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   return (
     <ModalShell
       open={open}
-      eyebrow="Photo library"
+      eyebrow="Photo source"
       title="Choose a photo"
       onClose={onClose}
-      width="52rem"
+      width="54rem"
     >
-      <p className="ed-hint">
-        Pick a real uploaded park photo, or paste a public image URL below. The same library
-        feeds the public home.
-      </p>
-      <div className="ed-media-grid">
-        {MEDIA_LIBRARY.map((m) => (
+      <div className="ed-source-tabs" role="tablist" aria-label="Photo source">
+        {MEDIA_TABS.map((t) => (
           <button
             type="button"
-            key={m.src}
-            className={`ed-media-card${copied === m.src ? " ed-media-card--picked" : ""}`}
-            onClick={() => {
-              onPick(m.src);
-              setCopied(m.src);
-              window.setTimeout(() => setCopied(null), 900);
-            }}
+            key={t.id}
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`ed-source-tab${tab === t.id ? " ed-source-tab--active" : ""}`}
+            onClick={() => setTab(t.id)}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element -- library thumbnail */}
-            <img src={m.src} alt={m.label} loading="lazy" />
-            <span>{m.label}</span>
+            {t.icon} {t.label}
           </button>
         ))}
       </div>
-      <div className="ed-custom-url">
-        <label htmlFor="ed-media-url" className="ed-label">
-          …or paste an image URL
-        </label>
-        <div className="row" style={{ gap: "var(--space-2)" }}>
-          <input
-            id="ed-media-url"
-            type="text"
-            value={customUrl}
-            placeholder="https://…  or  /media/…"
-            onChange={(e) => setCustomUrl(e.target.value)}
-          />
-          <button
-            type="button"
-            className="btn btn--primary btn--sm"
-            disabled={!customUrl.trim()}
-            onClick={() => {
-              if (customUrl.trim()) onPick(customUrl.trim());
-            }}
-          >
-            Use this URL
-          </button>
+
+      {tab === "library" ? (
+        <div>
+          <p className="ed-hint">
+            Pick a real uploaded park photo. The same library feeds the public home.
+          </p>
+          <div className="ed-media-grid">
+            {MEDIA_LIBRARY.map((m) => (
+              <button
+                type="button"
+                key={m.src}
+                className={`ed-media-card${copied === m.src ? " ed-media-card--picked" : ""}`}
+                onClick={() => {
+                  onPick(m.src);
+                  setCopied(m.src);
+                  window.setTimeout(() => setCopied(null), 900);
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- library thumbnail */}
+                <img src={m.src} alt={m.label} loading="lazy" />
+                <span>{m.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
+
+      {tab === "device" ? (
+        <div>
+          <p className="ed-hint">
+            Pick a local image file from this device — a logo, a park photo, anything. No
+            backend needed: it is stored with the document like every other edit here.
+          </p>
+          <DeviceUploader
+            onPick={(src) => {
+              onPick(src);
+            }}
+          />
+        </div>
+      ) : null}
+
+      {tab === "url" ? (
+        <div className="ed-custom-url ed-custom-url--tab">
+          <p className="ed-hint">
+            Paste a public image URL (https://… or an in-app /media/… path).
+          </p>
+          <div className="row" style={{ gap: "var(--space-2)" }}>
+            <input
+              id="ed-media-url"
+              type="text"
+              value={customUrl}
+              placeholder="https://…  or  /media/…"
+              onChange={(e) => setCustomUrl(e.target.value)}
+            />
+            <button
+              type="button"
+              className="btn btn--primary btn--sm"
+              disabled={!customUrl.trim()}
+              onClick={() => {
+                if (customUrl.trim()) onPick(customUrl.trim());
+              }}
+            >
+              Use this URL
+            </button>
+          </div>
+        </div>
+      ) : null}
     </ModalShell>
   );
 }

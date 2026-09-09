@@ -12,7 +12,7 @@ import { hasAnyScope } from "@/lib/rbac/nav";
  * no upstream content service exists yet, so this route IS the write path, gated the
  * same way every BFF write is gated — the scope check here is UX only, turning a
  * would-be 403 into a readable message; the store's validator is the authority on the
- * document shape (rails capped at 5 per side, known kinds, empty lists legal).
+ * document shape (rails UNLIMITED per side, known kinds, empty lists legal).
  * `catalog:write` is reused provisionally (same precedent as Store & content) until a
  * marketing-content contract freezes its own scope — no new scope is invented here.
  *

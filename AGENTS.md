@@ -68,8 +68,9 @@ docker compose up --build                            # SSR on :3000 against stub
 
 - The public home (app/page.tsx) is NOT hand-written JSX sections: it renders
   `components/landing/landing-view.tsx` from a LandingPage content document
-  (hero · rails · about · services · plans · blog · map copy). Interior pages
-  keep their own routes/layouts and are untouched.
+  (hero · rails · about · services · plans · map · blog copy — the middle column
+  renders the live park map BEFORE the newsfeed; keep that order when editing).
+  Interior pages keep their own routes/layouts and are untouched.
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
@@ -81,11 +82,21 @@ docker compose up --build                            # SSR on :3000 against stub
 - The staff editor is the premium `app/(staff)/staff/landing` page (scope
   catalog:write, reused provisionally); its rail picker catalogue in
   `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —
-  never add a picker option with invented prices.
+  never add a picker option with invented prices. The editor's image picker
+  offers THREE sources: the uploaded media library, a public URL, or a REAL
+  device upload (`components/landing/device-uploader.tsx` + `lib/device-upload.ts`)
+  — chosen files are downscaled (max 1600px) into data URLs stored INSIDE the
+  content document via the same fixture-store save path (zero backend); blog
+  media rows show device photos as a compact attached state, never a base64
+  blob in the src input.
 - Rendering/robustness tests: `tests/unit/landing-view.test.tsx` (renders the
   view via react-dom/server) + `tests/fixture-contract/landing.test.ts` (pins
   seed prices to lib/villa-pricing.ts). vitest.config compiles .tsx with the
   automatic JSX runtime for those.
+- Public lot browse (/lots) filters plots by park, status and legend type; the
+  type-filter + live chip counts live in `lib/lots-legend.ts` (pure + unit-
+  tested at tests/unit/lots-legend.test.ts) and read types from
+  `lib/park-types.ts` — never inline that filter logic in the page.
 
 ## Structure conventions
 ```

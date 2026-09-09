@@ -1,5 +1,8 @@
 "use client";
 
+/* eslint-disable @next/next/no-html-link-for-pages -- framework-free view: plain
+   <a> anchors keep the flyout consistent with LandingView (see landing-view.tsx). */
+
 /**
  * Mobile quick menu — the anchored catalogue's slide-in flyout on small screens.
  * Below the three-column breakpoint the fixed rails collapse into this floating
@@ -86,6 +89,29 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
                 {contact.phoneDisplay} · {contact.location}
               </span>
             </a>
+
+            {/* Explicit site links — Home first, so visitors always know how
+                to get back to the catalogue home from the flyout. */}
+            <nav className="quick-site" aria-label="Site">
+              <a href="/" onClick={() => setOpen(false)}>
+                Home
+              </a>
+              <a href="/services" onClick={() => setOpen(false)}>
+                Services
+              </a>
+              <a href="/plans" onClick={() => setOpen(false)}>
+                Plans
+              </a>
+              <a href="/lots" onClick={() => setOpen(false)}>
+                Lots
+              </a>
+              <a href="/map" onClick={() => setOpen(false)}>
+                Park map
+              </a>
+              <a href="/contact" onClick={() => setOpen(false)}>
+                Contact
+              </a>
+            </nav>
 
             {([["left", rails.left], ["right", rails.right]] as const).map(([side, config]) => (
               <div className="quick-group" key={side}>

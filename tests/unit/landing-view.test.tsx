@@ -46,7 +46,18 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).toContain("Plan ahead");
   });
 
-  it("middle sections render in order: about, services, plans grid, blog feed, map", async () => {
+  it("header nav leads with an explicit Home link so visitors always know the way back", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
+    expect(nav.indexOf('href="/">Home<')).toBeGreaterThanOrEqual(0);
+    // Home is the first destination in the bar.
+    expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Services"));
+  });
+
+  it("middle sections render in order: about, services, plans grid, live map, then blog feed", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
@@ -55,14 +66,15 @@ describe("the home renders the anchored catalogue shell", () => {
     const aboutPos = html.indexOf("about-grid");
     const servicesPos = html.indexOf("services-list");
     const plansPos = html.indexOf("plan-grid");
-    const blogPos = html.indexOf("blog-feed");
     const mapPos = html.indexOf("mid-section--map");
+    const blogPos = html.indexOf("blog-feed");
     expect(heroPos).toBeGreaterThanOrEqual(0);
     expect(aboutPos).toBeGreaterThan(heroPos);
     expect(servicesPos).toBeGreaterThan(aboutPos);
     expect(plansPos).toBeGreaterThan(servicesPos);
-    expect(blogPos).toBeGreaterThan(plansPos);
-    expect(mapPos).toBeGreaterThan(blogPos);
+    // The captain-approved order puts the live park map BEFORE the newsfeed.
+    expect(mapPos).toBeGreaterThan(plansPos);
+    expect(blogPos).toBeGreaterThan(mapPos);
     // Seed blog captions render, and no like/share action row is rendered.
     expect(html).toContain("golden hour");
     expect(html).not.toContain("like");
