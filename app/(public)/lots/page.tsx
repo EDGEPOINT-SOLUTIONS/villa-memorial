@@ -7,6 +7,12 @@ import { formatMinorUnits } from "@/lib/money";
 import { SAMPLE_PARK_IMAGE, LOT_PRIMARY } from "@/lib/media";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import { parkType } from "@/lib/park-types";
+import {
+  legendTypeChips,
+  legendTypeFilter,
+  matchesPlotFilters,
+  type LegendPlotRow,
+} from "@/lib/lots-legend";
 import parksFile from "@/lib/fixtures/property/parks.json";
 
 export const metadata = { title: "Memorial lots — In Memoriam" };
@@ -42,13 +48,17 @@ function codeOrder(a: string, b: string): number {
 export default async function LotsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; park?: string }>;
+  searchParams: Promise<{ status?: string; park?: string; type?: string }>;
 }) {
-  const { status, park } = await searchParams;
+  const { status, park, type } = await searchParams;
   const parkFilter = park && SEED_PARKS.some((p) => p.id === park) ? park : undefined;
   const statusFilter = (PLOT_STATUSES as readonly string[]).includes(status ?? "")
     ? (status as LotStatus)
     : undefined;
+  // Legend/plot-type filter — seeded legend ids from lib/park-types.ts (same
+  // source the park map legend and the plot cards read); the chip counts + row
+  // matching live in lib/lots-legend.ts so they stay unit-tested.
+  const typeFilter = legendTypeFilter(type);
 
   let lots: Lot[];
   try {
@@ -78,17 +88,31 @@ export default async function LotsPage({
     return pi || codeOrder(a.plot.code, b.plot.code);
   });
 
-  const filtered = rows.filter(
-    (r) => (!parkFilter || r.park.id === parkFilter) && (!statusFilter || r.plot.status === statusFilter),
+  const filtered = rows.filter((r) =>
+    matchesPlotFilters(r as LegendPlotRow, {
+      park: parkFilter,
+      status: statusFilter,
+      type: typeFilter,
+    }),
   );
   const totalPlots = rows.length;
 
-  const q = (patch: { status?: string | null; park?: string | null }) => {
+  // Legend chips: the plot types actually present after the park + status
+  // filters, each with its live count — so a visitor always sees what a type
+  // chip will show before clicking it (lib/lots-legend.ts keeps this tested).
+  const legendChips = legendTypeChips(
+    rows as LegendPlotRow[],
+    { park: parkFilter, status: statusFilter },
+  );
+
+  const q = (patch: { status?: string | null; park?: string | null; type?: string | null }) => {
     const sp = new URLSearchParams();
     const statusValue = patch.status === undefined ? statusFilter : patch.status;
     const parkValue = patch.park === undefined ? parkFilter : patch.park;
+    const typeValue = patch.type === undefined ? typeFilter : patch.type;
     if (statusValue) sp.set("status", statusValue);
     if (parkValue) sp.set("park", parkValue);
+    if (typeValue) sp.set("type", typeValue);
     const s = sp.toString();
     return s ? `/lots?${s}` : "/lots";
   };
@@ -130,6 +154,23 @@ export default async function LotsPage({
                 </Link>
               ))}
             </nav>
+            <nav className="seg-filter seg-filter--legend" aria-label="Filter by legend type" style={{ marginTop: "var(--space-2)" }}>
+              <Link href={q({ type: null })} className={`pill-toggle${!typeFilter ? " pill-toggle--active" : ""}`}>
+                All types
+              </Link>
+              {legendChips.map((t) => (
+                <Link
+                  key={t.id}
+                  href={q({ type: t.id })}
+                  className={`pill-toggle pill-toggle--type${typeFilter === t.id ? " pill-toggle--active" : ""}`}
+                  title={`${t.name} — ${t.count} plot${t.count === 1 ? "" : "s"}`}
+                >
+                  <span className="type-dot" style={{ background: t.color }} aria-hidden="true" />
+                  <span className="type-name">{t.name}</span>
+                  <span className="type-count">{t.count}</span>
+                </Link>
+              ))}
+            </nav>
           </div>
           <figure className="hero-premium__media">
             {/* eslint-disable-next-line @next/next/no-img-element -- uploaded lot photo */}
@@ -138,6 +179,13 @@ export default async function LotsPage({
           </figure>
         </div>
       </section>
+
+      {filtered.length !== rows.length ? (
+        <p className="text-sm text-muted" style={{ margin: "var(--space-3) 0 var(--space-2)" }}>
+          Showing {filtered.length} of {rows.length} plots —{" "}
+          <Link href="/lots">clear all filters</Link>.
+        </p>
+      ) : null}
 
       {filtered.length === 0 ? (
         <EmptyState

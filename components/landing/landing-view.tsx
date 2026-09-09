@@ -260,6 +260,8 @@ function LandingHeader({ content }: { content: LandingContent }) {
           <span className="anchored-header__wordmark">{logo.wordmark}</span>
         </a>
         <nav className="anchored-header__nav" aria-label="Sections">
+          {/* Explicit Home first — visitors always know the header leads home. */}
+          <a href="/">Home</a>
           <a href="/services">Services</a>
           <a href="/plans">Plans</a>
           <a href="/lots">Lots</a>
@@ -328,6 +330,7 @@ function LandingFooter({ content }: { content: LandingContent }) {
           <FooterColumn
             title="Explore"
             links={[
+              { label: "Home", href: "/" },
               { label: "Services", href: "/services" },
               { label: "Memorial plans & lots", href: "/plans" },
               { label: "Browse the lots", href: "/lots" },
@@ -567,13 +570,15 @@ export function LandingView({ content, mapNode, mapLive, sectionCount }: Landing
             <AboutSection content={content} />
             <ServicesSection content={content} />
             <PlansSection content={content} />
-            <BlogSection content={content} />
             <MapSection
               content={content}
               mapNode={mapNode}
               mapLive={mapLive}
               sectionCount={sectionCount}
             />
+            {/* The live park map sits BEFORE the newsfeed — visitors see the
+                grounds they can walk, then the park's stories. */}
+            <BlogSection content={content} />
           </div>
         </main>
 
