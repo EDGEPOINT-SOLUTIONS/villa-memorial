@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  MAX_RAIL_ITEMS,
   listLandingContent,
   readLandingContent,
   saveLandingContent,
@@ -48,10 +47,10 @@ describe("landing fixture follows the approved content model", () => {
     );
   });
 
-  it("every rail holds at most 5 staff-picked items and every item carries a photo", async () => {
+  it("seed rails carry valid staff-picked items, each with a photo and a real page link", async () => {
     const content = await listLandingContent();
     for (const side of ["left", "right"] as const) {
-      expect(content.rails[side].items.length).toBeLessThanOrEqual(MAX_RAIL_ITEMS);
+      expect(content.rails[side].items.length).toBeGreaterThan(0);
       for (const item of content.rails[side].items) {
         expect(["product", "service", "plan", "link"]).toContain(item.kind);
         expect(item.image).not.toBeNull();
@@ -88,29 +87,41 @@ describe("landing fixture follows the approved content model", () => {
     );
   });
 
-  it("tolerant reader clamps an oversized rail to 5 and drops unknown kinds", async () => {
+  it("tolerant reader keeps every valid rail item (rails are unlimited) and drops unknown kinds", async () => {
     const content = await listLandingContent();
     const oversized = cloneDoc(content);
     const base = oversized.rails.left.items[0];
     const extra = Array.from({ length: 9 }, (_, i) => ({
       id: `extra-${i}`,
+      kind: "service",
+      title: `Extra care ${i}`,
+      caption: null,
+      price: null,
+      image: "/media/death_at_home.jpg",
+      href: "/services",
+    }));
+    const unknown = {
+      id: "unknown-1",
       kind: "nonsense",
-      title: `Unknown ${i}`,
+      title: "Unknown",
       caption: null,
       price: null,
       image: null,
       href: "/x",
-    }));
+    };
     oversized.rails.left.items = [
       base,
       ...(extra as unknown as LandingContent["rails"]["left"]["items"]),
+      unknown as unknown as LandingContent["rails"]["left"]["items"][number],
     ];
     const read = readLandingContent(oversized);
-    expect(read.rails.left.items.length).toBeLessThanOrEqual(MAX_RAIL_ITEMS);
+    // Ten valid items survive the read untouched — no cap, no truncation.
+    expect(read.rails.left.items.length).toBe(10);
     for (const item of read.rails.left.items) {
       expect(["product", "service", "plan", "link"]).toContain(item.kind);
     }
-    expect(read.rails.left.items.some((item) => item.id.startsWith("extra-"))).toBe(false);
+    expect(read.rails.left.items.some((item) => item.id.startsWith("extra-"))).toBe(true);
+    expect(read.rails.left.items.some((item) => item.id.startsWith("unknown-"))).toBe(false);
   });
 
   it("empty plan list, empty blog list and caption-only posts read and validate cleanly", async () => {
@@ -158,18 +169,16 @@ describe("the rail picker catalogue is built from the real catalogue", () => {
   });
 });
 
-describe("the save path is the authority on the rails cap", () => {
-  it("rejects a document whose rail exceeds 5 per side with a 422, never truncating", async () => {
+describe("the save path accepts unlimited rail items", () => {
+  it("saves a document whose rail holds 10 items (no cap), and the public read returns all of them", async () => {
     const content = await listLandingContent();
     const oversized = cloneDoc(content);
-    oversized.rails.left.items = [
-      ...oversized.rails.left.items,
-      ...oversized.rails.left.items, // 10 items on the left rail
-    ];
-    await expect(saveLandingContent(oversized)).rejects.toMatchObject({
-      status: 422,
-      message: expect.stringContaining("caps each rail at 5"),
-    });
+    const base = oversized.rails.left.items[0];
+    oversized.rails.left.items = Array.from({ length: 10 }, (_, i) => ({ ...base, id: `rail-${i}` }));
+    const saved = await saveLandingContent(oversized);
+    expect(saved.rails.left.items.length).toBe(10);
+    const reread = await listLandingContent();
+    expect(reread.rails.left.items.length).toBe(10);
   });
 
   it("rejects empty hero headline / empty rail item titles", async () => {

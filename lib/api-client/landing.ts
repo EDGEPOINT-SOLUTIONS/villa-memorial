@@ -22,8 +22,6 @@
 import { ApiError } from "@/lib/api-client/api-error";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
-export const MAX_RAIL_ITEMS = 5;
-
 export type RailItemKind = "product" | "service" | "plan" | "link";
 export type MediaKind = "photo" | "video";
 
@@ -172,8 +170,9 @@ function readRailConfig(raw: unknown): RailConfig {
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
   return {
     heading: str(r.heading, "Quick links"),
-    // Tolerant reader: drop malformed entries; cap display at the frozen max.
-    items: arr(r.items).map(readRailItem).filter((x): x is RailItem => x !== null).slice(0, MAX_RAIL_ITEMS),
+    // Tolerant reader: drop malformed entries only — rails are UNLIMITED (staff
+    // pins any number; the rail scrolls internally). Never truncate here.
+    items: arr(r.items).map(readRailItem).filter((x): x is RailItem => x !== null),
   };
 }
 
@@ -319,9 +318,9 @@ export function readLandingContent(raw: unknown): LandingContent {
 /**
  * The save authority. Rules mirror what the UI enforces so the demo never
  * teaches a state the model rejects:
- *  - rails hold at most MAX_RAIL_ITEMS per side (hard cap);
- *  - rail items carry a known kind and a title + href;
- *  - empty plans / empty blog posts lists are legal (page renders gracefully);
+ *  - rail items carry a known kind and a title + href (rail length is unlimited);
+ *  - empty rails / empty plans / empty blog posts lists are legal (the page
+ *    renders graceful empty states);
  *  - a blog post MAY have an empty media list (caption-only post);
  *  - media entries must be photo|video with a usable src.
  * Displayed prices are free content strings — no money validation (prices are
@@ -342,12 +341,6 @@ export function validateLandingContent(content: LandingContent): { ok: true } | 
   for (const side of ["left", "right"] as const) {
     const rail = content.rails[side];
     if (!rail.heading.trim()) return { ok: false, error: `The ${side} rail heading can't be empty.` };
-    if (rail.items.length > MAX_RAIL_ITEMS) {
-      return {
-        ok: false,
-        error: `The ${side} rail shows ${rail.items.length} items — the anchored design caps each rail at ${MAX_RAIL_ITEMS}.`,
-      };
-    }
     for (const item of rail.items) {
       if (!RAIL_KINDS.includes(item.kind)) {
         return { ok: false, error: `"${item.title || "One item"}" has an unknown rail kind.` };
@@ -382,33 +375,11 @@ export async function listLandingContent(): Promise<LandingContent> {
 
 /**
  * Persists a full edited document (BFF save route is the only caller). Validates
- * before storing — a rail that exceeds the frozen cap is REJECTED (never silently
- * truncated), and reads stay tolerant (they clamp to the cap for display). Returns
- * the saved document so the editor can confirm exactly what the page will render.
+ * before storing — rails are UNLIMITED (a 12-item rail saves fine; the rail
+ * scrolls internally), malformed entries are rejected. Returns the saved
+ * document so the editor can confirm exactly what the page will render.
  */
 export async function saveLandingContent(raw: unknown): Promise<LandingContent> {
-  const railsRaw =
-    typeof raw === "object" && raw !== null
-      ? (raw as Record<string, unknown>).rails
-      : null;
-  const railBox = (typeof railsRaw === "object" && railsRaw !== null ? railsRaw : {}) as Record<
-    string,
-    unknown
-  >;
-  for (const side of ["left", "right"] as const) {
-    const config = railBox[side];
-    const items = (typeof config === "object" && config !== null ? config : {}) as Record<
-      string,
-      unknown
-    >;
-    const count = Array.isArray(items.items) ? items.items.length : 0;
-    if (count > MAX_RAIL_ITEMS) {
-      throw new ApiError(
-        `The ${side} rail carries ${count} items — the anchored design caps each rail at ${MAX_RAIL_ITEMS}.`, 422,
-      );
-    }
-  }
-
   const content = readLandingContent(raw);
   const verdict = validateLandingContent(content);
   if (!verdict.ok) {

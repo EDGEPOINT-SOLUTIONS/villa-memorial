@@ -135,13 +135,11 @@ const KIND_LABEL: Record<RailItemKind, string> = {
 export function RailPicker({
   open,
   side,
-  remaining,
   onClose,
   onAdd,
 }: {
   open: boolean;
   side: "left" | "right";
-  remaining: number;
   onClose: () => void;
   onAdd: (entry: CatalogueEntry) => void;
 }) {
@@ -162,11 +160,10 @@ export function RailPicker({
   const visible = (groups ?? []).map((g) => ({ ...g, entries: g.entries.filter(matches) })).filter((g) => g.entries.length > 0);
 
   return (
-    <ModalShell open={open} eyebrow="Fixed rail · max 5" title={title} onClose={onClose} width="56rem">
+    <ModalShell open={open} eyebrow="Fixed rail · pin any number" title={title} onClose={onClose} width="56rem">
       <p className="ed-hint">
         Pick from the real catalogue (services, plans &amp; lots, products, links). Each pinned
-        item carries its photo. <strong>{remaining} slot{remaining === 1 ? "" : "s"} left</strong> on
-        this side.
+        item carries its photo, and the rail scrolls — pin as many as you want.
       </p>
       <div className="ed-search">
         <Search size={15} aria-hidden="true" />
@@ -189,7 +186,6 @@ export function RailPicker({
                   type="button"
                   key={`${entry.kind}-${entry.title}`}
                   className="ed-catalogue__row"
-                  disabled={remaining <= 0}
                   onClick={() => onAdd(entry)}
                 >
                   <span className="rail-thumb">
