@@ -12,9 +12,9 @@
  * carries no Villa vocabulary and no document data, only the block grammar.
  */
 
-/** One cell of a bordered grid. A label cell is emphasised and shows “Label: value”. */
+/** One cell of a bordered grid. A label cell shows “Label: value” in plain type. */
 export type PaperCell = {
-  /** Optional field label; renders emphasised with the value beside it. */
+  /** Optional field label; renders plainly with the value beside it. */
   label?: string;
   value: string;
   /** Horizontal grid units this cell covers (1 when absent). */
@@ -31,8 +31,6 @@ export type PaperTable = {
   /** Optional fractional widths (must sum ≈1 and match `columns`); fall back to even. */
   widths?: number[];
   head?: PaperHeadCell[];
-  /** Label column on the left should render emphasised (first cell bold). */
-  emphasizeFirstCell?: boolean;
   rows: PaperCell[][];
 };
 

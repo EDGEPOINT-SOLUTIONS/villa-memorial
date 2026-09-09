@@ -129,7 +129,8 @@ export type PurchasePaperData = {
 export function purchasePaperFromForm(
   values: PurchaseApplicationFormValues,
   lot: Pick<Lot, "lot_number" | "section" | "block" | "area_sqm">,
-  signedOn = new Date().toISOString().slice(0, 10),
+  signedOn: string =
+    values.application_date || new Date().toISOString().slice(0, 10),
 ): PurchasePaperData {
   const cents = (raw: string): number | null => pesosInputToCents(raw);
   const str = (v: string): string | null => (v.trim() === "" ? null : v.trim());
@@ -388,7 +389,7 @@ function buyerBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] {
     [cell("Employer's tel. no.", paperValue(b.employerTelephone), 4)],
   ];
 
-  blocks.push(table(4, grid, { widths: [0.17, 0.33, 0.17, 0.33], emphasizeFirstCell: true }));
+  blocks.push(table(4, grid, { widths: [0.17, 0.33, 0.17, 0.33] }));
 
   // Beneficiaries — the paper's own three-column block.
   const beneRows: PaperCell[][] =
@@ -407,7 +408,6 @@ function buyerBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] {
       {
         widths: [0.5, 0.15, 0.35],
         head: ["Beneficiaries", "Age", "Relationship"],
-        emphasizeFirstCell: false,
       },
     ),
   );
@@ -460,7 +460,7 @@ function propertyBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] {
   ]);
 
   return [
-    table(4, rows, { widths: [0.28, 0.22, 0.28, 0.22], emphasizeFirstCell: true }),
+    table(4, rows, { widths: [0.28, 0.22, 0.28, 0.22] }),
     space(4),
   ];
 }
@@ -547,7 +547,7 @@ function signatureBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] 
   blocks.push(line("IN WITNESS WHEREOF, both parties hereby place their hand on the place and date above written.", { align: "justify", size: 10.5, spaceAfter: 10 }));
   blocks.push(line("By:", { size: 10.5, spaceAfter: 2 }));
   blocks.push(
-    table(4, twoCol, { widths: [0.5, 0.5], emphasizeFirstCell: false }),
+    table(4, twoCol, { widths: [0.5, 0.5] }),
   );
   blocks.push(space(2));
   blocks.push(line("TIN No. ______________ I.D. Type / No. ______________", { size: 9.5, spaceAfter: 4 }));
@@ -556,7 +556,6 @@ function signatureBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] 
     blocks.push(
       table(4, [[fillCell("____________________________", 2), fillCell("____________________________", 2)]], {
         widths: [0.5, 0.5],
-        emphasizeFirstCell: false,
       }),
     );
   }
@@ -629,7 +628,7 @@ function dpaBlock(data: PurchasePaperData): PaperBlock[] {
         { label: undefined, value: `${buyerName}\n\nSignature over Printed Name of Buyer`, span: 2 },
         { label: undefined, value: `${agentName}\n\nSignature over Printed Name of Sales Agent`, span: 2 },
       ],
-    ], { widths: [0.5, 0.5], emphasizeFirstCell: false }),
+    ], { widths: [0.5, 0.5] }),
   );
   blocks.push(space(6));
   return blocks;

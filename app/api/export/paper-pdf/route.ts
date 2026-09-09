@@ -172,9 +172,6 @@ function sanitizeBlocks(raw: unknown): PaperBlock[] | null {
           rows: rows as PaperCellSanitized[][],
           ...(head ? { head } : {}),
           ...(widths.length === columns ? { widths } : {}),
-          ...(typeof block.emphasizeFirstCell === "boolean"
-            ? { emphasizeFirstCell: block.emphasizeFirstCell }
-            : {}),
         });
         break;
       }

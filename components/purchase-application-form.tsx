@@ -208,7 +208,11 @@ export function PurchaseApplicationForm({
     }
     setGateMessage(null);
     try {
-      const data = purchasePaperFromForm(values, lot);
+      const data = purchasePaperFromForm(
+        values,
+        lot,
+        values.application_date || new Date().toISOString().slice(0, 10),
+      );
       const built = buildPurchasePaper(data);
       setPaper({ blocks: built.blocks, title: built.title });
     } catch (err) {

@@ -3578,10 +3578,6 @@ a.card:hover {
   font-size: 10pt;
 }
 
-.paper-sheet .paper-table .paper-cell--label {
-  font-weight: 600;
-}
-
 .paper-sheet .paper-cell__text {
   white-space: pre-line;
   display: block;

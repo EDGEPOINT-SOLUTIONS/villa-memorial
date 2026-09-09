@@ -59,13 +59,8 @@ function TableView({ block }: { block: PaperTable }) {
             <tr key={r}>
               {row.map((cell, c) => {
                 const span = cell.span ?? 1;
-                const labelCell = cell.label !== undefined;
                 return (
-                  <td
-                    key={c}
-                    colSpan={span > 1 ? span : undefined}
-                    className={labelCell ? "paper-cell--label" : undefined}
-                  >
+                  <td key={c} colSpan={span > 1 ? span : undefined}>
                     <span className="paper-cell__text">{cellText(cell)}</span>
                   </td>
                 );

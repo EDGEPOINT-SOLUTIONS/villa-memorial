@@ -105,7 +105,7 @@ function tableToDocx(table: PaperTable): Table {
         columnSpan: span > 1 ? span : undefined,
         borders: HAIRLINE,
         width,
-        children: paragraphsFor(cellText(cell), { bold: cell.label !== undefined }),
+        children: paragraphsFor(cellText(cell)),
       });
     });
     rows.push(new TableRow({ children: docCells }));
