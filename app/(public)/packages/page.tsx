@@ -4,7 +4,7 @@ import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
 
-export const metadata = { title: "Packages — In Memoriam" };
+export const metadata = { title: "Packages — Villa Memorial" };
 
 /** Public packages — REAL catalog data (item_type=package), villa card grammar. */
 export default async function PackagesPage() {

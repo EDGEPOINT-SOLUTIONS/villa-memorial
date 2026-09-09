@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { TRANSPORT_IMAGE } from "@/lib/media";
 
-export const metadata = { title: "Transport — In Memoriam" };
+export const metadata = { title: "Transport — Villa Memorial" };
 
 export default function Page() {
   return (

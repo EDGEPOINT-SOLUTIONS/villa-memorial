@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const metadata = { title: "Frequently asked questions — In Memoriam" };
+export const metadata = { title: "Frequently asked questions — Villa Memorial" };
 
 export default function Page() {
   return (

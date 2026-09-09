@@ -5,7 +5,7 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata = { title: "My memorial plans — In Memoriam" };
+export const metadata = { title: "My memorial plans — Villa Memorial" };
 
 export default async function ClientPlansPage() {
   await requirePortalSessionOrRedirect("family");

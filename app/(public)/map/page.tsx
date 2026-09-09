@@ -3,7 +3,7 @@ import { ErrorState } from "@/components/ui/states";
 import { PublicParkMap } from "@/components/public-park-map";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
 
-export const metadata = { title: "Park map — In Memoriam" };
+export const metadata = { title: "Park map — Villa Memorial" };
 
 // Fixture mode is static-friendly, but once a live public lots path lands the page must
 // re-read per request (env/cookies) — never let it serve stale prerendered HTML.

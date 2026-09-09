@@ -7,7 +7,7 @@ import { formatMinorUnits } from "@/lib/money";
 import { SAMPLE_PARK_IMAGE, VILLA_SECTION_PHOTOS } from "@/lib/media";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 
-export const metadata = { title: "Lot details — In Memoriam" };
+export const metadata = { title: "Lot details — Villa Memorial" };
 
 const TYPE_LABEL: Record<string, string> = {
   individual: "Individual lot",

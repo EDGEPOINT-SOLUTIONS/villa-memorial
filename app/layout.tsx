@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "In Memoriam",
-  description: "In Memoriam platform",
+  title: "Villa Memorial",
+  description: "Villa Memorial platform",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -2,7 +2,7 @@ import { PageSection } from "@/components/ui/page";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FamilyComingSoon } from "@/components/family-coming-soon";
 
-export const metadata = { title: "Agent dashboard — In Memoriam" };
+export const metadata = { title: "Agent dashboard — Villa Memorial" };
 
 /** Agent workspace landing — villa grammar: ghost KPI strip previewing the
  * dashboard that arrives with the agent/commission contract, honest labels. */

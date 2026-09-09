@@ -5,7 +5,7 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FamilyComingSoon } from "@/components/family-coming-soon";
 
-export const metadata = { title: "My documents — In Memoriam" };
+export const metadata = { title: "My documents — Villa Memorial" };
 
 export default async function ClientDocumentsPage() {
   await requirePortalSessionOrRedirect("family");

@@ -9,17 +9,17 @@ export const SIGN_IN_BLURBS: Record<
   { eyebrow: string; title: string; blurb: string }
 > = {
   staff: {
-    eyebrow: "In Memoriam · Staff",
+    eyebrow: "Villa Memorial · Staff",
     title: "Staff portal",
     blurb: "Operations, finance, property and the people who run it all.",
   },
   family: {
-    eyebrow: "In Memoriam · Family",
+    eyebrow: "Villa Memorial · Family",
     title: "Family portal",
     blurb: "Arrangements, plans, payments and documents — one calm place for your family.",
   },
   agent: {
-    eyebrow: "In Memoriam · Agent",
+    eyebrow: "Villa Memorial · Agent",
     title: "Agent portal",
     blurb: "Clients, prospects and commissions for our sales partners.",
   },

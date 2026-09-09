@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 
-export const metadata = { title: "Plans & services — In Memoriam" };
+export const metadata = { title: "Plans & services — Villa Memorial" };
 
 /**
  * Public catalog (Module B/C public face) — villa-memorial item-card grammar on

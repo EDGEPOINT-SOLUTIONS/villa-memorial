@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export const metadata = { title: "Contact us — In Memoriam" };
+export const metadata = { title: "Contact us — Villa Memorial" };
 
 export default function Page() {
   return (

@@ -25,7 +25,7 @@ function Header() {
     <header className="public-header">
       <div className="container public-header__bar">
         <Link href="/" className="public-header__brand">
-          In Memoriam
+          Villa Memorial
         </Link>
         <nav className="public-nav" aria-label="Store">
           <NavLink href="/services">Services</NavLink>
@@ -65,7 +65,7 @@ export function PublicShell({
         </main>
         <footer className="public-footer">
           <div className="container public-footer__bar">
-            <span className="public-header__brand">In Memoriam</span>
+            <span className="public-header__brand">Villa Memorial</span>
             <nav className="public-nav" aria-label="Information">
               <NavLink href="/services">Services</NavLink>
               <NavLink href="/plans">Plans</NavLink>

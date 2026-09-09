@@ -35,7 +35,7 @@ export function RegisterCard() {
   return (
     <div className="auth-card">
       <div className="auth-card__brand">
-        <h1>In Memoriam</h1>
+        <h1>Villa Memorial</h1>
         <p>Create your family account</p>
       </div>
 

@@ -2,7 +2,7 @@ import { PageHeader, PageSection } from "@/components/ui/page";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FamilyComingSoon } from "@/components/family-coming-soon";
 
-export const metadata = { title: "Support & Tickets — In Memoriam" };
+export const metadata = { title: "Support & Tickets — Villa Memorial" };
 
 export default async function supportPage() {
   await requirePortalSessionOrRedirect("family");

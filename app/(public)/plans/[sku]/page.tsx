@@ -6,7 +6,7 @@ import { getCatalogItem } from "@/lib/api-client/commerce";
 import { PLAN_PACKAGES_IMAGE, SAMPLE_PARK_IMAGE, TRANSPORT_IMAGE } from "@/lib/media";
 import { AddToCartControl } from "./add-to-cart";
 
-export const metadata = { title: "Plan details — In Memoriam" };
+export const metadata = { title: "Plan details — Villa Memorial" };
 
 const TYPE_LABEL: Record<string, string> = {
   package: "Package",

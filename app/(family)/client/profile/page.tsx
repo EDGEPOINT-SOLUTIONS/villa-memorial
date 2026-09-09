@@ -3,7 +3,7 @@ import { PageHeader } from "@/components/ui/page";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 
-export const metadata = { title: "My profile — In Memoriam" };
+export const metadata = { title: "My profile — Villa Memorial" };
 
 export default async function ClientProfilePage() {
   const session = await requirePortalSessionOrRedirect("family");

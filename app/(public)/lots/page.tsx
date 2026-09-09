@@ -9,7 +9,7 @@ import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import { parkType } from "@/lib/park-types";
 import parksFile from "@/lib/fixtures/property/parks.json";
 
-export const metadata = { title: "Memorial lots — In Memoriam" };
+export const metadata = { title: "Memorial lots — Villa Memorial" };
 
 /**
  * Public lot browse (Module D public face) — villa item-card grammar on the DOC
