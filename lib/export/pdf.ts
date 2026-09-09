@@ -20,6 +20,15 @@ const BODY_PT = 10.5;
 const FONT_REGULAR = "Times-Roman";
 const FONT_BOLD = "Times-Bold";
 
+/**
+ * Pdfkit's built-in Times fonts are WinAnsi-encoded, so ₱ (U+20B1) has no glyph and
+ * would encode to garbage bytes. The PDF prints money with its "PHP " prefix; the .docx
+ * and the on-screen sheet keep the ₱ sign (U+20B1 survives both).
+ */
+function pdfFontText(text: string): string {
+  return text.replace(/₱/g, "PHP ");
+}
+
 type Doc = InstanceType<typeof PDFDocument>;
 type Cursor = { doc: Doc; y: number };
 
@@ -38,7 +47,7 @@ function unitWidths(table: PaperTable): number[] {
 
 /** Height of `text` wrapped to `width`, honouring explicit line breaks. */
 function wrappedHeight(doc: Doc, text: string, width: number): number {
-  const fragments = text.split("\n");
+  const fragments = pdfFontText(text).split("\n");
   let total = 0;
   for (const fragment of fragments) {
     if (fragment === "") {
@@ -58,7 +67,7 @@ function drawWrapped(
   width: number,
   align: "left" | "center" | "right" | "justify",
 ): void {
-  const fragments = text.split("\n");
+  const fragments = pdfFontText(text).split("\n");
   let yy = y;
   for (const fragment of fragments) {
     if (fragment === "") {
@@ -83,7 +92,13 @@ function drawTable(cursor: Cursor, table: PaperTable): void {
   const widths = unitWidths(table);
   const rows: PaperCell[][] = [];
   if (table.head) {
-    rows.push(table.head.map((heading) => ({ label: undefined, value: heading, span: 1 })));
+    rows.push(
+      table.head.map((heading) =>
+        typeof heading === "string"
+          ? { label: undefined, value: heading, span: 1 }
+          : { label: undefined, value: heading.text, span: heading.span ?? 1 },
+      ),
+    );
   }
   rows.push(...table.rows);
 

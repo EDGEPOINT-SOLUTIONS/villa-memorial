@@ -100,9 +100,19 @@ function sanitizeBlocks(raw: unknown): PaperBlock[] | null {
         const columns = Math.min(Math.max(Math.floor(Number(block.columns)) || 2, 1), 12);
         const head = Array.isArray(block.head)
           ? block.head
-              .filter((h): h is string => typeof h === "string")
               .slice(0, columns)
-              .map((h) => h.slice(0, 200))
+              .map((h): PaperHeadSanitized | null => {
+                if (typeof h === "string") return { text: h.slice(0, 200), span: 1 };
+                if (typeof h !== "object" || h === null) return null;
+                const entry = h as Record<string, unknown>;
+                if (typeof entry.text !== "string") return null;
+                const span =
+                  typeof entry.span === "number" && Number.isFinite(entry.span)
+                    ? Math.min(Math.max(Math.floor(entry.span) || 1, 1), columns)
+                    : 1;
+                return { text: entry.text.slice(0, 200), span };
+              })
+              .filter((h): h is PaperHeadSanitized => h !== null)
           : undefined;
         const rowsRaw = Array.isArray(block.rows) ? block.rows.slice(0, MAX_TABLE_ROWS) : null;
         if (!rowsRaw) return null;
@@ -151,6 +161,11 @@ function sanitizeBlocks(raw: unknown): PaperBlock[] | null {
   }
   return out;
 }
+
+type PaperHeadSanitized = {
+  text: string;
+  span: number;
+};
 
 type PaperCellSanitized = {
   label?: string;

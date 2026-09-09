@@ -21,13 +21,16 @@ export type PaperCell = {
   span?: number;
 };
 
+/** One header entry of a bordered grid: a plain label or a label spanning grid units. */
+export type PaperHeadCell = string | { text: string; span?: number };
+
 /** One grid line of a bordered table. `head` rows render shaded/bold. */
 export type PaperTable = {
   kind: "table";
   columns: number;
   /** Optional fractional widths (must sum ≈1 and match `columns`); fall back to even. */
   widths?: number[];
-  head?: string[];
+  head?: PaperHeadCell[];
   /** Label column on the left should render emphasised (first cell bold). */
   emphasizeFirstCell?: boolean;
   rows: PaperCell[][];

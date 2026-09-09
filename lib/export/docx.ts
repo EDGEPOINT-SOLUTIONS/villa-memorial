@@ -75,16 +75,22 @@ function tableToDocx(table: PaperTable): Table {
   const rows: TableRow[] = [];
 
   if (table.head) {
+    let unit = 0;
     rows.push(
       new TableRow({
-        children: table.head.map(
-          (heading) =>
-            new TableCell({
-              borders: HAIRLINE,
-              shading: { type: ShadingType.CLEAR, fill: "EEEEEE" },
-              children: paragraphsFor(heading, { bold: true }),
-            }),
-        ),
+        children: table.head.map((heading) => {
+          const text = typeof heading === "string" ? heading : heading.text;
+          const span = typeof heading === "string" ? 1 : heading.span ?? 1;
+          const width = tableWidthFor(table, unit, span);
+          unit += span;
+          return new TableCell({
+            columnSpan: span > 1 ? span : undefined,
+            borders: HAIRLINE,
+            shading: { type: ShadingType.CLEAR, fill: "EEEEEE" },
+            width,
+            children: paragraphsFor(text, { bold: true }),
+          });
+        }),
       }),
     );
   }

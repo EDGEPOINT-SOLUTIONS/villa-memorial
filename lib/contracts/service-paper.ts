@@ -149,7 +149,12 @@ export function buildServicePaper(input: ServicePaperInput): {
       6,
       grid,
       {
-        head: ["Services Rendered", "Amount", "", "Packaged Deals", "Amount", ""],
+        head: [
+          { text: "Services Rendered", span: 2 },
+          { text: "Amount" },
+          { text: "Packaged Deals", span: 2 },
+          { text: "Amount" },
+        ],
       },
     ),
   );

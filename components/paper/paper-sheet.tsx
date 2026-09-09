@@ -43,9 +43,15 @@ function TableView({ block }: { block: PaperTable }) {
       <tbody>
         {block.head ? (
           <tr>
-            {block.head.map((heading, i) => (
-              <th key={i}>{heading}</th>
-            ))}
+            {block.head.map((heading, i) => {
+              const text = typeof heading === "string" ? heading : heading.text;
+              const span = typeof heading === "string" ? 1 : heading.span ?? 1;
+              return (
+                <th key={i} colSpan={span > 1 ? span : undefined}>
+                  {text}
+                </th>
+              );
+            })}
           </tr>
         ) : null}
         {block.rows.map((row, r) => {
