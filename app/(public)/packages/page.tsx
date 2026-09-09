@@ -1,12 +1,16 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
+import { CatalogueAddButton } from "@/components/catalogue-add-button";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
 
 export const metadata = { title: "Packages — Villa Memorial" };
 
-/** Public packages — REAL catalog data (item_type=package), villa card grammar. */
+/** Public packages — REAL catalog data (item_type=package), villa card grammar.
+ * Cards carry a "View package" detail link plus an "Add to cart" button fed by
+ * the same real commerce-contract item the card displays (shared
+ * CatalogueAddButton → the detail page's cart context). */
 export default async function PackagesPage() {
   let items;
   try {
@@ -54,10 +58,19 @@ export default async function PackagesPage() {
                   <p className="item-card__meta">{item.description}</p>
                 ) : null}
                 <div className="item-card__price">{item.display_price}</div>
-                <div className="item-card__actions">
-                  <Link href={`/plans/${item.sku}`} className="btn btn--primary btn--sm btn--block">
+                <div className="item-card__actions item-card__actions--split">
+                  <Link href={`/plans/${item.sku}`} className="btn btn--secondary btn--sm btn--block">
                     View package
                   </Link>
+                  <CatalogueAddButton
+                    item={{
+                      sku: item.sku,
+                      name: item.name,
+                      itemType: item.item_type,
+                      unitPriceCents: item.unit_price_cents,
+                      currency: item.currency,
+                    }}
+                  />
                 </div>
               </div>
             </article>

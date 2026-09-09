@@ -1,14 +1,33 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CartLineRow } from "@/components/cart-line-row";
 import { useCart } from "@/lib/cart/cart-context";
 import { formatMinorUnits, previewSubtotal } from "@/lib/money";
 
+/**
+ * Cart page — each line is a row with a chevron expand control that reveals
+ * that item's real catalogue details inline (see CartLineRow), plus working
+ * quantity / remove controls, the estimated-total summary card, and the same
+ * empty / loading states as before.
+ */
 export default function CartPage() {
   const cart = useCart();
+  const [openSkus, setOpenSkus] = useState<ReadonlySet<string>>(new Set());
+
+  const toggle = (sku: string) =>
+    setOpenSkus((prev) => {
+      const next = new Set(prev);
+      if (next.has(sku)) {
+        next.delete(sku);
+      } else {
+        next.add(sku);
+      }
+      return next;
+    });
 
   if (!cart.ready) {
     return <Skeleton lines={4} />;
@@ -64,41 +83,14 @@ export default function CartPage() {
             </thead>
             <tbody>
               {cart.lines.map((l) => (
-                <tr key={l.sku}>
-                  <td>
-                    <strong>{l.name}</strong>
-                    <br />
-                    <code>{l.sku}</code>
-                  </td>
-                  <td className="table__numeric">
-                    {formatMinorUnits(l.unitPriceCents, l.currency)}
-                  </td>
-                  <td>
-                    <input
-                      className="input"
-                      style={{ width: "5rem" }}
-                      type="number"
-                      min={1}
-                      max={99}
-                      value={l.quantity}
-                      aria-label={`Quantity for ${l.name}`}
-                      onChange={(e) =>
-                        cart.setQuantity(l.sku, Number(e.target.value))
-                      }
-                    />
-                  </td>
-                  <td className="table__numeric">
-                    {formatMinorUnits(
-                      previewSubtotal([l]),
-                      l.currency,
-                    )}
-                  </td>
-                  <td>
-                    <Button variant="ghost" size="sm" onClick={() => cart.remove(l.sku)}>
-                      Remove
-                    </Button>
-                  </td>
-                </tr>
+                <CartLineRow
+                  key={l.sku}
+                  line={l}
+                  open={openSkus.has(l.sku)}
+                  onToggle={() => toggle(l.sku)}
+                  onQuantityChange={(q) => cart.setQuantity(l.sku, q)}
+                  onRemove={() => cart.remove(l.sku)}
+                />
               ))}
             </tbody>
           </table>

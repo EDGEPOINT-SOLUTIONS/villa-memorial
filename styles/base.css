@@ -86,10 +86,12 @@ textarea {
   color: var(--color-text-muted);
 }
 
-/* Layout container */
+/* Layout container — shares the public folio envelope (tokens.css
+   --layout-folio-w) so interior page content starts where the anchored nav
+   brand block does; the home's anchored grid and the footer cap identically. */
 .container {
   width: 100%;
-  max-width: 72rem;
+  max-width: var(--layout-folio-w);
   margin-inline: auto;
   padding-inline: var(--space-5);
 }
