@@ -64,6 +64,25 @@ docker compose up --build                            # SSR on :3000 against stub
 | Stub compose | `docker compose up --build` | Same fixtures served by `stub-gateway/` mirroring edge-gateway paths |
 | Live | `AUTH_BASE_URL=<gateway>` | BFF proxies `${AUTH_BASE_URL}/identity/api/v1/auth/*` |
 
+## Landing page — content-model home (read before touching "/" or its admin)
+
+- The public home (app/page.tsx) is NOT hand-written JSX sections: it renders
+  `components/landing/landing-view.tsx` from a LandingPage content document
+  (hero · rails · about · services · plans · blog · map copy). Interior pages
+  keep their own routes/layouts and are untouched.
+- Content lives in the fixture store like every module: recorded seed at
+  `lib/fixtures/landing/content.json` + in-process saves through
+  `lib/api-client/landing.ts` (types/validator are the model authority — rails
+  are hard-capped at 5 per side; empty plan/blog lists are legal).
+- The staff editor is the premium `app/(staff)/staff/landing` page (scope
+  catalog:write, reused provisionally); its rail picker catalogue in
+  `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —
+  never add a picker option with invented prices.
+- Rendering/robustness tests: `tests/unit/landing-view.test.tsx` (renders the
+  view via react-dom/server) + `tests/fixture-contract/landing.test.ts` (pins
+  seed prices to lib/villa-pricing.ts). vitest.config compiles .tsx with the
+  automatic JSX runtime for those.
+
 ## Structure conventions
 ```
 web/

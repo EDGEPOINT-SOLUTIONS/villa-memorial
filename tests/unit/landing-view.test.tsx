@@ -1,0 +1,149 @@
+import { describe, expect, it } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import { LandingView } from "@/components/landing/landing-view";
+import { MAX_RAIL_ITEMS, listLandingContent, type LandingContent } from "@/lib/api-client/landing";
+
+/**
+ * Public-interface render tests for the anchored catalogue home (executed through
+ * LandingView — the exact component the root page renders, with the live-map node
+ * stubbed to null so the view stays framework-free). They pin the layout contract:
+ * the home renders as a three-column shell (left fixed rail + scrollable middle +
+ * right fixed rail), rails stay capped at MAX_RAIL_ITEMS per side, and empty plan
+ * lists / empty blog media lists render graceful states instead of crashing.
+ */
+const cloneDoc = (doc: LandingContent): LandingContent =>
+  JSON.parse(JSON.stringify(doc)) as LandingContent;
+
+const railItemCount = (html: string): number => (html.match(/class="rail-item"/g) ?? []).length;
+
+describe("the home renders the anchored catalogue shell", () => {
+  it("renders left rail + middle + right rail from the recorded content", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+
+    // Three-column anatomy: two fixed rails flanking the scrollable middle.
+    expect(html).toContain("anchored-grid");
+    expect(html).toContain("anchored-rail--left");
+    expect(html).toContain("anchored-rail--right");
+    expect(html).toContain("anchored-mid");
+
+    // Both rails actually list their pinned items (photo thumbs included).
+    const left = content.rails.left;
+    const right = content.rails.right;
+    for (const item of [...left.items, ...right.items]) {
+      // Titles are HTML-escaped in the server markup (&amp; for &).
+      expect(html).toContain(item.title.replace(/&/g, "&amp;"));
+    }
+    expect(railItemCount(html)).toBe(left.items.length + right.items.length);
+    expect(railItemCount(html)).toBeLessThanOrEqual(MAX_RAIL_ITEMS * 2);
+    expect(html).toContain('class="rail-thumb"');
+
+    // Hero with both approved doors.
+    expect(html).toContain("Honoring every life with dignity and light.");
+    expect(html).toContain("I need help now");
+    expect(html).toContain("Plan ahead");
+  });
+
+  it("middle sections render in order: about, services, plans grid, blog feed, map", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    const heroPos = html.indexOf("hero-home__title");
+    const aboutPos = html.indexOf("about-grid");
+    const servicesPos = html.indexOf("services-list");
+    const plansPos = html.indexOf("plan-grid");
+    const blogPos = html.indexOf("blog-feed");
+    const mapPos = html.indexOf("mid-section--map");
+    expect(heroPos).toBeGreaterThanOrEqual(0);
+    expect(aboutPos).toBeGreaterThan(heroPos);
+    expect(servicesPos).toBeGreaterThan(aboutPos);
+    expect(plansPos).toBeGreaterThan(servicesPos);
+    expect(blogPos).toBeGreaterThan(plansPos);
+    expect(mapPos).toBeGreaterThan(blogPos);
+    // Seed blog captions render, and no like/share action row is rendered.
+    expect(html).toContain("golden hour");
+    expect(html).not.toContain("like");
+    expect(html).not.toContain('aria-label="Like"');
+  });
+
+  it("plan cards carry photos, real names and the honest 2026 prices", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("₱114,000");
+    expect(html).toContain("₱1,073,000");
+    expect(html).toContain("lot-premium.png");
+    expect(html).toContain("from ₱500/month");
+    expect((html.match(/class="plan-card"/g) ?? []).length).toBe(content.plans.items.length);
+  });
+});
+
+describe("the home degrades gracefully on sparse content", () => {
+  it("an empty plan list renders an empty-state note, not a crash", async () => {
+    const content = await listLandingContent();
+    const sparse = cloneDoc(content);
+    sparse.plans.items = [];
+    const html = renderToStaticMarkup(
+      LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain('class="plan-card"');
+    expect(html).toContain("Plan cards will appear here once staff publishes them.");
+  });
+
+  it("an empty blog list and a caption-only post (empty media) render cleanly", async () => {
+    const content = await listLandingContent();
+    const sparse = cloneDoc(content);
+    sparse.blog.posts = [
+      { ...content.blog.posts[0], id: "caption-only", caption: "A caption with no photos or videos attached.", media: [] },
+    ];
+    const html = renderToStaticMarkup(
+      LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("post-card");
+    expect(html).not.toContain("post-media");
+    expect(html).toContain("A caption with no photos or videos attached.");
+  });
+
+  it("empty rails render their headings with an honest empty note", async () => {
+    const content = await listLandingContent();
+    const empty = cloneDoc(content);
+    empty.rails.left.items = [];
+    empty.rails.right.items = [];
+    const html = renderToStaticMarkup(
+      LandingView({ content: empty, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("Care &amp; services");
+    expect(html).toContain("Nothing pinned here yet");
+  });
+
+  it("a missing live map renders a graceful fallback line inside the map section", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("momentarily unavailable");
+  });
+});
+
+describe("rail items stay capped at 5 through the public home read", () => {
+  it("a 7-item rail document, read through the public store read then rendered, shows at most 5", async () => {
+    const content = await listLandingContent();
+    const oversized = cloneDoc(content);
+    const base = oversized.rails.left.items[0];
+    oversized.rails.left.items = Array.from({ length: 7 }, (_, i) => ({ ...base, id: `x${i}` }));
+
+    // The public read clamps for display; the home page renders exactly that output.
+    const { readLandingContent } = await import("@/lib/api-client/landing");
+    const clamped = readLandingContent(oversized);
+    expect(clamped.rails.left.items.length).toBeLessThanOrEqual(MAX_RAIL_ITEMS);
+
+    const html = renderToStaticMarkup(
+      LandingView({ content: clamped, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(railItemCount(html)).toBeLessThanOrEqual(MAX_RAIL_ITEMS * 2);
+  });
+});

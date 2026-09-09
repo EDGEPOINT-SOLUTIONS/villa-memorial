@@ -47,3 +47,29 @@ export const COFFIN_GOLD = "/media/gold-casket.jpg";
 /** At-need service photos (uploaded). */
 export const DEATH_AT_HOME_IMAGE = "/media/death_at_home.jpg";
 export const DEATH_AT_HOSPITAL_IMAGE = "/media/death_at_hospital.jpg";
+
+/**
+ * Landing page media library — the REAL uploaded assets a staff editor may attach
+ * to rails, plan cards, hero/about photos and blog posts. Labelled so pickers can
+ * show a human name next to each thumbnail. Same store feeds every editor picker.
+ */
+export const MEDIA_LIBRARY: ReadonlyArray<{ src: string; label: string }> = [
+  { src: HERO_IMAGE, label: "Park grounds — golden hour" },
+  { src: VILLA_PARK_AERIAL, label: "Villa Memorial — aerial" },
+  { src: "/media/at_need_services.jpg", label: "At-need care" },
+  { src: DEATH_AT_HOME_IMAGE, label: "Death at home" },
+  { src: DEATH_AT_HOSPITAL_IMAGE, label: "Death at hospital" },
+  { src: PLAN_PACKAGES_IMAGE, label: "Plans & packages" },
+  { src: TRANSPORT_IMAGE, label: "Transport fleet" },
+  { src: COFFIN_BRONZE, label: "Bronze casket" },
+  { src: COFFIN_SILVER, label: "Silver casket" },
+  { src: COFFIN_GOLD, label: "Gold casket" },
+  { src: LOT_TYPE_PHOTOS["lt-primary"], label: "Prime lot" },
+  { src: LOT_TYPE_PHOTOS["lt-premium"], label: "Premium lot" },
+  { src: LOT_TYPE_PHOTOS["lt-niches"], label: "Garden niches" },
+  { src: LOT_TYPE_PHOTOS["lt-mausoleum"], label: "Mausoleum" },
+];
+
+export function mediaLabel(src: string): string {
+  return MEDIA_LIBRARY.find((m) => m.src === src)?.label ?? "Uploaded media";
+}
