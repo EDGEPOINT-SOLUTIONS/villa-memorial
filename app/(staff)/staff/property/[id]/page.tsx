@@ -7,7 +7,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getLot } from "@/lib/api-client/property";
 import { getPurchaseApplicationForLot } from "@/lib/api-client/purchase-applications";
-import { buyerFullName } from "@/lib/contracts/purchase-application";
+import { buyerFullName, purchaseApplicationMoneyRows } from "@/lib/contracts/purchase-application";
 import { ReserveLotForm } from "./reserve-lot";
 import { GenerateAgreementForm } from "./generate-agreement";
 import { canGeneratePurchaseAgreement } from "@/lib/contracts/purchase-agreement";
@@ -197,28 +197,16 @@ export default async function LotDetailPage({
                       <th scope="row">Classification</th>
                       <td>{applicationRecord.classification ?? "—"}</td>
                     </tr>
-                    <tr>
-                      <th scope="row">Basic price</th>
-                      <td>{formatMinorUnits(applicationRecord.basic_price_cents ?? lot.price_cents, lot.currency)}</td>
-                    </tr>
-                    <tr>
-                      <th scope="row">MCF / VAT / Total</th>
-                      <td>
-                        {[
-                          applicationRecord.mcf_cents !== null
-                            ? `MCF ${formatMinorUnits(applicationRecord.mcf_cents, lot.currency)}`
-                            : "",
-                          applicationRecord.vat_cents !== null
-                            ? `VAT ${formatMinorUnits(applicationRecord.vat_cents, lot.currency)}`
-                            : "",
-                          applicationRecord.total_contract_price_cents !== null
-                            ? `Total ${formatMinorUnits(applicationRecord.total_contract_price_cents, lot.currency)}`
-                            : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" · ") || "—"}
-                      </td>
-                    </tr>
+                    {purchaseApplicationMoneyRows(
+                      applicationRecord,
+                      lot.price_cents,
+                      lot.currency,
+                    ).map((row) => (
+                      <tr key={row.label}>
+                        <th scope="row">{row.label}</th>
+                        <td>{row.value}</td>
+                      </tr>
+                    ))}
                     <tr>
                       <th scope="row">Mode / term</th>
                       <td>
