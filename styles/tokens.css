@@ -106,6 +106,15 @@
   --space-7: 3rem;
   --space-8: 4rem;
 
+  /* --- Public folio layout -------------------------------------------------
+     ONE centred content envelope shared by the anchored nav bar, the home's
+     three-column anchored grid, the footer and every public page container,
+     so the nav brand block lines up with the page content edge on every page
+     (captain: brand must not hug the window edge — 2026-09-09).
+     91rem = the home trio at full width (17rem rails + 50rem middle + 2rem
+     max column gaps = 88rem) plus the 1.5rem folio padding on each side. */
+  --layout-folio-w: 91rem;
+
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;

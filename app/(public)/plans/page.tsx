@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
+import { CatalogueAddButton } from "@/components/catalogue-add-button";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 
 export const metadata = { title: "Plans & services — Villa Memorial" };
@@ -10,7 +11,10 @@ export const metadata = { title: "Plans & services — Villa Memorial" };
  * Public catalog (Module B/C public face) — villa-memorial item-card grammar on
  * the DOC palette. Cards carry REAL catalog data (name, description, price from
  * the frozen commerce contract); display_price is presentation-only and never
- * parsed. "View" leads to the real detail page with the real cart flow.
+ * parsed. Each card offers two actions: "View this item" (the real detail page
+ * with the real cart flow) and an "Add to cart" button that adds THIS card's
+ * real SKU + price to the same cart context (fixtures-first, no invented
+ * shapes — item data flows straight from listCatalogItems into the cart).
  */
 const TYPE_LABELS: Record<string, string> = {
   package: "Packages",
@@ -121,10 +125,19 @@ export default async function PlansPage({
                   <p className="item-card__meta">{item.description}</p>
                 ) : null}
                 <div className="item-card__price">{item.display_price}</div>
-                <div className="item-card__actions">
-                  <Link href={`/plans/${item.sku}`} className="btn btn--primary btn--sm btn--block">
+                <div className="item-card__actions item-card__actions--split">
+                  <Link href={`/plans/${item.sku}`} className="btn btn--secondary btn--sm btn--block">
                     View this item
                   </Link>
+                  <CatalogueAddButton
+                    item={{
+                      sku: item.sku,
+                      name: item.name,
+                      itemType: item.item_type,
+                      unitPriceCents: item.unit_price_cents,
+                      currency: item.currency,
+                    }}
+                  />
                 </div>
               </div>
             </article>

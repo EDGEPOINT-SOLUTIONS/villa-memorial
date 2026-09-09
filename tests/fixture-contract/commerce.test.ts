@@ -7,6 +7,10 @@ import {
   getOrderByNumber,
   listCatalogItems,
 } from "@/lib/api-client/commerce";
+import {
+  CART_LINE_TYPE_LABEL,
+  getCartLineCatalogDetail,
+} from "@/lib/cart/cart-line-details";
 
 /**
  * Fixture↔contract tests pinning the recorded catalog to Keb's REAL seeds
@@ -114,5 +118,41 @@ describe("checkout follows order-payment-api-v1", () => {
 
   it("fixture catalog file carries provenance comment block", () => {
     expect(Array.isArray((catalogFile as { comment?: string[] }).comment)).toBe(true);
+  });
+});
+
+describe("cart line details resolve from the real catalogue by SKU (cart expand)", () => {
+  it("every purchasable catalogue item resolves to real details for its cart line", async () => {
+    const items = await listCatalogItems();
+    expect(items.length).toBeGreaterThan(0);
+    for (const item of items) {
+      const detail = getCartLineCatalogDetail(item.sku);
+      expect(detail, `details for ${item.sku}`).toBeDefined();
+      // The expand panel must show the SAME facts the card/detail page shows.
+      expect(detail?.name).toBe(item.name);
+      expect(detail?.itemType).toBe(item.item_type);
+      expect(detail?.unitPriceCents).toBe(item.unit_price_cents);
+      expect(detail?.currency).toBe(item.currency);
+      expect(CART_LINE_TYPE_LABEL[detail!.itemType]).toBeTruthy();
+    }
+  });
+
+  it("packages publish their what's-included description; services/add-ons stay null (real data)", async () => {
+    const items = await listCatalogItems();
+    for (const item of items) {
+      const detail = getCartLineCatalogDetail(item.sku)!;
+      if (item.item_type === "package") {
+        expect(detail.description).toBeTruthy();
+        expect(detail.description).toMatch(/casket|embalming/i);
+      } else {
+        // No description is published today — the cart page must show its
+        // honest placeholder, never invented inclusions.
+        expect(detail.description).toBeNull();
+      }
+    }
+  });
+
+  it("unknown SKU → undefined so the cart page renders its graceful state", () => {
+    expect(getCartLineCatalogDetail("NOT-A-SKU")).toBeUndefined();
   });
 });
