@@ -123,7 +123,14 @@ function fixtureApplications(): PurchaseApplication[] {
   const seeded = store.applications.map((raw) => toPurchaseApplication(raw));
   const byLot = new Map<string, PurchaseApplication>();
   for (const app of seeded) byLot.set(app.lot_id, app);
-  for (const [lotId, app] of savedApplications) byLot.set(lotId, app);
+  for (const [lotId, saved] of savedApplications) {
+    // Saved rows live in-process as typed records and never pass through the JSON
+    // writer, so run them through the same read gate as seeded rows. A row saved with
+    // a blank price cell would otherwise read back with the field ABSENT (undefined at
+    // runtime, not null) — and screens that guard only for null would hand undefined
+    // to formatMinorUnits and crash. The gate turns absent/blank money into null.
+    byLot.set(lotId, toPurchaseApplication(saved));
+  }
   return [...byLot.values()];
 }
 

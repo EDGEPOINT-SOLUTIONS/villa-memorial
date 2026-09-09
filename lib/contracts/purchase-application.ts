@@ -21,6 +21,7 @@
  * (Age next to Date of Birth), which is not money math.
  */
 import type { Lot } from "@/lib/api-client/property";
+import { formatMinorUnits } from "@/lib/money";
 import { resolveTerms, type TermsRevision } from "@/lib/contracts/villa-terms";
 
 /** Buyer's civil status, in the paper's words (2026 form's Civil Status cell). */
@@ -151,6 +152,59 @@ export function buyerFullName(application: {
     .map((part) => (part ?? "").trim())
     .filter(Boolean)
     .join(" ");
+}
+
+/**
+ * The two money rows the lot page prints for a captured application, as display-only
+ * strings (never used to compute anything):
+ *  - Basic price falls back to the lot's listed price when the paper row was left
+ *    blank — the lot record is the counter's starting figure (the capture form
+ *    prefills from it), exactly as the page always rendered a null basic price;
+ *  - MCF / VAT / Total prints only the written rows joined with " · ", or the app's
+ *    em-dash empty-value convention when none were written.
+ *
+ * Blank means null (the fixture-store read gate normalizes absent/blank money to null
+ * before any screen sees it); anything non-blank that is not whole non-negative minor
+ * units still throws loudly via formatMinorUnits rather than printing corrupt money.
+ */
+export function purchaseApplicationMoneyRows(
+  application: Pick<
+    PurchaseApplication,
+    | "basic_price_cents"
+    | "total_contract_price_cents"
+    | "mcf_cents"
+    | "vat_cents"
+  >,
+  lotPriceCents: number,
+  currency = "PHP",
+): Array<{ label: string; value: string }> {
+  const written = (
+    cents: number | null | undefined,
+  ): string | null =>
+    cents === null || cents === undefined
+      ? null
+      : formatMinorUnits(cents, currency);
+  const extras = [
+    { label: "MCF", cents: application.mcf_cents },
+    { label: "VAT", cents: application.vat_cents },
+    { label: "Total", cents: application.total_contract_price_cents },
+  ]
+    .map(({ label, cents }) => {
+      const value = written(cents);
+      return value === null ? "" : `${label} ${value}`;
+    })
+    .filter(Boolean)
+    .join(" · ");
+  return [
+    {
+      label: "Basic price",
+      value: formatMinorUnits(
+        application.basic_price_cents ?? lotPriceCents,
+        currency,
+      ),
+    },
+    { label: "MCF / VAT / Total", value: extras || "—" },
+  ];
 }
 
 export function emptyBeneficiary(): Beneficiary {

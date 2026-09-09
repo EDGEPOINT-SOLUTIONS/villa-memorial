@@ -5,7 +5,12 @@ import {
   savePurchaseApplication,
 } from "@/lib/api-client/purchase-applications";
 import { buildPurchaseAgreement } from "@/lib/contracts/purchase-agreement";
-import { buyerFullName, purchaseApplicationFromForm } from "@/lib/contracts/purchase-application";
+import {
+  buyerFullName,
+  purchaseApplicationFromForm,
+  purchaseApplicationMoneyRows,
+} from "@/lib/contracts/purchase-application";
+import { formatMinorUnits } from "@/lib/money";
 
 /**
  * Track B fixture-contract tests. The purchase-application shape is NOT frozen by any
@@ -95,6 +100,51 @@ describe("recording a purchase application (fixture demo store)", () => {
     });
     expect(updated.created_at).toBe(saved.created_at);
     expect(updated.updated_at >= saved.updated_at).toBe(true);
+  });
+});
+
+describe("blank price rows cannot crash the lot page (regression)", () => {
+  it("save with blank price rows renders lot page", async () => {
+    // A counter can submit the capture form with every price row left blank — the
+    // money cells arrive as "" and purchaseApplicationFromForm drops them.
+    const input = purchaseApplicationFromForm({
+      application_date: "2026-09-01",
+      first_name: "Nena",
+      last_name: "Ramos",
+      classification: "Condo-type",
+      mode_of_payment: "monthly",
+      dpa_consent: true,
+      basic_price_cents: "",
+      total_contract_price_cents: "",
+      mcf_cents: "",
+      vat_cents: "",
+    });
+    const A004 = "00000000-0000-4000-8000-000000000D04"; // available, no application
+    await savePurchaseApplication(A004, "A-004", input);
+
+    // The fixture-store read gate turns the dropped blank rows into explicit null
+    // money — never undefined or "" — so screens that guard only for null cannot
+    // hand a blank cell to formatMinorUnits and crash.
+    const application = await getPurchaseApplicationForLot(A004);
+    expect(application).not.toBeNull();
+    expect(application).toMatchObject({
+      basic_price_cents: null,
+      total_contract_price_cents: null,
+      mcf_cents: null,
+      vat_cents: null,
+    });
+
+    // The lot page's money rows render the app's empty-value conventions instead of
+    // throwing: basic price shows the lot's listed figure (its starting price), and
+    // MCF / VAT / Total prints the em dash for nothing written.
+    const lot = await getLot(A004);
+    expect(() =>
+      purchaseApplicationMoneyRows(application!, lot.price_cents, lot.currency),
+    ).not.toThrow();
+    const rows = purchaseApplicationMoneyRows(application!, lot.price_cents, lot.currency);
+    expect(rows.map((r) => r.label)).toEqual(["Basic price", "MCF / VAT / Total"]);
+    expect(rows[0].value).toBe(formatMinorUnits(lot.price_cents, lot.currency));
+    expect(rows[1].value).toBe("—");
   });
 });
 
