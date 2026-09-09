@@ -1,6 +1,6 @@
 import { SignInCard } from "@/components/sign-in-card";
 
-export const metadata = { title: "Family sign-in — In Memoriam" };
+export const metadata = { title: "Family sign-in — Villa Memorial" };
 
 export default function FamilyLoginPage() {
   return (

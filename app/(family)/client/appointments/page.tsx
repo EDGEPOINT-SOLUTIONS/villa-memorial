@@ -2,7 +2,7 @@ import { PageHeader, PageSection } from "@/components/ui/page";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FamilyComingSoon } from "@/components/family-coming-soon";
 
-export const metadata = { title: "My Appointments — In Memoriam" };
+export const metadata = { title: "My Appointments — Villa Memorial" };
 
 export default async function appointmentsPage() {
   await requirePortalSessionOrRedirect("family");

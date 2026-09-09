@@ -24,7 +24,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
 
   return (
     <AppShell
-      brandEyebrow="In Memoriam"
+      brandEyebrow="Villa Memorial"
       brandTitle="Staff Portal"
       sections={sections}
       topbar={

@@ -1,4 +1,4 @@
-# AGENTS.md — IN MEMORIAM Documentation Root
+# AGENTS.md — VILLA MEMORIAL Documentation Root
 
 ## Purpose
 This `docs/` tree decomposes the salient points of an external source corpus into a navigable,

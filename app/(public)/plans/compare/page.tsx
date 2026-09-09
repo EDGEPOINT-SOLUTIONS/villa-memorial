@@ -3,7 +3,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 
-export const metadata = { title: "Compare packages — In Memoriam" };
+export const metadata = { title: "Compare packages — Villa Memorial" };
 
 /**
  * Compare — REAL catalog data. The frozen catalog contract carries what it

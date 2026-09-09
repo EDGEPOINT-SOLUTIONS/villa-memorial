@@ -1,4 +1,4 @@
-# web — In Memoriam frontend (Next.js, all portals + BFF)
+# web — Villa Memorial frontend (Next.js, all portals + BFF)
 
 > **Migration note (2026-09):** this repository is now the home of the real
 > frontend, copied in whole from `in-memoriam/web`. The former clickable

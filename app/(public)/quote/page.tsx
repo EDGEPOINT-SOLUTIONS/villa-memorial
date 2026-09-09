@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 
-export const metadata = { title: "Request a quote — In Memoriam" };
+export const metadata = { title: "Request a quote — Villa Memorial" };
 
 export default function Page() {
   return (

@@ -5,7 +5,7 @@ import { getFamilySnapshot } from "@/lib/api-client/family";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState } from "@/components/ui/states";
 
-export const metadata = { title: "Family dashboard — In Memoriam" };
+export const metadata = { title: "Family dashboard — Villa Memorial" };
 
 export default async function ClientDashboardPage() {
   await requirePortalSessionOrRedirect("family");

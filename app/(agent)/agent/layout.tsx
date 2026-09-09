@@ -27,7 +27,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
         <header className="family-shell__header">
           <div className="container family-shell__bar">
             <Link href="/" className="family-shell__brand">
-              In Memoriam <span className="family-shell__brand-sub">· Agent</span>
+              Villa Memorial <span className="family-shell__brand-sub">· Agent</span>
             </Link>
             <Link href="/login" className="btn btn--secondary btn--sm">
               Staff sign-in

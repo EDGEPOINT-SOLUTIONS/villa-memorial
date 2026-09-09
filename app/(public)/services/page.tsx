@@ -5,7 +5,7 @@ import {
   PLAN_PACKAGES_IMAGE,
 } from "@/lib/media";
 
-export const metadata = { title: "Services — In Memoriam" };
+export const metadata = { title: "Services — Villa Memorial" };
 
 /**
  * Static marketing content (Module C public face). Copy is content, not data:

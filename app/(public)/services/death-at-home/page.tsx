@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { DEATH_AT_HOME_IMAGE } from "@/lib/media";
 
-export const metadata = { title: "Death at home — In Memoriam" };
+export const metadata = { title: "Death at home — Villa Memorial" };
 
 export default function Page() {
   return (

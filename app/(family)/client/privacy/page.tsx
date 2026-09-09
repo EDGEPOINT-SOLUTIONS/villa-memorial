@@ -2,7 +2,7 @@ import { PageHeader, PageSection } from "@/components/ui/page";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FamilyComingSoon } from "@/components/family-coming-soon";
 
-export const metadata = { title: "Privacy Center — In Memoriam" };
+export const metadata = { title: "Privacy Center — Villa Memorial" };
 
 export default async function privacyPage() {
   await requirePortalSessionOrRedirect("family");

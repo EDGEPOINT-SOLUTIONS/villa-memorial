@@ -3,7 +3,7 @@ import { PublicShell } from "@/components/ui/public-shell";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "In Memoriam — Plans & services",
+  title: "Villa Memorial — Plans & services",
 };
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {

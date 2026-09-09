@@ -7,7 +7,7 @@
 
 ## Context
 
-Beyond In Memoriam, Edgepoint intends to build further products. Services such as accounting,
+Beyond Villa Memorial, Edgepoint intends to build further products. Services such as accounting,
 HR, identity, documents, notifications, workflow, and audit are common across virtually any
 business system. Building them once as product-agnostic layers turns every project into partial
 subsidy for the next: another project needing accounting or HR composes the same services rather
@@ -52,7 +52,7 @@ standalone `hr` service (employee records, attendance, leave, payroll interface)
 **Positive**
 - Each new project starts with identity, tenancy, documents, notifications, workflow, audit,
   accounting, HR already built, tested, and portable.
-- Cleaner internal boundaries even within In Memoriam: reusable services cannot leak funeral
+- Cleaner internal boundaries even within Villa Memorial: reusable services cannot leak funeral
   assumptions, keeping the SaaS vision ("build once, configure many times") honest.
 - Independent versioning/lifecycle per layer.
 

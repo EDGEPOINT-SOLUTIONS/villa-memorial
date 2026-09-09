@@ -104,7 +104,7 @@ export function PortalFrame({
 
   const brand = (
     <>
-      <span className="portal-sidebar__brand">In Memoriam</span>
+      <span className="portal-sidebar__brand">Villa Memorial</span>
       <span className="portal-sidebar__brand-sub">{brandLabel}</span>
     </>
   );
@@ -179,7 +179,7 @@ export function PortalFrame({
       {menuOpen ? (
         <div className="portal-drawer" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="portal-drawer__bar">
-            <span className="portal-sidebar__brand">In Memoriam</span>
+            <span className="portal-sidebar__brand">Villa Memorial</span>
             <button
               type="button"
               className="portal-topbar__icon"
