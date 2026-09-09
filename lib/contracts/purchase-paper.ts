@@ -539,7 +539,7 @@ function signatureBlock(data: PurchasePaperData, is2026: boolean): PaperBlock[] 
   const blocks: PaperBlock[] = [];
   const twoCol: PaperCell[][] = [
     [
-      { label: undefined, value: `SANCTUARIO DE MERCEDES Y GLORIA\n\nBy:`, span: 2 },
+      { label: undefined, value: `SANCTUARIO DE MERCEDES Y GLORIA`, span: 2 },
       { label: undefined, value: `${buyerName}\n\nBUYER (Signature over Printed Name)`, span: 2 },
     ],
   ];
