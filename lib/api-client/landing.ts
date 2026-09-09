@@ -103,6 +103,10 @@ export type BlogPost = {
   date: string;
   caption: string;
   media: MediaItem[];
+  /** Optional route/link staff configures for this post on the "/" editor —
+   * when set, clicking the post's photo/caption opens it; null keeps the post
+   * a pure newsfeed item (photos are not clickable). */
+  link: string | null;
 };
 
 export type BlogSection = { heading: string; intro: string; posts: BlogPost[] };
@@ -227,6 +231,11 @@ function readBlogPost(raw: unknown): BlogPost | null {
     date: str(r.date),
     caption: str(r.caption),
     media: arr(r.media).map(readMediaItem).filter((x): x is MediaItem => x !== null),
+    // Optional post link: tolerant reader keeps a usable trimmed value only.
+    link: (() => {
+      const raw = str(r.link).trim();
+      return raw.length > 0 ? raw : null;
+    })(),
   };
 }
 
@@ -322,6 +331,8 @@ export function readLandingContent(raw: unknown): LandingContent {
  *  - empty rails / empty plans / empty blog posts lists are legal (the page
  *    renders graceful empty states);
  *  - a blog post MAY have an empty media list (caption-only post);
+ *  - a blog post MAY carry an optional link — the route its photo/caption opens
+ *    (empty means the post is not clickable);
  *  - media entries must be photo|video with a usable src.
  * Displayed prices are free content strings — no money validation (prices are
  * never computed here).

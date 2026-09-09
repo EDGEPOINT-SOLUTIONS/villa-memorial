@@ -208,3 +208,27 @@ describe("the save path accepts unlimited rail items", () => {
     expect(reread.logo.wordmark).toBe("Villa Memorial");
   });
 });
+
+describe("blog posts carry the optional link the staff sets on the \"/\" editor", () => {
+  it("seed posts ship sensible internal routes so photos open real pages", async () => {
+    const content = await listLandingContent();
+    const byId = Object.fromEntries(content.blog.posts.map((p) => [p.id, p.link]));
+    expect(byId["post-golden-hour"]).toBe("/lots");
+    expect(byId["post-new-niches"]).toBe("/lots/price-list-2026");
+  });
+
+  it("the tolerant reader keeps a usable link and treats blank as no link", async () => {
+    const content = await listLandingContent();
+    const doc = cloneDoc(content);
+    doc.blog.posts = [
+      { ...doc.blog.posts[0], id: "linked", link: "/map?plot=A-001" },
+      { ...doc.blog.posts[0], id: "blank", link: "   " },
+      { ...doc.blog.posts[0], id: "none", link: null },
+    ];
+    const read = readLandingContent(doc);
+    expect(read.blog.posts.find((p) => p.id === "linked")?.link).toBe("/map?plot=A-001");
+    expect(read.blog.posts.find((p) => p.id === "blank")?.link).toBeNull();
+    expect(read.blog.posts.find((p) => p.id === "none")?.link).toBeNull();
+    expect(validateLandingContent(read).ok).toBe(true);
+  });
+});

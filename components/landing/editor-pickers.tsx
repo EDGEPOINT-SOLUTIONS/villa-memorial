@@ -11,7 +11,7 @@
  *    invented offer.
  */
 import { useEffect, useState } from "react";
-import { X, Search, Image as ImageIcon, Link2, UploadCloud } from "lucide-react";
+import { X, Search, Image as ImageIcon, Link2, UploadCloud, CheckSquare, Check, Square } from "lucide-react";
 import { MEDIA_LIBRARY } from "@/lib/media";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import { buildRailCatalogue } from "@/lib/landing/catalogue";
@@ -181,23 +181,40 @@ const KIND_LABEL: Record<RailItemKind, string> = {
   link: "Link",
 };
 
+/** Stable key for one catalogue entry (kind+title is unique per catalogue). */
+const entryKey = (e: CatalogueEntry) => `${e.kind}::${e.title}`;
+
 export function RailPicker({
   open,
   side,
   onClose,
   onAdd,
+  onAddMany,
 }: {
   open: boolean;
   side: "left" | "right";
   onClose: () => void;
+  /** Instant single pin — clicking a catalogue row pins that one item. */
   onAdd: (entry: CatalogueEntry) => void;
+  /** Bulk pin — several selected items pinned to the rail in one step. */
+  onAddMany: (entries: CatalogueEntry[]) => void;
 }) {
   const [groups, setGroups] = useState<ReturnType<typeof buildRailCatalogue> | null>(null);
   const [filter, setFilter] = useState("");
+  const [bulk, setBulk] = useState(false);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (open && !groups) setGroups(buildRailCatalogue());
   }, [open, groups]);
+
+  // Each open starts clean: no stale bulk selection from a previous session.
+  useEffect(() => {
+    if (open) {
+      setBulk(false);
+      setSelected(new Set());
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -206,13 +223,52 @@ export function RailPicker({
     !filter.trim() ||
     e.title.toLowerCase().includes(filter.toLowerCase()) ||
     (e.caption ?? "").toLowerCase().includes(filter.toLowerCase());
-  const visible = (groups ?? []).map((g) => ({ ...g, entries: g.entries.filter(matches) })).filter((g) => g.entries.length > 0);
+  const visible = (groups ?? [])
+    .map((g) => ({ ...g, entries: g.entries.filter(matches) }))
+    .filter((g) => g.entries.length > 0);
+  const visibleEntries = visible.flatMap((g) => g.entries);
+  const visibleKeys = new Set(visibleEntries.map(entryKey));
+  const allVisibleSelected =
+    visibleEntries.length > 0 && visibleEntries.every((e) => selected.has(entryKey(e)));
+
+  const toggle = (e: CatalogueEntry) => {
+    const key = entryKey(e);
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
+
+  const toggleAllVisible = () => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        for (const k of visibleKeys) next.delete(k);
+      } else {
+        for (const k of visibleKeys) next.add(k);
+      }
+      return next;
+    });
+  };
+
+  const pinSelected = () => {
+    const entries = (groups ?? [])
+      .flatMap((g) => g.entries)
+      .filter((e) => selected.has(entryKey(e)));
+    if (entries.length === 0) return;
+    onAddMany(entries);
+    setSelected(new Set());
+    setBulk(false);
+  };
 
   return (
     <ModalShell open={open} eyebrow="Fixed rail · pin any number" title={title} onClose={onClose} width="56rem">
       <p className="ed-hint">
-        Pick from the real catalogue (services, plans &amp; lots, products, links). Each pinned
-        item carries its photo, and the rail scrolls — pin as many as you want.
+        Pick from the real catalogue (services, plans &amp; lots, products, links). Pin one with a
+        click, or switch to bulk pin to select several at once — the rail scrolls, so pin as many
+        as you want.
       </p>
       <div className="ed-search">
         <Search size={15} aria-hidden="true" />
@@ -223,6 +279,27 @@ export function RailPicker({
           onChange={(e) => setFilter(e.target.value)}
         />
       </div>
+
+      <div className="ed-catalogue-tools">
+        {bulk ? (
+          <>
+            <button
+              type="button"
+              className="ed-tool-btn"
+              disabled={visibleEntries.length === 0}
+              onClick={toggleAllVisible}
+            >
+              {allVisibleSelected ? "Deselect all shown" : "Select all shown"}
+            </button>
+            <span className="ed-chip">{selected.size} selected</span>
+          </>
+        ) : (
+          <button type="button" className="ed-tool-btn ed-tool-btn--accent" onClick={() => setBulk(true)}>
+            <CheckSquare size={14} aria-hidden="true" /> Bulk pin several
+          </button>
+        )}
+      </div>
+
       {visible.length === 0 ? (
         <p className="ed-hint">Nothing matches “{filter}”.</p>
       ) : (
@@ -230,38 +307,71 @@ export function RailPicker({
           {visible.map((group) => (
             <div className="ed-catalogue__group" key={group.label}>
               <h3 className="ed-catalogue__label">{group.label}</h3>
-              {group.entries.map((entry) => (
-                <button
-                  type="button"
-                  key={`${entry.kind}-${entry.title}`}
-                  className="ed-catalogue__row"
-                  onClick={() => onAdd(entry)}
-                >
-                  <span className="rail-thumb">
-                    {entry.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element -- catalogue photo
-                      <img src={entry.image} alt="" loading="lazy" />
-                    ) : (
-                      <span className="rail-thumb--fallback" aria-hidden="true">
-                        {(entry.title.charAt(0) || "•").toUpperCase()}
+              {group.entries.map((entry) => {
+                const key = entryKey(entry);
+                const isSelected = selected.has(key);
+                return (
+                  <button
+                    type="button"
+                    key={key}
+                    className={`ed-catalogue__row${bulk ? " ed-catalogue__row--bulk" : ""}${isSelected ? " ed-catalogue__row--selected" : ""}`}
+                    aria-pressed={bulk ? isSelected : undefined}
+                    onClick={() => (bulk ? toggle(entry) : onAdd(entry))}
+                  >
+                    {bulk ? (
+                      <span className="ed-catalogue__pick" aria-hidden="true">
+                        {isSelected ? <Check size={14} /> : <Square size={14} />}
                       </span>
-                    )}
-                  </span>
-                  <span className="ed-catalogue__text">
-                    <span className="ed-catalogue__title">{entry.title}</span>
-                    <span className="ed-catalogue__meta">
-                      <span className="ed-kind">{KIND_LABEL[entry.kind]}</span>
-                      {entry.price ? <span className="ed-price">{entry.price}</span> : null}
-                      {entry.caption ? <span className="ed-muted"> · {entry.caption}</span> : null}
+                    ) : null}
+                    <span className="rail-thumb">
+                      {entry.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- catalogue photo
+                        <img src={entry.image} alt="" loading="lazy" />
+                      ) : (
+                        <span className="rail-thumb--fallback" aria-hidden="true">
+                          {(entry.title.charAt(0) || "•").toUpperCase()}
+                        </span>
+                      )}
                     </span>
-                  </span>
-                  <span className="btn btn--primary btn--sm">Pin</span>
-                </button>
-              ))}
+                    <span className="ed-catalogue__text">
+                      <span className="ed-catalogue__title">{entry.title}</span>
+                      <span className="ed-catalogue__meta">
+                        <span className="ed-kind">{KIND_LABEL[entry.kind]}</span>
+                        {entry.price ? <span className="ed-price">{entry.price}</span> : null}
+                        {entry.caption ? <span className="ed-muted"> · {entry.caption}</span> : null}
+                      </span>
+                    </span>
+                    {!bulk ? <span className="btn btn--primary btn--sm">Pin</span> : null}
+                  </button>
+                );
+              })}
             </div>
           ))}
         </div>
       )}
+
+      {bulk ? (
+        <div className="ed-bulk-bar">
+          <p className="ed-hint">
+            Selected items are pinned in one step, in catalogue order — reorder or remove them
+            afterwards in the pinned list below.
+          </p>
+          <div className="ed-bulk-bar__actions">
+            <button type="button" className="btn btn--ghost btn--sm" onClick={() => setBulk(false)}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn btn--accent btn--sm"
+              disabled={selected.size === 0}
+              onClick={pinSelected}
+            >
+              <CheckSquare size={14} aria-hidden="true" />
+              Pin {selected.size > 0 ? selected.size : ""} {selected.size === 1 ? "item" : "items"}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </ModalShell>
   );
 }

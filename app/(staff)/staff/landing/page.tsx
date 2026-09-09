@@ -57,7 +57,7 @@ export default async function LandingPageAdminPage() {
         eyebrow="Commerce · Landing page"
         title="Landing page"
         actions={
-          <Link href="/" className="btn btn--secondary btn--sm">
+          <Link href="/" target="_blank" rel="noreferrer" className="btn btn--secondary btn--sm">
             View live page
           </Link>
         }

@@ -283,7 +283,8 @@
             { "kind": "photo", "src": "/media/lot-primary.png", "alt": "Prime garden lot at golden hour", "poster": null },
             { "kind": "photo", "src": "/media/lot-garden-niches.png", "alt": "Garden niches at golden hour", "poster": null },
             { "kind": "photo", "src": "/media/hero-1.jpg", "alt": "A calm corner of the park", "poster": null }
-          ]
+          ],
+          "link": "/lots"
         },
         {
           "id": "post-why-families-plan",
@@ -297,7 +298,8 @@
               "alt": "Why families plan ahead — short film",
               "poster": "/media/hero-1.jpg"
             }
-          ]
+          ],
+          "link": "/plans/villa-memorial-plan"
         },
         {
           "id": "post-new-niches",
@@ -307,7 +309,8 @@
           "media": [
             { "kind": "photo", "src": "/media/lot-garden-niches.png", "alt": "New garden niches", "poster": null },
             { "kind": "photo", "src": "/media/plan-packages.png", "alt": "Plans and packages brochure", "poster": null }
-          ]
+          ],
+          "link": "/lots/price-list-2026"
         },
         {
           "id": "post-single-moment",
@@ -316,7 +319,8 @@
           "caption": "One of the reasons families choose Villa — a serene, landscaped resting place close to home, in the first memorial park of Basilan.",
           "media": [
             { "kind": "photo", "src": "/media/hero-1.jpg", "alt": "Serene landscaped grounds at Villa Memorial Park", "poster": null }
-          ]
+          ],
+          "link": "/map"
         }
       ]
     },

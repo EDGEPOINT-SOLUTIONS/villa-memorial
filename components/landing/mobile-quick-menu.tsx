@@ -113,6 +113,21 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
               </a>
             </nav>
 
+            {/* Portal doors — the header keeps one “Sign in”; the family and
+                agent doors live here (and in the footer) so every surface is
+                one tap away on mobile. */}
+            <nav className="quick-site" aria-label="Portal sign-in">
+              <a href="/login" onClick={() => setOpen(false)}>
+                Staff sign-in
+              </a>
+              <a href="/client/login" onClick={() => setOpen(false)}>
+                Family sign-in
+              </a>
+              <a href="/agent/login" onClick={() => setOpen(false)}>
+                Agent sign-in
+              </a>
+            </nav>
+
             {([["left", rails.left], ["right", rails.right]] as const).map(([side, config]) => (
               <div className="quick-group" key={side}>
                 <h2 className="quick-group__heading">{config.heading}</h2>

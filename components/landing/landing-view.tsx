@@ -22,6 +22,7 @@ import type {
   RailItem,
   ServiceDetail,
 } from "@/lib/api-client/landing";
+import { SiteHeaderBar } from "@/components/landing/site-header";
 
 export type LandingViewProps = {
   content: LandingContent;
@@ -34,27 +35,11 @@ export type LandingViewProps = {
 
 /* ---------------------------------- bits ---------------------------------- */
 
-/** Editable mark: uploaded mark image, else a gold serif monogram fallback. */
-export function BrandMark({
-  wordmark,
-  markImage,
-  className = "",
-}: {
-  wordmark: string;
-  markImage: string | null;
-  className?: string;
-}) {
-  const glyph = (wordmark.trim().charAt(0) || "V").toUpperCase();
-  if (markImage) {
-    // eslint-disable-next-line @next/next/no-img-element -- uploaded staff logo
-    return <img src={markImage} alt="" className={`brand-mark brand-mark--img ${className}`.trim()} />;
-  }
-  return (
-    <span aria-hidden="true" className={`brand-mark brand-mark--mono ${className}`.trim()}>
-      {glyph}
-    </span>
-  );
-}
+/** Shared brand glyph — live in components/landing/brand-mark.tsx (imported here
+ * and re-exported so surfaces that already import { BrandMark } from landing-view
+ * keep working; one source of truth keeps every header/footer identical). */
+import { BrandMark } from "@/components/landing/brand-mark";
+export { BrandMark };
 
 export function RailThumb({ item }: { item: RailItem }) {
   const glyph = (item.title.trim().charAt(0) || "•").toUpperCase();
@@ -137,8 +122,11 @@ function formatPostDate(date: string): string {
   return parsed.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
 
-/** A single media attachment (photo or inline video with poster). */
-function PostMedia({ media }: { media: MediaItem }) {
+/** A single media attachment (photo or inline video with poster). When the
+ * post carries a configured link (staff sets it on the "/" editor), photo
+ * cells wrap in that anchor so clicking the photo navigates to the post's
+ * route; videos stay playable and are never wrapped. */
+function PostMedia({ media, href }: { media: MediaItem; href?: string | null }) {
   if (media.kind === "video") {
     return (
       <video className="post-media__video" controls preload="none" poster={media.poster ?? undefined}>
@@ -148,11 +136,19 @@ function PostMedia({ media }: { media: MediaItem }) {
     );
   }
   // eslint-disable-next-line @next/next/no-img-element -- staff-attached photo
-  return <img src={media.src} alt={media.alt ?? ""} loading="lazy" />;
+  const img = <img src={media.src} alt={media.alt ?? ""} loading="lazy" />;
+  if (!href) return img;
+  return (
+    <a className="post-media__link" href={href} aria-label="Open linked story">
+      {img}
+    </a>
+  );
 }
 
-/** Media rows layout like a newsfeed: single / pair / gallery (video spans). */
-function PostMediaGrid({ media }: { media: MediaItem[] }) {
+/** Media rows layout like a newsfeed: single / pair / gallery (video spans).
+ * The optional href (the post's configured route) threads through to photo
+ * cells only — videos keep native playback. */
+function PostMediaGrid({ media, href }: { media: MediaItem[]; href?: string | null }) {
   if (media.length === 0) return null;
   const singleVideo = media.length === 1 && media[0].kind === "video";
   const layout =
@@ -164,7 +160,7 @@ function PostMediaGrid({ media }: { media: MediaItem[] }) {
     <div className={`post-media ${layout}`}>
       {media.map((m, i) => (
         <div key={`${m.kind}-${i}`} className={`post-media__cell${media.length > 2 && media.length % 2 === 1 && i === media.length - 1 ? " post-media__cell--span" : ""}`}>
-          <PostMedia media={m} />
+          <PostMedia media={m} href={href} />
         </div>
       ))}
     </div>
@@ -173,6 +169,19 @@ function PostMediaGrid({ media }: { media: MediaItem[] }) {
 
 function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
   const author = post.author || brand;
+  // A post may carry the route/link staff configured in the "/" editor — when
+  // set, the photo AND the caption become the door to that page; without one
+  // the post stays a pure newsfeed item (no dead navigation).
+  const linked = post.link && post.link.trim() ? post.link : null;
+  const captionBody = post.caption ? (
+    linked ? (
+      <a className="post-card__caption-link" href={linked}>
+        {post.caption}
+      </a>
+    ) : (
+      post.caption
+    )
+  ) : null;
   return (
     <article className="post-card">
       <header className="post-card__head">
@@ -184,8 +193,8 @@ function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
           {post.date ? <span className="post-card__date">{formatPostDate(post.date)}</span> : null}
         </div>
       </header>
-      {post.caption ? <p className="post-card__caption">{post.caption}</p> : null}
-      <PostMediaGrid media={post.media} />
+      {captionBody ? <p className="post-card__caption">{captionBody}</p> : null}
+      <PostMediaGrid media={post.media} href={linked} />
     </article>
   );
 }
@@ -250,37 +259,11 @@ function ServiceBlock({ service, index }: { service: ServiceDetail; index: numbe
 
 /* ------------------------------ main sections ------------------------------ */
 
+/** Home header = the SAME shared bar every public page renders (SiteHeaderBar),
+ * so navigating between the home and /services, /plans, /lots, /map never
+ * changes the navigation. Framework-free: no active highlight here. */
 function LandingHeader({ content }: { content: LandingContent }) {
-  const { logo, contact } = content;
-  return (
-    <header className="anchored-header">
-      <div className="anchored-header__bar">
-        <a className="anchored-header__brand" href="/">
-          <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} />
-          <span className="anchored-header__wordmark">{logo.wordmark}</span>
-        </a>
-        <nav className="anchored-header__nav" aria-label="Sections">
-          {/* Explicit Home first — visitors always know the header leads home. */}
-          <a href="/">Home</a>
-          <a href="/services">Services</a>
-          <a href="/plans">Plans</a>
-          <a href="/lots">Lots</a>
-          <a href="/map">Park map</a>
-          <a href="/cart">Cart</a>
-          <a href="/contact">Contact</a>
-        </nav>
-        <div className="anchored-header__actions">
-          <a className="anchored-header__phone" href={contact.phoneHref}>
-            <span className="anchored-header__phone-label">{contact.phoneLabel}</span>
-            <span className="anchored-header__phone-number">{contact.phoneDisplay}</span>
-          </a>
-          <a className="anchored-header__signin" href="/login">
-            Sign in
-          </a>
-        </div>
-      </div>
-    </header>
-  );
+  return <SiteHeaderBar brand={content.logo} contact={content.contact} />;
 }
 
 /* ------------------------- professional landing footer ------------------------- */
@@ -306,7 +289,10 @@ function FooterColumn({
   );
 }
 
-function LandingFooter({ content }: { content: LandingContent }) {
+/** Shared public footer (blue/gold folio) — exported so PublicShell renders the
+ * SAME footer on interior pages that the home renders, keeping the whole page
+ * chrome stable while navigating. */
+export function LandingFooter({ content }: { content: LandingContent }) {
   const { logo, contact } = content;
   const year = new Date().getFullYear();
   return (
@@ -383,11 +369,13 @@ function LandingFooter({ content }: { content: LandingContent }) {
 
         <div className="anchored-footer__bottom">
           <span>
-            © {year} {logo.wordmark}. All rights reserved.
+            © {year} {logo.wordmark}. All rights reserved. · <a href="/cart">Cart</a> ·{" "}
+            <a href="/quote">Request a quote</a>
           </span>
-          <span>
-            Memorial &amp; funeral services · Isabela City, Basilan ·{" "}
-            <a href="/cart">Cart</a> · <a href="/quote">Request a quote</a>
+          <span className="anchored-footer__portals">
+            <a href="/client/login">Family sign-in</a>
+            <a href="/agent/login">Agent sign-in</a>
+            <a href="/login">Staff sign-in</a>
           </span>
         </div>
       </div>
