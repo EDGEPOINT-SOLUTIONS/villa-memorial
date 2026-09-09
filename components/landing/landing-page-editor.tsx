@@ -253,6 +253,25 @@ function RailEditor({
     setPicking(false);
   }
 
+  /** Bulk pin — one step for several catalogue picks (rails are unlimited). */
+  function addMany(entries: CatalogueEntry[]) {
+    if (entries.length === 0) return;
+    const next = clone(config);
+    next.items.push(
+      ...entries.map((entry) => ({
+        id: uid("pin"),
+        kind: entry.kind,
+        title: entry.title,
+        caption: entry.caption,
+        price: entry.price,
+        image: entry.image,
+        href: entry.href,
+      })),
+    );
+    onChange(next);
+    setPicking(false);
+  }
+
   return (
     <div className="ed-rail">
       <div className="row" style={{ gap: "var(--space-2)", marginBottom: "var(--space-3)" }}>
@@ -323,6 +342,7 @@ function RailEditor({
         side={side}
         onClose={() => setPicking(false)}
         onAdd={add}
+        onAddMany={addMany}
       />
     </div>
   );
@@ -650,6 +670,7 @@ function BlogEditor({
                   date: today(),
                   caption: "",
                   media: [],
+                  link: null,
                 },
                 ...section.posts,
               ],
@@ -688,6 +709,13 @@ function BlogEditor({
                   </div>
                 </div>
                 <TextAreaField label="Caption" htmlFor={`post-caption-${post.id}`} rows={3} value={post.caption} onChange={(v) => patchPost(post.id, { caption: v })} hint="Shown above the media, like a newsfeed post. No like/comment/share row — by design." />
+                <TextField
+                  label="Photo link destination (optional)"
+                  htmlFor={`post-link-${post.id}`}
+                  value={post.link ?? ""}
+                  onChange={(v) => patchPost(post.id, { link: v.trim() || null })}
+                  hint="When set, clicking this post's photo (and caption) opens this route, e.g. /plans/villa-memorial-plan, /lots/price-list-2026, /map?plot=A-001. Leave empty to keep the post non-clickable."
+                />
                 {post.media.length === 0 ? (
                   <p className="ed-hint">No attachments — a caption-only post is fine.</p>
                 ) : (

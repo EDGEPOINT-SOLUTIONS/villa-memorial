@@ -158,3 +158,63 @@ describe("rails are unlimited through the public home read", () => {
     expect(railItemCount(html)).toBe(10 + content.rails.right.items.length);
   });
 });
+
+describe("blog posts carry the route staff configured in the \"/\" editor", () => {
+  it("a post WITH a link wraps its photos and caption in that anchor", async () => {
+    const content = await listLandingContent();
+    const linked = cloneDoc(content);
+    linked.blog.posts = [
+      {
+        ...linked.blog.posts[0],
+        id: "post-linked",
+        link: "/plans/villa-memorial-plan",
+        caption: "Plan ahead — read the full Villa Memorial Plan.",
+      },
+    ];
+    const html = renderToStaticMarkup(
+      LandingView({ content: linked, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    // Every one of that post's 4 photos is now a door to the post's route.
+    // Media anchors carry an aria-label after the href, so match the opening tag.
+    const anchor = '<a class="post-media__link" href="/plans/villa-memorial-plan"';
+    expect(html.split(anchor).length - 1).toBe(4);
+    expect(html.split('<a class="post-media__link"').length - 1).toBe(4);
+    // The caption is a link too.
+    expect(html).toContain('<a class="post-card__caption-link" href="/plans/villa-memorial-plan">');
+  });
+
+  it("a post WITHOUT a link stays fully non-interactive — no photo or caption anchors", async () => {
+    const content = await listLandingContent();
+    const sparse = cloneDoc(content);
+    sparse.blog.posts = [
+      { ...sparse.blog.posts[0], id: "post-unlinked", link: null, caption: "Just a story.", media: sparse.blog.posts[0].media },
+    ];
+    const html = renderToStaticMarkup(
+      LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain("post-media__link");
+    expect(html).not.toContain("post-card__caption-link");
+    expect(html).toContain("Just a story.");
+  });
+
+  it("videos are never wrapped in the post link (playback must stay native)", async () => {
+    const content = await listLandingContent();
+    const linked = cloneDoc(content);
+    const videoPost = linked.blog.posts.find((p) => p.media.some((m) => m.kind === "video"));
+    expect(videoPost).toBeDefined();
+    const html = renderToStaticMarkup(
+      LandingView({
+        content: {
+          ...linked,
+          blog: { ...linked.blog, posts: [{ ...(videoPost as (typeof linked.blog.posts)[number]), link: "/services" }] },
+        },
+        mapNode: null,
+        mapLive: false,
+        sectionCount: 0,
+      }),
+    );
+    expect(html).toContain("post-media__video");
+    // The video element stays a bare <video> — no wrapping anchor around it.
+    expect(html).not.toMatch(/<a class="post-media__link"[^>]*>\s*<video/);
+  });
+});

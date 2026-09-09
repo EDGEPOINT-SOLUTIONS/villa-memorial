@@ -82,7 +82,9 @@ docker compose up --build                            # SSR on :3000 against stub
 - The staff editor is the premium `app/(staff)/staff/landing` page (scope
   catalog:write, reused provisionally); its rail picker catalogue in
   `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —
-  never add a picker option with invented prices. The editor's image picker
+  never add a picker option with invented prices. The picker pins one item per
+  click or bulk-selects several (choose a rail, switch to bulk pin, pick rows,
+  "Pin N items"). The editor's image picker
   offers THREE sources: the uploaded media library, a public URL, or a REAL
   device upload (`components/landing/device-uploader.tsx` + `lib/device-upload.ts`)
   — chosen files are downscaled (max 1600px) into data URLs stored INSIDE the
@@ -97,6 +99,18 @@ docker compose up --build                            # SSR on :3000 against stub
   type-filter + live chip counts live in `lib/lots-legend.ts` (pure + unit-
   tested at tests/unit/lots-legend.test.ts) and read types from
   `lib/park-types.ts` — never inline that filter logic in the page.
+- **Public chrome is ONE grammar** — every public page (the home AND all
+  `(public)` routes) renders the same anchored navigation bar + footer
+  (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by
+  the landing content doc). The home's LandingView stays framework-free (no
+  router) — it renders the bar without an active highlight; interior pages add
+  aria-current via usePathname + the live cart count in the same component.
+  Never introduce a second public header/footer class set; if you must change
+  the bar, change SiteHeaderBar + the "anchored catalogue home" CSS block and
+  it lands everywhere automatically. The rails hide their scrollbar until
+  hovered (.anchored-rail). Blog posts carry an optional `link` (set in the
+  "/" editor) that makes the post's photos/caption navigate; seed posts ship
+  sensible internal routes.
 
 ## Structure conventions
 ```
