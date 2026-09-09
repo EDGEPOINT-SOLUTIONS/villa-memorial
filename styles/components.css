@@ -4155,12 +4155,14 @@ a.card:hover {
   margin-inline: auto;
   padding: 0 var(--space-5);
   height: 4.25rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-5);
 }
 
 .anchored-header__brand {
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
@@ -4203,11 +4205,13 @@ a.card:hover {
   font-size: 1.6rem;
 }
 
+/* Nav sits in the middle auto track of the balanced grid → truly centred in
+   the header bar regardless of how wide the brand or the actions are. */
 .anchored-header__nav {
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  margin-inline-start: var(--space-3);
 }
 
 .anchored-header__nav a {
@@ -4225,7 +4229,7 @@ a.card:hover {
 }
 
 .anchored-header__actions {
-  margin-inline-start: auto;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: var(--space-3);
