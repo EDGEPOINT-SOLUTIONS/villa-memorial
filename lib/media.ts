@@ -39,6 +39,16 @@ export const VILLA_SECTION_PHOTOS: Record<string, string> = {
   C: LOT_TYPE_PHOTOS["lt-niches"],
 };
 
+/** Client logo marks (uploaded): the park crest and the plan's two companies.
+ * The crest is also the staff-editable header/footer brand mark (landing
+ * content logo.markImage). */
+export const LOGO_SANCTUARIO = "/media/logo-sanctuario.png";
+export const LOGO_VILLA_GROUP = "/media/logo-villa-group.png";
+export const LOGO_VILLA_AGENCY = "/media/logo-villa-agency.png";
+
+/** Viewing/wake set-up photo (uploaded) — the home rails' lead image. */
+export const VIEWING_CARE_IMAGE = "/media/viewing-care.jpg";
+
 /** Coffin tier photos (uploaded). */
 export const COFFIN_BRONZE = "/media/bronze-casket.jpg";
 export const COFFIN_SILVER = "/media/silver-casket.jpg";

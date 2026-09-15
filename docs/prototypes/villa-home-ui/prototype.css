@@ -1,0 +1,1097 @@
+/* ============================================================================
+   prototype.css — Villa Memorial prototype DELTA (Lavish review artifact).
+   Loaded AFTER tokens.css / base.css / components.css so it carries ONLY the
+   changes this prototype proposes plus the new modules built from the client's
+   2026 price list, services sheet and website-proposed imagery. Every value
+   still comes from the shipped design tokens (no raw hex in views).
+   ========================================================================== */
+
+/* ---------------------------------------------------------------------------
+   1. WIDENED MIDDLE COLUMN + wider folio envelope
+   Shipped: rails 17rem / mid 50rem / folio 91rem.
+   Proposed: rails stay 17rem, mid grows to 58rem (+8rem, +16%), folio 99rem.
+   --------------------------------------------------------------------------- */
+.anchored-page {
+  --layout-folio-w: 99rem;
+}
+
+.anchored-grid {
+  --mid-w: 58rem;
+}
+
+/* ---------------------------------------------------------------------------
+   2. RAIL LEAD IMAGE — exactly one oversized pinned image per rail.
+   Small rail items keep the shipped thumbnail row; the lead item becomes a
+   full-width photo card with the caption laid over it.
+   --------------------------------------------------------------------------- */
+.rail-list--lead {
+  gap: var(--space-3);
+}
+
+.rail-item--lead {
+  display: block;
+  position: relative;
+  padding: 0;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--navy-900);
+}
+
+.rail-item--lead .rail-thumb {
+  width: 100%;
+  height: 14rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.rail-item--lead .rail-item__text {
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  background: linear-gradient(
+    180deg,
+    rgb(8 28 49 / 0) 0%,
+    rgb(8 28 49 / 0.55) 40%,
+    rgb(8 28 49 / 0.94) 100%
+  );
+}
+
+.rail-item--lead .rail-item__title {
+  color: #fff;
+  font-size: var(--text-md);
+}
+
+.rail-item--lead .rail-item__price {
+  color: var(--gold-300);
+  font-size: var(--text-base);
+}
+
+.rail-item--lead .rail-item__caption {
+  color: var(--navy-100);
+}
+
+.rail-lead-flag {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 1;
+  background: var(--gold-400);
+  color: var(--navy-950);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+/* ---------------------------------------------------------------------------
+   3. HERO ACCEPTS A BACKGROUND IMAGE  (shipped: a real <img> layer behind the
+   copy, over which a navy scrim keeps the headline legible on any upload)
+   --------------------------------------------------------------------------- */
+.hero-home--photo .hero-home__photo {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+
+.hero-home--photo .hero-home__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.hero-home--photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    rgb(8 28 49 / 0.95) 0%,
+    rgb(8 28 49 / 0.88) 36%,
+    rgb(8 28 49 / 0.62) 68%,
+    rgb(13 41 66 / 0.3) 100%
+  );
+}
+
+.hero-home--photo::before {
+  z-index: 3;
+}
+
+.hero-home--photo > *:not(.hero-home__photo) {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-home--photo .hero-home__lead,
+.hero-home--photo .hero-home__careline {
+  color: #eef4fa;
+}
+
+
+/* Crest on a light plate so the supplied logo art reads on the photo hero. */
+.hero-home__plate {
+  display: inline-grid;
+  place-items: center;
+  width: 3.6rem;
+  height: 3.6rem;
+  padding: 0.2rem;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--gold-300);
+  box-shadow: 0 2px 10px rgb(8 28 49 / 0.35);
+}
+
+.hero-home__plate img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+.brand-mark--img {
+  background: #fff;
+  padding: 0.1rem;
+  overflow: hidden;
+}
+
+.brand-mark--img img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+/* ---------------------------------------------------------------------------
+   4. HOME MODULES built from the client's own sheets
+   --------------------------------------------------------------------------- */
+.mid-sub {
+  margin: var(--space-1) 0 var(--space-4);
+  color: var(--color-text-secondary);
+  max-width: 46rem;
+}
+
+/* --- 4a. Services-we-offer cards (SERVICES WE OFFER sheet) --------------- */
+.svc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.svc-card {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  padding: var(--space-4);
+  border: 1px solid var(--gold-200);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #fffdf6, var(--marble-100));
+  box-shadow: var(--shadow-card-rest);
+}
+
+.svc-card__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--navy-900);
+  color: #fff;
+  box-shadow: inset 0 0 0 2px var(--gold-400);
+}
+
+.svc-card__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.svc-card__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.svc-card__text {
+  margin: 0.2rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.svc-card__meta {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.svc-card__from {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: var(--text-base);
+  color: var(--gold-700);
+}
+
+/* --- 4b. Plan board (tiers × terms, from the two payment-mode tables) ---- */
+.plan-board {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.plan-board__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.term-switch {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: 0.2rem;
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+}
+
+.term-switch button {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.term-switch button[aria-pressed="true"] {
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.plan-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+
+.plan-table th,
+.plan-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--color-rule);
+  text-align: left;
+}
+
+.plan-table thead th {
+  background: var(--navy-900);
+  color: #fff;
+  font-weight: 600;
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.plan-table thead th.is-term-hl {
+  background: var(--gold-500);
+  color: var(--navy-950);
+}
+
+.plan-table tbody tr:nth-child(even) {
+  background: var(--navy-50);
+}
+
+.plan-table td.num,
+.plan-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-table td.is-term-hl {
+  background: var(--gold-wash-strong);
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.plan-table .tier-name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+.plan-note {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- 4c. Lot cards (Website Proposed Images) ----------------------------- */
+.lot-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.lot-card {
+  display: grid;
+  grid-template-rows: 11rem auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+  text-decoration: none;
+  color: inherit;
+}
+
+.lot-card:hover {
+  border-color: var(--gold-400);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.lot-card__media {
+  position: relative;
+}
+
+.lot-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lot-card__tag {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  background: rgb(8 28 49 / 0.86);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+.lot-card__body {
+  padding: var(--space-4);
+}
+
+.lot-card__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.lot-card__text {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.lot-card__price {
+  margin-top: var(--space-3);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--gold-700);
+}
+
+.lot-card__price small {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* --- 4d. Casket tier strip (TYPES OF COFFINS sheet) ---------------------- */
+.casket-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.casket-card {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.casket-card img {
+  display: block;
+  width: 100%;
+  height: 10.5rem;
+  object-fit: cover;
+}
+
+.casket-card__body {
+  padding: var(--space-4);
+}
+
+.casket-card__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.casket-card__text {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.casket-card__monthly {
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.casket-card__monthly strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--gold-700);
+}
+
+/* --- 4e. Park map band --------------------------------------------------- */
+.map-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: center;
+}
+
+.map-band figure {
+  margin: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #fff;
+}
+
+.map-band figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tag-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.tag-list li {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.tag-list li::before {
+  content: "";
+  flex: none;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-top: 0.45rem;
+  border-radius: 2px;
+  background: var(--gold-400);
+}
+
+/* --- 4f. Promo figure (Memorial Plans card) ------------------------------ */
+.promo-figure {
+  margin: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-card-rest);
+}
+
+.promo-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- 4g. Logo row (park + plan + insurance marks) ------------------------ */
+.logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.logo-row img {
+  height: 2.6rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   5. PACKAGE PAGE (reflects “Package page UI example.webp”)
+   --------------------------------------------------------------------------- */
+.plan-page {
+  max-width: var(--layout-folio-w);
+  margin-inline: auto;
+  padding: var(--space-5);
+}
+
+.crumbs {
+  margin: 0 0 var(--space-3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--navy-600);
+}
+
+.crumbs span {
+  color: var(--color-text-muted);
+}
+
+.plan-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28rem;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+.plan-main {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.plan-side {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-5);
+  position: sticky;
+  top: var(--space-5);
+}
+
+@media (max-width: 62rem) {
+  .plan-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-side {
+    position: static;
+  }
+}
+
+.pkg-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 4.4vw, 3.1rem);
+  line-height: 1.05;
+  color: var(--navy-900);
+}
+
+.pkg-lead {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+.pkg-note {
+  margin: var(--space-1) 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.plan-quote {
+  margin: var(--space-2) auto;
+  max-width: 34rem;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+  color: var(--navy-900);
+}
+
+.plan-statement {
+  padding: var(--space-5);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #dbe9f8, #cfe1f5);
+  color: var(--navy-900);
+  font-size: var(--text-lg);
+  text-align: center;
+}
+
+.plan-section-title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.pkg-inclusions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.pkg-inclusion {
+  padding: var(--space-4) var(--space-4) var(--space-3);
+  border-right: 1px solid var(--color-rule);
+}
+
+.pkg-inclusion:last-child {
+  border-right: 0;
+}
+
+.pkg-inclusion__icon {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gold-wash);
+  color: var(--gold-700);
+  margin-bottom: var(--space-3);
+}
+
+.pkg-inclusion__icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.pkg-inclusion__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy-900);
+}
+
+.pkg-inclusion__text {
+  margin: 0.35rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pkg-conditions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+.pkg-condition {
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.pkg-condition__icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gold-wash);
+  color: var(--gold-700);
+}
+
+.pkg-condition__icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.pkg-condition__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--navy-900);
+}
+
+.pkg-condition ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.05rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pkg-condition p {
+  margin: 0.3rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 62rem) {
+  .pkg-inclusions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pkg-inclusion {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .pkg-conditions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- 5a. Buy card: tier × term selector ---------------------------------- */
+.buy-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.buy-card__chips {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.buy-card__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.buy-card__price {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 2.8vw, 2.9rem);
+  line-height: 1;
+  color: var(--gold-700);
+}
+
+.buy-card__price span {
+  font-size: var(--text-md);
+  color: var(--color-text-muted);
+}
+
+.tier-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-1);
+  padding: 0.2rem;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.tier-row button {
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.tier-row button[aria-pressed="true"] {
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.term-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.term-btn {
+  position: relative;
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-md);
+  background: #fff;
+  padding: 0.5rem 0.4rem;
+  text-align: left;
+  cursor: pointer;
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+}
+
+.term-btn:hover {
+  border-color: var(--navy-400);
+}
+
+.term-btn[aria-pressed="true"] {
+  border: 2px solid var(--navy-600);
+  box-shadow: 0 0 0 3px rgb(65 112 156 / 0.16);
+}
+
+.term-btn__name {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.term-btn__price {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.82rem;
+  color: var(--navy-900);
+  white-space: nowrap;
+}
+
+.term-btn__check {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--navy-600);
+  color: #fff;
+  display: none;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.term-btn[aria-pressed="true"] .term-btn__check {
+  display: grid;
+}
+
+.senior-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.senior-toggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--navy-600);
+}
+
+/* --- 5b. Official 2026 price-list module --------------------------------- */
+.price-module {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.price-module__head {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.price-module__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--navy-900);
+}
+
+.pl-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: #fff;
+}
+
+.pl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-xs);
+  min-width: 46rem;
+}
+
+.pl-table caption {
+  caption-side: top;
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  background: var(--navy-900);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pl-table th,
+.pl-table td {
+  padding: 0.42rem 0.55rem;
+  border-bottom: 1px solid var(--color-rule);
+  border-right: 1px solid var(--color-rule);
+  white-space: nowrap;
+}
+
+.pl-table th {
+  background: var(--navy-100);
+  color: var(--navy-900);
+  font-weight: 700;
+  text-align: right;
+}
+
+.pl-table th:first-child,
+.pl-table td:first-child {
+  text-align: left;
+}
+
+.pl-table thead tr:first-child th {
+  background: var(--navy-700);
+  color: #fff;
+  text-align: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pl-table thead tr:first-child th:first-child,
+.pl-table thead tr:first-child th:nth-child(2),
+.pl-table thead tr:first-child th:nth-child(3) {
+  background: var(--navy-900);
+}
+
+.pl-table tbody tr:nth-child(even) {
+  background: var(--navy-50);
+}
+
+.pl-table td.num,
+.pl-table th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pl-table .is-term-hl {
+  background: var(--gold-wash-strong);
+  font-weight: 700;
+}
+
+.pl-table thead .is-term-hl {
+  background: var(--gold-400);
+  color: var(--navy-950);
+}
+
+.pl-table .prod {
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+/* --- 5c. Tribute strip (documentary photos — gallery only) --------------- */
+.tribute-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.tribute-strip figure {
+  margin: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #fff;
+}
+
+.tribute-strip img {
+  display: block;
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+}
+
+.tribute-strip figcaption {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- 4h. Newsfeed grid (posts use the shipped .post-card) ---------------- */
+.post-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 56rem) {
+  .post-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   6. Small-screen fallbacks for the prototype modules
+   --------------------------------------------------------------------------- */
+@media (max-width: 56rem) {
+  .svc-grid,
+  .lot-grid,
+  .tribute-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .casket-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .map-band {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,4 @@
+# Staged by ./stage-assets.sh from the client library + public/media.
+# The binaries are deliberately not committed — see README.md.
+*.jpg
+*.png

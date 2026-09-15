@@ -8,7 +8,7 @@
  * (The frozen commerce catalog items are storefront checkout seeds with
  * placeholder prices — deliberately NOT offered here as marketing content.)
  */
-import { php, COFFINS, LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
+import { php, planRate, COFFINS, LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
 import {
   COFFIN_BRONZE,
   COFFIN_SILVER,
@@ -134,7 +134,9 @@ export function buildRailCatalogue(): CatalogueGroup[] {
           kind: "plan",
           title: "Villa Memorial Plan",
           caption: "Complete memorial service · from",
-          price: `from ${php(500)}/month`,
+          // Derived from the client's payment-mode table (Bronze 1 monthly) —
+          // never hand-authored, so the picker can't contradict the price list.
+          price: `from ${php(planRate("bronze1", "monthly"))}/month`,
           image: PLAN_PACKAGES_IMAGE,
           href: "/plans/villa-memorial-plan",
         },
@@ -224,6 +226,9 @@ export function catalogueToRailItem(entry: CatalogueEntry, slug: string): RailIt
     price: entry.price,
     image: entry.image,
     href: entry.href,
+    // Pickers never pin a lead image directly; staff promote a pinned row to
+    // the rail's lead with the Lead toggle in the rail editor.
+    featured: false,
   };
 }
 

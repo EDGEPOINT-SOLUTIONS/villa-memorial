@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Home page — prototype · Villa Memorial Park</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="prototype.css">
+</head>
+<body>
+<div class="anchored-page">
+
+  <!-- ============ PUBLIC CHROME (same bar as every public page) ============ -->
+  <header class="anchored-header">
+    <div class="anchored-header__bar">
+      <a class="anchored-header__brand" href="/">
+        <span class="brand-mark brand-mark--img" aria-hidden="true"><img src="logo-sanctuario.png" alt=""></span>
+        <span class="anchored-header__wordmark">Villa Memorial Park</span>
+      </a>
+      <nav class="anchored-header__nav" aria-label="Sections">
+        <a href="/" aria-current="page">Home</a>
+        <a href="/about">About</a>
+        <a href="/services">Services</a>
+        <a href="/plans">Plans</a>
+        <a href="/lots">Lots</a>
+        <a href="/map">Park Map</a>
+        <a href="/cart">Cart</a>
+        <a href="/contact">Contact</a>
+      </nav>
+      <div class="anchored-header__actions">
+        <a class="anchored-header__phone" href="tel:+639170001234">
+          <span class="anchored-header__phone-label">24/7 Assistance Line</span>
+          <span class="anchored-header__phone-number">0917 000 1234</span>
+        </a>
+        <a class="anchored-header__signin" href="/login">Sign In</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============ THREE-COLUMN ANCHORED GRID (mid widened to 58rem) ======== -->
+  <div class="anchored-grid">
+
+    <!-- ------------------------------ LEFT RAIL ------------------------------ -->
+    <aside class="anchored-rail anchored-rail--left" aria-label="Care and services">
+      <div class="rail-panel rail-panel--phone">
+        <a class="rail-call" href="tel:+639170001234">
+          <span class="rail-call__top">
+            <span class="rail-call__pulse" aria-hidden="true"></span>
+            <span class="rail-call__label">24/7 Assistance Line</span>
+          </span>
+          <span class="rail-call__number">0917 000 1234</span>
+          <span class="rail-call__hint">Isabela City, Basilan · every hour, every day</span>
+        </a>
+        <h2 class="rail-heading">Care &amp; services</h2>
+        <ul class="rail-list rail-list--lead">
+          <!-- LEAD IMAGE (oversized) — one per rail -->
+          <li>
+            <a class="rail-item rail-item--lead" href="/services">
+              <span class="rail-lead-flag">Lead</span>
+              <span class="rail-thumb"><img src="img-service-viewing-lux.jpg" alt=""></span>
+              <span class="rail-item__text">
+                <span class="rail-item__title">Complete viewing care</span>
+                <span class="rail-item__price">from ₱600 / month</span>
+                <span class="rail-item__caption">State-of-the-art equipment — lights, curtains and carpets; full memorial service in one plan.</span>
+              </span>
+            </a>
+          </li>
+          <li><a class="rail-item" href="/transport">
+            <span class="rail-thumb"><img src="img-karwahe.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Funeral transport</span><span class="rail-item__caption">Horse-drawn carriage &amp; cortege</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/services">
+            <span class="rail-thumb"><img src="img-casket-serenity.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Preparation &amp; casketing</span><span class="rail-item__caption">Embalming, make-up, dressing</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/services">
+            <span class="rail-thumb"><img src="img-service-stage.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Viewing room set-up</span><span class="rail-item__caption">Tent, drapes, lights, carpets</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/services">
+            <span class="rail-thumb"><img src="img-service-cremation.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Urn &amp; memorial stands</span><span class="rail-item__caption">Cremation set-up available</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/contact">
+            <span class="rail-thumb"><img src="img-tribute-video.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Tribute video &amp; eulogy</span><span class="rail-item__caption">Remembering every story</span></span>
+          </a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ------------------------------- MIDDLE -------------------------------- -->
+    <main class="anchored-mid">
+      <div class="anchored-mid__inner">
+
+        <!-- HERO — accepts a background IMAGE (was gradient-only) -->
+        <section class="hero-home hero-home--photo" aria-labelledby="hero-home-title">
+          <figure class="hero-home__photo" aria-hidden="true"><img src="img-hero-gate.jpg" alt=""></figure>
+          <div class="hero-home__brand">
+            <span class="hero-home__plate" aria-hidden="true"><img src="logo-sanctuario.png" alt=""></span>
+            <span class="hero-home__wordmark">Sanctuario de Mercedes y Gloria</span>
+          </div>
+          <p class="hero-home__eyebrow">Memorial &amp; funeral services · Isabela City, Basilan</p>
+          <h1 id="hero-home-title" class="hero-home__title">Honoring every life with dignity and light.</h1>
+          <p class="hero-home__lead">Whatever brings you here today, you are not alone — we will guide every step with care, honestly and at your pace. The first memorial park in Basilan.</p>
+          <div class="hero-home__actions">
+            <a class="btn btn--accent btn--lg" href="/services">I need help now</a>
+            <a class="btn btn--secondary btn--lg" href="/plans">Plan ahead</a>
+          </div>
+          <p class="hero-home__careline">
+            <a href="tel:+639170001234">24/7 Assistance Line: 0917 000 1234</a> — Purok 3, Begang, Isabela City, Basilan
+          </p>
+        </section>
+
+        <!-- ABOUT -->
+        <section class="mid-section" aria-labelledby="about-title">
+          <p class="mid-kicker">Our story</p>
+          <h2 id="about-title">About Villa Memorial Park</h2>
+          <p class="about-story">A family-run memorial park in Isabela City, Basilan — founded on the belief that every life deserves a resting place of beauty and peace, and that the families who love them deserve honesty, warmth and time.</p>
+          <p class="mid-sub">A place of peace, love &amp; remembrance — a meaningful tribute today, a lasting legacy forever.</p>
+          <div class="about-cols">
+            <div>
+              <h3>Mission</h3>
+              <p>To walk beside every family with honesty and warmth — clear guidance, dignified care and no hidden costs, whether the need is today or years from now.</p>
+            </div>
+            <div>
+              <h3>Vision</h3>
+              <p>To be the memorial park families in Basilan trust for generations — where every name is remembered and every story is honored.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SERVICES WE OFFER (4 modules from the client sheet) -->
+        <section class="mid-section" aria-labelledby="services-title">
+          <p class="mid-kicker">What we do</p>
+          <h2 id="services-title">Services we offer</h2>
+          <p class="mid-sub">Four ways a family can be served — priced on the official 2026 price list, with 6-year amortization at Annual, Semi-Annual, Quarterly and Monthly terms (extendable to 8 or 10 years).</p>
+          <div class="svc-grid">
+            <a class="svc-card" href="/lots">
+              <span class="svc-card__icon" aria-hidden="true">
+                <!-- memorial stone -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 21h12M8 21V9a4 4 0 0 1 4-4h0a4 4 0 0 1 4 4v12"/><path d="M12 9v6M9.5 11.5h5"/><path d="M5 21h14"/></svg>
+              </span>
+              <span>
+                <span class="svc-card__title">Lot only</span>
+                <span class="svc-card__text">A memorial lot for your loved ones — garden niches, prime, premium or mausoleum plots.</span>
+                <span class="svc-card__meta"><span class="svc-card__from">from ₱75,000</span><span>· ₱1,125 / month, 6 yrs</span></span>
+              </span>
+            </a>
+            <a class="svc-card" href="/plans">
+              <span class="svc-card__icon" aria-hidden="true">
+                <!-- cross + dove -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7.5 8h9"/><path d="M15 15c2.5.5 4 2 4.5 4-2.6.6-4.9-.4-6-2.4"/></svg>
+              </span>
+              <span>
+                <span class="svc-card__title">Lot + interment</span>
+                <span class="svc-card__text">First burial only — includes a coffin and grave digging.</span>
+                <span class="svc-card__meta"><span class="svc-card__from">from ₱97,000</span><span>· ₱1,455 / month, 6 yrs</span></span>
+              </span>
+            </a>
+            <a class="svc-card" href="/plans/villa-memorial-plan">
+              <span class="svc-card__icon" aria-hidden="true">
+                <!-- heart + cross -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7-4.4-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 4.6-7 9-7 9z"/><path d="M12 3v5M9.8 5.5h4.4"/></svg>
+              </span>
+              <span>
+                <span class="svc-card__title">Lot + interment + VMP</span>
+                <span class="svc-card__text">A complete memorial plan with assistance through the Villa Memorial Plan.</span>
+                <span class="svc-card__meta"><span class="svc-card__from">from ₱126,000</span><span>· ₱1,890 / month, 6 yrs</span></span>
+              </span>
+            </a>
+            <a class="svc-card" href="/lots/mausoleum">
+              <span class="svc-card__icon" aria-hidden="true">
+                <!-- mausoleum -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21h16M6 21V9l6-5 6 5v12"/><path d="M10 21v-6a2 2 0 0 1 4 0v6"/><path d="M12 4v4"/></svg>
+              </span>
+              <span>
+                <span class="svc-card__title">Mausoleum + construction</span>
+                <span class="svc-card__text">A complete solution for a private and enduring sanctuary — up to life-plan coverage.</span>
+                <span class="svc-card__meta"><span class="svc-card__from">from ₱1,573,000</span><span>· ₱23,595 / month, 6 yrs</span></span>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <!-- VILLA MEMORIAL PLAN — tier × term board -->
+        <section class="mid-section" aria-labelledby="vmp-title">
+          <p class="mid-kicker">Plan ahead</p>
+          <h2 id="vmp-title">Villa Memorial Plan</h2>
+          <p class="mid-sub">“An affordable life plan for all” — a life plan that assures complete memorial services, assignable, transferable and with limited contestability and no forfeiture.</p>
+          <div class="map-band" style="grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);">
+            <figure class="promo-figure">
+              <img src="img-promo-card.png" alt="Villa Memorial Plan — comprehensive packages for your peace of mind">
+            </figure>
+            <div class="plan-board">
+              <div class="plan-board__head">
+                <span class="buy-card__label">Payment mode</span>
+                <div class="term-switch" role="group" aria-label="Plan term">
+                  <button type="button" data-term="monthly" aria-pressed="true">Monthly</button>
+                  <button type="button" data-term="semi" aria-pressed="false">Semi-Annual</button>
+                  <button type="button" data-term="quarterly" aria-pressed="false">Quarterly</button>
+                  <button type="button" data-term="annual" aria-pressed="false">Annual</button>
+                </div>
+              </div>
+              <table class="plan-table" id="home-plan-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Plan tier</th>
+                    <th scope="col" class="num" data-col="monthly">Monthly</th>
+                    <th scope="col" class="num" data-col="quarterly">Quarterly</th>
+                    <th scope="col" class="num" data-col="semi">Semi-Annual</th>
+                    <th scope="col" class="num" data-col="annual">Annual</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><th scope="row" class="tier-name">Bronze 1 <span class="badge badge--accent">PKG-BASIC</span></th><td class="num" data-col="monthly">₱600</td><td class="num" data-col="quarterly">₱1,800</td><td class="num" data-col="semi">₱3,600</td><td class="num" data-col="annual">₱7,200</td></tr>
+                  <tr><th scope="row" class="tier-name">Bronze 2</th><td class="num" data-col="monthly">₱770</td><td class="num" data-col="quarterly">₱2,310</td><td class="num" data-col="semi">₱4,620</td><td class="num" data-col="annual">₱9,240</td></tr>
+                  <tr><th scope="row" class="tier-name">Silver 1</th><td class="num" data-col="monthly">₱1,000</td><td class="num" data-col="quarterly">₱3,000</td><td class="num" data-col="semi">₱6,000</td><td class="num" data-col="annual">₱12,000</td></tr>
+                  <tr><th scope="row" class="tier-name">Silver 2</th><td class="num" data-col="monthly">₱1,120</td><td class="num" data-col="quarterly">₱3,360</td><td class="num" data-col="semi">₱6,720</td><td class="num" data-col="annual">₱13,440</td></tr>
+                  <tr><th scope="row" class="tier-name">Gold</th><td class="num" data-col="monthly">₱1,520</td><td class="num" data-col="quarterly">₱4,560</td><td class="num" data-col="semi">₱9,120</td><td class="num" data-col="annual">₱18,240</td></tr>
+                </tbody>
+              </table>
+              <p class="plan-note">Standard Villa Memorial Plan rates. Senior-citizen rates (from ₱550 / month) are on the <a href="/plans/PKG-BASIC">package page</a>. Powered by Eternal Plans, Inc. — “Your future is our concern.”</p>
+              <p class="logo-row">
+                <img src="logo-villa-agency.png" alt="Villa Agency Insurance Services — Insure. Invest. Prosper.">
+                <img src="logo-villa-group.png" alt="Villa Group of Companies">
+                <span class="logo-chip">Powered by Eternal Plans, Inc.</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- LOTS & MAUSOLEUM -->
+        <section class="mid-section" aria-labelledby="lots-title">
+          <p class="mid-kicker">The grounds</p>
+          <h2 id="lots-title">Memorial lots &amp; mausoleum</h2>
+          <p class="mid-sub">Lot-only prices from the official 2026 price list (6-year amortization; senior-citizen rates available).</p>
+          <div class="lot-grid">
+            <a class="lot-card" href="/lots">
+              <span class="lot-card__media"><img src="img-primary-lot.png" alt=""><span class="lot-card__tag">Primary</span></span>
+              <span class="lot-card__body">
+                <span class="lot-card__title">Primary lots</span>
+                <span class="lot-card__text">2.5 sqm lawn lots • Prime Lots in the 2026 price list</span>
+                <span class="lot-card__price">₱128,000 <small>lot only · or ₱1,920 / month</small></span>
+              </span>
+            </a>
+            <a class="lot-card" href="/lots">
+              <span class="lot-card__media"><img src="img-premium-lots.png" alt=""><span class="lot-card__tag">Premium</span></span>
+              <span class="lot-card__body">
+                <span class="lot-card__title">Premium lots</span>
+                <span class="lot-card__text">2.5 sqm along the main road • prestige location</span>
+                <span class="lot-card__price">₱114,000 <small>lot only · or ₱1,710 / month</small></span>
+              </span>
+            </a>
+            <a class="lot-card" href="/lots">
+              <span class="lot-card__media"><img src="img-garden-niches.png" alt=""><span class="lot-card__tag">Garden niches</span></span>
+              <span class="lot-card__body">
+                <span class="lot-card__title">Garden niches</span>
+                <span class="lot-card__text">12 sqm • polished granite niches with bench &amp; lantern</span>
+                <span class="lot-card__price">₱567,000 <small>lot only · or ₱8,505 / month</small></span>
+              </span>
+            </a>
+            <a class="lot-card" href="/lots">
+              <span class="lot-card__media"><img src="img-mausoleum.png" alt=""><span class="lot-card__tag">Mausoleum</span></span>
+              <span class="lot-card__body">
+                <span class="lot-card__title">Mausoleum</span>
+                <span class="lot-card__text">24 sqm • private family sanctuary, construction included</span>
+                <span class="lot-card__price">₱1,573,000 <small>+ construction · or ₱23,595 / month</small></span>
+              </span>
+            </a>
+          </div>
+        </section>
+
+        <!-- CASKETS -->
+        <section class="mid-section" aria-labelledby="caskets-title">
+          <p class="mid-kicker">Caskets &amp; coffins</p>
+          <h2 id="caskets-title">From Bronze to Gold</h2>
+          <p class="mid-sub">Five coffin tiers — the type of coffin differs with the plan. Monthly figures are the Bronze 1 / Silver 1 / Gold plan rates (annual ₱7,200 / ₱12,000 / ₱18,240).</p>
+          <div class="casket-strip">
+            <article class="casket-card">
+              <img src="bronze-casket.jpg" alt="Bronze tier coffin — smooth finish, half-glass lid">
+              <div class="casket-card__body">
+                <h3 class="casket-card__name">Bronze 1 &amp; 2</h3>
+                <p class="casket-card__text">Wooden / metal coffin, smooth finish, elegant handles, beautiful interiors — half or full glass lid.</p>
+                <p class="casket-card__monthly"><strong>₱600</strong>per month · Bronze 1</p>
+              </div>
+            </article>
+            <article class="casket-card">
+              <img src="silver-casket.jpg" alt="Silver tier coffin — classy handles, larger and more elegant">
+              <div class="casket-card__body">
+                <h3 class="casket-card__name">Silver 1 &amp; 2</h3>
+                <p class="casket-card__text">Slightly bigger than Bronze and more elegant; Silver 2’s cover is convertible full-glass or half-glass.</p>
+                <p class="casket-card__monthly"><strong>₱1,000</strong>per month · Silver 1</p>
+              </div>
+            </article>
+            <article class="casket-card">
+              <img src="gold-casket.jpg" alt="Gold tier coffin — special metal, more stylish and sophisticated">
+              <div class="casket-card__body">
+                <h3 class="casket-card__name">Gold</h3>
+                <p class="casket-card__text">Special metal coffin, more stylish and sophisticated; cover can be full-glass or half-glass.</p>
+                <p class="casket-card__monthly"><strong>₱1,520</strong>per month · Gold</p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- PARK MAP -->
+        <section class="mid-section mid-section--map" aria-labelledby="map-title">
+          <p class="mid-kicker">Find your way</p>
+          <h2 id="map-title">The park map</h2>
+          <div class="map-band">
+            <figure><img src="img-park-map.png" alt="Sanctuario Memorial Park master map — premium lots, mausoleum, primary lots, garden lots, garden niches"></figure>
+            <div>
+              <ul class="tag-list">
+                <li>Premium lots · Garden lots · Primary lots</li>
+                <li>Mausoleum &amp; garden niches</li>
+                <li>Main road, walking paths &amp; park landscape</li>
+                <li>Peaceful environment, secure and well-maintained</li>
+                <li>Purok 3, Begang, Isabela City, Basilan</li>
+              </ul>
+              <p style="margin-top: var(--space-4)"><a class="pill-toggle" href="/map">Open the interactive map →</a></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- NEWSFEED -->
+        <section class="mid-section" aria-labelledby="news-title">
+          <p class="mid-kicker">Newsfeed</p>
+          <h2 id="news-title">News from the park</h2>
+          <p class="mid-sub">Blessings, launches and quiet days in Begang — the middle column keeps the newsfeed below the map, as approved.</p>
+          <div class="post-grid">
+            <article class="post-card">
+              <div class="post-card__head"><span class="post-card__date">PARK NEWS</span></div>
+              <p class="post-card__caption">All Saints’ Day at the park — candle-lighting and blessing of the niches, open to every family.</p>
+              <p class="post-card__byline">Villa Memorial Park</p>
+            </article>
+            <article class="post-card">
+              <div class="post-card__head"><span class="post-card__date">PLAN NEWS</span></div>
+              <p class="post-card__caption">Villa Memorial Plan members can now settle dues quarterly, semi-annually or annually — ask us how.</p>
+              <p class="post-card__byline">Villa Agency Insurance Services</p>
+            </article>
+            <article class="post-card">
+              <div class="post-card__head"><span class="post-card__date">GROUNDS</span></div>
+              <p class="post-card__caption">Garden niches and premium lots along the main road are ready for viewing appointments.</p>
+              <p class="post-card__byline">Park office</p>
+            </article>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- ------------------------------ RIGHT RAIL ----------------------------- -->
+    <aside class="anchored-rail anchored-rail--right" aria-label="Plans and lots">
+      <div class="rail-panel">
+        <h2 class="rail-heading">Plans &amp; lots</h2>
+        <ul class="rail-list rail-list--lead">
+          <!-- LEAD IMAGE (oversized) — one per rail -->
+          <li>
+            <a class="rail-item rail-item--lead" href="/lots">
+              <span class="rail-lead-flag">Lead</span>
+              <span class="rail-thumb"><img src="img-mausoleum.png" alt=""></span>
+              <span class="rail-item__text">
+                <span class="rail-item__title">Mausoleum + Construction</span>
+                <span class="rail-item__price">₱1,573,000 · ₱23,595 / mo</span>
+                <span class="rail-item__caption">24 sqm private sanctuary — construction included, life-plan coverage available.</span>
+              </span>
+            </a>
+          </li>
+          <li><a class="rail-item" href="/lots">
+            <span class="rail-thumb"><img src="img-garden-niches.png" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Garden Niche — lot only</span><span class="rail-item__price">₱567,000 · ₱8,505 / mo</span><span class="rail-item__caption">12 sqm polished granite</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/lots">
+            <span class="rail-thumb"><img src="img-primary-lot.png" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Primary Lot — lot only</span><span class="rail-item__price">₱128,000 · ₱1,920 / mo</span><span class="rail-item__caption">2.5 sqm lawn lot</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/lots">
+            <span class="rail-thumb"><img src="img-premium-lots.png" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Premium Lot — lot only</span><span class="rail-item__price">₱114,000 · ₱1,710 / mo</span><span class="rail-item__caption">Along the main road</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/plans/PKG-BASIC">
+            <span class="rail-thumb"><img src="img-casket-everlasting.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Bronze 1 package</span><span class="rail-item__price">₱600 / month</span><span class="rail-item__caption">Complete memorial service</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/plans/PKG-SILVER">
+            <span class="rail-thumb"><img src="img-casket-heavens-gate.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Silver 1 package</span><span class="rail-item__price">₱1,000 / month</span><span class="rail-item__caption">Larger, more elegant coffin</span></span>
+          </a></li>
+          <li><a class="rail-item" href="/plans/PKG-GOLD">
+            <span class="rail-thumb"><img src="img-casket-detail.jpg" alt="" loading="lazy"></span>
+            <span class="rail-item__text"><span class="rail-item__title">Gold package</span><span class="rail-item__price">₱1,520 / month</span><span class="rail-item__caption">Special metal coffin</span></span>
+          </a></li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ================================ FOOTER ================================ -->
+  <footer class="anchored-footer">
+    <div class="anchored-footer__inner">
+      <div class="anchored-footer__grid">
+        <div class="anchored-footer__brand-col">
+          <a class="anchored-header__brand" href="/">
+            <span class="brand-mark brand-mark--img" aria-hidden="true"><img src="logo-sanctuario.png" alt=""></span>
+            <span class="anchored-header__wordmark">Villa Memorial Park</span>
+          </a>
+          <p class="anchored-footer__blurb">A family-run memorial park in <strong>Isabela City, Basilan</strong> — memorial &amp; funeral care that honors every life with dignity and light, day or night. The first memorial park in Basilan.</p>
+          <p class="logo-row">
+            <img src="logo-villa-agency.png" alt="Villa Agency Insurance Services">
+            <img src="logo-villa-group.png" alt="Villa Group of Companies">
+          </p>
+        </div>
+        <div>
+          <h2 class="anchored-footer__col-title">Explore</h2>
+          <ul class="anchored-footer__links">
+            <li><a href="/">Home</a></li>
+            <li><a href="/services">Services</a></li>
+            <li><a href="/plans">Memorial plans &amp; lots</a></li>
+            <li><a href="/lots">Browse the lots</a></li>
+            <li><a href="/products">Products &amp; caskets</a></li>
+            <li><a href="/transport">Transport</a></li>
+            <li><a href="/map">Park map</a></li>
+          </ul>
+        </div>
+        <div>
+          <h2 class="anchored-footer__col-title">Care &amp; planning</h2>
+          <ul class="anchored-footer__links">
+            <li><a href="/services/death-at-home">Death at home</a></li>
+            <li><a href="/services/death-at-hospital">Death at hospital</a></li>
+            <li><a href="/plans/villa-memorial-plan">Villa Memorial Plan</a></li>
+            <li><a href="/plans/compare">Compare plans</a></li>
+            <li><a href="/lots/price-list-2026">2026 price list</a></li>
+          </ul>
+        </div>
+        <address class="anchored-footer__contact">
+          <div class="anchored-footer__contact-line">
+            <span class="anchored-footer__contact-label">24/7 Assistance Line</span>
+            <a class="anchored-footer__phone" href="tel:+639170001234">0917 000 1234</a>
+          </div>
+          <div class="anchored-footer__contact-line">
+            <span class="anchored-footer__contact-label">Open</span>
+            <span class="anchored-footer__contact-value">Every hour, every day</span>
+          </div>
+          <div class="anchored-footer__contact-line">
+            <span class="anchored-footer__contact-label">Visit the park</span>
+            <span class="anchored-footer__contact-value">Purok 3, Begang, Isabela City, Basilan<br><a href="/map">Map &amp; directions →</a></span>
+          </div>
+          <div class="anchored-footer__contact-line">
+            <span class="anchored-footer__contact-label">Plan office</span>
+            <span class="anchored-footer__contact-value">Capilla de San Jose, Sunrise Village, Isabela City<br>0917 617 8489 · 0956 950 7985</span>
+          </div>
+        </address>
+      </div>
+      <div class="anchored-footer__bottom">
+        <span>© 2026 Villa Memorial Park · Sanctuario de Mercedes y Gloria. All rights reserved.</span>
+        <span>Villa Memorial Plan is underwritten by <strong>Eternal Plans, Inc.</strong> — “Your future is our concern.”</span>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script>
+  /* Home plan board: clicking a term highlights that column (review affordance). */
+  (function () {
+    var sw = document.querySelector('.term-switch');
+    if (!sw) return;
+    sw.addEventListener('click', function (e) {
+      var btn = e.target.closest('button[data-term]');
+      if (!btn) return;
+      sw.querySelectorAll('button[data-term]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+      var term = btn.getAttribute('data-term');
+      document.querySelectorAll('#home-plan-table [data-col]').forEach(function (cell) {
+        cell.classList.toggle('is-term-hl', cell.getAttribute('data-col') === term);
+      });
+    });
+  })();
+</script>
+</body>
+</html>

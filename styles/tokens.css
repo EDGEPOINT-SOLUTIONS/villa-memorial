@@ -111,9 +111,11 @@
      three-column anchored grid, the footer and every public page container,
      so the nav brand block lines up with the page content edge on every page
      (captain: brand must not hug the window edge — 2026-09-09).
-     91rem = the home trio at full width (17rem rails + 50rem middle + 2rem
-     max column gaps = 88rem) plus the 1.5rem folio padding on each side. */
-  --layout-folio-w: 91rem;
+     99rem = the home trio at full width (17rem rails + 58rem middle + 2rem
+     max column gaps = 96rem) plus the 1.5rem folio padding on each side.
+     The middle grew from 50rem to 58rem on the captain's review of the
+     package-page prototype; the rails stay fixed at 17rem. */
+  --layout-folio-w: 99rem;
 
   --radius-sm: 4px;
   --radius-md: 6px;

@@ -83,7 +83,7 @@ describe("landing fixture follows the approved content model", () => {
     }
     // The Villa Memorial Plan card shows the real monthly entry point (VMP Bronze 1).
     expect(content.plans.items.find((p) => p.name === "Villa Memorial Plan")?.price).toBe(
-      `from ${php(500)}/month`,
+      `from ${php(600)}/month`,
     );
   });
 
@@ -149,7 +149,7 @@ describe("the rail picker catalogue is built from the real catalogue", () => {
     for (const price of ["₱114,000", "₱128,000", "₱567,000", "₱1,073,000"]) {
       expect(planPrices).toContain(price);
     }
-    expect(planPrices).toContain(`from ${php(500)}/month`);
+    expect(planPrices).toContain(`from ${php(600)}/month`);
     for (const e of entries) {
       expect(e.title.length).toBeGreaterThan(0);
       expect(e.href.startsWith("/")).toBe(true);

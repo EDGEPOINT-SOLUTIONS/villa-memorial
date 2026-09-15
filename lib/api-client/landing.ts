@@ -33,6 +33,12 @@ export type RailItem = {
   price: string | null;
   image: string | null;
   href: string;
+  /**
+   * The rail's ONE oversized lead image (captain's home-page review): the
+   * featured item renders as a full-width photo card above the compact rows.
+   * At most one per rail — the reader keeps the first and clears the rest.
+   */
+  featured: boolean;
 };
 
 export type RailConfig = {
@@ -55,6 +61,12 @@ export type HeroSection = {
   subline: string;
   primaryCta: Cta;
   secondaryCta: Cta;
+  /**
+   * Background photo for the hero (captain's home-page review): when set, the
+   * hero renders the photo under a navy readability scrim instead of the plain
+   * gradient. null keeps the shipped gradient.
+   */
+  image: string | null;
 };
 
 export type AboutSection = {
@@ -167,16 +179,26 @@ function readRailItem(raw: unknown): RailItem | null {
     price: nullableStr(r.price),
     image: nullableStr(r.image),
     href: str(r.href, "/"),
+    featured: r.featured === true,
   };
 }
 
 function readRailConfig(raw: unknown): RailConfig {
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  // Tolerant reader: drop malformed entries only — rails are UNLIMITED (staff
+  // pins any number; the rail scrolls internally). Never truncate here.
+  const items = arr(r.items).map(readRailItem).filter((x): x is RailItem => x !== null);
+  // The model carries at most ONE lead image per rail; when recorded content
+  // (or a hand-edited store) names several, the first one wins and the rest
+  // degrade to compact rows rather than rendering two oversized cards.
+  let leadTaken = false;
+  for (const item of items) {
+    if (item.featured && leadTaken) item.featured = false;
+    if (item.featured) leadTaken = true;
+  }
   return {
     heading: str(r.heading, "Quick links"),
-    // Tolerant reader: drop malformed entries only — rails are UNLIMITED (staff
-    // pins any number; the rail scrolls internally). Never truncate here.
-    items: arr(r.items).map(readRailItem).filter((x): x is RailItem => x !== null),
+    items,
   };
 }
 
@@ -281,6 +303,7 @@ export function readLandingContent(raw: unknown): LandingContent {
         label: "Plan ahead",
         href: "/plans",
       }),
+      image: readNullable(heroRaw as Record<string, unknown>, "image"),
     },
     rails: {
       left: readRailConfig((railsRaw as Record<string, unknown>).left),
@@ -328,6 +351,8 @@ export function readLandingContent(raw: unknown): LandingContent {
  * The save authority. Rules mirror what the UI enforces so the demo never
  * teaches a state the model rejects:
  *  - rail items carry a known kind and a title + href (rail length is unlimited);
+ *    at most one item per rail may be the oversized lead image (the tolerant
+ *    reader keeps the first, so the editor must clear the others when toggling);
  *  - empty rails / empty plans / empty blog posts lists are legal (the page
  *    renders graceful empty states);
  *  - a blog post MAY have an empty media list (caption-only post);
