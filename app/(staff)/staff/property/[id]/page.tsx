@@ -307,17 +307,15 @@ export default async function LotDetailPage({
 
       {lot.status === "available" ? (
         <PageSection>
-          <Card header={<h3>Quick actions</h3>}>
-            {canReserve ? (
-              <ReserveLotForm lotId={lot.id} lotNumber={lot.lot_number} />
-            ) : (
-              <p className="text-sm text-muted">
-                This lot is available for reservation. Reserving requires the{" "}
-                <code>property:write</code> scope — your role has read-only access to
-                property records.
-              </p>
-            )}
-          </Card>
+          {canReserve ? (
+            <ReserveLotForm lotId={lot.id} lotNumber={lot.lot_number} />
+          ) : (
+            <p className="text-sm text-muted">
+              This lot is available for reservation. Reserving requires the{" "}
+              <code>property:write</code> scope — your role has read-only access to
+              property records.
+            </p>
+          )}
         </PageSection>
       ) : null}
     </>

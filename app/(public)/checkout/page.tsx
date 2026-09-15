@@ -10,11 +10,17 @@ import { Field } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/lib/cart/cart-context";
 
+type FieldErrors = {
+  name?: string;
+  email?: string;
+  phone?: string;
+};
+
 export default function CheckoutPage() {
   const router = useRouter();
   const cart = useCart();
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -22,18 +28,23 @@ export default function CheckoutPage() {
     return <Skeleton lines={4} />;
   }
 
+  function validate(): FieldErrors {
+    const errors: FieldErrors = {};
+    if (!form.name.trim()) errors.name = "Enter the name the order is for.";
+    if (!form.email.includes("@")) errors.email = "Enter an email address we can send the receipt to.";
+    if (!form.phone.trim()) errors.phone = "Enter a contact number the store can call.";
+    return errors;
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setServerError(null);
-    if (
-      !form.name.trim() ||
-      !form.email.includes("@") ||
-      !form.phone.trim()
-    ) {
-      setValidationError("Please provide your complete name, email, and contact number.");
+    const errors = validate();
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
-    setValidationError(null);
+    setFieldErrors({});
     setSubmitting(true);
     try {
       const res = await fetch("/api/orders", {
@@ -95,11 +106,6 @@ export default function CheckoutPage() {
         </>
       ) : (
         <div className="page-section" style={{ maxWidth: "34rem" }}>
-          {validationError ? (
-            <div className="mb-4">
-              <Alert tone="danger">{validationError}</Alert>
-            </div>
-          ) : null}
           {serverError ? (
             <div className="mb-4">
               <Alert tone="danger" title="We couldn't place your order.">
@@ -108,48 +114,87 @@ export default function CheckoutPage() {
             </div>
           ) : null}
 
-          <form onSubmit={onSubmit} noValidate>
-            <p className="text-sm text-muted mb-4">
-              Your details let the store match this order to your account — matched
-              by email if you already have one.
-            </p>
-            <Field label="Complete name *" htmlFor="co-name">
-              <input
-                id="co-name"
-                className="input"
-                autoComplete="name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                disabled={submitting}
-              />
-            </Field>
-            <Field label="Email *" htmlFor="co-email">
-              <input
-                id="co-email"
-                className="input"
-                type="email"
-                autoComplete="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                disabled={submitting}
-              />
-            </Field>
-            <Field label="Contact number *" htmlFor="co-phone">
-              <input
-                id="co-phone"
-                className="input"
-                type="tel"
-                autoComplete="tel"
-                placeholder="+63 …"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                disabled={submitting}
-              />
-            </Field>
-            <Button type="submit" size="lg" disabled={submitting} style={{ width: "100%" }}>
-              {submitting ? "Placing your order…" : "Place order"}
-            </Button>
-            <p className="field__hint mt-2">
+          <form onSubmit={onSubmit} className="stack" noValidate>
+            {/* 01 — Your details */}
+            <section className="card capture-section">
+              <div className="capture-section__head">
+                <span className="capture-section__num" aria-hidden="true">
+                  01
+                </span>
+                <div>
+                  <h3 className="capture-section__title">Your details</h3>
+                  <p className="capture-section__blurb">
+                    The store matches this order to your account by email if you already
+                    have one.
+                  </p>
+                </div>
+              </div>
+              <div className="capture-section__body">
+                <div className="field-grid field-grid--1">
+                  <Field
+                    label="Complete name"
+                    htmlFor="co-name"
+                    hint="As it should appear on the receipt."
+                    error={fieldErrors.name}
+                  >
+                    <input
+                      id="co-name"
+                      autoComplete="name"
+                      disabled={submitting}
+                      value={form.name}
+                      onChange={(e) => {
+                        setForm({ ...form, name: e.target.value });
+                        setFieldErrors((prev) => ({ ...prev, name: undefined }));
+                      }}
+                    />
+                  </Field>
+                  <Field
+                    label="Email"
+                    htmlFor="co-email"
+                    hint="The order confirmation and receipt key go here."
+                    error={fieldErrors.email}
+                  >
+                    <input
+                      id="co-email"
+                      type="email"
+                      autoComplete="email"
+                      disabled={submitting}
+                      value={form.email}
+                      onChange={(e) => {
+                        setForm({ ...form, email: e.target.value });
+                        setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                      }}
+                    />
+                  </Field>
+                  <Field
+                    label="Contact number"
+                    htmlFor="co-phone"
+                    hint="The store calls before delivery."
+                    error={fieldErrors.phone}
+                  >
+                    <input
+                      id="co-phone"
+                      type="tel"
+                      autoComplete="tel"
+                      placeholder="+63 …"
+                      disabled={submitting}
+                      value={form.phone}
+                      onChange={(e) => {
+                        setForm({ ...form, phone: e.target.value });
+                        setFieldErrors((prev) => ({ ...prev, phone: undefined }));
+                      }}
+                    />
+                  </Field>
+                </div>
+              </div>
+            </section>
+
+            <div className="capture-actions">
+              <Button type="submit" disabled={submitting}>
+                {submitting ? "Placing your order…" : "Place order"}
+              </Button>
+            </div>
+            <p className="field__hint">
               Payment in this demo settles immediately with the sandbox adapter.
             </p>
           </form>

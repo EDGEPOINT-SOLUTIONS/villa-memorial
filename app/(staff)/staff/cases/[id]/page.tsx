@@ -266,16 +266,17 @@ export default async function CaseDetailPage({
               below until someone sits down with the family.
             </p>
           )}
-          {canWriteCases ? (
-            <div style={{ marginTop: "1rem" }}>
-              <EditIntakeForm kase={item} />
-            </div>
-          ) : (
+          {canWriteCases ? null : (
             <p className="text-sm text-muted">
               Capturing intake needs <code>cases:write</code>.
             </p>
           )}
         </Card>
+        {canWriteCases ? (
+          <div style={{ marginTop: "var(--space-4)" }}>
+            <EditIntakeForm kase={item} />
+          </div>
+        ) : null}
       </PageSection>
 
       <PageSection>

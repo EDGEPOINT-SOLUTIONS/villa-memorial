@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Field } from "@/components/ui/field";
 import { PaperExportActions } from "@/components/paper/paper-export-actions";
 import { buildServicePaper } from "@/lib/contracts/service-paper";
@@ -148,11 +147,23 @@ export function ServiceContractScreen({
         screen never adds, subtracts, numbers a receipt or posts anything.
       </Alert>
 
-      <Card header={<h3>Header — from the case intake</h3>}>
-        {intake ? (
-          <div className="table-wrapper">
-            <table className="table">
-              <tbody>
+      <section className="card capture-section">
+        <div className="capture-section__head">
+          <span className="capture-section__num" aria-hidden="true">
+            01
+          </span>
+          <div>
+            <h3 className="capture-section__title">Header — from the case intake</h3>
+            <p className="capture-section__blurb">
+              Saved through the intake form on the case page — the contract prints these.
+            </p>
+          </div>
+        </div>
+        <div className="capture-section__body">
+          {intake ? (
+            <div className="table-wrapper">
+              <table className="table">
+                <tbody>
                 <tr>
                   <th scope="row">Deceased</th>
                   <td>{kase.deceased_name === "Pending intake" ? "—" : kase.deceased_name}</td>
@@ -222,14 +233,24 @@ export function ServiceContractScreen({
             contract would otherwise show em dashes for this whole block.
           </p>
         )}
-      </Card>
+        </div>
+      </section>
 
-      <Card header={<h3>Services rendered vs packaged deals</h3>}>
-        <p className="text-sm text-muted">
-          Tick the rows the paper covers and fill the paper&rsquo;s number/text blanks
-          (Embalming days, Others). Amount cells stay empty on purpose — see the note
-          above.
-        </p>
+      <section className="card capture-section">
+        <div className="capture-section__head">
+          <span className="capture-section__num" aria-hidden="true">
+            02
+          </span>
+          <div>
+            <h3 className="capture-section__title">Services rendered vs packaged deals</h3>
+            <p className="capture-section__blurb">
+              Tick the rows the paper covers and fill the paper&rsquo;s number/text blanks
+              (Embalming days, Others). Amount cells stay empty on purpose — see the note
+              above.
+            </p>
+          </div>
+        </div>
+        <div className="capture-section__body">
         {!canWrite ? (
           <p className="text-sm text-muted">
             Editing needs <code>cases:write</code>.
@@ -268,14 +289,26 @@ export function ServiceContractScreen({
             paper order.
           </p>
         ) : null}
-      </Card>
+        </div>
+      </section>
 
-      <Card header={<h3>Less: life plans / insurances / burial assistance / guarantees</h3>}>
-        <p className="text-sm text-muted">
-          Record which guarantee instruments the family is submitting. Their amounts and
-          the three-day instrument deadline belong to the dev-owned guarantee sub-ledger;
-          this block only captures what the paper&rsquo;s boxes say.
-        </p>
+      <section className="card capture-section">
+        <div className="capture-section__head">
+          <span className="capture-section__num" aria-hidden="true">
+            03
+          </span>
+          <div>
+            <h3 className="capture-section__title">
+              Less: life plans / insurances / burial assistance / guarantees
+            </h3>
+            <p className="capture-section__blurb">
+              Record which guarantee instruments the family is submitting. Their amounts
+              and the three-day instrument deadline belong to the dev-owned guarantee
+              sub-ledger; this block only captures what the paper&rsquo;s boxes say.
+            </p>
+          </div>
+        </div>
+        <div className="capture-section__body">
         {!canWrite ? (
           <p className="text-sm text-muted">
             Editing needs <code>cases:write</code>.
@@ -361,7 +394,8 @@ export function ServiceContractScreen({
             </Field>
           </div>
         )}
-      </Card>
+        </div>
+      </section>
 
       {errors && (errors.badDays.length > 0 || errors.longDetails.length > 0) ? (
         <Alert tone="danger" title="Check the paper blanks">
@@ -372,8 +406,8 @@ export function ServiceContractScreen({
         </Alert>
       ) : null}
 
-      <div className="btn-group">
-        <Button type="button" size="sm" onClick={openPreview}>
+      <div className="capture-actions">
+        <Button type="button" onClick={openPreview}>
           Preview paper contract
         </Button>
       </div>

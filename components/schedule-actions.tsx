@@ -86,85 +86,121 @@ export function NewBookingForm({ resources }: { resources: Resource[] }) {
   }
 
   return (
-    <div className="card">
-      <div className="card__header">
-        <h3>New booking</h3>
-      </div>
-      <div className="card__body">
-        {done ? <Alert tone="success" title={done} /> : null}
-        <form onSubmit={submit} className="stack">
-          <Field label="Title" htmlFor="bk-title" hint="e.g. Wake — Day 1">
-            <input
-              id="bk-title"
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Field>
-          <Field label="Resource" htmlFor="bk-resource">
-            <select
-              id="bk-resource"
-              value={resourceId}
-              onChange={(e) => setResourceId(e.target.value)}
-            >
-              {resources.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {r.name} ({r.resource_type.replace(/_/g, " ")}, capacity {r.capacity})
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field
-            label="Case number (optional)"
-            htmlFor="bk-case"
-            hint="Link the booking to a case when one exists."
-          >
-            <input
-              id="bk-case"
-              type="text"
-              value={caseNumber}
-              onChange={(e) => setCaseNumber(e.target.value)}
-              placeholder="CASE-2026-0001"
-            />
-          </Field>
-          <div className="row row--wrap">
-            <Field label="Starts" htmlFor="bk-start">
-              <input
-                id="bk-start"
-                type="datetime-local"
-                value={startsAt}
-                onChange={(e) => setStartsAt(e.target.value)}
-              />
-            </Field>
-            <Field label="Ends" htmlFor="bk-end">
-              <input
-                id="bk-end"
-                type="datetime-local"
-                value={endsAt}
-                min={startsAt}
-                onChange={(e) => setEndsAt(e.target.value)}
-              />
-            </Field>
+    <div className="stack">
+      {done ? <Alert tone="success" title={done} /> : null}
+      {error ? (
+        <Alert tone="danger" title="Could not book">
+          {error}
+        </Alert>
+      ) : null}
+
+      <form onSubmit={submit} className="stack" noValidate>
+        {/* 01 — Booking */}
+        <section className="card capture-section">
+          <div className="capture-section__head">
+            <span className="capture-section__num" aria-hidden="true">
+              01
+            </span>
+            <div>
+              <h3 className="capture-section__title">Booking</h3>
+              <p className="capture-section__blurb">
+                What is being reserved and against whose case.
+              </p>
+            </div>
           </div>
-          {error ? (
-            <Alert tone="danger" title="Could not book">
-              {error}
-            </Alert>
-          ) : null}
-          <div className="row">
-            <Button type="submit" size="sm" disabled={pending}>
-              {pending ? "Booking…" : "Confirm booking"}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
+          <div className="capture-section__body">
+            <div className="field-grid field-grid--2">
+              <Field label="Title" htmlFor="bk-title" hint="e.g. Wake — Day 1">
+                <input
+                  id="bk-title"
+                  type="text"
+                  disabled={pending}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </Field>
+              <Field label="Resource" htmlFor="bk-resource">
+                <select
+                  id="bk-resource"
+                  disabled={pending}
+                  value={resourceId}
+                  onChange={(e) => setResourceId(e.target.value)}
+                >
+                  {resources.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} ({r.resource_type.replace(/_/g, " ")}, capacity {r.capacity})
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <div className="field-grid field-grid--2">
+              <Field
+                label="Case number"
+                htmlFor="bk-case"
+                hint="Optional — links the booking to a case when one exists."
+              >
+                <input
+                  id="bk-case"
+                  type="text"
+                  disabled={pending}
+                  value={caseNumber}
+                  onChange={(e) => setCaseNumber(e.target.value)}
+                  placeholder="CASE-2026-0001"
+                />
+              </Field>
+            </div>
           </div>
-        </form>
-        <p className="text-sm text-muted mt-2">
-          Overlapping bookings are flagged, never blocked — the service marks
-          <code> conflicting </code> on both sides and staff decide.
-        </p>
-      </div>
+        </section>
+
+        {/* 02 — When */}
+        <section className="card capture-section">
+          <div className="capture-section__head">
+            <span className="capture-section__num" aria-hidden="true">
+              02
+            </span>
+            <div>
+              <h3 className="capture-section__title">When</h3>
+              <p className="capture-section__blurb">
+                Overlapping bookings are flagged, never blocked — the service marks
+                conflicting on both sides and staff decide.
+              </p>
+            </div>
+          </div>
+          <div className="capture-section__body">
+            <div className="field-grid field-grid--2">
+              <Field label="Starts" htmlFor="bk-start">
+                <input
+                  id="bk-start"
+                  type="datetime-local"
+                  disabled={pending}
+                  value={startsAt}
+                  onChange={(e) => setStartsAt(e.target.value)}
+                />
+              </Field>
+              <Field label="Ends" htmlFor="bk-end">
+                <input
+                  id="bk-end"
+                  type="datetime-local"
+                  disabled={pending}
+                  value={endsAt}
+                  min={startsAt}
+                  onChange={(e) => setEndsAt(e.target.value)}
+                />
+              </Field>
+            </div>
+          </div>
+        </section>
+
+        <div className="capture-actions">
+          <Button type="submit" disabled={pending}>
+            {pending ? "Booking…" : "Confirm booking"}
+          </Button>
+          <Button variant="ghost" type="button" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

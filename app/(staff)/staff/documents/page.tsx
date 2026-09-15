@@ -106,7 +106,7 @@ export default async function DocumentsPage({
       </div>
 
       <PageSection>
-        <form className="row mb-4" role="search">
+        <form className="filter-bar" role="search">
           <select
             className="select"
             name="type"
@@ -137,6 +137,11 @@ export default async function DocumentsPage({
           <button className="btn btn--primary btn--sm" type="submit">
             Filter
           </button>
+          {typeFilter || statusFilter ? (
+            <Link className="btn btn--ghost btn--sm" href="/staff/documents">
+              Clear
+            </Link>
+          ) : null}
         </form>
 
         {filtered.length === 0 ? (

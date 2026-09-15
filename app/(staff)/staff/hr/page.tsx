@@ -92,7 +92,7 @@ export default async function HrPage({
       </div>
 
       <PageSection>
-        <form className="row mb-4" role="search">
+        <form className="filter-bar" role="search">
           <input
             className="input"
             type="search"
@@ -115,6 +115,11 @@ export default async function HrPage({
           <button className="btn btn--primary btn--sm" type="submit">
             Filter
           </button>
+          {q || statusFilter ? (
+            <Link className="btn btn--ghost btn--sm" href="/staff/hr">
+              Clear
+            </Link>
+          ) : null}
         </form>
 
         {filtered.length === 0 ? (

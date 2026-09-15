@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
@@ -79,7 +80,7 @@ export default async function AuditPage({
       />
 
       <PageSection>
-        <form className="row mb-4" role="search">
+        <form className="filter-bar" role="search">
           <select
             className="select"
             name="outcome"
@@ -95,9 +96,9 @@ export default async function AuditPage({
             Filter
           </button>
           {outcomeFilter ? (
-            <a className="btn btn--ghost btn--sm" href="/staff/audit">
+            <Link className="btn btn--ghost btn--sm" href="/staff/audit">
               Clear
-            </a>
+            </Link>
           ) : null}
         </form>
 
