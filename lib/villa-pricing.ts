@@ -6,6 +6,40 @@
 
 export type PaymentRow = { mode: string; bronze1: number; bronze2: number; silver1: number; silver2: number; gold: number };
 
+/** Villa Memorial Plan tiers, in the client's order (bronze → gold). */
+export type PlanTier = "bronze1" | "bronze2" | "silver1" | "silver2" | "gold";
+
+/** Payment modes a planholder may choose (the reference page's term selector). */
+export type PlanTerm = "monthly" | "quarterly" | "semi" | "annual";
+
+export const PLAN_TIERS: ReadonlyArray<{ id: PlanTier; name: string }> = [
+  { id: "bronze1", name: "Bronze 1" },
+  { id: "bronze2", name: "Bronze 2" },
+  { id: "silver1", name: "Silver 1" },
+  { id: "silver2", name: "Silver 2" },
+  { id: "gold", name: "Gold" },
+];
+
+/**
+ * The four plan terms exactly as the client's payment-mode sheets name them.
+ * `paymentsPerYear` documents the arithmetic invariant the tables must keep
+ * (monthly × 12 = quarterly × 4 = semi-annual × 2 = annual) — asserted in
+ * tests/unit/villa-pricing.test.ts so a transcription slip like the former
+ * ₱500 Bronze-1 monthly cannot ship unnoticed.
+ */
+export const PLAN_TERMS: ReadonlyArray<{
+  id: PlanTerm;
+  label: string;
+  mode: PaymentRow["mode"];
+  per: string;
+  paymentsPerYear: number;
+}> = [
+  { id: "monthly", label: "Monthly", mode: "Monthly", per: "/ month", paymentsPerYear: 12 },
+  { id: "quarterly", label: "Quarterly", mode: "Quarterly", per: "/ quarter", paymentsPerYear: 4 },
+  { id: "semi", label: "Semi-Annual", mode: "Semi-annual", per: "/ semi-annual", paymentsPerYear: 2 },
+  { id: "annual", label: "Annual", mode: "Annual", per: "/ year", paymentsPerYear: 1 },
+];
+
 export const COFFINS = [
   { tier: "Bronze 1", photo: "/media/bronze-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
   { tier: "Bronze 2", photo: "/media/bronze-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
@@ -34,7 +68,10 @@ export const VMP_PAYMENTS: PaymentRow[] = [
   { mode: "Annual", bronze1: 7200, bronze2: 9240, silver1: 12000, silver2: 13440, gold: 18240 },
   { mode: "Semi-annual", bronze1: 3600, bronze2: 4620, silver1: 6000, silver2: 6720, gold: 9120 },
   { mode: "Quarterly", bronze1: 1800, bronze2: 2310, silver1: 3000, silver2: 3360, gold: 4560 },
-  { mode: "Monthly", bronze1: 500, bronze2: 770, silver1: 1000, silver2: 1120, gold: 1520 },
+  // Bronze 1 monthly is ₱600 on the client's payment-mode sheet (and on the
+  // reference package page): annual 7,200 ÷ 12. It was mis-keyed as 500 here,
+  // which published a wrong public price — pinned by tests/unit/villa-pricing.test.ts.
+  { mode: "Monthly", bronze1: 600, bronze2: 770, silver1: 1000, silver2: 1120, gold: 1520 },
 ];
 
 export const CASH_ASSISTANCE = [
@@ -121,3 +158,42 @@ export const LOT_PRICE_CATEGORIES: Array<{ title: string; rows: LotPriceRow[] }>
 export function php(n: number): string {
   return "₱" + n.toLocaleString("en-PH");
 }
+
+/** Pesos with centavos — the plan price display (₱600.00 / month). */
+export function php2(n: number): string {
+  return "₱" + n.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+/**
+ * One plan rate: the client's published amount for a tier × term, regular or
+ * senior-citizen table. The Plan Term selector reads through this function so
+ * prices are never copied into a view.
+ */
+export function planRate(tier: PlanTier, term: PlanTerm, senior = false): number {
+  const def = PLAN_TERMS.find((t) => t.id === term);
+  if (!def) throw new Error(`Unknown plan term: ${term}`);
+  const rows = senior ? SENIOR_PAYMENTS : VMP_PAYMENTS;
+  const row = rows.find((r) => r.mode === def.mode);
+  if (!row) throw new Error(`No ${def.mode} row in the ${senior ? "senior" : "standard"} table`);
+  return row[tier];
+}
+
+/** The four terms a given tier can be paid in, ready for the selector. */
+export function planTermOptions(tier: PlanTier, senior = false): Array<{ term: PlanTerm; label: string; per: string; amount: number }> {
+  return PLAN_TERMS.map((t) => ({
+    term: t.id,
+    label: t.label,
+    per: t.per,
+    amount: planRate(tier, t.id, senior),
+  }));
+}
+
+/** All five inclusions shown on the package page (client's COMPLETE MEMORIAL
+ * PACKAGE sheet: the four service blocks + the free flowers/tarpaulin block). */
+export const VMP_INCLUSIONS: Array<{ service: string; detail: string }> = [
+  ...VMP_PACKAGE,
+  {
+    service: "Free flowers and tarpaulin",
+    detail: "Flowers and a tarpaulin are included with the complete memorial package.",
+  },
+] as const;

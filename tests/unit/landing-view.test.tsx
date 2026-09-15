@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
+import { php, planRate } from "@/lib/villa-pricing";
 
 /**
  * Public-interface render tests for the anchored catalogue home (executed through
@@ -15,7 +16,12 @@ import { listLandingContent, type LandingContent } from "@/lib/api-client/landin
 const cloneDoc = (doc: LandingContent): LandingContent =>
   JSON.parse(JSON.stringify(doc)) as LandingContent;
 
-const railItemCount = (html: string): number => (html.match(/class="rail-item"/g) ?? []).length;
+/** React escapes text nodes; the lead title "Viewing & wake set-up" renders as &amp;. */
+const escaped = (text: string): string =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+const railItemCount = (html: string): number =>
+  (html.match(/class="rail-item(?: rail-item--lead)?"/g) ?? []).length;
 
 describe("the home renders the anchored catalogue shell", () => {
   it("renders left rail + middle + right rail from the recorded content", async () => {
@@ -89,8 +95,61 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).toContain("₱114,000");
     expect(html).toContain("₱1,073,000");
     expect(html).toContain("lot-premium.png");
-    expect(html).toContain("from ₱500/month");
+    // Derived from the same payment-mode table the price list prints — a
+    // mis-keyed rate (the former ₱500 Bronze 1) fails here, not in production.
+    expect(html).toContain(`from ${php(planRate("bronze1", "monthly"))}/month`);
     expect((html.match(/class="plan-card"/g) ?? []).length).toBe(content.plans.items.length);
+  });
+});
+
+describe("the rails carry one oversized lead image each", () => {
+  it("renders exactly one lead card per rail, with the featured item's photo and copy", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    const leads = html.match(/class="rail-item rail-item--lead"/g) ?? [];
+    expect(leads).toHaveLength(2);
+    for (const side of ["left", "right"] as const) {
+      const featured = content.rails[side].items.filter((i) => i.featured);
+      expect(featured).toHaveLength(1);
+      expect(html).toContain(featured[0].image ?? "/media/");
+      expect(html).toContain(escaped(featured[0].title));
+    }
+    expect(html).toContain("rail-lead-flag");
+  });
+
+  it("keeps only the first featured item when a document marks several", async () => {
+    const content = await listLandingContent();
+    const several = cloneDoc(content);
+    several.rails.left.items = several.rails.left.items.map((i) => ({ ...i, featured: true }));
+    const { readLandingContent } = await import("@/lib/api-client/landing");
+    const kept = readLandingContent(several);
+    expect(kept.rails.left.items.filter((i) => i.featured)).toHaveLength(1);
+    expect(kept.rails.left.items[0].featured).toBe(true);
+  });
+});
+
+describe("the hero accepts a background photo", () => {
+  it("renders the attached photo behind the copy when staff attach one", async () => {
+    const content = await listLandingContent();
+    const withPhoto = cloneDoc(content);
+    withPhoto.hero.image = "/media/hero-1.jpg";
+    const html = renderToStaticMarkup(
+      LandingView({ content: withPhoto, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("hero-home--photo");
+    expect(html).toContain("/media/hero-1.jpg");
+  });
+
+  it("keeps the plain gradient hero when no photo is attached", async () => {
+    const content = await listLandingContent();
+    const bare = cloneDoc(content);
+    bare.hero.image = null;
+    const html = renderToStaticMarkup(
+      LandingView({ content: bare, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain("hero-home--photo");
   });
 });
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP, PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import {
   CASH_ASSISTANCE,
   COFFINS,
@@ -68,6 +68,12 @@ export default function VillaMemorialPlanPage() {
             <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
               Served by Funeraria Villa &amp; ZC-Arcega Funeral Homes, underwritten by
               Villa Agency Insurance Services.
+            </p>
+            <p className="plan-logo-row">
+              {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
+              <img src={LOGO_VILLA_AGENCY} alt="Villa Agency Insurance Services — Insure. Invest. Prosper." />
+              {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
+              <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
             </p>
             <nav className="hero-chips" aria-label="Jump to a section">
               <a href="#coffins">Coffin options</a>

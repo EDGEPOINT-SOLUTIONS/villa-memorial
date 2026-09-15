@@ -238,6 +238,20 @@ function RailEditor({
     onChange(next);
   }
 
+  /**
+   * The rail carries at most ONE oversized lead image: toggling an item on
+   * clears every other item's lead state (the model's tolerant reader keeps the
+   * first featured item, so the editor never records a second one).
+   */
+  function toggleLead(index: number) {
+    const next = clone(config);
+    next.items = next.items.map((item, i) => ({
+      ...item,
+      featured: i === index ? !item.featured : false,
+    }));
+    onChange(next);
+  }
+
   function add(entry: CatalogueEntry) {
     const next = clone(config);
     next.items.push({
@@ -248,6 +262,7 @@ function RailEditor({
       price: entry.price,
       image: entry.image,
       href: entry.href,
+      featured: false,
     });
     onChange(next);
     setPicking(false);
@@ -266,6 +281,7 @@ function RailEditor({
         price: entry.price,
         image: entry.image,
         href: entry.href,
+        featured: false,
       })),
     );
     onChange(next);
@@ -295,7 +311,8 @@ function RailEditor({
       <div className="row row--space" style={{ margin: "var(--space-1) 0 var(--space-1)" }}>
         <p className="ed-hint">
           Unlimited — the rail scrolls, so pin as many real services, plans, products or links as
-          you want. Visitors see them in exactly this order.
+          you want. Visitors see them in exactly this order. Mark ONE item per rail as “Lead” to
+          make it the oversized photo card at the top of that rail.
         </p>
         <Button variant="accent" size="sm" onClick={() => setPicking(true)}>
           <Plus size={15} aria-hidden="true" /> Pin an item
@@ -324,6 +341,19 @@ function RailEditor({
                   {item.caption ? <span className="ed-muted"> · {item.caption}</span> : null}
                 </span>
               </span>
+              <button
+                type="button"
+                className={`ed-lead-toggle${item.featured ? " ed-lead-toggle--on" : ""}`}
+                aria-pressed={item.featured}
+                title={
+                  item.featured
+                    ? "This is the rail's lead image — click to return it to a compact row"
+                    : "Show this item as the rail's one oversized lead image"
+                }
+                onClick={() => toggleLead(i)}
+              >
+                Lead
+              </button>
               <MoveRowButtons
                 label={item.title}
                 first={i === 0}
@@ -1066,6 +1096,12 @@ export function LandingPageEditor({
         </div>
         <TextField label="Headline" htmlFor="hero-headline" value={hero.headline} onChange={(v) => patch((d) => void (d.hero.headline = v))} hint="Warm, dignified, short — this is the anchor line." />
         <TextAreaField label="Subline" htmlFor="hero-subline" rows={2} value={hero.subline} onChange={(v) => patch((d) => void (d.hero.subline = v))} />
+        <ImageField
+          label="Background photo"
+          htmlFor="hero-image"
+          value={hero.image}
+          onChange={(v) => patch((d) => void (d.hero.image = v))}
+        />
         {ctaFields(hero.primaryCta, (next) => patch((d) => void (d.hero.primaryCta = next)), "primary", "I need help now button")}
         {ctaFields(hero.secondaryCta, (next) => patch((d) => void (d.hero.secondaryCta = next)), "secondary", "Plan ahead button")}
       </EdSection>

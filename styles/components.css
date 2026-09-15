@@ -2683,6 +2683,12 @@ input[type="checkbox"] {
   color: var(--color-text-secondary);
 }
 
+/* Package pages: the buy card is taller than the title block, so the reference
+   layout aligns the title to the TOP beside it instead of centring on it. */
+.hero-premium--package .hero-premium__grid {
+  align-items: start;
+}
+
 .hero-premium__media {
   margin: 0;
   padding: clamp(0.5rem, 1vw, 0.75rem);
@@ -2696,6 +2702,255 @@ input[type="checkbox"] {
   width: 100%;
   height: auto;
   border-radius: calc(var(--radius-lg) - 0.25rem);
+}
+
+/* ---- package page: the reference layout's plan blocks --------------------
+   Quote, Villa Memorial Plan statement, the COMPLETE MEMORIAL PACKAGE grid
+   (five inclusions + four conditions) and the cash-assistance lines. Copy is
+   rendered from lib/villa-pricing.ts; these rules only carry the design. */
+.plan-quote {
+  margin: var(--space-2) auto;
+  max-width: 34rem;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.35rem, 2.6vw, 1.9rem);
+  color: var(--navy-900);
+}
+
+.plan-statement {
+  padding: var(--space-5);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #dbe9f8, #cfe1f5);
+  color: var(--navy-900);
+  font-size: var(--text-lg);
+  text-align: center;
+}
+
+.plan-grid-title {
+  margin: var(--space-1) 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  color: var(--navy-900);
+}
+
+.pkg-inclusions {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+.pkg-inclusion {
+  padding: var(--space-4);
+  border-right: 1px solid var(--color-rule);
+}
+
+.pkg-inclusion:last-child {
+  border-right: 0;
+}
+
+.pkg-inclusion__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--navy-900);
+}
+
+.pkg-inclusion__text {
+  margin: 0.35rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pkg-conditions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+.pkg-condition__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--navy-900);
+}
+
+.pkg-condition ul {
+  margin: 0.3rem 0 0;
+  padding-left: 1.05rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pkg-condition p {
+  margin: 0.3rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pkg-cash-line {
+  display: block;
+}
+
+@media (max-width: 62rem) {
+  .pkg-inclusions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pkg-inclusion {
+    border-right: 0;
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .pkg-conditions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---- plan tier × term selector (package buy card) ------------------------ */
+.plan-term-per {
+  font-size: var(--text-md);
+  color: var(--color-text-muted);
+}
+
+.plan-term-note {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.plan-tier-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-1);
+  padding: 0.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.plan-tier-btn {
+  border: 0;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.plan-tier-btn--on {
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.plan-term-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.plan-term-btn {
+  position: relative;
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  padding: 0.5rem 0.4rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.plan-term-btn:hover {
+  border-color: var(--navy-400);
+}
+
+.plan-term-btn--on {
+  border: 2px solid var(--navy-600);
+  box-shadow: 0 0 0 3px rgb(65 112 156 / 0.16);
+}
+
+.plan-term-btn__name {
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-text-secondary);
+}
+
+.plan-term-btn__price {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  color: var(--navy-900);
+}
+
+.plan-term-btn__check {
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--navy-600);
+  color: #fff;
+  display: none;
+  place-items: center;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.plan-term-btn--on .plan-term-btn__check {
+  display: grid;
+}
+
+.plan-senior-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.plan-senior-toggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--navy-600);
+}
+
+/* Client logo row (Villa Agency + Villa Group) on the plan/package surfaces. */
+.plan-logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-5);
+  margin: var(--space-4) 0 0;
+}
+
+.plan-logo-row img {
+  height: 2.6rem;
+  width: auto;
+  object-fit: contain;
 }
 
 .hero-premium__media figcaption {
@@ -4408,7 +4663,7 @@ a.card:hover {
 
 /* ---- three-column anchored grid ----
    Balanced anchored trio: symmetric FIXED-width rails (17rem each) flank a
-   centred middle capped at 50rem. The grid uses justify-content:center so the
+   centred middle capped at 58rem (widened from 50rem). The grid uses justify-content:center so the
    whole trio — and therefore the middle column — stays dead-centre at every
    desktop width, with equal margins either side. Fixed rail widths mean the
    rails can never grow to push or overlap the middle (the old vw-based rail
@@ -4416,7 +4671,7 @@ a.card:hover {
    full width (MobileQuickMenu flyout), unchanged. */
 .anchored-grid {
   --rail-w: 17rem;
-  --mid-w: 50rem;
+  --mid-w: 58rem;
   display: grid;
   grid-template-columns: var(--rail-w) minmax(0, var(--mid-w)) var(--rail-w);
   justify-content: center;
@@ -4559,6 +4814,68 @@ a.card:hover {
   font-size: var(--text-sm);
 }
 
+/* The rail's ONE oversized lead image (captain's home review): a full-width
+   photo card whose title/price/caption sit on a navy scrim, while every other
+   pinned item keeps the compact thumbnail row above. Staff pick the lead on
+   the landing editor; the model carries at most one featured item per rail. */
+.rail-item--lead {
+  display: block;
+  position: relative;
+  padding: 0;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--navy-900);
+}
+
+.rail-item--lead .rail-thumb {
+  width: 100%;
+  height: 14rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.rail-item--lead .rail-item__text {
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--space-5) var(--space-4) var(--space-4);
+  background: linear-gradient(
+    180deg,
+    rgb(8 28 49 / 0) 0%,
+    rgb(8 28 49 / 0.55) 40%,
+    rgb(8 28 49 / 0.94) 100%
+  );
+}
+
+.rail-item--lead .rail-item__title {
+  color: #fff;
+  font-size: var(--text-md);
+}
+
+.rail-item--lead .rail-item__price {
+  color: var(--gold-300);
+  font-size: var(--text-base);
+}
+
+.rail-item--lead .rail-item__caption {
+  color: var(--navy-100);
+}
+
+.rail-lead-flag {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  z-index: 1;
+  background: var(--gold-400);
+  color: var(--navy-950);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
 .rail-item__text {
   display: grid;
   gap: 0.15rem;
@@ -4696,6 +5013,54 @@ a.card:hover {
   inset: 0 0 auto;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+}
+
+/* ---- hero background photo (captain's home review) ----
+   The hero accepts a staff-attached photo instead of only the gradient. The
+   photo is a real <img> behind the copy (crawlable + testable), and a navy
+   scrim sits over it so the headline keeps its contrast on any upload. */
+.hero-home--photo .hero-home__photo {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+
+.hero-home--photo .hero-home__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.hero-home--photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    100deg,
+    rgb(8 28 49 / 0.95) 0%,
+    rgb(8 28 49 / 0.88) 36%,
+    rgb(8 28 49 / 0.62) 68%,
+    rgb(13 41 66 / 0.3) 100%
+  );
+}
+
+/* Keep the hairline above the scrim and every copy block above both layers. */
+.hero-home--photo::before {
+  z-index: 3;
+}
+
+.hero-home--photo > *:not(.hero-home__photo) {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-home--photo .hero-home__lead,
+.hero-home--photo .hero-home__careline {
+  color: #eef4fa;
 }
 
 .hero-home__brand {
@@ -4989,7 +5354,7 @@ a.card:hover {
 }
 
 /* Plans — designed card grid (photo, name, honest price). Cards auto-flow to
-   the width available (3-across at the full 50rem middle, fewer on narrower
+   the width available (3-across at the full 58rem middle, fewer on narrower
    mid columns) so a card can never clip or push the layout. */
 .plan-grid {
   display: grid;
@@ -5411,7 +5776,7 @@ a.card:hover {
   }
 
   .anchored-mid__inner {
-    max-width: 50rem;
+    max-width: 58rem;
     margin-inline: auto;
     padding-inline: var(--space-4);
   }
@@ -6044,6 +6409,33 @@ a.card:hover {
 .ed-icon-btn--danger:hover:not(:disabled) {
   border-color: var(--clay-500);
   color: var(--clay-500);
+}
+
+/* Rail lead picker — one oversized lead image per rail (see RailEditor). */
+.ed-lead-toggle {
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-bg-surface);
+  color: var(--navy-600);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.5rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color var(--motion-fast), background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.ed-lead-toggle:hover {
+  border-color: var(--gold-500);
+  color: var(--gold-700);
+}
+
+.ed-lead-toggle--on {
+  background: var(--gold-300);
+  border-color: var(--gold-500);
+  color: var(--navy-950);
 }
 
 .ed-thumb-btn {

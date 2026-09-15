@@ -56,6 +56,21 @@ export function RailThumb({ item }: { item: RailItem }) {
 }
 
 function RailItemLink({ item }: { item: RailItem }) {
+  // The rail's ONE oversized lead image (captain's home review) — same link,
+  // photo-card presentation with the caption laid over the photo.
+  if (item.featured) {
+    return (
+      <a className="rail-item rail-item--lead" href={item.href}>
+        <span className="rail-lead-flag">Lead</span>
+        <RailThumb item={item} />
+        <span className="rail-item__text">
+          <span className="rail-item__title">{item.title}</span>
+          {item.price ? <span className="rail-item__price">{item.price}</span> : null}
+          {item.caption ? <span className="rail-item__caption">{item.caption}</span> : null}
+        </span>
+      </a>
+    );
+  }
   return (
     <a className="rail-item" href={item.href}>
       <RailThumb item={item} />
@@ -386,7 +401,16 @@ export function LandingFooter({ content }: { content: LandingContent }) {
 function HeroSection({ content }: { content: LandingContent }) {
   const { hero, logo, contact } = content;
   return (
-    <section className="hero-home" aria-labelledby="hero-home-title">
+    <section
+      className={`hero-home${hero.image ? " hero-home--photo" : ""}`}
+      aria-labelledby="hero-home-title"
+    >
+      {hero.image ? (
+        <figure className="hero-home__photo" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element -- staff-attached hero photo */}
+          <img src={hero.image} alt="" />
+        </figure>
+      ) : null}
       <div className="hero-home__brand">
         <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
         <span className="hero-home__wordmark">{logo.wordmark}</span>
