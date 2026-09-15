@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+import { Alert } from "@/components/ui/alert";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
@@ -33,15 +33,15 @@ export default async function NewCasePage() {
         }
       />
       <PageSection>
-        <Card header={<h3>Intake</h3>}>
-          <p className="text-sm text-muted">
+        <div className="stack">
+          <Alert tone="info" title="What this form does">
             Everything here is optional — take what the family can give you today and
             complete the rest later. The case opens at the <strong>inquiry</strong> stage
             with its tasks seeded, and the service contract can be generated as soon as it
             exists. An order can be linked afterwards.
-          </p>
+          </Alert>
           <OpenCaseForm />
-        </Card>
+        </div>
       </PageSection>
     </>
   );

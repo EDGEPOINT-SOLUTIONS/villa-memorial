@@ -182,7 +182,7 @@ export default async function BillingPage({
       </PageSection>
 
       <PageSection>
-        <form className="row mb-4" role="search">
+        <form className="filter-bar" role="search">
           <select
             className="select"
             name="status"
@@ -198,6 +198,11 @@ export default async function BillingPage({
           <button className="btn btn--primary btn--sm" type="submit">
             Filter
           </button>
+          {statusFilter ? (
+            <Link className="btn btn--ghost btn--sm" href="/staff/billing">
+              Clear
+            </Link>
+          ) : null}
         </form>
 
         {filtered.length === 0 ? (

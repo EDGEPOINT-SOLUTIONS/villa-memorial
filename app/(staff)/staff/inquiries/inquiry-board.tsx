@@ -132,108 +132,127 @@ export function InquiryBoard({
       </div>
 
       {canCapture && formOpen ? (
-        <div className="card">
-          <div className="card__header">
-            <h3>Quick capture</h3>
+        <form onSubmit={submitCapture} className="stack" noValidate>
+          {validationError ? (
+            <Alert tone="danger" title="Could not capture">
+              {validationError}
+            </Alert>
+          ) : null}
+
+          {/* 01 — Who is asking */}
+          <section className="card capture-section">
+            <div className="capture-section__head">
+              <span className="capture-section__num" aria-hidden="true">
+                01
+              </span>
+              <div>
+                <h3 className="capture-section__title">Who is asking</h3>
+                <p className="capture-section__blurb">
+                  Enough to call them back — name and contact number are the only
+                  essentials.
+                </p>
+              </div>
+            </div>
+            <div className="capture-section__body">
+              <div className="field-grid field-grid--3">
+                <Field label="Full name" htmlFor="inq-name">
+                  <input
+                    id="inq-name"
+                    value={form.full_name}
+                    onChange={(e) =>
+                      setForm({ ...form, full_name: e.target.value })
+                    }
+                  />
+                </Field>
+                <Field label="Contact number" htmlFor="inq-phone">
+                  <input
+                    id="inq-phone"
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  />
+                </Field>
+                <Field label="Email" htmlFor="inq-email" hint="Optional.">
+                  <input
+                    id="inq-email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  />
+                </Field>
+              </div>
+            </div>
+          </section>
+
+          {/* 02 — What they need */}
+          <section className="card capture-section">
+            <div className="capture-section__head">
+              <span className="capture-section__num" aria-hidden="true">
+                02
+              </span>
+              <div>
+                <h3 className="capture-section__title">What they need</h3>
+                <p className="capture-section__blurb">
+                  The topic is the one thing the inquiries board filters on.
+                </p>
+              </div>
+            </div>
+            <div className="capture-section__body">
+              <div className="field-grid field-grid--2">
+                <Field label="How they reached us" htmlFor="inq-source">
+                  <select
+                    id="inq-source"
+                    value={form.source}
+                    onChange={(e) =>
+                      setForm({ ...form, source: e.target.value as Inquiry["source"] })
+                    }
+                  >
+                    {SOURCE_LABELS.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label="What are they asking about?" htmlFor="inq-topic">
+                  <input
+                    id="inq-topic"
+                    placeholder="e.g. Pre-need plans, pricing, documents…"
+                    value={form.topic}
+                    onChange={(e) => setForm({ ...form, topic: e.target.value })}
+                  />
+                </Field>
+              </div>
+              <div className="field-grid field-grid--2">
+                <Field label="Notes" htmlFor="inq-message" hint="Optional — what they said, in their words.">
+                  <textarea
+                    id="inq-message"
+                    rows={4}
+                    value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                  />
+                </Field>
+                <Field label="Assign to" htmlFor="inq-assignee">
+                  <input
+                    id="inq-assignee"
+                    placeholder="Unassigned"
+                    value={form.assigned_to}
+                    onChange={(e) =>
+                      setForm({ ...form, assigned_to: e.target.value })
+                    }
+                  />
+                </Field>
+              </div>
+            </div>
+          </section>
+
+          <div className="capture-actions">
+            <Button type="submit">Capture inquiry</Button>
+            <Button variant="ghost" type="button" onClick={() => setFormOpen(false)}>
+              Cancel
+            </Button>
           </div>
-          <div className="card__body">
-            {validationError ? (
-              <div className="mb-4">
-                <Alert tone="danger">{validationError}</Alert>
-              </div>
-            ) : null}
-            <form onSubmit={submitCapture} noValidate>
-              <div className="row row--wrap">
-                <div style={{ flex: "1 1 14rem" }}>
-                  <Field label="Full name *" htmlFor="inq-name">
-                    <input
-                      id="inq-name"
-                      className="input"
-                      value={form.full_name}
-                      onChange={(e) =>
-                        setForm({ ...form, full_name: e.target.value })
-                      }
-                    />
-                  </Field>
-                </div>
-                <div style={{ flex: "1 1 12rem" }}>
-                  <Field label="Contact number *" htmlFor="inq-phone">
-                    <input
-                      id="inq-phone"
-                      className="input"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    />
-                  </Field>
-                </div>
-                <div style={{ flex: "1 1 12rem" }}>
-                  <Field label="Email (optional)" htmlFor="inq-email">
-                    <input
-                      id="inq-email"
-                      className="input"
-                      type="email"
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    />
-                  </Field>
-                </div>
-                <div style={{ flex: "1 1 10rem" }}>
-                  <Field label="How they reached us" htmlFor="inq-source">
-                    <select
-                      id="inq-source"
-                      className="select"
-                      value={form.source}
-                      onChange={(e) =>
-                        setForm({ ...form, source: e.target.value as Inquiry["source"] })
-                      }
-                    >
-                      {SOURCE_LABELS.map((s) => (
-                        <option key={s.value} value={s.value}>
-                          {s.label}
-                        </option>
-                      ))}
-                    </select>
-                  </Field>
-                </div>
-              </div>
-              <Field label="What are they asking about? *" htmlFor="inq-topic">
-                <input
-                  id="inq-topic"
-                  className="input"
-                  placeholder="e.g. Pre-need plans, pricing, documents…"
-                  value={form.topic}
-                  onChange={(e) => setForm({ ...form, topic: e.target.value })}
-                />
-              </Field>
-              <div className="row row--wrap">
-                <div style={{ flex: "2 1 16rem" }}>
-                  <Field label="Notes (optional)" htmlFor="inq-message">
-                    <textarea
-                      id="inq-message"
-                      className="textarea"
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                    />
-                  </Field>
-                </div>
-                <div style={{ flex: "1 1 12rem" }}>
-                  <Field label="Assign to" htmlFor="inq-assignee">
-                    <input
-                      id="inq-assignee"
-                      className="input"
-                      placeholder="Unassigned"
-                      value={form.assigned_to}
-                      onChange={(e) =>
-                        setForm({ ...form, assigned_to: e.target.value })
-                      }
-                    />
-                  </Field>
-                </div>
-              </div>
-              <Button type="submit">Capture inquiry</Button>
-            </form>
-          </div>
-        </div>
+        </form>
       ) : null}
 
       {filtered.length === 0 ? (

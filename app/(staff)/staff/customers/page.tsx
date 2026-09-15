@@ -63,7 +63,7 @@ export default async function CustomersPage({
       </div>
 
       <PageSection>
-        <form className="row mb-4" role="search">
+        <form className="filter-bar" role="search">
           <input
             className="input"
             type="search"
@@ -73,8 +73,13 @@ export default async function CustomersPage({
             aria-label="Search customers"
           />
           <button className="btn btn--primary btn--sm" type="submit">
-            Search
+            Filter
           </button>
+          {q ? (
+            <Link className="btn btn--ghost btn--sm" href="/staff/customers">
+              Clear
+            </Link>
+          ) : null}
         </form>
 
         {filtered.length === 0 ? (
