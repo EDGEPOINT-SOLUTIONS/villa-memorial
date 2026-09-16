@@ -2606,6 +2606,101 @@ input[type="checkbox"] {
   font-size: var(--text-sm);
 }
 
+/* --- Chapel administration: availability month grid (staff Schedule) ---------- */
+/* Free / held / booked / closed days, plus the clash flag an operator needs when
+   a closure and a booking share a date. Staff surfaces keep the navy+gold
+   direction (see AGENTS.md), so the status tints come from the semantic tokens. */
+.chapel-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--space-1);
+  max-width: 44rem;
+}
+
+.chapel-grid__head {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  text-align: center;
+  padding-bottom: var(--space-1);
+}
+
+.chapel-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface-raised);
+}
+
+.chapel-day--outside {
+  opacity: 0.45;
+}
+
+.chapel-day__num {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.chapel-day__state {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.chapel-day--free .chapel-day__state {
+  color: var(--color-text-muted);
+}
+
+.chapel-day--held {
+  border-color: color-mix(in srgb, var(--color-status-warning) 45%, transparent);
+  background: var(--color-status-warning-bg);
+}
+
+.chapel-day--held .chapel-day__state {
+  color: var(--color-status-warning);
+  font-weight: 600;
+}
+
+.chapel-day--booked {
+  border-color: color-mix(in srgb, var(--color-status-success) 45%, transparent);
+  background: var(--color-status-success-bg);
+}
+
+.chapel-day--booked .chapel-day__state {
+  color: var(--color-status-success);
+  font-weight: 600;
+}
+
+.chapel-day--blocked {
+  border-color: color-mix(in srgb, var(--color-status-danger) 45%, transparent);
+  background: repeating-linear-gradient(
+    135deg,
+    var(--color-status-danger-bg) 0 6px,
+    color-mix(in srgb, var(--color-status-danger-bg) 55%, #ffffff) 6px 12px
+  );
+}
+
+.chapel-day--blocked .chapel-day__state {
+  color: var(--color-status-danger);
+  font-weight: 600;
+}
+
+.chapel-day__flag {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--color-status-danger);
+}
+
 /* Name rows (avatar + name) for people/lots/cases tables */
 .name-cell {
   display: inline-flex;

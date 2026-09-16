@@ -18,6 +18,8 @@
 import bookingsFile from "@/lib/fixtures/scheduling/bookings.json";
 import resourcesFile from "@/lib/fixtures/scheduling/resources.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { listChapelRecords } from "@/lib/api-client/chapel-store";
+import { mergeChapelResources } from "@/lib/chapel-admin";
 import { getAuthedJson, itemsOf, postAuthedJson } from "@/lib/api-client/staff-fetch";
 
 const BASE_URL = process.env.SCHEDULING_BASE_URL ?? "";
@@ -90,7 +92,11 @@ export async function listResources(): Promise<Resource[]> {
     const payload = await getAuthedJson(BASE_URL, "/scheduling/api/v1/resources");
     return itemsOf(payload).map(toResource);
   }
-  return (resourcesFile as { resources: unknown[] }).resources.map(toResource);
+  const seed = (resourcesFile as { resources: unknown[] }).resources.map(toResource);
+  // The park's own chapel records (staff-editable, durable store) overlay the
+  // recorded resources: a renamed/re-capacitied chapel keeps the service id, and
+  // a chapel added on /staff/schedule becomes a resource the storefront can book.
+  return mergeChapelResources(seed, await listChapelRecords());
 }
 
 export async function listBookings(): Promise<Booking[]> {
@@ -150,8 +156,10 @@ function fixtureBookings(): Booking[] {
   );
 }
 
-function fixtureCreateBooking(input: BookingInput): Booking {
-  const resources = (resourcesFile as { resources: Resource[] }).resources;
+async function fixtureCreateBooking(input: BookingInput): Promise<Booking> {
+  // Same resource list the screens read: seeds PLUS the chapels the park added on
+  // /staff/schedule, so a chapel that was created in the app is bookable at once.
+  const resources = await listResources();
   const resource = resources.find((r) => r.id === input.resource_id);
   if (!resource) {
     throw new ApiError("unknown resource", 422);

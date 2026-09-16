@@ -155,6 +155,46 @@ export async function releaseChapelBooking(bookingId: string): Promise<void> {
 }
 
 /**
+ * Tell the schedule that a held stay became part of a placed order, so the
+ * office sees it as confirmed with its order instead of an abandoned cart hold.
+ * The reservation ids never reach /api/orders (that contract is frozen), so the
+ * claim travels separately, right after checkout.
+ */
+export async function claimChapelOrder(bookingId: string, orderNumber: string): Promise<void> {
+  let res: Response;
+  try {
+    res = await fetch(`/api/chapel/bookings/${encodeURIComponent(bookingId)}/claim`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ order_number: orderNumber }),
+      // Checkout waits on this call; a slow schedule must never hold the customer.
+      signal: AbortSignal.timeout(2_500),
+    });
+  } catch {
+    throw new ApiError("Could not reach the park schedule.", 502);
+  }
+  await readJson(res, "The chapel stay could not be linked to the order.");
+}
+
+/**
+ * Checkout's best-effort claim for every held line in the cart. Never throws: the
+ * order is already placed, and a claim that did not land simply leaves a normal
+ * hold the office confirms from /staff/schedule. `claim` is injectable for tests.
+ */
+export async function claimChapelCartLines(
+  lines: ReadonlyArray<{ booking?: ChapelBookingLine }>,
+  orderNumber: string,
+  claim: (bookingId: string, orderNumber: string) => Promise<void> = claimChapelOrder,
+): Promise<{ claimed: number; failed: number }> {
+  const held = lines.filter((line) => line.booking);
+  const results = await Promise.allSettled(
+    held.map((line) => claim(line.booking!.bookingId, orderNumber)),
+  );
+  const claimed = results.filter((r) => r.status === "fulfilled").length;
+  return { claimed, failed: results.length - claimed };
+}
+
+/**
  * The cart's remove contract for a chapel line: release the hold, then drop the
  * line. If the release call fails the line still leaves the cart (nobody is
  * trapped with an unremovable line) and the error is returned so the cart page

@@ -20,10 +20,12 @@
  *
  * Availability source: `resources` (one resource per chapel) + `bookings` from
  * the scheduling module (lib/api-client/scheduling.ts), read through the server
- * orchestration in lib/api-client/chapel-reservations.ts. Blocked dates are
- * admin-side (resource maintenance windows are a deferred item of the frozen
- * booking-events-v1 contract): `blockedDates()` below is the single hook the
- * admin follow-up fills; it is empty until a maintenance shape exists.
+ * orchestration in lib/api-client/chapel-reservations.ts. Which resources are
+ * chapels, their sheet class, whether they are active and which dates the park
+ * has closed come from the park's own records (lib/chapel-admin.ts + the durable
+ * store in lib/api-client/chapel-store.ts) — resource maintenance windows are a
+ * deferred item of the frozen booking-events-v1 contract, so the staff Schedule
+ * screen owns them app-side and this rules module only consumes the result.
  */
 import type { Resource } from "@/lib/api-client/scheduling";
 import { CHAPEL_RATES, php } from "@/lib/villa-pricing";
@@ -42,16 +44,20 @@ export const MIN_CHAPEL_DAYS = 3;
 export const MAX_CHAPEL_DAYS = 9;
 
 /* ===========================================================================
- * PLACEHOLDER configuration — flagged to the client in the PR.
+ * FALLBACK configuration — the PLACEHOLDER seed, not the operating switch.
  *
  * The client has NOT confirmed how many chapels the park has, their names, or
  * which seeded scheduling resource is the common vs the private chapel. The
- * 2026 sheet only prices two classes. This list is therefore the ONE place to
- * re-point that mapping (and to add more chapels per class) the moment the
- * client answers: every entry matching a chapel resource (by scheduling id OR
- * exact name — the frozen contract seeds "Chapel A"/"Chapel B") gives that
- * resource its sheet class. More than one resource per class simply means that
- * many concurrent stays of that class.
+ * 2026 sheet only prices two classes. The staff Schedule screen owns those
+ * facts now (lib/chapel-admin.ts + the durable store): an operator adds, renames,
+ * reclassifies, deactivates and closes chapels there, and that is what the
+ * storefront reads.
+ *
+ * This list is the SEED/FALLBACK for a resource the park's own records do not
+ * list (it matches the recorded fixture
+ * lib/fixtures/scheduling/chapel-admin.json — pinned by
+ * tests/fixture-contract/chapel-admin.test.ts). Keep the two in step; change the
+ * mapping per-resource on /staff/schedule rather than here.
  * ========================================================================= */
 
 export type ChapelClassRule = { match: string; chapelClass: ChapelClass };
@@ -62,16 +68,39 @@ export const CHAPEL_CLASS_RULES: ReadonlyArray<ChapelClassRule> = [
 ];
 
 /** The sheet class a scheduling resource sells as, or null when it is not a chapel. */
-export function chapelClassOf(resource: Pick<Resource, "id" | "name">): ChapelClass | null {
+/** The structural shape an explicit chapel config carries (see ChapelRecord). */
+export type ChapelConfigLike = {
+  id: string;
+  name: string;
+  chapel_class: ChapelClass;
+  active?: boolean;
+};
+
+/**
+ * The sheet class a scheduling resource sells as, or null when it is not a
+ * chapel. The park's own records (staff-editable, lib/chapel-admin.ts) win; the
+ * placeholder rules above are the fallback for resources they do not list.
+ */
+export function chapelClassOf(
+  resource: Pick<Resource, "id" | "name">,
+  configs: readonly ChapelConfigLike[] = [],
+): ChapelClass | null {
+  const config =
+    configs.find((c) => c.id === resource.id) ?? configs.find((c) => c.name === resource.name);
+  if (config) return config.chapel_class;
   const rule = CHAPEL_CLASS_RULES.find(
     (r) => r.match === resource.id || r.match === resource.name,
   );
   return rule?.chapelClass ?? null;
 }
 
-/** Every chapel of a class (empty when the placeholder config has not been pointed at one). */
-export function chapelsOf(resources: Resource[], chapelClass: ChapelClass): Resource[] {
-  return resources.filter((r) => chapelClassOf(r) === chapelClass);
+/** Every chapel of a class (empty when no resource sells as that class). */
+export function chapelsOf(
+  resources: Resource[],
+  chapelClass: ChapelClass,
+  configs: readonly ChapelConfigLike[] = [],
+): Resource[] {
+  return resources.filter((r) => chapelClassOf(r, configs) === chapelClass);
 }
 
 /* ----------------------------- calendar dates ----------------------------- */
@@ -204,17 +233,14 @@ export function chapelStayPrices(chapelClass: ChapelClass, days: number): Chapel
 /* ----------------------------- availability ------------------------------- */
 
 /**
- * A date the park has closed for a chapel (maintenance/blocked). No shape
- * exists upstream yet (booking-events-v1 defers resource maintenance windows),
- * so the list is empty; this is the ONE hook the admin follow-up task fills —
- * a blocked date then flows through the dialog, the BFF check and the tests
- * without touching anything else.
+ * A date the park has closed for a chapel (maintenance/private use). No shape
+ * exists upstream (booking-events-v1 defers resource maintenance windows), so
+ * the staff Schedule screen stores closed RANGES app-side
+ * (lib/api-client/chapel-store.ts) and expands them to these per-date entries
+ * (lib/chapel-admin.ts `blockedDateEntries`) before either the dialog or the
+ * reserve check reads them.
  */
 export type BlockedDate = { resource_id: string; date: string };
-
-export function blockedDates(): BlockedDate[] {
-  return [];
-}
 
 /** The booking fields the availability rules actually read (a full `Booking`
  *  satisfies this, and so does the BFF's reshaped payload). */
@@ -307,11 +333,15 @@ export type ChapelAvailabilityResult = ChapelAvailabilityOk | { ok: false; refus
 /**
  * The booking rule, in one place. `resourceId` picks a specific chapel; omit it
  * to take the first chapel of the class that is free for the whole range.
+ * `chapelConfigs` carries the park's own chapel records when the caller has them
+ * (the dialog reads them from /api/chapel/schedule), so a renamed or
+ * reclassified chapel is still matched without restating the class mapping here.
  */
 export function checkChapelAvailability(input: {
   resources: Resource[];
   bookings: BookingWindow[];
   blockedDates?: BlockedDate[];
+  chapelConfigs?: readonly ChapelConfigLike[];
   chapelClass: ChapelClass;
   startDate: string;
   days: number;
@@ -319,6 +349,7 @@ export function checkChapelAvailability(input: {
 }): ChapelAvailabilityResult {
   const { chapelClass, startDate, days } = input;
   const blocks = input.blockedDates ?? [];
+  const configs = input.chapelConfigs ?? [];
 
   if (!isChapelDayCount(days)) {
     return { ok: false, refusal: { code: "days_out_of_range", days } };
@@ -327,7 +358,7 @@ export function checkChapelAvailability(input: {
     return { ok: false, refusal: { code: "invalid_start_date", startDate } };
   }
 
-  const chapels = chapelsOf(input.resources, chapelClass);
+  const chapels = chapelsOf(input.resources, chapelClass, configs);
   if (chapels.length === 0) {
     return { ok: false, refusal: { code: "no_chapel_configured", chapelClass } };
   }

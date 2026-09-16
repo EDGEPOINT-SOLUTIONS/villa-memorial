@@ -1,29 +1,38 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { ApiError } from "@/lib/api-client/api-error";
 import { cancelBooking } from "@/lib/api-client/scheduling";
-import { ACCESS_COOKIE, parseAccessTokenClaims } from "@/lib/auth/session";
-import { hasAnyScope } from "@/lib/rbac/nav";
+import { cancelChapelBooking, chapelClassOfBooking } from "@/lib/api-client/chapel-admin";
+import { readJsonBody, requireSchedulingScope } from "@/app/api/schedule/_guard";
 
 /**
  * BFF: POST /api/schedule/bookings/:id/cancel — thin proxy over scheduling-resources
  * `POST /scheduling/api/v1/bookings/:id/cancel` (scope `scheduling:write`).
+ *
+ * CHAPEL BOOKINGS ARE THE EXCEPTION the staff chapel screen needs: a chapel
+ * cancellation must say WHY the dates are being given back, and the frozen
+ * endpoint carries no body for a reason. So a chapel booking goes through
+ * lib/api-client/chapel-admin.ts, which cancels on the service FIRST (that is
+ * what frees the dates for every reader) and then records the operator's reason
+ * app-side; any other resource keeps the untouched generic proxy. The optional
+ * `reason` is ignored for non-chapel bookings — the service has nowhere to put it.
  */
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const jar = await cookies();
-  const claims = parseAccessTokenClaims(jar.get(ACCESS_COOKIE)?.value);
-  if (!claims) {
-    return NextResponse.json({ error: "not signed in" }, { status: 401 });
-  }
-  if (!hasAnyScope(claims.scopes, ["scheduling:write"])) {
-    return NextResponse.json({ error: "scheduling:write required" }, { status: 403 });
-  }
+  const auth = await requireSchedulingScope(["scheduling:write"]);
+  if (!auth.ok) return auth.response;
+
+  const body = await readJsonBody(request);
+  const record = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
+  const reason = typeof record.reason === "string" ? record.reason : "";
 
   const { id } = await params;
   try {
+    if ((await chapelClassOfBooking(id)) !== null) {
+      const { booking, state } = await cancelChapelBooking(id, reason, auth.actor);
+      return NextResponse.json({ ...booking, admin_state: state });
+    }
     return NextResponse.json(await cancelBooking(id));
   } catch (err) {
     if (err instanceof ApiError) {

@@ -1,0 +1,45 @@
+{
+  "comment": [
+    "APP-AUTHORED chapel administration state (staff Schedule → Chapels / Availability).",
+    "",
+    "SHAPE: `chapels` maps a scheduling resource (scheduling-resources GET /resources, ids match",
+    "scheduling/resources.json) to the park's OWN facts about that chapel — its sheet class",
+    "(common|private), capacity, active flag and staff notes. `blocks` are operator-entered",
+    "closed date ranges (maintenance/private use), `booking_states` the app-authored",
+    "confirmation/cancellation records for a scheduling booking (reason, linked order, actor).",
+    "NO frozen contract names any of this: booking-events-v1 (KEB-D3-03) defers resource",
+    "maintenance windows and exposes no resource write endpoint, so live mode answers 503 for",
+    "these writes instead of inventing one (lib/api-client/chapel-admin.ts).",
+    "",
+    "PLACEHOLDER — the client has NOT confirmed how many chapels the park has, their names or",
+    "which class each sells as. The two seeded rows are the frozen schedule fixture's Chapel A /",
+    "Chapel B (the same mapping lib/chapel-booking.ts's CHAPEL_CLASS_RULES carries as the",
+    "fallback). Staff edit this list on /staff/schedule; the customer booking dialog reads it",
+    "immediately (same store), and tests/fixture-contract/chapel-admin.test.ts pins the seed to",
+    "the scheduling resources fixture so the two cannot drift.",
+    "",
+    "DEMO DATA ONLY: fixture-mode only, persisted through lib/api-client/chapel-store.ts",
+    "(.data/scheduling-chapel-admin.json, gitignored) with this file as the read-only seed."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "chapels": [
+    {
+      "id": "10000000-0000-4000-8000-0000000000c1",
+      "name": "Chapel A",
+      "chapel_class": "common",
+      "capacity": 120,
+      "active": true,
+      "notes": "PLACEHOLDER row — the client has not confirmed the park's real chapel list yet."
+    },
+    {
+      "id": "10000000-0000-4000-8000-0000000000c2",
+      "name": "Chapel B",
+      "chapel_class": "private",
+      "capacity": 60,
+      "active": true,
+      "notes": "PLACEHOLDER row — the client has not confirmed the park's real chapel list yet."
+    }
+  ],
+  "blocks": [],
+  "booking_states": []
+}

@@ -4,7 +4,10 @@
  * The customer flow needs three operations the scheduling module does not
  * expose as-is:
  *   1. the chapel slice of the schedule (chapel resources + their confirmed
- *      bookings + the blocked-date hook) for the dialog's availability view;
+ *      bookings + the park's closed dates) for the dialog's availability view;
+ *      which resources count — and their class — comes from the park's own
+ *      staff-editable records (lib/api-client/chapel-store.ts), so deactivating
+ *      a chapel or closing a range on /staff/schedule is visible here at once;
  *   2. a reservation that re-checks the range before writing it (the frozen
  *      contract's conflict rule FLAGS overlaps instead of blocking — cut line
  *      #3 — so the storefront holds the line: check, create, and roll the
@@ -32,10 +35,10 @@ import {
   type Booking,
   type Resource,
 } from "@/lib/api-client/scheduling";
+import { listChapelBlocks, listChapelRecords } from "@/lib/api-client/chapel-store";
+import { blockedDateEntries, chapelClassOfResource, chapelIsActive } from "@/lib/chapel-admin";
 import {
-  blockedDates as chapelBlockedDates,
   chapelBookingInput,
-  chapelClassOf,
   chapelRefusalMessage,
   chapelRefusalStatus,
   checkChapelAvailability,
@@ -51,23 +54,31 @@ export type ChapelSchedule = {
   chapels: ChapelScheduleResource[];
   /** Confirmed bookings on chapel resources only, in scheduling's order. */
   bookings: Booking[];
-  /** Admin-side blocked dates (empty until the maintenance shape exists). */
+  /** The park's closed dates, expanded to one entry per date. */
   blockedDates: BlockedDate[];
 };
 
 /** The public booking step's availability read: the park's own chapel schedule. */
 export async function getChapelSchedule(): Promise<ChapelSchedule> {
-  const [resources, allBookings] = await Promise.all([listResources(), listBookings()]);
+  const [resources, allBookings, records, blocks] = await Promise.all([
+    listResources(),
+    listBookings(),
+    listChapelRecords(),
+    listChapelBlocks(),
+  ]);
   const chapels: ChapelScheduleResource[] = [];
   for (const resource of resources) {
-    const chapelClass = chapelClassOf(resource);
-    if (chapelClass) chapels.push({ ...resource, chapel_class: chapelClass });
+    const chapelClass = chapelClassOfResource(resource, records);
+    if (!chapelClass) continue;
+    // A chapel the park has switched off keeps its bookings but leaves the storefront.
+    if (!chapelIsActive(resource, records)) continue;
+    chapels.push({ ...resource, chapel_class: chapelClass });
   }
   const chapelIds = new Set(chapels.map((c) => c.id));
   return {
     chapels,
     bookings: allBookings.filter((b) => chapelIds.has(b.resource_id) && b.status === "confirmed"),
-    blockedDates: chapelBlockedDates(),
+    blockedDates: blockedDateEntries(blocks),
   };
 }
 
@@ -95,6 +106,7 @@ export async function reserveChapelStay(input: ChapelReservationInput): Promise<
     resources: schedule.chapels,
     bookings: schedule.bookings,
     blockedDates: schedule.blockedDates,
+    chapelConfigs: schedule.chapels,
     chapelClass,
     startDate: input.startDate,
     days: input.days,
