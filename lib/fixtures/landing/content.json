@@ -158,128 +158,49 @@
       "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg"
     },
     "services": {
-      "heading": "Services in full detail",
-      "intro": "Every service below is a full editorial section — what happens, what it includes, and how to begin. Click any one for its full page.",
+      "kicker": "What we do",
+      "heading": "Services we offer",
+      "intro": "Four ways a family can be served — priced on the official 2026 price list, with 6-year amortization at Annual, Semi-Annual, Quarterly and Monthly terms (extendable to 8 or 10 years).",
       "items": [
         {
-          "id": "svc-death-at-home",
-          "title": "Death at home",
-          "tagline": "You should not manage the next steps alone.",
-          "image": "/media/death_at_home.jpg",
-          "body": [
-            "When a loved one passes at home, our coordinators arrange transport, dignified preparation, and guide you through the service options that fit your family — at your pace, with no pressure."
-          ],
-          "bullets": ["Available 24/7", "Transport from your home", "Guidance through every option"],
-          "link": { "label": "Read the full service", "href": "/services/death-at-home" }
+          "id": "svc-lot-only",
+          "icon": "lot",
+          "title": "Lot only",
+          "text": "A memorial lot for your loved ones — garden niches, prime, premium or mausoleum plots.",
+          "href": "/lots",
+          "category": "1. Lot Only"
         },
         {
-          "id": "svc-death-at-hospital",
-          "title": "Death at hospital",
-          "tagline": "We liaise with the facility, you focus on your family.",
-          "image": "/media/death_at_hospital.jpg",
-          "body": [
-            "We coordinate directly with the hospital so you are not left to manage paperwork and transport alone. A coordinator takes the next steps in care from there."
-          ],
-          "bullets": ["Hospital coordination", "Transport arrangements", "Next-step guidance"],
-          "link": { "label": "Read the full service", "href": "/services/death-at-hospital" }
+          "id": "svc-lot-interment",
+          "icon": "interment",
+          "title": "Lot + interment",
+          "text": "First burial only — includes a coffin and grave digging.",
+          "href": "/plans",
+          "category": "2. Lot + Interment (1st Burial Only)"
         },
         {
-          "id": "svc-retrieval",
-          "title": "Retrieval & delivery",
-          "tagline": "Part of the complete Villa Memorial Plan.",
-          "image": "/media/transport.jpg",
-          "body": [
-            "Retrieval of the deceased to the morgue and delivery in casket — good for the first 25 km only — handled with care and respect."
-          ],
-          "bullets": ["First 25 km covered", "Careful, dignified handling"],
-          "link": { "label": "See plan inclusions", "href": "/plans/villa-memorial-plan" }
+          "id": "svc-lot-interment-vmp",
+          "icon": "plan",
+          "title": "Lot + interment + VMP",
+          "text": "A complete memorial plan with assistance through the Villa Memorial Plan.",
+          "href": "/plans/villa-memorial-plan",
+          "category": "3. Lot + Interment + VMP"
         },
         {
-          "id": "svc-preparation",
-          "title": "Preparation & casketing",
-          "tagline": "Embalming, make-up and dressing.",
-          "image": "/media/gold-casket.jpg",
-          "body": [
-            "Embalming with make-up and dressing. The type of coffin differs per plan — Bronze, Silver or Gold — each with elegant handles and beautiful interiors."
-          ],
-          "bullets": ["Embalming", "Make-up & dressing", "Coffin tier per plan"],
-          "link": { "label": "Compare coffin tiers", "href": "/plans/villa-memorial-plan" }
-        },
-        {
-          "id": "svc-viewing",
-          "title": "Viewing equipment & rites",
-          "tagline": "State-of-the-art, classy equipment for the wake.",
-          "image": "/media/at_need_services.jpg",
-          "body": [
-            "Lights, curtains and carpets arranged with care, so the family can gather in a space that feels calm and dignified. All packages include free flowers and a tarpaulin."
-          ],
-          "bullets": ["Lights, curtains & carpets", "Free flowers & tarpaulin", "Funeral & memorial rites"],
-          "link": { "label": "Plan inclusions", "href": "/plans/villa-memorial-plan" }
-        },
-        {
-          "id": "svc-interment",
-          "title": "Interment",
-          "tagline": "Several cars ready to bring your loved one home.",
-          "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg",
-          "body": [
-            "The final journey is conducted with dignity — several cars are ready to bring the deceased to its final resting place in the park."
-          ],
-          "bullets": ["Funeral convoy", "Final resting place in the park"],
-          "link": { "label": "View the 2026 price list", "href": "/lots/price-list-2026" }
+          "id": "svc-mausoleum",
+          "icon": "mausoleum",
+          "title": "Mausoleum + construction",
+          "text": "A complete solution for a private and enduring sanctuary — up to life-plan coverage.",
+          "href": "/lots/mausoleum",
+          "category": "4. Mausoleum + Construction"
         }
       ]
     },
     "plans": {
-      "heading": "Memorial plans & garden lots",
-      "intro": "Choose what fits your family — every card shows a real photo, a name and an honest price from the 2026 list. Admin adds as many plans as he wants here.",
-      "note": "Prices shown are the regular \"lot only\" selling prices and the Villa Memorial Plan monthly rate from the 2026 price list. Senior, installment and interment options are on each plan page.",
-      "items": [
-        {
-          "id": "plan-premium",
-          "badge": "Garden lot",
-          "name": "Premium Lot",
-          "price": "₱114,000",
-          "note": "2.5 sqm · lot only · regular",
-          "image": "/media/lot-premium.png",
-          "href": "/lots/price-list-2026"
-        },
-        {
-          "id": "plan-prime",
-          "badge": "Garden lot",
-          "name": "Prime Lot",
-          "price": "₱128,000",
-          "note": "2.5 sqm · lot only · regular",
-          "image": "/media/lot-primary.png",
-          "href": "/lots/price-list-2026"
-        },
-        {
-          "id": "plan-niches",
-          "badge": "Structure",
-          "name": "Garden Niches",
-          "price": "₱567,000",
-          "note": "12 sqm · lot only · regular",
-          "image": "/media/lot-garden-niches.png",
-          "href": "/lots/price-list-2026"
-        },
-        {
-          "id": "plan-mausoleum",
-          "badge": "Structure",
-          "name": "Mausoleum",
-          "price": "₱1,073,000",
-          "note": "24 sqm · lot only · regular",
-          "image": "/media/lot-mausoleum.png",
-          "href": "/lots/price-list-2026"
-        },
-        {
-          "id": "plan-vmp",
-          "badge": "Life plan",
-          "name": "Villa Memorial Plan",
-          "price": "from ₱600/month",
-          "note": "Complete memorial service · assignable & transferable",
-          "image": "/media/plan-packages.png",
-          "href": "/plans/villa-memorial-plan"
-        }
-      ]
+      "kicker": "Plan ahead",
+      "heading": "Villa Memorial Plan",
+      "intro": "“An affordable life plan for all” — a life plan that assures complete memorial services, assignable, transferable and with limited contestability and no forfeiture.",
+      "note": "Standard Villa Memorial Plan rates. Senior-citizen rates (from {seniorMonthly} / month) are on the {packagePage}. Powered by Eternal Plans, Inc. — “Your future is our concern.”"
     },
     "blog": {
       "heading": "News from the park",

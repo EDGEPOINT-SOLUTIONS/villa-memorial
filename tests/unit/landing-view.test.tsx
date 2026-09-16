@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
-import { php, planRate } from "@/lib/villa-pricing";
+import { PLAN_TERMS, PLAN_TIERS, lotCategoryFromPrice, php, planRate } from "@/lib/villa-pricing";
 
 /**
  * Public-interface render tests for the anchored catalogue home (executed through
@@ -88,15 +88,15 @@ describe("the home renders the anchored catalogue shell", () => {
     }
   });
 
-  it("middle sections render in order: about, services, plans grid, live map, then blog feed", async () => {
+  it("middle sections render in order: about, service cards, plan board, live map, then blog feed", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     const heroPos = html.indexOf("hero-home__title");
     const aboutPos = html.indexOf("about-grid");
-    const servicesPos = html.indexOf("services-list");
-    const plansPos = html.indexOf("plan-grid");
+    const servicesPos = html.indexOf("svc-grid");
+    const plansPos = html.indexOf("plan-board");
     const mapPos = html.indexOf("mid-section--map");
     const blogPos = html.indexOf("blog-feed");
     expect(heroPos).toBeGreaterThanOrEqual(0);
@@ -112,18 +112,82 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).not.toContain('aria-label="Like"');
   });
 
-  it("plan cards carry photos, real names and the honest 2026 prices", async () => {
+  it("renders the prototype's four “Services we offer” cards with their derived 2026 from-prices", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    expect(html).toContain("₱114,000");
-    expect(html).toContain("₱1,073,000");
-    expect(html).toContain("lot-premium.png");
-    // Derived from the same payment-mode table the price list prints — a
-    // mis-keyed rate (the former ₱500 Bronze 1) fails here, not in production.
-    expect(html).toContain(`from ${php(planRate("bronze1", "monthly"))}/month`);
-    expect((html.match(/class="plan-card"/g) ?? []).length).toBe(content.plans.items.length);
+    expect(html).toContain("What we do");
+    expect(html).toContain("Services we offer");
+    // Four cards, each a real door to a real page (the prototype's own routes).
+    expect((html.match(/class="svc-card"/g) ?? []).length).toBe(4);
+    for (const [href, title] of [
+      ["/lots", "Lot only"],
+      ["/plans", "Lot + interment"],
+      ["/plans/villa-memorial-plan", "Lot + interment + VMP"],
+      ["/lots/mausoleum", "Mausoleum + construction"],
+    ] as const) {
+      expect(html).toContain(`<a class="svc-card" href="${href}">`);
+      expect(html).toContain(title);
+    }
+    // Every meta line is DERIVED from the 2026 sheet through the one helper —
+    // "from ₱X · ₱Y / month, 6 yrs" (6-year amortization is the sheet's own).
+    for (const card of content.services.items) {
+      const from = lotCategoryFromPrice(card.category);
+      expect(from).not.toBeNull();
+      expect(html).toContain(`from ${php(from!.selling)}`);
+      expect(html).toContain(`· ${php(from!.monthly)} / month, 6 yrs`);
+    }
+    // The prototype's published figures reach the markup verbatim.
+    for (const line of ["from ₱75,000", "from ₱97,000", "from ₱126,000", "from ₱1,573,000"]) {
+      expect(html).toContain(line);
+    }
+    // Each card carries one of the prototype's inline glyphs.
+    expect((html.match(/svc-card__icon/g) ?? []).length).toBe(4);
+    expect((html.match(/<svg /g) ?? []).length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("renders the Villa Memorial Plan board from the 2026 payment-mode tables", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    // The prototype's heading, kicker and promo figure.
+    expect(html).toContain("Plan ahead");
+    expect(html).toContain("Villa Memorial Plan");
+    expect(html).toContain("plan-packages.png");
+    expect(html).toContain('class="promo-figure"');
+
+    // The term switch: the prototype's four modes, Monthly pressed on first paint.
+    const sw = html.slice(html.indexOf('class="term-switch"'), html.indexOf("</table>"));
+    for (const term of PLAN_TERMS) {
+      expect(sw).toContain(`data-term="${term.id}"`);
+      expect(sw).toContain(term.label);
+    }
+    expect(sw).toContain('aria-pressed="true" data-term="monthly"');
+    expect((sw.match(/aria-pressed="false"/g) ?? []).length).toBe(3);
+    expect(sw).toContain('role="group" aria-label="Plan term"');
+
+    // All five tiers × four terms, every amount through planRate().
+    for (const tier of PLAN_TIERS) {
+      expect(html).toContain(tier.name);
+      for (const term of PLAN_TERMS) {
+        expect(html).toContain(php(planRate(tier.id, term.id)));
+      }
+    }
+    // Bronze 1 carries the prototype's SKU badge.
+    expect(html).toContain('class="badge badge--accent">PKG-BASIC</span>');
+    // The pressed term's column is washed from the first paint: its header
+    // cell plus one cell per tier (5 tiers).
+    expect((html.match(/is-term-hl/g) ?? []).length).toBe(1 + PLAN_TIERS.length);
+
+    // The footnote keeps the senior-rate token resolved from the sheet and the
+    // package-page door; the underwriting credits close the board.
+    expect(html).toContain(`from ${php(planRate("bronze1", "monthly", true))} / month`);
+    expect(html).toContain('<a href="/plans/PKG-BASIC">package page</a>');
+    expect(html).toContain("logo-villa-agency.png");
+    expect(html).toContain("logo-villa-group.png");
+    expect(html).toContain("Powered by Eternal Plans, Inc.");
   });
 });
 
@@ -179,15 +243,17 @@ describe("the hero accepts a background photo", () => {
 });
 
 describe("the home degrades gracefully on sparse content", () => {
-  it("an empty plan list renders an empty-state note, not a crash", async () => {
+  it("an empty service-card list renders an empty-state note, not a crash", async () => {
     const content = await listLandingContent();
     const sparse = cloneDoc(content);
-    sparse.plans.items = [];
+    sparse.services.items = [];
     const html = renderToStaticMarkup(
       LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    expect(html).not.toContain('class="plan-card"');
-    expect(html).toContain("Plan cards will appear here once staff publishes them.");
+    expect(html).not.toContain('class="svc-card"');
+    expect(html).toContain("Service cards will appear here once staff publishes them.");
+    // The plan board is derived content — it still renders with no service cards.
+    expect(html).toContain("plan-board");
   });
 
   it("an empty blog list and a caption-only post (empty media) render cleanly", async () => {
