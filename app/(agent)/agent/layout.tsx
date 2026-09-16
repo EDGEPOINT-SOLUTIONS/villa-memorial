@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { PortalFrame } from "@/components/portal-frame";
-import { AGENT_PORTAL_NAV } from "@/components/portal-nav";
+import { AGENT_PORTAL_NAV, asSingleGroup } from "@/components/portal-nav";
 
 /**
  * Agent portal layout — same PortalFrame chrome as the family portal.
@@ -45,7 +45,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
       brandLabel="Agent Portal"
       email={email}
       logoutTo="/agent/login"
-      nav={AGENT_PORTAL_NAV}
+      nav={asSingleGroup(AGENT_PORTAL_NAV)}
     >
       {children}
     </PortalFrame>

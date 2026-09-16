@@ -8,6 +8,14 @@
  * bar + drawer on mobile. This is that design, re-implemented in Next.js with
  * tokens-only CSS and lucide icons (no Material-font dependency, no Tailwind).
  *
+ * Family portal additions (approved design, docs/08-delivery/family-portal-design):
+ * - the sidebar navigation is GROUPED (design §"Information architecture") and
+ *   the groups get plain-language headings;
+ * - phones get a bottom tab bar — four pinned destinations plus More, which
+ *   opens the same grouped navigation in the drawer;
+ * - the sidebar carries the coordinator's number (zero taps to a human).
+ * All three are opt-in through props, so the agent portal is unchanged.
+ *
  * Signed-in children render in the content column; sign-out posts to the real
  * auth BFF. The PortalSwitch keeps the four surfaces connected (one product).
  */
@@ -39,7 +47,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { PortalSwitch } from "@/components/portal-switch";
-import type { PortalNavItem } from "@/components/portal-nav";
+import type { PortalNavGroup, PortalNavItem } from "@/components/portal-nav";
 
 const ICONS: Record<string, LucideIcon> = {
   dashboard: LayoutDashboard,
@@ -55,11 +63,20 @@ const ICONS: Record<string, LucideIcon> = {
   notifications: Bell,
   support: LifeBuoy,
   privacy: ShieldCheck,
+  family: Users,
   clients: Users,
   prospects: UserSearch,
   applications: FileText,
   sales: ChartNoAxesCombined,
   marketing: Megaphone,
+};
+
+/** Mobile tab descriptor — `more` opens the drawer instead of navigating. */
+export type PortalTab = {
+  key: string;
+  label: string;
+  to: string;
+  more?: boolean;
 };
 
 function SignOutButton({ to }: { to: string }) {
@@ -89,14 +106,21 @@ export function PortalFrame({
   logoutTo,
   nav,
   bell,
+  tabs,
+  help,
   children,
 }: {
   portal: "family" | "agent";
   brandLabel: string;
   email: string | null;
   logoutTo: string;
-  nav: PortalNavItem[];
+  /** Grouped navigation (a single unnamed group renders exactly as before). */
+  nav: PortalNavGroup[];
   bell?: ReactNode;
+  /** Optional phone bottom bar (family portal). */
+  tabs?: readonly PortalTab[];
+  /** Optional sidebar help block (family portal: the coordinator's number). */
+  help?: ReactNode;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -109,29 +133,36 @@ export function PortalFrame({
     </>
   );
 
+  const renderItem = (item: PortalNavItem) => {
+    const Icon = ICONS[item.key] ?? LayoutDashboard;
+    const active = pathname === item.to;
+    return (
+      <Link
+        key={item.key}
+        href={item.to}
+        className={`portal-nav__item${active ? " portal-nav__item--active" : ""}`}
+        aria-current={active ? "page" : undefined}
+        onClick={() => setMenuOpen(false)}
+      >
+        <Icon size={18} aria-hidden="true" />
+        <span>{item.label}</span>
+      </Link>
+    );
+  };
+
   const navList = (
     <>
-      {nav.map((item) => {
-        const Icon = ICONS[item.key] ?? LayoutDashboard;
-        const active = pathname === item.to;
-        return (
-          <Link
-            key={item.key}
-            href={item.to}
-            className={`portal-nav__item${active ? " portal-nav__item--active" : ""}`}
-            aria-current={active ? "page" : undefined}
-            onClick={() => setMenuOpen(false)}
-          >
-            <Icon size={18} aria-hidden="true" />
-            <span>{item.label}</span>
-          </Link>
-        );
-      })}
+      {nav.map((group, index) => (
+        <div className="portal-nav__group" key={group.label || `group-${index}`}>
+          {group.label ? <p className="portal-nav__label">{group.label}</p> : null}
+          {group.items.map(renderItem)}
+        </div>
+      ))}
     </>
   );
 
   return (
-    <div className="portal-frame">
+    <div className="portal-frame" data-portal={portal}>
       {/* Mobile / tablet top bar */}
       <header className="portal-topbar">
         <div className="portal-topbar__brand">{brand}</div>
@@ -163,6 +194,7 @@ export function PortalFrame({
         </nav>
 
         <div className="portal-sidebar__foot">
+          {help}
           <div className="portal-sidebar__switcher">
             <PortalSwitch current={portal} />
           </div>
@@ -174,6 +206,41 @@ export function PortalFrame({
       <main className="portal-content">
         <div className="portal-content__inner">{children}</div>
       </main>
+
+      {/* Mobile bottom tabs (family portal) */}
+      {tabs && tabs.length > 0 ? (
+        <nav className="portal-tabbar" aria-label={`${brandLabel} quick navigation`}>
+          {tabs.map((tab) => {
+            const Icon = ICONS[tab.key] ?? Menu;
+            const active = !tab.more && pathname === tab.to;
+            if (tab.more) {
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  className="portal-tabbar__item"
+                  onClick={() => setMenuOpen(true)}
+                >
+                  <Icon size={20} aria-hidden="true" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            }
+            return (
+              <Link
+                key={tab.key}
+                href={tab.to}
+                className={`portal-tabbar__item${active ? " portal-tabbar__item--active" : ""}`}
+                aria-current={active ? "page" : undefined}
+                onClick={() => setMenuOpen(false)}
+              >
+                <Icon size={20} aria-hidden="true" />
+                <span>{tab.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      ) : null}
 
       {/* Mobile drawer */}
       {menuOpen ? (
@@ -193,6 +260,7 @@ export function PortalFrame({
             {navList}
           </nav>
           <div className="portal-sidebar__foot">
+            {help}
             <SignOutButton to={logoutTo} />
           </div>
         </div>
