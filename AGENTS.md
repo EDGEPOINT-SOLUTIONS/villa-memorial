@@ -152,6 +152,21 @@ docker compose up --build                            # SSR on :3000 against stub
   (tier × term, regular + senior tables; 2026 sheet family captions live there too).
   The prototype wins over every older render.
 
+## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
+
+- The three routes render `components/public-forms/*` on the shared apply-form shell
+  (numbered `.capture-section` cards, `field-grid`, one `.capture-actions` bar); the
+  submit gate is one function per form in `lib/public-forms/validation.ts`. The shell
+  grammar carries no `*`/`(optional)` labels — optionality lives in field hints and
+  the gate. The appointment reason list there is PROVISIONAL: no shared taxonomy exists.
+- No crm-families / quotation / scheduling contract exists, so nothing is sent or
+  stored server-side. Quote and appointment confirmations must keep saying so
+  ("Request checked — nothing was sent."); contact captures land in the browser-local
+  demo store `lib/demo-inquiry-captures.ts`, which the staff inquiries board reads
+  after hydration (`app/(staff)/staff/inquiries/inquiry-board.tsx`). When a real write
+  contract lands, replace that store and the wording — never dress demo capture up as
+  delivery.
+
 ## Structure conventions
 ```
 web/
