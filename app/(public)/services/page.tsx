@@ -77,7 +77,8 @@ export default async function ServicesPage() {
           retrieval, delivery, viewing equipment, ORD coffin and interment — the sheet
           prints these for families who do not take a package. Chapel use is priced
           separately, common or private, with the senior-citizen column. Every line can
-          go straight into the cart, or be sent to the office as a request.
+          go into the cart — chapel stays after you pick the chapel and the dates — or be
+          sent to the office as a request.
         </p>
         <ServiceRates2026 items={items} />
         <p className="text-sm text-muted">
