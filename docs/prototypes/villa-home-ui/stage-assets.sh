@@ -81,9 +81,11 @@ PY
     echo "  – no PDF rasteriser (pdftoppm/pymupdf), skipped: $2"
   fi
 }
+# Absolute output paths: pdftoppm writes relative to the CWD, so a bare
+# filename would drop the renders at the repo root instead of this folder.
 echo "Price-list sheets II/III (PDF):"
-render_pdf "$DOCS/PRICE LIST FOR 2026 II.pdf" doc-price-list-2026-II.jpg
-render_pdf "$DOCS/PRICE LIST FOR 2026 III.pdf" doc-price-list-2026-III.jpg
+render_pdf "$DOCS/PRICE LIST FOR 2026 II.pdf" "$HERE/doc-price-list-2026-II.jpg"
+render_pdf "$DOCS/PRICE LIST FOR 2026 III.pdf" "$HERE/doc-price-list-2026-III.jpg"
 
 echo
 echo "Staged $copied images. Serve the repo root with a static server and open:"

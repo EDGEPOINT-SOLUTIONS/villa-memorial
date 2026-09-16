@@ -81,10 +81,15 @@ export const CASH_ASSISTANCE = [
 ];
 
 export const VMP_PACKAGE = [
-  { service: "Retrieval & delivery", detail: "Retrieval of the deceased to the morgue and delivery in casket — good for the first 25 km only." },
-  { service: "Preparation & casketing", detail: "7 days of embalming with make-up and dressing; the type of coffin differs per plan." },
-  { service: "Viewing equipment", detail: "State-of-the-art, classy equipment including lights, curtains and carpets." },
-  { service: "Interment", detail: "Several cars ready to bring the deceased to its final destination." },
+  { service: "Retrieval & delivery", detail: "Retrieval of the deceased to the morgue and delivery of the same in casket. Good for the first 25 kms only." },
+  // Embalming is INCLUDED in the package with no fixed day count: the client's
+  // "2026 price FV website A" (byte-identical to PRICE LIST FOR 2026 II) prices
+  // embalming per day (3 days 6,000 … 9 days 15,000, +1,500/day beyond) and
+  // states that table applies only when the family does NOT take a package.
+  // There is no 1-day option in the list — never state a day count here.
+  { service: "Preparation & casketing", detail: "Embalming with make-up and dressing. The type of coffin differs with the plan." },
+  { service: "Viewing equipment", detail: "State-of-the-Art and classy equipment which includes lights, curtains and carpets." },
+  { service: "Interment", detail: "Several cars will be ready and bring the deceased to its final destination." },
 ];
 
 export const VMP_ELIGIBILITY = ["Age 1–60 years old", "In good health", "Resident of the Philippines"];
@@ -114,9 +119,12 @@ function row(product: string, area: number, r: [number, number, number, number, 
   };
 }
 
-export const LOT_PRICE_CATEGORIES: Array<{ title: string; rows: LotPriceRow[] }> = [
+export const LOT_PRICE_CATEGORIES: Array<{ title: string; caption: string; rows: LotPriceRow[] }> = [
   {
     title: "1. Lot Only",
+    // `caption` = the family name as printed on the 2026 sheet (the package
+    // page's price module renders the prototype's table captions exactly).
+    caption: "Lot only",
     rows: [
       row("Mausoleum", 24, [1073000, 178833, 92993, 48285, 16095], [924462, 154077, 80120, 41601, 13867]),
       row("Garden Niches", 12, [567000, 94500, 49140, 25515, 8505], [491400, 81900, 42588, 22113, 7371]),
@@ -127,6 +135,7 @@ export const LOT_PRICE_CATEGORIES: Array<{ title: string; rows: LotPriceRow[] }>
   },
   {
     title: "2. Lot + Interment (1st Burial Only)",
+    caption: "Lot + interment (1st burial only)",
     rows: [
       row("Mausoleum", 24, [1106000, 184333, 95853, 49770, 16590], [951054, 158509, 82425, 42797, 14266]),
       row("Garden Niches", 12, [600000, 100000, 52000, 27000, 9000], [517992, 86332, 44893, 23310, 7770]),
@@ -137,6 +146,7 @@ export const LOT_PRICE_CATEGORIES: Array<{ title: string; rows: LotPriceRow[] }>
   },
   {
     title: "3. Lot + Interment + VMP",
+    caption: "Lot + interment + VMP",
     rows: [
       row("Mausoleum", 24, [1135000, 189167, 98367, 50129, 17025], [979854, 163309, 84921, 44093, 14698]),
       row("Garden Niches", 12, [629000, 104833, 54513, 27781, 9435], [546792, 91132, 47389, 24606, 8202]),
@@ -147,6 +157,7 @@ export const LOT_PRICE_CATEGORIES: Array<{ title: string; rows: LotPriceRow[] }>
   },
   {
     title: "4. Mausoleum + Construction",
+    caption: "Mausoleum + construction",
     rows: [
       row("Mausoleum + Construction", 24, [1573000, 262167, 136327, 70785, 23595], [1258400, 209733, 109061, 56628, 18876]),
       row("Mausoleum + Construction + 1st Interment", 24, [1607000, 267833, 139273, 72315, 24105], [1285600, 214267, 111419, 57852, 19284]),
@@ -194,6 +205,6 @@ export const VMP_INCLUSIONS: Array<{ service: string; detail: string }> = [
   ...VMP_PACKAGE,
   {
     service: "Free flowers and tarpaulin",
-    detail: "Flowers and a tarpaulin are included with the complete memorial package.",
+    detail: "Free! flowers and tarpaulin are included with the complete memorial package.",
   },
 ] as const;
