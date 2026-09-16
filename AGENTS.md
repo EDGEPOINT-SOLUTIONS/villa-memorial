@@ -276,6 +276,25 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
   in `tests/unit/park-3d-*`.
 
+## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
+
+- Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed
+  (`lib/fixtures/commerce/orders.json`) with an append-only event journal, rewritten atomically
+  (temp file + fsync + `rename`) under one serialized writer per process. Path:
+  `ORDERS_STORE_PATH` or `.data/commerce-orders.json` (gitignored). Tests must point
+  `ORDERS_STORE_PATH` at a temp file — never the repo store.
+- The frozen `OrderResponse` envelope is untouched: an `AdminOrder` merely wraps it with the
+  checkout contact + an APP-AUTHORED lifecycle (`new → confirmed → fulfilled`, `→ cancelled`).
+  The lifecycle never rewrites the frozen payment `status` (phase 1 does no payments/refunds).
+  No contract names an order-admin record: live mode answers 503 (`ADMIN_ORDERS_NOT_WIRED`) —
+  do not invent endpoints.
+- Scopes (frozen `rbac-scopes-v1`): `orders:read` gates the list/detail pages, `orders:write`
+  gates `POST /api/orders/:number/status` (read-only UI otherwise). List filters are
+  server-driven via `searchParams` (status / q / from / to).
+- Seed numbers, customers and totals mirror the billing fixture's invoices and every line's
+  SKU/price is pinned to `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`;
+  store/transition/RBAC behavior by `tests/unit/order-store.test.ts` + `tests/unit/orders-admin.test.tsx`.
+
 ## Structure conventions
 ```
 web/

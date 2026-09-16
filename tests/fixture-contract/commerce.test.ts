@@ -1,11 +1,16 @@
 import { describe, expect, it } from "vitest";
+import { mkdtempSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
 import {
   createOrder,
   fixtureCreateOrder,
+  getAdminOrder,
   getCatalogItem,
   getOrderByNumber,
   listCatalogItems,
+  listOrders,
 } from "@/lib/api-client/commerce";
 import {
   CART_LINE_TYPE_LABEL,
@@ -43,6 +48,14 @@ import {
  * the client's own price-list labels. Upstream parity is the captain's call
  * (called out in the PR).
  */
+
+// Fixture-mode checkout persists through the durable order store
+// (lib/api-client/order-store.ts). Point it at a throwaway file so the suite never
+// writes (or reads) the repo's .data/ store.
+process.env.ORDERS_STORE_PATH = path.join(
+  mkdtempSync(path.join(os.tmpdir(), "vm-orders-contract-")),
+  "orders.json",
+);
 
 /** The 11 upstream SKUs — identity must never change, whatever the price. */
 const UPSTREAM_SKUS: Array<[string, string]> = [
@@ -195,10 +208,12 @@ describe("checkout follows order-payment-api-v1", () => {
     expect(dupes.items).toHaveLength(1);
     expect(dupes.items[0].quantity).toBe(3);
 
-    expect(() =>
+    await expect(
       fixtureCreateOrder({ customer, items: [{ sku: "ADD-URN", quantity: 0 }] }),
-    ).toThrowError(/positive whole numbers/);
-    expect(() => fixtureCreateOrder({ customer, items: [] })).toThrowError(/at least one item/);
+    ).rejects.toThrowError(/positive whole numbers/);
+    await expect(fixtureCreateOrder({ customer, items: [] })).rejects.toThrowError(
+      /at least one item/,
+    );
   });
 
   it("unknown SKU → uniform 404 not_found; bad customer → 422 human-readable", async () => {
@@ -221,6 +236,28 @@ describe("checkout follows order-payment-api-v1", () => {
       status: 404,
       message: "not_found",
     });
+  });
+
+  it("persists what checkout created so the staff admin reads it — without leaking admin fields", async () => {
+    const order = await createOrder({
+      customer,
+      items: [{ sku: "SRV-DELIVERY", quantity: 1 }],
+    });
+
+    const listed = await listOrders();
+    expect(listed.map((record) => record.order.number)).toContain(order.number);
+
+    const record = await getAdminOrder(order.number);
+    expect(record).not.toBeNull();
+    expect(record!.customer.email).toBe(customer.email);
+    expect(record!.lifecycle_status).toBe("new");
+    expect(record!.timeline.map((event) => event.status)).toEqual(["new"]);
+
+    // The public envelope stays exactly the frozen shape: admin fields arrive only
+    // through the admin seam.
+    expect(Object.keys(order)).not.toContain("lifecycle_status");
+    expect(Object.keys(order)).not.toContain("customer");
+    expect(Object.keys(order)).not.toContain("timeline");
   });
 });
 

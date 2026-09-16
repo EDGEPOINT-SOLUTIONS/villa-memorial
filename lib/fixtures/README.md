@@ -24,6 +24,16 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      pinned by `tests/fixture-contract/commerce.test.ts`. This DIVERGES from the
      upstream platform seed (still placeholder-priced — see the file's comment);
      the four items no 2026 sheet prices keep their seed amounts.
+   - `commerce/orders.json` ← recorded demo orders for the staff Orders admin.
+     Each row WRAPS the FROZEN order-payment-api-v1 envelope with app-authored
+     admin fields (checkout contact, fulfilment lifecycle, timeline) — NO
+     contract names an order-admin record yet, so the wrapper is a fixture/demo
+     shape and live mode answers 503. Seed orders mirror the billing fixture's
+     invoice numbers/customers/totals; SKUs, prices and totals are pinned to
+     `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`.
+     Fixture-mode checkout APPENDS to `ORDERS_STORE_PATH` (default
+     `.data/commerce-orders.json`, gitignored) — see
+     `lib/api-client/order-store.ts` for the storage rationale.
 2. **Never hand-edit a fixture to make a failing test pass.** If the contract
    changed, update the fixture AND its contract test together.
 3. Fixture tokens are structurally shaped but UNSIGNED — they exist only so
