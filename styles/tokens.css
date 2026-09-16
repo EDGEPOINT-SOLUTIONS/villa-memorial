@@ -137,6 +137,16 @@
   --color-status-info: var(--slate-info);
   --color-status-info-bg: var(--slate-info-100);
 
+  /* Accessible status INK for small text on a status wash. The hues above are
+     tuned for large text and icons; at badge size (12 px / 600) they measure
+     2.7–4.2:1 on their own wash, so small status text uses these instead.
+     Applied on the family surfaces (styles/components.css, family block); the
+     staff-wide adoption is a separate visual decision. */
+  --color-status-success-ink: #4f6b4a;
+  --color-status-warning-ink: #7a5f1f;
+  --color-status-danger-ink: #7f3f36;
+  --color-status-info-ink: #42566b;
+
   /* --- Type --------------------------------------------------------------- */
   --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,

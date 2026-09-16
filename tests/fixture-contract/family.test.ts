@@ -27,4 +27,29 @@ describe("family snapshot fixture", () => {
     expect(s.balance.total).toMatch(/^₱/);
     expect(Array.isArray(s.recent_documents)).toBe(true);
   });
+
+  it("carries integer minor units that agree with the display strings", () => {
+    // Views never parse a display price (repo money rule), so the fixture carries
+    // both forms; this test is the one place allowed to parse, purely to pin them
+    // together. If they ever drift, one of the two is wrong.
+    const s = snapshot as unknown as {
+      balance: { total: string; paid: string; remaining: string };
+      balance_cents: { total: number; paid: number; remaining: number };
+    };
+    const toCents = (display: string): number =>
+      Math.round(Number(display.replace(/[^0-9]/g, "")) * 100);
+    expect(s.balance_cents.total).toBe(toCents(s.balance.total));
+    expect(s.balance_cents.paid).toBe(toCents(s.balance.paid));
+    expect(s.balance_cents.remaining).toBe(toCents(s.balance.remaining));
+    expect(s.balance_cents.remaining).toBe(s.balance_cents.total - s.balance_cents.paid);
+    for (const value of Object.values(s.balance_cents)) {
+      expect(Number.isInteger(value)).toBe(true);
+    }
+  });
+
+  it("records its own provisional provenance in the file", () => {
+    const s = snapshot as unknown as { _provenance?: { status?: string; note?: string } };
+    expect(s._provenance?.status ?? "").toMatch(/PROVISIONAL/);
+    expect(s._provenance?.note ?? "").toMatch(/balance_cents/);
+  });
 });

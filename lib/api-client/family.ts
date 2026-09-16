@@ -19,6 +19,12 @@ export type FamilySnapshot = {
   loved_one: { name: string; life_dates: string };
   plan_summary: { plan_name: string; status: string; term: string; next_due: string };
   balance: { total: string; paid: string; remaining: string };
+  /**
+   * Integer minor units for the same amounts as `balance` (display strings are
+   * never parsed — repo money rule). Absent on older recordings; views must fall
+   * back to the display strings without a progress figure when it is missing.
+   */
+  balance_cents?: { total: number; paid: number; remaining: number };
   recent_documents: Array<{ title: string; status: string }>;
 };
 
