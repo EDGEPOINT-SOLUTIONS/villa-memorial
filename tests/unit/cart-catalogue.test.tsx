@@ -16,7 +16,7 @@ const cartLine = (over: Partial<Parameters<typeof CartLineRow>[0]["line"]> = {})
   sku: "PKG-BASIC",
   name: "Basic Package",
   itemType: "package" as const,
-  unitPriceCents: 150000,
+  unitPriceCents: 60000,
   currency: "PHP",
   quantity: 2,
   ...over,
@@ -44,7 +44,7 @@ describe("catalogue card add-to-cart button", () => {
             sku: "PKG-PREMIUM",
             name: "Premium Package",
             itemType: "package",
-            unitPriceCents: 520000,
+            unitPriceCents: 152000,
             currency: "PHP",
           },
         }),
@@ -64,9 +64,9 @@ describe("catalogue card add-to-cart button", () => {
         createElement(CatalogueAddButton, {
           item: {
             sku: "SRV-DELIVERY",
-            name: "Delivery & Pick-up",
+            name: "Delivery",
             itemType: "service",
-            unitPriceCents: 35000,
+            unitPriceCents: 250000,
             currency: "PHP",
           },
         }),
@@ -88,7 +88,7 @@ describe("cart line expand control shows the item's details again", () => {
 
   it("open: reveals the REAL catalogue description, type, recap and totals", () => {
     const html = row(cartLine(), true);
-    // Description comes from the recorded commerce catalogue (PKG-BASIC seed).
+    // Description comes from the recorded commerce catalogue (PKG-BASIC).
     // No embalming day count: the client's 2026 sheet prices embalming per day
     // only when a family does NOT take a package.
     expect(html).toContain("Casket (standard), embalming included, delivery within city");
@@ -98,30 +98,32 @@ describe("cart line expand control shows the item's details again", () => {
     // Type badge + the recap facts the row itself carries (unit/qty/total).
     expect(html).toContain(">Package</span>");
     expect(html).toContain("Unit price");
-    expect(html).toContain("1,500.00");
+    expect(html).toContain("600.00");
     expect(html).toContain("Quantity");
     expect(html).toContain(">2</dd>");
     expect(html).toContain("Line total");
-    expect(html).toContain("3,000.00");
+    expect(html).toContain("1,200.00");
     // Same detail-page door for the line identity.
     expect(html).toContain('href="/plans/PKG-BASIC"');
     expect(html).toContain("View full details");
   });
 
   it("open: a service line with no published description shows the honest fallback", () => {
+    // Lights & Sound Setup is one of the four upstream items no 2026 sheet
+    // prices, so it carries no description (and no invented inclusions).
     const html = row(
       cartLine({
-        sku: "SRV-INTERMENT",
-        name: "Interment Service",
+        sku: "SRV-LIGHTS",
+        name: "Lights & Sound Setup",
         itemType: "service",
-        unitPriceCents: 120000,
+        unitPriceCents: 60000,
         currency: "PHP",
         quantity: 1,
       }),
       true,
     );
     expect(html).toContain("No description is published for this service yet");
-    expect(html).toContain("1,200.00");
+    expect(html).toContain("600.00");
   });
 
   it("open: a line the catalogue no longer knows falls back gracefully (no crash)", () => {

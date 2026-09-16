@@ -179,6 +179,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   after hydration (`app/(staff)/staff/inquiries/inquiry-board.tsx`). When a real write
   contract lands, replace that store and the wording — never dress demo capture up as
   delivery.
+- `/contact` is also the storefront's request landing: price-list actions link
+  `?item=&sku=&price=&note=`, built and parsed by `lib/public-forms/request-prefill.ts`
+  (clamped, untrusted input). The banner and the pre-written message echo exactly what
+  was clicked and say plainly that nothing is reserved. Reuse this seam for every new
+  request action; never invent a second contact-link shape.
 
 ## 2026 price list — where every client figure surfaces
 
@@ -201,6 +206,21 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   themselves: they apply when the family does NOT take a package (package embalming
   stays "no fixed day count" — the package sheet's "7 days" wording is deliberately
   not published).
+- **The sheet items are sellable, not display-only.** `lib/fixtures/commerce/catalog-items.json`
+  carries the client's real 2026 figures for all 24 casket models, the five a-la-carte
+  fees, the embalming 3–9 day table plus the `>9` extra day, the two chapel per-day
+  products and the three plan packages (monthly amortization). `lib/catalogue-skus.ts`
+  is the only sheet-label → SKU map; `tests/fixture-contract/commerce.test.ts` pins each
+  entry to `lib/villa-pricing.ts`. The four upstream items no 2026 sheet prices
+  (`SRV-LIGHTS`, `ADD-COFFIN-LIZO-SR`, `ADD-FLOWERS`, `ADD-URN`) keep their seed
+  amounts by design — never invent a figure for them. **This diverges from the upstream
+  platform seed** (still placeholder-priced); upstream parity is a captain decision.
+- Every sellable line pairs the same two actions: `components/villa/catalogue-actions.tsx`
+  (Add to cart with the row's exact catalogue SKU/price + the prefilled Request order).
+  Lots are never cart items — `components/villa/price-list-2026.tsx` gives each row
+  Request this lot + a `/map` link. Plan tier × term goes through `lib/plan-selection.ts`
+  (cart only for a monthly, non-senior tier the catalogue carries; every other selection
+  opens the request naming that term's sheet amount).
 - Two open client questions are published as the sheets print them rather than
   reconciled — keep it that way until the client answers: (1) sheet III's chapel table
   computes the senior column at 96% of the regular total (₱1,440/₱3,360 per day) while

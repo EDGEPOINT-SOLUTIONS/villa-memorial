@@ -17,6 +17,13 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      pinned to the real 2026 figures of `lib/villa-pricing.ts` by its
      fixture-contract tests. Replaced by recorded fixtures once a content
      contract freezes (see the file's own comment + `lib/api-client/landing.ts`).
+   - `commerce/catalog-items.json` ← the FROZEN `GET /api/v1/catalog_items`
+     response shape (docs/08-delivery/contracts/order-payment-api-v1.md) with
+     the client's real 2026 price-list figures: SKUs unchanged, prices and four
+     names aligned to the sheets transcribed in `lib/villa-pricing.ts` and
+     pinned by `tests/fixture-contract/commerce.test.ts`. This DIVERGES from the
+     upstream platform seed (still placeholder-priced — see the file's comment);
+     the four items no 2026 sheet prices keep their seed amounts.
 2. **Never hand-edit a fixture to make a failing test pass.** If the contract
    changed, update the fixture AND its contract test together.
 3. Fixture tokens are structurally shaped but UNSIGNED — they exist only so

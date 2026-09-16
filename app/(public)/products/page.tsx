@@ -1,18 +1,49 @@
 import Link from "next/link";
-import { COFFINS, COFFIN_TIER_NOTE } from "@/lib/villa-pricing";
-import { CasketCatalogue } from "@/components/villa/casket-catalogue";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/states";
+import { listCatalogItems } from "@/lib/api-client/commerce";
+import { COFFIN_SKUS } from "@/lib/catalogue-skus";
+import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE } from "@/lib/villa-pricing";
+import { CasketCatalogue, type SellableCasket } from "@/components/villa/casket-catalogue";
 
 export const metadata = { title: "Coffins & caskets — Villa Memorial" };
 
+/** Bind each sheet model to its catalogue entry (SKU map: lib/catalogue-skus.ts). */
+function bindCaskets(
+  items: Awaited<ReturnType<typeof listCatalogItems>>,
+): SellableCasket[] {
+  const bySku = new Map(items.map((item) => [item.sku, item]));
+  return CASKET_MODELS.flatMap((model) => {
+    const sku = COFFIN_SKUS.find((entry) => entry.model === model.model)?.sku;
+    const item = sku ? bySku.get(sku) : undefined;
+    return item ? [{ model, item }] : [];
+  });
+}
+
 /**
  * Coffins & caskets — the client's full 2026 casket catalogue at published
- * prices. The tier photography block keeps the existing treatment (TYPES OF
- * COFFIN sheet); the two tables below it carry every model from the "For
- * package" table of 2026 price FV website A with its SRP, senior discount and
- * discounted price, plus PRICE LIST FOR 2026 III's per-family inclusions — see
- * components/villa/casket-catalogue.tsx and lib/villa-pricing.ts for provenance.
+ * prices, sold as cards: every model carries "Add to cart" (the real catalogue
+ * SKU/price) and "Request order" (the prefilled contact capture). The tier
+ * photography block keeps the existing treatment (TYPES OF COFFIN sheet) and the
+ * per-family inclusion table below the cards keeps PRICE LIST FOR 2026 III —
+ * see components/villa/casket-catalogue.tsx and lib/villa-pricing.ts for
+ * provenance.
  */
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  let items: Awaited<ReturnType<typeof listCatalogItems>>;
+  try {
+    items = await listCatalogItems();
+  } catch {
+    return (
+      <div className="stack-4">
+        <h1>Coffin options</h1>
+        <ErrorState message="The casket catalogue is unavailable right now. Please try again shortly." />
+      </div>
+    );
+  }
+
+  const caskets = bindCaskets(items);
+
   return (
     <div className="stack-4">
       <section className="page-hero">
@@ -21,7 +52,8 @@ export default function ProductsPage() {
         <p className="page-hero__lead">
           Choose the coffin that honours your loved one — from dignified Bronze to the
           sophisticated Gold. Every 2026 model is listed below with its published price:
-          the SRP, the senior-citizen discount and the discounted price.
+          the SRP, the senior-citizen discount and the discounted price. Add a model to
+          the cart, or send a request and the office confirms the final price.
         </p>
         <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
@@ -61,7 +93,14 @@ export default function ProductsPage() {
           the package&rsquo;s own day rates; a family that does not take a package pays the
           chapel-use rates on the <Link href="/services">services page</Link>.
         </p>
-        <CasketCatalogue />
+        {caskets.length === 0 ? (
+          <EmptyState
+            title="The model catalogue is unavailable right now"
+            hint="The five tiers are shown above; send a request and the office will confirm the model, its published 2026 price and availability."
+          />
+        ) : (
+          <CasketCatalogue caskets={caskets} />
+        )}
       </section>
 
       <p className="text-sm text-muted">

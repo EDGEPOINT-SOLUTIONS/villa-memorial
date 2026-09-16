@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
-import { CatalogueAddButton } from "@/components/catalogue-add-button";
+import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import {
   CASH_ASSISTANCE,
@@ -142,17 +142,21 @@ export default async function PlansPage({
                   <p className="item-card__meta">{item.description}</p>
                 ) : null}
                 <div className="item-card__price">{item.display_price}</div>
-                <div className="item-card__actions item-card__actions--split">
+                <div className="item-card__actions stack-2">
                   <Link href={`/plans/${item.sku}`} className="btn btn--secondary btn--sm btn--block">
                     View this item
                   </Link>
-                  <CatalogueAddButton
+                  <CatalogueActions
                     item={{
                       sku: item.sku,
                       name: item.name,
                       itemType: item.item_type,
                       unitPriceCents: item.unit_price_cents,
                       currency: item.currency,
+                    }}
+                    displayPrice={item.display_price}
+                    prefill={{
+                      note: `${TYPE_LABELS[item.item_type] ?? item.item_type} from the 2026 catalogue.`,
                     }}
                   />
                 </div>
@@ -176,11 +180,15 @@ export default async function PlansPage({
         </p>
         <div className="split-grid">
           <Card header={<h3>Regular rate</h3>}>
-            <PlanPaymentTable rows={VMP_PAYMENTS} label="Villa Memorial Plan — regular payment schedule" />
+            <PlanPaymentTable
+              rows={VMP_PAYMENTS}
+              label="Villa Memorial Plan — regular payment schedule"
+            />
           </Card>
           <Card header={<h3>Senior citizen rate</h3>}>
             <PlanPaymentTable
               rows={SENIOR_PAYMENTS}
+              senior
               label="Villa Memorial Plan — senior citizen payment schedule"
             />
           </Card>

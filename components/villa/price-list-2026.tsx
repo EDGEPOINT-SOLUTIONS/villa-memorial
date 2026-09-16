@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
+import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { LOT_PRICE_CATEGORIES, php, type LotPriceRow } from "@/lib/villa-pricing";
 
 /**
  * The official 2026 price list — all four product families, regular and
@@ -10,7 +12,21 @@ import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
  *
  * Figures come from lib/villa-pricing.ts (the transcribed client sheet) — this
  * component never authors a number.
+ *
+ * Lots are NOT cart items (a lot needs a buyer, a block/lot number and a signed
+ * purchase agreement), so every row carries the two honest actions instead:
+ * "Request this lot" — the prefilled contact capture naming the category, the
+ * row and the published selling price — and "See it on the map". A request is an
+ * enquiry and never reserves the lot.
  */
+function lotRequestHref(category: string, row: LotPriceRow): string {
+  return buildRequestHref({
+    item: `${category} — ${row.product}`,
+    price: `${php(row.regular.selling)} regular selling price (senior citizen ${php(row.senior.selling)})`,
+    note: `${row.area} sqm · 6-year amortization. Requesting a lot does not reserve it — the office confirms availability.`,
+  });
+}
+
 export function PriceList2026Tables() {
   return (
     <>
@@ -50,7 +66,13 @@ export function PriceList2026Tables() {
               <tbody>
                 {cat.rows.map((r) => (
                   <tr key={cat.title + r.product}>
-                    <td>{r.product}</td>
+                    <td>
+                      <div className="lot-row__name">{r.product}</div>
+                      <div className="lot-row__actions">
+                        <Link href={lotRequestHref(cat.title, r)}>Request this lot</Link>
+                        <Link href="/map">See it on the map</Link>
+                      </div>
+                    </td>
                     <td className="text-sm">{r.area}</td>
                     <td>{php(r.regular.selling)}</td>
                     <td>{php(r.regular.annual)}</td>

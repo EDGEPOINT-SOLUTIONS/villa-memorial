@@ -32,7 +32,11 @@ export default function SeniorBenefitsPage() {
       </Card>
 
       <Card header={<h3>Payment schedule (PHP)</h3>}>
-        <PlanPaymentTable rows={SENIOR_PAYMENTS} label="Senior citizen payment schedule" />
+        <PlanPaymentTable
+          rows={SENIOR_PAYMENTS}
+          senior
+          label="Senior citizen payment schedule"
+        />
       </Card>
 
       <p className="text-sm text-muted">
