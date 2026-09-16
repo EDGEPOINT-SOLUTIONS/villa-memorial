@@ -9,8 +9,8 @@
  *
  * Two connected modes (spec §3, docs/07-client-villa/park-3d-spec.md):
  *   · MAP — the plain masterplan image with the existing plotting behaviour;
- *   · 3D  — the walk-in park, built from the same masterplan, entered in FULL
- *           SCREEN, with every control INSIDE the experience.
+ *   · 3D  — the orbit-navigated park, built from the same masterplan, entered in
+ *           FULL SCREEN, with every control INSIDE the experience.
  * Both read and write ONE plot store, so a plot placed, moved, retyped or
  * deleted in either mode appears in the other, and the selection is shared.
  * The 3D world exists for the Villa park (the client's masterplan); the other
@@ -25,11 +25,13 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ParkMapsView } from "@/components/park-maps-view";
+import { LotReserveAction } from "@/components/lot-reserve-action";
 import { Park3dPlotTools } from "@/components/park3d/plot-tools-panel";
 import { PlotDetails } from "@/components/park-plot-details";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import type { Lot } from "@/lib/api-client/property";
+import { withLiveLotRecords } from "@/lib/park-live-lots";
 import {
   legendList,
   parkAreas,
@@ -110,7 +112,7 @@ export function PublicParkMap({
   lots: Lot[];
   initialPark?: string;
   initialPlot?: string;
-  /** Opt-in: only the park page hosts the walk-in 3D world. */
+  /** Opt-in: only the park page hosts the 3D park. */
   enable3d?: boolean;
   /** Admin-only plotting — resolved from the session scopes by the page. */
   canPlot?: boolean;
@@ -119,6 +121,11 @@ export function PublicParkMap({
   const [parkId, setParkId] = useState<string>(() => initialPark ?? VILLA_PARK_ID);
   const [mode, setMode] = useState<"map" | "3d">("map");
   const [fullscreen, setFullscreen] = useState<"on" | "off" | "refused">("off");
+  /**
+   * Bumped on every selection, so the 3D camera frames the chosen plot even when
+   * the same plot is chosen again (the code alone would look unchanged).
+   */
+  const [selectionSeq, setSelectionSeq] = useState(0);
   useParkStore(); // re-render whenever the shared plot store changes
 
   const hostRef = useRef<HTMLDivElement | null>(null);
@@ -139,14 +146,9 @@ export function PublicParkMap({
   /** The Villa plots as 3D sees them: stored records + the live lot overlay. */
   const villaAreas = useMemo(() => {
     if (mode !== "3d") return [];
-    return parkAreas(VILLA_PARK_ID).map((area) => {
-      const live = area.lot_id ? liveStatus[area.lot_id] : undefined;
-      const owner = area.lot_id && liveOwner[area.lot_id] ? liveOwner[area.lot_id] : area.owner ?? "";
-      return {
-        ...area,
-        status: (live as PlotArea["status"]) || area.status,
-        owner: owner || undefined,
-      };
+    return withLiveLotRecords(parkAreas(VILLA_PARK_ID), {
+      statusById: liveStatus,
+      ownerById: liveOwner,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, lots, selected]);
@@ -159,6 +161,7 @@ export function PublicParkMap({
 
   const selectArea = useCallback((area: PlotArea, pId: string) => {
     setSelected({ area, parkId: pId });
+    setSelectionSeq((seq) => seq + 1);
   }, []);
 
   /* --- full screen is the 3D mode's frame (spec §3) ---------------------- */
@@ -251,6 +254,12 @@ export function PublicParkMap({
       ? villaAreas.find((a) => a.id === selected.area.id) ?? selected.area
       : null;
 
+  /** The published lot behind the current selection, when there is one. */
+  const selectedLot =
+    selectedVillaArea?.lot_id != null
+      ? lots.find((l) => l.id === selectedVillaArea.lot_id) ?? null
+      : null;
+
   return (
     <div className="stack-4 park-mode" ref={hostRef}>
       {/* Page chrome — only while the plain map is on screen. In 3D everything
@@ -267,8 +276,8 @@ export function PublicParkMap({
           </div>
           <p className="text-sm text-muted" style={{ margin: 0 }}>
             {canPlot
-              ? "The plain park map. Your account has the plotting tools; switch to 3D and the same plots are there to fly over."
-              : "The plain park map. Switch to 3D to fly the same masterplan — selecting a plot behaves the same in both views."}
+              ? "The plain park map. Your account has the plotting tools; switch to 3D and the same plots are there to orbit, zoom and frame."
+              : "The plain park map. Switch to 3D to orbit the same masterplan — selecting a plot behaves the same in both views."}
           </p>
         </div>
       ) : null}
@@ -278,6 +287,7 @@ export function PublicParkMap({
           areas={villaAreas}
           legendById={legendById}
           selectedCode={selectedVillaArea?.code ?? null}
+          selectionSeq={selectionSeq}
           onSelect={(area) => selectArea(area, VILLA_PARK_ID)}
           canPlot={canPlot}
           onChangeAreas={canPlot ? commitVillaAreas : undefined}
@@ -290,6 +300,11 @@ export function PublicParkMap({
               }
               lots={lots}
               parkName={parkName}
+              // The real reservation control, only for a viewer whose scopes allow it
+              // (property:write). Everyone else keeps the request-to-reserve link.
+              reserveSlot={
+                canPlot && selectedLot ? <LotReserveAction lot={selectedLot} /> : undefined
+              }
             >
               {canPlot && selectedVillaArea ? (
                 <Park3dPlotTools

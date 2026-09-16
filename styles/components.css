@@ -4131,7 +4131,7 @@ button.fv-quietlink:disabled {
 }
 
 /* ---------------------------------------------------------------------------
- * 3D park — the walk-in masterplan (components/park3d/*)
+ * 3D park — the masterplan, orbit-navigated (components/park3d/*)
  * One page, two connected modes: this is the 3D half's surface. The 3D mode is a
  * FULL-SCREEN experience whose whole interface lives inside it (captain
  * 2026-09-16) — an in-experience bar, a world stage, and an explorer panel that
@@ -4224,7 +4224,7 @@ button.fv-quietlink:disabled {
   color: var(--color-text-muted);
 }
 
-/* Quiet status strip — what the drone is doing, never a gaming scoreboard. */
+/* Quiet status strip — how the camera is navigating, never a gaming scoreboard. */
 .park3d__status {
   position: absolute;
   left: var(--space-3);
@@ -4244,34 +4244,6 @@ button.fv-quietlink:disabled {
   font-size: var(--text-xs);
   letter-spacing: 0.04em;
   white-space: nowrap;
-}
-
-.park3d__hint {
-  position: absolute;
-  left: 50%;
-  bottom: var(--space-6);
-  transform: translateX(-50%);
-  margin: 0;
-  padding: var(--space-1) var(--space-3);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--navy-950) 58%, transparent);
-  color: var(--color-text-inverse);
-  font-size: var(--text-xs);
-  white-space: nowrap;
-  pointer-events: none;
-}
-
-.park3d__reticle {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 0.65rem;
-  height: 0.65rem;
-  margin: -0.33rem 0 0 -0.33rem;
-  border: 1px solid color-mix(in srgb, var(--color-text-inverse) 70%, transparent);
-  border-radius: 50%;
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy-950) 40%, transparent);
-  pointer-events: none;
 }
 
 .park3d__banner {
@@ -4587,6 +4559,17 @@ button.fv-quietlink:disabled {
 @media (max-width: 60rem) {
   .park3d__hud-end {
     margin-left: 0;
+  }
+
+  /* Phones: the bar wraps to several rows, so tighten it to keep the world
+     (and the bottom-sheet panel) the larger half of the screen. */
+  .park3d__hud {
+    gap: var(--space-1) var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .park3d__group {
+    gap: var(--space-1);
   }
 
   .park3d__settings-body {

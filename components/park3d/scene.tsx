@@ -417,9 +417,9 @@ export function Structures() {
 
 /**
  * Points of interest: a quiet brass ring on the ground at each named place, plus
- * a proximity prompt that appears only when the visitor is close (spec §3a.14).
+ * a proximity prompt that appears only when the camera is close (spec §3a.14).
  */
-export function PointsOfInterest({ onTravel }: { onTravel: (id: string) => void }) {
+export function PointsOfInterest({ onPoi }: { onPoi: (id: string) => void }) {
   const palette = useMemo(() => scenePalette(), []);
   const [nearId, setNearId] = useState<string | null>(null);
   const player = usePark3d((s) => s.cameraMode);
@@ -428,7 +428,7 @@ export function PointsOfInterest({ onTravel }: { onTravel: (id: string) => void 
   useFrame((state) => {
     tick.current++;
     if (tick.current % 12 !== 0) return;
-    if (player !== "drone") {
+    if (player !== "orbit") {
       if (nearId !== null) setNearId(null);
       return;
     }
@@ -463,8 +463,8 @@ export function PointsOfInterest({ onTravel }: { onTravel: (id: string) => void 
           distanceFactor={22}
           zIndexRange={[15, 0]}
         >
-          <button type="button" className="park3d-prompt" onClick={() => onTravel(near.id)}>
-            {near.label} — tap to explore
+          <button type="button" className="park3d-prompt" onClick={() => onPoi(near.id)}>
+            {near.label} — tap to frame it
           </button>
         </Html>
       ) : null}
@@ -473,7 +473,7 @@ export function PointsOfInterest({ onTravel }: { onTravel: (id: string) => void 
 }
 
 /** Section name plates — the masterplan's own labels, shown in the overhead
- * masterplan view (while flying, the proximity prompts carry the naming instead,
+ * masterplan view (while orbiting, the proximity prompts carry the naming instead,
  * so the world is never labelled all at once). */
 export function SectionLabels({ visible }: { visible: boolean }) {
   const places: Array<{ id: string; label: string; x: number; z: number }> = useMemo(() => {

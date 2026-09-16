@@ -11,18 +11,24 @@
  * plate, one camera switch, one exit control, and a collapsible explorer panel.
  * There is deliberately no health/score/HUD chrome anywhere.
  *
+ * Navigation is the orbit camera (captain, 2026-09-17 — Blender-style): rotate,
+ * zoom, pan, and FRAME what you select. Selecting a plot, a section or a point of
+ * interest glides the camera onto it; the gestures and the envelope live in
+ * `components/park3d/camera-rig.tsx` + `lib/park-3d/orbit.ts`.
+ *
+ * Booking: the plot panel is the shared `PlotDetails`, which renders the real
+ * reservation control for a viewer whose scopes allow it (the SAME inline
+ * `LotReserveAction` the staff map uses) and the request-to-reserve contact link
+ * for everyone else. Nothing is invented here — see `components/park-plot-details.tsx`.
+ *
  * Plotting is ADMIN ONLY: with `canPlot` false the explorer can search, filter,
  * select and inspect, and the world cannot create, move or delete a plot.
- *
- * The camera is a DRONE (spec §3a.4): pointer-locked mouse look, Minecraft-style
- * movement, smooth accelerations — see `components/park3d/camera-rig.tsx` and
- * `lib/park-3d/flight.ts`.
  *
  * Loaded with `next/dynamic({ ssr: false })` from the park page, so three.js only
  * reaches browsers whose visitor actually opens 3D mode.
  */
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Park3dErrorBoundary } from "@/components/park3d/error-boundary";
 import { DEVELOPMENT_OVERLAY_ENABLED } from "@/components/park3d/debug-layer";
 import { ParkScene } from "@/components/park3d/park-scene";
@@ -32,14 +38,15 @@ import {
   ANY,
   filterPlots,
   isFiltering,
+  plotSectionId,
   plotSectionLabel,
   sectionFacets,
   SECTION_POI,
   statusFacets,
   type PlotFilters,
 } from "@/lib/park-3d/explore";
-import { FLIGHT } from "@/lib/park-3d/flight";
-import { POIS_WORLD } from "@/lib/park-3d/masterplan";
+import { POIS_WORLD, SITE_CENTRE_WORLD, SITE_RADIUS_M } from "@/lib/park-3d/masterplan";
+import { ORBIT, worldBoundsOfAreas } from "@/lib/park-3d/orbit";
 import { usePark3d } from "@/lib/park-3d/view-store";
 import type { LegendEntry, PlotArea } from "@/lib/park-maps";
 
@@ -58,6 +65,11 @@ export type Park3dViewProps = {
   fullscreen: "on" | "off" | "refused";
   /** The shared details panel, rendered INSIDE the experience. */
   details: ReactNode;
+  /**
+   * Bumped by the host on every selection, so re-selecting the same plot frames it
+   * again instead of being swallowed by "the code did not change".
+   */
+  selectionSeq?: number;
 };
 
 const STATUS_ORDER: Array<PlotArea["status"]> = [
@@ -78,19 +90,18 @@ export function Park3dView({
   onExit,
   fullscreen,
   details,
+  selectionSeq = 0,
 }: Park3dViewProps) {
   const cameraMode = usePark3d((s) => s.cameraMode);
   const setCameraMode = usePark3d((s) => s.setCameraMode);
   const tool = usePark3d((s) => s.tool);
   const setTool = usePark3d((s) => s.setTool);
-  const speed = usePark3d((s) => s.flySpeed);
-  const setSpeed = usePark3d((s) => s.setFlySpeed);
-  const sensitivity = usePark3d((s) => s.lookSensitivity);
-  const setSensitivity = usePark3d((s) => s.setLookSensitivity);
-  const flying = usePark3d((s) => s.flying);
-  const toggleFlying = usePark3d((s) => s.toggleFlying);
-  const pointerLocked = usePark3d((s) => s.pointerLocked);
-  const sprinting = usePark3d((s) => s.sprinting);
+  const orbitSpeed = usePark3d((s) => s.orbitSpeed);
+  const setOrbitSpeed = usePark3d((s) => s.setOrbitSpeed);
+  const zoomSpeed = usePark3d((s) => s.zoomSpeed);
+  const setZoomSpeed = usePark3d((s) => s.setZoomSpeed);
+  const autoOrbit = usePark3d((s) => s.autoOrbit);
+  const setAutoOrbit = usePark3d((s) => s.setAutoOrbit);
   const debugOpen = usePark3d((s) => s.debugOpen);
   const toggleDebug = usePark3d((s) => s.toggleDebug);
   const debug = usePark3d((s) => s.debug);
@@ -98,7 +109,8 @@ export function Park3dView({
   const fps = usePark3d((s) => s.fps);
   const objectCount = usePark3d((s) => s.objectCount);
   const setReducedMotion = usePark3d((s) => s.setReducedMotion);
-  const travelTo = usePark3d((s) => s.travelTo);
+  const frameTo = usePark3d((s) => s.frameTo);
+  const zoomBy = usePark3d((s) => s.zoomBy);
   const reset = usePark3d((s) => s.reset);
 
   const [filters, setFilters] = useState<PlotFilters>({ text: "", status: ANY, section: ANY });
@@ -138,13 +150,25 @@ export function Park3dView({
     count: areas.filter((a) => a.status === status).length,
   })).filter((c) => c.count > 0);
 
-  const flyTo = (poiId: string) => {
+  /** Frame a set of plots, or a bare world point when there is no cluster to frame. */
+  const framePlots = (plots: PlotArea[], label: string, fallback?: { x: number; z: number }) => {
+    const bounds = plots.length ? worldBoundsOfAreas(plots) : null;
+    if (bounds) {
+      frameTo(bounds.centre, bounds.radius, label);
+      return;
+    }
+    if (fallback) {
+      frameTo({ x: fallback.x, y: 0, z: fallback.z }, ORBIT.poiFrameRadiusM, label);
+    }
+  };
+
+  const framePoi = (poiId: string) => {
     const poi = POIS_WORLD.find((p) => p.id === poiId);
     if (!poi) return;
-    travelTo(
-      { x: poi.standWorld.x, y: FLIGHT.cruiseAltitudeM, z: poi.standWorld.z },
-      { x: poi.lookWorld.x, y: FLIGHT.cruiseAltitudeM, z: poi.lookWorld.z },
+    framePlots(
+      areas.filter((area) => plotSectionId(area) === poiId),
       poi.label,
+      { x: poi.world.x, z: poi.world.z },
     );
   };
 
@@ -152,8 +176,29 @@ export function Park3dView({
     setFilters((current) => ({ ...current, section: current.section === section ? ANY : section }));
     setPanelOpen(true);
     const poi = SECTION_POI[section];
-    if (poi) flyTo(poi);
+    if (poi) framePoi(poi);
   };
+
+  const framePark = () => {
+    setCameraMode("orbit");
+    frameTo(
+      { x: SITE_CENTRE_WORLD.x, y: 0, z: SITE_CENTRE_WORLD.z },
+      SITE_RADIUS_M,
+      "The park",
+    );
+  };
+
+  /* --- selecting frames the plot (spec §3a.9) ---------------------------- */
+  const framedSeq = useRef(-1);
+  useEffect(() => {
+    if (selectionSeq === framedSeq.current) return;
+    framedSeq.current = selectionSeq;
+    if (!selectedCode) return;
+    const area = areas.find((a) => a.code === selectedCode);
+    if (!area) return;
+    framePlots([area], area.code);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- framePlots is recreated per render on purpose
+  }, [selectionSeq, selectedCode, areas]);
 
   return (
     <section className="park3d" aria-label="Three-dimensional park">
@@ -169,11 +214,11 @@ export function Park3dView({
         <div className="park3d__group" role="group" aria-label="Camera mode">
           <Button
             size="sm"
-            variant={cameraMode === "drone" ? "primary" : "secondary"}
-            onClick={() => setCameraMode("drone")}
-            aria-pressed={cameraMode === "drone"}
+            variant={cameraMode === "orbit" ? "primary" : "secondary"}
+            onClick={() => setCameraMode("orbit")}
+            aria-pressed={cameraMode === "orbit"}
           >
-            Fly the park
+            Orbit the park
           </Button>
           <Button
             size="sm"
@@ -185,6 +230,18 @@ export function Park3dView({
           </Button>
         </div>
 
+        <div className="park3d__group" role="group" aria-label="Zoom and framing">
+          <Button size="sm" variant="secondary" onClick={() => zoomBy(1 / (1 - ORBIT.zoomStep))} aria-label="Zoom out">
+            −
+          </Button>
+          <Button size="sm" variant="secondary" onClick={() => zoomBy(1 - ORBIT.zoomStep)} aria-label="Zoom in">
+            +
+          </Button>
+          <Button size="sm" variant="ghost" onClick={framePark}>
+            Frame the park
+          </Button>
+        </div>
+
         <div className="park3d__hud-end">
           <Button size="sm" variant={panelOpen ? "secondary" : "ghost"} onClick={() => setPanelOpen((v) => !v)} aria-expanded={panelOpen}>
             {panelOpen ? "Hide lots" : "Lots & search"}
@@ -193,39 +250,44 @@ export function Park3dView({
             <summary>Settings</summary>
             <div className="park3d__settings-body">
               <label className="park3d__field">
-                <span>Flight speed</span>
+                <span>Orbit speed</span>
                 <input
                   type="range"
-                  min={FLIGHT.minSpeedMps}
-                  max={FLIGHT.maxSpeedMps}
-                  step={0.1}
-                  value={speed}
-                  onChange={(event) => setSpeed(Number(event.target.value))}
-                  aria-label="Flight speed in metres per second"
+                  min={0.2}
+                  max={1.2}
+                  step={0.05}
+                  value={orbitSpeed}
+                  onChange={(event) => setOrbitSpeed(Number(event.target.value))}
+                  aria-label="Orbit speed"
                 />
-                <span className="park3d__value">{speed.toFixed(1)} m/s</span>
+                <span className="park3d__value">{orbitSpeed.toFixed(2)}</span>
               </label>
               <label className="park3d__field">
-                <span>Look sensitivity</span>
+                <span>Zoom speed</span>
                 <input
                   type="range"
-                  min={0.001}
-                  max={0.006}
-                  step={0.0005}
-                  value={sensitivity}
-                  onChange={(event) => setSensitivity(Number(event.target.value))}
-                  aria-label="Look sensitivity"
+                  min={0.3}
+                  max={1.6}
+                  step={0.05}
+                  value={zoomSpeed}
+                  onChange={(event) => setZoomSpeed(Number(event.target.value))}
+                  aria-label="Zoom speed"
                 />
-                <span className="park3d__value">{Math.round(sensitivity * 10000) / 10}</span>
+                <span className="park3d__value">{zoomSpeed.toFixed(2)}</span>
               </label>
               <label className="park3d__check">
-                <input type="checkbox" checked={flying} onChange={toggleFlying} />
-                <span>Free flight (Space ×2) — off: cruise at a level height</span>
+                <input
+                  type="checkbox"
+                  checked={autoOrbit}
+                  onChange={(event) => setAutoOrbit(event.target.checked)}
+                />
+                <span>Auto-orbit — a slow drift around what is framed</span>
               </label>
               <p className="park3d__note">
-                Click the park to capture the mouse, Esc to release it. W A S D fly where you look,
-                Space rises, Shift descends, Space ×2 toggles free flight, Ctrl (or W ×2) sprints.
-                Camera and plot tools stay in the panel beside the world.
+                Drag to orbit · wheel or pinch to zoom · middle-drag, Shift+drag or two fingers to
+                pan · + and − keys zoom, 0 frames the whole park. Click a plot to select it and the
+                camera glides to it — never a jump. Camera, plot tools and the details panel stay in
+                the panel beside the world.
               </p>
               {DEVELOPMENT_OVERLAY_ENABLED ? (
                 <div className="park3d__debug">
@@ -282,7 +344,7 @@ export function Park3dView({
             <Canvas
               shadows
               dpr={[1, 1.75]}
-              camera={{ fov: 60, near: 0.1, far: 3000, position: [0, FLIGHT.cruiseAltitudeM, 0] }}
+              camera={{ fov: 60, near: 0.1, far: 3000, position: [0, 120, 160] }}
               gl={{ antialias: true, powerPreference: "high-performance" }}
               onCreated={({ gl }) => {
                 gl.domElement.setAttribute("aria-hidden", "true");
@@ -296,27 +358,20 @@ export function Park3dView({
                 canPlot={canPlot}
                 onSelect={onSelect}
                 onChangeAreas={onChangeAreas}
+                onPoi={framePoi}
               />
             </Canvas>
           </Suspense>
         </Park3dErrorBoundary>
 
-        {/* status strip: what the drone is doing, and what to click */}
+        {/* status strip: how the camera is navigating, and what to click */}
         <p className="park3d__status" role="status">
-          <span className="park3d__chip">{cameraMode === "drone" ? "Flight" : "Masterplan"}</span>
-          {cameraMode === "drone" ? (
-            <span className="park3d__chip">{flying ? "Free flight" : "Cruising"}</span>
-          ) : null}
-          {sprinting ? <span className="park3d__chip">Sprint</span> : null}
+          <span className="park3d__chip">{cameraMode === "overhead" ? "Masterplan" : "Orbit"}</span>
+          {autoOrbit ? <span className="park3d__chip">Auto-orbit</span> : null}
           <span className="park3d__chip">
             {filtering ? `${matches.length} of ${areas.length} plots` : `${areas.length} plots`}
           </span>
         </p>
-
-        {cameraMode === "drone" && !pointerLocked ? (
-          <p className="park3d__hint">Click the park to capture the mouse · Esc releases it</p>
-        ) : null}
-        {cameraMode === "drone" && pointerLocked ? <span className="park3d__reticle" aria-hidden /> : null}
 
         {fullscreen === "refused" ? (
           <p className="park3d__banner" role="status">
@@ -396,21 +451,21 @@ export function Park3dView({
                 className={`park3d__facet${filters.section === facet.id ? " park3d__facet--on" : ""}`}
                 aria-pressed={filters.section === facet.id}
                 onClick={() => chooseSection(facet.id)}
-                title={SECTION_POI[facet.id] ? "Filter and fly there" : "Filter this section"}
+                title={SECTION_POI[facet.id] ? "Filter and frame it" : "Filter this section"}
               >
                 {facet.label} · {facet.count}
               </button>
             ))}
           </div>
 
-          <div className="park3d__facets" role="group" aria-label="Fly to a place in the park">
-            <span className="park3d__label">Fly to</span>
+          <div className="park3d__facets" role="group" aria-label="Frame a place in the park">
+            <span className="park3d__label">Go to</span>
             {POIS_WORLD.map((poi) => (
               <button
                 key={poi.id}
                 type="button"
                 className="park3d__facet"
-                onClick={() => flyTo(poi.id)}
+                onClick={() => framePoi(poi.id)}
               >
                 {poi.label}
               </button>

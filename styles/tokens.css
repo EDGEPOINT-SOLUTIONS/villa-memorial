@@ -70,7 +70,7 @@
   --slate-info-100: #e4eaf0;
 
   /* --- 3D park scene materials -------------------------------------------
-     The walk-in park (components/park3d/*) is a material world, not a UI
+     The 3D park (components/park3d/*) is a material world, not a UI
      surface: grass, asphalt, warm paving and stone have no equivalents among
      the semantic roles above, so they are named here — one source of truth for
      every 3D visual decision — and read through `scenePalette()`.

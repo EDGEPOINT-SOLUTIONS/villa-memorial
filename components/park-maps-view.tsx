@@ -40,6 +40,7 @@ import {
   useParkStore,
   type PlotArea,
 } from "@/lib/park-maps";
+import { withLiveLotRecords } from "@/lib/park-live-lots";
 
 const ParksCanvas = dynamic(() => import("@/components/parks-canvas").then((m) => m.ParksCanvas), {
   ssr: false,
@@ -124,14 +125,9 @@ export function ParkMapsView({
   const plotsLocked = meta.plotsLocked;
   const image = customImage || park.image;
   const areas = mounted ? parkAreas(park.id) : [];
-  const effectiveAreas: PlotArea[] = areas.map((a) => {
-    const live = a.lot_id ? liveStatusById[a.lot_id] : undefined;
-    const owner = a.lot_id && liveOwnerById[a.lot_id] ? liveOwnerById[a.lot_id] : (a.owner ?? "");
-    return {
-      ...a,
-      status: (live as PlotArea["status"]) || a.status,
-      owner: owner || undefined,
-    };
+  const effectiveAreas: PlotArea[] = withLiveLotRecords(areas, {
+    statusById: liveStatusById,
+    ownerById: liveOwnerById,
   });
 
   // Auto-select a plot from a deep link (?plot=CODE) once areas are ready.

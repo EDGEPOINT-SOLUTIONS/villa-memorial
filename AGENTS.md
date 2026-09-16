@@ -360,11 +360,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 - The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
   switches between **Map** (the plain masterplan image, the existing plotting editor) and
-  **3D** (the walk-in park, react-three-fiber). The 3D mode owns the whole screen: entering
-  requests full screen from the switch gesture (graceful where the browser refuses) and every
-  control — exit, camera, section/search/filter list, settings, details, plot tools — lives
-  inside the experience, never in the page chrome. The other parks (Loyola, Golden Haven) keep
-  their own images and are untouched by the 3D world.
+  **3D** (the orbit-navigated park, react-three-fiber). The 3D mode owns the whole screen:
+  entering requests full screen from the switch gesture (graceful where the browser refuses)
+  and every control — exit, camera, zoom/frame, section/search/filter list, settings, details,
+  plot tools — lives inside the experience, never in the page chrome. The other parks (Loyola,
+  Golden Haven) keep their own images and are untouched by the 3D world.
 - **`lib/park-maps.ts` is the single plot store for both modes** (image-space coordinates,
   shapes, status, type, section/block, linked lot, demo-local localStorage — never claim
   multi-user sync). The ONE image↔world conversion is `lib/park-3d/coords.ts` (store frame
@@ -384,12 +384,26 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (`optionalSession` in `lib/auth/guard.ts`) and passes one boolean down. Customers see the map
   and the lots, can select/inspect them in either mode, and get no plotting tools — the 3D place
   and move gestalts are gated by the same flag.
+- **Navigation is Blender-style orbit, not a game camera** (captain, 2026-09-17): drag orbits,
+  wheel/pinch/± zoom, middle-drag or Shift+drag (two fingers on touch) pans, and selecting a
+  plot/section/place frames it with a damped glide (never a teleport; no roll, no ground
+  clipping — the rig keeps the camera above `ORBIT.minCameraHeightM` and the focus point near
+  the site). The envelope + framing math is `lib/park-3d/orbit.ts` (pure, unit-tested); the
+  gestures are `components/park3d/camera-rig.tsx` (OrbitControls). "Masterplan view" is a
+  top-down angle of the same camera, not a second camera. A plot drag disables the orbit
+  controls for its duration (`draggingPlot` in the view store).
+- **Reserving works from the 3D plot panel, on the staff rule**: a viewer with
+  `property:write` gets `components/lot-reserve-action.tsx` (the same BFF route the staff map
+  uses, `POST /api/property/lots/:id/reserve`; only `available → reserved`, the property service
+  is the authority); everyone else keeps the request-to-reserve enquiry link. The panel's
+  action slot is `components/park-plot-details.tsx`'s `reserveSlot`. A reservation is the LOT's
+  status, and `lib/park-live-lots.ts` overlays it onto the same plot records both modes draw —
+  never write a lot's status into the plot store.
 - **3D internals**: scene/blockout `components/park3d/scene.tsx`, real raycast plot picking +
   instanced slabs `components/park3d/plots-3d.tsx`, vegetation instancing
   `components/park3d/vegetation.tsx`, UI/store state `lib/park-3d/view-store.ts` (zustand),
-  drone flight envelope + controls `lib/park-3d/flight.ts` + `components/park3d/camera-rig.tsx`
-  (pointer-lock look, Minecraft grammar: WASD relative to view, Space/Shift vertical, Space×2
-  toggles free flight, Ctrl or W×2 sprints), POIs `lib/park-3d/masterplan.ts`. The developer
+  orbit envelope + framing `lib/park-3d/orbit.ts` + `components/park3d/camera-rig.tsx`,
+  POIs `lib/park-3d/masterplan.ts`. The developer
   overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
   in `tests/unit/park-3d-*`.
 

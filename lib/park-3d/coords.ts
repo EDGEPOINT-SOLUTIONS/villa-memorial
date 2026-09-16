@@ -3,7 +3,7 @@
  * store's image-space coordinates and the 3D world.
  *
  * WHY THIS FILE EXISTS
- * Two modes (the plain masterplan image and the walk-in 3D park) show the SAME
+ * Two modes (the plain masterplan image and the 3D park) show the SAME
  * spatial frame, so they must agree on where a plot is. Rather than inventing a
  * second coordinate system, the 3D world is derived from the frame the plot
  * store already uses (`lib/park-maps.ts`, drawn by `components/parks-canvas.tsx`):

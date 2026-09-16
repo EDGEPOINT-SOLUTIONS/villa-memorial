@@ -6,20 +6,21 @@
  * The map is the SAME component the public surface uses (components/property-map.tsx):
  * same lots, same derived positions, same colours. What differs here is what staff can
  * DO from a selection: open the full profile (real detail page with reserve/agreement)
- * and reserve an available lot inline through the existing BFF route — the same route
- * the detail page uses, so the service stays the only authority on transitions.
+ * and reserve an available lot inline. The inline control is the SHARED
+ * `components/lot-reserve-action.tsx` — the 3D park's plot panel renders the same
+ * one, through the same BFF route (`POST /api/property/lots/:id/reserve`), so both
+ * surfaces share one rule and one success/refusal state, and the service stays the
+ * only authority on transitions.
  *
  * The list view remains a first-class sibling for accessibility and precise work
  * (design system: the map is never the only selection path).
  */
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field } from "@/components/ui/field";
+import { LotReserveAction } from "@/components/lot-reserve-action";
 import type { Lot } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
 import {
@@ -53,15 +54,9 @@ export function PropertyExplorer({
   initialQuery?: string;
   initialStatus?: "all" | Lot["status"];
 }) {
-  const router = useRouter();
   const [view, setView] = useState<"map" | "list">("map");
   const [query, setQuery] = useState(initialQuery);
   const [status, setStatus] = useState<"all" | Lot["status"]>(initialStatus);
-  const [reserveFor, setReserveFor] = useState<string | null>(null); // lot id being reserved
-  const [ownerName, setOwnerName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [pending, setPending] = useState(false);
-  const [notice, setNotice] = useState<string | null>(null);
   const { selected, select } = useMapSelection(lots);
 
   const q = query.trim().toLowerCase();
@@ -73,40 +68,6 @@ export function PropertyExplorer({
       .toLowerCase()
       .includes(q);
   });
-
-  async function reserveSelected() {
-    if (!selected || !ownerName.trim()) return;
-    setError(null);
-    setPending(true);
-    try {
-      const res = await fetch(
-        `/api/property/lots/${encodeURIComponent(selected.id)}/reserve`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ owner_name: ownerName.trim() }),
-        },
-      );
-      const payload: unknown = await res.json().catch(() => null);
-      if (!res.ok) {
-        const message =
-          typeof payload === "object" && payload !== null && "error" in payload
-            ? String((payload as { error: unknown }).error)
-            : "Reservation failed.";
-        setError(message);
-        router.refresh(); // the lot may have moved on; re-read so the map tells the truth
-        return;
-      }
-      setNotice(`${selected.lot_number} reserved for ${ownerName.trim()}.`);
-      setReserveFor(null);
-      setOwnerName("");
-      router.refresh();
-    } catch {
-      setError("Could not reach the property service.");
-    } finally {
-      setPending(false);
-    }
-  }
 
   return (
     <div className="stack">
@@ -159,8 +120,6 @@ export function PropertyExplorer({
         </div>
       </div>
 
-      {notice ? <Alert tone="success" title={notice} /> : null}
-
       {view === "map" ? (
         <div className="map-layout">
           <div className="stack" style={{ flex: "1 1 auto", minWidth: 0 }}>
@@ -173,14 +132,9 @@ export function PropertyExplorer({
                 const linked = area.lot_id ? lots.find((l) => l.id === area.lot_id) ?? null : null;
                 if (linked) {
                   select(linked);
-                  setReserveFor(null);
-                  setError(null);
-                  setNotice(null);
                 } else {
                   // demo/circle plot — map view owns its selection UI (delete, etc.)
                   select(null);
-                  setError(null);
-                  setNotice(null);
                 }
               }}
             />
@@ -221,48 +175,7 @@ export function PropertyExplorer({
                 </dl>
 
                 {selected.status === "available" && canReserve ? (
-                  reserveFor === selected.id ? (
-                    <form
-                      className="stack"
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        reserveSelected();
-                      }}
-                    >
-                      <Field
-                        label="Reserve for"
-                        htmlFor="map-owner"
-                        hint="Full name as it should appear on the lot record."
-                        error={error ?? undefined}
-                      >
-                        <input
-                          id="map-owner"
-                          type="text"
-                          autoComplete="off"
-                          value={ownerName}
-                          disabled={pending}
-                          onChange={(e) => setOwnerName(e.target.value)}
-                        />
-                      </Field>
-                      <div className="row">
-                        <Button type="submit" size="sm" disabled={pending}>
-                          {pending ? "Reserving…" : "Confirm reservation"}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setReserveFor(null)}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    </form>
-                  ) : (
-                    <Button size="sm" onClick={() => setReserveFor(selected.id)}>
-                      Reserve lot
-                    </Button>
-                  )
+                  <LotReserveAction lot={selected} />
                 ) : selected.status === "available" && !canReserve ? (
                   <p className="text-sm text-muted">
                     Available for reservation — requires <code>property:write</code>.

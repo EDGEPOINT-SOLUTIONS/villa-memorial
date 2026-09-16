@@ -274,7 +274,8 @@ export const GARDEN_DISCS_WORLD = GARDEN_DISCS_PX.map((d) => {
 /* ---------------------------------------------------------------------------
  * 6. Points of interest — the named places the navigation menu travels to.
  * `label` is the only copy used; nothing beyond the masterplan's own labels.
- * `stand`/`look` are approximate camera placements (see ASSUMPTIONS).
+ * The camera does not need a stance here: navigating the park is orbit/framing
+ * (`lib/park-3d/orbit.ts`), and framing only needs the point itself + a radius.
  * ------------------------------------------------------------------------- */
 
 export type PointOfInterest = {
@@ -282,62 +283,16 @@ export type PointOfInterest = {
   label: string;
   /** Where the marker/region is. */
   at: readonly [number, number];
-  /** Where the walking camera stands when travelling there. */
-  stand: readonly [number, number];
-  /** What it faces. */
-  look: readonly [number, number];
 };
 
 export const POINTS_OF_INTEREST: readonly PointOfInterest[] = [
-  {
-    id: "main-entrance",
-    label: "Main Entrance",
-    at: [872, 1185],
-    stand: [866, 1130],
-    look: [880, 1210],
-  },
-  {
-    id: "premium-lots",
-    label: "Premium Lots",
-    at: [700, 280],
-    stand: [690, 545],
-    look: [700, 200],
-  },
-  {
-    id: "mausoleum",
-    label: "Mausoleum",
-    at: [650, 585],
-    stand: [650, 712],
-    look: [650, 570],
-  },
-  {
-    id: "primary-lots",
-    label: "Primary Lots",
-    at: [692, 756],
-    stand: [690, 872],
-    look: [692, 730],
-  },
-  {
-    id: "garden-lots",
-    label: "Garden Lots",
-    at: [692, 955],
-    stand: [692, 1052],
-    look: [692, 930],
-  },
-  {
-    id: "garden-niches",
-    label: "Garden Niches",
-    at: [410, 1070],
-    stand: [466, 968],
-    look: [400, 1090],
-  },
-  {
-    id: "future-development",
-    label: "Future Development",
-    at: [985, 1045],
-    stand: [852, 1128],
-    look: [985, 1030],
-  },
+  { id: "main-entrance", label: "Main Entrance", at: [872, 1185] },
+  { id: "premium-lots", label: "Premium Lots", at: [700, 280] },
+  { id: "mausoleum", label: "Mausoleum", at: [650, 585] },
+  { id: "primary-lots", label: "Primary Lots", at: [692, 756] },
+  { id: "garden-lots", label: "Garden Lots", at: [692, 955] },
+  { id: "garden-niches", label: "Garden Niches", at: [410, 1070] },
+  { id: "future-development", label: "Future Development", at: [985, 1045] },
 ];
 
 /** Overhead/masterplan camera: what the plan is centred on. */
@@ -399,16 +354,32 @@ export const SITE_SIZE_M = {
   depth: round2(pxLengthToMetres(Math.max(...SITE_YS) - Math.min(...SITE_YS))),
 };
 
+/** The site's world-space footprint — what the orbit camera keeps its focus near. */
+export const SITE_BOUNDS_WORLD = (() => {
+  const xs = SITE_BOUNDARY_WORLD.map((p) => p[0]);
+  const zs = SITE_BOUNDARY_WORLD.map((p) => p[1]);
+  return {
+    minX: Math.min(...xs),
+    maxX: Math.max(...xs),
+    minZ: Math.min(...zs),
+    maxZ: Math.max(...zs),
+  };
+})();
+
+/** Half the site's diagonal — the radius that frames the whole park. */
+export const SITE_RADIUS_M = round2(
+  Math.hypot(
+    SITE_BOUNDS_WORLD.maxX - SITE_BOUNDS_WORLD.minX,
+    SITE_BOUNDS_WORLD.maxZ - SITE_BOUNDS_WORLD.minZ,
+  ) / 2,
+);
+
 /** Points of interest with world coordinates resolved. */
 export type WorldPoi = PointOfInterest & {
   world: WorldPoint;
-  standWorld: WorldPoint;
-  lookWorld: WorldPoint;
 };
 
 export const POIS_WORLD: ReadonlyArray<WorldPoi> = POINTS_OF_INTEREST.map((poi) => ({
   ...poi,
   world: pxToWorld(poi.at[0], poi.at[1]),
-  standWorld: pxToWorld(poi.stand[0], poi.stand[1]),
-  lookWorld: pxToWorld(poi.look[0], poi.look[1]),
 }));
