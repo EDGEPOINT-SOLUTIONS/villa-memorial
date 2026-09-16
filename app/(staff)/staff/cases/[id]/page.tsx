@@ -80,6 +80,10 @@ export default async function CaseDetailPage({
   // Documents are a separate service and a separate scope: a session that cannot read them
   // still gets the case. A repository that is down costs this section, not the page.
   const canWriteCases = hasAnyScope(session.scopes, ["cases:write"]);
+  // Recording a payment is a billing write: the card below links to the capture screen
+  // only when this session holds the frozen payments scope (billing:write) — the same
+  // scope the capture screen and the payments endpoint require.
+  const canRecordPayments = hasAnyScope(session.scopes, ["billing:write"]);
   const canReadDocuments = hasAnyScope(session.scopes, ["documents:read"]);
   const canGenerateDocuments = hasAnyScope(session.scopes, ["documents:write"]);
   let caseDocuments: Document[] = [];
@@ -294,6 +298,31 @@ export default async function CaseDetailPage({
           {canWriteCases ? null : (
             <p className="text-sm text-muted">
               Editing the service contract needs <code>cases:write</code>.
+            </p>
+          )}
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card header={<h3>Record a payment</h3>}>
+          <p className="text-sm text-muted">
+            Capture an initial or partial payment against this case and print the
+            provisional receipt the counter hands over. Official receipt numbering,
+            allocation and posting stay with finance — the slip says so outright.
+          </p>
+          <div style={{ marginTop: "1rem" }}>
+            {canRecordPayments ? (
+              <Link
+                href={`/staff/billing/record-payment?case=${encodeURIComponent(item.case_number)}`}
+                className="btn btn--secondary btn--sm"
+              >
+                Record a payment against {item.case_number}
+              </Link>
+            ) : null}
+          </div>
+          {canRecordPayments ? null : (
+            <p className="text-sm text-muted">
+              Recording a payment needs <code>billing:write</code>.
             </p>
           )}
         </Card>
