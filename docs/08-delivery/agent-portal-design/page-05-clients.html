@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clients — the book of business — Villa Memorial agent portal (design example)</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="agent-portal.css">
+</head>
+<body class="ag-standalone">
+<!-- Example page for review: /agent/clients -->
+<div class="agent-sky">
+<div class="portal-frame" data-portal="agent">
+  <header class="portal-topbar">
+    <div class="portal-topbar__brand">
+      <span class="portal-sidebar__brand">Villa Memorial</span>
+      <span class="portal-sidebar__brand-sub">Agent Portal</span>
+    </div>
+    <div class="row" style="display:flex;gap:var(--space-2);align-items:center">
+      <a class="portal-topbar__icon" href="/agent/notifications" aria-label="Notifications" style="text-decoration:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6M10.5 20a2 2 0 0 0 3 0"/></svg></a>
+      <button class="portal-topbar__icon" type="button" aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </header>
+
+  <aside class="portal-sidebar">
+    <div class="portal-sidebar__brand-row" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)">
+      <a class="portal-sidebar__title" href="/agent/dashboard">
+        <span class="portal-sidebar__brand">Villa Memorial</span>
+        <span class="portal-sidebar__brand-sub">Agent Portal</span>
+      </a>
+      <a class="portal-topbar__icon" href="/agent/notifications" aria-label="Notifications" style="text-decoration:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6M10.5 20a2 2 0 0 0 3 0"/></svg></a>
+    </div>
+    <p class="portal-sidebar__user">alex.agent@vm.demo</p>
+
+    <nav class="portal-nav" aria-label="Agent portal navigation"><div class="portal-nav__group"><a class="portal-nav__item" href="/agent/dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Today</span></a></div><div class="portal-nav__group"><p class="portal-nav__label">My pipeline</p><a class="portal-nav__item" href="/agent/prospects"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 8v6M22 11h-6"/></svg><span>Prospects</span></a><a class="portal-nav__item portal-nav__item--active" href="/agent/clients" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9"/></svg><span>Clients</span></a><a class="portal-nav__item" href="/agent/appointments"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v16H4zM4 10h16M9 3v3M15 3v3"/></svg><span>Appointments & tasks</span></a></div><div class="portal-nav__group"><p class="portal-nav__label">Sell & earn</p><a class="portal-nav__item" href="/agent/lots"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 7 8h3v4H6l-2 5h6v3h4v-3h6l-2-5h-4V8h3z"/></svg><span>Lot availability</span></a><a class="portal-nav__item" href="/agent/sales"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8"/></svg><span>Sales & commissions</span></a><a class="portal-nav__item" href="/agent/applications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9zM6 5h3v3h6V5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM9 12h6M9 16h4"/></svg><span>Applications</span></a></div><div class="portal-nav__group"><p class="portal-nav__label">Tools</p><a class="portal-nav__item" href="/agent/marketing"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4zM4 10h16M9 14h6"/></svg><span>Marketing & materials</span></a><a class="portal-nav__item" href="/agent/new"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New lead</span></a></div></nav>
+
+    <div class="portal-sidebar__foot">
+      <p class="portal-sidebar__help">Need the office?<br><strong>0917 617 8489</strong><br><span>Mon–Sat · 8am–6pm</span></p>
+      <div class="portal-sidebar__switcher">
+        <div class="portal-switch portal-switch--inverse">
+          <a href="/agent/dashboard" aria-current="page">Agent</a>
+          <a href="/staff/dashboard">Staff</a>
+          <a href="/client/dashboard">Family</a>
+        </div>
+      </div>
+      <button class="portal-sidebar__logout" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Log out</span></button>
+    </div>
+  </aside>
+
+  <main class="portal-content">
+    <div class="portal-content__inner"><div class="ag-page">
+  <section class="ag-hero">
+    <p class="ag-day">Clients · your book of business</p>
+    <h1 class="ag-hero__title">12 families call you theirs.</h1>
+    <p class="ag-hero__lead">Three need a check-in this month. Everyone else is fine — and when we know something, we say so here rather than leaving you guessing.</p>
+    <div class="ag-hero__chips">
+      <span class="ag-chip">3 check-ins this month</span>
+      <span class="ag-chip">1 at-need week — keep space for the Santos family</span>
+    </div>
+  </section>
+
+  <section class="ag-sec">
+    <div class="ag-field">
+      <label class="ag-field__label" for="ag-search">Find a client</label>
+      <input id="ag-search" type="search" placeholder="Name, lot number, plan number, or phone">
+    </div>
+    <div class="ag-filters" role="group" aria-label="Filter clients">
+      <a class="ag-filter ag-filter--on" href="#">All 12</a>
+      <a class="ag-filter" href="#">Plans</a>
+      <a class="ag-filter" href="#">Lots</a>
+      <a class="ag-filter" href="#">Due a visit</a>
+    </div>
+
+    <div class="ag-list">
+      <article class="ag-work ag-work--today">
+        <span class="ag-work__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9"/></svg>
+        </span>
+        <div class="ag-work__body">
+          <p class="ag-work__kind">Check-in this month</p>
+          <p class="ag-work__title">The Santos family — Marites &amp; Roberto</p>
+          <p class="ag-work__detail">Lot A-002 · reservation balance followed up 4 Sep · interment not yet · last visit 2 Aug</p>
+          <p class="ag-work__meta"><span>Lot · reserved</span><span>·</span><span>Your client since 2024</span></p>
+        </div>
+        <div class="ag-work__action">
+          <button class="btn btn--primary" type="button">Open</button>
+          <button class="btn btn--secondary" type="button">Call</button>
+        </div>
+      </article>
+
+      <article class="ag-work ag-work--today">
+        <span class="ag-work__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3h8a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-1 2V5a2 2 0 0 1 2-2zM9 8h6M9 12h4"/></svg>
+        </span>
+        <div class="ag-work__body">
+          <p class="ag-work__kind">Check-in this month</p>
+          <p class="ag-work__title">Liwayway Cruz — plan holder</p>
+          <p class="ag-work__detail">Villa Memorial Plan · Silver 1 · ₱1,000 / month · next due 30 Sep · paid on time since 2024</p>
+          <p class="ag-work__meta"><span>Plan · active</span><span>·</span><span>Good time for a thank-you call</span></p>
+        </div>
+        <div class="ag-work__action">
+          <button class="btn btn--primary" type="button">Call</button>
+          <button class="btn btn--secondary" type="button">Open</button>
+        </div>
+      </article>
+
+      <article class="ag-work ag-work--done">
+        <span class="ag-work__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9"/></svg>
+        </span>
+        <div class="ag-work__body">
+          <p class="ag-work__kind">Being served now</p>
+          <p class="ag-work__title">The Reyes family — Danilo</p>
+          <p class="ag-work__detail">Funeral service this week · viewing until Thursday · the office is handling the arrangement</p>
+          <p class="ag-work__meta"><span>Service case</span><span>·</span><span>Not a sales call this week</span></p>
+        </div>
+        <div class="ag-work__action">
+          <button class="btn btn--primary" type="button">Open</button>
+          <button class="btn btn--secondary" type="button">Call</button>
+        </div>
+      </article>
+
+      <article class="ag-work">
+        <span class="ag-work__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+        </span>
+        <div class="ag-work__body">
+          <p class="ag-work__kind">No check-in needed</p>
+          <p class="ag-work__title">The Cruz family — Teodoro</p>
+          <p class="ag-work__detail">Lot fully paid since March · care fund current · no service scheduled</p>
+          <p class="ag-work__meta"><span>Lot · fully paid</span><span>·</span><span>Anniversary 12 Nov</span></p>
+        </div>
+        <div class="ag-work__action">
+          <button class="btn btn--secondary" type="button">Open</button>
+        </div>
+      </article>
+
+      <article class="ag-work">
+        <span class="ag-work__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21v-1a5 5 0 0 1 5-5h6a5 5 0 0 1 5 5v1"/></svg>
+        </span>
+        <div class="ag-work__body">
+          <p class="ag-work__kind">Referred a friend</p>
+          <p class="ag-work__title">Gracia Villanueva</p>
+          <p class="ag-work__detail">Recommended you to the Lim family — a small thank-you keeps referrals flowing</p>
+          <p class="ag-work__meta"><span>Referral</span><span>·</span><span>Last contact 19 Aug</span></p>
+        </div>
+        <div class="ag-work__action">
+          <button class="btn btn--secondary" type="button">Open</button>
+        </div>
+      </article>
+    </div>
+
+    <p class="ag-note">Clients come from the office's customer record. Your list shows the families the office assigned to you — never the whole database. Money shown is only what your login allows (see a client to check).</p>
+  </section>
+</div></div>
+  </main>
+
+  <nav class="ag-tabs" aria-label="Agent portal"><a class="ag-tabs__item" href="/agent/dashboard" title="Today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Today</span></a><a class="ag-tabs__item" href="/agent/prospects" title="Pipeline"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 8v6M22 11h-6"/></svg><span>Pipeline</span></a><a class="ag-tabs__item ag-tabs__item--active" href="/agent/clients" aria-current="page" title="Clients"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9"/></svg><span>Clients</span></a><a class="ag-tabs__item" href="/agent/lots" title="Lots"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 7 8h3v4H6l-2 5h6v3h4v-3h6l-2-5h-4V8h3z"/></svg><span>Lots</span></a><button class="ag-tabs__item" type="button" title="All of the portal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button></nav>
+</div>
+</div>
+</body>
+</html>

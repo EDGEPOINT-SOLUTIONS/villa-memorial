@@ -235,7 +235,7 @@ export default async function LotsPage({
                   </div>
                   <div className="item-card__actions">
                     {lot ? (
-                      <Link href={`/lots/${lot.id}`} className="btn btn--secondary btn--sm btn--block">
+                      <Link href={`/lots/${lot.id}`} className="btn btn--primary btn--sm btn--block">
                         View listing
                       </Link>
                     ) : (
@@ -246,7 +246,7 @@ export default async function LotsPage({
                     )}
                     <Link
                       href={`/map?park=${park.id}&plot=${encodeURIComponent(plot.code)}`}
-                      className="btn btn--primary btn--sm btn--block"
+                      className="btn btn--secondary btn--sm btn--block"
                     >
                       View on the park map
                     </Link>

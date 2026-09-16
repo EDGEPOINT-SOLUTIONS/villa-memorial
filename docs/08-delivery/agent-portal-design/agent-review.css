@@ -1,0 +1,425 @@
+/* ============================================================================
+   agent-review.css — the Lavish review surface around the example pages.
+   NOT product CSS: this styles the artifact (index rail, spec sheets, device
+   frames). Product-facing classes live in agent-pages.css.
+   ========================================================================== */
+
+body.rv-page {
+  background:
+    radial-gradient(900px 380px at 12% -80px, var(--sky-100), transparent 60%),
+    radial-gradient(700px 320px at 92% -120px, var(--gold-wash-soft), transparent 60%),
+    var(--marble-100);
+  color: var(--color-text-primary);
+  padding: 0;
+}
+
+.rv-shell {
+  display: grid;
+  grid-template-columns: 18rem minmax(0, 1fr);
+  align-items: start;
+}
+
+/* --- Left index rail --------------------------------------------------------- */
+.rv-index {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-bg-surface);
+  border-right: 1px solid var(--color-border);
+}
+
+.rv-index__brand {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  margin: 0;
+}
+
+.rv-index__sub {
+  margin: var(--space-1) 0 var(--space-4);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+  font-weight: 700;
+}
+
+.rv-index__group {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rv-index a {
+  display: block;
+  padding: 0.3rem var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.rv-index a:hover { background: var(--color-bg-subtle); color: var(--color-text-primary); }
+.rv-index a span { color: var(--color-text-muted); }
+
+/* --- Main review column ------------------------------------------------------ */
+.rv-main { padding: var(--space-7) var(--space-6) var(--space-8); min-width: 0; }
+.rv-main > * { max-width: 96rem; }
+
+.rv-hero {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background:
+    radial-gradient(640px 240px at 88% -40px, var(--gold-wash), transparent 62%),
+    linear-gradient(135deg, var(--sky-800) 0%, var(--sky-950) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--space-6) var(--space-7);
+  margin-bottom: var(--space-6);
+}
+
+.rv-hero__eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-300);
+}
+
+.rv-hero h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  line-height: 1.12;
+}
+
+.rv-hero p { color: var(--sky-100); max-width: 62rem; }
+
+.rv-meta { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-4); }
+
+.rv-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sky-100) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--sky-200) 40%, transparent);
+  color: #ffffff;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.rv-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.rv-pill--ok { background: var(--sage-100); color: var(--color-status-success-ink); border-color: color-mix(in srgb, var(--sage-500) 36%, transparent); }
+.rv-pill--part { background: var(--amber-100); color: var(--color-status-warning-ink); border-color: color-mix(in srgb, var(--amber-500) 36%, transparent); }
+.rv-pill--blocked { background: var(--clay-100); color: var(--color-status-danger-ink); border-color: color-mix(in srgb, var(--clay-500) 36%, transparent); }
+
+.rv-block {
+  margin: var(--space-7) 0;
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.rv-block h2 {
+  margin: 0 0 var(--space-3);
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-figure);
+}
+
+.rv-block h3 { margin: var(--space-4) 0 var(--space-2); font-size: var(--text-md); }
+
+.rv-block__num {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sky-700);
+}
+
+.rv-block__lead {
+  margin: 0 0 var(--space-3);
+  max-width: 64rem;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.rv-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+  gap: var(--space-5);
+}
+
+.rv-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+}
+
+.rv-card h3:first-child { margin-top: 0; }
+
+.rv-bullets { margin: 0; padding-left: var(--space-5); }
+.rv-bullets li { margin-bottom: var(--space-2); }
+.rv-sources li { font-size: var(--text-sm); }
+
+.rv-quote {
+  margin: var(--space-2) 0;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--sky-300);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.rv-quote cite {
+  display: block;
+  margin-top: var(--space-1);
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.rv-note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.rv-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: var(--text-xs); }
+
+/* --- Tables ------------------------------------------------------------------ */
+.rv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  margin: var(--space-3) 0;
+}
+
+.rv-table th, .rv-table td {
+  text-align: left;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: top;
+}
+
+.rv-table th {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.rv-table tr:last-child td { border-bottom: none; }
+.rv-scroll { overflow-x: auto; }
+
+/* --- Frame wrappers ---------------------------------------------------------- */
+.rv-frames {
+  display: flex;
+  gap: var(--space-4);
+  align-items: flex-start;
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+}
+
+.rv-frame-wrap { min-width: 0; }
+.rv-frame-wrap--desk { flex: 1 1 46rem; }
+.rv-frame-wrap--phone { flex: 0 0 auto; }
+
+.rv-frame-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rv-frame-label a { font-weight: 600; letter-spacing: 0; text-transform: none; }
+
+/* --- Device frames ----------------------------------------------------------- */
+.ag-frame {
+  position: relative;
+  overflow: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-bg-page);
+  box-shadow: var(--shadow-card-rest);
+  min-width: 0;
+}
+
+.ag-frame--desk { height: 46rem; }
+
+.ag-frame--phone {
+  width: min(23.5rem, 100%);
+  max-width: 100%;
+  height: 44rem;
+  border-radius: 1.75rem;
+  border: 0.5rem solid var(--sky-950);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.ag-frame { max-width: 100%; box-sizing: border-box; }
+.ag-frame .agent-sky { min-height: 100%; }
+.ag-frame .portal-frame { min-width: 0; }
+
+/* The frame is a self-contained viewport: the shipped fixed sidebar becomes a
+   sticky column inside the frame; the top bar shows only on the phone. */
+.ag-frame .portal-frame {
+  display: grid;
+  grid-template-columns: 16.5rem minmax(0, 1fr);
+  align-items: start;
+  min-height: 100%;
+}
+
+.ag-frame .portal-sidebar {
+  position: sticky;
+  top: 0;
+  inset: auto;
+  width: auto;
+  height: auto;
+  max-height: 100%;
+  display: flex;
+  grid-column: 1;
+}
+
+.ag-frame .portal-content {
+  grid-column: 2;
+  margin-left: 0;
+  min-height: 0;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+}
+
+.ag-frame .portal-content__inner { max-width: 56rem; }
+
+.ag-frame .portal-topbar { display: none; grid-column: 1 / -1; }
+.ag-frame .ag-tabs { display: none; }
+/* The shipped bar is position:fixed to the viewport; inside a review frame it
+   becomes a sticky bar at the bottom of the frame instead, or it would escape
+   the device. */
+.ag-frame .ag-tabs { position: sticky; bottom: 0; left: auto; right: auto; }
+.ag-frame .ag-standalone-only { display: none; }
+
+/* Phone frame: exactly the app's own mobile layout, applied per-frame so the
+   review never depends on the reviewer's window width. */
+.ag-frame--phone .ag-desktop-only { display: none !important; }
+.ag-frame--phone .ag-mobile-only { display: flex !important; }
+.ag-frame--phone .ag-hero { padding: var(--space-5) var(--space-5) var(--space-4); }
+.ag-frame--phone .ag-work { grid-template-columns: auto minmax(0, 1fr); }
+.ag-frame--phone .ag-work__action { grid-column: 1 / -1; flex-direction: row; }
+.ag-frame--phone .ag-work__action .btn { flex: 1 1 auto; min-height: 3rem; }
+.ag-frame--phone .ag-appt { grid-template-columns: minmax(0, 1fr); }
+.ag-frame--phone .ag-appt__actions { flex-direction: column; }
+.ag-frame--phone .ag-appt__actions .btn { width: 100%; }
+.ag-frame--phone .ag-board { grid-template-columns: minmax(0, 1fr); overflow: visible; }
+.ag-frame--phone .ag-lots { grid-template-columns: minmax(0, 1fr); }
+.ag-frame--phone .ag-lot { grid-template-columns: 4.5rem minmax(0, 1fr); }
+.ag-frame--phone .ag-lot__photo { width: 4.5rem; height: 3.5rem; }
+.ag-frame--phone .ag-lot__price { grid-column: 1 / -1; text-align: left; }
+.ag-frame--phone .ag-lot__price strong { display: inline; font-size: var(--text-md); }
+.ag-frame--phone .ag-quickgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.ag-frame--phone .ag-money-grid { grid-template-columns: minmax(0, 1fr); }
+.ag-frame--phone .ag-action { align-items: stretch; }
+.ag-frame--phone .ag-action__buttons { flex-direction: column; }
+.ag-frame--phone .ag-action__buttons .btn { width: 100%; min-height: 3rem; }
+.ag-frame--phone .ag-commission__row { grid-template-columns: minmax(0, 1fr); }
+.ag-frame--phone .ag-commission__amount { text-align: left; }
+.ag-frame--phone .portal-frame { grid-template-columns: minmax(0, 1fr); }
+.ag-frame--phone .portal-sidebar { display: none; }
+.ag-frame--phone .portal-topbar {
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: var(--space-3) var(--space-4);
+}
+.ag-frame--phone .portal-content {
+  grid-column: 1;
+  padding: var(--space-5) var(--space-4) var(--space-6);
+}
+.ag-frame--phone .ag-tabs { display: grid; }
+.ag-frame--phone .rv-table { font-size: var(--text-xs); }
+
+/* Desktop frame resets: whatever the browser width, the desk frame keeps the
+   sidebar layout (the app's own breakpoints still drive the standalone pages). */
+@media (max-width: 63.99rem) {
+  .ag-frame--desk .portal-sidebar { display: flex; }
+  .ag-frame--desk .portal-topbar { display: none; }
+  .ag-frame--desk .portal-content { margin-left: 0; }
+  .ag-frame--desk .ag-tabs { display: none; }
+}
+
+/* --- Spec sheets ------------------------------------------------------------- */
+.rv-specwrap {
+  margin-top: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  padding: var(--space-3) var(--space-5);
+}
+
+.rv-specwrap > summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  color: var(--sky-800);
+}
+
+.rv-spec { margin-top: var(--space-3); }
+
+.rv-spec__k {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.rv-spec p { margin: 0 0 var(--space-2); font-size: var(--text-sm); }
+.rv-spec ul { margin: 0; padding-left: var(--space-5); }
+.rv-spec li { margin-bottom: var(--space-2); font-size: var(--text-sm); }
+
+/* --- Questions --------------------------------------------------------------- */
+.rv-qlist { margin: 0; padding-left: var(--space-6); }
+.rv-qlist li { margin-bottom: var(--space-4); font-size: var(--text-md); }
+
+/* --- Overflow guards --------------------------------------------------------- */
+.rv-page, .rv-card, .rv-spec, .rv-grid-2, .rv-frames { min-width: 0; }
+:where(.rv-grid-2, .rv-spec, .rv-frames, .rv-meta) > * { min-width: 0; }
+:where(p, h1, h2, h3, h4, li, dt, dd, figcaption, td, th, .badge, .rv-chip, .rv-mono, code, em, strong) { overflow-wrap: anywhere; }
+.rv-table { table-layout: fixed; }
+.rv-table th, .rv-table td { overflow-wrap: anywhere; }
+
+@media (max-width: 80rem) {
+  .rv-shell { grid-template-columns: minmax(0, 1fr); }
+  .rv-index { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--color-border); }
+  .rv-main { padding: var(--space-5) var(--space-4) var(--space-7); }
+}
+
+@media (max-width: 40rem) {
+  .rv-frame-wrap--phone { width: 100%; max-width: 23.5rem; }
+  .rv-frame-wrap--desk { display: none; }
+}

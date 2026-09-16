@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { PortalFrame } from "@/components/portal-frame";
-import { AGENT_PORTAL_NAV, asSingleGroup } from "@/components/portal-nav";
+import { AGENT_PORTAL_GROUPS, AGENT_PORTAL_TABS } from "@/components/portal-nav";
 
 /**
- * Agent portal layout — same PortalFrame chrome as the family portal.
+ * Agent portal layout — the approved agent design (docs/08-delivery/
+ * agent-portal-design) on the shipped PortalFrame: grouped sky rail, phone
+ * bottom bar and the office number pinned in the sidebar.
  */
 export default async function AgentLayout({ children }: { children: React.ReactNode }) {
   const jar = await cookies();
@@ -45,7 +47,17 @@ export default async function AgentLayout({ children }: { children: React.ReactN
       brandLabel="Agent Portal"
       email={email}
       logoutTo="/agent/login"
-      nav={asSingleGroup(AGENT_PORTAL_NAV)}
+      nav={AGENT_PORTAL_GROUPS}
+      tabs={AGENT_PORTAL_TABS}
+      help={
+        <p className="portal-sidebar__help">
+          Need the office?
+          <br />
+          <strong>0917 617 8489</strong>
+          <br />
+          <span>Mon–Sat · 8am–6pm</span>
+        </p>
+      }
     >
       {children}
     </PortalFrame>

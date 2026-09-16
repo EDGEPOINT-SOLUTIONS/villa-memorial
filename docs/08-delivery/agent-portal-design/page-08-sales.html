@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sales &amp; commissions — the honest shape — Villa Memorial agent portal (design example)</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="agent-portal.css">
+</head>
+<body class="ag-standalone">
+<!-- Example page for review: /agent/sales -->
+<div class="agent-sky">
+<div class="portal-frame" data-portal="agent">
+  <header class="portal-topbar">
+    <div class="portal-topbar__brand">
+      <span class="portal-sidebar__brand">Villa Memorial</span>
+      <span class="portal-sidebar__brand-sub">Agent Portal</span>
+    </div>
+    <div class="row" style="display:flex;gap:var(--space-2);align-items:center">
+      <a class="portal-topbar__icon" href="/agent/notifications" aria-label="Notifications" style="text-decoration:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6M10.5 20a2 2 0 0 0 3 0"/></svg></a>
+      <button class="portal-topbar__icon" type="button" aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </header>
+
+  <aside class="portal-sidebar">
+    <div class="portal-sidebar__brand-row" style="display:flex;align-items:center;justify-content:space-between;gap:var(--space-2)">
+      <a class="portal-sidebar__title" href="/agent/dashboard">
+        <span class="portal-sidebar__brand">Villa Memorial</span>
+        <span class="portal-sidebar__brand-sub">Agent Portal</span>
+      </a>
+      <a class="portal-topbar__icon" href="/agent/notifications" aria-label="Notifications" style="text-decoration:none"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6M10.5 20a2 2 0 0 0 3 0"/></svg></a>
+    </div>
+    <p class="portal-sidebar__user">alex.agent@vm.demo</p>
+
+    <nav class="portal-nav" aria-label="Agent portal navigation"><div class="portal-nav__group"><a class="portal-nav__item" href="/agent/dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Today</span></a></div><div class="portal-nav__group"><p class="portal-nav__label">My pipeline</p><a class="portal-nav__item" href="/agent/prospects"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 8v6M22 11h-6"/></svg><span>Prospects</span></a><a class="portal-nav__item" href="/agent/clients"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9"/></svg><span>Clients</span></a><a class="portal-nav__item" href="/agent/appointments"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v16H4zM4 10h16M9 3v3M15 3v3"/></svg><span>Appointments & tasks</span></a></div><div class="portal-nav__group"><p class="portal-nav__label">Sell & earn</p><a class="portal-nav__item" href="/agent/lots"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 7 8h3v4H6l-2 5h6v3h4v-3h6l-2-5h-4V8h3z"/></svg><span>Lot availability</span></a><a class="portal-nav__item portal-nav__item--active" href="/agent/sales" aria-current="page"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-8"/></svg><span>Sales & commissions</span></a><a class="portal-nav__item" href="/agent/applications"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4h6v3H9zM6 5h3v3h6V5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zM9 12h6M9 16h4"/></svg><span>Applications</span></a></div><div class="portal-nav__group"><p class="portal-nav__label">Tools</p><a class="portal-nav__item" href="/agent/marketing"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16v12H4zM4 10h16M9 14h6"/></svg><span>Marketing & materials</span></a><a class="portal-nav__item" href="/agent/new"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>New lead</span></a></div></nav>
+
+    <div class="portal-sidebar__foot">
+      <p class="portal-sidebar__help">Need the office?<br><strong>0917 617 8489</strong><br><span>Mon–Sat · 8am–6pm</span></p>
+      <div class="portal-sidebar__switcher">
+        <div class="portal-switch portal-switch--inverse">
+          <a href="/agent/dashboard" aria-current="page">Agent</a>
+          <a href="/staff/dashboard">Staff</a>
+          <a href="/client/dashboard">Family</a>
+        </div>
+      </div>
+      <button class="portal-sidebar__logout" type="button"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Log out</span></button>
+    </div>
+  </aside>
+
+  <main class="portal-content">
+    <div class="portal-content__inner"><div class="ag-page">
+  <section class="ag-hero">
+    <p class="ag-day">Sales &amp; commissions · September 2026</p>
+    <h1 class="ag-hero__title">What you sold, and what the work pays.</h1>
+    <p class="ag-hero__lead">Two sales so far this month. The commission shape is below — the rates are placeholders until Villa configures them, so we will not print a number you cannot trust.</p>
+    <div class="ag-hero__chips">
+      <span class="ag-chip">2 sales · ₱86,000</span>
+      <span class="ag-chip">1 pending approval</span>
+      <span class="ag-chip">1 in the payout cycle</span>
+      <span class="ag-chip">Rates: not configured</span>
+    </div>
+  </section>
+
+  <section class="ag-sec">
+    <div class="ag-sec__head">
+      <div>
+        <h2 class="ag-h2">Your commission, in its four states</h2>
+        <p class="ag-sub">Every line follows this path: pending approval → approved → scheduled → paid. Nothing skips a step, and a cancellation is shown as its own line — never hidden.</p>
+      </div>
+      <span class="ag-pill">amounts to be configured</span>
+    </div>
+
+    <div class="ag-money-grid">
+      <div class="ag-money">
+        <p class="ag-money__label">Pending approval</p>
+        <p class="ag-money__value">₱—</p>
+        <p class="ag-money__note">1 sale · waiting on the office to verify the papers</p>
+      </div>
+      <div class="ag-money">
+        <p class="ag-money__label">Approved</p>
+        <p class="ag-money__value">₱—</p>
+        <p class="ag-money__note">Ready for the payout cycle once rates are configured</p>
+      </div>
+      <div class="ag-money">
+        <p class="ag-money__label">Paid this year</p>
+        <p class="ag-money__value">₱—</p>
+        <p class="ag-money__note">Statements will show the payment date, method and reference</p>
+      </div>
+    </div>
+
+    <div class="ag-commission">
+      <div class="ag-commission__head">
+        <h3 class="ag-card__title" style="margin:0">Statement — September 2026</h3>
+        <p class="ag-card__sub" style="margin:var(--space-1) 0 0">One line per sale, with the basis the office will configure.</p>
+      </div>
+      <div class="ag-commission__rows">
+        <div class="ag-commission__row">
+          <div>
+            <p class="ag-commission__row-title">Villa Memorial Plan · Silver 1 · Liwayway Cruz</p>
+            <p class="ag-commission__row-note">Sold 9 Sep · monthly, ₱1,000 for 6 years · basis: <strong>fixed % of sale</strong> (placeholder) · credited to you alone</p>
+            <p style="margin:var(--space-2) 0 0"><span class="badge badge--warning">Pending approval</span></p>
+          </div>
+          <div class="ag-commission__amount">₱—<small>rate to be configured</small></div>
+        </div>
+        <div class="ag-commission__row">
+          <div>
+            <p class="ag-commission__row-title">Funeral package · Reyes family</p>
+            <p class="ag-commission__row-note">Sold 3 Sep · at-need package · basis: <strong>fixed ₱ per sale</strong> (placeholder) · <strong>split 70 / 30</strong> with Marlon (coordinator referral)</p>
+            <p style="margin:var(--space-2) 0 0"><span class="badge badge--info">Approved — scheduled for the 30 Sep cycle</span></p>
+          </div>
+          <div class="ag-commission__amount">₱—<small>rate + split to be configured</small></div>
+        </div>
+        <div class="ag-commission__row">
+          <div>
+            <p class="ag-commission__row-title">Cancelled service · floral add-on for Reyes</p>
+            <p class="ag-commission__row-note">Cancelled 14 Sep · the reversal is shown here with the contract reference — a cancelled service never quietly reduces your next payout.</p>
+            <p style="margin:var(--space-2) 0 0"><span class="badge badge--danger">Reversed with the order</span></p>
+          </div>
+          <div class="ag-commission__amount">₱—<small>reversal placeholder</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ag-sec">
+    <div class="ag-sec__head">
+      <div>
+        <h2 class="ag-h2">How commission works here</h2>
+        <p class="ag-sub">The PRD's engine is rules-based and fully configurable by Villa. These are the shapes it supports — the office will switch on the ones it uses.</p>
+      </div>
+    </div>
+    <div class="ag-card">
+      <div class="ag-card__body">
+        <div class="ag-rule"><span class="ag-rule__key">Fixed %</span><span class="ag-rule__val">A percentage of the sale value. <em>Not configured yet.</em></span></div>
+        <div class="ag-rule"><span class="ag-rule__key">Fixed ₱</span><span class="ag-rule__val">A flat amount per sale or per product. <em>Not configured yet.</em></span></div>
+        <div class="ag-rule"><span class="ag-rule__key">Tiered</span><span class="ag-rule__val">A rate that rises with volume or with the product tier. <em>Not configured yet.</em></span></div>
+        <div class="ag-rule"><span class="ag-rule__key">Volume</span><span class="ag-rule__val">A bonus once a period's sales pass a threshold. <em>Not configured yet.</em></span></div>
+        <div class="ag-rule"><span class="ag-rule__key">Milestone</span><span class="ag-rule__val">A reward for a specific achievement, e.g. first Gold plan sold. <em>Not configured yet.</em></span></div>
+        <div class="ag-rule"><span class="ag-rule__key">Split</span><span class="ag-rule__val">Two or more agents share one sale; each share appears on its own line. <em>Shape shown above.</em></span></div>
+        <div class="ag-rule"><span class="ag-rule__key">Multi-agent</span><span class="ag-rule__val">Referral, coordinator and closer each carry a share. <em>Shape shown above.</em></span></div>
+        <p class="ag-note" style="margin-top:var(--space-3);width:100%">Source: finance-billing.md:17 (blueprint §34) — agent registration/types · internal &amp; external agents · territory · attribution · rates · approval · statements · payment tracking · clawbacks/reversals · cancelled-service handling. Rates are an open client question (07-client-villa/open-questions.md:26).</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="ag-sec">
+    <div class="ag-sec__head">
+      <div>
+        <h2 class="ag-h2">Targets and conversion</h2>
+        <p class="ag-sub">The office sets the target; you see where you are against it, and how your people are moving.</p>
+      </div>
+    </div>
+    <div class="ag-card">
+      <div class="ag-card__body">
+        <div class="ag-target">
+          <div class="ag-target__legend">
+            <span><strong>September target</strong></span>
+            <span>—</span>
+          </div>
+          <div class="ag-target__bar"><div class="ag-target__fill" style="width:0%"></div></div>
+          <p class="ag-note">No target has been set for you yet. When the office sets one, this bar fills against sales value — and collection, if Villa wants it included.</p>
+        </div>
+        <hr style="border:none;border-top:1px solid var(--sky-100);margin:var(--space-4) 0">
+        <div class="ag-kv"><dt>People contacted this month</dt><dd>6</dd></div>
+        <div class="ag-kv"><dt>Presentations made</dt><dd>3</dd></div>
+        <div class="ag-kv"><dt>Sales closed</dt><dd>2</dd></div>
+        <div class="ag-kv"><dt>Conversion, contacted → sold</dt><dd>33%</dd></div>
+        <p class="ag-note">Conversion is calculated from the office's record, not from a self-reported list. <span class="ag-pill">example figures</span></p>
+      </div>
+    </div>
+    <div style="display:flex;gap:var(--space-2);flex-wrap:wrap">
+      <button class="btn btn--primary" type="button">Ask the office a commission question</button>
+      <button class="btn btn--secondary" type="button">Read the full rule sheet (when configured)</button>
+    </div>
+  </section>
+</div></div>
+  </main>
+
+  <nav class="ag-tabs" aria-label="Agent portal"><a class="ag-tabs__item" href="/agent/dashboard" title="Today"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Today</span></a><a class="ag-tabs__item" href="/agent/prospects" title="Pipeline"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM19 8v6M22 11h-6"/></svg><span>Pipeline</span></a><a class="ag-tabs__item" href="/agent/clients" title="Clients"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9"/></svg><span>Clients</span></a><a class="ag-tabs__item" href="/agent/lots" title="Lots"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2 7 8h3v4H6l-2 5h6v3h4v-3h6l-2-5h-4V8h3z"/></svg><span>Lots</span></a><button class="ag-tabs__item" type="button" title="All of the portal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button></nav>
+</div>
+</div>
+</body>
+</html>
