@@ -18,7 +18,11 @@ import { Field } from "@/components/ui/field";
 import { PortalSwitch } from "@/components/portal-switch";
 import { SIGN_IN_BLURBS, type SignInDoor } from "@/lib/sign-in";
 
-const QUICK_FILL_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? "";
+// LOCAL-DEV-ONLY fallback: NEXT_PUBLIC_* is inlined into public JS at build time,
+// so deployed builds never set this. Deployments enable one-click fill through the
+// server-side DEMO_QUICK_FILL flag, resolved per request and passed in as the
+// `quickFillPassword` prop (see lib/demo-quick-fill.ts) — never inlined here.
+const INLINED_DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? "";
 const HINTS_ENABLED = process.env.NEXT_PUBLIC_DEMO_HINTS !== "0";
 
 type PersonaHint = { email: string; display_name: string };
@@ -27,10 +31,13 @@ export function SignInCard({
   door,
   personas,
   fallbackDestination,
+  quickFillPassword = null,
 }: {
   door: SignInDoor;
   personas: PersonaHint[];
   fallbackDestination: string;
+  /** Server-resolved per request; null keeps the buttons email-only. */
+  quickFillPassword?: string | null;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -38,10 +45,11 @@ export function SignInCard({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { title, blurb } = SIGN_IN_BLURBS[door];
+  const fillPassword = quickFillPassword ?? (INLINED_DEMO_PASSWORD || null);
 
   function quickFill(hint: PersonaHint) {
     setEmail(hint.email);
-    if (QUICK_FILL_PASSWORD) setPassword(QUICK_FILL_PASSWORD);
+    if (fillPassword) setPassword(fillPassword);
   }
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -119,7 +127,7 @@ export function SignInCard({
         {HINTS_ENABLED ? (
           <div className="signin-card__hints">
             <p className="text-sm text-muted">
-              {QUICK_FILL_PASSWORD ? "Demo account:" : "Demo account (fill email):"}
+              {fillPassword ? "Demo account:" : "Demo account (fill email):"}
             </p>
             <div className="row row--wrap">
               {personas.map((p) => (

@@ -7,6 +7,12 @@ services:
       AUTH_BASE_URL: http://stub-gateway:8080
       SECURE_COOKIES: "0"
       NEXT_PUBLIC_DEMO_HINTS: "1"
+      # Runtime server-side one-click persona fill (never inlined into public JS). The web
+      # tier talks to the stub gateway (AUTH_BASE_URL above), so the password must be
+      # explicit; this is the repo's dev-only seed and this stack is a demo — never a
+      # production deploy.
+      DEMO_QUICK_FILL: "1"
+      DEMO_QUICK_FILL_PASSWORD: "Demo-Passw0rd!"
       NEXT_TELEMETRY_DISABLED: "1"
     ports:
       - "${WEB_PORT:-4000}:3000"

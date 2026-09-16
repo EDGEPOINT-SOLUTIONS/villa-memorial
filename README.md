@@ -28,8 +28,17 @@ surface's header/sidebar) keeps the four surfaces connected.
 
 ## Demo logins (fixture mode)
 
-Password for every persona: `Demo-Passw0rd!` (dev-only; opt-in via
-`NEXT_PUBLIC_DEMO_PASSWORD`, never set in production builds).
+Password for every persona: `Demo-Passw0rd!` (dev-only). The persona buttons always
+fill the email, and fill the password too when the build opts in:
+
+- **Local dev:** `NEXT_PUBLIC_DEMO_PASSWORD=Demo-Passw0rd!` in `.env` — inlined into
+  public JavaScript, so never set on a deployed build.
+- **Deployed demo:** set the server-side runtime env `DEMO_QUICK_FILL=1`. The password
+  is resolved per request (never baked into public JavaScript): with no gateway
+  configured it comes from `lib/fixtures/auth/personas.json`, while a deployment behind
+  a gateway (the `docker compose` stub stack included) must also set
+  `DEMO_QUICK_FILL_PASSWORD=<the deployment's demo password>`. Unset keeps the
+  email-only fill.
 
 | Persona | Scopes (subset) | Best door |
 |---|---|---|
