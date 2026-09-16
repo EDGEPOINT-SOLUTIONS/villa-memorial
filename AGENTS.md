@@ -112,6 +112,29 @@ docker compose up --build                            # SSR on :3000 against stub
   "/" editor) that makes the post's photos/caption navigate; seed posts ship
   sensible internal routes.
 
+## Package page — `/plans/[sku]` (design target — read before touching it)
+
+- Package items render the CLIENT's approved layout, not a generic hero. Authority:
+  `Package page UI example.webp` (client media library) + the committed prototype
+  `docs/prototypes/villa-home-ui/package.html` (+ its README). Main column =
+  breadcrumb → title/lead/tagline → chips → quote → VILLA MEMORIAL PLAN panel →
+  COMPLETE MEMORIAL PACKAGE grid (five gold-disc icons with hairline separators
+  + the eligibility/benefit row) → 2026 price list; the 28rem rail holds ONLY the
+  promo card and the buy card. The client image's icon treatment wins over the
+  prototype's translucent wash: solid `--gold-200` disc + `--navy-900` glyph for
+  the five features, plain `--gold-500` line icons (no disc) in the second row.
+  Services/add-ons keep the `hero-premium` layout.
+- Styles live in the "package page" block of `styles/components.css`
+  (`.plan-layout` / `.plan-main` / `.plan-side` / `.pkg-*`); the feature icons are
+  route-local in `app/(public)/plans/[sku]/package-icons.tsx`. `.plan-main` needs
+  its explicit `grid-template-columns: minmax(0, 1fr)` — the implicit track sizes
+  to the five-column grid's max-content and overflows the rail otherwise; the
+  feature grid reflows 3+2 between 62.001–82rem (the rail still fits at 28rem)
+  and 2-across below, so the five columns never crush.
+- Never write an amount in the view: `PlanTermSelector` reads every price through
+  `planRate()` in `lib/villa-pricing.ts` (tier × term, regular + senior tables).
+  The prototype and the reference image win over the older full-width render.
+
 ## Structure conventions
 ```
 web/

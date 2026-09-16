@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import type { CartLine } from "@/lib/cart/cart-context";
 import {
   PLAN_TIERS,
@@ -44,12 +45,12 @@ export function PlanTermSelector({ item, ownTier }: Props) {
   return (
     <>
       <div className="row row--space">
-        <span className="badge badge--accent">{item.itemType === "package" ? "Package" : "Service"}</span>
-        <code className="text-sm text-muted">{item.sku}</code>
+        <Badge tone="accent">{item.itemType === "package" ? "Package" : "Service"}</Badge>
+        <Badge tone="neutral">{item.sku}</Badge>
       </div>
 
       <div>
-        <div className="detail-sticky__label">Price</div>
+        <div className="detail-sticky__label" id="buy-title">Price</div>
         <div className="detail-sticky__price">
           {php2(amount)} <small className="plan-term-per">{termDef.per}</small>
         </div>
@@ -107,15 +108,18 @@ export function PlanTermSelector({ item, ownTier }: Props) {
       </label>
 
       {isOwnPlan ? (
-        <AddToCartControl
-          item={{
-            sku: item.sku,
-            name: item.name,
-            itemType: item.itemType,
-            unitPriceCents: item.unitPriceCents,
-            currency: item.currency,
-          }}
-        />
+        <div className="plan-buy-actions">
+          <AddToCartControl
+            withIcon
+            item={{
+              sku: item.sku,
+              name: item.name,
+              itemType: item.itemType,
+              unitPriceCents: item.unitPriceCents,
+              currency: item.currency,
+            }}
+          />
+        </div>
       ) : (
         <Link className="btn btn--primary btn--block" href="/contact">
           Talk to an advisor about {tierName}
@@ -126,10 +130,10 @@ export function PlanTermSelector({ item, ownTier }: Props) {
       </Link>
 
       <p className="text-sm text-muted" style={{ margin: 0 }}>
-        Rates are the Villa Memorial Plan’s published 2026 payment modes — assignable and transferable
-        (₱1,000 fee), limited contestability, with cash assistance during the paying period. Online
-        checkout currently bills the storefront catalogue item; the plan enrolment flow follows the 2026
-        catalogue import.
+        Monthly 12 payments/yr · Quarterly 4 · Semi-Annual 2 · Annual 1. Inception is 30 days
+        after initial payment; contestability 7 months after payment. Assignable and transferable
+        (₱1,000 fee). Online checkout currently bills the storefront catalogue item; the plan
+        enrolment flow follows the 2026 catalogue import.
       </p>
     </>
   );
