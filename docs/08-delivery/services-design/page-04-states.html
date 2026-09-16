@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty, loading and error states — services design example (Villa Memorial)</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="services-pages.css">
+</head>
+<body class="sv-page sv-standalone">
+<a class="visually-hidden" href="#main">Skip to content</a>
+<header class="anchored-header">
+  <div class="anchored-header__bar">
+    <a class="anchored-header__brand" href="/">
+      <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+      <span class="anchored-header__wordmark">Villa Memorial Park</span>
+    </a>
+    <nav class="anchored-header__nav" aria-label="Sections"><a href="/">Home</a><a href="/services" aria-current="page">Funeraria Memorial Services</a><a href="/plans">Villa Memorial Plan</a><a href="/lots">Lots</a><a href="/map">Villa Memorial Park</a><a href="/cart">Cart</a><a href="/contact">Contact</a></nav>
+    <div class="anchored-header__actions">
+      <a class="anchored-header__phone" href="tel:+639170001234">
+        <span class="anchored-header__phone-label">24/7 Assistance Line</span>
+        <span class="anchored-header__phone-number">0917 000 1234</span>
+      </a>
+      <a class="anchored-header__signin" href="/login">Sign in</a>
+    </div>
+  </div>
+</header>
+<main id="main" class="container public-main">
+<div class="sv-main">
+  <nav class="sv-breadcrumb" aria-label="Breadcrumb">
+    <ol><li><a href="/">Home</a></li><li><a href="/services">Funeraria Memorial Services</a></li><li aria-current="page">Empty, loading and error states</li></ol>
+  </nav>
+  <h1 style="margin-top:var(--space-3)">Every state the page can be in, in plain words</h1>
+  <p class="sv-section__intro">
+    Every state below copies the live wording, and each one ends with a human thing to do —
+    a phone number or a request, never a dead end.
+  </p>
+
+  <div class="sv-state-grid">
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Empty — the cart</p>
+      <div class="empty-state">
+        <p class="empty-state__title">Your cart is empty</p>
+        <p class="empty-state__hint">Browse the plans and services to start an order.</p>
+      </div>
+      <a class="btn btn--primary" href="/services">Browse plans &amp; services</a>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Loading — the chapel schedule</p>
+      <p class="sv-note" role="status">Checking the park's chapel schedule…</p>
+      <div class="sv-skeleton" aria-hidden="true">
+        <span style="width:70%"></span><span style="width:88%"></span><span style="width:52%"></span>
+      </div>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Error — the catalogue cannot be read</p>
+      <div class="alert alert--danger" role="alert">
+        <div>The service catalogue is unavailable right now, so the 2026 rates cannot be ordered online. Please try again shortly or call the 24/7 assistance line.</div>
+      </div>
+      <a class="btn btn--primary" href="tel:+639170001234">Call 0917 000 1234</a>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Error — the chapel schedule cannot be read</p>
+      <div class="alert alert--warning" role="alert">
+        <div><strong>The chapel schedule can't be reached</strong><br>The park schedule is unavailable right now. You can still send the office a request and they will confirm availability and the price.</div>
+      </div>
+      <a class="btn btn--secondary" href="/contact?item=Chapel+availability">Request chapel dates</a>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Refused — someone else has the dates</p>
+      <div class="alert alert--warning" role="alert">
+        <div><strong>These dates are not available</strong><br>Chapel A is already booked on Sep 16 – 18, 2026. Chapel B is free for this range.</div>
+      </div>
+      <a class="btn btn--secondary" href="#chapel">Choose the other chapel</a>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Not offered online — fall back to the office</p>
+      <p class="sv-note">Not offered online — ask the office.</p>
+      <a class="btn btn--secondary" href="/contact">Ask the office</a>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Success — dates held</p>
+      <div class="alert alert--success" role="status">
+        <div><strong>Dates held — added to your cart</strong></div>
+      </div>
+      <a class="btn btn--primary" href="/cart">View cart</a>
+    </div>
+
+    <div class="sv-stateblock">
+      <p class="sv-stateblock__label">Warning — a hold could not be released</p>
+      <div class="alert alert--warning" role="alert">
+        <div><strong>The dates could not be released automatically</strong><br>Please call the park office so they can free the chapel dates.</div>
+      </div>
+      <a class="btn btn--primary" href="tel:+639170001234">Call 0917 000 1234</a>
+    </div>
+  </div>
+
+  <h2 style="margin-top:var(--space-7)">The page while the catalogue loads</h2>
+  <p class="sv-section__intro">
+    Server-rendered pages show the real content or the error above; the skeleton is for the
+    one client-side list that re-reads the catalogue.
+  </p>
+  <div class="sv-skeleton" aria-hidden="true" style="max-width:48rem">
+    <span style="width:38%; height:2rem"></span>
+    <span style="width:64%"></span>
+    <span style="width:52%"></span>
+  </div>
+</div>
+</main>
+<footer class="anchored-footer">
+  <div class="anchored-footer__inner">
+    <div class="anchored-footer__grid">
+      <div class="anchored-footer__brand-col">
+        <a class="anchored-header__brand" href="/">
+          <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+          <span class="anchored-header__wordmark">Villa Memorial Park</span>
+        </a>
+        <p class="anchored-footer__blurb">A family-run memorial park in <strong>Isabela City, Basilan</strong> — memorial &amp; funeral care that honors every life with dignity and light, day or night. The first memorial park in Basilan.</p>
+      </div>
+      <nav class="anchored-footer__col" aria-label="Explore">
+        <p class="anchored-footer__title">Explore</p>
+        <a href="/">Home</a>
+        <a href="/services">Funeraria Memorial Services</a>
+        <a href="/plans">Villa Memorial Plan</a>
+        <a href="/lots">Browse the lots</a>
+        <a href="/products">Products &amp; caskets</a>
+        <a href="/transport">Transport</a>
+        <a href="/map">Villa Memorial Park</a>
+      </nav>
+      <nav class="anchored-footer__col" aria-label="Care and planning">
+        <p class="anchored-footer__title">Care &amp; planning</p>
+        <a href="/services/death-at-home">Death at home</a>
+        <a href="/services/death-at-hospital">Death at hospital</a>
+        <a href="/plans/villa-memorial-plan">Villa Memorial Plan</a>
+        <a href="/plans/compare">Compare plans</a>
+        <a href="/lots/price-list-2026">2026 price list</a>
+      </nav>
+      <address class="anchored-footer__contact">
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">24/7 Assistance Line</span>
+          <a class="anchored-footer__phone" href="tel:+639170001234">0917 000 1234</a>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Open</span>
+          <span class="anchored-footer__contact-value">Every hour, every day</span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Visit the park</span>
+          <span class="anchored-footer__contact-value">Isabela City, Basilan<br><a href="/map">Map &amp; directions →</a></span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Help</span>
+          <span class="anchored-footer__contact-value"><a href="/contact">Contact us</a> · <a href="/faq">FAQ</a></span>
+        </div>
+      </address>
+    </div>
+    <div class="anchored-footer__bottom">
+      <span>© 2026 Villa Memorial Park. All rights reserved. · <a href="/cart">Cart</a> · <a href="/quote">Request a quote</a></span>
+      <span class="anchored-footer__portals">
+        <a href="/client/login">Family sign-in</a>
+        <a href="/agent/login">Agent sign-in</a>
+        <a href="/login">Staff sign-in</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<div class="sv-callbar" role="region" aria-label="Call the park">
+  <span>Someone has died?</span>
+  <a href="tel:+639170001234">Call 0917 000 1234</a>
+</div>
+<script>
+  // Sample-only scroll-spy: highlight the "On this page" chip of the section in
+  // view. The shipped page gets this from its own component; the sample shows it.
+  (function () {
+    var nav = document.querySelector('.sv-subnav');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    var links = {};
+    nav.querySelectorAll('a[href^="#"]').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        Object.keys(links).forEach(function (id) { links[id].removeAttribute('aria-current'); });
+        if (links[e.target.id]) links[e.target.id].setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    Object.keys(links).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
+</script>
+</body>
+</html>

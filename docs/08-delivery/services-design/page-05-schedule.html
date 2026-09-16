@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The long-content case — the full 3–9 day schedule — services design example (Villa Memorial)</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="services-pages.css">
+</head>
+<body class="sv-page sv-standalone">
+<a class="visually-hidden" href="#main">Skip to content</a>
+<header class="anchored-header">
+  <div class="anchored-header__bar">
+    <a class="anchored-header__brand" href="/">
+      <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+      <span class="anchored-header__wordmark">Villa Memorial Park</span>
+    </a>
+    <nav class="anchored-header__nav" aria-label="Sections"><a href="/">Home</a><a href="/services" aria-current="page">Funeraria Memorial Services</a><a href="/plans">Villa Memorial Plan</a><a href="/lots">Lots</a><a href="/map">Villa Memorial Park</a><a href="/cart">Cart</a><a href="/contact">Contact</a></nav>
+    <div class="anchored-header__actions">
+      <a class="anchored-header__phone" href="tel:+639170001234">
+        <span class="anchored-header__phone-label">24/7 Assistance Line</span>
+        <span class="anchored-header__phone-number">0917 000 1234</span>
+      </a>
+      <a class="anchored-header__signin" href="/login">Sign in</a>
+    </div>
+  </div>
+</header>
+<main id="main" class="container public-main">
+<div class="sv-main">
+  <nav class="sv-breadcrumb" aria-label="Breadcrumb">
+    <ol><li><a href="/">Home</a></li><li><a href="/services">Funeraria Memorial Services</a></li><li aria-current="page">The long-content case</li></ol>
+  </nav>
+  <h1 style="margin-top:var(--space-3)">The full 3–9 day schedule, made readable</h1>
+  <p class="sv-section__intro">
+    The chapel sheet is the densest content on the page: seven day counts × two chapels ×
+    (per day, regular, senior). Today it is one eight-column table. On a phone that table is
+    745 px wide inside a 290 px box — it scrolls sideways, the headers are 11.5 px, and each
+    of its 14 booking buttons sits in a table cell.
+  </p>
+
+  <h2>Today — the live table, at 390 px</h2>
+  <figure class="sv-figure" style="max-width:24rem">
+    <img src="shots/live-chapel-table-phone.png" alt="The live chapel schedule table at 390 px: eight columns compressed into a horizontally scrolling strip with 11.5 px header text.">
+    <figcaption>Live chapel table at 390 px. 745 px of table inside a 290 px scroller.</figcaption>
+  </figure>
+  <div class="sv-disclosure" style="margin-top:var(--space-4)">
+    <details class="sv-disclosure" style="border:0">
+      <summary>See the same table, full width (desktop reference)</summary>
+      <div class="sv-disclosure__body"><table class="table price-table">
+    <caption>If the service is not with us, chapel use only.</caption>
+    <thead>
+      <tr>
+        <th scope="col" rowspan="2">Days</th>
+        <th scope="col" colspan="3">Common chapel</th>
+        <th scope="col" colspan="3">Private chapel</th>
+      </tr>
+      <tr>
+        <th scope="col">per day</th><th scope="col">regular</th><th scope="col">senior</th>
+        <th scope="col">per day</th><th scope="col">regular</th><th scope="col">senior</th>
+      </tr>
+    </thead>
+    <tbody><tr>
+      <th scope="row">3</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱4,500</td><td class="table__numeric">₱4,320</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱10,500</td><td class="table__numeric">₱10,080</td>
+    </tr><tr>
+      <th scope="row">4</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱6,000</td><td class="table__numeric">₱5,760</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱14,000</td><td class="table__numeric">₱13,440</td>
+    </tr><tr>
+      <th scope="row">5</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱7,500</td><td class="table__numeric">₱7,200</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱17,500</td><td class="table__numeric">₱16,800</td>
+    </tr><tr>
+      <th scope="row">6</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱9,000</td><td class="table__numeric">₱8,640</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱21,000</td><td class="table__numeric">₱20,160</td>
+    </tr><tr>
+      <th scope="row">7</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱10,500</td><td class="table__numeric">₱10,080</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱24,500</td><td class="table__numeric">₱23,520</td>
+    </tr><tr>
+      <th scope="row">8</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱12,000</td><td class="table__numeric">₱11,520</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱28,000</td><td class="table__numeric">₱26,880</td>
+    </tr><tr>
+      <th scope="row">9</th>
+      <td class="table__numeric">₱1,500</td><td class="table__numeric">₱13,500</td><td class="table__numeric">₱12,960</td>
+      <td class="table__numeric">₱3,500</td><td class="table__numeric">₱31,500</td><td class="table__numeric">₱30,240</td>
+    </tr></tbody>
+  </table></div>
+    </details>
+  </div>
+
+  <h2 style="margin-top:var(--space-7)">Proposed — one row per stay</h2>
+  <p class="sv-section__intro">
+    The same 42 figures, one decision per row: how many days, what the family pays, what a
+    senior pays, and a single Book button that carries the day count into the booking step.
+  </p>
+  <h3>Common chapel — Chapel A</h3>
+  <ul class="sv-stays"><li class="sv-stay">
+      <span class="sv-stay__days">3 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱4,500</b></span>
+        <span>Senior citizen <b>₱4,320</b></span>
+        <span class="sv-note">(3 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 3 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+3+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">4 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱6,000</b></span>
+        <span>Senior citizen <b>₱5,760</b></span>
+        <span class="sv-note">(4 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 4 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+4+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">5 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱7,500</b></span>
+        <span>Senior citizen <b>₱7,200</b></span>
+        <span class="sv-note">(5 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 5 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+5+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">6 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱9,000</b></span>
+        <span>Senior citizen <b>₱8,640</b></span>
+        <span class="sv-note">(6 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 6 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+6+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">7 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱10,500</b></span>
+        <span>Senior citizen <b>₱10,080</b></span>
+        <span class="sv-note">(7 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 7 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+7+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">8 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱12,000</b></span>
+        <span>Senior citizen <b>₱11,520</b></span>
+        <span class="sv-note">(8 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 8 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+8+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">9 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱13,500</b></span>
+        <span>Senior citizen <b>₱12,960</b></span>
+        <span class="sv-note">(9 × ₱1,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 9 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+9+days">Request</a>
+      </span>
+    </li></ul>
+  <h3 style="margin-top:var(--space-5)">Private chapel — Chapel B</h3>
+  <ul class="sv-stays"><li class="sv-stay">
+      <span class="sv-stay__days">3 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱10,500</b></span>
+        <span>Senior citizen <b>₱10,080</b></span>
+        <span class="sv-note">(3 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 3 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+3+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">4 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱14,000</b></span>
+        <span>Senior citizen <b>₱13,440</b></span>
+        <span class="sv-note">(4 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 4 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+4+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">5 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱17,500</b></span>
+        <span>Senior citizen <b>₱16,800</b></span>
+        <span class="sv-note">(5 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 5 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+5+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">6 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱21,000</b></span>
+        <span>Senior citizen <b>₱20,160</b></span>
+        <span class="sv-note">(6 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 6 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+6+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">7 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱24,500</b></span>
+        <span>Senior citizen <b>₱23,520</b></span>
+        <span class="sv-note">(7 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 7 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+7+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">8 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱28,000</b></span>
+        <span>Senior citizen <b>₱26,880</b></span>
+        <span class="sv-note">(8 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 8 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+8+days">Request</a>
+      </span>
+    </li><li class="sv-stay">
+      <span class="sv-stay__days">9 days</span>
+      <span class="sv-stay__prices">
+        <span>Regular <b>₱31,500</b></span>
+        <span>Senior citizen <b>₱30,240</b></span>
+        <span class="sv-note">(9 × ₱3,500 per day)</span>
+      </span>
+      <span class="sv-stay__actions">
+        <button type="button" class="btn btn--accent btn--sm">Book 9 days</button>
+        <a class="btn btn--secondary btn--sm" href="/contact?item=Chapel+use+%E2%80%94+9+days">Request</a>
+      </span>
+    </li></ul>
+
+  <h2 style="margin-top:var(--space-7)">At rest — the same content behind one tap</h2>
+  <p class="sv-section__intro">
+    On the page the list starts collapsed for anyone who already knows their day count; the
+    chapel card's 3-day example carries the common case.
+  </p>
+  <details class="sv-disclosure">
+    <summary>See every stay, 3 to 9 days (regular and senior prices)</summary>
+    <div class="sv-disclosure__body">
+      <p class="sv-note">The seven rows per chapel open here.</p>
+    </div>
+  </details>
+
+  <h2 style="margin-top:var(--space-7)">The embalming table, same treatment</h2>
+  <div class="sv-disclosure">
+    <details class="sv-disclosure" style="border:0" open>
+      <summary>Every embalming day count, 3 to 9 (plus more than 9)</summary>
+      <div class="sv-disclosure__body">
+        <ul class="sv-stays" aria-label="Embalming prices by day">
+          <li class="sv-stay"><span class="sv-stay__days">3 days</span><span class="sv-stay__prices"><span>Embalming <b>₱6,000</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 3 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+3+days">Request</a></span></li><li class="sv-stay"><span class="sv-stay__days">4 days</span><span class="sv-stay__prices"><span>Embalming <b>₱7,500</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 4 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+4+days">Request</a></span></li><li class="sv-stay"><span class="sv-stay__days">5 days</span><span class="sv-stay__prices"><span>Embalming <b>₱9,000</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 5 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+5+days">Request</a></span></li><li class="sv-stay"><span class="sv-stay__days">6 days</span><span class="sv-stay__prices"><span>Embalming <b>₱10,500</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 6 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+6+days">Request</a></span></li><li class="sv-stay"><span class="sv-stay__days">7 days</span><span class="sv-stay__prices"><span>Embalming <b>₱12,000</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 7 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+7+days">Request</a></span></li><li class="sv-stay"><span class="sv-stay__days">8 days</span><span class="sv-stay__prices"><span>Embalming <b>₱13,500</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 8 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+8+days">Request</a></span></li><li class="sv-stay"><span class="sv-stay__days">9 days</span><span class="sv-stay__prices"><span>Embalming <b>₱15,000</b></span></span><span class="sv-stay__actions"><button type="button" class="btn btn--accent btn--sm">Add 9 days</button><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+9+days">Request</a></span></li>
+          <li class="sv-stay"><span class="sv-stay__days">More than 9</span><span class="sv-stay__prices"><span>Embalming <b>+₱1,500</b> per extra day</span></span><span class="sv-stay__actions"><a class="btn btn--secondary btn--sm" href="/contact?item=Embalming+beyond+9">Request</a></span></li>
+        </ul>
+      </div>
+    </details>
+  </div>
+</div>
+</main>
+<footer class="anchored-footer">
+  <div class="anchored-footer__inner">
+    <div class="anchored-footer__grid">
+      <div class="anchored-footer__brand-col">
+        <a class="anchored-header__brand" href="/">
+          <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+          <span class="anchored-header__wordmark">Villa Memorial Park</span>
+        </a>
+        <p class="anchored-footer__blurb">A family-run memorial park in <strong>Isabela City, Basilan</strong> — memorial &amp; funeral care that honors every life with dignity and light, day or night. The first memorial park in Basilan.</p>
+      </div>
+      <nav class="anchored-footer__col" aria-label="Explore">
+        <p class="anchored-footer__title">Explore</p>
+        <a href="/">Home</a>
+        <a href="/services">Funeraria Memorial Services</a>
+        <a href="/plans">Villa Memorial Plan</a>
+        <a href="/lots">Browse the lots</a>
+        <a href="/products">Products &amp; caskets</a>
+        <a href="/transport">Transport</a>
+        <a href="/map">Villa Memorial Park</a>
+      </nav>
+      <nav class="anchored-footer__col" aria-label="Care and planning">
+        <p class="anchored-footer__title">Care &amp; planning</p>
+        <a href="/services/death-at-home">Death at home</a>
+        <a href="/services/death-at-hospital">Death at hospital</a>
+        <a href="/plans/villa-memorial-plan">Villa Memorial Plan</a>
+        <a href="/plans/compare">Compare plans</a>
+        <a href="/lots/price-list-2026">2026 price list</a>
+      </nav>
+      <address class="anchored-footer__contact">
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">24/7 Assistance Line</span>
+          <a class="anchored-footer__phone" href="tel:+639170001234">0917 000 1234</a>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Open</span>
+          <span class="anchored-footer__contact-value">Every hour, every day</span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Visit the park</span>
+          <span class="anchored-footer__contact-value">Isabela City, Basilan<br><a href="/map">Map &amp; directions →</a></span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Help</span>
+          <span class="anchored-footer__contact-value"><a href="/contact">Contact us</a> · <a href="/faq">FAQ</a></span>
+        </div>
+      </address>
+    </div>
+    <div class="anchored-footer__bottom">
+      <span>© 2026 Villa Memorial Park. All rights reserved. · <a href="/cart">Cart</a> · <a href="/quote">Request a quote</a></span>
+      <span class="anchored-footer__portals">
+        <a href="/client/login">Family sign-in</a>
+        <a href="/agent/login">Agent sign-in</a>
+        <a href="/login">Staff sign-in</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<div class="sv-callbar" role="region" aria-label="Call the park">
+  <span>Someone has died?</span>
+  <a href="tel:+639170001234">Call 0917 000 1234</a>
+</div>
+<script>
+  // Sample-only scroll-spy: highlight the "On this page" chip of the section in
+  // view. The shipped page gets this from its own component; the sample shows it.
+  (function () {
+    var nav = document.querySelector('.sv-subnav');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    var links = {};
+    nav.querySelectorAll('a[href^="#"]').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        Object.keys(links).forEach(function (id) { links[id].removeAttribute('aria-current'); });
+        if (links[e.target.id]) links[e.target.id].setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    Object.keys(links).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
+</script>
+</body>
+</html>
