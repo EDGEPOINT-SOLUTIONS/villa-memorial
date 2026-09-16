@@ -97,14 +97,25 @@ them, and must have **no plotting or editing tools at all**; staff (authenticate
 property edit scope) additionally get the plotting tools. The shared store is the same; the
 capability differs by viewer. Selection sync still applies to everyone.
 
-**Movement is drone flight with Minecraft-style controls (captain's direction, 2026-09-16).**
-The 3D camera flies freely over and through the park, and its controls feel like Minecraft's:
-first-person pointer-locked mouse look (click the world to capture the mouse, `Esc` to
-release), **W A S D** movement relative to where you are looking, **Space** ascends and
-**Shift** descends while held, **double-tap Space** toggles the flying state exactly as
-Minecraft's creative flight does, and a sprint control (Minecraft's `Ctrl` / double-tap `W`)
-moves faster. Smooth, calm acceleration throughout - no walking model, no head-bob, no
-footsteps, and never a shooter-style snap.
+**Movement is Blender-style orbit navigation (captain's direction, 2026-09-17).** The 3D map is
+navigated the way a 3D authoring tool is, not the way a game is — the drone/free-flight camera is
+gone. Drag (or one-finger drag) **orbits** the view around a focus point; the wheel, pinch and the
+± controls **zoom** toward it inside a clamped near/far envelope; middle-drag, Shift+drag or a
+two-finger drag **pans** the focus point across the ground. Selecting a plot, a section or a named
+place **frames** it — the camera glides (damped, never teleports) along the current viewing
+direction. No roll, no ground clipping, optional slow auto-orbit. The mode toggle stays: the
+"Masterplan view" settles the same orbit camera into a top-down angle. The envelope and framing
+math live in `lib/park-3d/orbit.ts` (pure, unit-tested); the gestures live in
+`components/park3d/camera-rig.tsx`.
+
+**Reserving from the 3D world (captain's direction, 2026-09-17).** The plot panel's next action
+follows the viewer's capability, exactly as the 2D/staff map does: a viewer holding
+`property:write` gets the real **reserve** control (`components/lot-reserve-action.tsx`, the same
+BFF route `POST /api/property/lots/:id/reserve` the staff property map uses, and the same rule —
+only an available lot, the service is the authority); everyone else keeps the request-to-reserve
+contact link, which claims and reserves nothing. A successful reservation is the LOT's new
+status, and both modes overlay it onto the same plot records, so the map view shows it
+immediately.
 
 **All controls live inside the experience (captain's direction, 2026-09-16).** The 3D
 mode carries its own in-world, game-style interface — mode/exit controls, view toggles,
@@ -131,20 +142,21 @@ masterplan PNG so both modes share one frame.
 
 1. Entry through the MAIN ENTRANCE as the natural starting point.
 2. Free movement through the property (walk; optionally a slow drive along the main road).
-3. Mouse/touch look controls; zoom and orbit.
-4. Camera modes: a **drone-style fly camera with Minecraft-style controls** (the primary
-   mode - first-person pointer-locked mouse look, W A S D relative to the view, Space up,
-   Shift down, double-tap Space to toggle flight, sprint to move faster, with smooth
-   acceleration and adjustable sensitivity/speed), an orbit/masterplan camera, and a
-   lot-inspection camera that frames a selected lot. No walking model, no head-bob, no
-   footsteps. Smooth transitions - never teleport except an explicit "Go to lot".
+3. Mouse/touch look controls; zoom and orbit — drag orbits, wheel/pinch/± zoom, middle-drag or
+   Shift+drag (two fingers on touch) pans, all inside the envelope in `lib/park-3d/orbit.ts`.
+4. Camera modes: an **orbit camera** (the primary mode — the focus point is what the visitor
+   orbits and pans, and everything selectable can be framed), and an **overhead masterplan
+   angle** the same camera settles into. No drone/free-flight camera, no walking model, no
+   head-bob, no footsteps. Smooth transitions - never teleport except an explicit "Go to".
 5. Landscaping, roads, paths, structures and lots rendered as real 3D geometry with
    believable materials (grass, concrete/asphalt, warm tan paving, light stone).
 6. Click/tap individual lots → know exactly which real lot object was hit.
 7. Lot states visible: available / reserved / occupied / unavailable; hover and selection
    states elegant and subtle (no neon, no flashing).
 8. Lot information panel: lot number, section, status, dimensions, type, price placeholder,
-   with actions VIEW LOT / SELECT LOT / CLOSE.
+   with actions VIEW LOT / SELECT LOT / CLOSE, plus the capability-appropriate reservation
+   action (see §3): the real reserve control for `property:write`, the request-to-reserve
+   contact link for everyone else.
 9. Selected lot physically highlighted in the 3D world (soft outline/raised marker/floating
    number) and framed by the camera.
 10. Search by lot number, section, status; filters by section, status and (optional) lot
@@ -157,8 +169,11 @@ masterplan PNG so both modes share one frame.
 14. Proximity prompts only where useful ("MAUSOLEUM — press E / tap to explore",
     lot hover "P-024 — tap to view details"). Never label everything at once.
 15. Confirmation flow ends in a contact/inquiry form carrying name, contact number, email,
-    selected lot, section, message. Wording says "selected for inquiry" — never
-    "purchased" or "reserved", and no payment is taken.
+    selected lot, section, message. For a viewer without reservation rights the wording says
+    "selected for inquiry" — never "purchased"; no payment is taken either way. A viewer with
+    `property:write` reserves through the property service's own transition
+    (`available → reserved`, `POST /api/property/lots/:id/reserve`), which is the only path that
+    may claim a reservation.
 16. Landing screen with the park name, tagline, [ENTER MEMORIAL PARK] and
     [VIEW MASTERPLAN].
 17. Debug/development mode (dev builds only): site boundary, world axes, lot IDs, lot
@@ -272,7 +287,7 @@ visual perfection on the first iteration.
 - Mobile interaction considered; performance acceptable; UI does not obstruct the world.
 - No horror/combat/game-HUD aesthetics anywhere.
 
-## 11. Decisions (captain-confirmed 2026-09-16)
+## 11. Decisions (captain-confirmed 2026-09-16, extended 2026-09-17)
 
 1. **Placement** — inside the existing `/map` page (Villa Memorial Park) as a mode toggle;
    the page's existing plotting behaviour is preserved as Map mode for staff, and the two
@@ -285,16 +300,29 @@ visual perfection on the first iteration.
 3. **Inventory** — placeholder plots generated from configurable grids with clearly-marked
    placeholder IDs (`P-001`, `PR-001`, `G-001`, `GN-001`) until the client supplies the
    real lot list; they live in the shared store so either mode can edit them.
-4. **Prices** — "Contact for pricing" placeholders; no invented prices.
+4. **Prices** — "Contact for pricing" placeholders; no invented prices. A plot linked to a
+   published lot shows that lot's real price.
 5. **Assets** — v1 uses procedural/primitive geometry and generated textures; no purchased
    model packs. Richer trees, avatar and vehicles come later.
 6. **Audio** — deferred to a later phase.
 7. **Masterplan asset** — the PNG is copied in from the preserved client media and
    committed with the first PR (the clone currently holds it untracked); add
    `*:Zone.Identifier` to `.gitignore` so Windows metadata sidecars never get committed.
+8. **Navigation (2026-09-17)** — the captain replaced the drone camera with Blender-style
+   orbit/zoom/pan navigation, because the WASD walk was not smooth and did not answer the
+   real task (look at a plot, select it, reserve it). Framing on selection is part of this:
+   selecting is how a visitor asks to look at something. The drone-flight module
+   (`lib/park-3d/flight.ts`) and its tests were deleted with the camera.
+9. **Reserving (2026-09-17)** — reserving from the 3D plot panel uses the existing staff
+   reservation path (session + `property:write`, `available → reserved` enforced by
+   property-gis / the BFF route), surfaced through the shared `LotReserveAction`. No new
+   public/unsigned reservation path exists: a signed-out visitor keeps the request-to-reserve
+   enquiry link. This supersedes decision 15's blanket "never reserved" wording for viewers
+   who hold the scope.
 
 ## 12. Out of scope for v1
 
-Admin CRUD screens, payment/reservation backends, CAD/GIS import pipelines, real inventory
-integration, and multi-language support. The architecture must allow each of these later
-without a rewrite.
+Admin CRUD screens, payment/refund backends, CAD/GIS import pipelines, real inventory
+integration, and multi-language support. (Reserving a lot is in scope as the property
+service's own transition — see §11.9; paying for one is not.) The architecture must allow
+each of these later without a rewrite.

@@ -6,21 +6,38 @@
  * Scope: what the 3D VIEW needs and nothing else. The plots themselves live in
  * the shared store (`lib/park-maps.ts`) — that is the single source both modes
  * read and write, and it stays the only place plot data exists.
+ *
+ * The camera is the orbit camera (captain, 2026-09-17): the rig owns the gestures
+ * and the animation clock, so this store only carries the requests it must obey —
+ * "frame this" (a plot, a section, a point of interest) and "zoom by this much" —
+ * plus the orbit settings the Settings panel edits. There is no flight state
+ * (speed, flying, sprinting, pointer lock): the drone camera is gone.
  */
 import { create } from "zustand";
-import { FLIGHT } from "@/lib/park-3d/flight";
+import { ORBIT } from "@/lib/park-3d/orbit";
 
-export type CameraMode = "drone" | "overhead";
+export type CameraMode = "orbit" | "overhead";
 export type PlotTool = "inspect" | "place" | "move";
-export type TravelRequest = {
-  /** Monotonic id so the camera rig re-runs a travel even to the same place. */
+
+/**
+ * Ask the camera to settle on something — a selected plot, a section, a point of
+ * interest. `target`/`radius` describe WHAT is being framed (world metres); the
+ * rig picks the distance that fits it and keeps the visitor's present viewing
+ * direction, so the move reads as a calm dolly, never a teleport to a canned angle.
+ */
+export type FrameRequest = {
+  /** Monotonic id so the rig re-runs a move even to the same place. */
   seq: number;
-  /** Where to stand (world metres). */
-  position: { x: number; y: number; z: number };
-  /** What to face (world metres). */
-  lookAt: { x: number; y: number; z: number };
+  target: { x: number; y: number; z: number };
+  /** Radius of the framed content in metres (half its diagonal). */
+  radius: number;
   label: string;
+  /** Settle into the masterplan's top-down angle instead of the current one. */
+  topDown: boolean;
 };
+
+/** Ask the camera to zoom by a factor (< 1 moves closer, > 1 moves further). */
+export type ZoomRequest = { seq: number; factor: number };
 
 export type DebugFlags = {
   boundary: boolean;
@@ -33,91 +50,91 @@ export type DebugFlags = {
 export type Park3dState = {
   cameraMode: CameraMode;
   tool: PlotTool;
-  /** Metres per second (the drone's flight speed — see `lib/park-3d/flight.ts`). */
-  flySpeed: number;
-  /** Radians of rotation per pixel of pointer drag. */
-  lookSensitivity: number;
+  /** OrbitControls' rotate-speed multiplier (Settings panel). */
+  orbitSpeed: number;
+  /** OrbitControls' zoom-speed multiplier (Settings panel). */
+  zoomSpeed: number;
+  /** A slow, calm auto-orbit around the focus point — off by default. */
+  autoOrbit: boolean;
   reducedMotion: boolean;
   /**
-   * Pointer-Lock mouse look (captain, 2026-09-16): click the world to capture
-   * the mouse, Esc releases it. Mirrors the browser so the HUD can say which
-   * state the visitor is in.
+   * A plot is being dragged in the 3D world (admin "Move a plot"): the orbit
+   * camera stands still for the duration, so a plot move never turns into a
+   * camera move at the same time.
    */
-  pointerLocked: boolean;
-  /**
-   * Free flight ON (Minecraft's creative-flying analogue): Space rises and Shift
-   * descends. Double-tapping Space toggles it. With it OFF the drone cruises at
-   * a level height — it is still a drone, never a pedestrian.
-   */
-  flying: boolean;
-  sprinting: boolean;
+  draggingPlot: boolean;
   debugOpen: boolean;
   debug: DebugFlags;
   hoveredCode: string | null;
   /** Live readout for the debug overlay. */
   fps: number;
   objectCount: number;
-  travel: TravelRequest | null;
+  frame: FrameRequest | null;
+  zoom: ZoomRequest | null;
 
   setCameraMode: (mode: CameraMode) => void;
   setTool: (tool: PlotTool) => void;
-  setFlySpeed: (speed: number) => void;
-  setLookSensitivity: (value: number) => void;
+  setOrbitSpeed: (speed: number) => void;
+  setZoomSpeed: (speed: number) => void;
+  setAutoOrbit: (value: boolean) => void;
   setReducedMotion: (value: boolean) => void;
-  setPointerLocked: (value: boolean) => void;
-  setFlying: (value: boolean) => void;
-  toggleFlying: () => void;
-  setSprinting: (value: boolean) => void;
+  setDraggingPlot: (value: boolean) => void;
   toggleDebug: () => void;
   setDebugFlag: (flag: keyof DebugFlags, value: boolean) => void;
   setHoveredCode: (code: string | null) => void;
   setStats: (fps: number, objectCount: number) => void;
-  travelTo: (
-    position: { x: number; y: number; z: number },
-    lookAt: { x: number; y: number; z: number },
+  /** Frame something: the panel's sections/points of interest and the selection. */
+  frameTo: (
+    target: { x: number; y: number; z: number },
+    radius: number,
     label: string,
+    options?: { topDown?: boolean },
   ) => void;
-  clearTravel: () => void;
+  clearFrame: () => void;
+  zoomBy: (factor: number) => void;
+  clearZoom: () => void;
   reset: () => void;
 };
 
 const INITIAL = {
-  cameraMode: "drone" as CameraMode,
+  cameraMode: "orbit" as CameraMode,
   tool: "inspect" as PlotTool,
-  flySpeed: FLIGHT.defaultSpeedMps,
-  lookSensitivity: 0.0025,
+  orbitSpeed: ORBIT.rotateSpeed,
+  zoomSpeed: ORBIT.zoomSpeed,
+  autoOrbit: false,
   reducedMotion: false,
-  pointerLocked: false,
-  flying: true,
-  sprinting: false,
+  draggingPlot: false,
   debugOpen: false,
   debug: { boundary: false, axes: false, plotIds: false, sections: false, masterplan: false },
   hoveredCode: null,
   fps: 0,
   objectCount: 0,
-  travel: null,
+  frame: null,
+  zoom: null,
 };
 
-let travelSeq = 0;
+let requestSeq = 0;
 
 export const usePark3d = create<Park3dState>((set) => ({
   ...INITIAL,
   setCameraMode: (cameraMode) => set({ cameraMode }),
   setTool: (tool) => set({ tool }),
-  setFlySpeed: (flySpeed) => set({ flySpeed }),
-  setLookSensitivity: (lookSensitivity) => set({ lookSensitivity }),
+  setOrbitSpeed: (orbitSpeed) => set({ orbitSpeed }),
+  setZoomSpeed: (zoomSpeed) => set({ zoomSpeed }),
+  setAutoOrbit: (autoOrbit) => set({ autoOrbit }),
   setReducedMotion: (reducedMotion) => set({ reducedMotion }),
-  setPointerLocked: (pointerLocked) => set({ pointerLocked }),
-  setFlying: (flying) => set({ flying }),
-  toggleFlying: () => set((s) => ({ flying: !s.flying })),
-  setSprinting: (sprinting) => set({ sprinting }),
+  setDraggingPlot: (draggingPlot) => set({ draggingPlot }),
   toggleDebug: () => set((s) => ({ debugOpen: !s.debugOpen })),
   setDebugFlag: (flag, value) => set((s) => ({ debug: { ...s.debug, [flag]: value } })),
   setHoveredCode: (hoveredCode) => set({ hoveredCode }),
   setStats: (fps, objectCount) => set({ fps, objectCount }),
-  travelTo: (position, lookAt, label) =>
-    set({ travel: { seq: ++travelSeq, position, lookAt, label } }),
-  clearTravel: () => set({ travel: null }),
+  frameTo: (target, radius, label, options) =>
+    set({
+      frame: { seq: ++requestSeq, target, radius, label, topDown: options?.topDown === true },
+    }),
+  clearFrame: () => set({ frame: null }),
+  zoomBy: (factor) => set({ zoom: { seq: ++requestSeq, factor } }),
+  clearZoom: () => set({ zoom: null }),
   // Leaving 3D must not leave the next visit mid-gesture or in another camera.
   reset: () => set({ ...INITIAL, debug: { ...INITIAL.debug } }),
 }));

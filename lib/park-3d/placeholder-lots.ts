@@ -12,7 +12,7 @@
  * these numbers.
  *
  * The plots are ordinary records in the shared store (`lib/park-maps.ts`), which
- * is what lets either mode — the plain masterplan image or the walk-in 3D park —
+ * is what lets either mode — the plain masterplan image or the 3D park —
  * create, move, edit and delete them and see the other mode follow.
  *
  * Cell sizes approximate the lot rhythm the masterplan draws (~2–4.5 m in world

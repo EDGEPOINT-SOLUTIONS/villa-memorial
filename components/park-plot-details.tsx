@@ -5,8 +5,15 @@
  *
  * The map view and the 3D park render this same panel for the same selection, so
  * a plot selected in either mode shows identical status, type, section, derived
- * dimensions and price. It is presentation only: it reads the shared store's
- * records and the published lot listing, and writes nothing.
+ * dimensions and price.
+ *
+ * The panel itself writes nothing. Its "next action" for an available linked lot is
+ * chosen by the viewer's capability:
+ *  · `reserveSlot` given (the viewer holds `property:write`) → the host renders the
+ *    real reservation control (`components/lot-reserve-action.tsx`);
+ *  · otherwise → the request-to-reserve contact link, which claims and reserves
+ *    nothing. A signed-out customer therefore keeps the honest path the public map
+ *    already used — never a control they are not entitled to use.
  *
  * ⚠ Prices: a plot that is linked to a published Lot shows that lot's real price.
  * Every other plot — including the placeholder inventory (P-/PR-/G-/GN- codes)
@@ -31,11 +38,17 @@ export function PlotDetails({
   selected,
   lots,
   parkName,
+  reserveSlot,
   children,
 }: {
   selected: { area: PlotArea; parkId: string } | null;
   lots: Lot[];
   parkName: string;
+  /**
+   * The capability-appropriate reservation control (see the header). Omitted for
+   * viewers who may not reserve — the request-to-reserve link is rendered instead.
+   */
+  reserveSlot?: ReactNode;
   /** Extra panels rendered under the details (e.g. the 3D plot tools). */
   children?: ReactNode;
 }) {
@@ -114,18 +127,25 @@ export function PlotDetails({
 
       {linkedLot ? (
         linkedLot.status === "available" ? (
-          <>
-            <p className="text-sm text-muted">
-              This lot is available. Buying online arrives with the lot-checkout contract (dev) —
-              meanwhile, request a reservation and the park office will confirm it.
-            </p>
-            <a
-              className="btn btn--accent btn--sm btn--block"
-              href={"/contact?topic=lot-reservation&lot=" + encodeURIComponent(linkedLot.lot_number)}
-            >
-              Request to reserve {linkedLot.lot_number}
-            </a>
-          </>
+          reserveSlot ? (
+            <>
+              <p className="text-sm text-muted">This lot is available.</p>
+              {reserveSlot}
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-muted">
+                This lot is available. Buying online arrives with the lot-checkout contract (dev) —
+                meanwhile, request a reservation and the park office will confirm it.
+              </p>
+              <a
+                className="btn btn--accent btn--sm btn--block"
+                href={"/contact?topic=lot-reservation&lot=" + encodeURIComponent(linkedLot.lot_number)}
+              >
+                Request to reserve {linkedLot.lot_number}
+              </a>
+            </>
+          )
         ) : (
           <p className="text-sm text-muted">
             This lot is {lotStatusLabel(linkedLot.status).toLowerCase()}. Please contact the

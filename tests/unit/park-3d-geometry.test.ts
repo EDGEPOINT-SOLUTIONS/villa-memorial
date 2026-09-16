@@ -5,7 +5,7 @@ import { quadGeometry, ribbonGeometry } from "@/components/park3d/geometry";
  * Flat ground geometry must face UP.
  *
  * Every flat ribbon (roads, walking paths, drives) and the surroundings plate is
- * rendered with the default `FrontSide` material from a camera flying ABOVE the
+ * rendered with the default `FrontSide` material from a camera above the
  * park, so a clockwise-from-above winding makes the surface invisible (and lights
  * it as an underside) — the "white void around the park" defect. These tests pin
  * the +Y normal on straight, diagonal and curved centrelines, plus the quad.

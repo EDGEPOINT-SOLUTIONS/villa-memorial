@@ -122,6 +122,27 @@ function PlotInstances({
   const indexOf = (event: ThreeEvent<PointerEvent | MouseEvent>) =>
     event.instanceId === undefined ? null : group.items[event.instanceId] ?? null;
 
+  /**
+   * Where the press started. A released press that travelled further than this
+   * was an orbit/pan gesture, not a click on the plot: with orbit navigation a
+   * visitor drags the world far more often than they click it, and a rotate that
+   * happens to start on a plot must not select (and re-frame) it.
+   */
+  const pressAt = useRef<{ x: number; y: number } | null>(null);
+  const DRAG_SLOP_PX = 6;
+
+  useEffect(() => {
+    const clear = () => {
+      pressAt.current = null;
+    };
+    window.addEventListener("pointerup", clear);
+    window.addEventListener("pointercancel", clear);
+    return () => {
+      window.removeEventListener("pointerup", clear);
+      window.removeEventListener("pointercancel", clear);
+    };
+  }, []);
+
   return (
     <primitive
       object={mesh}
@@ -134,13 +155,17 @@ function PlotInstances({
       onPointerOut={() => onHover?.(null)}
       onClick={(event: ThreeEvent<MouseEvent>) => {
         const item = indexOf(event);
+        const start = pressAt.current;
+        pressAt.current = null;
         if (!item) return;
+        if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > DRAG_SLOP_PX) return;
         event.stopPropagation();
         onPick?.(item.code);
       }}
       onPointerDown={(event: ThreeEvent<PointerEvent>) => {
         const item = indexOf(event);
         if (!item) return;
+        pressAt.current = { x: event.clientX, y: event.clientY };
         onGrab?.(item.code);
       }}
     />
@@ -217,6 +242,7 @@ export function Plots3d({
   const tool = usePark3d((s) => s.tool);
   const hoveredCode = usePark3d((s) => s.hoveredCode);
   const setHoveredCode = usePark3d((s) => s.setHoveredCode);
+  const setDraggingPlot = usePark3d((s) => s.setDraggingPlot);
   const { camera, gl } = useThree();
 
   const [drag, setDrag] = useState<{ base: PlotArea; centre: { x: number; y: number } } | null>(null);
@@ -259,11 +285,21 @@ export function Plots3d({
     };
   }, [camera, gl]);
 
-  /* --- PLACE: a ground click inside the park writes a new plot ------------ */
+  /* --- PLACE: a ground click inside the park writes a new plot ------------
+   * A click that followed a real drag was an orbit/pan gesture, not a placement:
+   * the pointer's travel since pointerdown decides, so rotating the park in
+   * "place" mode never drops a plot by accident. */
   useEffect(() => {
     if (!canPlot || !onChangeAreas || tool !== "place") return;
     const element = gl.domElement;
+    let downAt: { x: number; y: number } | null = null;
+    const onPointerDown = (event: PointerEvent) => {
+      downAt = { x: event.clientX, y: event.clientY };
+    };
     const onClick = (event: MouseEvent) => {
+      const start = downAt;
+      downAt = null;
+      if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) > 6) return;
       const point = groundPoint(event.clientX, event.clientY);
       if (!point) return;
       if (!pointInPolygon(point.x, point.z, SITE_BOUNDARY_WORLD)) return; // stay inside the property
@@ -279,13 +315,18 @@ export function Plots3d({
       onChangeAreas([...areasRef.current, candidate]);
       onSelect(candidate);
     };
+    element.addEventListener("pointerdown", onPointerDown);
     element.addEventListener("click", onClick);
-    return () => element.removeEventListener("click", onClick);
+    return () => {
+      element.removeEventListener("pointerdown", onPointerDown);
+      element.removeEventListener("click", onClick);
+    };
   }, [canPlot, tool, gl, groundPoint, onChangeAreas, onSelect]);
 
   /* --- MOVE: drag a plot along the ground; commit on release -------------- */
   useEffect(() => {
     if (!canPlot || !onChangeAreas || !drag) return;
+    setDraggingPlot(true);
     const onMove = (event: PointerEvent) => {
       const point = groundPoint(event.clientX, event.clientY);
       if (!point) return;
@@ -302,6 +343,7 @@ export function Plots3d({
         );
       }
       setDrag(null);
+      setDraggingPlot(false);
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
@@ -310,8 +352,9 @@ export function Plots3d({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
+      setDraggingPlot(false);
     };
-  }, [canPlot, drag, groundPoint, onChangeAreas]);
+  }, [canPlot, drag, groundPoint, onChangeAreas, setDraggingPlot]);
 
   const selectByCode = (code: string) => {
     const area = areasRef.current.find((a) => a.code === code);
