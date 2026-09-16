@@ -22,10 +22,11 @@ function bindCaskets(
 
 /**
  * Coffins & caskets — the client's full 2026 casket catalogue at published
- * prices, sold as cards: every model carries "Add to cart" (the real catalogue
- * SKU/price) and "Request order" (the prefilled contact capture). The tier
- * photography block keeps the existing treatment (TYPES OF COFFIN sheet) and the
- * per-family inclusion table below the cards keeps PRICE LIST FOR 2026 III —
+ * prices, sold as cards: every model carries "View details" (its own
+ * /products/[sku] page), "Add to cart" (the real catalogue SKU/price) and
+ * "Request order" (the prefilled contact capture). The tier photography block
+ * keeps the existing treatment (TYPES OF COFFIN sheet) and the per-family
+ * inclusion table below the cards keeps PRICE LIST FOR 2026 III —
  * see components/villa/casket-catalogue.tsx and lib/villa-pricing.ts for
  * provenance.
  */
@@ -52,8 +53,9 @@ export default async function ProductsPage() {
         <p className="page-hero__lead">
           Choose the coffin that honours your loved one — from dignified Bronze to the
           sophisticated Gold. Every 2026 model is listed below with its published price:
-          the SRP, the senior-citizen discount and the discounted price. Add a model to
-          the cart, or send a request and the office confirms the final price.
+          the SRP, the senior-citizen discount and the discounted price. Open any model
+          for its photograph, lid, inclusions and full detail, add it to the cart, or send
+          a request and the office confirms the final price.
         </p>
         <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
@@ -62,25 +64,29 @@ export default async function ProductsPage() {
 </nav>
       </section>
 
-      <div className="landing__grid">
-        {COFFINS.map((c) => (
-          <article key={c.tier} className="card landing__card">
-            <div className="media-block card-media media-block--natural">
-              {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photos */}
-              <img src={c.photo} alt={c.tier + " casket"} loading="lazy" />
-            </div>
-            <div className="card__body">
-              <h3>{c.tier}</h3>
-              <p className="text-sm text-muted">{c.description}</p>
-              <p className="text-sm">
-                <strong>Lid:</strong> {c.lid}
-              </p>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <p className="text-sm text-muted">{COFFIN_TIER_NOTE}</p>
+      <section className="stack-3" aria-labelledby="coffin-tiers-title">
+        <h2 className="section-title" id="coffin-tiers-title">
+          The five coffin tiers on the 2026 sheet
+        </h2>
+        <div className="landing__grid">
+          {COFFINS.map((c) => (
+            <article key={c.tier} className="card landing__card">
+              <div className="media-block card-media media-block--natural">
+                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photos */}
+                <img src={c.photo} alt={c.tier + " casket"} loading="lazy" />
+              </div>
+              <div className="card__body">
+                <h3>{c.tier}</h3>
+                <p className="text-sm text-muted">{c.description}</p>
+                <p className="text-sm">
+                  <strong>Lid:</strong> {c.lid}
+                </p>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p className="text-sm text-muted">{COFFIN_TIER_NOTE}</p>
+      </section>
 
       <section className="stack-3" aria-labelledby="catalogue-title">
         <h2 className="section-title" id="catalogue-title">

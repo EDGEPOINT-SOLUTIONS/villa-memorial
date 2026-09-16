@@ -62,6 +62,84 @@ export const COFFIN_BRONZE = "/media/bronze-casket.jpg";
 export const COFFIN_SILVER = "/media/silver-casket.jpg";
 export const COFFIN_GOLD = "/media/gold-casket.jpg";
 
+/* ---------------------------------------------------------------------------
+ * Client sample photographs, cropped from the client's own "TYPES OF COFFIN"
+ * sheet by scripts/crop-client-sheet-tiles.mjs (run that script with the client
+ * sheet path to regenerate them into public/media/).
+ *
+ * The sheet prints "(Illustration purposes only)" under its sample photographs,
+ * so every image below is published as an illustrative SAMPLE SET-UP or SAMPLE
+ * COFFIN — never captioned as the actual chapel, a fixed layout, or the exact
+ * model a family receives. Views must keep saying so (CHAPEL_SAMPLE_NOTE /
+ * SERVICE_SAMPLE_NOTE / COFFIN_TIER_NOTE).
+ * ------------------------------------------------------------------------- */
+
+/** The sheet's "OUR SAMPLE SERVICES" photographs. */
+export const CHAPEL_COMMON_IMAGE = "/media/chapel-common.jpg";
+export const CHAPEL_PRIVATE_IMAGE = "/media/chapel-private.jpg";
+export const SERVICE_CARRIAGE_IMAGE = "/media/service-carriage.jpg";
+
+/** The sheet's own label for its sample imagery — chapels, wake set-ups. */
+export const CHAPEL_SAMPLE_NOTE =
+  "Illustration purposes only — a sample wake set-up from the client's own photographs, not a fixed view of any one room.";
+
+/** The same label for the sample service photographs (carriage, set-ups). */
+export const SERVICE_SAMPLE_NOTE =
+  "Illustration purposes only — a sample service from the client's own photographs; the carriage and set-up vary with each service.";
+
+/**
+ * The five sample coffins on the sheet, in the sheet's order. `label` is the
+ * sheet's own tier line, qualified as a sample — used for alt text and captions.
+ */
+export const COFFIN_SAMPLE_PHOTOS: ReadonlyArray<{
+  tier: string;
+  src: string;
+  label: string;
+}> = [
+  { tier: "Bronze 1", src: "/media/coffin-bronze-1.jpg", label: "Bronze 1 sample — half-glass lid" },
+  { tier: "Bronze 2", src: "/media/coffin-bronze-2.jpg", label: "Bronze 2 sample — full glass lid" },
+  { tier: "Silver 1", src: "/media/coffin-silver-1.jpg", label: "Silver 1 sample — half-glass lid, larger and more elegant than Bronze" },
+  { tier: "Silver 2", src: "/media/coffin-silver-2.jpg", label: "Silver 2 sample — full glass lid, larger and more elegant than Bronze" },
+  { tier: "Gold", src: "/media/coffin-gold.jpg", label: "Gold sample — special metal, cover convertible to full-glass or half-glass" },
+];
+
+/** A catalogue model's own facts, as an image picker needs them. */
+type CasketSampleKey = { collection: string; model: string };
+
+/**
+ * PROVISIONAL collection → sample-photograph binding for the casket detail
+ * views. The client's sheet photographs five sample coffins (Bronze 1/2,
+ * Silver 1/2, Gold) but never maps them to the 24 named models of the 2026
+ * casket catalogue, so this binding is an editorial illustration — it is NOT a
+ * published claim that a model ships as photographed. Views must caption the
+ * result as an illustrative sample and repeat the sheet's substitution note
+ * (COFFIN_TIER_NOTE); tests/unit/villa-services-premium.test.tsx pins that.
+ * Open client question: which sample photograph belongs to Lumina / the White
+ * Rose / Crown / Dynasty collections.
+ *
+ * Rule (documented, so an editor can see why): the entry collection shows the
+ * Bronze sample; a White Rose model shows the Silver sample whose lid matches
+ * the cover its name states ("Half" → Silver 1, "Full" → Silver 2); the Crown
+ * and Dynasty collections show the Gold sample, whose cover the sheet itself
+ * describes as convertible.
+ */
+const CASKET_COLLECTION_SAMPLES: Record<string, string> = {
+  Lumina: "/media/coffin-bronze-1.jpg",
+  "The White Rose Collection": "/media/coffin-silver-1.jpg",
+  "The Crown Collection": "/media/coffin-gold.jpg",
+  "The Dynasty Collection": "/media/coffin-gold.jpg",
+};
+
+/** The illustrative sample photograph for a catalogue model (see the note above). */
+export function casketSamplePhoto(model: CasketSampleKey): { src: string; label: string } {
+  const src =
+    model.collection === "The White Rose Collection" && model.model.endsWith("Full")
+      ? "/media/coffin-silver-2.jpg"
+      : (CASKET_COLLECTION_SAMPLES[model.collection] ?? "/media/coffin-bronze-1.jpg");
+  const photo = COFFIN_SAMPLE_PHOTOS.find((p) => p.src === src);
+  return { src, label: photo?.label ?? "Client sample coffin" };
+}
+
 /** At-need service photos (uploaded). */
 export const DEATH_AT_HOME_IMAGE = "/media/death_at_home.jpg";
 export const DEATH_AT_HOSPITAL_IMAGE = "/media/death_at_hospital.jpg";
@@ -82,6 +160,10 @@ export const MEDIA_LIBRARY: ReadonlyArray<{ src: string; label: string }> = [
   { src: COFFIN_BRONZE, label: "Bronze casket" },
   { src: COFFIN_SILVER, label: "Silver casket" },
   { src: COFFIN_GOLD, label: "Gold casket" },
+  { src: CHAPEL_COMMON_IMAGE, label: "Sample wake set-up — common chapel" },
+  { src: CHAPEL_PRIVATE_IMAGE, label: "Sample decorated viewing room — private chapel" },
+  { src: SERVICE_CARRIAGE_IMAGE, label: "Sample funeral carriage" },
+  ...COFFIN_SAMPLE_PHOTOS.map((p) => ({ src: p.src, label: p.label })),
   { src: LOT_TYPE_PHOTOS["lt-primary"], label: "Prime lot" },
   { src: LOT_TYPE_PHOTOS["lt-premium"], label: "Premium lot" },
   { src: LOT_TYPE_PHOTOS["lt-niches"], label: "Garden niches" },

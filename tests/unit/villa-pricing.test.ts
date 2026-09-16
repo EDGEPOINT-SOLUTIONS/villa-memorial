@@ -19,6 +19,9 @@ import {
   CHAPEL_NOTES,
   CHAPEL_RATES,
   COFFINS,
+  COFFIN_COVERS,
+  COFFIN_COVER_UNSTATED,
+  coffinCover,
   EMBALMING_PER_DAY_BEYOND_9,
   EMBALMING_RATES,
   LOT_PRICE_CATEGORIES,
@@ -332,5 +335,43 @@ describe("coffin tier photography (TYPES OF COFFIN)", () => {
       ["Silver 2", "Full glass lid (cover convertible to full-glass or half-glass)"],
       ["Gold", "Full-glass lid (cover can be full-glass or half-glass)"],
     ]);
+  });
+});
+
+/**
+ * The cover line each catalogue model is published with. It is a DERIVATION,
+ * not a printed sheet row (the sheet describes lids per sample coffin and names
+ * the 24 models by cover variant — see COFFIN_COVERS): these tests pin that the
+ * derivation is total (every named variant resolves) and that the one model
+ * whose name states no cover is left to the office rather than guessed at.
+ */
+describe("casket cover lines (derived from the sheet's model names)", () => {
+  it("resolves the cover variant the model name states", () => {
+    expect(coffinCover("White Rose Half")).toBe("Half-glass lid");
+    expect(coffinCover("White Rose Full")).toBe("Full glass lid");
+    expect(coffinCover("Noble Full Split")).toBe("Full glass lid, split cover");
+    expect(coffinCover("Majesty Flexi")).toBe(
+      "Full glass lid, cover convertible to full-glass or half-glass",
+    );
+  });
+
+  it("resolves a cover for every model except the one whose name states none", () => {
+    const undefinedCovers = CASKET_MODELS.filter((m) => !coffinCover(m.model)).map(
+      (m) => m.model,
+    );
+    expect(undefinedCovers).toEqual(["Lumina"]);
+    expect(COFFIN_COVER_UNSTATED).toMatch(/confirms the exact cover/);
+    // Every variant the cover ladder names is actually used by the catalogue, and
+    // the four variant words are the only suffixes the model names end with.
+    for (const { variant } of COFFIN_COVERS) {
+      expect(
+        CASKET_MODELS.some((m) => m.model.endsWith(variant)),
+        `${variant} is unused`,
+      ).toBe(true);
+    }
+    for (const m of CASKET_MODELS) {
+      if (m.model === "Lumina") continue;
+      expect(m.model, m.model).toMatch(/(Full Split|Flexi|Full|Half)$/);
+    }
   });
 });

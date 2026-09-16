@@ -80,10 +80,43 @@ export const COFFINS = [
 
 /**
  * The client's substitution note, printed under the tier photography on the
- * TYPES OF COFFIN sheet. Published with the photos on /products.
+ * TYPES OF COFFIN sheet. Published with the photos on /products and beside each
+ * casket detail view's sample photograph.
  */
 export const COFFIN_TIER_NOTE =
   "Illustration purposes only. In case the coffin is not available, we will provide another with equal or greater value.";
+
+/**
+ * The cover/lid a model's own sheet name states, with the sheet's lid line for
+ * that cover.
+ *
+ * PROVISIONAL derivation, not a printed sheet row: the sheet describes lids per
+ * SAMPLE coffin (Bronze 1 half-glass … Gold convertible) and names the 24
+ * catalogue models by cover variant, stepping the price up ₱10,000 per variant
+ * (Half → Full → Full Split → Flexi) exactly as its cover ladder does. The line
+ * below is therefore the variant the model's own name states; the exact cover a
+ * family receives is still confirmed by the office. Open client question —
+ * flagged in AGENTS.md and the casket-catalogue PR.
+ */
+export const COFFIN_COVERS: ReadonlyArray<{ variant: string; lid: string }> = [
+  { variant: "Full Split", lid: "Full glass lid, split cover" },
+  { variant: "Flexi", lid: "Full glass lid, cover convertible to full-glass or half-glass" },
+  { variant: "Full", lid: "Full glass lid" },
+  { variant: "Half", lid: "Half-glass lid" },
+];
+
+/**
+ * The lid line for a model, or undefined when its name states no cover (Lumina)
+ * — the view then says the cover is confirmed by the office rather than
+ * inventing one (COFFIN_COVER_UNSTATED).
+ */
+export function coffinCover(model: string): string | undefined {
+  return COFFIN_COVERS.find((c) => model.trim().endsWith(c.variant))?.lid;
+}
+
+/** Shown for a model whose sheet name states no cover. */
+export const COFFIN_COVER_UNSTATED =
+  "The 2026 sheet names no cover for this model — its sample coffins are photographed with half-glass and full-glass lids, and the office confirms the exact cover.";
 
 export const SENIOR_PAYMENTS: PaymentRow[] = [
   { mode: "Annual", bronze1: 6600, bronze2: 8400, silver1: 11400, silver2: 13200, gold: 18000 },
