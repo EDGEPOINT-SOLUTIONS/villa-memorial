@@ -31,11 +31,19 @@ export function PlotDetails({
   selected,
   lots,
   parkName,
+  showReserveRequest = true,
   children,
 }: {
   selected: { area: PlotArea; parkId: string } | null;
   lots: Lot[];
   parkName: string;
+  /**
+   * Whether an available linked lot offers the public "request to reserve" copy
+   * and link. Default true — the public map and staff screens are unchanged.
+   * A role whose own hold/reserve action differs (the agent portal) passes false
+   * and supplies its action through `children`.
+   */
+  showReserveRequest?: boolean;
   /** Extra panels rendered under the details (e.g. the 3D plot tools). */
   children?: ReactNode;
 }) {
@@ -114,18 +122,20 @@ export function PlotDetails({
 
       {linkedLot ? (
         linkedLot.status === "available" ? (
-          <>
-            <p className="text-sm text-muted">
-              This lot is available. Buying online arrives with the lot-checkout contract (dev) —
-              meanwhile, request a reservation and the park office will confirm it.
-            </p>
-            <a
-              className="btn btn--accent btn--sm btn--block"
-              href={"/contact?topic=lot-reservation&lot=" + encodeURIComponent(linkedLot.lot_number)}
-            >
-              Request to reserve {linkedLot.lot_number}
-            </a>
-          </>
+          showReserveRequest ? (
+            <>
+              <p className="text-sm text-muted">
+                This lot is available. Buying online arrives with the lot-checkout contract (dev) —
+                meanwhile, request a reservation and the park office will confirm it.
+              </p>
+              <a
+                className="btn btn--accent btn--sm btn--block"
+                href={"/contact?topic=lot-reservation&lot=" + encodeURIComponent(linkedLot.lot_number)}
+              >
+                Request to reserve {linkedLot.lot_number}
+              </a>
+            </>
+          ) : null
         ) : (
           <p className="text-sm text-muted">
             This lot is {lotStatusLabel(linkedLot.status).toLowerCase()}. Please contact the

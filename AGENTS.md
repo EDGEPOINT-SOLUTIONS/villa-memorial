@@ -393,6 +393,18 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
   in `tests/unit/park-3d-*`.
 
+## Agent lots map — the office's map, never a second one (read before touching `/agent/lots`)
+
+- `/agent/lots` renders `components/agent/agent-park-map.tsx`, which mounts the SAME
+  `components/park-maps-view.tsx` the staff property screen (`components/property-explorer.tsx`)
+  and the public `/map` render, fed the same listing as staff (`listLots()` → the
+  `liveStatusById`/`liveOwnerById` overlays). Never hand-draw an agent-only masterplan/pin layer.
+- Capability differences only: map editing appears for sessions holding `property:write` (the
+  agent persona holds `property:read` alone); the shared `PlotDetails` panel is the agent's lot
+  profile, and `showReserveRequest={false}` swaps the public customer request link for the
+  agent's disabled “ask the office to hold” intent. `tests/unit/agent-park-map.test.tsx` pins the
+  parity — both pages must pass the shared map the same lot set/statuses.
+
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
 - Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed
