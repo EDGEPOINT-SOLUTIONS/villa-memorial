@@ -2,6 +2,29 @@
  * Villa Memorial — real 2026 public product & price content (as provided).
  * Display content only; storefront CHECKOUT continues to run on the frozen
  * commerce contract items (this data never drives cart math).
+ *
+ * Provenance — every figure in this module is transcribed from the client's own
+ * 2026 sheets (`/home/gab/firstmate/data/villa-memorial-media-originals/`, also
+ * rasterised under public/media/doc-*.jpg), never from memory or a brochure:
+ *
+ *  · "2026 price FV website A.pdf" — byte-identical (md5 4673379394…) to
+ *    "PRICE LIST FOR 2026 II.pdf". Carries: "If they will not get the package"
+ *    (embalming per day + the five a-la-carte fees), "For package" (the casket
+ *    catalogue with SRP / senior discount / discounted price).
+ *  · "PRICE LIST FOR 2026 III.pdf" — chapel-use-only rates (common & private,
+ *    regular & senior, 3–9 days), the ₱1,000 miscellaneous-fee note, and the
+ *    per-casket-family inclusion rows (flowers, tarp, lapida, family car,
+ *    1 doz roses, thank-you card, common/private chapel day rate).
+ *  · "PRICE LIST FOR 2026.jpg" — LOT_PRICE_CATEGORIES (four families, 6-year
+ *    amortization, regular + senior).
+ *  · "COMPLETE MEMORIAL PACKAGE.jpg" — VMP_PAYMENTS, CASH_ASSISTANCE,
+ *    VMP_ELIGIBILITY, VMP_NOTES (the plan's standard table).
+ *  · "TYPES OF COFFIN.jpg" — SENIOR_PAYMENTS, SENIOR_TERMS, the coffin tier
+ *    photography/descriptions and the equal-or-greater-value substitution note.
+ *
+ * tests/unit/villa-pricing.test.ts pins every one of those figures, so a future
+ * transcription slip cannot ship; this module is the only place a public price
+ * may live.
  */
 
 export type PaymentRow = { mode: string; bronze1: number; bronze2: number; silver1: number; silver2: number; gold: number };
@@ -40,13 +63,27 @@ export const PLAN_TERMS: ReadonlyArray<{
   { id: "annual", label: "Annual", mode: "Annual", per: "/ year", paymentsPerYear: 1 },
 ];
 
+/**
+ * The client's TYPES OF COFFIN sheet — the five tiers with their photography.
+ * The `lid` line is the sheet's own sentence for that tier (Bronze 2, Silver 2
+ * and Gold come with a FULL glass lid; only Bronze 1 and Silver 1 are
+ * half-glass), pinned by tests/unit/villa-pricing.test.ts because an earlier
+ * transcription had Bronze 2 published as half-glass.
+ */
 export const COFFINS = [
   { tier: "Bronze 1", photo: "/media/bronze-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
-  { tier: "Bronze 2", photo: "/media/bronze-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
+  { tier: "Bronze 2", photo: "/media/bronze-casket.jpg", lid: "Full glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
   { tier: "Silver 1", photo: "/media/silver-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant." },
-  { tier: "Silver 2", photo: "/media/silver-casket.jpg", lid: "Half-glass lid (convertible to full-glass)", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant; cover convertible to full-glass or half-glass." },
-  { tier: "Gold", photo: "/media/gold-casket.jpg", lid: "Full-glass lid (convertible to half-glass)", description: "Special metal coffin with smooth finish, classy handles and beautiful interiors. More stylish and sophisticated; cover can be full-glass or half-glass." },
+  { tier: "Silver 2", photo: "/media/silver-casket.jpg", lid: "Full glass lid (cover convertible to full-glass or half-glass)", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant; cover convertible to full-glass or half-glass." },
+  { tier: "Gold", photo: "/media/gold-casket.jpg", lid: "Full-glass lid (cover can be full-glass or half-glass)", description: "Special metal coffin with smooth finish, classy handles and beautiful interiors. More stylish and sophisticated; cover can be full-glass or half-glass." },
 ] as const;
+
+/**
+ * The client's substitution note, printed under the tier photography on the
+ * TYPES OF COFFIN sheet. Published with the photos on /products.
+ */
+export const COFFIN_TIER_NOTE =
+  "Illustration purposes only. In case the coffin is not available, we will provide another with equal or greater value.";
 
 export const SENIOR_PAYMENTS: PaymentRow[] = [
   { mode: "Annual", bronze1: 6600, bronze2: 8400, silver1: 11400, silver2: 13200, gold: 18000 },
@@ -208,3 +245,224 @@ export const VMP_INCLUSIONS: Array<{ service: string; detail: string }> = [
     detail: "Free! flowers and tarpaulin are included with the complete memorial package.",
   },
 ] as const;
+
+/* ===========================================================================
+ * 2026 CASKET CATALOGUE — "2026 price FV website A" (= "PRICE LIST FOR 2026
+ * II"), section "For package". One row per casket the client sells, with the
+ * regular SRP, the senior-citizen SRP and the senior discount printed against
+ * it, and the discounted price that results. Rendered on /products.
+ * ========================================================================= */
+
+/** The casket families sheet III prints one inclusion row for. */
+export type CasketFamily =
+  | "Lumina"
+  | "White Rose"
+  | "Angelica"
+  | "Magnolia"
+  | "Noble"
+  | "Royal"
+  | "Monarch"
+  | "Majesty"
+  | "Emperor"
+  | "Imperial";
+
+export type CasketModel = {
+  /** The collection header the sheet groups the model under. */
+  collection: string;
+  /** Sheet III's inclusion row for this model. */
+  family: CasketFamily;
+  /** Model name exactly as printed ("White Rose Half", "Majesty Flexi"). */
+  model: string;
+  /** Regular SRP. The sheet prints the same amount in the senior SRP column. */
+  srp: number;
+  /** Senior-citizen discount, printed as an amount (20% of SRP on every row). */
+  seniorDiscount: number;
+  /** Senior-citizen discounted price (srp − seniorDiscount). */
+  seniorPrice: number;
+};
+
+export const CASKET_MODELS: ReadonlyArray<CasketModel> = [
+  { collection: "Lumina", family: "Lumina", model: "Lumina", srp: 33000, seniorDiscount: 6600, seniorPrice: 26400 },
+  { collection: "The White Rose Collection", family: "White Rose", model: "White Rose Half", srp: 62000, seniorDiscount: 12400, seniorPrice: 49600 },
+  { collection: "The White Rose Collection", family: "White Rose", model: "White Rose Full", srp: 68000, seniorDiscount: 13600, seniorPrice: 54400 },
+  { collection: "The White Rose Collection", family: "Angelica", model: "Angelica Half", srp: 65000, seniorDiscount: 13000, seniorPrice: 52000 },
+  { collection: "The White Rose Collection", family: "Angelica", model: "Angelica Full", srp: 70000, seniorDiscount: 14000, seniorPrice: 56000 },
+  { collection: "The White Rose Collection", family: "Magnolia", model: "Magnolia Half", srp: 70000, seniorDiscount: 14000, seniorPrice: 56000 },
+  { collection: "The White Rose Collection", family: "Magnolia", model: "Magnolia Full", srp: 75000, seniorDiscount: 15000, seniorPrice: 60000 },
+  { collection: "The Crown Collection", family: "Noble", model: "Noble Half", srp: 80000, seniorDiscount: 16000, seniorPrice: 64000 },
+  { collection: "The Crown Collection", family: "Noble", model: "Noble Full", srp: 90000, seniorDiscount: 18000, seniorPrice: 72000 },
+  { collection: "The Crown Collection", family: "Noble", model: "Noble Full Split", srp: 95000, seniorDiscount: 19000, seniorPrice: 76000 },
+  { collection: "The Crown Collection", family: "Royal", model: "Royal Half", srp: 85000, seniorDiscount: 17000, seniorPrice: 68000 },
+  { collection: "The Crown Collection", family: "Royal", model: "Royal Full", srp: 95000, seniorDiscount: 19000, seniorPrice: 76000 },
+  { collection: "The Crown Collection", family: "Royal", model: "Royal Full Split", srp: 100000, seniorDiscount: 20000, seniorPrice: 80000 },
+  { collection: "The Crown Collection", family: "Monarch", model: "Monarch Half", srp: 100000, seniorDiscount: 20000, seniorPrice: 80000 },
+  { collection: "The Crown Collection", family: "Monarch", model: "Monarch Full", srp: 110000, seniorDiscount: 22000, seniorPrice: 88000 },
+  { collection: "The Dynasty Collection", family: "Majesty", model: "Majesty Full", srp: 120000, seniorDiscount: 24000, seniorPrice: 96000 },
+  { collection: "The Dynasty Collection", family: "Majesty", model: "Majesty Full Split", srp: 130000, seniorDiscount: 26000, seniorPrice: 104000 },
+  { collection: "The Dynasty Collection", family: "Majesty", model: "Majesty Flexi", srp: 140000, seniorDiscount: 28000, seniorPrice: 112000 },
+  { collection: "The Dynasty Collection", family: "Emperor", model: "Emperor Full", srp: 130000, seniorDiscount: 26000, seniorPrice: 104000 },
+  { collection: "The Dynasty Collection", family: "Emperor", model: "Emperor Full Split", srp: 140000, seniorDiscount: 28000, seniorPrice: 112000 },
+  { collection: "The Dynasty Collection", family: "Emperor", model: "Emperor Flexi", srp: 150000, seniorDiscount: 30000, seniorPrice: 120000 },
+  { collection: "The Dynasty Collection", family: "Imperial", model: "Imperial Full", srp: 140000, seniorDiscount: 28000, seniorPrice: 112000 },
+  { collection: "The Dynasty Collection", family: "Imperial", model: "Imperial Full Split", srp: 150000, seniorDiscount: 30000, seniorPrice: 120000 },
+  { collection: "The Dynasty Collection", family: "Imperial", model: "Imperial Flexi", srp: 160000, seniorDiscount: 32000, seniorPrice: 128000 },
+];
+
+/** The sheet's collection headers, in the order it prints them. */
+export const CASKET_COLLECTIONS: ReadonlyArray<string> = CASKET_MODELS.reduce<string[]>(
+  (acc, m) => (acc.includes(m.collection) ? acc : [...acc, m.collection]),
+  [],
+);
+
+/* ===========================================================================
+ * "PRICE LIST FOR 2026 III" — the per-family inclusion rows: which of
+ * flowers / tarp / lapida / family car / 1 doz roses / thank-you card come
+ * with the casket, and the package's own common/private chapel day rate.
+ * ========================================================================= */
+
+export type CasketInclusion = {
+  family: CasketFamily;
+  flowers: boolean;
+  tarp: boolean;
+  lapida: boolean;
+  familyCar: boolean;
+  dozenRoses: boolean;
+  thankYouCard: boolean;
+  /** Package rate per day for the common chapel (sheet prints 1500/DAY). */
+  commonChapelPerDay: number;
+  /** Package rate per day for the private chapel (sheet prints 3000/DAY). */
+  privateChapelPerDay: number;
+  /** The sheet marks Lumina's private-chapel rate "*Discounted Price". */
+  privateChapelDiscounted: boolean;
+};
+
+/** The six YES/NO inclusion columns, in the sheet's left-to-right order. */
+export type CasketInclusionKey =
+  | "flowers"
+  | "tarp"
+  | "lapida"
+  | "familyCar"
+  | "dozenRoses"
+  | "thankYouCard";
+
+export const CASKET_INCLUSION_COLUMNS: ReadonlyArray<{
+  key: CasketInclusionKey;
+  label: string;
+}> = [
+  { key: "flowers", label: "Flowers" },
+  { key: "tarp", label: "Tarp" },
+  { key: "lapida", label: "Lapida" },
+  { key: "familyCar", label: "Family car" },
+  { key: "dozenRoses", label: "1 doz roses" },
+  { key: "thankYouCard", label: "Thank you card" },
+];
+
+function inclusion(family: CasketFamily, yes: ReadonlyArray<CasketInclusionKey>): CasketInclusion {
+  return {
+    family,
+    flowers: yes.includes("flowers"),
+    tarp: yes.includes("tarp"),
+    lapida: yes.includes("lapida"),
+    familyCar: yes.includes("familyCar"),
+    dozenRoses: yes.includes("dozenRoses"),
+    thankYouCard: yes.includes("thankYouCard"),
+    commonChapelPerDay: 1500,
+    privateChapelPerDay: 3000,
+    privateChapelDiscounted: family === "Lumina",
+  };
+}
+
+/** The three inclusions every family above Lumina carries. */
+const LAPIDA_ETC = ["flowers", "tarp", "lapida"] as const;
+
+export const CASKET_INCLUSIONS: ReadonlyArray<CasketInclusion> = [
+  inclusion("Lumina", []),
+  inclusion("White Rose", LAPIDA_ETC),
+  inclusion("Angelica", LAPIDA_ETC),
+  inclusion("Magnolia", LAPIDA_ETC),
+  inclusion("Noble", [...LAPIDA_ETC, "dozenRoses", "thankYouCard"]),
+  inclusion("Royal", [...LAPIDA_ETC, "dozenRoses", "thankYouCard"]),
+  inclusion("Monarch", [...LAPIDA_ETC, "dozenRoses", "thankYouCard"]),
+  inclusion("Majesty", [...LAPIDA_ETC, "familyCar", "dozenRoses", "thankYouCard"]),
+  inclusion("Emperor", [...LAPIDA_ETC, "familyCar", "dozenRoses", "thankYouCard"]),
+  inclusion("Imperial", [...LAPIDA_ETC, "familyCar", "dozenRoses", "thankYouCard"]),
+];
+
+/** Sheet III's own footnotes to the inclusion table. */
+export const CASKET_INCLUSION_NOTES = {
+  miscFee:
+    "Note: PhP 1,000 is added as miscellaneous fee to cover for any incidental expense. Add this to the rates.",
+  discountedPrice: "* Discounted price (printed against Lumina's private-chapel rate).",
+};
+
+/* ===========================================================================
+ * "2026 price FV website A" top block — "If they will not get the package".
+ * The a-la-carte prices, charged when a family does NOT take a package (the
+ * same scope the package pages state for embalming). Rendered on /services.
+ * ========================================================================= */
+
+export const EMBALMING_RATES: ReadonlyArray<{ days: number; amount: number }> = [
+  { days: 3, amount: 6000 },
+  { days: 4, amount: 7500 },
+  { days: 5, amount: 9000 },
+  { days: 6, amount: 10500 },
+  { days: 7, amount: 12000 },
+  { days: 8, amount: 13500 },
+  { days: 9, amount: 15000 },
+];
+
+/** Beyond nine days the sheet adds ₱1,500 per extra day (">9 +1500 /day"). */
+export const EMBALMING_PER_DAY_BEYOND_9 = 1500;
+
+export const ALACARTE_SERVICE_FEES: ReadonlyArray<{ service: string; amount: number }> = [
+  { service: "Retrieval", amount: 2500 },
+  { service: "Delivery", amount: 2500 },
+  { service: "Viewing equipment", amount: 4500 },
+  { service: "ORD coffin", amount: 5000 },
+  { service: "Interment", amount: 5000 },
+];
+
+/**
+ * The sheet's own bottom-line figure under the five fees above (₱19,500). It is
+ * printed unlabelled; tests/unit/villa-pricing.test.ts asserts it stays the
+ * exact sum of ALACARTE_SERVICE_FEES so the two can never disagree publicly.
+ */
+export const ALACARTE_SERVICE_TOTAL = 19500;
+
+/** The sheet heads this block exactly this way — the rates' own scope. */
+export const ALACARTE_SCOPE = "If they will not get the package:";
+
+/** The sheet's label for what the package price already covers. */
+export const PACKAGE_SCOPE = "For package:";
+
+/* ===========================================================================
+ * "PRICE LIST FOR 2026 III" — chapel use rates when the service is not with
+ * Villa ("If the service is not with us, chapel use only"): per-day rate, the
+ * 3–9 day total, and the senior-citizen total. Rendered on /services.
+ * ========================================================================= */
+
+export type ChapelRateRow = {
+  days: number;
+  common: { ratePerDay: number; regular: number; senior: number };
+  private: { ratePerDay: number; regular: number; senior: number };
+};
+
+export const CHAPEL_RATES: ReadonlyArray<ChapelRateRow> = [
+  { days: 3, common: { ratePerDay: 1500, regular: 4500, senior: 4320 }, private: { ratePerDay: 3500, regular: 10500, senior: 10080 } },
+  { days: 4, common: { ratePerDay: 1500, regular: 6000, senior: 5760 }, private: { ratePerDay: 3500, regular: 14000, senior: 13440 } },
+  { days: 5, common: { ratePerDay: 1500, regular: 7500, senior: 7200 }, private: { ratePerDay: 3500, regular: 17500, senior: 16800 } },
+  { days: 6, common: { ratePerDay: 1500, regular: 9000, senior: 8640 }, private: { ratePerDay: 3500, regular: 21000, senior: 20160 } },
+  { days: 7, common: { ratePerDay: 1500, regular: 10500, senior: 10080 }, private: { ratePerDay: 3500, regular: 24500, senior: 23520 } },
+  { days: 8, common: { ratePerDay: 1500, regular: 12000, senior: 11520 }, private: { ratePerDay: 3500, regular: 28000, senior: 26880 } },
+  { days: 9, common: { ratePerDay: 1500, regular: 13500, senior: 12960 }, private: { ratePerDay: 3500, regular: 31500, senior: 30240 } },
+];
+
+/** Sheet III's chapel footnotes — published verbatim beside the table. */
+export const CHAPEL_NOTES = {
+  scope: "If the service is not with us, chapel use only.",
+  miscFee:
+    "Note: PhP 1,000 is added as miscellaneous fee to cover for any incidental expense. Add this to the rates.",
+  seniorPerDay:
+    "Senior Citizen rate is ₱1,800/day for Common Chapel and ₱4,200/day for Private Chapel.",
+  privateChapelOnly: "If use of chapel only: ₱700 worth of groceries, minimum of 3 days.",
+};

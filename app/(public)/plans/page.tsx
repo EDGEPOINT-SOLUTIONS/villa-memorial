@@ -1,9 +1,20 @@
 import Link from "next/link";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { Card } from "@/components/ui/card";
+import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueAddButton } from "@/components/catalogue-add-button";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import {
+  CASH_ASSISTANCE,
+  php,
+  SENIOR_PAYMENTS,
+  VMP_ELIGIBILITY,
+  VMP_INCLUSIONS,
+  VMP_NOTES,
+  VMP_PAYMENTS,
+} from "@/lib/villa-pricing";
 
 export const metadata = { title: "Villa Memorial Plan — Villa Memorial" };
 
@@ -15,6 +26,11 @@ export const metadata = { title: "Villa Memorial Plan — Villa Memorial" };
  * with the real cart flow) and an "Add to cart" button that adds THIS card's
  * real SKU + price to the same cart context (fixtures-first, no invented
  * shapes — item data flows straight from listCatalogItems into the cart).
+ *
+ * Below the catalog the page prints the plan's own price list — the client's two
+ * 2026 payment-mode schedules (regular + senior), cash assistance, eligibility
+ * and notes — from lib/villa-pricing.ts, so a family can price the plan without
+ * leaving the page (the full walk-through stays on /plans/villa-memorial-plan).
  */
 const TYPE_LABELS: Record<string, string> = {
   package: "Packages",
@@ -83,8 +99,9 @@ export default async function PlansPage({
             </nav>
             <nav className="hero-chips" aria-label="Related plan pages">
               <Link href="/plans?type=package">View packages</Link>
+              <Link href="#plan-payments">2026 plan payments</Link>
               <Link href="/plans/compare">Compare</Link>
-              <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>
+              <Link href="/plans/villa-memorial-plan">Products &amp; price list</Link>
               <Link href="/plans/senior-benefits">Senior citizen rates</Link>
               <Link href="/products">Coffins &amp; caskets</Link>
             </nav>
@@ -144,6 +161,77 @@ export default async function PlansPage({
           ))}
         </div>
       )}
+
+      {/* The plan's own 2026 price list — the client's two payment-mode
+          schedules. Every amount comes through lib/villa-pricing.ts. */}
+      <section id="plan-payments" className="stack-3" aria-labelledby="plan-payments-title">
+        <h2 className="section-title" id="plan-payments-title">
+          2026 payment schedules — five tiers, four terms
+        </h2>
+        <p className="text-sm text-muted">
+          Five plan tiers on four payment terms. The regular table applies to ages 1–60; the
+          senior-citizen table (61–100, no insurance benefit) is the senior plan rate. Annual
+          × 1 = semi-annual × 2 = quarterly × 4 = monthly × 12, and amortization can be
+          adjusted to 8 and 10 years.
+        </p>
+        <div className="split-grid">
+          <Card header={<h3>Regular rate</h3>}>
+            <PlanPaymentTable rows={VMP_PAYMENTS} label="Villa Memorial Plan — regular payment schedule" />
+          </Card>
+          <Card header={<h3>Senior citizen rate</h3>}>
+            <PlanPaymentTable
+              rows={SENIOR_PAYMENTS}
+              label="Villa Memorial Plan — senior citizen payment schedule"
+            />
+          </Card>
+        </div>
+
+        <div className="split-grid">
+          <Card header={<h3>Eligibility &amp; plan notes</h3>}>
+            <ul className="stack-3">
+              {VMP_ELIGIBILITY.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+            <p className="text-sm" style={{ marginTop: "var(--space-3)" }}>
+              {VMP_NOTES.contestability}
+            </p>
+            <p className="text-sm" style={{ marginTop: "var(--space-2)" }}>
+              {VMP_NOTES.assign}
+            </p>
+          </Card>
+
+          <Card header={<h3>Cash assistance with hospital benefit</h3>}>
+            <div className="table-wrapper">
+              <table className="table price-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Coffin tier</th>
+                    <th scope="col">Cash assistance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {CASH_ASSISTANCE.map((c) => (
+                    <tr key={c.tiers}>
+                      <th scope="row">{c.tiers}</th>
+                      <td className="table__numeric">{php(c.amount)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-sm text-muted" style={{ marginTop: "var(--space-2)" }}>
+              During the paying period only.
+            </p>
+            <p className="text-sm" style={{ marginTop: "var(--space-3)" }}>
+              Complete memorial package:{" "}
+              {VMP_INCLUSIONS.map((i) => i.service).join(" · ")} — see the{" "}
+              <Link href="/plans/villa-memorial-plan">full plan page</Link> for each
+              inclusion&rsquo;s detail.
+            </p>
+          </Card>
+        </div>
+      </section>
     </>
   );
 }

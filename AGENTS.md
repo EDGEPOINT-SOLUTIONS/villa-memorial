@@ -180,6 +180,34 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   contract lands, replace that store and the wording — never dress demo capture up as
   delivery.
 
+## 2026 price list — where every client figure surfaces
+
+- **One transcription home: `lib/villa-pricing.ts`.** Its header maps every export to
+  the client's sheet; `tests/unit/villa-pricing.test.ts` pins each figure, and
+  `tests/unit/price-surfacing.test.tsx` renders the real pages and asserts each one is
+  published. Never author or restate an amount in a view.
+- Sheet → page map (all four surfaces already render the full sheets):
+  `/products` = casket catalogue (`CASKET_MODELS` — SRP, senior SRP, discount,
+  discounted price, grouped by collection) + per-family inclusions
+  (`CASKET_INCLUSIONS`) via `components/villa/casket-catalogue.tsx`;
+  `/services` = embalming per day + the five a-la-carte fees (incl. the sheet's
+  unlabelled ₱19,500 total) + chapel use rates, via
+  `components/villa/service-rates-2026.tsx`;
+  `/plans`, `/plans/villa-memorial-plan`, `/plans/senior-benefits` = the five tiers ×
+  four terms, regular + senior, through ONE renderer
+  (`components/villa/plan-payment-table.tsx`);
+  `/lots/price-list-2026` = `LOT_PRICE_CATEGORIES` (regular + senior).
+- The a-la-carte/embalming table and the chapel-use table are scoped by the sheets
+  themselves: they apply when the family does NOT take a package (package embalming
+  stays "no fixed day count" — the package sheet's "7 days" wording is deliberately
+  not published).
+- Two open client questions are published as the sheets print them rather than
+  reconciled — keep it that way until the client answers: (1) sheet III's chapel table
+  computes the senior column at 96% of the regular total (₱1,440/₱3,360 per day) while
+  its own footnote says ₱1,800/₱4,200 per day; (2) no sheet maps the Bronze/Silver/Gold
+  tier photography to the named Lumina/White Rose/Crown/Dynasty models. `2026 price FV
+  website A.pdf` is byte-identical to `PRICE LIST FOR 2026 II.pdf` (one source, two names).
+
 ## Structure conventions
 ```
 web/

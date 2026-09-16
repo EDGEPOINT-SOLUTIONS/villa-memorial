@@ -45,6 +45,15 @@ export default function PriceList2026Page() {
       <PriceList2026Tables />
 
       <p className="text-sm text-muted">
+        Source: the client&rsquo;s own PRICE LIST FOR 2026 (Sanctuario de Mercedes y Gloria) —
+        all four product families and every row, with the regular and senior-citizen
+        columns, reproduced exactly. Prices for coffins and services live on{" "}
+        <Link href="/products">Coffins &amp; caskets</Link> and{" "}
+        <Link href="/services">Services</Link>; the plan&rsquo;s own payment schedules are on{" "}
+        <Link href="/plans">Villa Memorial Plan</Link>.
+      </p>
+
+      <p className="text-sm text-muted">
         See lots on the <Link href="/map">park map</Link>, explore the{" "}
         <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>, or{" "}
         <Link href="/contact">ask the park office</Link> about 8- and 10-year terms.
