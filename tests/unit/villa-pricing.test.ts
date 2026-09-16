@@ -28,6 +28,8 @@ import {
   VMP_INCLUSIONS,
   VMP_PACKAGE,
   VMP_PAYMENTS,
+  lotCategoryFromPrice,
+  php,
   php2,
   planRate,
   planTermOptions,
@@ -98,6 +100,29 @@ describe("2026 price list structure", () => {
     expect(VMP_INCLUSIONS).toHaveLength(5);
     expect(VMP_INCLUSIONS.slice(0, 4)).toEqual(VMP_PACKAGE);
     expect(VMP_INCLUSIONS[4].service).toMatch(/flowers/i);
+  });
+
+  it("derives each family's entry-level “from …” figures for the home service cards", () => {
+    // The home page's four “Services we offer” cards publish exactly these
+    // (prototype: home.html SERVICES WE OFFER) — the lowest regular selling
+    // price of each family plus that row's monthly installment.
+    expect(LOT_PRICE_CATEGORIES.map((c) => [php(lotCategoryFromPrice(c.title)!.selling), php(lotCategoryFromPrice(c.title)!.monthly)])).toEqual([
+      ["₱75,000", "₱1,125"],
+      ["₱97,000", "₱1,455"],
+      ["₱126,000", "₱1,890"],
+      ["₱1,573,000", "₱23,595"],
+    ]);
+    // The derived figures ARE rows on the sheet — never a synthesised amount.
+    for (const category of LOT_PRICE_CATEGORIES) {
+      const from = lotCategoryFromPrice(category.title)!;
+      const row = category.rows.find((r) => r.product === from.product)!;
+      expect(from.selling).toBe(row.regular.selling);
+      expect(from.monthly).toBe(row.regular.monthly);
+      expect(from.selling).toBe(Math.min(...category.rows.map((r) => r.regular.selling)));
+    }
+    // Unknown family → null (the view then omits the meta line rather than guessing).
+    expect(lotCategoryFromPrice("5. Invented Family")).toBeNull();
+    expect(lotCategoryFromPrice("")).toBeNull();
   });
 });
 
