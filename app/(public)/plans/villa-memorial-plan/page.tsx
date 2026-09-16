@@ -131,7 +131,11 @@ export default function VillaMemorialPlanPage() {
         <div className="card">
           <div className="card__body stack-3">
             <h3>Payment schedule (PHP)</h3>
-            <PlanPaymentTable rows={SENIOR_PAYMENTS} label="Senior citizen payment schedule" />
+            <PlanPaymentTable
+              rows={SENIOR_PAYMENTS}
+              senior
+              label="Senior citizen payment schedule"
+            />
           </div>
         </div>
       </section>
@@ -202,7 +206,10 @@ export default function VillaMemorialPlanPage() {
         <div id="payments" className="card">
           <div className="card__body stack-3">
             <h3>Villa Memorial Plan — payment schedule (PHP)</h3>
-            <PlanPaymentTable rows={VMP_PAYMENTS} label="Villa Memorial Plan — regular payment schedule" />
+            <PlanPaymentTable
+              rows={VMP_PAYMENTS}
+              label="Villa Memorial Plan — regular payment schedule"
+            />
           </div>
         </div>
       </section>

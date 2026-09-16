@@ -5,17 +5,32 @@ import {
   PLAN_PACKAGES_IMAGE,
 } from "@/lib/media";
 import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
+import { ErrorState } from "@/components/ui/states";
+import { listCatalogItems } from "@/lib/api-client/commerce";
 
 export const metadata = { title: "Funeraria Memorial Services — Villa Memorial" };
 
 /**
  * Static marketing content (Module C public face) plus the client's 2026 service
- * price list. Copy is content, not data: no backend is required for pages that
- * inform and direct to real surfaces (catalog, park map, portals). The price
- * tables read lib/villa-pricing.ts — the transcribed sheets — and never author a
- * figure; see components/villa/service-rates-2026.tsx for the sheet map.
+ * price list as sellable rows. The catalogue supplies each line's SKU/price for
+ * the Add-to-cart and Request-order actions (lib/catalogue-skus.ts binds the
+ * sheet row to the entry); copy is content, not data. The price tables read
+ * lib/villa-pricing.ts — the transcribed sheets — and never author a figure;
+ * see components/villa/service-rates-2026.tsx for the sheet map.
  */
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  let items: Awaited<ReturnType<typeof listCatalogItems>>;
+  try {
+    items = await listCatalogItems();
+  } catch {
+    return (
+      <div className="stack-4">
+        <h1>Funeraria Memorial Services</h1>
+        <ErrorState message="The service catalogue is unavailable right now, so the 2026 rates cannot be ordered online. Please try again shortly or call the 24/7 assistance line." />
+      </div>
+    );
+  }
+
   return (
     <div className="stack-4">
       <section className="hero-premium">
@@ -61,9 +76,10 @@ export default function ServicesPage() {
           Embalming priced per day (3–9 days, plus ₱1,500 for every day beyond nine),
           retrieval, delivery, viewing equipment, ORD coffin and interment — the sheet
           prints these for families who do not take a package. Chapel use is priced
-          separately, common or private, with the senior-citizen column.
+          separately, common or private, with the senior-citizen column. Every line can
+          go straight into the cart, or be sent to the office as a request.
         </p>
-        <ServiceRates2026 />
+        <ServiceRates2026 items={items} />
         <p className="text-sm text-muted">
           Source: the client&rsquo;s 2026 sheets — “2026 price FV website A” (identical to
           PRICE LIST FOR 2026 II) for the a-la-carte and embalming rates, and PRICE LIST

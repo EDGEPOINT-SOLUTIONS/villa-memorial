@@ -312,6 +312,35 @@ input[type="checkbox"] {
   background: var(--color-bg-surface);
 }
 
+/* Plan payment cells are request links: the amount stays the sheet's own text,
+   the click opens the prefilled request for that exact tier × term. */
+.price-request-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.price-request-link:hover {
+  color: var(--brass-600);
+  text-decoration-style: solid;
+}
+
+/* Lot rows: the product name carries the row's two actions (request / map). */
+.lot-row__name {
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+.lot-row__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+}
+
 /* --- Status badges ------------------------------------------------------------ */
 .badge {
   display: inline-flex;
@@ -898,6 +927,53 @@ input[type="checkbox"] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
+}
+
+/* --- Storefront action pairs (Add to cart + Request order) ------------------- */
+.catalogue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.catalogue-actions--column {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* --- Sellable casket cards (/products): collection heading + price facts ------ */
+.casket-collection__title {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--navy-900);
+  margin: 0;
+  padding-bottom: var(--space-1);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.casket-card__prices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.casket-card__prices > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.casket-card__prices dt {
+  color: var(--color-text-muted);
+}
+
+.casket-card__prices dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--navy-900);
 }
 
 /* Pill toggle filters (doc palette) */
@@ -4671,6 +4747,55 @@ a.card:hover {
   margin: var(--space-2) 0 0;
   padding-bottom: var(--space-1);
   border-bottom: 1px solid var(--color-rule);
+}
+
+/* --- "You are asking about" banner (storefront request links) ----------------- */
+.request-context {
+  padding: var(--space-5);
+  background: var(--sky-50);
+  border: 1px solid color-mix(in srgb, var(--sky-300) 55%, transparent);
+  border-left: 4px solid var(--sky-500);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.request-context__lead {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--sky-700);
+}
+
+.request-context__item {
+  margin: var(--space-1) 0 var(--space-3);
+  color: var(--navy-900);
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+}
+
+.request-context__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0 0 var(--space-3);
+}
+
+.request-context__fact dt {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.request-context__fact dd {
+  margin: 0;
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+.request-context p:last-child {
+  margin-bottom: 0;
 }
 
 /* --- Field grids ------------------------------------------------------------ */

@@ -13,6 +13,10 @@ import {
   type ContactValues,
   type FieldErrors,
 } from "@/lib/public-forms/validation";
+import {
+  requestMessage,
+  type RequestPrefill,
+} from "@/lib/public-forms/request-prefill";
 
 const EMPTY: ContactValues = {
   full_name: "",
@@ -22,15 +26,25 @@ const EMPTY: ContactValues = {
   consent: false,
 };
 
+/** Initial form values for a visit: a request link prefills the message. */
+function initialValues(prefill: RequestPrefill | null): ContactValues {
+  return prefill ? { ...EMPTY, message: requestMessage(prefill) } : EMPTY;
+}
+
 /**
  * Public contact capture on the shared shell (numbered sections · hints ·
  * one action bar). The submit gate is lib/public-forms/validation.ts; a passed
  * submission lands in the DEMO-LOCAL inquiry store the staff board reads
  * (lib/demo-inquiry-captures.ts) because no crm-families contract exists.
  * The confirmation states plainly that nothing was sent to a server.
+ *
+ * `prefill` comes from a storefront "Request order" link
+ * (lib/public-forms/request-prefill.ts): the banner echoes the exact item, SKU
+ * and published figure the visitor clicked and the message asks the office to
+ * confirm — it never claims a reservation or a purchase.
  */
-export function ContactForm() {
-  const [values, setValues] = useState<ContactValues>(EMPTY);
+export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | null }) {
+  const [values, setValues] = useState<ContactValues>(() => initialValues(prefill));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -68,11 +82,21 @@ export function ContactForm() {
     return (
       <div className="stack">
         <Alert tone="success" title="Message captured in this browser.">
-          Your enquiry is recorded as <strong>{captured.reference}</strong> in the
-          demo store this device keeps, so it shows on the staff inquiries board
-          in this browser. <strong>Nothing was sent to a server</strong> — the
-          records service is not connected in this build. For anything urgent,
-          use the 24/7 assistance line in the header.
+          {prefill ? (
+            <>
+              Your request for <strong>{prefill.item}</strong> is recorded as{" "}
+              <strong>{captured.reference}</strong>
+            </>
+          ) : (
+            <>
+              Your enquiry is recorded as <strong>{captured.reference}</strong>
+            </>
+          )}{" "}
+          in the demo store this device keeps, so it shows on the staff inquiries
+          board in this browser. <strong>Nothing was sent to a server</strong> — the
+          records service is not connected in this build, so this is not a
+          reservation or a purchase. For anything urgent, use the 24/7 assistance
+          line in the header.
         </Alert>
         <div className="capture-actions">
           <Button
@@ -80,7 +104,7 @@ export function ContactForm() {
             variant="secondary"
             onClick={() => {
               setCaptured(null);
-              setValues(EMPTY);
+              setValues(initialValues(prefill));
             }}
           >
             Send another message
@@ -96,6 +120,39 @@ export function ContactForm() {
         <Alert tone="danger" title="Could not send">
           {formError}
         </Alert>
+      ) : null}
+
+      {prefill ? (
+        <section className="request-context" aria-label="What you are requesting">
+          <p className="request-context__lead">You are asking about</p>
+          <h2 className="request-context__item">{prefill.item}</h2>
+          <dl className="request-context__facts">
+            {prefill.sku ? (
+              <div className="request-context__fact">
+                <dt>Catalogue SKU</dt>
+                <dd>
+                  <code>{prefill.sku}</code>
+                </dd>
+              </div>
+            ) : null}
+            {prefill.price ? (
+              <div className="request-context__fact">
+                <dt>Published 2026 price</dt>
+                <dd>{prefill.price}</dd>
+              </div>
+            ) : null}
+            {prefill.note ? (
+              <div className="request-context__fact">
+                <dt>Details</dt>
+                <dd>{prefill.note}</dd>
+              </div>
+            ) : null}
+          </dl>
+          <p className="text-sm text-muted">
+            This is an enquiry — it does not reserve the item or complete a
+            purchase. The office confirms availability and the final price.
+          </p>
+        </section>
       ) : null}
 
       {/* 01 — Your details */}

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { CartLine } from "@/lib/cart/cart-context";
+import { planRequestAction, planSelectionAction } from "@/lib/plan-selection";
 import {
   PLAN_TIERS,
   PLAN_TERMS,
@@ -12,30 +13,35 @@ import {
   type PlanTier,
   type PlanTerm,
 } from "@/lib/villa-pricing";
+import { planTierPackageSku } from "@/lib/catalogue-skus";
 import { AddToCartControl } from "./add-to-cart";
+
+/** One plan tier that the catalogue can actually price (else the request path). */
+export type TierCartItem = { tier: PlanTier; cartItem: Omit<CartLine, "quantity"> };
 
 type Props = {
   /** The catalogue item this page sells (the cart line for the page's own SKU). */
   item: Omit<CartLine, "quantity">;
-  /** The tier this page's package corresponds to (PKG-BASIC = Bronze 1). */
+  /** The tier this page's package corresponds to (e.g. PKG-BASIC = Bronze 1). */
   ownTier: PlanTier;
+  /** Tiers that have a catalogue SKU (lib/catalogue-skus.ts → PLAN_TIER_PACKAGE_SKUS). */
+  tierItems?: TierCartItem[];
 };
 
 /**
  * Plan tier × Plan Term selector — the approved prototype's buy card
  * (docs/prototypes/villa-home-ui/package.html): Package/SKU chips, headline
  * price, five tier pills, the four term buttons and the senior-citizen switch,
- * then Add to cart + View cart.
+ * then the buy actions.
  *
  * Every amount comes through lib/villa-pricing.ts (`planRate`), so the four
  * term buttons, the headline price and the senior-citizen switch can never
- * disagree with the client's payment-mode sheets. The cart itself still runs on
- * the frozen catalogue item (its prices are placeholders pending the 2026
- * import), so the real Add-to-cart control is offered for this page's own plan;
- * choosing another tier offers the advisor path instead of adding a line the
- * catalogue cannot price.
+ * disagree with the client's payment-mode sheets. Every tier × term stays
+ * actionable — lib/plan-selection.ts decides per selection whether the cart
+ * takes it (the catalogue prices the monthly amortization) or the prefilled
+ * request opens. A request is an enquiry, never a reservation.
  */
-export function PlanTermSelector({ item, ownTier }: Props) {
+export function PlanTermSelector({ item, ownTier, tierItems = [] }: Props) {
   const [tier, setTier] = useState<PlanTier>(ownTier);
   const [term, setTerm] = useState<PlanTerm>("monthly");
   const [senior, setSenior] = useState(false);
@@ -43,13 +49,21 @@ export function PlanTermSelector({ item, ownTier }: Props) {
   const termDef = PLAN_TERMS.find((t) => t.id === term)!;
   const amount = planRate(tier, term, senior);
   const tierName = PLAN_TIERS.find((t) => t.id === tier)?.name ?? "Bronze 1";
-  const isOwnPlan = tier === ownTier && !senior;
+  const action = planSelectionAction({ tier, term, senior });
+
+  const cartItem = tier === ownTier ? item : tierItems.find((t) => t.tier === tier)?.cartItem;
+  // "request" carries the selection's own prefill; the cart case only falls
+  // back here when the catalogue lookup hiccuped, so build the same request.
+  const requestHref =
+    action.kind === "request"
+      ? action.href
+      : planRequestAction({ tier, term, senior, sku: planTierPackageSku(tier) }).href;
 
   return (
     <>
       <div className="buy-card__chips">
         <Badge tone="accent">{item.itemType === "package" ? "Package" : "Service"}</Badge>
-        <Badge tone="neutral">{item.sku}</Badge>
+        <Badge tone="neutral">{action.kind === "cart" ? action.sku : item.sku}</Badge>
       </div>
 
       <div>
@@ -108,20 +122,24 @@ export function PlanTermSelector({ item, ownTier }: Props) {
       </label>
 
       <div className="plan-buy-actions">
-        {isOwnPlan ? (
+        {action.kind === "cart" && cartItem ? (
           <AddToCartControl
             withIcon
             item={{
-              sku: item.sku,
-              name: item.name,
-              itemType: item.itemType,
-              unitPriceCents: item.unitPriceCents,
-              currency: item.currency,
+              sku: cartItem.sku,
+              name: cartItem.name,
+              itemType: cartItem.itemType,
+              unitPriceCents: cartItem.unitPriceCents,
+              currency: cartItem.currency,
             }}
           />
         ) : (
-          <Link className="btn btn--primary btn--block" href="/contact">
-            Talk to an advisor about {tierName}
+          <Link
+            className="btn btn--primary btn--block"
+            href={requestHref}
+            aria-label={`Request ${tierName} plan, ${termDef.label}, ${php2(amount)} ${termDef.per}`}
+          >
+            Request this plan — {php2(amount)} {termDef.per}
           </Link>
         )}
         <Link href="/cart" className="btn btn--secondary btn--block">
@@ -130,9 +148,12 @@ export function PlanTermSelector({ item, ownTier }: Props) {
       </div>
 
       <p className="plan-note">
-        No. of months — Monthly 12 payments/yr · Quarterly 4 · Semi-Annual 2 · Annual 1. Inception
-        date is 30 days after initial payment; contestability 7 months after payment. Plan is
-        assignable/transferable (₱1,000 fee).
+        {action.kind === "cart"
+          ? "The cart takes the published monthly amortization; the office confirms the plan and the first payment date."
+          : "The office confirms this term and the final price — the request opens with everything you chose, and nothing is reserved."}{" "}
+        No. of months — Monthly 12 payments/yr · Quarterly 4 · Semi-Annual 2 · Annual 1.
+        Inception date is 30 days after initial payment; contestability 7 months after
+        payment. Plan is assignable/transferable (₱1,000 fee).
       </p>
     </>
   );

@@ -31,8 +31,8 @@ function expectSharedShell(html: string, submitLabel: string) {
 }
 
 describe("contact route renders the shared capture shell", () => {
-  it("carries every agreed field plus DPA consent", () => {
-    const html = renderToStaticMarkup(ContactPage());
+  it("carries every agreed field plus DPA consent", async () => {
+    const html = renderToStaticMarkup(await ContactPage({ searchParams: Promise.resolve({}) }));
     expectSharedShell(html, "Send message");
     for (const id of ["ct-name", "ct-email", "ct-phone", "ct-message", "ct-consent"]) {
       expect(html).toContain(`id="${id}"`);
@@ -40,6 +40,31 @@ describe("contact route renders the shared capture shell", () => {
     expect(html).toContain("How can we help?");
     expect(html).toContain("Data Privacy Act consent");
     expect(html).toContain("check-row--consent");
+    // A plain visit stays the general contact page — no request banner.
+    expect(html).not.toContain("request-context");
+  });
+
+  it("renders a storefront request prefilled with exactly what was clicked", async () => {
+    const params = {
+      item: "White Rose Half casket",
+      sku: "CSK-WHITE-ROSE-HALF",
+      price: "₱62,000.00",
+      note: "Senior-citizen price ₱49,600.00 (61–100, no insurance benefit).",
+    };
+    const html = renderToStaticMarkup(await ContactPage({ searchParams: Promise.resolve(params) }));
+    expectSharedShell(html, "Send message");
+    // The banner echoes the clicked facts…
+    expect(html).toContain("request-context");
+    expect(html).toContain("You are asking about");
+    expect(html).toContain("White Rose Half casket");
+    expect(html).toContain("CSK-WHITE-ROSE-HALF");
+    expect(html).toContain("₱62,000.00");
+    expect(html).toContain("Request an order");
+    // …the message is pre-written with the same facts…
+    expect(html).toContain("I would like to request an order for:");
+    // …and nothing implies a reservation or a purchase.
+    expect(html).toContain("does not reserve the item");
+    expect(html).toContain("does not reserve the item or complete a");
   });
 });
 

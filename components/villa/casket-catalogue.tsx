@@ -1,22 +1,27 @@
-import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CatalogueActions } from "@/components/villa/catalogue-actions";
+import type { CatalogItem } from "@/lib/api-client/commerce";
 import {
   CASKET_COLLECTIONS,
   CASKET_INCLUSION_COLUMNS,
   CASKET_INCLUSION_NOTES,
   CASKET_INCLUSIONS,
-  CASKET_MODELS,
   php,
+  type CasketModel,
 } from "@/lib/villa-pricing";
 
 /**
- * The 2026 casket catalogue — every model with its published price.
+ * The 2026 casket catalogue — every model as a sellable card, with the
+ * per-family inclusion reference table below it.
  *
- * Both tables are transcriptions of the client's own sheets and render through
- * components so the numbers can never be re-typed in a view:
- *  - CasketPriceTable reads "2026 price FV website A" (= "PRICE LIST FOR 2026
- *    II"), section "For package": SRP, the senior SRP the sheet reprints beside
- *    it, the senior-citizen discount and the discounted price, grouped under the
- *    sheet's collection headers.
+ *  - CasketModelCards: one card per model on sheet A's "For package" table,
+ *    carrying the sheet's SRP / senior SRP / discount / discounted price AND the
+ *    two real actions through the shared CatalogueActions pair: "Add to cart"
+ *    with the card's exact catalogue SKU/name/type/price (the same cart the rest
+ *    of the storefront uses) and "Request order" (the prefilled contact capture
+ *    — an enquiry, never a reservation). The catalogue binding is passed in by
+ *    the page from lib/catalogue-skus.ts, so the card can never add a SKU that
+ *    is not the one the fixture-contract test pins to this model's SRP.
  *  - CasketInclusionTable reads "PRICE LIST FOR 2026 III": the per-family row of
  *    flowers / tarp / lapida / family car / 1 doz roses / thank-you card and the
  *    package's common & private chapel day rate, with the sheet's own footnotes.
@@ -25,48 +30,77 @@ import {
  * price-surfacing.test.tsx pins that each one actually reaches the page.
  */
 
-/** ₱-prefixed amount for a table cell. */
+/** A sheet model bound to its catalogue entry (built by /products from COFFIN_SKUS). */
+export type SellableCasket = {
+  model: CasketModel;
+  item: CatalogItem;
+};
+
+/** ₱-prefixed amount for a card line. */
 function amount(n: number): string {
   return php(n);
 }
 
-export function CasketPriceTable() {
+export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
   return (
-    <div className="table-wrapper">
-      <table className="table price-table">
-        <caption>
-          For package — the client&rsquo;s 2026 casket catalogue. The senior SRP column is
-          reprinted on the sheet because the senior citizen pays the same SRP less the
-          printed discount.
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Casket model</th>
-            <th scope="col">Regular SRP</th>
-            <th scope="col">Senior SRP</th>
-            <th scope="col">Senior discount</th>
-            <th scope="col">Discounted price</th>
-          </tr>
-        </thead>
-        {CASKET_COLLECTIONS.map((collection) => (
-          <tbody key={collection}>
-            <tr className="price-table__group">
-              <th scope="colgroup" colSpan={5}>
-                {collection}
-              </th>
-            </tr>
-            {CASKET_MODELS.filter((m) => m.collection === collection).map((m) => (
-              <tr key={m.model}>
-                <th scope="row">{m.model}</th>
-                <td className="table__numeric">{amount(m.srp)}</td>
-                <td className="table__numeric">{amount(m.srp)}</td>
-                <td className="table__numeric">{amount(m.seniorDiscount)}</td>
-                <td className="table__numeric">{amount(m.seniorPrice)}</td>
-              </tr>
-            ))}
-          </tbody>
-        ))}
-      </table>
+    <div className="stack-4">
+      {CASKET_COLLECTIONS.map((collection) => {
+        const inCollection = caskets.filter((c) => c.model.collection === collection);
+        if (inCollection.length === 0) return null;
+        return (
+          <section key={collection} className="stack-3" aria-label={collection}>
+            <h3 className="casket-collection__title">{collection}</h3>
+            <div className="catalog-grid">
+              {inCollection.map(({ model, item }) => (
+                <article key={item.sku} className="item-card">
+                  <div className="item-card__body">
+                    <div className="row row--space">
+                      <Badge tone="accent">Casket</Badge>
+                      <code className="text-sm text-muted">{item.sku}</code>
+                    </div>
+                    <h4 className="item-card__title">{item.name}</h4>
+                    <p className="item-card__meta">{model.family} family</p>
+                    <dl className="casket-card__prices">
+                      <div>
+                        <dt>Regular SRP</dt>
+                        <dd>{amount(model.srp)}</dd>
+                      </div>
+                      <div>
+                        <dt>Senior SRP</dt>
+                        <dd>{amount(model.srp)}</dd>
+                      </div>
+                      <div>
+                        <dt>Senior discount</dt>
+                        <dd>− {amount(model.seniorDiscount)}</dd>
+                      </div>
+                      <div>
+                        <dt>Discounted price</dt>
+                        <dd>{amount(model.seniorPrice)}</dd>
+                      </div>
+                    </dl>
+                    <div className="item-card__price">{item.display_price}</div>
+                    <div className="item-card__actions">
+                      <CatalogueActions
+                        item={{
+                          sku: item.sku,
+                          name: item.name,
+                          itemType: item.item_type,
+                          unitPriceCents: item.unit_price_cents,
+                          currency: item.currency,
+                        }}
+                        prefill={{
+                          price: item.display_price,
+                          note: `Regular SRP ${amount(model.srp)}; senior-citizen price ${amount(model.seniorPrice)} (61–100, no insurance benefit). Casket: ${model.collection}.`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        );
+      })}
     </div>
   );
 }
@@ -115,18 +149,17 @@ export function CasketInclusionTable() {
   );
 }
 
-/** Both catalogue tables in one block, under the sheet's own section headings. */
-export function CasketCatalogue() {
+/** The sellable model cards plus the per-family inclusion reference. */
+export function CasketCatalogue({ caskets }: { caskets: SellableCasket[] }) {
   return (
     <div className="stack-4">
-      <Card
-        header={<h3>For package — SRP, senior discount and discounted price</h3>}
-      >
-        <CasketPriceTable />
-      </Card>
-      <Card header={<h3>What is included per casket family</h3>}>
+      <CasketModelCards caskets={caskets} />
+      <section className="stack-3" aria-labelledby="casket-inclusions-title">
+        <h3 className="section-title" id="casket-inclusions-title">
+          What is included per casket family
+        </h3>
         <CasketInclusionTable />
-      </Card>
+      </section>
     </div>
   );
 }

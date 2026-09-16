@@ -2,14 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
-import { getCatalogItem } from "@/lib/api-client/commerce";
-import type { PlanTier } from "@/lib/villa-pricing";
+import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
 import {
   CASH_ASSISTANCE,
+  PLAN_TIERS,
   VMP_ELIGIBILITY,
   VMP_INCLUSIONS,
   VMP_NOTES,
 } from "@/lib/villa-pricing";
+import { planTierForPackageSku, planTierPackageSku } from "@/lib/catalogue-skus";
 import {
   DOC_COMPLETE_PACKAGE,
   DOC_PRICE_LIST_2026_II,
@@ -22,7 +23,9 @@ import {
   TRANSPORT_IMAGE,
 } from "@/lib/media";
 import { PlanTermSelector } from "./plan-term-selector";
+import type { TierCartItem } from "./plan-term-selector";
 import { AddToCartControl } from "./add-to-cart";
+import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { PriceList2026Module } from "./price-list-2026-module";
 import {
   IconCashAssistance,
@@ -41,14 +44,38 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 /**
- * Which plan tier this package page corresponds to. PKG-BASIC is the Bronze 1
- * plan (the reference page's ₱600.00/month), so the term selector opens on the
- * tier the page actually sells; the other packages explore the same five-tier
- * table under the Bronze 1 default until the catalogue import names them.
+ * Catalogue-bound plan tiers for the buy card: every tier the catalogue can
+ * price (lib/catalogue-skus.ts). Tiers without a SKU stay request-only, and the
+ * selector falls back to the request path for them.
  */
-const TIER_BY_SKU: Record<string, PlanTier> = {
-  "PKG-BASIC": "bronze1",
-};
+async function packageTierItems(): Promise<TierCartItem[]> {
+  try {
+    const items = await listCatalogItems();
+    const bySku = new Map(items.map((i) => [i.sku, i]));
+    return PLAN_TIERS.flatMap(({ id }) => {
+      const sku = planTierPackageSku(id);
+      const found = sku ? bySku.get(sku) : undefined;
+      return found
+        ? [
+            {
+              tier: id,
+              cartItem: {
+                sku: found.sku,
+                name: found.name,
+                itemType: found.item_type,
+                unitPriceCents: found.unit_price_cents,
+                currency: found.currency,
+              },
+            },
+          ]
+        : [];
+    });
+  } catch {
+    // The page's own SKU still adds to the cart; other tiers fall back to the
+    // request path, so a catalogue hiccup never breaks the plan page.
+    return [];
+  }
+}
 
 /**
  * The package page's second lead line (client's "Package page UI example").
@@ -88,6 +115,7 @@ export default async function PlanDetailPage({
 
   const typeLabel = TYPE_LABEL[item.item_type] ?? item.item_type.replace("_", "-");
   const isPackage = item.item_type === "package";
+  const tierItems = isPackage ? await packageTierItems() : [];
 
   const cartItem = {
     sku: item.sku,
@@ -270,7 +298,11 @@ export default async function PlanDetailPage({
             </figure>
 
             <section className="buy-card" aria-labelledby="buy-title">
-              <PlanTermSelector item={cartItem} ownTier={TIER_BY_SKU[item.sku] ?? "bronze1"} />
+              <PlanTermSelector
+                item={cartItem}
+                ownTier={planTierForPackageSku(item.sku) ?? "bronze1"}
+                tierItems={tierItems}
+              />
             </section>
 
             <section className="buy-card" aria-labelledby="advisor-title">
@@ -301,7 +333,9 @@ export default async function PlanDetailPage({
   }
 
   /* ------------------------------------------------------------------------
-   * Services / add-ons keep the premium hero (unchanged).
+   * Services / add-ons keep the premium hero (unchanged), with the storefront's
+   * two actions on the sticky card: Add to cart for this SKU, plus the
+   * prefilled Request order for anything the cart cannot settle.
    * --------------------------------------------------------------------- */
   return (
     <div className="stack-4">
@@ -345,6 +379,17 @@ export default async function PlanDetailPage({
                 </div>
                 <div className="detail-sticky__actions">
                   <AddToCartControl item={cartItem} />
+                  <Link
+                    href={buildRequestHref({
+                      item: item.name,
+                      sku: item.sku,
+                      price: item.display_price,
+                      note: `${typeLabel} from the 2026 catalogue — please confirm availability and the next steps.`,
+                    })}
+                    className="btn btn--secondary btn--sm btn--block"
+                  >
+                    Request order
+                  </Link>
                   <Link href="/cart" className="btn btn--secondary btn--sm btn--block">
                     View cart
                   </Link>

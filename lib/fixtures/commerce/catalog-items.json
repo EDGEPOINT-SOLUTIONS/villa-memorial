@@ -1,10 +1,34 @@
 {
   "comment": [
-    "Mirror of platform/services/catalog-pricing/db/seeds.rb (11 VM line-items).",
+    "Mirror of platform/services/catalog-pricing/db/seeds.rb (11 VM line-items) PLUS the",
+    "client's real 2026 price-list items added for the sellable storefront.",
     "Response shape = FROZEN docs/08-delivery/contracts/order-payment-api-v1.md",
-    "GET /api/v1/catalog_items entries. Prices are placeholders pending VM import",
-    "(documented limitation upstream). display_price is presentation-only.",
-    "catalog_item_id values are deterministic stand-ins for seeded row ids."
+    "GET /api/v1/catalog_items entries. display_price is presentation-only.",
+    "catalog_item_id values are deterministic stand-ins for seeded row ids.",
+    "",
+    "PRICES: every price-list item below carries the client's real 2026 figure, transcribed in",
+    "lib/villa-pricing.ts (the single transcription home) and pinned by",
+    "tests/fixture-contract/commerce.test.ts against lib/villa-pricing.ts. Sources:",
+    " · sheet A = '2026 price FV website A' (= 'PRICE LIST FOR 2026 II') — a-la-carte fees,",
+    "   embalming per day, and the 'For package' casket catalogue (REGULAR SRP);",
+    " · sheet III = 'PRICE LIST FOR 2026 III' — chapel use rates (common 1500/day, private",
+    "   3500/day; senior columns are the sheet's 3–9 day totals, not cart lines);",
+    " · 'COMPLETE MEMORIAL PACKAGE.jpg' — the plan payment schedules.",
+    "This DIVERGES from the upstream platform seed, which still carries placeholder prices",
+    "(documented limitation upstream). The SKUs are unchanged; the client's figures win here.",
+    "",
+    "SKU map: PKG-BASIC/STANDARD/PREMIUM = the plan's monthly amortization (Bronze 1 /",
+    "Silver 1 / Gold — the tier mapping is PROVISIONAL, see lib/catalogue-skus.ts);",
+    "SRV-EMBALM-D = sheet A '>9 +1500/day'; SRV-EMBALM-3D…9D = the 3–9 day table;",
+    "SRV-RETRIEVAL / SRV-DELIVERY / SRV-VIEWING / SRV-ORD-COFFIN / SRV-INTERMENT = the five",
+    "a-la-carte fees; CHP-COMMON-DAY / CHP-PRIVATE-DAY = sheet III's chapel per-day rates;",
+    "CSK-<MODEL> = one entry per model on sheet A's 'For package' table (regular SRP).",
+    "The plan is sold at its monthly amortization because the package page's buy card is",
+    "monthly-first; the other terms select a prefilled request instead.",
+    "",
+    "Not padded with invented prices: SRV-LIGHTS, ADD-COFFIN-LIZO-SR, ADD-FLOWERS and",
+    "ADD-URN are not on any 2026 sheet, so they keep their upstream seed prices untouched",
+    "(flagged in the PR — no 2026 figure exists to align them to)."
   ],
   "items": [
     {
@@ -13,9 +37,9 @@
       "name": "Basic Package",
       "description": "Casket (standard), embalming included, delivery within city",
       "item_type": "package",
-      "unit_price_cents": 150000,
+      "unit_price_cents": 60000,
       "currency": "PHP",
-      "display_price": "₱1,500.00"
+      "display_price": "₱600.00 / month"
     },
     {
       "id": 102,
@@ -23,9 +47,9 @@
       "name": "Standard Package",
       "description": "Upgraded casket, embalming included, lights, delivery & pick-up",
       "item_type": "package",
-      "unit_price_cents": 280000,
+      "unit_price_cents": 100000,
       "currency": "PHP",
-      "display_price": "₱2,800.00"
+      "display_price": "₱1,000.00 / month"
     },
     {
       "id": 103,
@@ -33,39 +57,39 @@
       "name": "Premium Package",
       "description": "Lizo JR casket, embalming included, full lights, interment service",
       "item_type": "package",
-      "unit_price_cents": 520000,
+      "unit_price_cents": 152000,
       "currency": "PHP",
-      "display_price": "₱5,200.00"
+      "display_price": "₱1,520.00 / month"
     },
     {
       "id": 104,
       "sku": "SRV-EMBALM-D",
-      "name": "Additional Embalming Day",
-      "description": null,
+      "name": "Additional embalming day",
+      "description": "2026 a-la-carte rate — an embalming day beyond the 3–9 day table.",
       "item_type": "service",
-      "unit_price_cents": 45000,
+      "unit_price_cents": 150000,
       "currency": "PHP",
-      "display_price": "₱450.00"
+      "display_price": "₱1,500.00 / day"
     },
     {
       "id": 105,
       "sku": "SRV-INTERMENT",
-      "name": "Interment Service",
-      "description": null,
+      "name": "Interment",
+      "description": "2026 a-la-carte rate — when the family does not take a package.",
       "item_type": "service",
-      "unit_price_cents": 120000,
+      "unit_price_cents": 500000,
       "currency": "PHP",
-      "display_price": "₱1,200.00"
+      "display_price": "₱5,000.00"
     },
     {
       "id": 106,
       "sku": "SRV-DELIVERY",
-      "name": "Delivery & Pick-up",
-      "description": null,
+      "name": "Delivery",
+      "description": "2026 a-la-carte rate — when the family does not take a package.",
       "item_type": "service",
-      "unit_price_cents": 35000,
+      "unit_price_cents": 250000,
       "currency": "PHP",
-      "display_price": "₱350.00"
+      "display_price": "₱2,500.00"
     },
     {
       "id": 107,
@@ -80,12 +104,12 @@
     {
       "id": 108,
       "sku": "SRV-VIEWING",
-      "name": "Viewing Room Extension",
-      "description": null,
+      "name": "Viewing equipment",
+      "description": "2026 a-la-carte rate — lights, curtains and carpets when the family does not take a package.",
       "item_type": "service",
-      "unit_price_cents": 80000,
+      "unit_price_cents": 450000,
       "currency": "PHP",
-      "display_price": "₱800.00"
+      "display_price": "₱4,500.00"
     },
     {
       "id": 109,
@@ -116,6 +140,356 @@
       "unit_price_cents": 18000,
       "currency": "PHP",
       "display_price": "₱180.00"
+    },
+    {
+      "id": 112,
+      "sku": "SRV-RETRIEVAL",
+      "name": "Retrieval",
+      "description": "2026 a-la-carte rate — when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 250000,
+      "currency": "PHP",
+      "display_price": "₱2,500.00"
+    },
+    {
+      "id": 113,
+      "sku": "SRV-ORD-COFFIN",
+      "name": "ORD coffin",
+      "description": "2026 a-la-carte rate — when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 500000,
+      "currency": "PHP",
+      "display_price": "₱5,000.00"
+    },
+    {
+      "id": 114,
+      "sku": "SRV-EMBALM-3D",
+      "name": "Embalming — 3 days",
+      "description": "2026 a-la-carte rate — 3 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 600000,
+      "currency": "PHP",
+      "display_price": "₱6,000.00"
+    },
+    {
+      "id": 115,
+      "sku": "SRV-EMBALM-4D",
+      "name": "Embalming — 4 days",
+      "description": "2026 a-la-carte rate — 4 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 750000,
+      "currency": "PHP",
+      "display_price": "₱7,500.00"
+    },
+    {
+      "id": 116,
+      "sku": "SRV-EMBALM-5D",
+      "name": "Embalming — 5 days",
+      "description": "2026 a-la-carte rate — 5 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 900000,
+      "currency": "PHP",
+      "display_price": "₱9,000.00"
+    },
+    {
+      "id": 117,
+      "sku": "SRV-EMBALM-6D",
+      "name": "Embalming — 6 days",
+      "description": "2026 a-la-carte rate — 6 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 1050000,
+      "currency": "PHP",
+      "display_price": "₱10,500.00"
+    },
+    {
+      "id": 118,
+      "sku": "SRV-EMBALM-7D",
+      "name": "Embalming — 7 days",
+      "description": "2026 a-la-carte rate — 7 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 1200000,
+      "currency": "PHP",
+      "display_price": "₱12,000.00"
+    },
+    {
+      "id": 119,
+      "sku": "SRV-EMBALM-8D",
+      "name": "Embalming — 8 days",
+      "description": "2026 a-la-carte rate — 8 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 1350000,
+      "currency": "PHP",
+      "display_price": "₱13,500.00"
+    },
+    {
+      "id": 120,
+      "sku": "SRV-EMBALM-9D",
+      "name": "Embalming — 9 days",
+      "description": "2026 a-la-carte rate — 9 days' embalming when the family does not take a package.",
+      "item_type": "service",
+      "unit_price_cents": 1500000,
+      "currency": "PHP",
+      "display_price": "₱15,000.00"
+    },
+    {
+      "id": 121,
+      "sku": "CHP-COMMON-DAY",
+      "name": "Chapel use — common chapel, per day",
+      "description": "2026 chapel-use rate when the service is not with Villa. A family not taking a package adds the ₱1,000 miscellaneous fee.",
+      "item_type": "service",
+      "unit_price_cents": 150000,
+      "currency": "PHP",
+      "display_price": "₱1,500.00 / day"
+    },
+    {
+      "id": 122,
+      "sku": "CHP-PRIVATE-DAY",
+      "name": "Chapel use — private chapel, per day",
+      "description": "2026 chapel-use rate when the service is not with Villa. A family not taking a package adds the ₱1,000 miscellaneous fee.",
+      "item_type": "service",
+      "unit_price_cents": 350000,
+      "currency": "PHP",
+      "display_price": "₱3,500.00 / day"
+    },
+    {
+      "id": 123,
+      "sku": "CSK-LUMINA",
+      "name": "Lumina casket",
+      "description": "Lumina · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 3300000,
+      "currency": "PHP",
+      "display_price": "₱33,000.00"
+    },
+    {
+      "id": 124,
+      "sku": "CSK-WHITE-ROSE-HALF",
+      "name": "White Rose Half casket",
+      "description": "The White Rose Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 6200000,
+      "currency": "PHP",
+      "display_price": "₱62,000.00"
+    },
+    {
+      "id": 125,
+      "sku": "CSK-WHITE-ROSE-FULL",
+      "name": "White Rose Full casket",
+      "description": "The White Rose Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 6800000,
+      "currency": "PHP",
+      "display_price": "₱68,000.00"
+    },
+    {
+      "id": 126,
+      "sku": "CSK-ANGELICA-HALF",
+      "name": "Angelica Half casket",
+      "description": "The White Rose Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 6500000,
+      "currency": "PHP",
+      "display_price": "₱65,000.00"
+    },
+    {
+      "id": 127,
+      "sku": "CSK-ANGELICA-FULL",
+      "name": "Angelica Full casket",
+      "description": "The White Rose Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 7000000,
+      "currency": "PHP",
+      "display_price": "₱70,000.00"
+    },
+    {
+      "id": 128,
+      "sku": "CSK-MAGNOLIA-HALF",
+      "name": "Magnolia Half casket",
+      "description": "The White Rose Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 7000000,
+      "currency": "PHP",
+      "display_price": "₱70,000.00"
+    },
+    {
+      "id": 129,
+      "sku": "CSK-MAGNOLIA-FULL",
+      "name": "Magnolia Full casket",
+      "description": "The White Rose Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 7500000,
+      "currency": "PHP",
+      "display_price": "₱75,000.00"
+    },
+    {
+      "id": 130,
+      "sku": "CSK-NOBLE-HALF",
+      "name": "Noble Half casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 8000000,
+      "currency": "PHP",
+      "display_price": "₱80,000.00"
+    },
+    {
+      "id": 131,
+      "sku": "CSK-NOBLE-FULL",
+      "name": "Noble Full casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 9000000,
+      "currency": "PHP",
+      "display_price": "₱90,000.00"
+    },
+    {
+      "id": 132,
+      "sku": "CSK-NOBLE-FULL-SPLIT",
+      "name": "Noble Full Split casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 9500000,
+      "currency": "PHP",
+      "display_price": "₱95,000.00"
+    },
+    {
+      "id": 133,
+      "sku": "CSK-ROYAL-HALF",
+      "name": "Royal Half casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 8500000,
+      "currency": "PHP",
+      "display_price": "₱85,000.00"
+    },
+    {
+      "id": 134,
+      "sku": "CSK-ROYAL-FULL",
+      "name": "Royal Full casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 9500000,
+      "currency": "PHP",
+      "display_price": "₱95,000.00"
+    },
+    {
+      "id": 135,
+      "sku": "CSK-ROYAL-FULL-SPLIT",
+      "name": "Royal Full Split casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 10000000,
+      "currency": "PHP",
+      "display_price": "₱100,000.00"
+    },
+    {
+      "id": 136,
+      "sku": "CSK-MONARCH-HALF",
+      "name": "Monarch Half casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 10000000,
+      "currency": "PHP",
+      "display_price": "₱100,000.00"
+    },
+    {
+      "id": 137,
+      "sku": "CSK-MONARCH-FULL",
+      "name": "Monarch Full casket",
+      "description": "The Crown Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 11000000,
+      "currency": "PHP",
+      "display_price": "₱110,000.00"
+    },
+    {
+      "id": 138,
+      "sku": "CSK-MAJESTY-FULL",
+      "name": "Majesty Full casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 12000000,
+      "currency": "PHP",
+      "display_price": "₱120,000.00"
+    },
+    {
+      "id": 139,
+      "sku": "CSK-MAJESTY-FULL-SPLIT",
+      "name": "Majesty Full Split casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 13000000,
+      "currency": "PHP",
+      "display_price": "₱130,000.00"
+    },
+    {
+      "id": 140,
+      "sku": "CSK-MAJESTY-FLEXI",
+      "name": "Majesty Flexi casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 14000000,
+      "currency": "PHP",
+      "display_price": "₱140,000.00"
+    },
+    {
+      "id": 141,
+      "sku": "CSK-EMPEROR-FULL",
+      "name": "Emperor Full casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 13000000,
+      "currency": "PHP",
+      "display_price": "₱130,000.00"
+    },
+    {
+      "id": 142,
+      "sku": "CSK-EMPEROR-FULL-SPLIT",
+      "name": "Emperor Full Split casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 14000000,
+      "currency": "PHP",
+      "display_price": "₱140,000.00"
+    },
+    {
+      "id": 143,
+      "sku": "CSK-EMPEROR-FLEXI",
+      "name": "Emperor Flexi casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 15000000,
+      "currency": "PHP",
+      "display_price": "₱150,000.00"
+    },
+    {
+      "id": 144,
+      "sku": "CSK-IMPERIAL-FULL",
+      "name": "Imperial Full casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 14000000,
+      "currency": "PHP",
+      "display_price": "₱140,000.00"
+    },
+    {
+      "id": 145,
+      "sku": "CSK-IMPERIAL-FULL-SPLIT",
+      "name": "Imperial Full Split casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 15000000,
+      "currency": "PHP",
+      "display_price": "₱150,000.00"
+    },
+    {
+      "id": 146,
+      "sku": "CSK-IMPERIAL-FLEXI",
+      "name": "Imperial Flexi casket",
+      "description": "The Dynasty Collection · 2026 casket catalogue. Senior citizens pay the published discounted price.",
+      "item_type": "add_on",
+      "unit_price_cents": 16000000,
+      "currency": "PHP",
+      "display_price": "₱160,000.00"
     }
   ]
 }
