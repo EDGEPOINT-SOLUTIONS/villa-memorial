@@ -17,6 +17,7 @@ import {
   ALACARTE_SERVICE_FEES,
   CASKET_MODELS,
   CHAPEL_RATES,
+  type CasketModel,
   type PlanTier,
 } from "@/lib/villa-pricing";
 
@@ -37,6 +38,22 @@ export function coffinSku(model: string): string {
 /** The 24 casket SKUs, in the sheet's order (same order as CASKET_MODELS). */
 export const COFFIN_SKUS: ReadonlyArray<{ model: string; sku: string }> =
   CASKET_MODELS.map((m) => ({ model: m.model, sku: coffinSku(m.model) }));
+
+/**
+ * The sheet model a casket SKU sells — the record /products/[sku] renders. The
+ * SKU comes from the URL, so the lookup is case-insensitive and returns
+ * undefined for anything the catalogue does not carry (the page then 404s).
+ */
+export function coffinModelForSku(sku: string): CasketModel | undefined {
+  const wanted = sku.trim().toUpperCase();
+  const entry = COFFIN_SKUS.find((e) => e.sku.toUpperCase() === wanted);
+  return entry ? CASKET_MODELS.find((m) => m.model === entry.model) : undefined;
+}
+
+/** The public detail route of a casket model (/products/[sku]). */
+export function casketDetailHref(model: string): string {
+  return `/products/${encodeURIComponent(coffinSku(model))}`;
+}
 
 /** One SKU per embalming day count on sheet A's per-day table (3–9 days). */
 export function embalmingDaySku(days: number): string {

@@ -165,6 +165,40 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (tier × term, regular + senior tables; 2026 sheet family captions live there too).
   The prototype wins over every older render.
 
+## Public services page & casket catalogue — `/services`, `/products`
+
+- `/services` groups the 2026 rates into one `.mid-section` per sheet block — at-need
+  service cards, embalming per day (table + the client's wake photo), chapel options as
+  photo cards above the 3–9 day schedule. All of it renders from
+  `components/villa/service-rates-2026.tsx` with the `.svc-*` / `.chapel-*` block in
+  `styles/components.css`; figures stay in `lib/villa-pricing.ts` and every line keeps
+  the shared Add-to-cart + Request-order pair (`components/villa/catalogue-actions.tsx`).
+  `tests/unit/price-surfacing.test.tsx` still pins every string/action on it — keep them
+  when editing the layout.
+- **Sample imagery is client material and is always labelled illustrative.** The chapel
+  photos, the carriage and the five sample coffins are cropped from the client's own
+  TYPES OF COFFIN sheet (`scripts/crop-client-sheet-tiles.mjs`, sharp ships with Next;
+  pass the client source with `--source`). The sheet prints "(Illustration purposes
+  only)", so captions say so (`CHAPEL_SAMPLE_NOTE` / `SERVICE_SAMPLE_NOTE` /
+  `COFFIN_TIER_NOTE`) and no alt text claims a real room or a guaranteed model.
+- **Two PROVISIONAL derivations are published — both owe the client a question:**
+  (1) the collection → sample-photograph binding in `lib/media.ts` (`casketSamplePhoto`),
+  (2) the model-name → lid/cover line in `lib/villa-pricing.ts` (`COFFIN_COVERS` /
+  `coffinCover`): the sheet states lids per SAMPLE coffin, never per model. Lumina names
+  no cover, so its detail view says the office confirms the cover
+  (`COFFIN_COVER_UNSTATED`) rather than guessing.
+- Casket details are a **route, not a dialog**: `/products/[sku]` (SKU from
+  `coffinSku` in `lib/catalogue-skus.ts`; resolve with `coffinModelForSku`, anything
+  else → 404). Every catalogue card carries "View details", and the detail page's
+  facts/prices/inclusions come from the catalogue entry + `lib/villa-pricing.ts` — never
+  typed into the view. `tests/unit/villa-services-premium.test.tsx` pins the grouping,
+  the illustrative labels and the detail content.
+- Known storefront a11y debt (pre-existing, visible on every catalogue surface):
+  `CatalogueAddButton`'s aria-label ("Add <item> to cart") does not contain its visible
+  text ("Add to cart"), so Lighthouse flags WCAG 2.5.3 label-content-name-mismatch. Fix
+  the label and its pinned test strings (`price-surfacing`, `cart-catalogue`,
+  `villa-services-premium`) in one sweep.
+
 ## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
 
 - The three routes render `components/public-forms/*` on the shared apply-form shell
