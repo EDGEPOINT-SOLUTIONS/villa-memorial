@@ -22,7 +22,10 @@ type Props = {
 };
 
 /**
- * Plan tier × Plan Term selector — the reference package page's buy card.
+ * Plan tier × Plan Term selector — the approved prototype's buy card
+ * (docs/prototypes/villa-home-ui/package.html): Package/SKU chips, headline
+ * price, five tier pills, the four term buttons and the senior-citizen switch,
+ * then Add to cart + View cart.
  *
  * Every amount comes through lib/villa-pricing.ts (`planRate`), so the four
  * term buttons, the headline price and the senior-citizen switch can never
@@ -44,32 +47,29 @@ export function PlanTermSelector({ item, ownTier }: Props) {
 
   return (
     <>
-      <div className="row row--space">
+      <div className="buy-card__chips">
         <Badge tone="accent">{item.itemType === "package" ? "Package" : "Service"}</Badge>
         <Badge tone="neutral">{item.sku}</Badge>
       </div>
 
       <div>
-        <div className="detail-sticky__label" id="buy-title">Price</div>
-        <div className="detail-sticky__price">
-          {php2(amount)} <small className="plan-term-per">{termDef.per}</small>
+        <div className="buy-card__label" id="buy-title">
+          Price
         </div>
-        <p className="plan-term-note" role="status" aria-live="polite">
-          {tierName} · {termDef.label}
-          {senior ? " · senior-citizen rate" : ""}
-        </p>
+        <div className="buy-card__price">
+          {php2(amount)} <span>{termDef.per}</span>
+        </div>
       </div>
 
       <div>
-        <div className="detail-sticky__label" id="plan-tier-label">
+        <div className="buy-card__label buy-card__field-label" id="plan-tier-label">
           Plan tier
         </div>
-        <div className="plan-tier-row" role="group" aria-labelledby="plan-tier-label">
+        <div className="tier-row" role="group" aria-labelledby="plan-tier-label">
           {PLAN_TIERS.map((t) => (
             <button
               key={t.id}
               type="button"
-              className={`plan-tier-btn${t.id === tier ? " plan-tier-btn--on" : ""}`}
               aria-pressed={t.id === tier}
               onClick={() => setTier(t.id)}
             >
@@ -80,21 +80,21 @@ export function PlanTermSelector({ item, ownTier }: Props) {
       </div>
 
       <div>
-        <div className="detail-sticky__label" id="plan-term-label">
+        <div className="buy-card__label buy-card__field-label" id="plan-term-label">
           Plan term
         </div>
-        <div className="plan-term-grid" role="group" aria-labelledby="plan-term-label">
+        <div className="term-grid" role="group" aria-labelledby="plan-term-label">
           {PLAN_TERMS.map((t) => (
             <button
               key={t.id}
               type="button"
-              className={`plan-term-btn${t.id === term ? " plan-term-btn--on" : ""}`}
+              className="term-btn"
               aria-pressed={t.id === term}
               onClick={() => setTerm(t.id)}
             >
-              <span className="plan-term-btn__name">{t.label}</span>
-              <span className="plan-term-btn__price">{php2(planRate(tier, t.id, senior))}</span>
-              <span className="plan-term-btn__check" aria-hidden="true">
+              <span className="term-btn__name">{t.label}</span>
+              <span className="term-btn__price">{php2(planRate(tier, t.id, senior))}</span>
+              <span className="term-btn__check" aria-hidden="true">
                 ✓
               </span>
             </button>
@@ -102,13 +102,13 @@ export function PlanTermSelector({ item, ownTier }: Props) {
         </div>
       </div>
 
-      <label className="plan-senior-toggle">
+      <label className="senior-toggle">
         <input type="checkbox" checked={senior} onChange={(e) => setSenior(e.target.checked)} />
         Use senior-citizen rates (61–100, no insurance benefit)
       </label>
 
-      {isOwnPlan ? (
-        <div className="plan-buy-actions">
+      <div className="plan-buy-actions">
+        {isOwnPlan ? (
           <AddToCartControl
             withIcon
             item={{
@@ -119,21 +119,20 @@ export function PlanTermSelector({ item, ownTier }: Props) {
               currency: item.currency,
             }}
           />
-        </div>
-      ) : (
-        <Link className="btn btn--primary btn--block" href="/contact">
-          Talk to an advisor about {tierName}
+        ) : (
+          <Link className="btn btn--primary btn--block" href="/contact">
+            Talk to an advisor about {tierName}
+          </Link>
+        )}
+        <Link href="/cart" className="btn btn--secondary btn--block">
+          View cart
         </Link>
-      )}
-      <Link href="/cart" className="btn btn--secondary btn--sm btn--block">
-        View cart
-      </Link>
+      </div>
 
-      <p className="text-sm text-muted" style={{ margin: 0 }}>
-        Monthly 12 payments/yr · Quarterly 4 · Semi-Annual 2 · Annual 1. Inception is 30 days
-        after initial payment; contestability 7 months after payment. Assignable and transferable
-        (₱1,000 fee). Online checkout currently bills the storefront catalogue item; the plan
-        enrolment flow follows the 2026 catalogue import.
+      <p className="plan-note">
+        No. of months — Monthly 12 payments/yr · Quarterly 4 · Semi-Annual 2 · Annual 1. Inception
+        date is 30 days after initial payment; contestability 7 months after payment. Plan is
+        assignable/transferable (₱1,000 fee).
       </p>
     </>
   );

@@ -89,7 +89,9 @@ describe("cart line expand control shows the item's details again", () => {
   it("open: reveals the REAL catalogue description, type, recap and totals", () => {
     const html = row(cartLine(), true);
     // Description comes from the recorded commerce catalogue (PKG-BASIC seed).
-    expect(html).toContain("Casket (standard), 1-day embalming, delivery within city");
+    // No embalming day count: the client's 2026 sheet prices embalming per day
+    // only when a family does NOT take a package.
+    expect(html).toContain("Casket (standard), embalming included, delivery within city");
     expect(html).toContain('aria-expanded="true"');
     expect(html).not.toContain("cart-line-details-row\" hidden");
     expect(html).toContain("Hide details for Basic Package");

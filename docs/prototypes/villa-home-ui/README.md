@@ -48,9 +48,9 @@ everything else renders.
 | Rail lead image | `RailItem.featured` (model + tolerant reader) → `RailItemLink` lead branch → `.rail-item--lead` in `styles/components.css`; the “Lead” toggle in the landing editor clears every other item on that rail. |
 | Widened middle | `--layout-folio-w: 99rem` (`styles/tokens.css`), `--mid-w: 58rem` and the mobile cap (`styles/components.css`). |
 | Hero photo | `HeroSection.image` → `hero-home--photo` + a real `<img>` layer behind the copy, scrim above it; editor field “Background photo”. |
-| Package page blocks | `app/(public)/plans/[sku]/page.tsx` (quote, statement, inclusions, conditions, price list) — rendered only for packages. |
+| Package page blocks | `app/(public)/plans/[sku]/page.tsx` (quote, statement, inclusions, conditions, price module, "The package at a glance" strip, advisor card) — rendered only for packages. |
 | Plan term selector | `app/(public)/plans/[sku]/plan-term-selector.tsx`, every amount through `planRate()` in `lib/villa-pricing.ts`. |
-| 2026 price list | `components/villa/price-list-2026.tsx`, shared with `/lots/price-list-2026`. |
+| 2026 price list module | `app/(public)/plans/[sku]/price-list-2026-module.tsx` — the prototype's term-highlight switch + senior toggle over `data-term` cells; `components/villa/price-list-2026.tsx` stays the `/lots/price-list-2026` card renderer. |
 | Logos & photos | `public/media/logo-sanctuario.png` (header/footer brand mark), `logo-villa-group.png` + `logo-villa-agency.png` (plan/package underwriting rows), `viewing-care.jpg` (rail lead), plus the already-shipped lot/casket photos. |
 
 The prototype is a visual target, not a runtime contract: production reads every

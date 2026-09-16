@@ -197,12 +197,12 @@
         {
           "id": "svc-preparation",
           "title": "Preparation & casketing",
-          "tagline": "Seven days of embalming, make-up and dressing.",
+          "tagline": "Embalming, make-up and dressing.",
           "image": "/media/gold-casket.jpg",
           "body": [
-            "7 days of embalming with make-up and dressing. The type of coffin differs per plan — Bronze, Silver or Gold — each with elegant handles and beautiful interiors."
+            "Embalming with make-up and dressing. The type of coffin differs per plan — Bronze, Silver or Gold — each with elegant handles and beautiful interiors."
           ],
-          "bullets": ["7 days embalming", "Make-up & dressing", "Coffin tier per plan"],
+          "bullets": ["Embalming", "Make-up & dressing", "Coffin tier per plan"],
           "link": { "label": "Compare coffin tiers", "href": "/plans/villa-memorial-plan" }
         },
         {

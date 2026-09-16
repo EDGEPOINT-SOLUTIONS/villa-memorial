@@ -36,6 +36,29 @@
   --brass-500: #c79b1e;
   --brass-600: #7a5c00;
 
+  /* --- Sky blue theme — the public site's surface family -------------------
+     Captain (2026-09-16): "the theme colour should be sky blue, like the blue
+     colour when you look up at the sky" — replacing the deep navy as the
+     PUBLIC brand colour. The navy/granite scales above stay the ink and
+     structure ladder (body text, headings, hairlines, the staff portal's
+     premium navy/gold direction); every sky primitive below is a brand
+     SURFACE: hero, public footer, primary buttons, selected pills, table
+     captions and headers. Gold/brass accents pair with it unchanged.
+     Ladder: 50–300 pale daylight sky (backgrounds, borders, washes),
+     400–600 clear daytime sky (surfaces, selected states, headers),
+     700–950 deep sky (text-on-white ink tints + white-text surfaces). */
+  --sky-50: #f2f9fe;
+  --sky-100: #e2f2fc;
+  --sky-200: #c4e6f8;
+  --sky-300: #98d2f1;
+  --sky-400: #6bbce8;
+  --sky-500: #3f97d1;
+  --sky-600: #2b7cb4;
+  --sky-700: #22699a;
+  --sky-800: #1a5278;
+  --sky-900: #143f5c;
+  --sky-950: #0d2c42;
+
   /* Status hues — desaturated by design */
   --sage-500: #6f8f6a;
   --sage-100: #e7ede5;
@@ -47,11 +70,11 @@
   --slate-info-100: #e4eaf0;
 
   /* --- Semantic roles ----------------------------------------------------- */
-  --color-bg-page: var(--navy-50);
+  --color-bg-page: var(--sky-50);
   --color-bg-surface: #fbfdff;
   --color-bg-surface-raised: #ffffff;
-  --color-bg-inverse: var(--navy-900);
-  --color-bg-subtle: var(--navy-100);
+  --color-bg-inverse: var(--sky-900);
+  --color-bg-subtle: var(--sky-100);
 
   --color-text-primary: var(--navy-900);
   --color-text-secondary: var(--navy-700);
@@ -59,9 +82,16 @@
   --color-text-inverse: var(--marble-100);
   --color-text-inverse-muted: var(--navy-200);
 
-  --color-border: var(--navy-200);
-  --color-border-strong: var(--navy-300);
+  --color-border: var(--sky-200);
+  --color-border-strong: var(--sky-300);
   --color-border-inverse: var(--navy-700);
+
+  /* Sky theme roles — the brand-blue family public surfaces paint with.
+     on-sky is the ink that stays legible on the light sky primitives. */
+  --color-sky: var(--sky-500);
+  --color-sky-strong: var(--sky-700);
+  --color-sky-soft: var(--sky-200);
+  --color-on-sky: var(--navy-950);
 
   --color-accent: var(--brass-500);
   --color-accent-strong: var(--brass-600);
@@ -156,12 +186,12 @@
   /* Cool paper + sky-tinted desk light for the staff content area. */
   --color-bg-desk:
     radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.95), transparent 60%),
-    radial-gradient(760px 320px at 92% -140px, rgb(198 217 233 / 0.55), transparent 60%),
+    radial-gradient(760px 320px at 92% -140px, rgb(196 230 248 / 0.55), transparent 60%),
     #f5f8fb;
 
   /* Hairline + rule ladder — cool hairlines under the blue/gold direction. */
-  --color-rule: #dbe4ec;
-  --color-rule-strong: #bcceda;
+  --color-rule: #d6eaf8;
+  --color-rule-strong: #b4d9f0;
   --color-rule-inverse: rgb(255 255 255 / 0.09);
 
   /* Gold containment: washes stay translucent so gold never floods a surface. */

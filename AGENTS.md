@@ -115,15 +115,31 @@ docker compose up --build                            # SSR on :3000 against stub
 ## Package page — `/plans/[sku]` (design target — read before touching it)
 
 - Package items render the CLIENT's approved layout, not a generic hero. Authority:
-  `Package page UI example.webp` (client media library) + the committed prototype
-  `docs/prototypes/villa-home-ui/package.html` (+ its README). Main column =
+  `docs/prototypes/villa-home-ui/package.html` (+ `prototype.css` + its README) —
+  captain's 2026-09-16 review: "the exact design of package.html", INCLUDING the
+  icon treatment (translucent `--gold-wash` disc + `--gold-700` glyph on BOTH the
+  five feature columns and the eligibility/benefit row). That supersedes the older
+  `Package page UI example.webp` navy-on-solid-gold deviation. Main column =
   breadcrumb → title/lead/tagline → chips → quote → VILLA MEMORIAL PLAN panel →
-  COMPLETE MEMORIAL PACKAGE grid (five gold-disc icons with hairline separators
-  + the eligibility/benefit row) → 2026 price list; the 28rem rail holds ONLY the
-  promo card and the buy card. The client image's icon treatment wins over the
-  prototype's translucent wash: solid `--gold-200` disc + `--navy-900` glyph for
-  the five features, plain `--gold-500` line icons (no disc) in the second row.
+  COMPLETE MEMORIAL PACKAGE grid (five columns + the eligibility/benefit row) →
+  Official 2026 price list module → "The package at a glance" evidence strip. The
+  28rem rail holds the promo card, the tier × term buy card and the advisor card.
   Services/add-ons keep the `hero-premium` layout.
+- The price module is route-local
+  (`app/(public)/plans/[sku]/price-list-2026-module.tsx`): the prototype's
+  "Highlight amortization term" switch + "Highlight senior-citizen rates" toggle
+  drive every `data-term`/`.senior` cell, the four family tables keep the prototype's
+  grouped two-row header and `caption`, and the source note credits the sheet.
+  `/lots/price-list-2026` still renders the older `PriceList2026Tables` cards.
+- Embalming is INCLUDED in the package with no fixed day count — never write
+  "1 day"/"7 days" in package/pay-plan copy. The client's "2026 price FV website A"
+  sheet prices embalming per day (3 days ₱6,000 … 9 days ₱15,000, ₱1,500/day beyond)
+  and applies that table only when a family does NOT take a package.
+- Theme: the public brand colour is **sky blue** (captain 2026-09-16), applied through
+  the `--sky-*` primitives + remapped semantic roles in `styles/tokens.css`. `--navy-*`
+  stays the ink/structure ladder and the staff portal's premium navy/gold direction
+  (`.app-shell` keeps navy buttons). Home, footer, hero and public surfaces paint
+  `--sky-*` with navy ink; gold/brass accents are unchanged.
 - Styles live in the "package page" block of `styles/components.css`
   (`.plan-layout` / `.plan-main` / `.plan-side` / `.pkg-*`); the feature icons are
   route-local in `app/(public)/plans/[sku]/package-icons.tsx`. `.plan-main` needs
@@ -131,9 +147,10 @@ docker compose up --build                            # SSR on :3000 against stub
   to the five-column grid's max-content and overflows the rail otherwise; the
   feature grid reflows 3+2 between 62.001–82rem (the rail still fits at 28rem)
   and 2-across below, so the five columns never crush.
-- Never write an amount in the view: `PlanTermSelector` reads every price through
-  `planRate()` in `lib/villa-pricing.ts` (tier × term, regular + senior tables).
-  The prototype and the reference image win over the older full-width render.
+- Never write an amount in the view: `PlanTermSelector` and the price module read
+  every price through `planRate()` / `LOT_PRICE_CATEGORIES` in `lib/villa-pricing.ts`
+  (tier × term, regular + senior tables; 2026 sheet family captions live there too).
+  The prototype wins over every older render.
 
 ## Structure conventions
 ```

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
-import { PriceList2026Tables } from "@/components/villa/price-list-2026";
 import { getCatalogItem } from "@/lib/api-client/commerce";
 import type { PlanTier } from "@/lib/villa-pricing";
 import {
@@ -12,6 +11,10 @@ import {
   VMP_NOTES,
 } from "@/lib/villa-pricing";
 import {
+  DOC_COMPLETE_PACKAGE,
+  DOC_PRICE_LIST_2026_II,
+  DOC_PRICE_LIST_2026_III,
+  DOC_TYPES_OF_COFFIN,
   LOGO_VILLA_AGENCY,
   LOGO_VILLA_GROUP,
   PLAN_PACKAGES_IMAGE,
@@ -20,6 +23,7 @@ import {
 } from "@/lib/media";
 import { PlanTermSelector } from "./plan-term-selector";
 import { AddToCartControl } from "./add-to-cart";
+import { PriceList2026Module } from "./price-list-2026-module";
 import {
   IconCashAssistance,
   IconContestability,
@@ -94,11 +98,14 @@ export default async function PlanDetailPage({
   };
 
   /* ------------------------------------------------------------------------
-   * Package pages — the client's "Package page UI example" layout: one main
-   * column (title → quote → Villa Memorial Plan panel → COMPLETE MEMORIAL
-   * PACKAGE grid → price list) beside a 28rem rail holding only the promo card
-   * and the package buy card. Ported from the approved prototype
-   * (docs/prototypes/villa-home-ui/package.html).
+   * Package pages — the approved prototype, section for section
+   * (docs/prototypes/villa-home-ui/package.html, captain 2026-09-16):
+   * crumbs → title/lead/tagline → chips → quote → VILLA MEMORIAL PLAN panel →
+   * COMPLETE MEMORIAL PACKAGE features + eligibility row → the Official 2026
+   * price list module (term-highlight switch + senior toggle + the four
+   * amortization families) → The package at a glance evidence strip, with a
+   * 28rem rail holding the promo card, the tier × term buy card and the
+   * advisor card.
    * --------------------------------------------------------------------- */
   if (isPackage) {
     return (
@@ -194,40 +201,62 @@ export default async function PlanDetailPage({
               </div>
             </section>
 
-            <div>
-              <p className="text-sm text-muted" style={{ margin: 0 }}>
-                {VMP_NOTES.extras} {VMP_NOTES.serving}
-              </p>
-              <p
-                className="plan-logo-row"
-                aria-label="Villa Agency Insurance Services and Villa Group of Companies"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
-                <img
-                  src={LOGO_VILLA_AGENCY}
-                  alt="Villa Agency Insurance Services — Insure. Invest. Prosper."
-                />
-                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
-                <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
-              </p>
-            </div>
+            <section className="mid-section price-module" aria-labelledby="pl-title">
+              <PriceList2026Module />
+            </section>
 
-            <section className="stack-4" aria-labelledby="price-list-title">
-              <div className="mid-section">
-                <p className="mid-kicker">Sanctuario de Mercedes y Gloria</p>
-                <h2 id="price-list-title">Official price list 2026</h2>
-                <p className="mid-intro">
-                  Every lot product with 6-year amortization at Annual, Semi-Annual, Quarterly
-                  and Monthly — plus senior-citizen rates. <strong>{VMP_NOTES.adjust}</strong>
-                </p>
+            <section className="mid-section" aria-labelledby="sheet-title">
+              <p className="mid-kicker">From the client’s own sheets</p>
+              <h2 id="sheet-title">The package at a glance</h2>
+              <div className="tribute-strip">
+                <figure>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client sheet */}
+                  <img
+                    src={DOC_COMPLETE_PACKAGE}
+                    alt="Villa Memorial Plan — Complete Memorial Package sheet with the standard payment-mode table"
+                  />
+                  <figcaption>
+                    COMPLETE MEMORIAL PACKAGE sheet — the standard payment-mode table the Plan Term
+                    selector reads from.
+                  </figcaption>
+                </figure>
+                <figure>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client sheet */}
+                  <img
+                    src={DOC_TYPES_OF_COFFIN}
+                    alt="Types of Coffins sheet with the senior-citizen payment-mode table and coffin tiers"
+                  />
+                  <figcaption>
+                    TYPES OF COFFINS — coffin tiers plus the senior-citizen payment-mode table
+                    (₱550 / month, Bronze 1).
+                  </figcaption>
+                </figure>
+                <figure>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client sheet */}
+                  <img
+                    src={DOC_PRICE_LIST_2026_II}
+                    alt="Price list II — casket collections with SRP, discount and discounted price, plus a-la-carte rates"
+                  />
+                  <figcaption>
+                    PRICE LIST II — casket collections (Dynasty / White Rose / Crown) with SRP,
+                    discount and discounted price, plus a-la-carte rates when a family does not
+                    take a package (embalming by day, retrieval, delivery, viewing equipment,
+                    coffin, interment).
+                  </figcaption>
+                </figure>
+                <figure>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client sheet */}
+                  <img
+                    src={DOC_PRICE_LIST_2026_III}
+                    alt="Price list III — chapel rates, senior rates, flowers, tarp, lapida and family car inclusions"
+                  />
+                  <figcaption>
+                    PRICE LIST III — chapel rates (common &amp; private, regular and senior), plus
+                    flowers / tarpaulin / lapida / family-car inclusions per casket type and the
+                    ₱1,000 miscellaneous fee note.
+                  </figcaption>
+                </figure>
               </div>
-              <PriceList2026Tables />
-              <p className="text-sm text-muted">
-                Compare the plan tiers on{" "}
-                <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>, senior terms
-                on <Link href="/plans/senior-benefits">Senior citizen rates</Link>, or browse the
-                lots on the <Link href="/map">park map</Link>.
-              </p>
             </section>
           </div>
 
@@ -242,6 +271,28 @@ export default async function PlanDetailPage({
 
             <section className="buy-card" aria-labelledby="buy-title">
               <PlanTermSelector item={cartItem} ownTier={TIER_BY_SKU[item.sku] ?? "bronze1"} />
+            </section>
+
+            <section className="buy-card" aria-labelledby="advisor-title">
+              <div className="buy-card__label" id="advisor-title">
+                Talk to our memorial care advisor
+              </div>
+              <p className="plan-advisor__line">
+                <strong className="plan-advisor__phone">0917 123 4567</strong>
+                <br />
+                <span className="text-sm text-muted">24/7 · Isabela City, Basilan</span>
+              </p>
+              <div className="logo-row">
+                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
+                <img src={LOGO_VILLA_AGENCY} alt="Villa Agency Insurance Services" />
+                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
+                <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
+              </div>
+              <p className="plan-note">
+                Villa Memorial Plan is underwritten by Eternal Plans, Inc., 20th Floor Citystate
+                Center, 709 Shaw Boulevard, Pasig City. Memorial services are rendered by accredited
+                mortuaries of Eternal Plans, Inc.
+              </p>
             </section>
           </aside>
         </div>

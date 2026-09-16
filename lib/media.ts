@@ -49,6 +49,14 @@ export const LOGO_VILLA_AGENCY = "/media/logo-villa-agency.png";
 /** Viewing/wake set-up photo (uploaded) — the home rails' lead image. */
 export const VIEWING_CARE_IMAGE = "/media/viewing-care.jpg";
 
+/** Client's own 2026 sheets (rasterised from the client library) — the package
+ * page's "The package at a glance" evidence strip (docs/prototypes/villa-home-ui/
+ * package.html). Captions live beside each figure on the page. */
+export const DOC_COMPLETE_PACKAGE = "/media/doc-complete-package.jpg";
+export const DOC_TYPES_OF_COFFIN = "/media/doc-types-of-coffin.jpg";
+export const DOC_PRICE_LIST_2026_II = "/media/doc-price-list-2026-II.jpg";
+export const DOC_PRICE_LIST_2026_III = "/media/doc-price-list-2026-III.jpg";
+
 /** Coffin tier photos (uploaded). */
 export const COFFIN_BRONZE = "/media/bronze-casket.jpg";
 export const COFFIN_SILVER = "/media/silver-casket.jpg";
