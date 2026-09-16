@@ -89,14 +89,62 @@ export const FAMILY_PORTAL_NAV: PortalNavItem[] = FAMILY_PORTAL_GROUPS.flatMap(
   (group) => group.items,
 );
 
-export const AGENT_PORTAL_NAV: PortalNavItem[] = [
-  { key: "dashboard", label: "Dashboard", to: "/agent/dashboard" },
-  { key: "clients", label: "Clients", to: "/agent/clients" },
-  { key: "prospects", label: "Prospects", to: "/agent/prospects" },
-  { key: "applications", label: "Applications", to: "/agent/applications" },
-  { key: "sales", label: "Sales & Commissions", to: "/agent/sales" },
-  { key: "marketing", label: "Marketing Materials", to: "/agent/marketing" },
+/**
+ * The agent portal, grouped (design §"Information architecture"):
+ *   Today · My pipeline · Sell & earn · Tools
+ * Labels are the agent's working words; the routes are the shipped ones plus
+ * the three new ones the working day needs (Appointments & tasks, Lot
+ * availability, New lead). `AGENT_PORTAL_NAV` stays exported as the flat
+ * route list so existing consumers keep working.
+ */
+export const AGENT_PORTAL_GROUPS: PortalNavGroup[] = [
+  {
+    label: "",
+    items: [{ key: "dashboard", label: "Today", to: "/agent/dashboard" }],
+  },
+  {
+    label: "My pipeline",
+    items: [
+      { key: "prospects", label: "Prospects", to: "/agent/prospects" },
+      { key: "clients", label: "Clients", to: "/agent/clients" },
+      { key: "appointments", label: "Appointments & tasks", to: "/agent/appointments" },
+    ],
+  },
+  {
+    label: "Sell & earn",
+    items: [
+      { key: "lots", label: "Lot availability", to: "/agent/lots" },
+      { key: "sales", label: "Sales & commissions", to: "/agent/sales" },
+      { key: "applications", label: "Applications", to: "/agent/applications" },
+    ],
+  },
+  {
+    label: "Tools",
+    items: [
+      { key: "marketing", label: "Marketing & materials", to: "/agent/marketing" },
+      { key: "capture", label: "New lead", to: "/agent/new" },
+    ],
+  },
 ];
+
+/**
+ * Mobile bottom bar (design §"Phone bottom bar"): four pinned destinations plus
+ * More, which opens the same groups in the drawer. Order is the agent's day —
+ * today's work, the people, the place they are shown, then everything else.
+ * `more` is a drawer trigger, not a route.
+ */
+export const AGENT_PORTAL_TABS = [
+  { key: "dashboard", label: "Today", to: "/agent/dashboard", more: false },
+  { key: "prospects", label: "Pipeline", to: "/agent/prospects", more: false },
+  { key: "clients", label: "Clients", to: "/agent/clients", more: false },
+  { key: "lots", label: "Lots", to: "/agent/lots", more: false },
+  { key: "more", label: "More", to: "", more: true },
+] as const;
+
+/** Flat route list for the agent portal (derived from the groups). */
+export const AGENT_PORTAL_NAV: PortalNavItem[] = AGENT_PORTAL_GROUPS.flatMap(
+  (group) => group.items,
+);
 
 /** Wrap an ungrouped portal's items so PortalFrame takes one shape. */
 export function asSingleGroup(items: PortalNavItem[]): PortalNavGroup[] {

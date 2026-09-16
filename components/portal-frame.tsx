@@ -37,6 +37,7 @@ import {
   LogOut,
   Megaphone,
   Menu,
+  Plus,
   ScrollText,
   ShieldCheck,
   TreePine,
@@ -69,6 +70,8 @@ const ICONS: Record<string, LucideIcon> = {
   applications: FileText,
   sales: ChartNoAxesCombined,
   marketing: Megaphone,
+  lots: TreePine,
+  capture: Plus,
 };
 
 /** Mobile tab descriptor — `more` opens the drawer instead of navigating. */
