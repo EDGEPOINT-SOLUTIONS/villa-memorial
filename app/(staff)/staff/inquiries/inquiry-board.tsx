@@ -1,12 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
 import type { Inquiry } from "@/lib/api-client/crm";
+import {
+  captureDemoInquiry,
+  readDemoInquiries,
+} from "@/lib/demo-inquiry-captures";
 
 type Tone = "info" | "warning" | "success" | "neutral";
 
@@ -25,8 +29,9 @@ const SOURCE_LABELS: Array<{ value: Inquiry["source"]; label: string }> = [
 /**
  * Quick-capture inquiry workspace. Capture is CLIENT-SIDE ONLY for now:
  * the BFF must not originate data writes (web/AGENTS.md rule 1) and no
- * crm-families API exists yet. Rows captured here live for the session and
- * are clearly marked as demo captures.
+ * crm-families API exists yet. Rows captured here (and public contact-form
+ * enquiries) live in the browser's demo store — lib/demo-inquiry-captures.ts —
+ * and are clearly marked as demo captures, never as service records.
  */
 export function InquiryBoard({
   initialInquiries,
@@ -52,6 +57,17 @@ export function InquiryBoard({
   });
   const [validationError, setValidationError] = useState<string | null>(null);
 
+  // Demo captures kept from earlier visits — including public contact-form
+  // enquiries — are read after hydration so server markup stays deterministic.
+  useEffect(() => {
+    const demo = readDemoInquiries();
+    if (demo.length === 0) return;
+    setInquiries((prev) => {
+      const known = new Set(prev.map((i) => i.id));
+      return [...demo.filter((i) => !known.has(i.id)), ...prev];
+    });
+  }, []);
+
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
     if (!q) return inquiries;
@@ -70,25 +86,16 @@ export function InquiryBoard({
       return;
     }
     setValidationError(null);
-    const now = new Date();
-    setInquiries((prev) => [
-      {
-        id: `demo-${now.getTime()}`,
-        reference: `INQ-DEMO-${String(capturedCount + 1).padStart(3, "0")}`,
-        person: {
-          full_name: form.full_name.trim(),
-          email: form.email.trim(),
-          phone: form.phone.trim(),
-        },
-        source: form.source as Inquiry["source"],
-        topic: form.topic.trim(),
-        message: form.message.trim(),
-        assigned_to: form.assigned_to.trim() || "Unassigned",
-        status: "new",
-        received_at: now.toISOString(),
-      },
-      ...prev,
-    ]);
+    const inquiry = captureDemoInquiry({
+      full_name: form.full_name,
+      email: form.email,
+      phone: form.phone,
+      source: form.source as Inquiry["source"],
+      topic: form.topic,
+      message: form.message,
+      assigned_to: form.assigned_to,
+    });
+    setInquiries((prev) => [inquiry, ...prev]);
     setCapturedCount((n) => n + 1);
     setFormOpen(false);
     setForm({
@@ -105,7 +112,7 @@ export function InquiryBoard({
   return (
     <div className="stack-4">
       {capturedCount > 0 ? (
-        <Alert tone="success" title="Inquiry captured for this session.">
+        <Alert tone="success" title="Inquiry captured in this browser.">
           Demo captures live only in this browser until the records service is
           connected — nothing was sent anywhere.
         </Alert>
