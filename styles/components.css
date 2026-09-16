@@ -2710,12 +2710,6 @@ input[type="checkbox"] {
   color: var(--color-text-secondary);
 }
 
-/* Package pages: the buy card is taller than the title block, so the reference
-   layout aligns the title to the TOP beside it instead of centring on it. */
-.hero-premium--package .hero-premium__grid {
-  align-items: start;
-}
-
 .hero-premium__media {
   margin: 0;
   padding: clamp(0.5rem, 1vw, 0.75rem);
@@ -2732,9 +2726,131 @@ input[type="checkbox"] {
 }
 
 /* ---- package page: the reference layout's plan blocks --------------------
-   Quote, Villa Memorial Plan statement, the COMPLETE MEMORIAL PACKAGE grid
-   (five inclusions + four conditions) and the cash-assistance lines. Copy is
-   rendered from lib/villa-pricing.ts; these rules only carry the design. */
+   Ported from the approved prototype (docs/prototypes/villa-home-ui/
+   package.html + prototype.css §5): a plain page shell whose main column
+   carries title → quote → Villa Memorial Plan panel → COMPLETE MEMORIAL
+   PACKAGE grid → price list, beside a 28rem rail holding only the promo card
+   and the buy card. Copy is rendered from lib/villa-pricing.ts; these rules
+   only carry the design. */
+.plan-page {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.crumbs {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--navy-600);
+}
+
+.crumbs a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.crumbs a:hover {
+  color: var(--gold-700);
+}
+
+.crumbs span {
+  color: var(--color-text-muted);
+}
+
+.plan-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28rem;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+.plan-main {
+  min-width: 0;
+  display: grid;
+  /* one explicit column: the implicit auto track would size to the widest
+     child's max-content (the five-column feature grid) and overflow the rail. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+.plan-side {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-5);
+  position: sticky;
+  top: var(--space-5);
+}
+
+@media (max-width: 62rem) {
+  .plan-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .plan-side {
+    position: static;
+  }
+}
+
+.pkg-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 4.4vw, 3.1rem);
+  line-height: 1.05;
+  color: var(--navy-900);
+}
+
+.pkg-lead {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+.pkg-note {
+  margin: var(--space-1) 0 var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.promo-figure {
+  margin: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #fff;
+  box-shadow: var(--shadow-card-rest);
+}
+
+.promo-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The design's simpler buy card (prototype §5a): the tier × term selector and
+   its actions live in one plain rounded card in the rail. */
+.buy-card {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+/* Reference card stacks Add to cart / Go to checkout / (then) View cart full
+   width — the shared AddToCartControl keeps its inline row everywhere else. */
+.plan-buy-actions,
+.plan-buy-actions .row {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.plan-buy-actions .btn {
+  width: 100%;
+}
+
 .plan-quote {
   margin: var(--space-2) auto;
   max-width: 34rem;
@@ -2755,27 +2871,48 @@ input[type="checkbox"] {
   text-align: center;
 }
 
-.plan-grid-title {
-  margin: var(--space-1) 0 var(--space-2);
-  font-family: var(--font-serif);
-  font-size: clamp(1.5rem, 2.6vw, 2rem);
+.plan-section-title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--text-lg);
   color: var(--navy-900);
 }
 
 .pkg-inclusions {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  margin-top: var(--space-4);
-  border-top: 1px solid var(--color-rule);
+  min-width: 0;
 }
 
 .pkg-inclusion {
-  padding: var(--space-4);
+  padding: var(--space-4) var(--space-4) var(--space-3);
   border-right: 1px solid var(--color-rule);
 }
 
 .pkg-inclusion:last-child {
   border-right: 0;
+}
+
+.pkg-inclusion__icon {
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  /* The client's reference runs the feature glyphs dark-navy on a solid warm
+     gold disc (the prototype's translucent wash read almost white). */
+  background: var(--gold-200);
+  color: var(--navy-900);
+  margin-bottom: var(--space-3);
+}
+
+.pkg-inclusion__icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
 }
 
 .pkg-inclusion__title {
@@ -2797,10 +2934,32 @@ input[type="checkbox"] {
 .pkg-conditions {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-width: 0;
   gap: var(--space-5);
-  margin-top: var(--space-4);
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-rule);
+}
+
+.pkg-condition {
+  display: grid;
+  grid-template-columns: 2.2rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+/* The reference's second row drops the disc: plain gold line icons beside the
+   copy (prototype §5 rendered both rows as discs). */
+.pkg-condition__icon {
+  width: 2.2rem;
+  height: 2.2rem;
+  display: grid;
+  place-items: center;
+  color: var(--gold-500);
+}
+
+.pkg-condition__icon svg {
+  width: 2.2rem;
+  height: 2.2rem;
 }
 
 .pkg-condition__title {
@@ -2830,6 +2989,26 @@ input[type="checkbox"] {
   display: block;
 }
 
+/* Between the rail's stack point and the folio width the main column is too
+   narrow for five features across: reflow to 3 + 2 until it fits again. */
+@media (min-width: 62.001rem) and (max-width: 82rem) {
+  .pkg-inclusions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .pkg-inclusion:nth-child(3n) {
+    border-right: 0;
+  }
+
+  .pkg-inclusion:nth-child(n + 4) {
+    border-top: 1px solid var(--color-rule);
+  }
+
+  .pkg-conditions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 62rem) {
   .pkg-inclusions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2838,6 +3017,10 @@ input[type="checkbox"] {
   .pkg-inclusion {
     border-right: 0;
     border-bottom: 1px solid var(--color-rule);
+  }
+
+  .pkg-inclusion:last-child {
+    border-bottom: 0;
   }
 
   .pkg-conditions {
