@@ -81,11 +81,22 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
-  hold UNLIMITED items per side — empty plan/blog lists are legal). The three-
-  column anchored shell (fixed 17rem rails + centred 50rem middle) and the
-  rail/footer/section styles live in the "anchored catalogue home" block of
+  hold UNLIMITED items per side — an empty service-card or blog list is legal).
+  The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
+  the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the
   MobileQuickMenu flyout.
+- The two mid sections are the approved prototype's, NOT hand-written:
+  **"What we do" / Services we offer** (four cards) and **"Plan ahead" / Villa
+  Memorial Plan** (promo figure + payment-mode switch + tier × term board) come
+  from `docs/prototypes/villa-home-ui/home.html`. A card stores only a
+  `LOT_PRICE_CATEGORIES` family key — the view prints "from ₱X · ₱Y / month,
+  6 yrs" through `lotCategoryFromPrice()`; the board holds NO items (its copy is
+  kicker/heading/intro/note) and reads its 5 × 4 figures through `planRate()`,
+  with the footnote's `{seniorMonthly}` / `{packagePage}` tokens resolved from
+  the same module. Never author an amount in the fixture, the copy or a view,
+  and keep the board's `.plan-scroll` pan frame + the `.plan-band` stack below
+  88rem (the five columns do not fit the railed middle column otherwise).
 - The staff editor is the premium `app/(staff)/staff/landing` page (scope
   catalog:write, reused provisionally); its rail picker catalogue in
   `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —
