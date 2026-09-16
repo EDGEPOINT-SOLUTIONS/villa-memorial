@@ -207,16 +207,22 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
     expect(html).toContain("per service");
   });
 
-  it("sells the two chapel products per day and lets a whole stay be requested", () => {
-    // The per-day products keep the Add to cart + Request order pair.
-    expect(html).toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
-    expect(html).toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
-    expect(html).toContain("Request order");
-    // Every 3–9 day row adds a whole stay (quantity = days) and can be requested.
+  it("opens the chapel booking step (never a straight add) and keeps the request path", () => {
+    // A chapel is not a one-click product: the cards' “Book these dates” and
+    // every 3–9 day row's “Book common/private N days” are dialog triggers.
+    expect(html).toContain("Book these dates");
     for (const r of CHAPEL_RATES) {
-      expect(html, `common stay ${r.days}`).toContain(`Add common ${r.days} days`);
-      expect(html, `private stay ${r.days}`).toContain(`Add private ${r.days} days`);
+      expect(html, `common stay ${r.days}`).toContain(`Book common ${r.days} days`);
+      expect(html, `private stay ${r.days}`).toContain(`Book private ${r.days} days`);
     }
+    // Two cards + every row's two classes open the dialog (aria-haspopup).
+    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(
+      2 + CHAPEL_RATES.length * 2,
+    );
+    // None of them is the old straight Add-to-cart control.
+    expect(html).not.toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
+    expect(html).not.toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
+    expect(html).toContain("Request order");
     expect(html).toContain("Request this stay");
     // The two per-day products' card requests carry the sheet's own per-day rate.
     const bySku = requestLinksBySku(html);

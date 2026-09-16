@@ -196,6 +196,38 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   was clicked and say plainly that nothing is reserved. Reuse this seam for every new
   request action; never invent a second contact-link shape.
 
+## Chapel bookings — customer flow (read before touching chapel actions or the cart)
+
+- A chapel is NOT a one-click cart item. Every chapel action on `/services` opens
+  `components/chapel-booking-dialog.tsx` (choose chapel → start date + 3–9 day stay →
+  per-day availability → exact range price → Add to cart). The prefilled **Request order**
+  stays beside it. Never re-add a direct chapel Add-to-cart button.
+- **One rules home: `lib/chapel-booking.ts`** (pure, client+server): the 3–9 day bound,
+  UTC-midnight calendar windows, per-day occupancy (a range is bookable only when no
+  confirmed booking and no blocked date touches any of its days), prices read through
+  `chapelStayPrices()` from `CHAPEL_RATES` (never restate an amount), the refusal copy,
+  and the booking metadata a cart line carries. Server orchestration (chapel slice of
+  the schedule, reserve, release) is `lib/api-client/chapel-reservations.ts`; the BFF
+  routes are `/api/chapel/schedule`, `/api/chapel/bookings`,
+  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).
+- **Reserve on add, release on remove**: Add to cart creates a scheduling booking
+  (title marker `Online chapel booking`), removing the line cancels it; the booking is
+  re-checked against a fresh schedule and rolled back if the service flags a race
+  (scheduling v1 flags conflicts instead of blocking — cut line #3). The cart line is
+  keyed by `lineId` (`cartLineKey` in `lib/cart/cart-context.tsx`) so two stays of the
+  same class coexist; checkout still sends only `{sku, quantity}` with quantity = days
+  and the per-day unit price, so the server-repriced order totals the stay.
+- **PLACEHOLDER config**: `CHAPEL_CLASS_RULES` in `lib/chapel-booking.ts` maps the two
+  seeded resources (Chapel A → common, Chapel B → private). The client has not
+  confirmed the park's chapel count, names or classes — add/re-point rules there when
+  they do. Blocked/maintenance dates have no upstream shape yet (`blockedDates()` is the
+  single hook); the admin management screen is a separate queued task. Live mode has no
+  public booking contract: scheduling v1 requires a staff session, so an anonymous
+  visitor gets 401 and the dialog degrades to Request order — not a hidden stub.
+- Evidence: `tests/unit/chapel-booking.test.ts` (bounds, overlap/blocked/no-chapel
+  refusals, range price, cart metadata, release-on-removal),
+  `tests/unit/chapel-booking-dialog.test.tsx` (trigger + step rendering).
+
 ## 2026 price list — where every client figure surfaces
 
 - **One transcription home: `lib/villa-pricing.ts`.** Its header maps every export to

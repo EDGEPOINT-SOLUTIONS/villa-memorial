@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { CartLine } from "@/lib/cart/cart-context";
+import { chapelBookingLineSummary } from "@/lib/chapel-booking";
 import {
   CART_LINE_TYPE_LABEL,
   getCartLineCatalogDetail,
@@ -78,6 +79,14 @@ export function CartLineRow({
             </button>
             <div className="cart-line__item-main">
               <strong>{line.name}</strong>
+              {line.booking ? (
+                <div className="cart-line__booking">
+                  <Badge tone="info">{line.booking.resourceName}</Badge>
+                  <span className="text-sm text-muted">
+                    {chapelBookingLineSummary(line.booking)} — dates held
+                  </span>
+                </div>
+              ) : null}
               <br />
               <code className="text-sm text-muted">{line.sku}</code>
             </div>
@@ -87,22 +96,34 @@ export function CartLineRow({
           {formatMinorUnits(line.unitPriceCents, line.currency)}
         </td>
         <td>
-          <input
-            className="input"
-            style={{ width: "5rem" }}
-            type="number"
-            min={1}
-            max={99}
-            value={line.quantity}
-            aria-label={`Quantity for ${line.name}`}
-            onChange={(e) => onQuantityChange(Number(e.target.value))}
-          />
+          {line.booking ? (
+            <span className="text-sm text-muted">
+              {line.booking.days} {line.booking.days === 1 ? "day" : "days"} — fixed by the
+              booking
+            </span>
+          ) : (
+            <input
+              className="input"
+              style={{ width: "5rem" }}
+              type="number"
+              min={1}
+              max={99}
+              value={line.quantity}
+              aria-label={`Quantity for ${line.name}`}
+              onChange={(e) => onQuantityChange(Number(e.target.value))}
+            />
+          )}
         </td>
         <td className="table__numeric">
           {formatMinorUnits(previewSubtotal([line]), line.currency)}
         </td>
         <td>
-          <Button variant="ghost" size="sm" onClick={onRemove}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRemove}
+            title={line.booking ? "Removes the line and releases the chapel dates" : undefined}
+          >
             Remove
           </Button>
         </td>
@@ -122,12 +143,24 @@ export function CartLineRow({
               </Link>
             </div>
             <dl className="cart-line-details__recap" aria-label="Line summary">
+              {line.booking ? (
+                <div className="cart-line-details__recap-row">
+                  <dt>Chapel</dt>
+                  <dd>{line.booking.resourceName}</dd>
+                </div>
+              ) : null}
+              {line.booking ? (
+                <div className="cart-line-details__recap-row">
+                  <dt>Booked dates</dt>
+                  <dd>{chapelBookingLineSummary(line.booking)}</dd>
+                </div>
+              ) : null}
               <div className="cart-line-details__recap-row">
                 <dt>Unit price</dt>
                 <dd>{formatMinorUnits(line.unitPriceCents, line.currency)}</dd>
               </div>
               <div className="cart-line-details__recap-row">
-                <dt>Quantity</dt>
+                <dt>{line.booking ? "Days" : "Quantity"}</dt>
                 <dd>{line.quantity}</dd>
               </div>
               <div className="cart-line-details__recap-row">

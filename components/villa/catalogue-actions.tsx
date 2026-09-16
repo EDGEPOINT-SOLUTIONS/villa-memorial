@@ -12,8 +12,10 @@ import type { CartLine } from "@/lib/cart/cart-context";
  *     cannot settle (senior conditions, day counts, availability). It is an
  *     enquiry; nothing is reserved.
  *
- * Used by /products (casket cards) and /services (a-la-carte, embalming and
- * chapel lines) so every sellable line offers the same pair.
+ * Used by /products (casket cards) and /services (a-la-carte and embalming
+ * lines) so every sellable line offers the same pair. Chapel lines are the
+ * documented exception: they open the booking step
+ * (components/chapel-booking-dialog.tsx) instead of a straight add.
  */
 export function CatalogueActions({
   item,
@@ -25,7 +27,7 @@ export function CatalogueActions({
   item: Omit<CartLine, "quantity">;
   /** Extra request context; item/sku/price default to the catalogue facts. */
   prefill?: Partial<RequestPrefill>;
-  /** Add more than one unit (e.g. a chapel stay of N days). */
+  /** Add more than one unit of a per-day line (e.g. N embalming days). */
   quantity?: number;
   /** Override the add button's visible label (e.g. "Add 3 days"). */
   addLabel?: string;
