@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP, PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import {
   CASH_ASSISTANCE,
   COFFINS,
@@ -14,40 +15,6 @@ import {
 } from "@/lib/villa-pricing";
 
 export const metadata = { title: "Villa Memorial Plan — Products & Price List 2026" };
-
-const TIERS = ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"] as const;
-
-/** Payment schedule table shared by the senior plan and the VMP. */
-function PaymentTable({ rows }: { rows: typeof SENIOR_PAYMENTS }) {
-  return (
-    <div className="table-wrapper">
-      <table className="table">
-        <thead>
-          <tr>
-            <th scope="col">Payment mode</th>
-            {TIERS.map((t) => (
-              <th key={t} scope="col">
-                {t}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((r) => (
-            <tr key={r.mode}>
-              <td>{r.mode}</td>
-              <td>{php(r.bronze1)}</td>
-              <td>{php(r.bronze2)}</td>
-              <td>{php(r.silver1)}</td>
-              <td>{php(r.silver2)}</td>
-              <td>{php(r.gold)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 export default function VillaMemorialPlanPage() {
   return (
@@ -121,7 +88,7 @@ export default function VillaMemorialPlanPage() {
         <div className="row row--space">
           <h2 className="section-title">1 · Coffin options</h2>
           <Link href="/products" className="btn btn--secondary btn--sm">
-            Coffins &amp; caskets page
+            Coffins &amp; caskets — every model with prices
           </Link>
         </div>
         <div className="landing__grid">
@@ -164,7 +131,7 @@ export default function VillaMemorialPlanPage() {
         <div className="card">
           <div className="card__body stack-3">
             <h3>Payment schedule (PHP)</h3>
-            <PaymentTable rows={SENIOR_PAYMENTS} />
+            <PlanPaymentTable rows={SENIOR_PAYMENTS} label="Senior citizen payment schedule" />
           </div>
         </div>
       </section>
@@ -235,7 +202,7 @@ export default function VillaMemorialPlanPage() {
         <div id="payments" className="card">
           <div className="card__body stack-3">
             <h3>Villa Memorial Plan — payment schedule (PHP)</h3>
-            <PaymentTable rows={VMP_PAYMENTS} />
+            <PlanPaymentTable rows={VMP_PAYMENTS} label="Villa Memorial Plan — regular payment schedule" />
           </div>
         </div>
       </section>
@@ -316,8 +283,9 @@ export default function VillaMemorialPlanPage() {
       <section className="stack-3">
         <p className="text-sm text-muted">
           Compare with <Link href="/plans/compare">package options</Link> ·{" "}
-          <Link href="/lots">browse plots on the map</Link> ·{" "}
-          <Link href="/products">see the coffins</Link>. Need a hand?{" "}
+          <Link href="/services">2026 service rates</Link> ·{" "}
+          <Link href="/products">coffins with prices</Link> ·{" "}
+          <Link href="/lots">browse plots on the map</Link>. Need a hand?{" "}
           <Link href="/contact">Contact the park office</Link> — prices above are the
           published 2026 Villa rates, confirmed at the office.
         </p>

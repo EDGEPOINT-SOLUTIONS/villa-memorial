@@ -291,6 +291,27 @@ input[type="checkbox"] {
   font-variant-numeric: tabular-nums;
 }
 
+/* Table caption (used by the 2026 casket tables — reads as the sheet's own
+   note above the columns, matching .pl-table caption's grammar). */
+.table caption {
+  caption-side: top;
+  text-align: left;
+  padding: var(--space-2) var(--space-4);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+/* Collection header row inside the casket price table (sheet A groups its rows
+   under "The White Rose Collection" etc. — mirrors .table thead th). */
+.price-table__group th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy-600);
+  background: var(--color-bg-surface);
+}
+
 /* --- Status badges ------------------------------------------------------------ */
 .badge {
   display: inline-flex;
@@ -1897,6 +1918,13 @@ input[type="checkbox"] {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-5);
+}
+
+/* A grid item may not force its track wider than the page: tables inside a
+   .split-grid column scroll in their .table-wrapper instead of blowing the
+   column (and the page) out. */
+.split-grid > * {
+  min-width: 0;
 }
 
 @media (max-width: 60rem) {
