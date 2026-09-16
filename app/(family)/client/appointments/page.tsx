@@ -1,38 +1,42 @@
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import { FAMILY_HELP } from "@/lib/family/contact";
-import { FamilyHelpCard, FamilyPlannedPage } from "@/components/family/family-ui";
+import { PlannedAnswer } from "@/components/family/family-ui";
 
-export const metadata = { title: "Appointments — Villa Memorial" };
+export const metadata = { title: "Ask for a visit — Villa Memorial" };
 
 /**
- * Appointments — approved family-portal design (docs/08-delivery/family-portal-design).
- *
- * The page is designed and the data path does not exist yet, so it states what
- * will be here and how to reach a person today. No invented data is rendered.
+ * Appointments — the approved redesign (docs/08-delivery/family-portal-design).
+ * Scheduling has no family-facing contract yet, so this is the honest designed
+ * state: one answer (call and we will agree a time), the rows that will live
+ * here, and one calm note. Never a booking a human has not confirmed.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
 
   return (
-    <FamilyPlannedPage
-      eyebrow="Getting help"
-      title="Appointments"
-      lead="Time with our people — at the office, at the park, or on the phone."
-      missing="Family-facing appointments need the scheduling service to confirm a real slot. We will not show a booking that a human has not confirmed."
-      blocks={[
-        { heading: "Upcoming", detail: "What is confirmed, where to go, and how to reschedule" },
-        { heading: "Ask for a time", detail: "Who is coming, what you would like to talk about, and anything we should prepare" },
-        { heading: "Past appointments", detail: "What was discussed, so you keep the thread" },
-        { heading: "Prefer to just call?", detail: "Our office hours and the duty line" },
+    <PlannedAnswer
+      kicker="Ask for a visit"
+      headline="We can come to you, or you can come to us. Call and we will set a time."
+      sub="A time is only real when a person from our office confirms it, and that is not connected to this page yet. So call us — we will agree a time and write it down."
+      plannedTitle="What will be here"
+      planned={[
+        {
+          label: "A time that is confirmed",
+          detail: "What is agreed, where to go, and how to move it",
+        },
+        {
+          label: "Ask for a visit",
+          detail: "Who is coming, what you would like to talk about, and anything we should bring",
+        },
+        {
+          label: "Past appointments",
+          detail: "What was discussed, so you keep the thread",
+        },
+        {
+          label: "Or just call",
+          detail: "The office line answers every day, 7 in the morning to 9 at night",
+        },
       ]}
-      help={
-        <FamilyHelpCard
-          phone={FAMILY_HELP.phone}
-          phoneHref={FAMILY_HELP.phoneHref}
-          hours={FAMILY_HELP.hours}
-          office={FAMILY_HELP.office}
-        />
-      }
+      note="Family appointments are not switched on yet. Until they are, a phone call is the fastest way, and we write every request into our own log."
     />
   );
 }

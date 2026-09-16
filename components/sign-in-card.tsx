@@ -11,7 +11,7 @@
  * connected; "back to public site" is one click.
  */
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -32,12 +32,15 @@ export function SignInCard({
   personas,
   fallbackDestination,
   quickFillPassword = null,
+  helpNote = null,
 }: {
   door: SignInDoor;
   personas: PersonaHint[];
   fallbackDestination: string;
   /** Server-resolved per request; null keeps the buttons email-only. */
   quickFillPassword?: string | null;
+  /** A door-specific line for the foot (e.g. the family office number). */
+  helpNote?: ReactNode;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -143,6 +146,8 @@ export function SignInCard({
             </div>
           </div>
         ) : null}
+
+        {helpNote ? <p className="signin-card__help">{helpNote}</p> : null}
 
         <p className="text-sm text-muted signin-card__route-note">
           Signing in with a different account type opens that account&rsquo;s portal.

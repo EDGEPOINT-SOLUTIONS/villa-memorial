@@ -1,13 +1,13 @@
 "use client";
 
 /**
- * Family reading preferences — the approved design's "Language and reading"
- * block (page 15). Device-local by design: it changes how THIS device shows the
- * portal, so it never needs a service, and it works for a family that is not
- * signed in on a shared phone.
+ * Family reading preferences — the family portal's “Make it easier to read”
+ * block. Device-local by design: it changes how THIS device shows the portal,
+ * so it never needs a service, and it works on a shared phone.
  *
  * Honesty rule: the block says plainly that the choice is saved on this device
- * only. Nothing is sent anywhere.
+ * only. Nothing is sent anywhere. The state is shown as a word as well as the
+ * switch, so it is never colour-only.
  */
 import { useEffect, useState } from "react";
 
@@ -36,27 +36,27 @@ function apply(prefs: Prefs) {
   if (prefs.contrast) tokens.push("contrast");
   if (prefs.calm) tokens.push("calm");
   if (tokens.length > 0) {
-    root.dataset.fpReading = tokens.join(" ");
+    root.dataset.fvReading = tokens.join(" ");
   } else {
-    delete root.dataset.fpReading;
+    delete root.dataset.fvReading;
   }
 }
 
 const ROWS: Array<{ key: keyof Prefs; title: string; detail: string }> = [
   {
     key: "large",
-    title: "Larger text",
-    detail: "Makes the text on every family page bigger — helpful for reading in a chapel or with older eyes.",
+    title: "Bigger writing",
+    detail: "Makes every word on every page larger — helpful in a chapel, or with older eyes.",
   },
   {
     key: "contrast",
-    title: "Stronger contrast",
-    detail: "Darker text and firmer lines, on top of whatever your phone already does.",
+    title: "Stronger colours",
+    detail: "Darker words and firmer lines, on top of whatever your phone already does.",
   },
   {
     key: "calm",
-    title: "Reduce movement",
-    detail: "Switches off gentle fades and transitions. Your phone's own setting is also respected.",
+    title: "Calmer page",
+    detail: "Switches off any movement. Your phone's own setting is always respected too.",
   },
 ];
 
@@ -83,27 +83,27 @@ export function FamilyReadingPreferences() {
   }
 
   return (
-    <div className="fp-reader" data-ready={ready ? "yes" : "no"}>
+    <div className="fv-reader" data-ready={ready ? "yes" : "no"}>
       {ROWS.map((row) => (
-        <div className="fp-toggle-row" key={row.key}>
-          <div>
-            <p className="fp-toggle-row__title">{row.title}</p>
-            <p className="fp-toggle-row__detail">{row.detail}</p>
+        <div className="fv-toggle-row" key={row.key}>
+          <div className="fv-toggle-row__body">
+            <p className="fv-toggle-row__title">{row.title}</p>
+            <p className="fv-toggle-row__detail">{row.detail}</p>
           </div>
-          <label className="fp-switch-label">
+          <label className="fv-switch">
             <input
               type="checkbox"
-              className="fp-switch-input"
               checked={prefs[row.key]}
               onChange={(event) => toggle(row.key, event.target.checked)}
             />
-            <span className="visually-hidden">{row.title}</span>
+            <span className="fv-switch__track" aria-hidden="true" />
+            <span className="fv-switch__state">{prefs[row.key] ? "On" : "Off"}</span>
           </label>
         </div>
       ))}
-      <p className="fp-note mt-3">
-        Saved on this device only — nothing is sent to us, and your phone&rsquo;s own accessibility
-        settings always win.
+      <p className="fv-note" style={{ marginTop: "1.25rem" }}>
+        <strong>Saved on this device only</strong> — nothing is sent to us, and your phone&rsquo;s own
+        accessibility settings always win.
       </p>
     </div>
   );

@@ -1,0 +1,263 @@
+/* ============================================================================
+   tokens.css — single source of truth for every visual decision.
+   Pure :root custom properties only (safe under any load order).
+   Ported from docs/02-architecture/design-system.md — do not hard-code
+   raw values in views/components; reference a token instead.
+   ========================================================================== */
+
+:root {
+  /* --- Color primitives ---------------------------------------------------
+     granite: cool slate neutrals (structure, text)
+     marble:  warm off-whites (backgrounds so screens don't feel clinical)
+     brass:   restrained accent — focus states + ceremonial moments ONLY
+  */
+  --granite-50: #f6f7f8;
+  --granite-100: #eceef0;
+  --granite-200: #d9dde1;
+  --granite-300: #bfc5cb;
+  --granite-400: #98a1aa;
+  --granite-500: #6e7883;
+  --granite-600: #525b64;
+  --granite-700: #3d444c;
+  --granite-800: #2c3238;
+  --granite-900: #1d2126;
+
+  --marble-50: #fbfaf8;
+  --marble-100: #f5f3ee;
+  --marble-200: #eae6dd;
+  --marble-300: #ddd7c9;
+
+  /* Brass primitives now carry the Radiant Compassion gold family product-wide
+     (captain-approved blue/gold, 2026-09-08): decorative golds for hairlines,
+     washes and focus; a dark gold-ink for text-on-light so small accents keep
+     WCAG contrast. The porcelain-neutral granite/marble scales above stay. */
+  --brass-300: #f1cc5e;
+  --brass-400: #e2b633;
+  --brass-500: #c79b1e;
+  --brass-600: #7a5c00;
+
+  /* --- Sky blue theme — the public site's surface family -------------------
+     Captain (2026-09-16): "the theme colour should be sky blue, like the blue
+     colour when you look up at the sky" — replacing the deep navy as the
+     PUBLIC brand colour. The navy/granite scales above stay the ink and
+     structure ladder (body text, headings, hairlines, the staff portal's
+     premium navy/gold direction); every sky primitive below is a brand
+     SURFACE: hero, public footer, primary buttons, selected pills, table
+     captions and headers. Gold/brass accents pair with it unchanged.
+     Ladder: 50–300 pale daylight sky (backgrounds, borders, washes),
+     400–600 clear daytime sky (surfaces, selected states, headers),
+     700–950 deep sky (text-on-white ink tints + white-text surfaces). */
+  --sky-50: #f2f9fe;
+  --sky-100: #e2f2fc;
+  --sky-200: #c4e6f8;
+  --sky-300: #98d2f1;
+  --sky-400: #6bbce8;
+  --sky-500: #3f97d1;
+  --sky-600: #2b7cb4;
+  --sky-700: #22699a;
+  --sky-800: #1a5278;
+  --sky-900: #143f5c;
+  --sky-950: #0d2c42;
+
+  /* Status hues — desaturated by design */
+  --sage-500: #6f8f6a;
+  --sage-100: #e7ede5;
+  --clay-500: #b3695e;
+  --clay-100: #f4e4e1;
+  --amber-500: #b08a3e;
+  --amber-100: #f3ecdb;
+  --slate-info: #5b7086;
+  --slate-info-100: #e4eaf0;
+
+  /* --- 3D park scene materials -------------------------------------------
+     The walk-in park (components/park3d/*) is a material world, not a UI
+     surface: grass, asphalt, warm paving and stone have no equivalents among
+     the semantic roles above, so they are named here — one source of truth for
+     every 3D visual decision — and read through `scenePalette()`.
+     Scene colours are already "lit" (they sit under the scene's sun), so they
+     are one step darker than the illustration's flat colours. */
+  --scene-grass: #7d9a55;
+  --scene-grass-dark: #5d7a41;
+  --scene-grass-light: #92ab67;
+  --scene-future: #4f9463;
+  --scene-asphalt: #93999b;
+  --scene-asphalt-edge: #b6bbbc;
+  --scene-paving: #cbb68a;
+  --scene-concrete: #d5d3cb;
+  --scene-stone: #eeeade;
+  --scene-hedge: #3f5c33;
+  --scene-canopy: #4f7340;
+  --scene-canopy-light: #6f914d;
+  --scene-trunk: #6b5340;
+  --scene-water: #9dc0cc;
+  --scene-sky: #cfe4f5;
+  --scene-plot-available: #a8bf85;
+  --scene-plot-reserved: #d8c496;
+  --scene-plot-sold: #a9b8c6;
+  --scene-plot-occupied: #b9bdbf;
+  --scene-plot-maintenance: #cfa79f;
+  --scene-plot-line: #ece7d8;
+  --scene-marker: #c79b1e;
+
+  /* --- Semantic roles ----------------------------------------------------- */
+  --color-bg-page: var(--sky-50);
+  --color-bg-surface: #fbfdff;
+  --color-bg-surface-raised: #ffffff;
+  --color-bg-inverse: var(--sky-900);
+  --color-bg-subtle: var(--sky-100);
+
+  --color-text-primary: var(--navy-900);
+  --color-text-secondary: var(--navy-700);
+  --color-text-muted: var(--navy-500);
+  --color-text-inverse: var(--marble-100);
+  --color-text-inverse-muted: var(--navy-200);
+
+  --color-border: var(--sky-200);
+  --color-border-strong: var(--sky-300);
+  --color-border-inverse: var(--navy-700);
+
+  /* Sky theme roles — the brand-blue family public surfaces paint with.
+     on-sky is the ink that stays legible on the light sky primitives. */
+  --color-sky: var(--sky-500);
+  --color-sky-strong: var(--sky-700);
+  --color-sky-soft: var(--sky-200);
+  --color-on-sky: var(--navy-950);
+
+  --color-accent: var(--brass-500);
+  --color-accent-strong: var(--brass-600);
+  --color-accent-soft: var(--brass-300);
+  --color-focus-ring: var(--brass-400);
+
+  --color-status-success: var(--sage-500);
+  --color-status-success-bg: var(--sage-100);
+  --color-status-danger: var(--clay-500);
+  --color-status-danger-bg: var(--clay-100);
+  --color-status-warning: var(--amber-500);
+  --color-status-warning-bg: var(--amber-100);
+  --color-status-info: var(--slate-info);
+  --color-status-info-bg: var(--slate-info-100);
+
+  /* Accessible status INK for small text on a status wash. The hues above are
+     tuned for large text and icons; at badge size (12 px / 600) they measure
+     2.7–4.2:1 on their own wash, so small status text uses these instead.
+     Applied on the family surfaces (styles/components.css, family block); the
+     staff-wide adoption is a separate visual decision. */
+  --color-status-success-ink: #4f6b4a;
+  --color-status-warning-ink: #7a5f1f;
+  --color-status-danger-ink: #7f3f36;
+  --color-status-info-ink: #42566b;
+
+  /* --- Type --------------------------------------------------------------- */
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.8125rem;  /* 13px */
+  --text-md: 0.9375rem;  /* 15px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.375rem;   /* 22px */
+  --text-2xl: 1.75rem;   /* 28px */
+  --text-3xl: 2.25rem;   /* 36px */
+  --text-4xl: 2.75rem;   /* 44px — hero display */
+  --text-5xl: 3.25rem;   /* 52px — hero display (large) */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.55;
+
+  /* --- Spacing / radii / shadows ------------------------------------------ */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* --- Public folio layout -------------------------------------------------
+     ONE centred content envelope shared by the anchored nav bar, the home's
+     three-column anchored grid, the footer and every public page container,
+     so the nav brand block lines up with the page content edge on every page
+     (captain: brand must not hug the window edge — 2026-09-09).
+     99rem = the home trio at full width (17rem rails + 58rem middle + 2rem
+     max column gaps = 96rem) plus the 1.5rem folio padding on each side.
+     The middle grew from 50rem to 58rem on the captain's review of the
+     package-page prototype; the rails stay fixed at 17rem. */
+  --layout-folio-w: 99rem;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Whisper-subtle shadows — "paper on marble"; borders carry separation */
+  --shadow-card: 0 1px 2px rgb(29 33 38 / 0.05), 0 1px 6px rgb(29 33 38 / 0.04);
+  --shadow-raised: 0 2px 4px rgb(29 33 38 / 0.07), 0 4px 14px rgb(29 33 38 / 0.06);
+
+  /* --- Radiant Compassion (staff premium) — COO blue/gold ------------------
+     The captain's requested premium direction for the staff portal: the COO
+     "Radiant Compassion" blue/gold palette adapted for admin screens — deep
+     navy surfaces with warm gold accents, cool paper content area, display
+     serif titles in navy ink. These primitives are consumed ONLY by the
+     .app-shell premium rules (components.css); public/family/agent surfaces
+     keep the DOC granite/marble/brass roles defined above.
+  */
+  --navy-50: #f3f7fb;
+  --navy-100: #e6eef6;
+  --navy-200: #c8d9e9;
+  --navy-300: #9fbdd7;
+  --navy-500: #41709c;
+  --navy-600: #2b5680;
+  --navy-700: #1c4366;
+  --navy-800: #12324e;
+  --navy-900: #0d2942;
+  --navy-950: #081c31;
+
+  --gold-100: #fdf4d7;
+  --gold-200: #f8e5ab;
+  --gold-300: #f1cc5e;
+  --gold-400: #e2b633;
+  --gold-500: #c79b1e;
+  --gold-600: #a67f12;
+  --gold-700: #7a5c00;
+  --gold-800: #574300;
+
+  /* Cool paper + sky-tinted desk light for the staff content area. */
+  --color-bg-desk:
+    radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.95), transparent 60%),
+    radial-gradient(760px 320px at 92% -140px, rgb(196 230 248 / 0.55), transparent 60%),
+    #f5f8fb;
+
+  /* Hairline + rule ladder — cool hairlines under the blue/gold direction. */
+  --color-rule: #d6eaf8;
+  --color-rule-strong: #b4d9f0;
+  --color-rule-inverse: rgb(255 255 255 / 0.09);
+
+  /* Gold containment: washes stay translucent so gold never floods a surface. */
+  --gold-wash-soft: color-mix(in srgb, var(--gold-300) 16%, transparent);
+  --gold-wash: color-mix(in srgb, var(--gold-300) 26%, transparent);
+  --gold-wash-strong: color-mix(in srgb, var(--gold-300) 40%, transparent);
+  --gold-hairline: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+
+  /* Elevation ladder — paper on a cool desk, refined for hover/pop layers. */
+  --shadow-paper: 0 1px 1px rgb(10 30 52 / 0.05), 0 1px 3px rgb(10 30 52 / 0.06);
+  --shadow-card-rest:
+    0 1px 2px rgb(10 30 52 / 0.06),
+    0 3px 10px -2px rgb(10 30 52 / 0.08);
+  --shadow-card-hover:
+    0 2px 5px rgb(10 30 52 / 0.1),
+    0 16px 32px -10px rgb(10 30 52 / 0.24);
+
+  /* Display figure colour for the staff portal (titles, headline numerals). */
+  --color-figure: var(--navy-900);
+
+  /* Display type for the staff portal (page titles, headline figures). */
+  --text-title-page: clamp(1.85rem, 1.35rem + 1.4vw, 2.25rem);
+  --text-stat: 1.875rem;
+
+  /* Motion ------------------------------------------------------------- */
+  --motion-fast: 120ms ease-out;
+  --motion-base: 180ms ease-out;
+  --motion-slow: 200ms ease-out;
+}

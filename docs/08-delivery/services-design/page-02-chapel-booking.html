@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapel booking step (in context) — services design example (Villa Memorial)</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="services-pages.css">
+</head>
+<body class="sv-page sv-standalone">
+<a class="visually-hidden" href="#main">Skip to content</a>
+<header class="anchored-header">
+  <div class="anchored-header__bar">
+    <a class="anchored-header__brand" href="/">
+      <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+      <span class="anchored-header__wordmark">Villa Memorial Park</span>
+    </a>
+    <nav class="anchored-header__nav" aria-label="Sections"><a href="/">Home</a><a href="/services" aria-current="page">Funeraria Memorial Services</a><a href="/plans">Villa Memorial Plan</a><a href="/lots">Lots</a><a href="/map">Villa Memorial Park</a><a href="/cart">Cart</a><a href="/contact">Contact</a></nav>
+    <div class="anchored-header__actions">
+      <a class="anchored-header__phone" href="tel:+639170001234">
+        <span class="anchored-header__phone-label">24/7 Assistance Line</span>
+        <span class="anchored-header__phone-number">0917 000 1234</span>
+      </a>
+      <a class="anchored-header__signin" href="/login">Sign in</a>
+    </div>
+  </div>
+</header>
+<main id="main" class="container public-main">
+<div class="sv-main">
+  <nav class="sv-breadcrumb" aria-label="Breadcrumb">
+    <ol><li><a href="/">Home</a></li><li><a href="/services">Funeraria Memorial Services</a></li><li aria-current="page">Chapel booking step</li></ol>
+  </nav>
+  <h1 style="margin-top:var(--space-3)">The chapel booking step, in context</h1>
+  <p class="sv-section__intro">
+    This is the state a family sees after tapping <strong>Check dates &amp; price</strong> on a
+    chapel card. Every value below is the live dialog's own: Common ₱1,500 / day,
+    Private ₱3,500 / day, the 3–9 day stay, the day-by-day availability, the exact
+    range price and the senior-citizen column.
+  </p>
+
+  <h2>Before you tap: the chapel card</h2>
+  <div class="sv-chapels">
+    <article class="sv-chapel">
+  <figure class="sv-chapel__media">
+    <img src="../../../public/media/chapel-common.jpg" alt="Illustrative sample set-up in the client's common chapel">
+  </figure>
+  <div class="sv-chapel__body">
+    <h3 class="sv-chapel__name">Common chapel</h3>
+    <p class="sv-chapel__rate">₱1,500 <span class="sv-chapel__unit">per day</span></p>
+    <p class="sv-chapel__what">A shared chapel where several families keep their vigils at the same time.</p>
+    <dl class="sv-chapel__facts">
+      <div><dt>Booked as</dt><dd>Chapel A</dd></div>
+      <div><dt>Room fits about</dt><dd>120 people</dd></div>
+      <div><dt>3 days — regular</dt><dd>₱4,500</dd></div>
+      <div><dt>3 days — senior citizen</dt><dd>₱4,320</dd></div>
+    </dl>
+    <div class="sv-chapel__actions">
+      <button type="button" class="btn btn--accent btn--block" aria-haspopup="dialog">Check dates &amp; price</button>
+      <a class="btn btn--secondary btn--block" href="/contact?item=Chapel+use+%E2%80%94+common+chapel">Request order</a>
+    </div>
+    <p class="sv-chapel__illus">Illustration purposes only — a sample wake set-up from the client's own photographs, not a fixed view of any one room.</p>
+  </div>
+</article>
+  </div>
+
+  <h2 style="margin-top:var(--space-7)">The booking step</h2>
+  <div class="sv-booking-stage">
+    <div class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="bk-title">
+  <div class="booking-modal__backdrop"></div>
+  <div class="booking-modal__panel" tabindex="-1">
+    <header class="booking-modal__head">
+      <div>
+        <p class="booking-modal__eyebrow">Chapel use</p>
+        <h2 id="bk-title">Book chapel dates</h2>
+      </div>
+      <button type="button" class="quick-menu__close" aria-label="Close booking">✕</button>
+    </header>
+    <div class="booking-modal__body"><div class="stack-4">
+        <section class="booking-step">
+          <div class="booking-step__head">
+            <span class="booking-step__num" aria-hidden="true">01</span>
+            <div>
+              <h3 class="booking-step__title">Choose the chapel</h3>
+              <p class="booking-step__blurb">The park schedules common and private chapels separately; every day of your stay must be free for the chapel you pick.</p>
+            </div>
+          </div>
+          <div class="booking-class" role="radiogroup" aria-label="Chapel type">
+            <button type="button" role="radio" aria-checked="true" class="booking-class__option booking-class__option--active">
+              <strong>Common chapel</strong><span>₱1,500 / day</span>
+              <span class="booking-class__hint">1 of 1 free for these dates</span>
+            </button>
+            <button type="button" role="radio" aria-checked="false" class="booking-class__option">
+              <strong>Private chapel</strong><span>₱3,500 / day</span>
+              <span class="booking-class__hint">1 of 1 free for these dates</span>
+            </button>
+          </div>
+          <ul class="booking-chapels" aria-label="Chapels">
+            <li>
+              <label class="booking-chapel booking-chapel--active">
+                <input type="radio" name="chapel" checked>
+                <span class="booking-chapel__name"><strong>Chapel A</strong><span class="sv-note">fits about 120 people</span></span>
+                <span class="booking-chip booking-chip--free">Free for these dates</span>
+              </label>
+            </li>
+          </ul>
+        </section>
+        <section class="booking-step">
+          <div class="booking-step__head">
+            <span class="booking-step__num" aria-hidden="true">02</span>
+            <div>
+              <h3 class="booking-step__title">Choose the dates</h3>
+              <p class="booking-step__blurb">The 2026 sheet prices chapel use in 3–9 day stays.</p>
+            </div>
+          </div>
+          <div class="field-grid field-grid--2">
+            <div class="field">
+              <label for="bk-start">First day of the stay</label>
+              <input id="bk-start" type="date" value="2026-09-16">
+              <span class="field__hint">Every day from this date is checked against the schedule.</span>
+            </div>
+            <div class="field">
+              <label for="bk-days">Stay length</label>
+              <select id="bk-days"><option>3 days</option><option>4 days</option><option>5 days</option><option>6 days</option><option>7 days</option><option>8 days</option><option>9 days</option></select>
+              <span class="field__hint">3–9 days.</span>
+            </div>
+          </div>
+          <ul class="booking-range" aria-label="Availability for the selected range">
+            <li class="booking-range__day booking-range__day--free"><span>Wed, Sep 16</span><strong>Free</strong></li>
+            <li class="booking-range__day booking-range__day--free"><span>Thu, Sep 17</span><strong>Free</strong></li>
+            <li class="booking-range__day booking-range__day--free"><span>Fri, Sep 18</span><strong>Free</strong></li>
+          </ul>
+        </section>
+        <section class="booking-step">
+          <div class="booking-step__head">
+            <span class="booking-step__num" aria-hidden="true">03</span>
+            <div>
+              <h3 class="booking-step__title">Price for this range</h3>
+              <p class="booking-step__blurb">The client's 2026 chapel sheet, as printed — nothing more.</p>
+            </div>
+          </div>
+          <dl class="booking-price">
+            <div class="booking-price__row">
+              <dt>Common chapel · 3 days</dt>
+              <dd><strong>₱4,500</strong> <span>(3 × ₱1,500 / day)</span></dd>
+            </div>
+            <div class="booking-price__row">
+              <dt>Senior citizen column (2026 sheet)</dt>
+              <dd><strong>₱4,320</strong> <span>— the office applies the senior rate; use Request order.</span></dd>
+            </div>
+          </dl>
+          <p class="booking-note">₱1,000 is added as a miscellaneous fee for incidental expenses. Add this to the rates.</p>
+          <p class="booking-note"><a href="/services#chapel-stays-title">See the 2026 chapel rate table</a> for every day count and both columns.</p>
+        </section>
+        
+        <div class="booking-modal__actions">
+          <button type="button" class="btn btn--accent">Add to cart</button>
+          <a href="/contact?item=Chapel+stay" class="btn btn--secondary btn--sm">Request order</a>
+          <button type="button" class="btn btn--ghost btn--sm">Cancel</button>
+        </div>
+        <p class="field__hint">Adding to cart holds these dates in the park's schedule until you remove the line or place the order. Nothing is charged here.</p>
+      </div></div>
+  </div>
+</div>
+  </div>
+
+  <h2 style="margin-top:var(--space-7)">The refused state</h2>
+  <p class="sv-section__intro">
+    If another family has already booked the chapel, the dialog names the day and offers the
+    chapel that is free — it never silently picks a different room.
+  </p>
+  <div class="sv-booking-stage">
+    <div class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="bk-title">
+  <div class="booking-modal__backdrop"></div>
+  <div class="booking-modal__panel" tabindex="-1">
+    <header class="booking-modal__head">
+      <div>
+        <p class="booking-modal__eyebrow">Chapel use</p>
+        <h2 id="bk-title">Book chapel dates</h2>
+      </div>
+      <button type="button" class="quick-menu__close" aria-label="Close booking">✕</button>
+    </header>
+    <div class="booking-modal__body"><div class="stack-4">
+        <section class="booking-step">
+          <div class="booking-step__head">
+            <span class="booking-step__num" aria-hidden="true">01</span>
+            <div>
+              <h3 class="booking-step__title">Choose the chapel</h3>
+              <p class="booking-step__blurb">The park schedules common and private chapels separately; every day of your stay must be free for the chapel you pick.</p>
+            </div>
+          </div>
+          <div class="booking-class" role="radiogroup" aria-label="Chapel type">
+            <button type="button" role="radio" aria-checked="true" class="booking-class__option booking-class__option--active">
+              <strong>Common chapel</strong><span>₱1,500 / day</span>
+              <span class="booking-class__hint">1 of 1 free for these dates</span>
+            </button>
+            <button type="button" role="radio" aria-checked="false" class="booking-class__option">
+              <strong>Private chapel</strong><span>₱3,500 / day</span>
+              <span class="booking-class__hint">1 of 1 free for these dates</span>
+            </button>
+          </div>
+          <ul class="booking-chapels" aria-label="Chapels">
+            <li>
+              <label class="booking-chapel booking-chapel--active">
+                <input type="radio" name="chapel" checked>
+                <span class="booking-chapel__name"><strong>Chapel A</strong><span class="sv-note">fits about 120 people</span></span>
+                <span class="booking-chip booking-chip--free">Free for these dates</span>
+              </label>
+            </li>
+          </ul>
+        </section>
+        <section class="booking-step">
+          <div class="booking-step__head">
+            <span class="booking-step__num" aria-hidden="true">02</span>
+            <div>
+              <h3 class="booking-step__title">Choose the dates</h3>
+              <p class="booking-step__blurb">The 2026 sheet prices chapel use in 3–9 day stays.</p>
+            </div>
+          </div>
+          <div class="field-grid field-grid--2">
+            <div class="field">
+              <label for="bk-start">First day of the stay</label>
+              <input id="bk-start" type="date" value="2026-09-16">
+              <span class="field__hint">Every day from this date is checked against the schedule.</span>
+            </div>
+            <div class="field">
+              <label for="bk-days">Stay length</label>
+              <select id="bk-days"><option>3 days</option><option>4 days</option><option>5 days</option><option>6 days</option><option>7 days</option><option>8 days</option><option>9 days</option></select>
+              <span class="field__hint">3–9 days.</span>
+            </div>
+          </div>
+          <ul class="booking-range" aria-label="Availability for the selected range">
+            <li class="booking-range__day booking-range__day--free"><span>Wed, Sep 16</span><strong>Free</strong></li>
+            <li class="booking-range__day booking-range__day--free"><span>Thu, Sep 17</span><strong>Free</strong></li>
+            <li class="booking-range__day booking-range__day--free"><span>Fri, Sep 18</span><strong>Free</strong></li>
+          </ul>
+        </section>
+        <section class="booking-step">
+          <div class="booking-step__head">
+            <span class="booking-step__num" aria-hidden="true">03</span>
+            <div>
+              <h3 class="booking-step__title">Price for this range</h3>
+              <p class="booking-step__blurb">The client's 2026 chapel sheet, as printed — nothing more.</p>
+            </div>
+          </div>
+          <dl class="booking-price">
+            <div class="booking-price__row">
+              <dt>Common chapel · 3 days</dt>
+              <dd><strong>₱4,500</strong> <span>(3 × ₱1,500 / day)</span></dd>
+            </div>
+            <div class="booking-price__row">
+              <dt>Senior citizen column (2026 sheet)</dt>
+              <dd><strong>₱4,320</strong> <span>— the office applies the senior rate; use Request order.</span></dd>
+            </div>
+          </dl>
+          <p class="booking-note">₱1,000 is added as a miscellaneous fee for incidental expenses. Add this to the rates.</p>
+          <p class="booking-note"><a href="/services#chapel-stays-title">See the 2026 chapel rate table</a> for every day count and both columns.</p>
+        </section>
+        <div class="alert alert--warning" role="alert">
+        <div><strong>These dates are not available</strong><br>Chapel A is already booked on Sep 16 – 18, 2026. Chapel B is free for this range.</div>
+      </div>
+        <div class="booking-modal__actions">
+          <button type="button" class="btn btn--accent">Add to cart (disabled)</button>
+          <a href="/contact?item=Chapel+stay" class="btn btn--secondary btn--sm">Request order</a>
+          <button type="button" class="btn btn--ghost btn--sm">Cancel</button>
+        </div>
+        <p class="field__hint">Adding to cart holds these dates in the park's schedule until you remove the line or place the order. Nothing is charged here.</p>
+      </div></div>
+  </div>
+</div>
+  </div>
+</div>
+</main>
+<footer class="anchored-footer">
+  <div class="anchored-footer__inner">
+    <div class="anchored-footer__grid">
+      <div class="anchored-footer__brand-col">
+        <a class="anchored-header__brand" href="/">
+          <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+          <span class="anchored-header__wordmark">Villa Memorial Park</span>
+        </a>
+        <p class="anchored-footer__blurb">A family-run memorial park in <strong>Isabela City, Basilan</strong> — memorial &amp; funeral care that honors every life with dignity and light, day or night. The first memorial park in Basilan.</p>
+      </div>
+      <nav class="anchored-footer__col" aria-label="Explore">
+        <p class="anchored-footer__title">Explore</p>
+        <a href="/">Home</a>
+        <a href="/services">Funeraria Memorial Services</a>
+        <a href="/plans">Villa Memorial Plan</a>
+        <a href="/lots">Browse the lots</a>
+        <a href="/products">Products &amp; caskets</a>
+        <a href="/transport">Transport</a>
+        <a href="/map">Villa Memorial Park</a>
+      </nav>
+      <nav class="anchored-footer__col" aria-label="Care and planning">
+        <p class="anchored-footer__title">Care &amp; planning</p>
+        <a href="/services/death-at-home">Death at home</a>
+        <a href="/services/death-at-hospital">Death at hospital</a>
+        <a href="/plans/villa-memorial-plan">Villa Memorial Plan</a>
+        <a href="/plans/compare">Compare plans</a>
+        <a href="/lots/price-list-2026">2026 price list</a>
+      </nav>
+      <address class="anchored-footer__contact">
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">24/7 Assistance Line</span>
+          <a class="anchored-footer__phone" href="tel:+639170001234">0917 000 1234</a>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Open</span>
+          <span class="anchored-footer__contact-value">Every hour, every day</span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Visit the park</span>
+          <span class="anchored-footer__contact-value">Isabela City, Basilan<br><a href="/map">Map &amp; directions →</a></span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Help</span>
+          <span class="anchored-footer__contact-value"><a href="/contact">Contact us</a> · <a href="/faq">FAQ</a></span>
+        </div>
+      </address>
+    </div>
+    <div class="anchored-footer__bottom">
+      <span>© 2026 Villa Memorial Park. All rights reserved. · <a href="/cart">Cart</a> · <a href="/quote">Request a quote</a></span>
+      <span class="anchored-footer__portals">
+        <a href="/client/login">Family sign-in</a>
+        <a href="/agent/login">Agent sign-in</a>
+        <a href="/login">Staff sign-in</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<div class="sv-callbar" role="region" aria-label="Call the park">
+  <span>Someone has died?</span>
+  <a href="tel:+639170001234">Call 0917 000 1234</a>
+</div>
+<script>
+  // Sample-only scroll-spy: highlight the "On this page" chip of the section in
+  // view. The shipped page gets this from its own component; the sample shows it.
+  (function () {
+    var nav = document.querySelector('.sv-subnav');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    var links = {};
+    nav.querySelectorAll('a[href^="#"]').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        Object.keys(links).forEach(function (id) { links[id].removeAttribute('aria-current'); });
+        if (links[e.target.id]) links[e.target.id].setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    Object.keys(links).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
+</script>
+</body>
+</html>

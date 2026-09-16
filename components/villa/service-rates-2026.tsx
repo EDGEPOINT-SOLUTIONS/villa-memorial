@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ChapelBookingButton, type ChapelCatalogueItem } from "@/components/chapel-booking-dialog";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
+import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
+import { InCartNotice } from "@/components/villa/in-cart-notice";
 import { ServiceIcons, IconChapel, IconEmbalming } from "@/components/villa/service-icons";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import type { ChapelClass } from "@/lib/chapel-booking";
@@ -25,14 +27,12 @@ import {
   CHAPEL_COMMON_IMAGE,
   CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
-  SERVICE_CARRIAGE_IMAGE,
-  SERVICE_SAMPLE_NOTE,
   VIEWING_CARE_IMAGE,
 } from "@/lib/media";
 
 /**
- * Funeraria memorial services — the client's 2026 service prices, presented as
- * premium grouped sections with the storefront's two actions on every line.
+ * Funeraria memorial services — the client's 2026 service prices, in the
+ * captain-approved 2026-09-16 layout (docs/08-delivery/services-design/).
  *
  * Provenance (see lib/villa-pricing.ts for the full sheet map):
  *  - "2026 price FV website A" (= "PRICE LIST FOR 2026 II"), block "If they
@@ -50,14 +50,15 @@ import {
  * catalogue SKU through lib/catalogue-skus.ts and offers the storefront pair:
  * Add to cart (the exact catalogue SKU/price) and Request order (the prefilled
  * capture — an enquiry, never a reservation). A chapel stay adds one unit per
- * day (quantity = the row's day count).
+ * day (quantity = the row's day count) and opens the booking step instead of a
+ * straight add.
  *
- * Layout: one .mid-section per price block (the same grammar the package page's
- * price module uses) — at-need service cards with the sheet's totals band, the
- * embalming table beside the client's own wake photograph, and the two chapel
- * options as photo cards above the full 3–9 day schedule. The chapel
- * photographs are the client's own sample set-ups cropped from the TYPES OF
- * COFFIN sheet; the sheet marks them "(Illustration purposes only)", so both
+ * Senior-first layout (approved design): one .sv-section per price block, 18px
+ * body, one decision per row, prices always with their unit. The embalming
+ * table and the sheet's 3–9 day chapel schedule are published in full behind a
+ * disclosure ("sv-stay" rows), so a phone never scrolls a table sideways. The
+ * chapel photographs are the client's own sample set-ups cropped from the TYPES
+ * OF COFFIN sheet; the sheet marks them "(Illustration purposes only)", so both
  * cards carry CHAPEL_SAMPLE_NOTE and never claim a fixed room.
  */
 
@@ -98,11 +99,7 @@ function LineActions({
 }) {
   const cartItem = cartItemOf(item);
   if (!item || !cartItem) {
-    return (
-      <span className="text-sm text-muted">
-        Not offered online — ask the office.
-      </span>
-    );
+    return <span className="text-sm text-muted">Not offered online — ask the office.</span>;
   }
   return (
     <CatalogueActions
@@ -120,86 +117,84 @@ const ALACARTE_REQUEST_NOTE =
   "A-la-carte 2026 rate — applies when the family does not take a package.";
 
 /**
- * One short sentence per a-la-carte line, phrased from the sheet's own package
+ * One plain sentence per a-la-carte line, phrased from the sheet's own package
  * wording (VMP_PACKAGE in lib/villa-pricing.ts) so a card explains the service
  * without inventing anything the sheet does not say.
  */
 const ALACARTE_NOTES: Readonly<Record<string, string>> = {
   Retrieval:
-    "Our coordinators bring your loved one into our care — good for the first 25 kms.",
+    "We bring your loved one into our care. Good for the first 25 km.",
   Delivery:
-    "Delivery of your loved one in casket, from our care to the wake or the chapel.",
+    "We bring your loved one in the casket from our care to the wake or the chapel.",
   "Viewing equipment":
     "Lights, curtains and carpets for the viewing area, set up before the family arrives.",
   "ORD coffin":
-    "A plain coffin the sheet prices on its own; any other model is priced in the casket catalogue.",
+    "A simple plain coffin, priced on its own. Every other model has its own price in the casket catalogue.",
   Interment:
     "The family cars and the trip to the graveside, with our staff attending the burial.",
 };
 
-/** The at-need services block: five sellable cards, the carriage photo, the sheet's total. */
+/** One legend per priced section: what the two storefront actions mean. */
+function ActionsLegend() {
+  return (
+    <div className="sv-howto">
+      <span>
+        <b>Add to cart</b> — reserve this line now, pay nothing here.
+      </span>
+      <span>
+        <b>Request order</b> — send the office a message; nothing is reserved.
+      </span>
+    </div>
+  );
+}
+
+/** The at-need services block: five sellable cards, the sheet's total. */
 export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
   const lookup = catalogueLookup(items);
 
   return (
-    <section className="mid-section" aria-labelledby="at-need-title">
-      <p className="mid-kicker">2026 price list · {ALACARTE_SCOPE}</p>
-      <h2 id="at-need-title">At-need services</h2>
-      <p className="mid-intro">
-        What the sheet prices for a family who does not take a package — bringing your loved one
-        into our care, the viewing set-up, a plain coffin and the interment. Every line can go
-        straight into the cart, or be sent to the office as a request.
+    <section className="sv-section" id="services" aria-labelledby="services-rates-title">
+      <p className="sv-section__kicker">2026 price list · {ALACARTE_SCOPE}</p>
+      <h2 className="sv-section__title" id="services-rates-title">
+        Services and prices
+      </h2>
+      <p className="sv-section__intro">
+        These five services are what a family pays when they do not take a complete package.
+        Take only what you need — the office confirms everything with you before the service.
       </p>
+      <ActionsLegend />
 
-      <div className="svc-layout">
-        <div className="svc-grid">
-          {ALACARTE_LINES.map((fee) => {
-            const item = lookup(fee.sku);
-            const IconShape = ServiceIcons[fee.service] ?? IconChapel;
-            return (
-              <article className="svc-card" key={fee.service}>
-                <span className="svc-card__icon" aria-hidden="true">
+      <div className="sv-prices">
+        {ALACARTE_LINES.map((fee) => {
+          const item = lookup(fee.sku);
+          const IconShape = ServiceIcons[fee.service] ?? IconChapel;
+          return (
+            <article className="sv-price-card" key={fee.service}>
+              <div className="sv-price-card__head">
+                <span className="sv-price-card__icon" aria-hidden="true">
                   <IconShape />
                 </span>
-                <h3 className="svc-card__name">{fee.service}</h3>
-                <p className="svc-card__price">
-                  {money(fee.amount)} <span className="svc-card__unit">per service</span>
-                </p>
-                <p className="svc-card__note">{ALACARTE_NOTES[fee.service]}</p>
-                <div className="svc-card__actions">
-                  <LineActions
-                    item={item}
-                    prefill={{ note: ALACARTE_REQUEST_NOTE }}
-                  />
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        <div className="svc-aside">
-          <figure className="svc-figure">
-            {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-            <img
-              src={SERVICE_CARRIAGE_IMAGE}
-              alt="Illustrative sample service — the client's funeral carriage"
-              loading="lazy"
-            />
-            <figcaption>
-              Sample service — the client&rsquo;s own funeral carriage. {SERVICE_SAMPLE_NOTE}
-            </figcaption>
-          </figure>
-        </div>
+                <h3>{fee.service}</h3>
+              </div>
+              <p className="sv-price-card__amount">
+                {money(fee.amount)} <span className="sv-price-card__unit">per service</span>
+              </p>
+              <p className="sv-price-card__plain">{ALACARTE_NOTES[fee.service]}</p>
+              <div className="sv-price-card__actions">
+                <LineActions item={item} prefill={{ note: ALACARTE_REQUEST_NOTE }} />
+                <InCartNotice sku={fee.sku} />
+              </div>
+            </article>
+          );
+        })}
       </div>
 
-      <div className="svc-total">
-        <div>
-          <span className="svc-total__label">All five services</span>
-          <span className="svc-total__amount">{money(ALACARTE_SERVICE_TOTAL)}</span>
-        </div>
-        <p className="svc-total__note">
-          The sheet&rsquo;s own bottom line for retrieval, delivery, viewing equipment, the ORD
-          coffin and interment together. Add each line above, or{" "}
+      <div className="sv-total">
+        <span className="sv-total__label">All five services together</span>
+        <span className="sv-total__amount">{money(ALACARTE_SERVICE_TOTAL)}</span>
+        <p>
+          The sheet&rsquo;s own bottom line for the five services above. Add each one in the
+          cart, or{" "}
           <Link
             href={buildRequestHref({
               item: "At-need services — all five",
@@ -207,67 +202,67 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
               note: "Retrieval, delivery, viewing equipment, ORD coffin and interment. A-la-carte 2026 rate — applies when the family does not take a package.",
             })}
           >
-            request the whole set
+            send the whole set as one request
           </Link>
-          .
+          . A family taking a complete Villa Memorial Plan package does not pay these amounts.
         </p>
       </div>
     </section>
   );
 }
 
-/** Embalming per day (3–9 days + the beyond-nine line) beside the client's wake photo. */
+/** Embalming per day: the day picker, then the sheet's full day counts. */
 export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
   const lookup = catalogueLookup(items);
 
   return (
-    <section className="mid-section" aria-labelledby="embalming-title">
-      <p className="mid-kicker">2026 price list · {ALACARTE_SCOPE}</p>
-      <h2 id="embalming-title">Embalming — per day</h2>
-      <p className="mid-intro">
-        Preparation, make-up and dressing, priced by the day the family keeps the viewing open.
-        A complete Villa Memorial Plan package includes embalming with no fixed day count — this
-        table is the sheet&rsquo;s a-la-carte rate.
+    <section className="sv-section" id="embalming" aria-labelledby="embalming-title">
+      <p className="sv-section__kicker">2026 price list · {ALACARTE_SCOPE}</p>
+      <h2 className="sv-section__title" id="embalming-title">
+        Embalming — priced by the day
+      </h2>
+      <p className="sv-section__intro">
+        Preparation, make-up and dressing, priced by the number of days the viewing stays
+        open. Choose the number of days to see the price.
       </p>
+      <ActionsLegend />
 
-      <div className="svc-layout">
-        <div className="stack-3">
-          <div className="table-wrapper">
-            <table className="table price-table">
-              <caption>{ALACARTE_SCOPE}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">No. of days</th>
-                  <th scope="col">Embalming</th>
-                  <th scope="col">Unit</th>
-                  <th scope="col">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {EMBALMING_RATES.map((r) => {
-                  const item = lookup(embalmingDaySku(r.days));
+      <div className="sv-split">
+        <div>
+          <EmbalmingDayPicker items={items} />
+
+          <details className="sv-disclosure">
+            <summary>See every day count, 3 to 9 days (and each price)</summary>
+            <div className="sv-disclosure__body">
+              <ul className="sv-stays" aria-label="Embalming prices by day">
+                {EMBALMING_RATES.map((row) => {
+                  const item = lookup(embalmingDaySku(row.days));
                   return (
-                    <tr key={r.days}>
-                      <th scope="row">{r.days}</th>
-                      <td className="table__numeric">{money(r.amount)}</td>
-                      <td className="text-sm text-muted">{r.days} days</td>
-                      <td>
+                    <li className="sv-stay" key={row.days}>
+                      <span className="sv-stay__days">{row.days} days</span>
+                      <span className="sv-stay__prices">
+                        <span>
+                          Embalming <b>{money(row.amount)}</b> for {row.days} days
+                        </span>
+                      </span>
+                      <span className="sv-stay__actions">
                         <LineActions
                           item={item}
-                          prefill={{ note: `${ALACARTE_REQUEST_NOTE} ${r.days} days' embalming.` }}
-                          addLabel={`Add ${r.days} days`}
+                          prefill={{ note: `${ALACARTE_REQUEST_NOTE} ${row.days} days' embalming.` }}
+                          addLabel={`Add ${row.days} days`}
                         />
-                      </td>
-                    </tr>
+                      </span>
+                    </li>
                   );
                 })}
-                <tr>
-                  <th scope="row">More than 9</th>
-                  <td className="table__numeric">
-                    +{money(EMBALMING_PER_DAY_BEYOND_9)} / day
-                  </td>
-                  <td className="text-sm text-muted">per additional day</td>
-                  <td>
+                <li className="sv-stay">
+                  <span className="sv-stay__days">More than 9</span>
+                  <span className="sv-stay__prices">
+                    <span>
+                      Embalming <b>+{money(EMBALMING_PER_DAY_BEYOND_9)}</b> per extra day
+                    </span>
+                  </span>
+                  <span className="sv-stay__actions">
                     <LineActions
                       item={lookup(EMBALMING_EXTRA_DAY_SKU)}
                       prefill={{
@@ -275,18 +270,16 @@ export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
                         note: `${ALACARTE_REQUEST_NOTE} Additional embalming beyond nine days.`,
                       }}
                     />
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <p className="mid-note">
-            Embalming also carries the ₱1,000 miscellaneous fee when the service is not a package.
-          </p>
+                  </span>
+                </li>
+              </ul>
+              <p className="sv-note">{ALACARTE_SCOPE}</p>
+            </div>
+          </details>
         </div>
 
-        <div className="svc-aside">
-          <figure className="svc-figure">
+        <div className="sv-aside">
+          <figure className="sv-figure">
             {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client photo */}
             <img
               src={VIEWING_CARE_IMAGE}
@@ -294,11 +287,17 @@ export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
               loading="lazy"
             />
             <figcaption>
-              A sample viewing set-up from the client&rsquo;s own photographs — the wake stays open
-              for as many days as the family keeps the vigil.
+              A sample viewing set-up from the client&rsquo;s own photographs — the wake stays
+              open for as many days as the family keeps the vigil.
             </figcaption>
           </figure>
-          <div className="svc-fact">
+          <div className="sv-helper">
+            <p>
+              <strong>Not sure how many days?</strong> Many families choose 3 days. Call{" "}
+              <a href="tel:+639170001234">0917 000 1234</a> and we will help you decide.
+            </p>
+          </div>
+          <div className="sv-fact">
             <IconEmbalming />
             <p>
               Includes make-up and dressing, so the family sees their loved one at peace. The
@@ -312,17 +311,16 @@ export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
 }
 
 /**
- * The chapel options: two photo cards (common & private, per day, senior rates
- * and the two actions) above the sheet's full 3–9 day schedule and its notes.
- *
- * published verbatim beside the table rather than silently reconciled.
+ * The chapel options: two photo cards (common & private, per day, the 3-day
+ * example, both actions) above the sheet's full 3–9 day schedule, published as
+ * one row per stay so a phone never scrolls a table sideways.
  *
  * A chapel is NOT a one-click cart item: every chapel action opens the booking
  * step (components/chapel-booking-dialog.tsx), where the customer picks the
  * chapel, a 3–9 day stay and a start date, sees that the park's own schedule has
  * every one of those days free, sees the exact price for the range, and only
- * then adds it (the dialog holds the dates via scheduling). The prefilled
- * request stays beside it for senior rates, questions and office-arranged stays.
+ * then adds it. The prefilled request stays beside it for senior rates,
+ * questions and office-arranged stays.
  */
 export function ChapelRates({ items }: { items: CatalogItem[] }) {
   const lookup = catalogueLookup(items);
@@ -354,8 +352,10 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       alt: "Illustrative sample wake set-up in the client's shared common chapel",
       perDay: CHAPEL_PER_DAY.common,
       threeDay: CHAPEL_RATES[0].common,
+      resource: "Chapel A",
+      capacity: 120,
       item: common,
-      note: "The shared chapel where several families keep their vigils — the sheet prices it per day, with a senior-citizen column.",
+      what: "A shared chapel where several families keep their vigils at the same time.",
     },
     {
       key: "private",
@@ -364,39 +364,48 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       alt: "Illustrative sample decorated viewing room in the client's private chapel",
       perDay: CHAPEL_PER_DAY.private,
       threeDay: CHAPEL_RATES[0].private,
+      resource: "Chapel B",
+      capacity: 60,
       item: privateChapel,
-      note: "A private room for the family's own viewing, dressed with the casket on its stand — the sheet prices it per day, with a senior-citizen column.",
+      what: "A room for your family alone, with the casket on its stand and space for visitors.",
     },
   ] as const;
 
   return (
-    <section className="mid-section" aria-labelledby="chapel-title">
-      <p className="mid-kicker">PRICE LIST FOR 2026 III · {CHAPEL_NOTES.scope}</p>
-      <h2 id="chapel-title">Chapel options</h2>
-      <p className="mid-intro">
-        Common or private chapel, priced per day with the sheet&rsquo;s own 3–9 day totals and
-        senior-citizen column. The photographs below are the client&rsquo;s own sample set-ups.
+    <section className="sv-section" id="chapel" aria-labelledby="chapel-title">
+      <p className="sv-section__kicker">PRICE LIST FOR 2026 III · {CHAPEL_NOTES.scope}</p>
+      <h2 className="sv-section__title" id="chapel-title">
+        Chapel — check the dates and book online
+      </h2>
+      <p className="sv-section__intro">
+        A chapel stay runs from 3 to 9 days and is priced per day. Pick the chapel and the
+        dates; the page checks the park&rsquo;s own schedule and shows the exact price before
+        anything is added to the cart.
       </p>
+      <ActionsLegend />
 
-      <div className="chapel-grid">
+      <div className="sv-chapels">
         {chapels.map((chapel) => (
-          <article className="chapel-card" key={chapel.key}>
-            <figure className="chapel-card__media">
+          <article className="sv-chapel" key={chapel.key}>
+            <figure className="sv-chapel__media">
               {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
               <img src={chapel.image} alt={chapel.alt} loading="lazy" />
             </figure>
-            <div className="chapel-card__body">
-              <div className="chapel-card__head">
-                <span className="svc-card__icon" aria-hidden="true">
-                  <IconChapel />
-                </span>
-                <h3 className="chapel-card__name">{chapel.name}</h3>
-              </div>
-              <p className="chapel-card__rate">
-                {money(chapel.perDay)} <span className="svc-card__unit">per day</span>
+            <div className="sv-chapel__body">
+              <h3 className="sv-chapel__name">{chapel.name}</h3>
+              <p className="sv-chapel__rate">
+                {money(chapel.perDay)} <span className="sv-chapel__unit">per day</span>
               </p>
-              <p className="svc-card__note">{chapel.note}</p>
-              <dl className="chapel-card__facts">
+              <p className="sv-chapel__what">{chapel.what}</p>
+              <dl className="sv-chapel__facts">
+                <div>
+                  <dt>Booked as</dt>
+                  <dd>{chapel.resource}</dd>
+                </div>
+                <div>
+                  <dt>Room fits about</dt>
+                  <dd>{chapel.capacity} people</dd>
+                </div>
                 <div>
                   <dt>3 days — regular</dt>
                   <dd>{money(chapel.threeDay.regular)}</dd>
@@ -406,108 +415,118 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
                   <dd>{money(chapel.threeDay.senior)}</dd>
                 </div>
               </dl>
-              <div className="chapel-card__actions">
-                <div className="catalogue-actions">
-                  {chapel.item ? (
-                    <ChapelBookingButton
-                      chapelClass={chapel.key}
-                      items={chapelItems}
-                      label="Book these dates"
-                    />
-                  ) : null}
-                  <Link
-                    href={chapelRequest(chapel.key, chapel.item, chapel.perDay)}
-                    className="btn btn--secondary btn--sm"
-                  >
-                    Request order
-                  </Link>
-                </div>
+              <div className="sv-chapel__actions">
+                {chapel.item ? (
+                  <ChapelBookingButton
+                    chapelClass={chapel.key}
+                    items={chapelItems}
+                    label="Check dates & price"
+                  />
+                ) : null}
+                <Link
+                  href={chapelRequest(chapel.key, chapel.item, chapel.perDay)}
+                  className="btn btn--secondary btn--block"
+                >
+                  Request order
+                </Link>
+                <InCartNotice sku={chapel.item?.sku ?? ""} unit="stay" />
               </div>
-              <p className="chapel-card__illus">{CHAPEL_SAMPLE_NOTE}</p>
+              <p className="sv-chapel__illus">{CHAPEL_SAMPLE_NOTE}</p>
             </div>
           </article>
-        ))}      </div>
-
-      <h3 className="section-title" id="chapel-schedule-title">
-        Chapel use — per day, common &amp; private
-      </h3>
-      <div className="table-wrapper">
-        <table className="table price-table">
-          <caption>{CHAPEL_NOTES.scope}</caption>
-          <thead>
-            <tr>
-              <th scope="col" rowSpan={2}>
-                Days
-              </th>
-              <th scope="col" colSpan={3}>
-                Common chapel
-              </th>
-              <th scope="col" colSpan={3}>
-                Private chapel
-              </th>
-              <th scope="col" rowSpan={2}>
-                Actions
-              </th>
-            </tr>
-            <tr>
-              <th scope="col">Rates</th>
-              <th scope="col">Regular</th>
-              <th scope="col">Senior citizen</th>
-              <th scope="col">Rates</th>
-              <th scope="col">Regular</th>
-              <th scope="col">Senior citizen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {CHAPEL_RATES.map((r) => (
-              <tr key={r.days}>
-                <th scope="row">{r.days}</th>
-                <td className="table__numeric">{money(r.common.ratePerDay)}</td>
-                <td className="table__numeric">{money(r.common.regular)}</td>
-                <td className="table__numeric">{money(r.common.senior)}</td>
-                <td className="table__numeric">{money(r.private.ratePerDay)}</td>
-                <td className="table__numeric">{money(r.private.regular)}</td>
-                <td className="table__numeric">{money(r.private.senior)}</td>
-                <td>
-                  <div className="catalogue-actions catalogue-actions--column">
-                    {commonCart ? (
-                      <ChapelBookingButton
-                        chapelClass="common"
-                        days={r.days}
-                        items={chapelItems}
-                        label={`Book common ${r.days} days`}
-                      />
-                    ) : null}
-                    {privateCart ? (
-                      <ChapelBookingButton
-                        chapelClass="private"
-                        days={r.days}
-                        items={chapelItems}
-                        label={`Book private ${r.days} days`}
-                      />
-                    ) : null}
-                    <Link
-                      href={buildRequestHref({
-                        item: `Chapel use — ${r.days} days`,
-                        price: `common ${money(r.common.regular)} regular / ${money(r.common.senior)} senior · private ${money(r.private.regular)} regular / ${money(r.private.senior)} senior`,
-                        note: `Chapel use when the service is not with Villa, ${r.days} days. ${CHAPEL_NOTES.miscFee}`,
-                      })}
-                    >
-                      Request this stay
-                    </Link>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        ))}
       </div>
-      <ul className="svc-notes">
-        <li className="text-sm text-muted">{CHAPEL_NOTES.miscFee}</li>
-        <li className="text-sm text-muted">{CHAPEL_NOTES.seniorPerDay}</li>
-        <li className="text-sm text-muted">{CHAPEL_NOTES.privateChapelOnly}</li>
-      </ul>
-    </section>  );
+
+      <div className="sv-placeholder">
+        <span aria-hidden="true"><HeartMark /></span>
+        <p>
+          <strong>The park&rsquo;s chapel names are still placeholders</strong>: the client has
+          not confirmed the real chapel list yet. What is real on this page is the price, the
+          class and the schedule the booking step reads.
+        </p>
+      </div>
+
+      <details className="sv-disclosure" id="chapel-stays">
+        <summary id="chapel-stays-title">
+          See every stay, 3 to 9 days — regular and senior prices
+        </summary>
+        <div className="sv-disclosure__body">
+          <p className="sv-note">
+            The sheet&rsquo;s own totals for both chapels, regular and senior-citizen columns.
+            The senior rate is applied by the office — use Request order for a senior booking.
+          </p>
+          {chapels.map((chapel) => (
+            <div key={chapel.key}>
+              <h4 className="sv-stay__heading">
+                {chapel.name} — {chapel.resource}
+              </h4>
+              <ul className="sv-stays" aria-label={`${chapel.name} stays`}>
+                {CHAPEL_RATES.map((row) => {
+                  const rate = row[chapel.key];
+                  const request = buildRequestHref({
+                    item: `Chapel use — ${row.days} days`,
+                    price: `${money(rate.regular)} regular / ${money(rate.senior)} senior for ${row.days} days (${money(rate.ratePerDay)} / day)`,
+                    note: `Chapel use when the service is not with Villa, ${row.days} days. ${CHAPEL_NOTES.miscFee}`,
+                  });
+                  return (
+                    <li className="sv-stay" key={`${chapel.key}-${row.days}`}>
+                      <span className="sv-stay__days">{row.days} days</span>
+                      <span className="sv-stay__prices">
+                        <span>
+                          Regular <b>{money(rate.regular)}</b>
+                        </span>
+                        <span>
+                          Senior citizen <b>{money(rate.senior)}</b>
+                        </span>
+                        <span className="sv-note">
+                          ({row.days} × {money(rate.ratePerDay)} per day)
+                        </span>
+                      </span>
+                      <span className="sv-stay__actions">
+                        {chapel.item ? (
+                          <ChapelBookingButton
+                            chapelClass={chapel.key}
+                            days={row.days}
+                            items={chapelItems}
+                            label={`Book ${row.days} days`}
+                            ariaLabel={`Book ${row.days} days — ${chapel.name}`}
+                          />
+                        ) : null}
+                        <Link href={request} className="btn btn--secondary btn--sm">
+                          Request
+                        </Link>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </details>
+
+      <div className="sv-senior">
+        <span aria-hidden="true"><HeartMark /></span>
+        <p>
+          <strong>Senior citizens:</strong> the sheet prints a senior-citizen column for every
+          stay, and its own footnote adds: {CHAPEL_NOTES.seniorPerDay} The columns above are
+          what the table prints; the office applies the rate and confirms it with you.
+        </p>
+      </div>
+      <p className="sv-note sv-section__note">
+        {CHAPEL_NOTES.miscFee} {CHAPEL_NOTES.privateChapelOnly}
+      </p>
+    </section>
+  );
+}
+
+/** A small inline heart mark for the placeholder + senior notes. */
+function HeartMark() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="24" height="24">
+      <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
+    </svg>
+  );
 }
 
 /** All three service blocks, in the order /services lays them out. */

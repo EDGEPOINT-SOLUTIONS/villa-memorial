@@ -8,13 +8,13 @@
  * bar + drawer on mobile. This is that design, re-implemented in Next.js with
  * tokens-only CSS and lucide icons (no Material-font dependency, no Tailwind).
  *
- * Family portal additions (approved design, docs/08-delivery/family-portal-design):
- * - the sidebar navigation is GROUPED (design §"Information architecture") and
- *   the groups get plain-language headings;
- * - phones get a bottom tab bar — four pinned destinations plus More, which
- *   opens the same grouped navigation in the drawer;
- * - the sidebar carries the coordinator's number (zero taps to a human).
- * All three are opt-in through props, so the agent portal is unchanged.
+ * Optional additions for any portal:
+ * - grouped sidebar navigation with plain-language headings;
+ * - a phone bottom tab bar — pinned destinations plus More;
+ * - a sidebar help block (e.g. a coordinator's number).
+ * All three are opt-in through props. The family portal no longer uses this
+ * frame — it has its own at-a-glance shell (components/family/family-frame.tsx,
+ * docs/08-delivery/family-portal-design); this component is the agent portal's.
  *
  * Signed-in children render in the content column; sign-out posts to the real
  * auth BFF. The PortalSwitch keeps the four surfaces connected (one product).

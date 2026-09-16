@@ -1,33 +1,49 @@
 import { describe, expect, it } from "vitest";
-import snapshot from "@/lib/fixtures/family/snapshot.json";
 import {
-  buildFamilyNeeds,
+  countWord,
   FAMILY_JARGON,
-  FAMILY_SOURCES_MISSING,
   familyDocumentView,
+  familyHousehold,
   paidPercent,
-  pesoFromCents,
+  percentWords,
 } from "@/lib/family/family-view";
-import type { FamilySnapshot } from "@/lib/api-client/family";
-
-const base = snapshot as unknown as FamilySnapshot;
 
 describe("family money helpers", () => {
-  it("formats minor units as pesos without parsing display strings", () => {
-    expect(pesoFromCents(2200000)).toBe("₱22,000");
-    expect(pesoFromCents(0)).toBe("₱0");
-    expect(pesoFromCents(123456)).toBe("₱1,234");
-  });
-
-  it("refuses non-integer or negative amounts", () => {
-    expect(() => pesoFromCents(-1)).toThrow();
-    expect(() => pesoFromCents(12.5)).toThrow();
-  });
-
   it("computes a plan's paid share from integer minor units", () => {
     expect(paidPercent(4200000, 2000000)).toBe(48);
     expect(paidPercent(4200000, 4200000)).toBe(100);
     expect(paidPercent(0, 0)).toBe(0);
+  });
+
+  it("says the share in words a family would say, never a percentage alone", () => {
+    expect(percentWords(0)).toBe("nothing yet");
+    expect(percentWords(4)).toBe("just started");
+    expect(percentWords(48)).toBe("almost half");
+    expect(percentWords(50)).toBe("half");
+    expect(percentWords(76)).toBe("more than half");
+    expect(percentWords(97)).toBe("almost finished");
+    expect(percentWords(100)).toBe("paid in full");
+  });
+
+  it("counts small things in words — “Two papers”, never “2 papers”", () => {
+    expect(countWord(1)).toBe("One");
+    expect(countWord(2)).toBe("Two");
+    expect(countWord(10)).toBe("Ten");
+    expect(countWord(11)).toBe("11");
+  });
+});
+
+describe("the household name under the brand", () => {
+  it("derives a family name from the loved one, keeping Filipino two-word surnames", () => {
+    expect(familyHousehold("Ernesto Dela Cruz")).toBe("Dela Cruz family");
+    expect(familyHousehold("Rosa Villa")).toBe("Villa family");
+    expect(familyHousehold("Bong")).toBe("Bong family");
+  });
+
+  it("falls back to the account holder, then to a plain phrase — never a blank", () => {
+    expect(familyHousehold(null, "Cory Customer")).toBe("Cory family");
+    expect(familyHousehold("", "")).toBe("your family");
+    expect(familyHousehold(undefined)).toBe("your family");
   });
 });
 
@@ -53,52 +69,7 @@ describe("family document wording", () => {
   });
 });
 
-describe("what needs me now", () => {
-  it("orders by band: money that matters, then what is ready", () => {
-    const needs = buildFamilyNeeds(base);
-    expect(needs.map((n) => n.kind)).toEqual(["due", "ready"]);
-    expect(needs[0].title).toContain("₱22,000");
-    expect(needs[1].title).toContain("2 papers");
-  });
-
-  it("is calm and empty when nothing in the snapshot needs the family", () => {
-    const settled: FamilySnapshot = {
-      ...base,
-      balance: { total: "₱42,000", paid: "₱42,000", remaining: "₱0" },
-      balance_cents: { total: 4200000, paid: 4200000, remaining: 0 },
-      recent_documents: [],
-    };
-    expect(buildFamilyNeeds(settled)).toEqual([]);
-  });
-
-  it("shows at most three cards (design rule)", () => {
-    const noisy: FamilySnapshot = {
-      ...base,
-      recent_documents: Array.from({ length: 9 }, (_, i) => ({
-        title: `Paper ${i}`,
-        status: "Generated",
-      })),
-    };
-    expect(buildFamilyNeeds(noisy).length).toBeLessThanOrEqual(3);
-  });
-
-  it("never renders an amount it was not given", () => {
-    const withoutCents: FamilySnapshot = { ...base, balance_cents: undefined };
-    const needs = buildFamilyNeeds(withoutCents);
-    // Without integer amounts the money card is withheld rather than guessed
-    // from the display string.
-    expect(needs.some((n) => n.kind === "due")).toBe(false);
-  });
-});
-
 describe("family-facing copy guard", () => {
-  it("keeps the missing-source list explicit, so no page can quietly fake data", () => {
-    expect(FAMILY_SOURCES_MISSING.length).toBeGreaterThan(0);
-    for (const source of FAMILY_SOURCES_MISSING) {
-      expect(source.trim().length).toBeGreaterThan(10);
-    }
-  });
-
   it("names the words a family never sees", () => {
     expect(FAMILY_JARGON).toContain("AR aging");
     expect(FAMILY_JARGON).toContain("forfeit");

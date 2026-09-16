@@ -1,0 +1,342 @@
+/* ============================================================================
+   services-review.css — the Lavish review surface around the sample pages.
+   NOT product CSS: this styles the artifact (index rail, spec sheets, device
+   frames). Product-facing classes live in services-pages.css.
+   ========================================================================== */
+
+body.rv-page {
+  background:
+    radial-gradient(900px 380px at 12% -80px, var(--sky-100), transparent 60%),
+    radial-gradient(700px 320px at 92% -120px, var(--gold-wash-soft), transparent 60%),
+    var(--marble-100);
+  color: var(--color-text-primary);
+  padding: 0;
+}
+
+.rv-shell {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  align-items: start;
+}
+
+/* --- Left index rail -------------------------------------------------------- */
+.rv-index {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-bg-surface);
+  border-right: 1px solid var(--color-border);
+}
+
+.rv-index__brand { font-family: var(--font-serif); font-size: var(--text-lg); margin: 0; }
+.rv-index__sub {
+  margin: var(--space-1) 0 var(--space-4);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+  font-weight: 700;
+}
+.rv-index__group {
+  margin: var(--space-4) 0 var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.rv-index a {
+  display: block;
+  padding: 0.3rem var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+.rv-index a:hover { background: var(--color-bg-subtle); color: var(--color-text-primary); }
+.rv-index a.rv-index__active {
+  background: var(--sky-100);
+  color: var(--sky-900);
+  font-weight: 600;
+}
+
+/* --- Main review column ------------------------------------------------------ */
+.rv-main { padding: var(--space-7) var(--space-6) var(--space-8); min-width: 0; }
+.rv-main > * { max-width: 96rem; }
+
+.rv-hero {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background:
+    radial-gradient(640px 240px at 88% -40px, var(--gold-wash), transparent 62%),
+    linear-gradient(135deg, var(--sky-800) 0%, var(--sky-950) 100%);
+  color: var(--color-text-inverse);
+  padding: var(--space-6) var(--space-7);
+  position: relative;
+  overflow: hidden;
+}
+.rv-hero::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px;
+  background: var(--gold-hairline);
+}
+.rv-hero__eyebrow {
+  margin: 0; font-size: var(--text-xs); font-weight: 700;
+  letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-300);
+}
+.rv-hero h1 { color: #fff; margin: var(--space-2) 0 0; font-size: clamp(1.8rem, 2.6vw, 2.5rem); }
+.rv-hero p { color: color-mix(in srgb, var(--sky-100) 90%, transparent); max-width: 64rem; }
+.rv-hero .rv-meta { margin-top: var(--space-4); display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.fp-chip {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: 0.2rem 0.7rem; border-radius: 999px; font-size: var(--text-xs); font-weight: 600;
+  background: var(--sky-100); color: var(--sky-900); border: 1px solid var(--sky-200);
+}
+.rv-hero .fp-chip {
+  background: rgb(255 255 255 / 0.08);
+  border-color: color-mix(in srgb, var(--gold-300) 40%, transparent);
+  color: var(--gold-200);
+}
+
+.rv-block { margin-top: var(--space-7); }
+.rv-block > h2 {
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+.rv-block > h3 { font-size: var(--text-lg); margin-top: var(--space-5); }
+.rv-block p, .rv-block li { font-size: var(--text-md); line-height: 1.6; }
+.rv-block ol, .rv-block ul { padding-left: 1.2rem; }
+.rv-block li { margin-bottom: var(--space-2); }
+
+.rv-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-surface-raised);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-card);
+}
+.rv-card h4 { margin: 0 0 var(--space-2); font-size: var(--text-md); }
+.rv-card p, .rv-card li { font-size: var(--text-sm); }
+
+.rv-grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr)); gap: var(--space-4); }
+.rv-grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr)); gap: var(--space-4); }
+
+.rv-pill {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  border-radius: 999px; padding: 0.2rem 0.7rem;
+  font-size: var(--text-xs); font-weight: 700;
+  border: 1px solid transparent;
+}
+.rv-pill--live { background: var(--sage-100); color: #33512f; border-color: color-mix(in srgb, var(--sage-500) 40%, transparent); }
+.rv-pill--new { background: var(--sky-100); color: var(--sky-900); border-color: var(--sky-200); }
+
+/* --- Page review cards ------------------------------------------------------- */
+.rv-page {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 2px solid var(--color-border);
+  scroll-margin-top: var(--space-4);
+}
+.rv-page__head {
+  display: flex; flex-wrap: wrap; gap: var(--space-3);
+  align-items: baseline; justify-content: space-between;
+}
+.rv-page__title { font-size: var(--text-xl); margin: 0; }
+.rv-page__route {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: var(--text-xs); color: var(--color-text-muted);
+  background: var(--color-bg-subtle); border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm); padding: 0.1rem 0.4rem;
+}
+
+.rv-frames { display: flex; gap: var(--space-4); align-items: flex-start; flex-wrap: wrap; margin-top: var(--space-4); }
+.rv-frame-wrap { min-width: 0; }
+.rv-frame-wrap--desk { flex: 1 1 44rem; }
+.rv-frame-wrap--phone { flex: 0 0 auto; width: 25rem; max-width: 100%; }
+.rv-frame-label {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs); font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--color-text-muted);
+}
+.rv-frame-label a { font-weight: 600; letter-spacing: 0; text-transform: none; }
+
+/* --- Device frames ------------------------------------------------------------ */
+.sv-frame {
+  position: relative;
+  overflow: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border-strong);
+  background: var(--sky-50);
+  box-shadow: var(--shadow-card-rest);
+}
+.sv-frame--desk { width: min(100%, 74rem); height: 46rem; }
+.sv-frame--phone {
+  width: 25rem;
+  height: 44rem;
+  border-radius: 1.75rem;
+  border: 0.5rem solid var(--navy-900);
+  box-shadow: var(--shadow-card-hover);
+}
+.sv-frame .anchored-header { position: sticky; }
+
+/* Phone frame: force the page's own phone layout no matter the reviewer's
+   window. These mirror the @media (max-width: 62rem) / (46rem) rules in
+   services-pages.css. */
+.sv-frame--phone .sv-hero__grid,
+.sv-frame--phone .sv-call,
+.sv-frame--phone .sv-steps,
+.sv-frame--phone .sv-prices,
+.sv-frame--phone .sv-split,
+.sv-frame--phone .sv-chapels,
+.sv-frame--phone .sv-stay,
+.sv-frame--phone .sv-help,
+.sv-frame--phone .sv-state-grid,
+.sv-frame--phone .sv-picker__actions { grid-template-columns: minmax(0, 1fr); }
+.sv-frame--phone .sv-hero__media img { height: 16rem; }
+.sv-frame--phone .sv-call { padding: var(--space-5); }
+.sv-frame--phone .sv-call__actions .btn,
+.sv-frame--phone .sv-help__actions .btn { width: 100%; }
+.sv-frame--phone .sv-subnav__label,
+.sv-frame--phone .sv-subnav .sv-top { display: none; }
+.sv-frame--phone .sv-stay__actions { justify-content: stretch; }
+.sv-frame--phone .sv-stay__actions .btn { flex: 1 1 10rem; }
+.sv-frame--phone .sv-help { padding: var(--space-5); }
+.sv-frame--phone .sv-callbar { display: flex; }
+.sv-frame--phone .anchored-header__phone { display: none; }
+.sv-frame--phone .sv-page { padding-bottom: 6.5rem; }
+.sv-frame--phone .anchored-header__nav { display: none; }
+.sv-frame--phone .anchored-header__bar { grid-template-columns: minmax(0, 1fr) auto; height: auto; padding: var(--space-2) var(--space-4); }
+.sv-frame--phone .anchored-header__actions { gap: var(--space-2); }
+.sv-frame--phone .anchored-header__phone-label { display: none; }
+.sv-frame--phone .anchored-footer__grid { grid-template-columns: minmax(0, 1fr); }
+.sv-frame--phone .sv-page .booking-modal__body { padding: var(--space-4); }
+.sv-frame--phone .sv-page .booking-chapel { flex-wrap: wrap; }
+.sv-frame--phone .sv-page .booking-chapel__name { flex: 1 1 10rem; }
+.sv-frame--phone .sv-page .booking-chip { white-space: normal; margin-left: 0; }
+.sv-frame--phone .sv-page .booking-class { grid-template-columns: minmax(0, 1fr); }
+.sv-frame--phone .sv-page .booking-range { grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); }
+.sv-frame--phone .sv-page .booking-modal__actions .btn { width: 100%; }
+
+/* The app's own header tightens its nav below 85rem; the desk frame is narrower
+   than that, so apply the same tightening here to keep the bar on one line. */
+.sv-frame--desk .anchored-header__nav { gap: 0; }
+.sv-frame--desk .anchored-header__nav a { padding-inline: var(--space-2); }
+
+/* Desk frame: keep the desktop layout even in a narrow review window. */
+@media (max-width: 63.99rem) {
+  .sv-frame--desk .sv-hero__grid { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+  .sv-frame--desk .sv-call { grid-template-columns: minmax(0, 1fr) auto; }
+  .sv-frame--desk .sv-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .sv-frame--desk .sv-prices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sv-frame--desk .sv-split { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+  .sv-frame--desk .sv-chapels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sv-frame--desk .sv-help { grid-template-columns: minmax(0, 1fr) auto; }
+  .sv-frame--desk .sv-state-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sv-frame--desk .sv-stay { grid-template-columns: minmax(7rem, auto) minmax(0, 1fr) auto; }
+  .sv-frame--desk .sv-callbar { display: none; }
+  .sv-frame--desk .sv-subnav__label { display: inline; }
+}
+
+/* --- Spec sheet ---------------------------------------------------------------- */
+.rv-spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+.rv-spec__card { border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg-surface-raised); padding: var(--space-4); }
+.rv-spec__card h4 {
+  margin: 0 0 var(--space-3); font-size: var(--text-xs); font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted);
+}
+.rv-spec table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); table-layout: fixed; }
+.rv-spec th, .rv-spec td {
+  text-align: left; padding: var(--space-2) var(--space-2) var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border); vertical-align: top; overflow-wrap: anywhere;
+}
+.rv-spec th { color: var(--color-text-muted); font-weight: 600; font-size: var(--text-xs); width: 32%; }
+.rv-spec tr:last-child td { border-bottom: none; }
+
+/* --- Review tables ------------------------------------------------------------- */
+.rv-table {
+  width: 100%; border-collapse: collapse; font-size: var(--text-sm);
+  background: var(--color-bg-surface-raised); border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); overflow: hidden; table-layout: fixed;
+}
+.rv-table th, .rv-table td {
+  text-align: left; padding: var(--space-3);
+  border-bottom: 1px solid var(--color-border); vertical-align: top; overflow-wrap: anywhere;
+}
+.rv-table th {
+  background: var(--color-bg-subtle); font-size: var(--text-xs); font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-secondary);
+}
+.rv-table tr:last-child td { border-bottom: none; }
+.rv-scroll { overflow-x: auto; }
+
+/* --- Questions ----------------------------------------------------------------- */
+.rv-q {
+  border: 1px solid var(--color-border-strong); border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised); padding: var(--space-4); margin-top: var(--space-3);
+}
+.rv-q__head { display: flex; gap: var(--space-3); align-items: baseline; }
+.rv-q__id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-weight: 700;
+  color: var(--sky-800); background: var(--sky-100); border-radius: var(--radius-sm);
+  padding: 0.1rem 0.4rem; font-size: var(--text-xs);
+}
+.rv-q__title { margin: 0; font-size: var(--text-md); font-weight: 600; }
+.rv-q__body { margin: var(--space-2) 0 var(--space-3); font-size: var(--text-sm); color: var(--color-text-secondary); }
+.rv-q__record {
+  margin: 0 0 var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--color-status-success);
+  border-radius: var(--radius-sm);
+  background: var(--color-status-success-bg);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+.rv-q__options { display: grid; gap: var(--space-2); }
+.rv-q__option {
+  display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3);
+  align-items: start; font-size: var(--text-sm); padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border); border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+.rv-q__option em { font-style: normal; color: var(--color-text-muted); }
+.rv-q__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-3); }
+.rv-q__rec { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+.rv-note {
+  font-size: var(--text-sm); color: var(--color-text-secondary);
+  border-left: 3px solid var(--sky-300); padding-left: var(--space-3); margin: var(--space-3) 0;
+}
+.rv-quote {
+  border-left: 3px solid var(--gold-400); background: var(--marble-100);
+  padding: var(--space-3) var(--space-4); font-family: var(--font-serif);
+  font-size: var(--text-lg); margin: var(--space-3) 0;
+}
+.rv-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: var(--text-xs); }
+.rv-figure { margin: 0; }
+.rv-figure img { display: block; width: 100%; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--sky-50); }
+.rv-figure--crop img { height: 26rem; object-fit: cover; object-position: top; }
+.rv-figure--crop-wide img { height: 30rem; object-fit: cover; object-position: top; }
+.rv-figure figcaption { margin-top: var(--space-2); font-size: var(--text-sm); color: var(--color-text-secondary); }
+
+/* --- Responsiveness ------------------------------------------------------------ */
+@media (max-width: 68rem) {
+  .rv-shell { grid-template-columns: minmax(0, 1fr); }
+  .rv-index { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--color-border); }
+  .rv-main { padding: var(--space-5) var(--space-4) var(--space-7); }
+  .sv-frame--desk { width: 100%; height: 40rem; }
+  .sv-frame--phone { width: 100%; max-width: 25rem; }
+  .rv-frame-wrap--phone { width: 100%; max-width: 25rem; }
+}
+@media (max-width: 46rem) {
+  .rv-frame-wrap--desk { display: none; }
+}
+
+/* Layout safety: nothing in the review surface may push the document wider. */
+.rv-page, .rv-card, .rv-spec__card, .rv-frame-wrap, .rv-spec, .rv-grid-2, .rv-grid-3, .rv-frames, .rv-q { min-width: 0; }
+:where(.rv-grid-2, .rv-grid-3, .rv-spec, .rv-frames) > * { min-width: 0; }
+:where(p, h1, h2, h3, h4, li, dt, dd, figcaption, td, th, .rv-mono, code, em, strong) { overflow-wrap: anywhere; }
+:where(img, svg, video, canvas) { max-width: 100%; }

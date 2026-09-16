@@ -178,18 +178,27 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 ## Public services page & casket catalogue — `/services`, `/products`
 
-- `/services` groups the 2026 rates into one `.mid-section` per sheet block — at-need
-  service cards, embalming per day (table + the client's wake photo), chapel options as
-  photo cards above the 3–9 day schedule. All of it renders from
-  `components/villa/service-rates-2026.tsx` with the `.svc-*` / `.chapel-*` block in
-  `styles/components.css`; figures stay in `lib/villa-pricing.ts`. The a-la-carte and
-  embalming lines keep the shared Add-to-cart + Request-order pair
+- `/services` is the **captain-approved 2026-09-16 senior-first design** — the contract
+  is `docs/08-delivery/services-design/` (artifact + 5 sample pages + `services-pages.css`),
+  the implementation block is the "Services page" `sv-*` section of `styles/components.css`.
+  The page leads with the 24/7 call panel, a sticky "On this page" bar
+  (`components/villa/services-subnav.tsx`, five anchors), the three "what happens after
+  you call" steps and the two guide cards; then one `.sv-section` per sheet block:
+  at-need cards (`AlacarteServiceRates`), the embalming day picker
+  (`components/villa/embalming-day-picker.tsx`, full day counts behind a disclosure) and
+  the chapel cards (`ChapelRates`) with one `.sv-stay` row per 3–9 day stay — the raw
+  sheet table is never the phone experience. It all renders from
+  `components/villa/service-rates-2026.tsx`; figures stay in `lib/villa-pricing.ts`.
+  The a-la-carte and embalming lines keep the shared Add-to-cart + Request-order pair
   (`components/villa/catalogue-actions.tsx`); **chapel lines are the one documented
-  exception — they open the booking step** (`ChapelBookingButton`, "Book these dates" /
-  "Book common|private N days" per the chapel-booking contract below), never a plain
-  add-to-cart. `tests/unit/price-surfacing.test.tsx` and
+  exception — they open the booking step** (`ChapelBookingButton`, "Check dates & price"
+  on the cards and "Book N days" per stay row — whose accessible name carries the chapel,
+  `aria-label="Book N days — Common|Private chapel"` — per the chapel-booking contract
+  below), never a plain add-to-cart. Every line shows its "In your cart" chip after an
+  add (`components/villa/in-cart-notice.tsx`). `tests/unit/price-surfacing.test.tsx` and
   `tests/unit/villa-services-premium.test.tsx` both pin that split — keep them when
-  editing the layout.
+  editing the layout. Senior-first is non-negotiable: 18 px body, nothing under 16 px in
+  page content, prices always with their unit, tap targets ≥ 44 px.
 - **Sample imagery is client material and is always labelled illustrative.** The chapel
   photos, the carriage and the five sample coffins are cropped from the client's own
   TYPES OF COFFIN sheet (`scripts/crop-client-sheet-tiles.mjs`, sharp ships with Next;
