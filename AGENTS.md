@@ -239,6 +239,43 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   tier photography to the named Lumina/White Rose/Crown/Dynasty models. `2026 price FV
   website A.pdf` is byte-identical to `PRICE LIST FOR 2026 II.pdf` (one source, two names).
 
+## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
+
+- The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
+  switches between **Map** (the plain masterplan image, the existing plotting editor) and
+  **3D** (the walk-in park, react-three-fiber). The 3D mode owns the whole screen: entering
+  requests full screen from the switch gesture (graceful where the browser refuses) and every
+  control — exit, camera, section/search/filter list, settings, details, plot tools — lives
+  inside the experience, never in the page chrome. The other parks (Loyola, Golden Haven) keep
+  their own images and are untouched by the 3D world.
+- **`lib/park-maps.ts` is the single plot store for both modes** (image-space coordinates,
+  shapes, status, type, section/block, linked lot, demo-local localStorage — never claim
+  multi-user sync). The ONE image↔world conversion is `lib/park-3d/coords.ts` (store frame
+  100×75 → metres); all masterplan geometry is authored in masterplan pixels in
+  `lib/park-3d/masterplan.ts` and pushed through it, so the 2D image and the 3D world cannot
+  drift apart. Placing/moving/deleting in 3D writes the same image-space records the map
+  editor writes; selection is shared (`components/park-plot-details.tsx` renders the same
+  panel in both modes).
+- **The masterplan is the only spatial source of truth**: `public/media/Park map.png` (client
+  asset; do not swap it). No invented sections/roads/buildings/numbers. Placeholder inventory
+  is generated in `lib/park-3d/placeholder-lots.ts` (clearly-marked `P-/PR-/G-/GN-` codes,
+  “Contact for pricing”, every grid configurable there) and the chosen-not-measured values are
+  listed in `ASSUMPTIONS` in `lib/park-3d/masterplan.ts`. The binding contract for this feature
+  is `docs/07-client-villa/park-3d-spec.md` (§0).
+- **Plotting is admin-only**: `lib/park-3d/capability.ts` derives `canEditPlots` from the
+  viewer's `property:write` scope; the page reads an optional session
+  (`optionalSession` in `lib/auth/guard.ts`) and passes one boolean down. Customers see the map
+  and the lots, can select/inspect them in either mode, and get no plotting tools — the 3D place
+  and move gestalts are gated by the same flag.
+- **3D internals**: scene/blockout `components/park3d/scene.tsx`, real raycast plot picking +
+  instanced slabs `components/park3d/plots-3d.tsx`, vegetation instancing
+  `components/park3d/vegetation.tsx`, UI/store state `lib/park-3d/view-store.ts` (zustand),
+  drone flight envelope + controls `lib/park-3d/flight.ts` + `components/park3d/camera-rig.tsx`
+  (pointer-lock look, Minecraft grammar: WASD relative to view, Space/Shift vertical, Space×2
+  toggles free flight, Ctrl or W×2 sprints), POIs `lib/park-3d/masterplan.ts`. The developer
+  overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
+  in `tests/unit/park-3d-*`.
+
 ## Structure conventions
 ```
 web/

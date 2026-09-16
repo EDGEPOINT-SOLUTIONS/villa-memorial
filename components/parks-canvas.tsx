@@ -184,7 +184,39 @@ export function ParksCanvas({
     map.on("zoomend", updateCrisp);
     map.on("resize", updateCrisp);
 
+    // Initial framing: the map is built before layout settles, so the first
+    // fitBounds can be computed against a much smaller box and leave the image
+    // tiny in a large frame. Re-fit while the box grows, until the visitor
+    // takes control (pan/zoom/keys) — after that their view is left alone.
+    let userMoved = false;
+    const noteUserIntent = () => {
+      userMoved = true;
+    };
+    const box = holder.current;
+    box.addEventListener("wheel", noteUserIntent, { passive: true });
+    box.addEventListener("pointerdown", noteUserIntent);
+    box.addEventListener("touchstart", noteUserIntent, { passive: true });
+    box.addEventListener("keydown", noteUserIntent);
+    const refit = () => {
+      const current = mapRef.current;
+      if (!current || userMoved || !box.clientWidth || !box.clientHeight) return;
+      current.invalidateSize();
+      current.fitBounds([
+        [0, 0],
+        [H, W],
+      ]);
+      updateCrisp();
+    };
+    const observer = new ResizeObserver(refit);
+    observer.observe(box);
+    refit();
+
     return () => {
+      observer.disconnect();
+      box.removeEventListener("wheel", noteUserIntent);
+      box.removeEventListener("pointerdown", noteUserIntent);
+      box.removeEventListener("touchstart", noteUserIntent);
+      box.removeEventListener("keydown", noteUserIntent);
       map.remove();
       mapRef.current = null;
       groupRef.current = null;
