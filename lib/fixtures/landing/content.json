@@ -34,6 +34,8 @@
       "headline": "Honoring every life with dignity and light.",
       "subline": "Whatever brings you here today, you are not alone — we will guide every step with care, honestly and at your pace.",
       "image": "/media/hero-1.jpg",
+      "background": null,
+      "backgroundTransparency": 100,
       "primaryCta": { "label": "I need help now", "href": "/services" },
       "secondaryCta": { "label": "Plan ahead", "href": "/plans" }
     },

@@ -82,6 +82,16 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
   hold UNLIMITED items per side — an empty service-card or blog list is legal).
+  The hero also carries a staff-chosen background colour + transparency
+  (`hero.background` / `hero.backgroundTransparency`; palette, colour validation
+  and the layer helper live in `lib/landing/hero-background.ts`): the colour
+  paints as ONE `.hero-home__wash` layer ABOVE the photo + its scrim and BELOW
+  all hero copy, transparency 0 = solid and 100 = fully see-through — the
+  default, so documents that never touched the fields render today's look
+  untouched. The editor control is
+  `components/landing/hero-background-field.tsx` (palette · free input · live
+  preview · 0–100% slider). The left rail's 24/7 call card is a sky-blue
+  surface (navy ink, gold-800 label) — never navy.
   The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
   the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the
@@ -161,8 +171,10 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   and applies that table only when a family does NOT take a package.
 - Theme: the public brand colour is **sky blue** (captain 2026-09-16), applied through
   the `--sky-*` primitives + remapped semantic roles in `styles/tokens.css`. `--navy-*`
-  stays the ink/structure ladder and the staff portal's premium navy/gold direction
-  (`.app-shell` keeps navy buttons). Home, footer, hero and public surfaces paint
+  stays the ink/structure ladder. The staff sidebar is sky blue too (captain
+  2026-09-17 — the `.app-shell` premium block paints a sky-200→sky-400 gradient with
+  navy ink and gold-800 accents; the staff content chrome keeps its navy/gold buttons).
+  Home, footer, hero and public surfaces paint
   `--sky-*` with navy ink; gold/brass accents are unchanged.
 - Styles live in the "package page" block of `styles/components.css`
   (`.plan-layout` / `.plan-main` / `.plan-side` / `.pkg-*`); the feature icons are
