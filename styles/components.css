@@ -2506,6 +2506,486 @@ input[type="checkbox"] {
 }
 
 /* ---------------------------------------------------------------------------
+ * 3D park — the walk-in masterplan (components/park3d/*)
+ * One page, two connected modes: this is the 3D half's surface. The 3D mode is a
+ * FULL-SCREEN experience whose whole interface lives inside it (captain
+ * 2026-09-16) — an in-experience bar, a world stage, and an explorer panel that
+ * floats over the world. Colours come from tokens only, including the --scene-*
+ * material palette the WebGL scene reads (components/park3d/palette.ts).
+ * -------------------------------------------------------------------------- */
+.park3d {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* --- in-experience bar: identity, camera, settings, exit ------------------ */
+.park3d__hud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+}
+
+.park3d__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin: 0;
+  min-width: 0;
+}
+
+.park3d__title {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+    color: var(--color-text-primary);
+}
+
+.park3d__subtitle {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.park3d__hud-end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.park3d__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.park3d__label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* --- the world ------------------------------------------------------------ */
+.park3d__stage {
+  position: relative;
+  width: 100%;
+  height: min(74vh, 46rem);
+  min-height: 24rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-subtle);
+}
+
+.park3d__stage canvas {
+  display: block;
+  touch-action: none;
+}
+
+.park3d__loading,
+.park3d__fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+/* Quiet status strip — what the drone is doing, never a gaming scoreboard. */
+.park3d__status {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  pointer-events: none;
+}
+
+.park3d__chip {
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navy-950) 58%, transparent);
+  color: var(--color-text-inverse);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.park3d__hint {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-6);
+  transform: translateX(-50%);
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navy-950) 58%, transparent);
+  color: var(--color-text-inverse);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.park3d__reticle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.65rem;
+  height: 0.65rem;
+  margin: -0.33rem 0 0 -0.33rem;
+  border: 1px solid color-mix(in srgb, var(--color-text-inverse) 70%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--navy-950) 40%, transparent);
+  pointer-events: none;
+}
+
+.park3d__banner {
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* --- the explorer panel, floating over the world -------------------------- */
+.park3d__panel {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(23rem, calc(100% - var(--space-6)));
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-bg-surface) 95%, transparent);
+  box-shadow: var(--shadow-raised);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.park3d__panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.park3d__panel-title {
+  margin: 0;
+  font-size: var(--text-base);
+}
+
+.park3d__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-link, var(--sky-700));
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.park3d__search input {
+  width: 100%;
+}
+
+.park3d__facets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.park3d__facet {
+  padding: 0.15rem 0.55rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.park3d__facet:hover {
+  border-color: var(--color-border-strong);
+}
+
+.park3d__facet--on {
+  border-color: var(--brass-400);
+  background: color-mix(in srgb, var(--brass-400) 22%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.park3d__results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.park3d__result {
+  width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+}
+
+.park3d__result:hover {
+  border-color: var(--color-border);
+}
+
+.park3d__result--on {
+  border-color: var(--brass-400);
+  background: color-mix(in srgb, var(--brass-400) 14%, var(--color-bg-surface));
+  color: var(--color-text-primary);
+}
+
+.park3d__details {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* --- settings popover ----------------------------------------------------- */
+.park3d__settings {
+  position: relative;
+}
+
+.park3d__settings > summary {
+  cursor: pointer;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-surface);
+  list-style: none;
+}
+
+.park3d__settings > summary::-webkit-details-marker {
+  display: none;
+}
+
+.park3d__settings[open] > summary {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.park3d__settings-body {
+  position: absolute;
+  right: 0;
+  z-index: 8;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  min-width: 20rem;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.park3d__field {
+  display: grid;
+  grid-template-columns: 9.5rem 1fr 4.5rem;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: var(--text-sm);
+}
+
+.park3d__value {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.park3d__debug {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.park3d__checks {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.park3d__check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.park3d__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* --- FULL SCREEN: 3D IS the full-screen mode (spec §3) -------------------- */
+.park-mode:fullscreen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: var(--space-2);
+  overflow: hidden;
+  background: var(--navy-950);
+}
+
+.park-mode:fullscreen .park3d {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.park-mode:fullscreen .park3d__hud {
+  border-radius: var(--radius-md);
+}
+
+.park-mode:fullscreen .park3d__stage {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  border-radius: var(--radius-md);
+}
+
+.park-mode:fullscreen .park3d__settings-body {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+/* In-world DOM overlays (drei <Html>): a plot's name tag, a section plate, the
+   proximity prompt and the development-mode ID labels. */
+.park3d-tag {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-inverse);
+  color: var(--color-bg-surface-raised);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.park3d-plate {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.park3d-prompt {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-size: var(--text-xs);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.park3d-prompt:hover {
+  border-color: var(--brass-400);
+}
+
+.park3d-debug-label {
+  display: inline-block;
+  padding: 0 0.2rem;
+  border-radius: 2px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.park3d-debug-label--on {
+  background: var(--brass-400);
+  color: var(--navy-950);
+  font-weight: 700;
+}
+
+/* Plot tools live under the shared details panel, inside the explorer. */
+.park3d-tools {
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.park3d-tools__field {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.park3d-tools__field select,
+.park3d-tools__field input {
+  width: 100%;
+}
+
+@media (max-width: 60rem) {
+  .park3d__hud-end {
+    margin-left: 0;
+  }
+
+  .park3d__settings-body {
+    position: static;
+    min-width: 0;
+  }
+
+  .park3d__stage {
+    height: min(64vh, 34rem);
+  }
+
+  /* The explorer becomes a bottom sheet on small screens. */
+  .park3d__panel {
+    top: auto;
+    left: var(--space-2);
+    right: var(--space-2);
+    bottom: var(--space-2);
+    width: auto;
+    max-height: 62%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
  * Landing showcase — “The very first memorial park in Basilan” (premium band)
  * ------------------------------------------------------------------------- */
 .landing-showcase {

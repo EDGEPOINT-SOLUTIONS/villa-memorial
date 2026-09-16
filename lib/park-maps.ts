@@ -5,6 +5,9 @@
  * Haven), each with an image and NON-OVERLAPPING plot areas.
  *
  * Staff can draw/edit plot areas; customers see the SAME data (one store).
+ * The Villa park additionally carries the PLACEHOLDER lot inventory the 3D park
+ * renders (§ `lib/park-3d/placeholder-lots.ts`) — same store, either mode can
+ * create, move, edit and delete.
  * ⚠ Persistence is DEMO-LOCAL (localStorage): real multi-user sync across
  * devices needs the dev's geometry/maps contract (see
  * docs/08-delivery/notes/lot-geometry-contract-proposal.md). Flagged, not
@@ -13,6 +16,7 @@
 import { useSyncExternalStore } from "react";
 import { LOT_TYPE_PHOTOS } from "@/lib/media";
 import { PARK_TYPES } from "@/lib/park-types";
+import { placeholderPlots } from "@/lib/park-3d/placeholder-lots";
 import parksFile from "@/lib/fixtures/property/parks.json";
 
 export type CircleShape = { x: number; y: number; r: number };
@@ -61,6 +65,18 @@ type RawSeed = {
 };
 
 const SEED: RawSeed[] = (parksFile as { parks: RawSeed[] }).parks;
+
+/**
+ * Seed plots for a park = its recorded demo plots plus, for the Villa park, the
+ * PLACEHOLDER inventory the 3D park is built on (`lib/park-3d/placeholder-lots.ts`).
+ * Placeholders land in the same store as every other plot, so both modes read and
+ * write one list.
+ */
+function seedAreas(park: RawSeed): PlotArea[] {
+  const recorded = normalize(park.plots as never);
+  if (park.id !== "villa") return recorded;
+  return [...recorded, ...placeholderPlots(recorded, park.id)];
+}
 
 function normalize(areas: Array<{ outline: number[][]; } & Omit<PlotArea, "outline">>): PlotArea[] {
   return areas.map((a) => ({
@@ -201,8 +217,8 @@ export function removeLegendEntry(id: string) {
   persistLegend();
 }
 
-const STORAGE_KEY = "im_parks_v7";
-const ACTIVE_KEY = "im_active_park_v7";
+const STORAGE_KEY = "im_parks_v8";
+const ACTIVE_KEY = "im_active_park_v8";
 
 type Cache = Record<string, PlotArea[]>;
 
@@ -213,14 +229,14 @@ function loadCache(): Cache {
       const parsed = JSON.parse(raw) as Cache;
       // Keep any parks added in newer seeds.
       const merged: Cache = {};
-      for (const p of SEED) merged[p.id] = parsed[p.id] ? normalize(parsed[p.id] as never) : normalize(p.plots as never);
+      for (const p of SEED) merged[p.id] = parsed[p.id] ? normalize(parsed[p.id] as never) : seedAreas(p);
       return merged;
     }
   } catch {
     // ignore
   }
   const fresh: Cache = {};
-  for (const p of SEED) fresh[p.id] = normalize(p.plots as never);
+  for (const p of SEED) fresh[p.id] = seedAreas(p);
   return fresh;
 }
 
@@ -372,7 +388,7 @@ export type ParkMeta = {
   plotsLocked: boolean;
 };
 
-const META_KEY = "im_park_meta_v7";
+const META_KEY = "im_park_meta_v8";
 
 function defaultMeta(): ParkMeta {
   return { scale: 1, imageLocked: false, plotsLocked: false };
@@ -522,7 +538,7 @@ export async function resetParkDemo(): Promise<void> {
   }
   // Rebuild in-memory caches from the seeds.
   const fresh: Cache = {};
-  for (const p of SEED) fresh[p.id] = normalize(p.plots as never);
+  for (const p of SEED) fresh[p.id] = seedAreas(p);
   Object.keys(cache).forEach((k) => delete cache[k]);
   Object.assign(cache, fresh);
   const freshMeta: Record<string, ParkMeta> = {};

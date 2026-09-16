@@ -63,6 +63,7 @@ export function ParkMapsView({
   initialParkId,
   autoSelectCode,
   onSelect,
+  onParkChange,
 }: {
   canEdit?: boolean;
   selectedCode?: string | null;
@@ -71,9 +72,13 @@ export function ParkMapsView({
   initialParkId?: string;
   autoSelectCode?: string;
   onSelect: (area: PlotArea, parkId: string) => void;
+  /** Told when the visitor switches park — the host shares this selection. */
+  onParkChange?: (parkId: string) => void;
 }) {
   useParkStore();
   const parks = parksList();
+  const parkChangeRef = useRef(onParkChange);
+  parkChangeRef.current = onParkChange;
   const [parkId, setParkId] = useState<string>(() => {
     if (initialParkId && parks.some((p) => p.id === initialParkId)) return initialParkId;
     return parks[0].id;
@@ -85,8 +90,14 @@ export function ParkMapsView({
   useEffect(() => {
     const stored = activeParkId();
     // A deep link (?park=) wins over the remembered park.
-    if (!initialParkId && stored && stored !== parkId) setParkId(stored);
-    if (initialParkId && initialParkId !== parkId) setParkId(initialParkId);
+    if (!initialParkId && stored && stored !== parkId) {
+      setParkId(stored);
+      parkChangeRef.current?.(stored);
+    }
+    if (initialParkId && initialParkId !== parkId) {
+      setParkId(initialParkId);
+      parkChangeRef.current?.(initialParkId);
+    }
     setMounted(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -159,6 +170,7 @@ export function ParkMapsView({
     setActiveParkId(id);
     setMode("view");
     setMessage(null);
+    parkChangeRef.current?.(id);
   }
 
   function updateMeta(patch: Partial<ReturnType<typeof getParkMeta>>) {

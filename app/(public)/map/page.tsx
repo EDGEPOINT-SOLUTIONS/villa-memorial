@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { PublicParkMap } from "@/components/public-park-map";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
+import { optionalSession } from "@/lib/auth/guard";
+import { canEditPlots } from "@/lib/park-3d/capability";
 
 export const metadata = { title: "Villa Memorial Park — Villa Memorial" };
 
@@ -22,6 +24,11 @@ export const dynamic = "force-dynamic";
  * visitor does not hold — a public read path for lots is a dev-authored gateway/
  * contract decision (blocked-on-dev, not invented here). Until then the live page
  * renders a graceful error instead of pretending.
+ *
+ * Capability note: the page stays public, but plotting is ADMIN ONLY (spec §3).
+ * The viewer's session is read here from the httpOnly cookies; holding
+ * `property:write` is what turns the plotting tools on, in Map mode and in 3D
+ * alike. A customer simply gets the same map and lots without them.
  */
 export default async function PublicMapPage({
   searchParams,
@@ -31,6 +38,8 @@ export default async function PublicMapPage({
   const sp = await searchParams;
   const initialPark = sp.park && ["villa","loyola","golden"].includes(sp.park) ? sp.park : undefined;
   const initialPlot = sp.plot?.trim() || undefined;
+  const session = await optionalSession();
+  const canPlot = canEditPlots(session?.scopes);
 
   let lots;
   try {
@@ -93,7 +102,7 @@ export default async function PublicMapPage({
         </div>
       </section>
       <div className="map-shell">
-        <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} />
+        <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} enable3d canPlot={canPlot} />
       </div>
     </div>
   );
