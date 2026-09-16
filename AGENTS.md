@@ -162,6 +162,7 @@ web/
 ├── lib/api-client/       # typed clients (generated from OpenAPI specs once published)
 ├── lib/fixtures/         # recorded contract fixtures; validated nightly vs specs
 ├── components/ui/        # design-system components — generic, zero domain vocabulary
+├── .agents/skills/       # vendored AWS agent-toolkit skills (skills-lock.json; `.claude/skills` symlinks) — not app code, excluded from lint
 └── styles/               # tokens.css is the single source of truth for visuals
 ```
 
