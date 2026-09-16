@@ -8,12 +8,15 @@
  * dimensions and price.
  *
  * The panel itself writes nothing. Its "next action" for an available linked lot is
- * chosen by the viewer's capability:
+ * chosen by the viewer's capability, in this order:
  *  · `reserveSlot` given (the viewer holds `property:write`) → the host renders the
  *    real reservation control (`components/lot-reserve-action.tsx`);
- *  · otherwise → the request-to-reserve contact link, which claims and reserves
- *    nothing. A signed-out customer therefore keeps the honest path the public map
- *    already used — never a control they are not entitled to use.
+ *  · else `showReserveRequest` (default) → the request-to-reserve contact link,
+ *    which claims and reserves nothing. A signed-out customer therefore keeps the
+ *    honest path the public map already used — never a control they are not
+ *    entitled to use;
+ *  · else nothing — a role with its own action (the agent portal) passes
+ *    `showReserveRequest={false}` and supplies it through `children`.
  *
  * ⚠ Prices: a plot that is linked to a published Lot shows that lot's real price.
  * Every other plot — including the placeholder inventory (P-/PR-/G-/GN- codes)
@@ -39,6 +42,7 @@ export function PlotDetails({
   lots,
   parkName,
   reserveSlot,
+  showReserveRequest = true,
   children,
 }: {
   selected: { area: PlotArea; parkId: string } | null;
@@ -49,6 +53,13 @@ export function PlotDetails({
    * viewers who may not reserve — the request-to-reserve link is rendered instead.
    */
   reserveSlot?: ReactNode;
+  /**
+   * Whether an available linked lot offers the public "request to reserve" copy
+   * and link. Default true — the public map and staff screens are unchanged.
+   * A role whose own hold/reserve action differs (the agent portal) passes false
+   * and supplies its action through `children`.
+   */
+  showReserveRequest?: boolean;
   /** Extra panels rendered under the details (e.g. the 3D plot tools). */
   children?: ReactNode;
 }) {
@@ -132,7 +143,7 @@ export function PlotDetails({
               <p className="text-sm text-muted">This lot is available.</p>
               {reserveSlot}
             </>
-          ) : (
+          ) : showReserveRequest ? (
             <>
               <p className="text-sm text-muted">
                 This lot is available. Buying online arrives with the lot-checkout contract (dev) —
@@ -145,7 +156,7 @@ export function PlotDetails({
                 Request to reserve {linkedLot.lot_number}
               </a>
             </>
-          )
+          ) : null
         ) : (
           <p className="text-sm text-muted">
             This lot is {lotStatusLabel(linkedLot.status).toLowerCase()}. Please contact the

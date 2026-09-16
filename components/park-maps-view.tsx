@@ -275,7 +275,8 @@ export function ParkMapsView({
       </div>
 
       <p className="text-sm text-muted" style={{ marginBottom: 0 }}>
-        {park.name} · {park.branch} — click a plot to inspect; staff can add circular plots
+        {park.name} · {park.branch} — click a plot to inspect
+        {canEdit ? "; staff can add circular plots" : "."}
       </p>
 
       {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
