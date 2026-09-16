@@ -69,6 +69,36 @@
   --slate-info: #5b7086;
   --slate-info-100: #e4eaf0;
 
+  /* --- 3D park scene materials -------------------------------------------
+     The walk-in park (components/park3d/*) is a material world, not a UI
+     surface: grass, asphalt, warm paving and stone have no equivalents among
+     the semantic roles above, so they are named here — one source of truth for
+     every 3D visual decision — and read through `scenePalette()`.
+     Scene colours are already "lit" (they sit under the scene's sun), so they
+     are one step darker than the illustration's flat colours. */
+  --scene-grass: #7d9a55;
+  --scene-grass-dark: #5d7a41;
+  --scene-grass-light: #92ab67;
+  --scene-future: #4f9463;
+  --scene-asphalt: #93999b;
+  --scene-asphalt-edge: #b6bbbc;
+  --scene-paving: #cbb68a;
+  --scene-concrete: #d5d3cb;
+  --scene-stone: #eeeade;
+  --scene-hedge: #3f5c33;
+  --scene-canopy: #4f7340;
+  --scene-canopy-light: #6f914d;
+  --scene-trunk: #6b5340;
+  --scene-water: #9dc0cc;
+  --scene-sky: #cfe4f5;
+  --scene-plot-available: #a8bf85;
+  --scene-plot-reserved: #d8c496;
+  --scene-plot-sold: #a9b8c6;
+  --scene-plot-occupied: #b9bdbf;
+  --scene-plot-maintenance: #cfa79f;
+  --scene-plot-line: #ece7d8;
+  --scene-marker: #c79b1e;
+
   /* --- Semantic roles ----------------------------------------------------- */
   --color-bg-page: var(--sky-50);
   --color-bg-surface: #fbfdff;

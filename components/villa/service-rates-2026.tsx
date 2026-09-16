@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { CatalogueAddButton } from "@/components/catalogue-add-button";
+import { ChapelBookingButton, type ChapelCatalogueItem } from "@/components/chapel-booking-dialog";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { ServiceIcons, IconChapel, IconEmbalming } from "@/components/villa/service-icons";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import type { ChapelClass } from "@/lib/chapel-booking";
 import type { CatalogItem } from "@/lib/api-client/commerce";
 import {
   ALACARTE_LINES,
@@ -313,6 +314,15 @@ export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
 /**
  * The chapel options: two photo cards (common & private, per day, senior rates
  * and the two actions) above the sheet's full 3–9 day schedule and its notes.
+ *
+ * published verbatim beside the table rather than silently reconciled.
+ *
+ * A chapel is NOT a one-click cart item: every chapel action opens the booking
+ * step (components/chapel-booking-dialog.tsx), where the customer picks the
+ * chapel, a 3–9 day stay and a start date, sees that the park's own schedule has
+ * every one of those days free, sees the exact price for the range, and only
+ * then adds it (the dialog holds the dates via scheduling). The prefilled
+ * request stays beside it for senior rates, questions and office-arranged stays.
  */
 export function ChapelRates({ items }: { items: CatalogItem[] }) {
   const lookup = catalogueLookup(items);
@@ -320,6 +330,21 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
   const privateChapel = lookup(CHAPEL_SKUS.private);
   const commonCart = cartItemOf(common);
   const privateCart = cartItemOf(privateChapel);
+  const chapelItems: Partial<Record<ChapelClass, ChapelCatalogueItem>> = {};
+  if (commonCart) chapelItems.common = commonCart;
+  if (privateCart) chapelItems.private = privateCart;
+
+  const chapelRequest = (
+    chapelClass: ChapelClass,
+    item: CatalogItem | undefined,
+    perDay: number,
+  ) =>
+    buildRequestHref({
+      item: `Chapel use — ${chapelClass} chapel, per day`,
+      sku: item?.sku,
+      price: `${money(perDay)} / day`,
+      note: `Chapel use when the service is not with Villa. ${CHAPEL_NOTES.miscFee}`,
+    });
 
   const chapels = [
     {
@@ -382,32 +407,26 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
                 </div>
               </dl>
               <div className="chapel-card__actions">
-                {chapel.item ? (
-                  <CatalogueActions
-                    item={cartItemOf(chapel.item)!}
-                    displayPrice={chapel.item.display_price}
-                    prefill={{
-                      note: `Chapel use when the service is not with Villa. ${CHAPEL_NOTES.miscFee}`,
-                    }}
-                  />
-                ) : (
+                <div className="catalogue-actions">
+                  {chapel.item ? (
+                    <ChapelBookingButton
+                      chapelClass={chapel.key}
+                      items={chapelItems}
+                      label="Book these dates"
+                    />
+                  ) : null}
                   <Link
-                    href={buildRequestHref({
-                      item: `Chapel use — ${chapel.name.toLowerCase()}, per day`,
-                      price: `${money(chapel.perDay)} / day`,
-                      note: CHAPEL_NOTES.scope,
-                    })}
+                    href={chapelRequest(chapel.key, chapel.item, chapel.perDay)}
                     className="btn btn--secondary btn--sm"
                   >
                     Request order
                   </Link>
-                )}
+                </div>
               </div>
               <p className="chapel-card__illus">{CHAPEL_SAMPLE_NOTE}</p>
             </div>
           </article>
-        ))}
-      </div>
+        ))}      </div>
 
       <h3 className="section-title" id="chapel-schedule-title">
         Chapel use — per day, common &amp; private
@@ -452,17 +471,19 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
                 <td>
                   <div className="catalogue-actions catalogue-actions--column">
                     {commonCart ? (
-                      <CatalogueAddButton
-                        item={commonCart}
-                        quantity={r.days}
-                        label={`Add common ${r.days} days`}
+                      <ChapelBookingButton
+                        chapelClass="common"
+                        days={r.days}
+                        items={chapelItems}
+                        label={`Book common ${r.days} days`}
                       />
                     ) : null}
                     {privateCart ? (
-                      <CatalogueAddButton
-                        item={privateCart}
-                        quantity={r.days}
-                        label={`Add private ${r.days} days`}
+                      <ChapelBookingButton
+                        chapelClass="private"
+                        days={r.days}
+                        items={chapelItems}
+                        label={`Book private ${r.days} days`}
                       />
                     ) : null}
                     <Link
@@ -486,8 +507,7 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
         <li className="text-sm text-muted">{CHAPEL_NOTES.seniorPerDay}</li>
         <li className="text-sm text-muted">{CHAPEL_NOTES.privateChapelOnly}</li>
       </ul>
-    </section>
-  );
+    </section>  );
 }
 
 /** All three service blocks, in the order /services lays them out. */

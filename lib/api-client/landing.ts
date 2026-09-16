@@ -20,6 +20,7 @@
  * displayed prices are content strings sourced from lib/villa-pricing.ts.
  */
 import { ApiError } from "@/lib/api-client/api-error";
+import { LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
 export type RailItemKind = "product" | "service" | "plan" | "link";
@@ -77,30 +78,52 @@ export type AboutSection = {
   image: string | null;
 };
 
-export type ServiceLink = { label: string; href: string };
-export type ServiceDetail = {
+/**
+ * One "Services we offer" card (home.html · SERVICES WE OFFER — the client's
+ * four-families sheet, one card each).
+ *
+ * NO AMOUNT IS AUTHORED HERE: `category` names the LOT_PRICE_CATEGORIES family
+ * the card prices from, and the view derives the prototype's meta line ("from
+ * ₱75,000 · ₱1,125 / month, 6 yrs") through lotCategoryFromPrice() in
+ * lib/villa-pricing.ts. `icon` names one of the four prototype glyphs
+ * (components/landing/service-icons.tsx); an unknown key degrades to the
+ * generic glyph rather than breaking the card.
+ */
+export type ServiceCard = {
   id: string;
+  icon: string;
   title: string;
-  tagline: string | null;
-  image: string | null;
-  body: string[];
-  bullets: string[];
-  link: ServiceLink;
-};
-
-export type ServicesSection = { heading: string; intro: string; items: ServiceDetail[] };
-
-export type PlanCard = {
-  id: string;
-  badge: string | null;
-  name: string;
-  price: string;
-  note: string | null;
-  image: string | null;
+  text: string;
   href: string;
+  /** LOT_PRICE_CATEGORIES title — the client's own 2026 sheet heading. */
+  category: string;
 };
 
-export type PlansSection = { heading: string; intro: string; note: string | null; items: PlanCard[] };
+export type ServicesSection = {
+  kicker: string;
+  heading: string;
+  intro: string;
+  items: ServiceCard[];
+};
+
+/**
+ * "Plan ahead" — the Villa Memorial Plan board (home.html · VILLA MEMORIAL
+ * PLAN): the promo figure beside the tier × term table, the term switch, the
+ * footnote and the partner logo row.
+ *
+ * The board itself is NOT content: every tier, term and amount is read live
+ * from lib/villa-pricing.ts (PLAN_TIERS × PLAN_TERMS through planRate), so the
+ * figures can never drift from the client's payment-mode tables. The footnote
+ * is staff copy and may carry two tokens the view fills from the same module —
+ * `{seniorMonthly}` (the senior Bronze-1 monthly rate) and `{packagePage}`
+ * (the anchor to the package page). Amounts are never authored in content.
+ */
+export type PlansSection = {
+  kicker: string;
+  heading: string;
+  intro: string;
+  note: string | null;
+};
 
 export type MediaItem = {
   kind: MediaKind;
@@ -202,33 +225,16 @@ function readRailConfig(raw: unknown): RailConfig {
   };
 }
 
-function readServiceDetail(raw: unknown): ServiceDetail | null {
+function readServiceCard(raw: unknown): ServiceCard | null {
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
   if (!str(r.title)) return null;
-  const linkRaw = r.link;
-  const link = (typeof linkRaw === "object" && linkRaw !== null ? linkRaw : {}) as Record<string, unknown>;
   return {
     id: str(r.id) || `svc-${Math.random().toString(36).slice(2, 8)}`,
+    icon: str(r.icon),
     title: str(r.title),
-    tagline: nullableStr(r.tagline),
-    image: nullableStr(r.image),
-    body: arr(r.body).map((b) => str(b)).filter(Boolean),
-    bullets: arr(r.bullets).map((b) => str(b)).filter(Boolean),
-    link: { label: str(link.label, "Learn more"), href: str(link.href, "/services") },
-  };
-}
-
-function readPlanCard(raw: unknown): PlanCard | null {
-  const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
-  if (!str(r.name) || !str(r.price)) return null;
-  return {
-    id: str(r.id) || `plan-${Math.random().toString(36).slice(2, 8)}`,
-    badge: nullableStr(r.badge),
-    name: str(r.name),
-    price: str(r.price),
-    note: nullableStr(r.note),
-    image: nullableStr(r.image),
-    href: str(r.href, "/plans"),
+    text: str(r.text),
+    href: str(r.href, "/services"),
+    category: str(r.category),
   };
 }
 
@@ -317,19 +323,18 @@ export function readLandingContent(raw: unknown): LandingContent {
       image: readNullable(aboutRaw as Record<string, unknown>, "image"),
     },
     services: {
-      heading: readStr(servicesRaw as Record<string, unknown>, "heading") || "Services in full detail",
+      kicker: readStr(servicesRaw as Record<string, unknown>, "kicker") || "What we do",
+      heading: readStr(servicesRaw as Record<string, unknown>, "heading") || "Services we offer",
       intro: readStr(servicesRaw as Record<string, unknown>, "intro"),
       items: arr((servicesRaw as Record<string, unknown>).items)
-        .map(readServiceDetail)
-        .filter((x): x is ServiceDetail => x !== null),
+        .map(readServiceCard)
+        .filter((x): x is ServiceCard => x !== null),
     },
     plans: {
-      heading: readStr(plansRaw as Record<string, unknown>, "heading") || "Memorial plans & garden lots",
+      kicker: readStr(plansRaw as Record<string, unknown>, "kicker") || "Plan ahead",
+      heading: readStr(plansRaw as Record<string, unknown>, "heading") || "Villa Memorial Plan",
       intro: readStr(plansRaw as Record<string, unknown>, "intro"),
       note: readNullable(plansRaw as Record<string, unknown>, "note"),
-      items: arr((plansRaw as Record<string, unknown>).items)
-        .map(readPlanCard)
-        .filter((x): x is PlanCard => x !== null),
     },
     blog: {
       heading: readStr(blogRaw as Record<string, unknown>, "heading") || "News from the park",
@@ -353,8 +358,10 @@ export function readLandingContent(raw: unknown): LandingContent {
  *  - rail items carry a known kind and a title + href (rail length is unlimited);
  *    at most one item per rail may be the oversized lead image (the tolerant
  *    reader keeps the first, so the editor must clear the others when toggling);
- *  - empty rails / empty plans / empty blog posts lists are legal (the page
- *    renders graceful empty states);
+ *  - service cards carry a title, copy, a link and a REAL 2026 lot family — the
+ *    card's price line is derived from that family, never typed;
+ *  - empty rails / empty service-card lists / empty blog posts lists are legal
+ *    (the page renders graceful empty states);
  *  - a blog post MAY have an empty media list (caption-only post);
  *  - a blog post MAY carry an optional link — the route its photo/caption opens
  *    (empty means the post is not clickable);
@@ -384,6 +391,20 @@ export function validateLandingContent(content: LandingContent): { ok: true } | 
       if (!item.title.trim() || !item.href.trim()) {
         return { ok: false, error: `A ${side}-rail item is missing its title or link.` };
       }
+    }
+  }
+  if (content.plans.note !== null && content.plans.note.trim().length === 0) {
+    return { ok: false, error: "The plan footnote can't be blank — leave it out entirely instead." };
+  }
+  for (const card of content.services.items) {
+    if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
+      return { ok: false, error: `“${card.title || "A service card"}” needs a title, a line of copy and a link.` };
+    }
+    if (!LOT_PRICE_CATEGORIES.some((c) => c.title === card.category)) {
+      return {
+        ok: false,
+        error: `“${card.title}” must price from one of the 2026 lot families (lib/villa-pricing.ts).`,
+      };
     }
   }
   for (const post of content.blog.posts) {

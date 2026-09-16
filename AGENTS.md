@@ -81,11 +81,22 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
-  hold UNLIMITED items per side — empty plan/blog lists are legal). The three-
-  column anchored shell (fixed 17rem rails + centred 50rem middle) and the
-  rail/footer/section styles live in the "anchored catalogue home" block of
+  hold UNLIMITED items per side — an empty service-card or blog list is legal).
+  The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
+  the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the
   MobileQuickMenu flyout.
+- The two mid sections are the approved prototype's, NOT hand-written:
+  **"What we do" / Services we offer** (four cards) and **"Plan ahead" / Villa
+  Memorial Plan** (promo figure + payment-mode switch + tier × term board) come
+  from `docs/prototypes/villa-home-ui/home.html`. A card stores only a
+  `LOT_PRICE_CATEGORIES` family key — the view prints "from ₱X · ₱Y / month,
+  6 yrs" through `lotCategoryFromPrice()`; the board holds NO items (its copy is
+  kicker/heading/intro/note) and reads its 5 × 4 figures through `planRate()`,
+  with the footnote's `{seniorMonthly}` / `{packagePage}` tokens resolved from
+  the same module. Never author an amount in the fixture, the copy or a view,
+  and keep the board's `.plan-scroll` pan frame + the `.plan-band` stack below
+  88rem (the five columns do not fit the railed middle column otherwise).
 - The staff editor is the premium `app/(staff)/staff/landing` page (scope
   catalog:write, reused provisionally); its rail picker catalogue in
   `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —
@@ -171,10 +182,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   service cards, embalming per day (table + the client's wake photo), chapel options as
   photo cards above the 3–9 day schedule. All of it renders from
   `components/villa/service-rates-2026.tsx` with the `.svc-*` / `.chapel-*` block in
-  `styles/components.css`; figures stay in `lib/villa-pricing.ts` and every line keeps
-  the shared Add-to-cart + Request-order pair (`components/villa/catalogue-actions.tsx`).
-  `tests/unit/price-surfacing.test.tsx` still pins every string/action on it — keep them
-  when editing the layout.
+  `styles/components.css`; figures stay in `lib/villa-pricing.ts`. The a-la-carte and
+  embalming lines keep the shared Add-to-cart + Request-order pair
+  (`components/villa/catalogue-actions.tsx`); **chapel lines are the one documented
+  exception — they open the booking step** (`ChapelBookingButton`, "Book these dates" /
+  "Book common|private N days" per the chapel-booking contract below), never a plain
+  add-to-cart. `tests/unit/price-surfacing.test.tsx` and
+  `tests/unit/villa-services-premium.test.tsx` both pin that split — keep them when
+  editing the layout.
 - **Sample imagery is client material and is always labelled illustrative.** The chapel
   photos, the carriage and the five sample coffins are cropped from the client's own
   TYPES OF COFFIN sheet (`scripts/crop-client-sheet-tiles.mjs`, sharp ships with Next;
@@ -219,6 +234,76 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   was clicked and say plainly that nothing is reserved. Reuse this seam for every new
   request action; never invent a second contact-link shape.
 
+## Chapel bookings — customer flow (read before touching chapel actions or the cart)
+
+- A chapel is NOT a one-click cart item. Every chapel action on `/services` opens
+  `components/chapel-booking-dialog.tsx` (choose chapel → start date + 3–9 day stay →
+  per-day availability → exact range price → Add to cart). The prefilled **Request order**
+  stays beside it. Never re-add a direct chapel Add-to-cart button.
+- **One rules home: `lib/chapel-booking.ts`** (pure, client+server): the 3–9 day bound,
+  UTC-midnight calendar windows, per-day occupancy (a range is bookable only when no
+  confirmed booking and no blocked date touches any of its days), prices read through
+  `chapelStayPrices()` from `CHAPEL_RATES` (never restate an amount), the refusal copy,
+  and the booking metadata a cart line carries. Server orchestration (chapel slice of
+  the schedule, reserve, release) is `lib/api-client/chapel-reservations.ts`; the BFF
+  routes are `/api/chapel/schedule`, `/api/chapel/bookings`,
+  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).- **Reserve on add, release on remove**: Add to cart creates a scheduling booking
+  (title marker `Online chapel booking`), removing the line cancels it; the booking is
+  re-checked against a fresh schedule and rolled back if the service flags a race
+  (scheduling v1 flags conflicts instead of blocking — cut line #3). The cart line is
+  keyed by `lineId` (`cartLineKey` in `lib/cart/cart-context.tsx`) so two stays of the
+  same class coexist; checkout still sends only `{sku, quantity}` with quantity = days
+  and the per-day unit price, so the server-repriced order totals the stay.
+- **PLACEHOLDER config**: which chapels exist, their names, classes and closed dates come
+  from the staff screen below (durable store) — `CHAPEL_CLASS_RULES` in
+  `lib/chapel-booking.ts` is now only the fallback for a resource the park's own records do
+  not list (same mapping as the seed fixture). Live mode has no
+  public booking contract: scheduling v1 requires a staff session, so an anonymous
+  visitor gets 401 and the dialog degrades to Request order — not a hidden stub.
+- Evidence: `tests/unit/chapel-booking.test.ts` (bounds, overlap/blocked/no-chapel
+  refusals, range price, cart metadata, release-on-removal),
+  `tests/unit/chapel-booking-dialog.test.tsx` (trigger + step rendering).
+
+## Chapel administration — staff side (read before touching chapel settings/availability)
+
+- **One store, two faces.** `/staff/schedule` (the chapel sections) and the customer dialog
+  read the same chapel records: `lib/api-client/chapel-store.ts` (seed
+  `lib/fixtures/scheduling/chapel-admin.json`; journal `CHAPEL_STORE_PATH` or
+  `.data/scheduling-chapel-admin.json`, gitignored — atomic writer like the orders store).
+  Closing a range or deactivating a chapel changes what a customer can book on the NEXT
+  read; nothing caches it.
+- **Rules**: `lib/chapel-admin.ts` (pure — chapel records/validation, closed ranges,
+  operator status `hold → confirmed / cancelled`, the free·held·booked·closed month grid);
+  server orchestration `lib/api-client/chapel-admin.ts`; BFF routes
+  `/api/schedule/chapels`, `/api/schedule/chapels/[id]`, `/api/schedule/chapels/[id]/blocks`,
+  `/api/schedule/chapel-blocks/[id]`, `/api/schedule/bookings/[id]/confirm` (+ the cancel
+  route below). All need `scheduling:write`; the shared gate is `app/api/schedule/_guard.ts`.
+  UI is route-local: `app/(staff)/staff/schedule/chapel-{settings,availability,bookings}.tsx`.
+- **Delete = deactivate.** An inactive chapel keeps its bookings and calendar but leaves the
+  storefront (`getChapelSchedule` filters it); a chapel added on the screen becomes a
+  fixture-mode scheduling resource (`app-chapel-…` ids merged by `listResources()`), names
+  are unique, and capacity/notes are staff-editable. The PLACEHOLDER notice on the card is
+  the client-question flag — the park's real chapel list is still unconfirmed.
+- **Cancelling a chapel booking requires a reason.** `POST /api/schedule/bookings/:id/cancel`
+  routes chapel bookings through `cancelChapelBooking` (cancel on the service FIRST — that
+  frees the dates — then record the reason app-side; booking-events-v1 carries no reason
+  field). Any other resource keeps the plain proxy. The generic `CancelBookingButton`
+  (`components/schedule-actions.tsx`) grows the reason form via its `chapel` prop.
+- **Holds vs confirmed.** A booking whose title carries `ONLINE_CHAPEL_BOOKING_MARKER` is
+  "only in a customer's cart" until staff confirm it or checkout claims it. The claim
+  (`POST /api/chapel/bookings/[id]/claim`, called best-effort by
+  `app/(public)/checkout/page.tsx` right after the order 201) is app-authored: the frozen
+  checkout contract still sends only `{sku, quantity}`, so the page that still holds the
+  reservation ids links them, and the server checks the order really carries that chapel
+  class line for that many days. A failed claim leaves an ordinary hold.
+- **Live mode**: booking-events-v1 has no resource write endpoint and no maintenance-window
+  shape, so settings/closures/confirmations answer 503 (`CHAPEL_ADMIN_NOT_WIRED`) instead of
+  inventing a contract; the chapel slice of the schedule still reads.
+- Evidence: `tests/unit/chapel-admin.test.ts` (closure → refusal, cancel frees + records the
+  reason, add/rename/deactivate, claim), `tests/unit/chapel-admin-rbac.test.tsx` (401/403,
+  page gating, same-store effects), `tests/fixture-contract/chapel-admin.test.ts` (seed pinned
+  to the scheduling resources fixture + the fallback rules).
+
 ## 2026 price list — where every client figure surfaces
 
 - **One transcription home: `lib/villa-pricing.ts`.** Its header maps every export to
@@ -261,6 +346,62 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   its own footnote says ₱1,800/₱4,200 per day; (2) no sheet maps the Bronze/Silver/Gold
   tier photography to the named Lumina/White Rose/Crown/Dynasty models. `2026 price FV
   website A.pdf` is byte-identical to `PRICE LIST FOR 2026 II.pdf` (one source, two names).
+
+## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
+
+- The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
+  switches between **Map** (the plain masterplan image, the existing plotting editor) and
+  **3D** (the walk-in park, react-three-fiber). The 3D mode owns the whole screen: entering
+  requests full screen from the switch gesture (graceful where the browser refuses) and every
+  control — exit, camera, section/search/filter list, settings, details, plot tools — lives
+  inside the experience, never in the page chrome. The other parks (Loyola, Golden Haven) keep
+  their own images and are untouched by the 3D world.
+- **`lib/park-maps.ts` is the single plot store for both modes** (image-space coordinates,
+  shapes, status, type, section/block, linked lot, demo-local localStorage — never claim
+  multi-user sync). The ONE image↔world conversion is `lib/park-3d/coords.ts` (store frame
+  100×75 → metres); all masterplan geometry is authored in masterplan pixels in
+  `lib/park-3d/masterplan.ts` and pushed through it, so the 2D image and the 3D world cannot
+  drift apart. Placing/moving/deleting in 3D writes the same image-space records the map
+  editor writes; selection is shared (`components/park-plot-details.tsx` renders the same
+  panel in both modes).
+- **The masterplan is the only spatial source of truth**: `public/media/Park map.png` (client
+  asset; do not swap it). No invented sections/roads/buildings/numbers. Placeholder inventory
+  is generated in `lib/park-3d/placeholder-lots.ts` (clearly-marked `P-/PR-/G-/GN-` codes,
+  “Contact for pricing”, every grid configurable there) and the chosen-not-measured values are
+  listed in `ASSUMPTIONS` in `lib/park-3d/masterplan.ts`. The binding contract for this feature
+  is `docs/07-client-villa/park-3d-spec.md` (§0).
+- **Plotting is admin-only**: `lib/park-3d/capability.ts` derives `canEditPlots` from the
+  viewer's `property:write` scope; the page reads an optional session
+  (`optionalSession` in `lib/auth/guard.ts`) and passes one boolean down. Customers see the map
+  and the lots, can select/inspect them in either mode, and get no plotting tools — the 3D place
+  and move gestalts are gated by the same flag.
+- **3D internals**: scene/blockout `components/park3d/scene.tsx`, real raycast plot picking +
+  instanced slabs `components/park3d/plots-3d.tsx`, vegetation instancing
+  `components/park3d/vegetation.tsx`, UI/store state `lib/park-3d/view-store.ts` (zustand),
+  drone flight envelope + controls `lib/park-3d/flight.ts` + `components/park3d/camera-rig.tsx`
+  (pointer-lock look, Minecraft grammar: WASD relative to view, Space/Shift vertical, Space×2
+  toggles free flight, Ctrl or W×2 sprints), POIs `lib/park-3d/masterplan.ts`. The developer
+  overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
+  in `tests/unit/park-3d-*`.
+
+## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
+
+- Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed
+  (`lib/fixtures/commerce/orders.json`) with an append-only event journal, rewritten atomically
+  (temp file + fsync + `rename`) under one serialized writer per process. Path:
+  `ORDERS_STORE_PATH` or `.data/commerce-orders.json` (gitignored). Tests must point
+  `ORDERS_STORE_PATH` at a temp file — never the repo store.
+- The frozen `OrderResponse` envelope is untouched: an `AdminOrder` merely wraps it with the
+  checkout contact + an APP-AUTHORED lifecycle (`new → confirmed → fulfilled`, `→ cancelled`).
+  The lifecycle never rewrites the frozen payment `status` (phase 1 does no payments/refunds).
+  No contract names an order-admin record: live mode answers 503 (`ADMIN_ORDERS_NOT_WIRED`) —
+  do not invent endpoints.
+- Scopes (frozen `rbac-scopes-v1`): `orders:read` gates the list/detail pages, `orders:write`
+  gates `POST /api/orders/:number/status` (read-only UI otherwise). List filters are
+  server-driven via `searchParams` (status / q / from / to).
+- Seed numbers, customers and totals mirror the billing fixture's invoices and every line's
+  SKU/price is pinned to `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`;
+  store/transition/RBAC behavior by `tests/unit/order-store.test.ts` + `tests/unit/orders-admin.test.tsx`.
 
 ## Structure conventions
 ```

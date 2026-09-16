@@ -17,12 +17,15 @@ import type {
   BlogPost,
   LandingContent,
   MediaItem,
-  PlanCard,
   RailConfig,
   RailItem,
-  ServiceDetail,
+  ServiceCard,
 } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
+import { PlanBoard } from "@/components/landing/plan-board";
+import { serviceCardIcon } from "@/components/landing/service-icons";
+import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { lotCategoryFromPrice, php } from "@/lib/villa-pricing";
 
 export type LandingViewProps = {
   content: LandingContent;
@@ -214,61 +217,27 @@ function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
   );
 }
 
-function PlanCardLink({ plan }: { plan: PlanCard }) {
+function ServiceCardLink({ card }: { card: ServiceCard }) {
+  // The prototype's meta line ("from ₱75,000 · ₱1,125 / month, 6 yrs") is
+  // DERIVED from the card's 2026 lot family — no amount is ever authored in
+  // content (lib/villa-pricing.ts is the one transcription home).
+  const from = lotCategoryFromPrice(card.category);
   return (
-    <a className="plan-card" href={plan.href}>
-      <span className="plan-card__media">
-        {plan.image ? (
-          // eslint-disable-next-line @next/next/no-img-element -- plan photo
-          <img src={plan.image} alt={plan.name} loading="lazy" />
-        ) : (
-          <span className="plan-card__media-empty" aria-hidden="true">
-            {(plan.name.charAt(0) || "P").toUpperCase()}
-          </span>
-        )}
+    <a className="svc-card" href={card.href}>
+      <span className="svc-card__icon" aria-hidden="true">
+        {serviceCardIcon(card.icon)}
       </span>
-      <span className="plan-card__body">
-        {plan.badge ? <span className="plan-card__badge">{plan.badge}</span> : null}
-        <span className="plan-card__name">{plan.name}</span>
-        <span className="plan-card__price">{plan.price}</span>
-        {plan.note ? <span className="plan-card__note">{plan.note}</span> : null}
+      <span>
+        <span className="svc-card__title">{card.title}</span>{" "}
+        <span className="svc-card__text">{card.text}</span>
+        {from ? (
+          <span className="svc-card__meta">
+            <span className="svc-card__from">from {php(from.selling)}</span>
+            <span>· {php(from.monthly)} / month, 6 yrs</span>
+          </span>
+        ) : null}
       </span>
     </a>
-  );
-}
-
-function ServiceBlock({ service, index }: { service: ServiceDetail; index: number }) {
-  return (
-    <article className="service-block">
-      <span className="service-block__num" aria-hidden="true">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      <div className="service-block__text">
-        <h3>{service.title}</h3>
-        {service.tagline ? <p className="service-block__tagline">{service.tagline}</p> : null}
-        {service.body.map((para, pi) => (
-          <p key={`${service.id}-p${pi}`} className="service-block__body">
-            {para}
-          </p>
-        ))}
-        {service.bullets.length > 0 ? (
-          <ul className="service-block__bullets">
-            {service.bullets.map((b) => (
-              <li key={b}>{b}</li>
-            ))}
-          </ul>
-        ) : null}
-        <a className="service-block__link" href={service.link.href}>
-          {service.link.label} →
-        </a>
-      </div>
-      {service.image ? (
-        <figure className="service-block__media">
-          {/* eslint-disable-next-line @next/next/no-img-element -- service photo */}
-          <img src={service.image} alt={service.title} loading="lazy" />
-        </figure>
-      ) : null}
-    </article>
   );
 }
 
@@ -473,15 +442,15 @@ function ServicesSection({ content }: { content: LandingContent }) {
   const { services } = content;
   return (
     <section className="mid-section" aria-labelledby="services-title">
-      <p className="mid-kicker">What we do</p>
+      <p className="mid-kicker">{services.kicker}</p>
       <h2 id="services-title">{services.heading}</h2>
-      <p className="mid-intro">{services.intro}</p>
+      <p className="mid-sub">{services.intro}</p>
       {services.items.length === 0 ? (
-        <p className="mid-empty">Service details will appear here once staff publishes them.</p>
+        <p className="mid-empty">Service cards will appear here once staff publishes them.</p>
       ) : (
-        <div className="services-list">
-          {services.items.map((service, i) => (
-            <ServiceBlock key={service.id} service={service} index={i} />
+        <div className="svc-grid">
+          {services.items.map((card) => (
+            <ServiceCardLink key={card.id} card={card} />
           ))}
         </div>
       )}
@@ -489,23 +458,26 @@ function ServicesSection({ content }: { content: LandingContent }) {
   );
 }
 
+/** "Plan ahead" — the prototype's Villa Memorial Plan board: the promo figure
+ * beside the tier × term board (switch · table · footnote · partner logos).
+ * Every amount on the board comes from lib/villa-pricing.ts. */
 function PlansSection({ content }: { content: LandingContent }) {
   const { plans } = content;
   return (
-    <section className="mid-section" aria-labelledby="plans-title">
-      <p className="mid-kicker">Plan ahead</p>
-      <h2 id="plans-title">{plans.heading}</h2>
-      <p className="mid-intro">{plans.intro}</p>
-      {plans.items.length === 0 ? (
-        <p className="mid-empty">Plan cards will appear here once staff publishes them.</p>
-      ) : (
-        <div className="plan-grid">
-          {plans.items.map((plan) => (
-            <PlanCardLink key={plan.id} plan={plan} />
-          ))}
-        </div>
-      )}
-      {plans.note ? <p className="mid-note">{plans.note}</p> : null}
+    <section className="mid-section" aria-labelledby="vmp-title">
+      <p className="mid-kicker">{plans.kicker}</p>
+      <h2 id="vmp-title">{plans.heading}</h2>
+      <p className="mid-sub">{plans.intro}</p>
+      <div className="plan-band">
+        <figure className="promo-figure">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded promo art */}
+          <img
+            src={PLAN_PACKAGES_IMAGE}
+            alt="Villa Memorial Plan — comprehensive packages for your peace of mind"
+          />
+        </figure>
+        <PlanBoard note={plans.note} />
+      </div>
     </section>
   );
 }

@@ -21,7 +21,24 @@
  * response so the full buy flow demos standalone.
  */
 import { ApiError } from "@/lib/api-client/api-error";
+import {
+  createFixtureOrder,
+  getFixtureAdminOrder,
+  listFixtureAdminOrders,
+  transitionFixtureOrder,
+  type AdminOrder,
+  type OrderTransition,
+} from "@/lib/api-client/order-store";
 import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
+
+export {
+  availableTransitions,
+  ORDER_LIFECYCLE_LABEL,
+  type AdminOrder,
+  type OrderLifecycleStatus,
+  type OrderTimelineEvent,
+  type OrderTransition,
+} from "@/lib/api-client/order-store";
 
 const BASE_URL = process.env.COMMERCE_BASE_URL ?? "";
 
@@ -200,24 +217,52 @@ export async function getOrderByNumber(number: string): Promise<OrderResponse> {
   return fixtureGetOrderByNumber(number);
 }
 
+/* --------------------------- admin (staff) mode --------------------------- */
+
+/**
+ * Staff order administration (list · detail · lifecycle transitions).
+ *
+ * The frozen order-payment-api-v1 contract carries no admin list and no transition
+ * endpoint, so LIVE MODE HONESTLY REFUSES (503) instead of inventing a contract — the same
+ * posture as purchase-applications.ts. Fixture mode reads the durable store
+ * (lib/api-client/order-store.ts), which folds the recorded seed with everything checkout
+ * persisted. `orders:read` guards the screens, `orders:write` the transition route.
+ */
+export const ADMIN_ORDERS_NOT_WIRED =
+  "order administration is fixture-mode only: no frozen contract names an order list or " +
+  "status-transition endpoint yet.";
+
+/** Every order for the staff admin screen, newest first. */
+export async function listOrders(): Promise<AdminOrder[]> {
+  if (commerceLiveModeEnabled()) {
+    throw new ApiError(ADMIN_ORDERS_NOT_WIRED, 503);
+  }
+  return listFixtureAdminOrders();
+}
+
+/** One order for the staff admin detail screen, or null when the number is unknown. */
+export async function getAdminOrder(number: string): Promise<AdminOrder | null> {
+  if (commerceLiveModeEnabled()) {
+    throw new ApiError(ADMIN_ORDERS_NOT_WIRED, 503);
+  }
+  return getFixtureAdminOrder(number);
+}
+
+/** Applies one operator lifecycle transition (new → confirmed → fulfilled, or → cancelled). */
+export async function transitionOrder(
+  number: string,
+  status: OrderTransition,
+  actor: { by: string; reason?: string },
+): Promise<AdminOrder> {
+  if (commerceLiveModeEnabled()) {
+    throw new ApiError(ADMIN_ORDERS_NOT_WIRED, 503);
+  }
+  return transitionFixtureOrder(number, status, actor);
+}
+
 /* ----------------------------- fixture mode ----------------------------- */
 
 const STORE = catalogFile as unknown as CatalogStore;
-
-// Next.js compiles route handlers into separate bundles — module-level
-// variables are NOT shared across them. Demo order state must live on
-// globalThis so POST /api/orders and GET /api/orders/:number see the same
-// store within one server process (fixtures mode is demo-only anyway).
-type FixtureGlobal = typeof globalThis & {
-  __imFixtureOrders?: Map<string, OrderResponse>;
-  __imFixtureOrderSeq?: number;
-};
-const fixtureGlobal = globalThis as FixtureGlobal;
-const recordedOrders = (fixtureGlobal.__imFixtureOrders ??= new Map<string, OrderResponse>());
-
-function findFixture(sku: string): CatalogItem | undefined {
-  return STORE.items.find((i) => i.sku === sku);
-}
 
 function fixtureListCatalogItems(
   itemType?: CatalogItem["item_type"],
@@ -235,61 +280,18 @@ function fixtureGetCatalogItem(idOrSku: string): CatalogItem {
   return item;
 }
 
-export function fixtureCreateOrder(input: CheckoutInput): OrderResponse {
-  const { customer, items } = input;
-  if (
-    !customer?.name?.trim() ||
-    !customer?.email?.includes("@") ||
-    !customer?.phone?.trim()
-  ) {
-    throw new ApiError("customer details are incomplete", 422);
-  }
-
-  // Merge duplicate SKUs; validate against the seeded catalog (server-priced).
-  const merged = new Map<string, number>();
-  for (const line of items ?? []) {
-    const qty = Number(line.quantity);
-    if (!Number.isInteger(qty) || qty <= 0) {
-      throw new ApiError("quantities must be positive whole numbers", 422);
-    }
-    merged.set(line.sku, (merged.get(line.sku) ?? 0) + qty);
-  }
-  if (merged.size === 0) throw new ApiError("at least one item is required", 422);
-
-  const lines = [...merged.entries()].map(([sku, quantity]) => {
-    const item = findFixture(sku);
-    if (!item) throw new ApiError("not_found", 404); // contract: unknown SKU
-    return { item, quantity };
-  });
-
-  fixtureGlobal.__imFixtureOrderSeq = (fixtureGlobal.__imFixtureOrderSeq ?? 0) + 1;
-  const seq = fixtureGlobal.__imFixtureOrderSeq;
-  const now = new Date().toISOString();
-  const order: OrderResponse = {
-    number: `ORD-2026-${String(seq).padStart(5, "0")}`,
-    status: "paid", // M0 sandbox adapter succeeds synchronously per contract
-    customer_name: customer.name.trim(),
-    total_cents: lines.reduce((s, l) => s + l.item.unit_price_cents * l.quantity, 0),
-    currency: "PHP",
-    items: lines.map(({ item, quantity }) => ({
-      catalog_item_id: item.id,
-      item_type: item.item_type,
-      sku: item.sku,
-      name: item.name,
-      quantity,
-      unit_price_cents: item.unit_price_cents,
-    })),
-    placed_at: now,
-    event_uuid: `fixture-event-${seq}`,
-  };
-  // Fixture-mode persistence (in-memory): GET /orders/:number works right
-  // after creation, mirroring live capability-token semantics.
-  recordedOrders.set(order.number, order);
-  return order;
+/**
+ * Fixture checkout, persisted through the durable store. Kept as a named export so the
+ * fixture seam (and its tests) stay where they were; the implementation lives in
+ * lib/api-client/order-store.ts so POST /api/orders and the staff admin read one store.
+ */
+export function fixtureCreateOrder(input: CheckoutInput): Promise<OrderResponse> {
+  return createFixtureOrder(input);
 }
 
-export function fixtureGetOrderByNumber(number: string): OrderResponse {
-  const found = recordedOrders.get(number);
+/** Fixture lookup returns the frozen envelope only — admin fields never leave this seam. */
+export async function fixtureGetOrderByNumber(number: string): Promise<OrderResponse> {
+  const found = await getFixtureAdminOrder(number);
   if (!found) throw new ApiError("not_found", 404);
-  return found;
+  return found.order;
 }

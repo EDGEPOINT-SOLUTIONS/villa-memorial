@@ -3,8 +3,13 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { CancelBookingButton, NewBookingForm } from "@/components/schedule-actions";
+import { ChapelAvailability } from "./chapel-availability";
+import { ChapelBookings } from "./chapel-bookings";
+import { ChapelSettings } from "./chapel-settings";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
+import { getChapelAdminView } from "@/lib/api-client/chapel-admin";
+import { monthOf } from "@/lib/chapel-admin";
 import { listBookings, listResources, type Booking } from "@/lib/api-client/scheduling";
 
 export const metadata = { title: "Schedule — Staff Portal" };
@@ -76,8 +81,13 @@ export default async function SchedulePage() {
 
   let bookings: Booking[];
   let resources;
+  let chapelAdmin: Awaited<ReturnType<typeof getChapelAdminView>>;
   try {
-    [bookings, resources] = await Promise.all([listBookings(), listResources()]);
+    [bookings, resources, chapelAdmin] = await Promise.all([
+      listBookings(),
+      listResources(),
+      getChapelAdminView(),
+    ]);
   } catch {
     return (
       <>
@@ -88,6 +98,9 @@ export default async function SchedulePage() {
       </>
     );
   }
+
+  const chapelIds = new Set(chapelAdmin.chapels.map((chapel) => chapel.id));
+  const today = monthOf(new Date().toISOString().slice(0, 10));
 
   const byDay = groupByDay(bookings);
   const active = bookings.filter((b) => b.status === "confirmed").length;
@@ -106,10 +119,31 @@ export default async function SchedulePage() {
         actions={
           <span className="text-sm text-muted">
             {active} active booking{active === 1 ? "" : "s"} ·{" "}
-            {resources.length} resources
+            {resources.length} resources · {chapelAdmin.chapels.length} chapel{
+              chapelAdmin.chapels.length === 1 ? "" : "s"
+            }
           </span>
         }
       />
+
+      {/* Chapels: how many exist, their availability, and every booking */}
+      <PageSection>
+        <ChapelSettings chapels={chapelAdmin.chapels} canWrite={canWrite} />
+      </PageSection>
+
+      <PageSection>
+        <ChapelAvailability
+          chapels={chapelAdmin.chapels}
+          blocks={chapelAdmin.blocks}
+          availability={chapelAdmin.availability}
+          initialMonth={today}
+          canWrite={canWrite}
+        />
+      </PageSection>
+
+      <PageSection>
+        <ChapelBookings bookings={chapelAdmin.bookings} canWrite={canWrite} />
+      </PageSection>
 
       {/* Week at a glance matrix */}
       <PageSection>
@@ -207,7 +241,10 @@ export default async function SchedulePage() {
                         </td>
                         <td>
                           {b.status === "confirmed" && canWrite ? (
-                            <CancelBookingButton bookingId={b.id} />
+                            <CancelBookingButton
+                              bookingId={b.id}
+                              chapel={chapelIds.has(b.resource_id)}
+                            />
                           ) : null}
                         </td>
                       </tr>

@@ -17,9 +17,11 @@ export type CatalogueAddItem = Omit<CartLine, "quantity">;
  * card already displays, and the cart merges repeat adds by SKU (no duplicate
  * lines, quantity capped by the cart).
  *
- * `quantity` lets a per-day line add a whole stay in one click (e.g. "3 days"
- * of chapel use) instead of asking the visitor to edit the cart afterwards;
- * `label` overrides the visible text for those rows.
+ * `quantity` lets a per-day line add a whole run in one click (e.g. "3 days"
+ * of embalming) instead of asking the visitor to edit the cart afterwards;
+ * `label` overrides the visible text for those rows. Chapel lines do NOT use
+ * this control: a chapel stay goes through the booking step
+ * (components/chapel-booking-dialog.tsx), which picks the dates and holds them.
  *
  * Feedback: the label flips to "Added ✓" for ~1.6s while the shared header
  * cart badge updates immediately (PublicShell cart count is driven by the same

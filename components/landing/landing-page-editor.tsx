@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { MediaPicker, RailPicker } from "@/components/landing/editor-pickers";
+import { SERVICE_CARD_ICONS } from "@/components/landing/service-icons";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import {
   type AboutSection,
@@ -42,12 +43,12 @@ import {
   type Cta,
   type LandingContent,
   type MediaItem,
-  type PlanCard,
   type PlansSection,
-  type ServiceDetail,
+  type ServiceCard,
   type ServicesSection,
 } from "@/lib/api-client/landing";
 import { mediaLabel } from "@/lib/media";
+import { LOT_PRICE_CATEGORIES, lotCategoryFromPrice, php } from "@/lib/villa-pricing";
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 function uid(prefix: string): string {
@@ -96,6 +97,37 @@ function TextAreaField({
   return (
     <Field label={label} htmlFor={htmlFor} hint={hint}>
       <textarea id={htmlFor} rows={rows} value={value} onChange={(e) => onChange(e.target.value)} />
+    </Field>
+  );
+}
+
+/** One select in the standard field shell — the editor's pickers (a card's
+ * icon, the 2026 lot family a card prices from) read their options from the
+ * model/villa-pricing, never from a hand-typed list in the view. */
+function SelectField({
+  label,
+  value,
+  onChange,
+  htmlFor,
+  options,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  htmlFor: string;
+  options: ReadonlyArray<{ value: string; label: string }>;
+  hint?: string;
+}) {
+  return (
+    <Field label={label} htmlFor={htmlFor} hint={hint}>
+      <select id={htmlFor} className="select" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
     </Field>
   );
 }
@@ -378,16 +410,62 @@ function RailEditor({
   );
 }
 
-/* --------------------------- plan card editor ----------------------------- */
+/* ------------------------- plan board copy editor ------------------------- */
 
-function PlanCardsEditor({
+/**
+ * "Plan ahead" — the Villa Memorial Plan board. The board itself (the promo
+ * figure, the payment-mode switch, five tiers × four terms and the underwriting
+ * logos) is rendered live from lib/villa-pricing.ts and has nothing to type;
+ * staff own the kicker, heading, intro and footnote.
+ */
+function PlanBoardEditor({
   section,
   onChange,
 }: {
   section: PlansSection;
   onChange: (next: PlansSection) => void;
 }) {
-  function patchCard(id: string, patch: Partial<PlanCard>) {
+  return (
+    <div className="stack">
+      <div className="field-grid field-grid--3">
+        <TextField label="Section kicker" htmlFor="plans-kicker" value={section.kicker} onChange={(v) => onChange({ ...section, kicker: v })} hint="The small line above the heading." />
+        <TextField label="Section heading" htmlFor="plans-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
+        <TextField label="Section intro" htmlFor="plans-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
+      </div>
+      <TextAreaField
+        label="Footnote under the board"
+        htmlFor="plans-note"
+        rows={3}
+        value={section.note ?? ""}
+        onChange={(v) => onChange({ ...section, note: v.trim() ? v : null })}
+        hint="Shown in small type beside the logos. {seniorMonthly} prints the real senior-citizen monthly rate and {packagePage} becomes the link to the package page — never type an amount."
+      />
+      <p className="ed-hint">
+        The board&rsquo;s five tiers × four terms, the payment-mode switch and the promo card are
+        read live from the client&rsquo;s 2026 payment-mode tables in{" "}
+        <strong>lib/villa-pricing.ts</strong> — there is nothing to type, and the figures can never
+        drift from the price list.
+      </p>
+    </div>
+  );
+}
+
+/* --------------------------- service card editor -------------------------- */
+
+/**
+ * "What we do" — the four real-2026 service cards. Staff own every word and the
+ * destination; the card's price line is DERIVED: its “price family” picks one of
+ * the four 2026 lot families and the home prints that family's entry-level
+ * “from ₱X · ₱Y / month, 6 yrs” through lib/villa-pricing.ts.
+ */
+function ServicesEditor({
+  section,
+  onChange,
+}: {
+  section: ServicesSection;
+  onChange: (next: ServicesSection) => void;
+}) {
+  function patchCard(id: string, patch: Partial<ServiceCard>) {
     onChange({ ...section, items: section.items.map((c) => (c.id === id ? { ...c, ...patch } : c)) });
   }
   function move(id: string, delta: -1 | 1) {
@@ -402,17 +480,15 @@ function PlanCardsEditor({
   return (
     <div className="stack">
       <div className="field-grid field-grid--3">
-        <TextField label="Section heading" htmlFor="plans-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
-        <div className="field-grid__span2">
-          <TextField label="Section intro" htmlFor="plans-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
-        </div>
+        <TextField label="Section kicker" htmlFor="services-kicker" value={section.kicker} onChange={(v) => onChange({ ...section, kicker: v })} hint="The small line above the heading." />
+        <TextField label="Section heading" htmlFor="services-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
+        <TextField label="Section intro" htmlFor="services-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
       </div>
-      <TextAreaField label="Footnote under the grid" htmlFor="plans-note" value={section.note ?? ""} onChange={(v) => onChange({ ...section, note: v || null })} hint="Shown in small type — the honest price-list note lives here." />
 
       <div className="row row--space" style={{ margin: "var(--space-1) 0" }}>
         <p className="ed-subhead">
-          Plan cards <Badge tone="info">{section.items.length}</Badge>
-          <span className="ed-muted"> — add as many as you want; each needs a photo, name and price.</span>
+          Service cards <Badge tone="info">{section.items.length}</Badge>
+          <span className="ed-muted"> — each card&rsquo;s price line is read from the 2026 list.</span>
         </p>
         <Button
           variant="accent"
@@ -422,127 +498,63 @@ function PlanCardsEditor({
               ...section,
               items: [
                 ...section.items,
-                { id: uid("plan"), badge: "Plan", name: "", price: "", note: "", image: null, href: "/lots/price-list-2026" },
+                {
+                  id: uid("svc"),
+                  icon: SERVICE_CARD_ICONS[0].key,
+                  title: "",
+                  text: "",
+                  href: "/lots",
+                  category: LOT_PRICE_CATEGORIES[0].title,
+                },
               ],
             })
           }
         >
-          <Plus size={15} aria-hidden="true" /> Add a plan card
+          <Plus size={15} aria-hidden="true" /> Add a service card
         </Button>
       </div>
 
       {section.items.length === 0 ? (
-        <p className="ed-hint">No plan cards yet — the home shows an empty-state note until you add one.</p>
-      ) : (
-        <div className="ed-plan-cards">
-          {section.items.map((card, i) => (
-            <details key={card.id} className="ed-plan-card" open={!card.name && !card.price}>
-              <summary className="ed-plan-card__summary">
-                <span className="ed-plan-card__thumb">
-                  {card.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- card photo
-                    <img src={card.image} alt="" />
-                  ) : null}
-                </span>
-                <span className="ed-plan-card__name">{card.name || "Untitled plan card"}</span>
-                <span className="ed-plan-card__price">{card.price || "—"}</span>
-                <MoveRowButtons label={card.name || "plan card"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(card.id, -1)} onDown={() => move(card.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((c) => c.id !== card.id) })} />
-              </summary>
-              <div className="ed-plan-card__fields">
-                <div className="field-grid field-grid--3">
-                  <TextField label="Card name" htmlFor={`plan-name-${card.id}`} value={card.name} onChange={(v) => patchCard(card.id, { name: v })} placeholder="e.g. Premium Lot" />
-                  <TextField label="Price line" htmlFor={`plan-price-${card.id}`} value={card.price} onChange={(v) => patchCard(card.id, { price: v })} placeholder="e.g. ₱114,000" hint="Display only — no money math." />
-                  <TextField label="Badge (optional)" htmlFor={`plan-badge-${card.id}`} value={card.badge ?? ""} onChange={(v) => patchCard(card.id, { badge: v || null })} placeholder="e.g. Garden lot" />
-                </div>
-                <TextField label="Note (optional)" htmlFor={`plan-note-${card.id}`} value={card.note ?? ""} onChange={(v) => patchCard(card.id, { note: v || null })} hint="Small type under the price, e.g. “2.5 sqm · lot only”." />
-                <div className="field-grid field-grid--2">
-                  <TextField label="Link destination" htmlFor={`plan-href-${card.id}`} value={card.href} onChange={(v) => patchCard(card.id, { href: v })} hint="Where the card takes visitors." />
-                  <ImageField label="Card photo" htmlFor={`plan-image-${card.id}`} value={card.image} onChange={(v) => patchCard(card.id, { image: v })} />
-                </div>
-              </div>
-            </details>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* --------------------------- services editor ------------------------------ */
-
-function ServicesEditor({
-  section,
-  onChange,
-}: {
-  section: ServicesSection;
-  onChange: (next: ServicesSection) => void;
-}) {
-  function patchService(id: string, patch: Partial<ServiceDetail>) {
-    onChange({ ...section, items: section.items.map((s) => (s.id === id ? { ...s, ...patch } : s)) });
-  }
-  function move(id: string, delta: -1 | 1) {
-    const items = clone(section.items);
-    const from = items.findIndex((s) => s.id === id);
-    const to = from + delta;
-    if (from < 0 || to < 0 || to >= items.length) return;
-    const [svc] = items.splice(from, 1);
-    items.splice(to, 0, svc);
-    onChange({ ...section, items });
-  }
-  return (
-    <div className="stack">
-      <div className="field-grid field-grid--3">
-        <TextField label="Section heading" htmlFor="services-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
-        <div className="field-grid__span2">
-          <TextField label="Section intro" htmlFor="services-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
-        </div>
-      </div>
-
-      <div className="row row--space" style={{ margin: "var(--space-1) 0" }}>
-        <p className="ed-subhead">
-          Service sections <Badge tone="info">{section.items.length}</Badge>
-          <span className="ed-muted"> — each is a full editorial block on the home.</span>
-        </p>
-        <Button
-          variant="accent"
-          size="sm"
-          onClick={() =>
-            onChange({
-              ...section,
-              items: [...section.items, { id: uid("svc"), title: "", tagline: "", image: null, body: [], bullets: [], link: { label: "Read the full service", href: "/services" } }],
-            })
-          }
-        >
-          <Plus size={15} aria-hidden="true" /> Add a service
-        </Button>
-      </div>
-
-      {section.items.length === 0 ? (
-        <p className="ed-hint">No service sections yet — add one above.</p>
+        <p className="ed-hint">No service cards yet — the home shows an empty-state note until you add one.</p>
       ) : (
         <div className="ed-services">
-          {section.items.map((svc, i) => (
-            <details key={svc.id} className="ed-service" open={!svc.title}>
-              <summary className="ed-service__summary">
-                <span className="ed-service__num">{String(i + 1).padStart(2, "0")}</span>
-                <span className="ed-service__name">{svc.title || "Untitled service"}</span>
-                <MoveRowButtons label={svc.title || "service"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(svc.id, -1)} onDown={() => move(svc.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((s) => s.id !== svc.id) })} />
-              </summary>
-              <div className="ed-service__fields">
-                <div className="field-grid field-grid--2">
-                  <TextField label="Service title" htmlFor={`svc-title-${svc.id}`} value={svc.title} onChange={(v) => patchService(svc.id, { title: v })} />
-                  <TextField label="Tagline" htmlFor={`svc-tagline-${svc.id}`} value={svc.tagline ?? ""} onChange={(v) => patchService(svc.id, { tagline: v || null })} />
+          {section.items.map((card, i) => {
+            const from = lotCategoryFromPrice(card.category);
+            return (
+              <details key={card.id} className="ed-service" open={!card.title}>
+                <summary className="ed-service__summary">
+                  <span className="ed-service__num">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="ed-service__name">{card.title || "Untitled service card"}</span>
+                  <span className="ed-price">
+                    {from ? `from ${php(from.selling)} · ${php(from.monthly)} / mo` : "no price family"}
+                  </span>
+                  <MoveRowButtons label={card.title || "service card"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(card.id, -1)} onDown={() => move(card.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((c) => c.id !== card.id) })} />
+                </summary>
+                <div className="ed-service__fields">
+                  <div className="field-grid field-grid--3">
+                    <TextField label="Card title" htmlFor={`svc-title-${card.id}`} value={card.title} onChange={(v) => patchCard(card.id, { title: v })} placeholder="e.g. Lot only" />
+                    <SelectField
+                      label="Icon"
+                      htmlFor={`svc-icon-${card.id}`}
+                      value={card.icon}
+                      onChange={(v) => patchCard(card.id, { icon: v })}
+                      options={SERVICE_CARD_ICONS.map((o) => ({ value: o.key, label: o.label }))}
+                    />
+                    <TextField label="Link destination" htmlFor={`svc-href-${card.id}`} value={card.href} onChange={(v) => patchCard(card.id, { href: v })} hint="Where the card takes visitors, e.g. /lots." />
+                  </div>
+                  <TextAreaField label="One line of copy" htmlFor={`svc-text-${card.id}`} rows={2} value={card.text} onChange={(v) => patchCard(card.id, { text: v })} hint="A single sentence, as the card prints it." />
+                  <SelectField
+                    label="Price family (2026 list)"
+                    htmlFor={`svc-category-${card.id}`}
+                    value={card.category}
+                    onChange={(v) => patchCard(card.id, { category: v })}
+                    options={LOT_PRICE_CATEGORIES.map((c) => ({ value: c.title, label: c.caption }))}
+                    hint="The “from …” line is read from the client's 2026 sheet for this family — the amount is never typed here."
+                  />
                 </div>
-                <TextAreaField label="Body paragraphs (blank line between paragraphs)" htmlFor={`svc-body-${svc.id}`} rows={4} value={svc.body.join("\n\n")} onChange={(v) => patchService(svc.id, { body: v.split(/\n\s*\n/).map((s) => s.trim()).filter(Boolean) })} />
-                <TextAreaField label="Included points (one per line)" htmlFor={`svc-bullets-${svc.id}`} rows={3} value={svc.bullets.join("\n")} onChange={(v) => patchService(svc.id, { bullets: v.split("\n").map((s) => s.trim()).filter(Boolean) })} />
-                <div className="field-grid field-grid--2">
-                  <TextField label="Link label" htmlFor={`svc-link-${svc.id}`} value={svc.link.label} onChange={(v) => patchService(svc.id, { link: { ...svc.link, label: v } })} />
-                  <TextField label="Link destination" htmlFor={`svc-href-${svc.id}`} value={svc.link.href} onChange={(v) => patchService(svc.id, { link: { ...svc.link, href: v } })} />
-                </div>
-                <ImageField label="Service photo" htmlFor={`svc-image-${svc.id}`} value={svc.image} onChange={(v) => patchService(svc.id, { image: v })} />
-              </div>
-            </details>
-          ))}
+              </details>
+            );
+          })}
         </div>
       )}
     </div>
@@ -821,8 +833,8 @@ const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: strin
   { id: "ed-hero", num: "02", label: "Hero", hint: "The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead." },
   { id: "ed-rails", num: "03", label: "Fixed rails", hint: "The pinned side columns that stay frozen beside the scrolling home — any number of items each." },
   { id: "ed-about", num: "04", label: "About · Mission · Vision", hint: "The family-run soul of the park, with a real photo — the trust section." },
-  { id: "ed-services", num: "05", label: "Services", hint: "Editorial sections, not cards — what happens, what's included, how to begin." },
-  { id: "ed-plans", num: "06", label: "Plans", hint: "Every card carries a real photo, name and honest price." },
+  { id: "ed-services", num: "05", label: "What we do · service cards", hint: "The four 2026 service cards — you write every word; each card's “from …” line is read from the price list for the family you pick." },
+  { id: "ed-plans", num: "06", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
   { id: "ed-map", num: "07", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
   { id: "ed-blog", num: "08", label: "Blog & newsfeed", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
 ];
@@ -863,11 +875,12 @@ export function LandingPageEditor({
 
   // Live attention flags per zone, shown in the navigator and card headers.
   const flags = useMemo(() => {
-    const plans = content.plans.items.filter((c) => !c.name.trim() || !c.price.trim()).length;
-    const services = content.services.items.filter((s) => !s.title.trim()).length;
+    const services = content.services.items.filter(
+      (c) => !c.title.trim() || !c.text.trim() || !c.href.trim(),
+    ).length;
     const media = content.blog.posts.reduce((n, p) => n + p.media.filter((m) => !m.src.trim()).length, 0);
     const posts = content.blog.posts.filter((p) => !p.caption.trim() && p.media.length === 0).length;
-    return { plans, services, media, posts };
+    return { services, media, posts };
   }, [content]);
 
   // Scroll-spy: keep the navigator's active zone in step with what's on screen.
@@ -894,11 +907,10 @@ export function LandingPageEditor({
 
   function clientIssues(): string[] {
     const issues: string[] = [];
-    content.plans.items.forEach((card, i) => {
-      if (!card.name.trim() || !card.price.trim()) issues.push(`Plan card ${i + 1} needs a name and a price before publishing.`);
-    });
-    content.services.items.forEach((svc, i) => {
-      if (!svc.title.trim()) issues.push(`Service ${i + 1} needs a title before publishing.`);
+    content.services.items.forEach((card, i) => {
+      if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
+        issues.push(`Service card ${i + 1} needs a title, a line of copy and a link before publishing.`);
+      }
     });
     content.blog.posts.forEach((post) => {
       post.media.forEach((m) => {
@@ -956,7 +968,7 @@ export function LandingPageEditor({
   }
 
   const { logo, contact, hero, rails, about, services, plans, blog, map } = content;
-  const attention = flags.plans + flags.services + flags.media;
+  const attention = flags.services + flags.media;
 
   const statusLine = busy
     ? "Publishing to the content store…"
@@ -1022,13 +1034,10 @@ export function LandingPageEditor({
                 ? rails.left.items.length + rails.right.items.length
                 : zone.id === "ed-services"
                   ? services.items.length
-                  : zone.id === "ed-plans"
-                    ? plans.items.length
-                    : zone.id === "ed-blog"
-                      ? blog.posts.length
-                      : null;
+                  : zone.id === "ed-blog"
+                    ? blog.posts.length
+                    : null;
             const warn =
-              (zone.id === "ed-plans" && flags.plans > 0) ||
               (zone.id === "ed-services" && flags.services > 0) ||
               (zone.id === "ed-blog" && (flags.media > 0 || flags.posts > 0));
             return (
@@ -1135,9 +1144,15 @@ export function LandingPageEditor({
       <EdSection
         id="ed-services"
         num="05"
-        title="Services"
-        hint="Editorial sections, not cards — what happens, what's included, how to begin."
-        badge={<CountChip count={services.items.length} />}
+        title="What we do — service cards"
+        hint="The four 2026 service cards, exactly as the prototype prints them: pick an icon, write the one-line copy and the destination — the “from ₱… · ₱… / month, 6 yrs” line is read from the price list for the family you choose (never typed)."
+        badge={
+          flags.services > 0 ? (
+            <span className="ed-chip ed-chip--warn">{flags.services} need attention</span>
+          ) : (
+            <CountChip count={services.items.length} />
+          )
+        }
       >
         <ServicesEditor section={services} onChange={(next) => patch((d) => void (d.services = next))} />
       </EdSection>
@@ -1145,17 +1160,11 @@ export function LandingPageEditor({
       <EdSection
         id="ed-plans"
         num="06"
-        title="Plans — designed card grid"
-        hint="Every card carries a real photo, name and honest price; add as many as you want (not a spreadsheet)."
-        badge={
-          flags.plans > 0 ? (
-            <span className="ed-chip ed-chip--warn">{flags.plans} need attention</span>
-          ) : (
-            <CountChip count={plans.items.length} />
-          )
-        }
+        title="Plan ahead — Villa Memorial Plan board"
+        hint="The prototype's plan board: the promo figure beside the payment-mode switch, the five tiers × four terms, the senior-rate footnote and the underwriting logos. Every figure is read live from lib/villa-pricing.ts — you word the kicker, heading, intro and footnote."
+        badge={<span className="ed-chip">2026 tables</span>}
       >
-        <PlanCardsEditor section={plans} onChange={(next) => patch((d) => void (d.plans = next))} />
+        <PlanBoardEditor section={plans} onChange={(next) => patch((d) => void (d.plans = next))} />
       </EdSection>
 
       <EdSection

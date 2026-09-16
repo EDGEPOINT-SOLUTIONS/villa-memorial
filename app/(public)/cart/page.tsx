@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CartLineRow } from "@/components/cart-line-row";
-import { useCart } from "@/lib/cart/cart-context";
+import { cartLineKey, useCart, type CartLine } from "@/lib/cart/cart-context";
+import { releaseChapelCartLine } from "@/lib/chapel-booking-api";
 import { formatMinorUnits, previewSubtotal } from "@/lib/money";
 
 /**
@@ -13,18 +15,33 @@ import { formatMinorUnits, previewSubtotal } from "@/lib/money";
  * that item's real catalogue details inline (see CartLineRow), plus working
  * quantity / remove controls, the estimated-total summary card, and the same
  * empty / loading states as before.
+ *
+ * Removing a chapel line releases the dates it holds (lib/chapel-booking-api) —
+ * the schedule stays honest. If that release call fails the line is still
+ * removed and the page says plainly that the office must confirm.
  */
 export default function CartPage() {
   const cart = useCart();
   const [openSkus, setOpenSkus] = useState<ReadonlySet<string>>(new Set());
+  const [releaseError, setReleaseError] = useState<string | null>(null);
 
-  const toggle = (sku: string) =>
+  async function removeLine(line: CartLine) {
+    setReleaseError(null);
+    const result = await releaseChapelCartLine(
+      line,
+      cartLineKey(line),
+      cart.remove,
+    );
+    if (result.error) setReleaseError(result.error);
+  }
+
+  const toggle = (key: string) =>
     setOpenSkus((prev) => {
       const next = new Set(prev);
-      if (next.has(sku)) {
-        next.delete(sku);
+      if (next.has(key)) {
+        next.delete(key);
       } else {
-        next.add(sku);
+        next.add(key);
       }
       return next;
     });
@@ -42,6 +59,13 @@ export default function CartPage() {
             <h1>Your cart</h1>
           </div>
         </div>
+        {releaseError ? (
+          <div className="mb-4">
+            <Alert tone="warning" title="The dates could not be released automatically">
+              {releaseError} Please call the park office so they can free the chapel dates.
+            </Alert>
+          </div>
+        ) : null}
         <EmptyState
           title="Your cart is empty"
           hint="Browse the plans and services to start an order."
@@ -69,6 +93,13 @@ export default function CartPage() {
           </p>
         </div>
       </div>
+      {releaseError ? (
+        <div className="mb-4">
+          <Alert tone="warning" title="The dates could not be released automatically">
+            {releaseError} Please call the park office so they can free the chapel dates.
+          </Alert>
+        </div>
+      ) : null}
       <div className="page-section">
         <div className="table-wrapper">
           <table className="table">
@@ -82,16 +113,19 @@ export default function CartPage() {
               </tr>
             </thead>
             <tbody>
-              {cart.lines.map((l) => (
-                <CartLineRow
-                  key={l.sku}
-                  line={l}
-                  open={openSkus.has(l.sku)}
-                  onToggle={() => toggle(l.sku)}
-                  onQuantityChange={(q) => cart.setQuantity(l.sku, q)}
-                  onRemove={() => cart.remove(l.sku)}
-                />
-              ))}
+              {cart.lines.map((l) => {
+                const key = cartLineKey(l);
+                return (
+                  <CartLineRow
+                    key={key}
+                    line={l}
+                    open={openSkus.has(key)}
+                    onToggle={() => toggle(key)}
+                    onQuantityChange={(q) => cart.setQuantity(key, q)}
+                    onRemove={() => void removeLine(l)}
+                  />
+                );
+              })}
             </tbody>
           </table>
         </div>

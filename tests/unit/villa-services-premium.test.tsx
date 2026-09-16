@@ -11,6 +11,7 @@ import {
 import {
   CASKET_INCLUSIONS,
   CASKET_MODELS,
+  CHAPEL_RATES,
   COFFIN_COVER_UNSTATED,
   COFFIN_TIER_NOTE,
   coffinCover,
@@ -143,6 +144,22 @@ describe("/services reads as the premium service page", () => {
     expect(html).toContain("3 days — regular");
     expect(html).toContain("3 days — senior citizen");
     expect(html).toContain("Request this stay");
+  });
+
+  it("still opens the chapel booking step instead of a straight add (main's booking intent)", () => {
+    // A chapel is never a one-click cart item: the cards' "Book these dates" and
+    // every 3–9 day row's "Book common/private N days" open the booking dialog.
+    expect(html).toContain("Book these dates");
+    for (const r of CHAPEL_RATES) {
+      expect(html, `common stay ${r.days}`).toContain(`Book common ${r.days} days`);
+      expect(html, `private stay ${r.days}`).toContain(`Book private ${r.days} days`);
+    }
+    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(
+      2 + CHAPEL_RATES.length * 2,
+    );
+    // No plain chapel add-to-cart survived the premium restyle.
+    expect(html).not.toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
+    expect(html).not.toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
   });
 });
 

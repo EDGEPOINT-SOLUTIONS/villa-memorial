@@ -88,6 +88,8 @@ export default async function ServicesPage() {
         <p className="mid-intro">
           One coordinator stays with the family from the first call: we bring your loved one into
           our care, prepare and dress them, open the viewing, and stay through the interment.
+          Every 2026 line below can go into the cart, and a chapel stay is booked after you pick
+          the chapel and the dates.
         </p>
         <div className="landing__grid">
           <article className="card">

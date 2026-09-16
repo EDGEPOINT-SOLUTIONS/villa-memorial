@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
 import { Skeleton } from "@/components/ui/skeleton";
+import { claimChapelCartLines } from "@/lib/chapel-booking-api";
 import { useCart } from "@/lib/cart/cart-context";
 
 type FieldErrors = {
@@ -61,8 +62,15 @@ export default function CheckoutPage() {
       });
       const payload = await res.json().catch(() => null);
       if (res.status === 201 && payload && typeof payload === "object" && "number" in payload) {
+        const number = String((payload as { number: string }).number);
+        // The checkout contract carries only sku+quantity, so the chapel holds in
+        // this cart are linked to the placed order here, in the page that still
+        // knows their reservation ids. Best-effort: the order is already placed,
+        // and a failed link leaves a hold the office confirms by hand.
+        const heldLines = cart.lines.filter((line) => line.booking);
         cart.clear();
-        router.push(`/orders/${String((payload as { number: string }).number)}`);
+        await claimChapelCartLines(heldLines, number);
+        router.push(`/orders/${number}`);
         return;
       }
       setServerError(

@@ -6,4 +6,8 @@ next-env.d.ts
 .env*.local
 coverage/
 
+# Fixture-mode runtime stores (durable demo writes — see lib/api-client/order-store.ts)
+.data/
+
 .premium-review/
+*:Zone.Identifier

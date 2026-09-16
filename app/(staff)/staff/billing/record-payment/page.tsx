@@ -23,11 +23,14 @@ export const metadata = { title: "Record payment — Staff Portal" };
  * invoices always (billing:read), cases only when `cases:read` is held, so the screen
  * never asks a service for something the session could not open itself. A records list
  * that fails costs the picker, not the capture: the slip can be typed from paper.
+ *
+ * The staff Orders admin links here with `?order=ORD-…`; an order number is a reference the
+ * counter captures against (the same free-text field), so it prefills like a case/invoice.
  */
 export default async function RecordPaymentPage({
   searchParams,
 }: {
-  searchParams: Promise<{ case?: string; invoice?: string }>;
+  searchParams: Promise<{ case?: string; invoice?: string; order?: string }>;
 }) {
   const session = await requireSessionOrRedirect();
   if (!hasAnyScope(session.scopes, ["billing:read"])) {
@@ -52,7 +55,7 @@ export default async function RecordPaymentPage({
   }
 
   const params = await searchParams;
-  const prefill = (params.case ?? params.invoice ?? "").trim();
+  const prefill = (params.case ?? params.invoice ?? params.order ?? "").trim();
 
   const targets: PaymentTarget[] = [];
   let recordsUnavailable = false;

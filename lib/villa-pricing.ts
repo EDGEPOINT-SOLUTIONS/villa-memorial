@@ -236,6 +236,32 @@ export const LOT_PRICE_CATEGORIES: Array<{ title: string; caption: string; rows:
   },
 ];
 
+/**
+ * One LOT_PRICE_CATEGORIES family's entry-level "from" figures: the lowest
+ * regular selling price in that family and that row's matching monthly
+ * installment (the client's 6-year amortization). The home page's "Services we
+ * offer" cards render "from ₱75,000 · ₱1,125 / month, 6 yrs" through this, so
+ * the meta line can never drift from the 2026 sheet (and no view restates an
+ * amount). Unknown/absent family → null; the view then omits the meta line.
+ */
+export function lotCategoryFromPrice(categoryTitle: string): {
+  category: { title: string; caption: string };
+  /** The row the "from" figure belongs to (the family's cheapest product). */
+  product: string;
+  selling: number;
+  monthly: number;
+} | null {
+  const category = LOT_PRICE_CATEGORIES.find((c) => c.title === categoryTitle);
+  if (!category || category.rows.length === 0) return null;
+  const row = category.rows.reduce((min, r) => (r.regular.selling < min.regular.selling ? r : min));
+  return {
+    category: { title: category.title, caption: category.caption },
+    product: row.product,
+    selling: row.regular.selling,
+    monthly: row.regular.monthly,
+  };
+}
+
 export function php(n: number): string {
   return "₱" + n.toLocaleString("en-PH");
 }

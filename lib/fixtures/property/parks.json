@@ -1,11 +1,11 @@
 {
- "provenance": "PROVISIONAL demo park maps. Villa = linked squares (size 9). Loyola/Golden = sample squares at size 2. Free-form coords; real geometry/media/persistence await the dev contract. Villa rows: A=PRIMARY LOTS · B=PREMIUM LOTS · C=GARDEN NICHES · D=MAUSOLEUM (D-001…D-004 added per Villa layout).",
+ "provenance": "PROVISIONAL demo park maps. Villa plots are the recorded demo lots (A=PRIMARY LOTS, B=PREMIUM LOTS, C=GARDEN NICHES, D=MAUSOLEUM) repositioned onto the client masterplan frame (public/media/Park map.png, contain-fitted into the shared 100x75 store frame — see lib/park-3d/coords.ts). Loyola/Golden keep their sample squares. Free-form coords; real geometry/media/persistence await the dev contract. The Villa placeholder inventory (P-/PR-/G-/GN- codes) is generated at seed time by lib/park-3d/placeholder-lots.ts, not stored here.",
  "parks": [
   {
    "id": "villa",
    "name": "Villa Memorial",
    "branch": "Isabela City",
-   "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg",
+   "image": "/media/Park%20map.png",
    "plots": [
     {
      "id": "lot-a-001",
@@ -16,20 +16,20 @@
      "sectionBlock": "A · 1",
      "outline": [
       [
-       14,
-       8.5
+       48.39,
+       46.53
       ],
       [
-       23,
-       8.5
+       51.02,
+       46.53
       ],
       [
-       23,
-       17.5
+       51.02,
+       48.21
       ],
       [
-       14,
-       17.5
+       48.39,
+       48.21
       ]
      ]
     },
@@ -42,20 +42,20 @@
      "sectionBlock": "A · 2",
      "outline": [
       [
-       35,
-       8.5
+       51.26,
+       46.53
       ],
       [
-       44,
-       8.5
+       53.89,
+       46.53
       ],
       [
-       44,
-       17.5
+       53.89,
+       48.21
       ],
       [
-       35,
-       17.5
+       51.26,
+       48.21
       ]
      ],
      "owner": "Marites Santos"
@@ -69,20 +69,20 @@
      "sectionBlock": "A · 3",
      "outline": [
       [
-       56,
-       8.5
+       54.13,
+       46.53
       ],
       [
-       65,
-       8.5
+       56.76,
+       46.53
       ],
       [
-       65,
-       17.5
+       56.76,
+       48.21
       ],
       [
-       56,
-       17.5
+       54.13,
+       48.21
       ]
      ],
      "owner": "Roberto Santos"
@@ -96,20 +96,20 @@
      "sectionBlock": "A · 4",
      "outline": [
       [
-       77,
-       8.5
+       57.0,
+       46.53
       ],
       [
-       86,
-       8.5
+       59.63,
+       46.53
       ],
       [
-       86,
-       17.5
+       59.63,
+       48.21
       ],
       [
-       77,
-       17.5
+       57.0,
+       48.21
       ]
      ]
     },
@@ -122,20 +122,20 @@
      "sectionBlock": "B · 1",
      "outline": [
       [
-       14,
-       23.5
+       44.8,
+       6.46
       ],
       [
-       23,
-       23.5
+       47.07,
+       6.46
       ],
       [
-       23,
-       32.5
+       47.07,
+       8.61
       ],
       [
-       14,
-       32.5
+       44.8,
+       8.61
       ]
      ],
      "owner": "Liwayway Cruz"
@@ -149,20 +149,20 @@
      "sectionBlock": "B · 2",
      "outline": [
       [
-       35,
-       23.5
+       48.39,
+       6.46
       ],
       [
-       44,
-       23.5
+       50.66,
+       6.46
       ],
       [
-       44,
-       32.5
+       50.66,
+       8.61
       ],
       [
-       35,
-       32.5
+       48.39,
+       8.61
       ]
      ]
     },
@@ -175,20 +175,20 @@
      "sectionBlock": "B · 3",
      "outline": [
       [
-       56,
-       23.5
+       51.97,
+       6.46
       ],
       [
-       65,
-       23.5
+       54.25,
+       6.46
       ],
       [
-       65,
-       32.5
+       54.25,
+       8.61
       ],
       [
-       56,
-       32.5
+       51.97,
+       8.61
       ]
      ],
      "owner": "Danilo Reyes"
@@ -202,20 +202,20 @@
      "sectionBlock": "B · 4",
      "outline": [
       [
-       77,
-       23.5
+       55.56,
+       6.46
       ],
       [
-       86,
-       23.5
+       57.83,
+       6.46
       ],
       [
-       86,
-       32.5
+       57.83,
+       8.61
       ],
       [
-       77,
-       32.5
+       55.56,
+       8.61
       ]
      ]
     },
@@ -228,20 +228,20 @@
      "sectionBlock": "C · 1",
      "outline": [
       [
-       14,
-       38.5
+       32.6,
+       59.81
       ],
       [
-       23,
-       38.5
+       34.27,
+       59.81
       ],
       [
-       23,
-       47.5
+       34.27,
+       61.84
       ],
       [
-       14,
-       47.5
+       32.6,
+       61.84
       ]
      ],
      "owner": "Juan Dela Cruz"
@@ -255,20 +255,20 @@
      "sectionBlock": "C · 2",
      "outline": [
       [
-       35,
-       38.5
+       34.63,
+       59.81
       ],
       [
-       44,
-       38.5
+       36.3,
+       59.81
       ],
       [
-       44,
-       47.5
+       36.3,
+       61.84
       ],
       [
-       35,
-       47.5
+       34.63,
+       61.84
       ]
      ]
     },
@@ -281,20 +281,20 @@
      "sectionBlock": "C · 3",
      "outline": [
       [
-       56,
-       38.5
+       36.66,
+       59.81
       ],
       [
-       65,
-       38.5
+       38.34,
+       59.81
       ],
       [
-       65,
-       47.5
+       38.34,
+       61.84
       ],
       [
-       56,
-       47.5
+       36.66,
+       61.84
       ]
      ]
     },
@@ -307,20 +307,20 @@
      "sectionBlock": "C · 4",
      "outline": [
       [
-       77,
-       38.5
+       38.7,
+       59.81
       ],
       [
-       86,
-       38.5
+       40.37,
+       59.81
       ],
       [
-       86,
-       47.5
+       40.37,
+       61.84
       ],
       [
-       77,
-       47.5
+       38.7,
+       61.84
       ]
      ],
      "owner": "Ana Gonzales"
@@ -334,20 +334,20 @@
      "sectionBlock": "D · 1",
      "outline": [
       [
-       14,
-       53.5
+       48.39,
+       38.28
       ],
       [
-       23,
-       53.5
+       50.18,
+       38.28
       ],
       [
-       23,
-       62.5
+       50.18,
+       40.19
       ],
       [
-       14,
-       62.5
+       48.39,
+       40.19
       ]
      ]
     },
@@ -360,20 +360,20 @@
      "sectionBlock": "D · 2",
      "outline": [
       [
-       35,
-       53.5
+       50.54,
+       38.28
       ],
       [
-       44,
-       53.5
+       52.33,
+       38.28
       ],
       [
-       44,
-       62.5
+       52.33,
+       40.19
       ],
       [
-       35,
-       62.5
+       50.54,
+       40.19
       ]
      ],
      "owner": "Ana Gonzales"
@@ -387,20 +387,20 @@
      "sectionBlock": "D · 3",
      "outline": [
       [
-       56,
-       53.5
+       52.69,
+       38.28
       ],
       [
-       65,
-       53.5
+       54.49,
+       38.28
       ],
       [
-       65,
-       62.5
+       54.49,
+       40.19
       ],
       [
-       56,
-       62.5
+       52.69,
+       40.19
       ]
      ],
      "owner": "Liwayway Cruz"
@@ -414,20 +414,20 @@
      "sectionBlock": "D · 4",
      "outline": [
       [
-       77,
-       53.5
+       54.84,
+       38.28
       ],
       [
-       86,
-       53.5
+       56.64,
+       38.28
       ],
       [
-       86,
-       62.5
+       56.64,
+       40.19
       ],
       [
-       77,
-       62.5
+       54.84,
+       40.19
       ]
      ]
     }

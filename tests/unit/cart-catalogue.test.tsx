@@ -126,6 +126,39 @@ describe("cart line expand control shows the item's details again", () => {
     expect(html).toContain("600.00");
   });
 
+  it("open: a chapel booking line shows the chapel, the held range and fixed days", () => {
+    const html = row(
+      cartLine({
+        sku: "CHP-COMMON-DAY",
+        name: "Chapel use — common chapel, per day",
+        itemType: "service",
+        unitPriceCents: 150000,
+        currency: "PHP",
+        quantity: 3,
+        lineId: "chapel:booking-9",
+        booking: {
+          bookingId: "booking-9",
+          resourceId: "10000000-0000-4000-8000-0000000000c1",
+          resourceName: "Chapel A",
+          chapelClass: "common",
+          startDate: "2026-09-20",
+          endDate: "2026-09-23",
+          days: 3,
+        },
+      }),
+      true,
+    );
+    // The stay is legible at a glance (row badge + summary) …
+    expect(html).toContain("Chapel A");
+    expect(html).toContain("Sep 20 – 22, 2026 · 3 days");
+    // … the day count is the booking's, not an editable quantity …
+    expect(html).toContain("3 days — fixed by the booking");
+    expect(html).not.toContain('type="number"');
+    // … and the expanded recap repeats the booked facts.
+    expect(html).toContain("Booked dates");
+    expect(html).toContain("Chapel");
+  });
+
   it("open: a line the catalogue no longer knows falls back gracefully (no crash)", () => {
     const html = row(
       cartLine({

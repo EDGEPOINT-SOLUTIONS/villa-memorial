@@ -9,12 +9,19 @@ import {
   useState,
 } from "react";
 import catalogFixture from "@/lib/fixtures/commerce/catalog-items.json";
+import { toChapelBookingLine, type ChapelBookingLine } from "@/lib/chapel-booking";
 
 /**
  * Client-side cart (localStorage persisted). Only SKU + quantity are persisted
  * (no prices sent to servers, no PII); display fields (name/price) are
  * rehydrated from the seeded catalog fixture so previews stay fresh.
  * The authoritative price always comes from the checkout response.
+ *
+ * Chapel booking lines additionally persist their reservation (`booking`): the
+ * chapel, the range and the day count, so the cart can still show — and
+ * release — the hold after a reload. A booking line is keyed by `lineId` (its
+ * reservation id) rather than SKU, so two stays of the same chapel class can
+ * coexist; every other line keeps the plain SKU identity.
  */
 export type CartLine = {
   sku: string;
@@ -23,14 +30,25 @@ export type CartLine = {
   unitPriceCents: number;
   currency: string;
   quantity: number;
+  /** Stable identity for lines that may repeat a SKU (chapel bookings). */
+  lineId?: string;
+  /** The chapel reservation this line holds, when it is a chapel stay. */
+  booking?: ChapelBookingLine;
 };
+
+/** The cart's line identity (booking lines use their reservation id). */
+export function cartLineKey(line: Pick<CartLine, "sku" | "lineId">): string {
+  return line.lineId ?? line.sku;
+}
 
 type CartContextValue = {
   lines: CartLine[];
   ready: boolean;
   add: (line: Omit<CartLine, "quantity">, quantity?: number) => void;
-  setQuantity: (sku: string, quantity: number) => void;
-  remove: (sku: string) => void;
+  /** `key` is a `cartLineKey(line)` — never assume it is the SKU. */
+  setQuantity: (key: string, quantity: number) => void;
+  /** `key` is a `cartLineKey(line)` — never assume it is the SKU. */
+  remove: (key: string) => void;
   clear: () => void;
 };
 
@@ -38,7 +56,8 @@ const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = "im_cart_v1";
 const MAX_QTY = 99;
 
-// Persisted shape is sku+qty only; rehydrate display fields from fixture.
+// Persisted shape is sku+qty (+ the booking metadata for chapel holds);
+// rehydrate display fields from fixture.
 // Backward-compat: old stores contained full CartLine, so sanitize handles both.
 type FixtureItem = {
   sku: string;
@@ -70,6 +89,18 @@ function sanitize(raw: unknown): CartLine[] {
       (e.unitPriceCents as number) >= 0 &&
       typeof e.currency === "string";
 
+    // Booking metadata is persisted alongside the identity; a line whose
+    // booking no longer parses is dropped rather than shown without its stay.
+    const rawBooking = e.booking;
+    const booking = rawBooking == null ? undefined : toChapelBookingLine(rawBooking);
+    if (rawBooking != null && !booking) continue;
+    const lineId =
+      typeof e.lineId === "string" && e.lineId.trim()
+        ? e.lineId
+        : booking
+          ? booking.bookingId
+          : undefined;
+
     if (hasDisplayFields) {
       lines.push({
         sku,
@@ -78,6 +109,8 @@ function sanitize(raw: unknown): CartLine[] {
         unitPriceCents: e.unitPriceCents as number,
         currency: e.currency as string,
         quantity,
+        ...(lineId ? { lineId } : {}),
+        ...(booking ? { booking } : {}),
       });
       continue;
     }
@@ -91,6 +124,8 @@ function sanitize(raw: unknown): CartLine[] {
       unitPriceCents: fixture.unit_price_cents,
       currency: fixture.currency,
       quantity,
+      ...(lineId ? { lineId } : {}),
+      ...(booking ? { booking } : {}),
     });
   }
   return lines;
@@ -113,7 +148,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!ready) return;
     try {
-      const persisted = lines.map((l) => ({ sku: l.sku, quantity: l.quantity }));
+      const persisted = lines.map((l) => ({
+        sku: l.sku,
+        quantity: l.quantity,
+        ...(l.lineId ? { lineId: l.lineId } : {}),
+        ...(l.booking ? { booking: l.booking } : {}),
+      }));
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
     } catch {
       // storage unavailable (private mode) — cart stays in-memory
@@ -122,10 +162,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const add = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
     setLines((prev) => {
-      const existing = prev.find((l) => l.sku === line.sku);
+      // A booking line is a unique reservation: it never merges (two stays of
+      // the same chapel class are two lines, each releasing its own hold).
+      if (line.booking) {
+        return [
+          ...prev,
+          {
+            ...line,
+            lineId: line.lineId ?? line.booking.bookingId,
+            quantity: Math.min(Math.max(quantity, 1), MAX_QTY),
+          },
+        ];
+      }
+      const existing = prev.find((l) => !l.booking && l.sku === line.sku);
       if (existing) {
         return prev.map((l) =>
-          l.sku === line.sku
+          !l.booking && l.sku === line.sku
             ? { ...l, quantity: Math.min(l.quantity + quantity, MAX_QTY) }
             : l,
         );
@@ -134,18 +186,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const setQuantity = useCallback((sku: string, quantity: number) => {
+  const setQuantity = useCallback((key: string, quantity: number) => {
     setLines((prev) =>
       quantity <= 0
-        ? prev.filter((l) => l.sku !== sku)
+        ? prev.filter((l) => cartLineKey(l) !== key)
         : prev.map((l) =>
-            l.sku === sku ? { ...l, quantity: Math.min(quantity, MAX_QTY) } : l,
+            cartLineKey(l) === key ? { ...l, quantity: Math.min(quantity, MAX_QTY) } : l,
           ),
     );
   }, []);
 
-  const remove = useCallback((sku: string) => {
-    setLines((prev) => prev.filter((l) => l.sku !== sku));
+  const remove = useCallback((key: string) => {
+    setLines((prev) => prev.filter((l) => cartLineKey(l) !== key));
   }, []);
 
   const clear = useCallback(() => setLines([]), []);
