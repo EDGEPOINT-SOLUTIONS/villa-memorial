@@ -288,3 +288,89 @@ describe("blog posts carry the optional link the staff sets on the \"/\" editor"
     expect(validateLandingContent(read).ok).toBe(true);
   });
 });
+
+describe("the hero background colour + transparency (staff colour changer)", () => {
+  it("the recorded seed ships the untouched look: no colour, 100% transparency", () => {
+    const seed = readLandingContent((contentFile as { content: unknown }).content);
+    expect(seed.hero.background).toBeNull();
+    expect(seed.hero.backgroundTransparency).toBe(100);
+    expect(validateLandingContent(seed).ok).toBe(true);
+  });
+
+  it("reads a legacy document that lacks both fields as no colour + fully transparent", async () => {
+    const content = await listLandingContent();
+    const legacy = cloneDoc(content) as unknown as Record<string, unknown>;
+    const hero = { ...(legacy.hero as Record<string, unknown>) };
+    delete hero.background;
+    delete hero.backgroundTransparency;
+    legacy.hero = hero;
+    const read = readLandingContent(legacy);
+    expect(read.hero.background).toBeNull();
+    expect(read.hero.backgroundTransparency).toBe(100);
+    expect(validateLandingContent(read).ok).toBe(true);
+  });
+
+  it("round-trips a colour + transparency through the real save path", async () => {
+    const content = await listLandingContent();
+    const edited = cloneDoc(content);
+    edited.hero.background = "#3f97d1";
+    edited.hero.backgroundTransparency = 35;
+    const saved = await saveLandingContent(edited);
+    expect(saved.hero.background).toBe("#3f97d1");
+    expect(saved.hero.backgroundTransparency).toBe(35);
+    const reread = await listLandingContent();
+    expect(reread.hero.background).toBe("#3f97d1");
+    expect(reread.hero.backgroundTransparency).toBe(35);
+  });
+
+  it("clamps an out-of-range transparency recorded in a broken document", async () => {
+    const content = await listLandingContent();
+    const weird = cloneDoc(content) as unknown as Record<string, unknown>;
+    (weird.hero as Record<string, unknown>).backgroundTransparency = 250;
+    expect(readLandingContent(weird).hero.backgroundTransparency).toBe(100);
+    (weird.hero as Record<string, unknown>).backgroundTransparency = -5;
+    expect(readLandingContent(weird).hero.backgroundTransparency).toBe(0);
+    (weird.hero as Record<string, unknown>).backgroundTransparency = "40";
+    expect(readLandingContent(weird).hero.backgroundTransparency).toBe(100);
+  });
+
+  it("accepts the 0 and 100 bounds and rejects out-of-range / non-numeric values", async () => {
+    const content = await listLandingContent();
+    for (const transparency of [0, 100]) {
+      const doc = cloneDoc(content);
+      doc.hero.backgroundTransparency = transparency;
+      expect(validateLandingContent(doc).ok).toBe(true);
+    }
+    for (const transparency of [-1, 101, Number.NaN]) {
+      const doc = cloneDoc(content);
+      doc.hero.backgroundTransparency = transparency;
+      const verdict = validateLandingContent(doc);
+      expect(verdict.ok).toBe(false);
+      if (!verdict.ok) expect(verdict.error).toMatch(/transparency.*0 to 100/);
+    }
+  });
+
+  it("rejects an invalid hero colour with a message naming the problem", async () => {
+    const content = await listLandingContent();
+    const bad = cloneDoc(content);
+    bad.hero.background = "url(https://evil.test/x.png)";
+    const verdict = validateLandingContent(bad);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/valid CSS colour/);
+  });
+
+  it("the save path refuses an invalid colour instead of persisting it", async () => {
+    const content = await listLandingContent();
+    const good = cloneDoc(content);
+    good.hero.background = "#c4e6f8";
+    good.hero.backgroundTransparency = 20;
+    await saveLandingContent(good);
+    const bad = cloneDoc(good);
+    bad.hero.background = "purple-ish";
+    await expect(saveLandingContent(bad)).rejects.toThrow(/valid CSS colour/);
+    // The store still holds the last good document.
+    const reread = await listLandingContent();
+    expect(reread.hero.background).toBe("#c4e6f8");
+    expect(reread.hero.backgroundTransparency).toBe(20);
+  });
+});

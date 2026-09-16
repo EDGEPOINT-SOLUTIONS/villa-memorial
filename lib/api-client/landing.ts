@@ -20,6 +20,7 @@
  * displayed prices are content strings sourced from lib/villa-pricing.ts.
  */
 import { ApiError } from "@/lib/api-client/api-error";
+import { isValidCssColor, readHeroTransparency } from "@/lib/landing/hero-background";
 import { LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
@@ -68,6 +69,21 @@ export type HeroSection = {
    * gradient. null keeps the shipped gradient.
    */
   image: string | null;
+  /**
+   * Staff-chosen hero background colour ("colour changer" on the Landing Page
+   * editor, captain's brief 2026-09-17). null = no layer at all, so a document
+   * that never touched the field renders the shipped gradient exactly as
+   * before. When set, the colour paints as ONE layer ABOVE the background
+   * photo + its readability scrim and BELOW every hero copy block; the layer's
+   * alpha comes from `backgroundTransparency`.
+   */
+  background: string | null;
+  /**
+   * Transparency of the background colour layer, 0–100. 0 = the colour is
+   * solid; 100 = fully see-through (the layer is absent). Legacy documents
+   * without this field read as 100, i.e. today's untouched look.
+   */
+  backgroundTransparency: number;
 };
 
 export type AboutSection = {
@@ -310,6 +326,16 @@ export function readLandingContent(raw: unknown): LandingContent {
         href: "/plans",
       }),
       image: readNullable(heroRaw as Record<string, unknown>, "image"),
+      // Colour is kept as written (trimmed) so the validator can name a bad
+      // value; the view never trusts it. Missing fields on legacy documents
+      // default to “no layer” + fully transparent.
+      background: (() => {
+        const raw = str((heroRaw as Record<string, unknown>).background).trim();
+        return raw.length > 0 ? raw : null;
+      })(),
+      backgroundTransparency: readHeroTransparency(
+        (heroRaw as Record<string, unknown>).backgroundTransparency,
+      ),
     },
     rails: {
       left: readRailConfig((railsRaw as Record<string, unknown>).left),
@@ -365,7 +391,10 @@ export function readLandingContent(raw: unknown): LandingContent {
  *  - a blog post MAY have an empty media list (caption-only post);
  *  - a blog post MAY carry an optional link — the route its photo/caption opens
  *    (empty means the post is not clickable);
- *  - media entries must be photo|video with a usable src.
+ *  - media entries must be photo|video with a usable src;
+ *  - the hero's optional background colour must be a valid CSS colour literal
+ *    (lib/landing/hero-background.ts owns the check) and its transparency a
+ *    number from 0 to 100.
  * Displayed prices are free content strings — no money validation (prices are
  * never computed here).
  */
@@ -376,6 +405,20 @@ export function validateLandingContent(content: LandingContent): { ok: true } | 
   }
   if (!content.hero.secondaryCta.label.trim() || !content.hero.secondaryCta.href.trim()) {
     return { ok: false, error: "The secondary call-to-action needs a label and a destination." };
+  }
+  if (content.hero.background !== null && !isValidCssColor(content.hero.background)) {
+    return {
+      ok: false,
+      error: `The hero background colour must be a valid CSS colour like #3f97d1 — “${content.hero.background}” isn't one.`,
+    };
+  }
+  if (
+    typeof content.hero.backgroundTransparency !== "number" ||
+    !Number.isFinite(content.hero.backgroundTransparency) ||
+    content.hero.backgroundTransparency < 0 ||
+    content.hero.backgroundTransparency > 100
+  ) {
+    return { ok: false, error: "The hero background transparency must be a number from 0 to 100." };
   }
   if (!content.logo.wordmark.trim()) return { ok: false, error: "The wordmark can't be empty." };
   if (!content.contact.phoneDisplay.trim() || !content.contact.phoneHref.trim()) {

@@ -6105,34 +6105,41 @@ a.card:hover {
   background: var(--gold-hairline);
 }
 
-/* --- Inverse sidebar: deep navy with a soft gold bloom ----------------------- */
+/* --- Sky sidebar: the captain's sky-blue admin nav ---------------------------
+   Captain (2026-09-17): "the admin nav bar should also be sky blue" — the
+   standing brand rule, never dark blue/navy. A daylight-sky gradient carrying
+   navy ink; gold keeps its accent role (brand eyebrow, active edge). Every
+   ink and gold value below holds ≥ 4.5:1 on the gradient's darkest stop
+   (--sky-400), so all staff screens read the same. */
 .app-shell .app-sidebar {
   background:
-    radial-gradient(560px 220px at 24% -60px, color-mix(in srgb, var(--gold-300) 16%, transparent), transparent 70%),
-    linear-gradient(180deg, var(--navy-800) 0%, var(--navy-900) 52%, var(--navy-950) 100%);
-  box-shadow: inset -1px 0 0 var(--color-rule-inverse);
+    radial-gradient(560px 220px at 24% -60px, rgb(255 255 255 / 0.45), transparent 70%),
+    linear-gradient(180deg, var(--sky-200) 0%, var(--sky-300) 52%, var(--sky-400) 100%);
+  color: var(--color-text-primary);
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--sky-600) 38%, transparent);
 }
 
 .app-shell .app-sidebar__brand {
   border-bottom: none;
-  box-shadow: inset 0 -1px 0 var(--color-rule-inverse);
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--sky-600) 30%, transparent);
   padding-bottom: var(--space-4);
 }
 
 .app-shell .app-sidebar__eyebrow {
-  color: var(--gold-300);
+  /* --gold-800 = the dark gold ink that holds AA on the light sky surface. */
+  color: var(--gold-800);
   letter-spacing: 0.18em;
 }
 
 .app-shell .app-sidebar__title {
   font-size: var(--text-xl);
-  color: #ffffff;
+  color: var(--navy-950);
   letter-spacing: 0.01em;
   margin-top: var(--space-2);
 }
 
 .app-shell .app-sidebar__link {
-  color: color-mix(in srgb, var(--navy-100) 88%, transparent);
+  color: var(--navy-800);
   border-radius: var(--radius-md);
   transition:
     background-color var(--motion-fast),
@@ -6141,32 +6148,56 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar__link:hover {
-  background: rgb(255 255 255 / 0.07);
-  color: #ffffff;
+  background: rgb(255 255 255 / 0.55);
+  color: var(--navy-950);
   transform: translateX(2px);
 }
 
 .app-shell .app-sidebar__link--active {
-  background: var(--gold-wash-soft);
+  background: var(--sky-700);
   color: #ffffff;
   box-shadow: inset 2px 0 0 var(--gold-300);
 }
 
 .app-shell .app-sidebar__link--active:hover {
-  background: var(--gold-wash);
+  background: var(--sky-800);
 }
 
 .app-shell .app-sidebar__label {
-  color: color-mix(in srgb, var(--navy-200) 72%, transparent);
+  color: var(--navy-700);
 }
 
 .app-shell .app-sidebar__footer {
   border-top: none;
-  box-shadow: inset 0 1px 0 var(--color-rule-inverse);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--sky-600) 30%, transparent);
 }
 
 .app-shell .app-sidebar__footer .btn--ghost {
-  color: color-mix(in srgb, var(--navy-100) 85%, transparent);
+  color: var(--navy-800);
+}
+
+.app-shell .app-sidebar__footer .btn--ghost:hover:not(:disabled) {
+  background: rgb(255 255 255 / 0.55);
+  color: var(--navy-950);
+}
+
+/* Portal switch on the light sky sidebar: the inverse variant's dark-surface
+   inks flip to navy ink; the current portal keeps its gold accent. */
+.app-shell .app-sidebar .portal-switch__label {
+  color: var(--navy-700);
+}
+
+.app-shell .app-sidebar .portal-switch--inverse a {
+  color: var(--navy-800);
+}
+
+.app-shell .app-sidebar .portal-switch--inverse a:hover {
+  background: rgb(255 255 255 / 0.55);
+  color: var(--navy-950);
+}
+
+.app-shell .app-sidebar .portal-switch--inverse a[aria-current="page"] {
+  color: var(--gold-800);
 }
 
 /* --- Top bar chrome details -------------------------------------------------- */
@@ -7509,11 +7540,15 @@ a.card:hover {
   display: grid;
   gap: 0.2rem;
   text-decoration: none;
-  background: linear-gradient(135deg, var(--sky-700), var(--sky-900));
-  border: 1px solid var(--sky-800);
+  /* Captain (2026-09-17): the 24/7 assistance line is a SKY-BLUE card — the
+     brand's daylight-sky surface, never navy/dark blue. Navy ink and the dark
+     gold label stay AA at every stop of the gradient (gold-800 4.5:1 min,
+     hint 6.3:1 min, number 8.2:1 min). */
+  background: linear-gradient(135deg, var(--sky-200) 0%, var(--sky-300) 52%, var(--sky-400) 100%);
+  border: 1px solid var(--sky-300);
   border-radius: var(--radius-md);
   padding: var(--space-3);
-  color: var(--color-text-inverse);
+  color: var(--navy-950);
   position: relative;
   overflow: hidden;
 }
@@ -7527,7 +7562,7 @@ a.card:hover {
 }
 
 .rail-call:hover .rail-call__number {
-  color: var(--gold-300);
+  color: var(--gold-800);
 }
 
 .rail-call__top {
@@ -7562,21 +7597,21 @@ a.card:hover {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--gold-300);
+  color: var(--gold-800);
 }
 
 .rail-call__number {
   font-family: var(--font-serif);
   font-weight: 800;
   font-size: 1.25rem;
-  color: #fff;
+  color: var(--navy-950);
   transition: color var(--motion-fast);
 }
 
 .rail-call__hint {
   font-size: 0.7rem;
-  /* Light ink on the sky-700→900 call card (4.09:1 for navy-200 was under AA). */
-  color: var(--navy-100);
+  /* Navy ink on the light-sky call card: AA at every stop of the gradient. */
+  color: var(--navy-800);
 }
 
 /* ---- hero (top of the scrollable middle) ---- */
@@ -7599,6 +7634,7 @@ a.card:hover {
   position: absolute;
   inset: 0 0 auto;
   height: 2px;
+  z-index: 4;
   background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 }
 
@@ -7637,14 +7673,23 @@ a.card:hover {
   );
 }
 
-/* Keep the hairline above the scrim and every copy block above both layers. */
-.hero-home--photo::before {
-  z-index: 3;
+/* Staff-chosen hero background colour (Landing Page editor, hero zone 02).
+   ONE layer, painted ABOVE the background photo (z 0) and its readability
+   scrim (z 1) and BELOW every copy block (z 3); the gold hairline stays on top
+   (z 4). The element only exists when a colour is set and the transparency is
+   below 100%, so documents that never used the field render exactly as they
+   did before the feature. */
+.hero-home__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
 }
 
-.hero-home--photo > *:not(.hero-home__photo) {
+/* Keep every copy block above the photo, the scrim and the colour wash. */
+.hero-home > *:not(.hero-home__photo):not(.hero-home__wash) {
   position: relative;
-  z-index: 2;
+  z-index: 3;
 }
 
 .hero-home--photo .hero-home__lead,
@@ -9848,6 +9893,130 @@ a.card:hover {
   .ed-console__actions .ed-console__publish {
     flex: 1;
   }
+}
+
+/* ---- Hero background colour changer (hero zone 02) -------------------------
+   Palette + free input + live preview + the 0–100% transparency slider, all
+   token-driven. Swatches paint the document's own colour value — the one place
+   an inline colour is correct, because the colour IS the content being picked. */
+.ed-hero-bg {
+  display: grid;
+  gap: var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  background:
+    linear-gradient(180deg, var(--color-bg-subtle), transparent 42%),
+    var(--color-bg-surface);
+}
+
+.ed-hero-bg__inputs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ed-hero-bg__colour {
+  flex: 1 1 12rem;
+  font-size: var(--text-sm);
+  letter-spacing: 0.02em;
+}
+
+.ed-hero-bg__picker {
+  flex: none;
+  width: 3rem;
+  height: 2.5rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  background: var(--color-bg-surface-raised);
+}
+
+.ed-hero-bg__palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ed-hero-bg__swatch {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  padding: 0;
+  border: 2px solid var(--color-rule-strong);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-paper);
+  transition:
+    transform var(--motion-fast),
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.ed-hero-bg__swatch svg {
+  filter: drop-shadow(0 0 2px rgb(8 28 49 / 0.85));
+}
+
+.ed-hero-bg__swatch:hover {
+  transform: translateY(-1px);
+  border-color: var(--gold-500);
+}
+
+.ed-hero-bg__swatch--active {
+  border-color: var(--navy-950);
+  box-shadow: 0 0 0 2px var(--gold-300), var(--shadow-paper);
+}
+
+.ed-hero-bg__preview {
+  position: relative;
+  height: 4.25rem;
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  /* The hero's shipped sky gradient, so the preview shows the real backdrop. */
+  background:
+    radial-gradient(260px circle at 96% -6%, color-mix(in srgb, var(--gold-300) 34%, transparent), transparent 55%),
+    linear-gradient(165deg, var(--sky-200), var(--sky-500));
+}
+
+.ed-hero-bg__preview-fill {
+  position: absolute;
+  inset: 0;
+}
+
+.ed-hero-bg__transparency {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.ed-hero-bg__transparency > label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.ed-hero-bg input[type="range"] {
+  flex: 1;
+  width: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  accent-color: var(--gold-600);
+  cursor: pointer;
+}
+
+.ed-hero-bg__value {
+  flex: none;
+  min-width: 3.25rem;
+  text-align: right;
+  font-weight: 700;
+  color: var(--navy-800);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---------------------------------------------------------------------------
