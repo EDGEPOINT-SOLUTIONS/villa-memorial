@@ -73,6 +73,12 @@ export type ChapelBookingButtonProps = {
   items: Partial<Record<ChapelClass, ChapelCatalogueItem>>;
   /** Visible button label; defaults to "Book common/private chapel dates". */
   label?: string;
+  /**
+   * Accessible name, when the visible label relies on its group heading for
+   * context (the chapel stay rows say "Book 3 days" under a chapel heading).
+   * Must contain the visible label in order (WCAG 2.5.3 label-in-name).
+   */
+  ariaLabel?: string;
 };
 
 /** Local (browser) today as YYYY-MM-DD — the date input's floor. */
@@ -597,6 +603,7 @@ export function ChapelBookingButton({
   days = MIN_CHAPEL_DAYS,
   items,
   label,
+  ariaLabel,
 }: ChapelBookingButtonProps) {
   const [open, setOpen] = useState(false);
   return (
@@ -606,6 +613,7 @@ export function ChapelBookingButton({
         size="sm"
         aria-haspopup="dialog"
         aria-expanded={open}
+        aria-label={ariaLabel}
         onClick={() => setOpen(true)}
       >
         {label ?? `Book ${CHAPEL_CLASS_LABEL[chapelClass].toLowerCase()} dates`}

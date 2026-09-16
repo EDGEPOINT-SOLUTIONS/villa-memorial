@@ -155,13 +155,16 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
     html = await renderWithCart(await ServicesPage());
   });
 
-  it("renders the embalming day table and the per-day rate beyond nine", () => {
-    expect(html).toContain("Embalming — per day");
+  it("renders the embalming day counts and the per-day rate beyond nine", () => {
+    expect(html).toContain("Embalming — priced by the day");
     for (const r of EMBALMING_RATES) {
       expect(html, `day ${r.days}`).toContain(php(r.amount));
     }
     expect(html).toMatch(/More than 9/);
-    expect(html).toContain("+₱1,500 / day");
+    expect(html).toContain("+₱1,500");
+    expect(requestLinksBySku(html).get(EMBALMING_EXTRA_DAY_SKU)?.get("price")).toContain(
+      "₱1,500 / day",
+    );
   });
 
   it("renders the five a-la-carte fees and the sheet's total", () => {
@@ -181,7 +184,10 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
       expect(html, `day ${r.days} private regular`).toContain(php(r.private.regular));
       expect(html, `day ${r.days} private senior`).toContain(php(r.private.senior));
     }
-    expect(html).toContain("Chapel use");
+    // Both chapels are sellable requests, decoded from their contact links.
+    expect(
+      requestLinks(html).some((p) => p.get("item")?.startsWith("Chapel use")),
+    ).toBe(true);
     expect(html).toContain(CHAPEL_NOTES.miscFee);
     expect(html).toContain(CHAPEL_NOTES.seniorPerDay);
     expect(html).toContain(CHAPEL_NOTES.privateChapelOnly);
@@ -208,12 +214,18 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
   });
 
   it("opens the chapel booking step (never a straight add) and keeps the request path", () => {
-    // A chapel is not a one-click product: the cards' “Book these dates” and
-    // every 3–9 day row's “Book common/private N days” are dialog triggers.
-    expect(html).toContain("Book these dates");
+    // A chapel is not a one-click product: the cards' “Check dates & price” and
+    // every 3–9 day row's “Book N days” are dialog triggers, and the row's
+    // accessible name carries the chapel its group heading carries visually.
+    expect(html).toContain("Check dates &amp; price");
     for (const r of CHAPEL_RATES) {
-      expect(html, `common stay ${r.days}`).toContain(`Book common ${r.days} days`);
-      expect(html, `private stay ${r.days}`).toContain(`Book private ${r.days} days`);
+      expect(html, `stay ${r.days}`).toContain(`Book ${r.days} days`);
+      expect(html, `common stay ${r.days}`).toContain(
+        `aria-label="Book ${r.days} days — Common chapel"`,
+      );
+      expect(html, `private stay ${r.days}`).toContain(
+        `aria-label="Book ${r.days} days — Private chapel"`,
+      );
     }
     // Two cards + every row's two classes open the dialog (aria-haspopup).
     expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(
@@ -223,7 +235,7 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
     expect(html).not.toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
     expect(html).not.toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
     expect(html).toContain("Request order");
-    expect(html).toContain("Request this stay");
+    expect(html).toContain(">Request</a>");
     // The two per-day products' card requests carry the sheet's own per-day rate.
     const bySku = requestLinksBySku(html);
     expect(bySku.get(CHAPEL_SKUS.common)?.get("price")).toContain(
@@ -236,11 +248,11 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
     expect(stays.length).toBeGreaterThanOrEqual(CHAPEL_RATES.length);
   });
 
-  it("keeps the existing service cards and links", () => {
+  it("keeps the first-steps guide cards and their links", () => {
     expect(html).toContain("Death at home");
-    expect(html).toContain("Death at hospital");
+    expect(html).toContain("Death in hospital");
     expect(html).toContain("/services/death-at-home");
-    expect(html).toContain("/plans");
+    expect(html).toContain("/services/death-at-hospital");
   });
 });
 

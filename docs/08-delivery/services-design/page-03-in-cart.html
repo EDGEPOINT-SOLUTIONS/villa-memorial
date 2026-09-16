@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Already in the cart — services design example (Villa Memorial)</title>
+<link rel="stylesheet" href="../../../styles/tokens.css">
+<link rel="stylesheet" href="../../../styles/base.css">
+<link rel="stylesheet" href="../../../styles/components.css">
+<link rel="stylesheet" href="../../../styles/utilities.css">
+<link rel="stylesheet" href="services-pages.css">
+</head>
+<body class="sv-page sv-standalone">
+<a class="visually-hidden" href="#main">Skip to content</a>
+<header class="anchored-header">
+  <div class="anchored-header__bar">
+    <a class="anchored-header__brand" href="/">
+      <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+      <span class="anchored-header__wordmark">Villa Memorial Park</span>
+    </a>
+    <nav class="anchored-header__nav" aria-label="Sections"><a href="/">Home</a><a href="/services" aria-current="page">Funeraria Memorial Services</a><a href="/plans">Villa Memorial Plan</a><a href="/lots">Lots</a><a href="/map">Villa Memorial Park</a><a href="/cart">Cart</a><a href="/contact">Contact</a></nav>
+    <div class="anchored-header__actions">
+      <a class="anchored-header__phone" href="tel:+639170001234">
+        <span class="anchored-header__phone-label">24/7 Assistance Line</span>
+        <span class="anchored-header__phone-number">0917 000 1234</span>
+      </a>
+      <a class="anchored-header__signin" href="/login">Sign in</a>
+    </div>
+  </div>
+</header>
+<main id="main" class="container public-main">
+<div class="sv-main">
+  <nav class="sv-breadcrumb" aria-label="Breadcrumb">
+    <ol><li><a href="/">Home</a></li><li><a href="/services">Funeraria Memorial Services</a></li><li aria-current="page">Already in the cart</li></ol>
+  </nav>
+  <h1 style="margin-top:var(--space-3)">What the page shows when a line is already in the cart</h1>
+  <p class="sv-section__intro">
+    Today the page does not change at all once you add something — the only signal is the
+    small cart count in the header. A family that books a chapel and then keeps reading
+    cannot tell whether it worked. The proposal adds one quiet state per line.
+  </p>
+
+  <h2>Chapel card, with the hold showing</h2>
+  <div class="sv-chapels"><article class="sv-chapel">
+  <figure class="sv-chapel__media">
+    <img src="../../../public/media/chapel-common.jpg" alt="Illustrative sample set-up in the client's common chapel">
+  </figure>
+  <div class="sv-chapel__body">
+    <p class="sv-cardchip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> In your cart</p>
+    <h3 class="sv-chapel__name">Common chapel</h3>
+    <div class="sv-cartchip">
+      <b>Chapel A · Sep 16 – 18, 2026 · 3 days · ₱4,500</b>
+      <span>Dates held while the line stays in your cart.</span>
+    </div>
+    <div class="sv-chapel__actions">
+      <a class="btn btn--primary btn--block" href="/cart">View cart</a>
+      <button type="button" class="btn btn--secondary btn--block">Remove — releases the dates</button>
+    </div>
+    <p class="sv-chapel__illus">Removing the line cancels the hold on the park's schedule. Placing the order keeps it.</p>
+  </div>
+</article></div>
+
+  <h2 style="margin-top:var(--space-7)">The confirmation the dialog already gives</h2>
+  <p class="sv-section__intro">This is today's success state, unchanged — the sample keeps it word for word.</p>
+  <div class="sv-booking-stage"><div class="booking-modal" role="dialog" aria-modal="true" aria-labelledby="bk-title">
+  <div class="booking-modal__backdrop"></div>
+  <div class="booking-modal__panel" tabindex="-1">
+    <header class="booking-modal__head">
+      <div>
+        <p class="booking-modal__eyebrow">Chapel use</p>
+        <h2 id="bk-title">Book chapel dates</h2>
+      </div>
+      <button type="button" class="quick-menu__close" aria-label="Close booking">✕</button>
+    </header>
+    <div class="booking-modal__body"><div class="stack-3">
+        <div class="alert alert--success" role="status">
+          <div><strong>Dates held — added to your cart</strong><br>Chapel A · Sep 16 – 18, 2026 · 3 days · ₱4,500</div>
+        </div>
+        <p class="sv-note">The park's schedule holds these dates while the line stays in your cart. Removing the line releases them; placing the order keeps them.</p>
+        <div class="booking-modal__actions">
+          <a href="/cart" class="btn btn--primary btn--sm">View cart</a>
+          <button type="button" class="btn btn--secondary btn--sm">Keep browsing</button>
+        </div>
+      </div></div>
+  </div>
+</div></div>
+
+  <h2 style="margin-top:var(--space-7)">A service line already added</h2>
+  <article class="sv-price-card" style="max-width:34rem">
+    <div class="sv-price-card__head">
+      <span class="sv-price-card__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s5 5.2 5 9a5 5 0 0 1-10 0c0-3.8 5-9 5-9z"/><path d="M9.5 13.5c.6 1.3 1.5 2 2.5 2"/></svg></span>
+      <h3>Embalming — 5 days</h3>
+    </div>
+    <p class="sv-price-card__amount">₱9,000 <span class="sv-price-card__unit">for 5 days</span></p>
+    <p class="sv-cardchip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> In your cart</p>
+    <div class="sv-price-card__actions">
+      <a class="btn btn--primary btn--block" href="/cart">View cart</a>
+      <button type="button" class="btn btn--secondary btn--block">Remove from cart</button>
+    </div>
+  </article>
+
+  <h2 style="margin-top:var(--space-7)">The cart page itself (today, phone width)</h2>
+  <p class="sv-section__intro">
+    The cart page is out of scope for this task, but this is what a chapel line looks like on
+    a phone today: the item table is wider than the screen, so the quantity column and the
+    item name are clipped. Worth a follow-up of its own.
+  </p>
+  <figure class="sv-figure" style="max-width:24rem">
+    <img src="shots/live-cart-phone.png" alt="The live cart page at 390 px: the item table is clipped at the right edge and the item name wraps into a narrow column.">
+    <figcaption>Live cart page at 390 px — the chapel line is in the cart, but the table clips.</figcaption>
+  </figure>
+</div>
+</main>
+<footer class="anchored-footer">
+  <div class="anchored-footer__inner">
+    <div class="anchored-footer__grid">
+      <div class="anchored-footer__brand-col">
+        <a class="anchored-header__brand" href="/">
+          <img src="../../../public/media/logo-sanctuario.png" alt="" class="brand-mark brand-mark--img">
+          <span class="anchored-header__wordmark">Villa Memorial Park</span>
+        </a>
+        <p class="anchored-footer__blurb">A family-run memorial park in <strong>Isabela City, Basilan</strong> — memorial &amp; funeral care that honors every life with dignity and light, day or night. The first memorial park in Basilan.</p>
+      </div>
+      <nav class="anchored-footer__col" aria-label="Explore">
+        <p class="anchored-footer__title">Explore</p>
+        <a href="/">Home</a>
+        <a href="/services">Funeraria Memorial Services</a>
+        <a href="/plans">Villa Memorial Plan</a>
+        <a href="/lots">Browse the lots</a>
+        <a href="/products">Products &amp; caskets</a>
+        <a href="/transport">Transport</a>
+        <a href="/map">Villa Memorial Park</a>
+      </nav>
+      <nav class="anchored-footer__col" aria-label="Care and planning">
+        <p class="anchored-footer__title">Care &amp; planning</p>
+        <a href="/services/death-at-home">Death at home</a>
+        <a href="/services/death-at-hospital">Death at hospital</a>
+        <a href="/plans/villa-memorial-plan">Villa Memorial Plan</a>
+        <a href="/plans/compare">Compare plans</a>
+        <a href="/lots/price-list-2026">2026 price list</a>
+      </nav>
+      <address class="anchored-footer__contact">
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">24/7 Assistance Line</span>
+          <a class="anchored-footer__phone" href="tel:+639170001234">0917 000 1234</a>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Open</span>
+          <span class="anchored-footer__contact-value">Every hour, every day</span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Visit the park</span>
+          <span class="anchored-footer__contact-value">Isabela City, Basilan<br><a href="/map">Map &amp; directions →</a></span>
+        </div>
+        <div class="anchored-footer__contact-line">
+          <span class="anchored-footer__contact-label">Help</span>
+          <span class="anchored-footer__contact-value"><a href="/contact">Contact us</a> · <a href="/faq">FAQ</a></span>
+        </div>
+      </address>
+    </div>
+    <div class="anchored-footer__bottom">
+      <span>© 2026 Villa Memorial Park. All rights reserved. · <a href="/cart">Cart</a> · <a href="/quote">Request a quote</a></span>
+      <span class="anchored-footer__portals">
+        <a href="/client/login">Family sign-in</a>
+        <a href="/agent/login">Agent sign-in</a>
+        <a href="/login">Staff sign-in</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<div class="sv-callbar" role="region" aria-label="Call the park">
+  <span>Someone has died?</span>
+  <a href="tel:+639170001234">Call 0917 000 1234</a>
+</div>
+<script>
+  // Sample-only scroll-spy: highlight the "On this page" chip of the section in
+  // view. The shipped page gets this from its own component; the sample shows it.
+  (function () {
+    var nav = document.querySelector('.sv-subnav');
+    if (!nav || !('IntersectionObserver' in window)) return;
+    var links = {};
+    nav.querySelectorAll('a[href^="#"]').forEach(function (a) { links[a.getAttribute('href').slice(1)] = a; });
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        Object.keys(links).forEach(function (id) { links[id].removeAttribute('aria-current'); });
+        if (links[e.target.id]) links[e.target.id].setAttribute('aria-current', 'true');
+      });
+    }, { rootMargin: '-15% 0px -70% 0px' });
+    Object.keys(links).forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+  })();
+</script>
+</body>
+</html>
