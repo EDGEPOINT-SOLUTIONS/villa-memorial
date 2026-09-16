@@ -5,7 +5,7 @@ import {
   PLAN_PACKAGES_IMAGE,
 } from "@/lib/media";
 
-export const metadata = { title: "Services — Villa Memorial" };
+export const metadata = { title: "Funeraria Memorial Services — Villa Memorial" };
 
 /**
  * Static marketing content (Module C public face). Copy is content, not data:
@@ -19,7 +19,7 @@ export default function ServicesPage() {
         <div className="hero-premium__grid">
           <div>
             <p className="eyebrow-label">What we help with</p>
-            <h1 className="hero-premium__title">Services</h1>
+            <h1 className="hero-premium__title">Funeraria Memorial Services</h1>
             <p className="hero-premium__lead">
               Compassionate guidance from the first call through the service itself.
             </p>

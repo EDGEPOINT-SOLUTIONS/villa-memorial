@@ -3,7 +3,7 @@ import { ErrorState } from "@/components/ui/states";
 import { PublicParkMap } from "@/components/public-park-map";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
 
-export const metadata = { title: "Park map — Villa Memorial" };
+export const metadata = { title: "Villa Memorial Park — Villa Memorial" };
 
 // Fixture mode is static-friendly, but once a live public lots path lands the page must
 // re-read per request (env/cookies) — never let it serve stale prerendered HTML.
@@ -41,7 +41,7 @@ export default async function PublicMapPage({
         <div className="page-header">
           <div>
             <p className="page-header__eyebrow">Sanctuario Memorial Park</p>
-            <h1>Park map</h1>
+            <h1>Villa Memorial Park</h1>
           </div>
         </div>
         <ErrorState
@@ -68,7 +68,7 @@ export default async function PublicMapPage({
         <div className="hero-premium__grid">
           <div>
             <p className="eyebrow-label">Interactive park map</p>
-            <h1 className="hero-premium__title">Park map</h1>
+            <h1 className="hero-premium__title">Villa Memorial Park</h1>
             <p className="hero-premium__lead">
               Walk the grounds of every Villa-affiliated park — zoom, pan and click any
               plot to see its type, status and asking price where published.

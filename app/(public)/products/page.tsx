@@ -15,9 +15,9 @@ export default function ProductsPage() {
           sophisticated Gold. Availability and final pricing are confirmed by the park
           office.
         </p>
-        <nav aria-label="Back to plans" style={{ marginTop: "var(--space-3)" }}>
+        <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
-    ← Back to plans &amp; services (All · Packages · Services · Add-ons)
+    ← Back to Villa Memorial Plan (All · Packages · Services · Add-ons)
   </Link>
 </nav>
       </section>
