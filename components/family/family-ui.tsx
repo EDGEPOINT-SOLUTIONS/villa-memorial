@@ -1,382 +1,371 @@
 /**
- * Family-portal presentational components — the approved design's blocks
- * (docs/08-delivery/family-portal-design), rendered with the app's tokens and
- * classes plus the `fp-*` family block in styles/components.css.
+ * Family-portal blocks — the approved 2026-09-16 redesign
+ * (docs/08-delivery/family-portal-design).
  *
- * These are deliberately server-renderable and data-in/data-out: every page
- * passes the values it actually has, and where a block's data does not exist yet
- * the page passes the honest placeholder from `FamilyPlannedPage` instead.
+ * ONE IDEA PER BLOCK, ONE PRIMARY ACTION PER SCREEN. The grammar:
+ *   Answer   — the situation sentence + the one action (+ the human line)
+ *   Chain    — five plain words with the current step named
+ *   Row/Rows — one decision per row (papers, ways to pay, offices, people)
+ *   Money    — a figure that carries its meaning
+ *   Note     — one calm sentence for the honest “not switched on yet” states
+ *
+ * Server-renderable and data-in/data-out; the pages pass the values they
+ * actually hold and never invent a figure.
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
-import {
-  CheckCircle2,
-  Clock,
-  CreditCard,
-  FileText,
-  HeartHandshake,
-  ListChecks,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import type { FamilyDocTone, FamilyNeed } from "@/lib/family/family-view";
+import { Check, Clock, Phone } from "lucide-react";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
-/* ------------------------------------------------------------------ hero --- */
+/* ------------------------------------------------------------- the answer --- */
 
-export function FamilyHero({
-  eyebrow,
-  title,
-  dates,
-  lead,
-  chips,
-  aside,
+export function Answer({
+  kicker,
+  headline,
+  sub,
+  actions,
+  help = false,
 }: {
-  eyebrow: string;
-  title: string;
-  dates?: string;
-  lead: string;
-  chips?: string[];
-  aside?: ReactNode;
+  /** Small calm line above the headline, e.g. “Today” or a page name. */
+  kicker: string;
+  headline: string;
+  /** One short supporting line — what the headline means. */
+  sub: ReactNode;
+  /** One primary action; a quiet second action at most. */
+  actions: ReactNode;
+  /** The human path under the buttons; only the Help page turns it on. */
+  help?: boolean;
 }) {
   return (
-    <section className="fp-hero">
-      <div className="fp-hero__grid">
-        <div>
-          <p className="fp-hero__eyebrow">{eyebrow}</p>
-          <h1 className="fp-hero__title">{title}</h1>
-          {dates ? <p className="fp-hero__dates">{dates}</p> : null}
-          <p className="fp-hero__lead">{lead}</p>
-          {chips && chips.length > 0 ? (
-            <div className="fp-hero__chips">
-              {chips.map((chip) => (
-                <span className="fp-chip" key={chip}>
-                  {chip}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
-        {aside ? <div className="fp-hero__next fp-desktop-only">{aside}</div> : null}
-      </div>
+    <section className="fv-answer" aria-labelledby="fv-answer-h">
+      <p className="fv-answer__kicker">{kicker}</p>
+      <h1 className="fv-answer__h" id="fv-answer-h">
+        {headline}
+      </h1>
+      <p className="fv-answer__sub">{sub}</p>
+      <div className="fv-answer__actions">{actions}</div>
+      {help ? <HelpLine /> : null}
     </section>
   );
 }
 
-/* ---------------------------------------------------------------- needs ---- */
+/* ------------------------------------------------------------ the human ---- */
 
-const NEED_ICON: Record<FamilyNeed["kind"], ReactNode> = {
-  action: <ListChecks size={20} />,
-  due: <CreditCard size={20} />,
-  next: <Clock size={20} />,
-  ready: <CheckCircle2 size={20} />,
-  memory: <HeartHandshake size={20} />,
-};
-
-export function FamilyNeedCard({ need }: { need: FamilyNeed }) {
+export function HelpLine({ lead = "Need help? Call" }: { lead?: string }) {
   return (
-    <article className={`fp-need fp-need--${need.kind}`}>
-      <span className="fp-need__icon" aria-hidden="true">
-        {NEED_ICON[need.kind]}
+    <div className="fv-help">
+      <Phone size={20} aria-hidden="true" />
+      <span>
+        {lead}{" "}
+        <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> — someone answers{" "}
+        {FAMILY_HELP.hours.replace("daily", "every day")}.
       </span>
-      <div className="fp-need__body">
-        <p className="fp-need__kind">{need.band}</p>
-        <p className="fp-need__title">{need.title}</p>
-        <p className="fp-need__detail">{need.detail}</p>
-      </div>
-      <div className="fp-need__action">
-        <Link className="btn btn--primary btn--sm" href={need.action.href}>
-          {need.action.label}
-        </Link>
-        {need.quiet ? (
-          <Link className="btn btn--ghost btn--sm" href={need.quiet.href}>
-            {need.quiet.label}
-          </Link>
-        ) : null}
-      </div>
-    </article>
-  );
-}
-
-export function FamilyNeeds({ needs }: { needs: FamilyNeed[] }) {
-  if (needs.length === 0) {
-    return (
-      <div className="empty-state fp-needs-empty">
-        <p className="empty-state__title">Nothing needs you today</p>
-        <p className="empty-state__hint">
-          We will only put something here when it truly needs you. Everything else about your
-          family&rsquo;s arrangement is in the menu on the left.
-        </p>
-      </div>
-    );
-  }
-  return (
-    <div className="fp-needs">
-      {needs.map((need) => (
-        <FamilyNeedCard key={need.id} need={need} />
-      ))}
     </div>
   );
 }
 
-/* -------------------------------------------------------- quick actions ---- */
+/* ------------------------------------------------------------- the chain ---- */
 
-export function FamilyQuickActions({
-  items,
-}: {
-  items: Array<{ label: string; note: string; href: string; icon?: ReactNode }>;
-}) {
+/** The five family moments, in order. `current` is 1-based. */
+export const FAMILY_CHAIN_STEPS = [
+  "Arrangement",
+  "Viewing",
+  "Funeral",
+  "Burial",
+  "Papers",
+] as const;
+
+export function Chain({ current }: { current?: number }) {
   return (
-    <div className="fp-quicks">
-      {items.map((item) => (
-        <Link className="fp-quick" href={item.href} key={item.label}>
-          {item.icon}
-          <span>{item.label}</span>
-          <em>{item.note}</em>
-        </Link>
-      ))}
-    </div>
+    <ol className="fv-chain">
+      {FAMILY_CHAIN_STEPS.map((label, index) => {
+        const step = index + 1;
+        const done = typeof current === "number" && step < current;
+        const now = typeof current === "number" && step === current;
+        const cls = now ? "fv-chain__now" : done ? "fv-chain__done" : "";
+        return (
+          <li key={label} className={cls || undefined}>
+            {done ? <Check size={18} aria-hidden="true" /> : null}
+            <span>
+              {step} {label}
+            </span>
+            {now ? <small>· you are here</small> : null}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
-/* --------------------------------------------------------------- money ----- */
+/* -------------------------------------------------------------- sections ---- */
 
-export function FamilyMoney({
-  label,
-  value,
-  note,
-  tone,
-}: {
-  label: string;
-  value: string;
-  note?: string;
-  tone?: "due" | "ok";
-}) {
-  return (
-    <div className={`fp-money${tone ? ` fp-money--${tone}` : ""}`}>
-      <p className="fp-money__label">{label}</p>
-      <p className="fp-money__value">{value}</p>
-      {note ? <p className="fp-money__note">{note}</p> : null}
-    </div>
-  );
-}
-
-export function FamilyProgress({ percent, note }: { percent: number; note: string }) {
-  return (
-    <div className="fp-progress-wrap">
-      <div
-        className="fp-progress"
-        role="progressbar"
-        aria-valuenow={percent}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label="Share of this plan already paid"
-      >
-        <span className="fp-progress__fill" style={{ width: `${percent}%` }} />
-      </div>
-      <p className="fp-note mt-2">{note}</p>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------ documents ---- */
-
-export function FamilyDocRow({
-  title,
-  meta,
-  status,
-  tone = "neutral",
-  href,
-  actionLabel = "Open",
-}: {
-  title: string;
-  meta: string;
-  status: string;
-  tone?: FamilyDocTone;
-  href?: string;
-  actionLabel?: string;
-}) {
-  return (
-    <div className="fp-doc">
-      <span className="fp-doc__icon" aria-hidden="true">
-        <FileText size={18} />
-      </span>
-      <div className="fp-doc__body">
-        <p className="fp-doc__title">{title}</p>
-        <p className="fp-doc__meta">{meta}</p>
-      </div>
-      <Badge tone={tone === "danger" ? "danger" : tone}>{status}</Badge>
-      {href ? (
-        <Link className="btn btn--ghost btn--sm" href={href}>
-          {actionLabel}
-        </Link>
-      ) : null}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------ structure ---- */
-
-export function FamilySection({
+export function Section({
   title,
   sub,
   children,
-  desktopOnly = false,
   id,
 }: {
-  title: string;
+  /** Omitted only for a trailing bare block (e.g. the sign-out action). */
+  title?: string;
   sub?: string;
   children: ReactNode;
-  desktopOnly?: boolean;
   id?: string;
 }) {
   return (
-    <section className={`page-section${desktopOnly ? " fp-desktop-only" : ""}`} id={id}>
-      <h2 className="fp-h2">{title}</h2>
-      {sub ? <p className="fp-sub">{sub}</p> : null}
+    <section className="fv-sec" id={id}>
+      {title ? <h2 className="fv-sec__h">{title}</h2> : null}
+      {sub ? <p className="fv-sec__sub">{sub}</p> : null}
       {children}
     </section>
   );
 }
 
-export function FamilySteps({
-  steps,
+/* ------------------------------------------------------------- plain rows --- */
+
+export function Rows({ children }: { children: ReactNode }) {
+  return <ul className="fv-rows">{children}</ul>;
+}
+
+export function Row({
+  icon,
+  title,
+  meta,
+  state,
+  wait = false,
+  action,
 }: {
-  steps: Array<{ state: "done" | "now" | "todo"; label: string; note?: string }>;
+  icon?: ReactNode;
+  title: string;
+  meta?: string;
+  /** One plain word, e.g. “Ready” — never a colour code. */
+  state?: string;
+  /** Waiting-on-you states use a clock glyph, not a different hue alone. */
+  wait?: boolean;
+  action?: ReactNode;
 }) {
   return (
-    <ol className="fp-steps">
-      {steps.map((step, index) => (
-        <li className={`fp-step fp-step--${step.state}`} key={`${step.label}-${index}`}>
-          <span className="fp-step__dot" aria-hidden="true">
-            {step.state === "done" ? "✓" : ""}
-          </span>
-          <span className="fp-step__label">{step.label}</span>
-          {step.note ? <span className="fp-step__note">{step.note}</span> : null}
+    <li className="fv-row">
+      {icon ? (
+        <span className="fv-row__icon" aria-hidden="true">
+          {icon}
+        </span>
+      ) : null}
+      <span className="fv-row__body">
+        <span className="fv-row__title">{title}</span>
+        {meta ? <span className="fv-row__meta">{meta}</span> : null}
+      </span>
+      {state ? (
+        <span className={wait ? "fv-row__state fv-row__state--wait" : "fv-row__state"}>
+          {wait ? <Clock size={18} aria-hidden="true" /> : <Check size={18} aria-hidden="true" />}
+          {state}
+        </span>
+      ) : null}
+      {action ? <span className="fv-row__action">{action}</span> : null}
+    </li>
+  );
+}
+
+/* --------------------------------------------------------------- actions ---- */
+
+export function PrimaryAction({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon?: ReactNode;
+}) {
+  return (
+    <Link className="fv-btn" href={href}>
+      {icon}
+      <span>{label}</span>
+    </Link>
+  );
+}
+
+export function CallAction({ label, phoneHref = FAMILY_HELP.phoneHref }: { label: string; phoneHref?: string }) {
+  return (
+    <a className="fv-btn" href={phoneHref}>
+      <Phone size={20} aria-hidden="true" />
+      <span>{label}</span>
+    </a>
+  );
+}
+
+export function QuietLink({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon?: ReactNode;
+}) {
+  return (
+    <Link className="fv-quietlink" href={href}>
+      {icon}
+      <span>{label}</span>
+    </Link>
+  );
+}
+
+/** The quiet button used inside a money block — visible, never the headline. */
+export function QuietAction({
+  href,
+  label,
+  icon,
+}: {
+  href: string;
+  label: string;
+  icon?: ReactNode;
+}) {
+  return (
+    <Link className="fv-btn fv-btn--quiet" href={href}>
+      {icon}
+      <span>{label}</span>
+    </Link>
+  );
+}
+
+/* ------------------------------------------------------------- the when ----- */
+
+export type WhenItem = {
+  /** “Saturday, 19 September · 10:00 AM” */
+  day: string;
+  /** “Ernesto's funeral” */
+  what: string;
+  /** “Sanctuario de Mercedes y Gloria” */
+  where: string;
+};
+
+/** Day · what · where — the plain schedule list, three lines per moment. */
+export function WhenList({ items }: { items: WhenItem[] }) {
+  return (
+    <ol className="fv-when">
+      {items.map((item) => (
+        <li key={`${item.day}|${item.what}`}>
+          <span className="fv-when__day">{item.day}</span>
+          <span className="fv-when__what">{item.what}</span>
+          <span className="fv-when__where">{item.where}</span>
         </li>
       ))}
     </ol>
   );
 }
 
-export function FamilyKv({ rows }: { rows: Array<[string, string]> }) {
+/* ---------------------------------------------------------------- money ----- */
+
+export function Money({
+  figure,
+  meaning,
+  actions,
+}: {
+  /** A number that carries its meaning: “₱22,000 still to pay”. */
+  figure: string;
+  meaning: string;
+  actions?: ReactNode;
+}) {
   return (
-    <div className="fp-kvs">
-      {rows.map(([key, value]) => (
-        <div className="row row--space fp-kv" key={key}>
-          <span className="text-sm text-muted">{key}</span>
-          <span>{value}</span>
-        </div>
-      ))}
+    <div className="fv-money">
+      <p className="fv-money__fig">{figure}</p>
+      <p className="fv-money__mean">{meaning}</p>
+      {actions ? <div className="fv-money__actions">{actions}</div> : null}
     </div>
   );
 }
 
-/* ------------------------------------------------------- planned pages ----- */
+export function PaidSoFar({
+  paid,
+  total,
+  words,
+  percent,
+}: {
+  paid: string;
+  total: string;
+  /** e.g. “just under half”. */
+  words: string;
+  /** 0–100 from integer minor units; omitted when the fixture has none. */
+  percent?: number;
+}) {
+  return (
+    <div className="fv-paid">
+      <strong>{paid} paid</strong>
+      {typeof percent === "number" ? (
+        <span
+          className="fv-paid__bar"
+          role="img"
+          aria-label={`${paid} of ${total} paid — ${words}`}
+        >
+          <span className="fv-paid__fill" style={{ width: `${Math.max(0, Math.min(100, percent))}%` }} />
+        </span>
+      ) : null}
+      <span>
+        {total} in all{percent === undefined ? "" : ` · ${words}`}
+      </span>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------- the honest note ---- */
 
 /**
- * The honest "not wired yet" page, designed rather than bare: the page keeps the
- * approved chrome, states what will live here (the design's own blocks), says
- * exactly what is missing, and gives the family a way to reach a person.
- *
- * This replaces the old `FamilyComingSoon` empty state; the wording below is the
- * behaviour the design requires — never fake a service that does not exist.
+ * The calm honesty block. Every page whose data does not exist yet ends with
+ * one of these instead of an alert box: plain words, what is missing, and the
+ * phone number when calling is the way forward.
  */
-export function FamilyPlannedPage({
-  eyebrow,
-  title,
-  lead,
-  blocks,
-  missing,
-  help,
-  preview,
-}: {
-  eyebrow: string;
-  title: string;
-  lead: string;
-  blocks: Array<{ heading: string; detail: string }>;
-  missing: string;
-  help: ReactNode;
-  /** Optional honest preview of a model that already exists (e.g. case stages). */
-  preview?: ReactNode;
-}) {
-  return (
-    <div className="fp-page">
-      <header className="page-header">
-        <div>
-          <p className="page-header__eyebrow">{eyebrow}</p>
-          <h1>{title}</h1>
-          <p className="fp-lead">{lead}</p>
-        </div>
-      </header>
-
-      <section className="page-section">
-        <div className="alert alert--info" role="status">
-          <div>
-            <strong>This page is designed but not wired yet.</strong>
-            <br />
-            {missing}
-          </div>
-        </div>
-      </section>
-
-      <FamilySection
-        title="What will be on this page"
-        sub="Taken from the approved family-portal design — the blocks appear in this order."
-      >
-        <div className="fp-quicks">
-          {blocks.map((block) => (
-            <div className="fp-quick fp-quick--static" key={block.heading}>
-              <span>{block.heading}</span>
-              <em>{block.detail}</em>
-            </div>
-          ))}
-        </div>
-      </FamilySection>
-
-      {preview}
-
-      <FamilySection title="While you wait, a person can help">{help}</FamilySection>
-    </div>
-  );
+export function Note({ children }: { children: ReactNode }) {
+  return <section className="fv-note">{children}</section>;
 }
 
-/** The coordinator card shared by the planned pages and Support. */
-export function FamilyHelpCard({
-  phone,
-  phoneHref,
-  hours,
-  office,
+/** The full honest answer for a page whose service is not switched on yet. */
+export function PlannedAnswer({
+  kicker,
+  headline,
+  sub,
+  plannedTitle,
+  sectionSub,
+  planned,
+  note,
+  action,
 }: {
-  phone: string;
-  phoneHref: string;
-  hours: string;
-  office: string;
+  kicker: string;
+  headline: string;
+  sub: string;
+  plannedTitle: string;
+  /** One line above the rows; defaults to the honest “what will live here”. */
+  sectionSub?: string;
+  planned: Array<{ label: string; detail: string }>;
+  note: string;
+  /** Overrides the default “Call {phone}” primary action. */
+  action?: ReactNode;
 }) {
   return (
-    <Card>
-      <div className="fp-split">
-        <div>
-          <p className="fp-h3">Talk to your coordinator</p>
-          <p className="fp-note">
-            Villa Memorial looks after your family from the office in Isabela City. Call or text
-            any time — someone answers {hours}.
-          </p>
-          <div className="row row--wrap mt-4">
-            <a className="btn btn--primary" href={phoneHref}>
-              Call {phone}
-            </a>
-            <Link className="btn btn--secondary" href="/client/support">
-              Send a message
-            </Link>
-          </div>
-        </div>
-        <div>
-          <p className="fp-h3">Where we are</p>
-          <p className="fp-note">{office}</p>
-          <p className="fp-note">Funeraria Villa · Aguada, Isabela City</p>
-          <p className="fp-note">Sanctuario de Mercedes y Gloria · Begang, Isabela City</p>
-        </div>
-      </div>
-    </Card>
+    <>
+      <Answer
+        kicker={kicker}
+        headline={headline}
+        sub={sub}
+        actions={action ?? <CallAction label={`Call ${FAMILY_HELP.phone}`} />}
+      />
+      <Section
+        title={plannedTitle}
+        sub={
+          sectionSub ??
+          "This is what will live here. Until then, call us and we will tell you exactly where things stand."
+        }
+      >
+        <Rows>
+          {planned.map((item) => (
+            <Row key={item.label} title={item.label} meta={item.detail} />
+          ))}
+        </Rows>
+      </Section>
+      <Note>
+        <p>
+          <strong>About this page.</strong> {note}
+        </p>
+      </Note>
+    </>
   );
 }

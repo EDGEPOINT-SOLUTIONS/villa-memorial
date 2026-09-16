@@ -1,39 +1,49 @@
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import { FAMILY_HELP } from "@/lib/family/contact";
-import { FamilyHelpCard, FamilyPlannedPage } from "@/components/family/family-ui";
+import { getFamilySnapshot } from "@/lib/api-client/family";
+import { PlannedAnswer } from "@/components/family/family-ui";
 
-export const metadata = { title: "Memorials — Villa Memorial" };
+export const metadata = { title: "Remembering — Villa Memorial" };
 
 /**
- * Memorials — approved family-portal design (docs/08-delivery/family-portal-design).
- *
- * The page is designed and the data path does not exist yet, so it states what
- * will be here and how to reach a person today. No invented data is rendered.
+ * Remembering — the approved redesign (docs/08-delivery/family-portal-design,
+ * page 06). The memorial service does not exist yet, so this is the honest
+ * designed state: the strongest true fact (nothing is published), what will
+ * live here, and one calm note. No invented tributes.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
+  const snapshot = await getFamilySnapshot().catch(() => null);
+  const firstName = snapshot?.loved_one.name.split(/\s+/)[0] || "Your loved one";
 
   return (
-    <FamilyPlannedPage
-      eyebrow="Remembering"
-      title="Memorials"
-      lead="The pages your family keeps for the people you have lost — and who they are shared with."
-      missing="There is no memorial service yet: pages, photos, tributes and the moderation your family controls all arrive with the memorial module. Nothing about your family is published anywhere until that exists and you say so."
-      blocks={[
-        { heading: "Your family's memorial pages", detail: "Their story, photos and songs — private by default" },
-        { heading: "Tributes waiting for you", detail: "Messages from family and friends, published only after your approval" },
-        { heading: "Who can see it", detail: "Family only, a private link, or public — your choice, per memorial" },
-        { heading: "Remembrance dates", detail: "Birthday, anniversary and All Souls' — reminders you can switch off" },
-        { heading: "During a wake", detail: "A guestbook, the programme, a private livestream for relatives abroad" },
+    <PlannedAnswer
+      kicker="Remembering"
+      headline={`Nothing about ${firstName} is published anywhere.`}
+      sub={`The memorial page your family keeps — the story, the photos and the messages friends write — is designed and not switched on yet. When it is, nothing shows until someone in your family says yes.`}
+      plannedTitle="What will be here"
+      planned={[
+        {
+          label: "A page kept by your family",
+          detail: "Their story and photos, added whenever you are ready",
+        },
+        {
+          label: "Messages waiting for your yes",
+          detail: "Tributes from family and friends — nothing shows until you approve it",
+        },
+        {
+          label: "Who can see it",
+          detail: "Only your family, a private link, or anyone — you choose",
+        },
+        {
+          label: "Dates we can remind you about",
+          detail: "Their birthday, the anniversary and All Souls’ — you can switch any of them off",
+        },
+        {
+          label: "Years from now",
+          detail: "The page stays for as long as your family keeps it",
+        },
       ]}
-      help={
-        <FamilyHelpCard
-          phone={FAMILY_HELP.phone}
-          phoneHref={FAMILY_HELP.phoneHref}
-          hours={FAMILY_HELP.hours}
-          office={FAMILY_HELP.office}
-        />
-      }
+      note={`The memorial service is not switched on yet. Until it is, nothing about ${firstName} appears anywhere, and no message can be posted.`}
     />
   );
 }

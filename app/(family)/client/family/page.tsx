@@ -1,38 +1,41 @@
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import { FAMILY_HELP } from "@/lib/family/contact";
-import { FamilyHelpCard, FamilyPlannedPage } from "@/components/family/family-ui";
+import { PlannedAnswer } from "@/components/family/family-ui";
 
-export const metadata = { title: "Family & access — Villa Memorial" };
+export const metadata = { title: "Family and access — Villa Memorial" };
 
 /**
- * Family & access — approved family-portal design (docs/08-delivery/family-portal-design).
- *
- * The page is designed and the data path does not exist yet, so it states what
- * will be here and how to reach a person today. No invented data is rendered.
+ * Family and access — the approved redesign (docs/08-delivery/family-portal-design).
+ * Family membership needs the identity service to carry family roles; today one
+ * account signs in. This is the honest designed state.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
 
   return (
-    <FamilyPlannedPage
-      eyebrow="Our family & privacy"
-      title="Family & access"
-      lead="Who is in this arrangement with you, what each person can see, and who decides."
-      missing="Family membership — roles, invitations and the access list — needs the identity service to carry family members. Today one account signs in; the family circle is designed and not switched on."
-      blocks={[
-        { heading: "The people on this account", detail: "Each person's role in plain words, and when they last looked" },
-        { heading: "What each role can see", detail: "Owner, family member, contributor and guest — across the arrangement, payments and the memorial" },
-        { heading: "Family living abroad", detail: "Joining from overseas, local times, the live link, and contributions" },
-        { heading: "Decisions and consent", detail: "Changing who decides, and what your family has agreed to share" },
+    <PlannedAnswer
+      kicker="Family and access"
+      headline="Today, one account signs in. A family circle with its own roles is on its way."
+      sub="When it arrives, you will choose who in your family sees the arrangement, the payments and the memorial — each person with their own sign-in and their own level of access."
+      plannedTitle="What will be here"
+      planned={[
+        {
+          label: "The people on this account",
+          detail: "Each person’s role in plain words",
+        },
+        {
+          label: "What each person can see",
+          detail: "The arrangement, the payments, the papers and the memorial",
+        },
+        {
+          label: "Family living abroad",
+          detail: "Joining from overseas, local times, and the live link",
+        },
+        {
+          label: "Decisions and consent",
+          detail: "Changing who decides, and what your family has agreed to share",
+        },
       ]}
-      help={
-        <FamilyHelpCard
-          phone={FAMILY_HELP.phone}
-          phoneHref={FAMILY_HELP.phoneHref}
-          hours={FAMILY_HELP.hours}
-          office={FAMILY_HELP.office}
-        />
-      }
+      note="Family membership is not switched on yet. Until it is, one account signs in — call us if someone else in your family needs their own access, and we will arrange it with you."
     />
   );
 }

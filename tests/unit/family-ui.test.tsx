@@ -1,129 +1,195 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import {
-  FamilyDocRow,
-  FamilyHero,
-  FamilyMoney,
-  FamilyNeeds,
-  FamilyPlannedPage,
-  FamilyQuickActions,
-  FamilySection,
-  FamilySteps,
+  Answer,
+  Chain,
+  Money,
+  Note,
+  PaidSoFar,
+  PlannedAnswer,
+  PrimaryAction,
+  QuietAction,
+  Row,
+  Rows,
+  Section,
+  WhenList,
 } from "@/components/family/family-ui";
-import { FAMILY_JARGON, type FamilyNeed } from "@/lib/family/family-view";
+import { FAMILY_JARGON } from "@/lib/family/family-view";
 
 function render(node: React.ReactElement): string {
   return renderToStaticMarkup(node);
 }
 
-const DUE: FamilyNeed = {
-  id: "balance",
-  kind: "due",
-  band: "Money that matters now",
-  title: "₱22,000 is still open on Premium Lawn · Lawn A-01",
-  detail: "Next due Sep 15, 2026 · ₱12,000. It can be paid in parts.",
-  action: { label: "See how to pay", href: "/client/payments" },
-  quiet: { label: "Talk to us first", href: "/client/support" },
-};
-
-describe("family portal blocks", () => {
-  it("renders the hero with the loved one's name, life dates and chips", () => {
+describe("the family Answer (one dominant fact, one action)", () => {
+  it("renders the kicker, one headline, the supporting line and one primary action", () => {
     const html = render(
-      <FamilyHero
-        eyebrow="Your family's arrangement"
-        title="Ernesto Dela Cruz"
-        dates="1948 – 2026"
-        lead="We are with your family through this."
-        chips={["Premium Lawn · Lawn A-01"]}
+      <Answer
+        kicker="Payments"
+        headline="₱22,000 is still to pay on your family’s plan."
+        sub="That is what is left of ₱42,000."
+        actions={<PrimaryAction href="/client/payments" label="See how to pay" />}
       />,
     );
-    expect(html).toContain("Ernesto Dela Cruz");
-    expect(html).toContain("1948 – 2026");
-    expect(html).toContain("Premium Lawn · Lawn A-01");
-    expect(html).toContain("fp-hero");
+    expect(html).toContain("Payments");
+    expect(html.match(/<h1/g)).toHaveLength(1);
+    expect(html).toContain("₱22,000 is still to pay");
+    expect(html).toContain("That is what is left of ₱42,000.");
+    expect(html.match(/class="fv-btn"/g)).toHaveLength(1);
   });
 
-  it("renders a need card with one primary action and a quiet alternative", () => {
-    const html = render(<FamilyNeeds needs={[DUE]} />);
-    expect(html).toContain("Money that matters now");
-    expect(html).toContain("₱22,000");
-    expect(html).toContain('href="/client/payments"');
-    expect(html).toContain('href="/client/support"');
-  });
-
-  it("says nothing needs the family when the feed is empty", () => {
-    const html = render(<FamilyNeeds needs={[]} />);
-    expect(html).toContain("Nothing needs you today");
-    expect(html).toContain("empty-state");
-  });
-
-  it("renders money with the amount as given and a severity tone", () => {
-    const html = render(
-      <FamilyMoney label="Still open" value="₱22,000" note="Next due Sep 15" tone="due" />,
+  it("keeps the human line off by default and shows the number when asked", () => {
+    const without = render(
+      <Answer kicker="Home" headline="Nothing needs you today." sub="All is well." actions={null} />,
     );
-    expect(html).toContain("₱22,000");
-    expect(html).toContain("fp-money--due");
-  });
+    expect(without).not.toContain("fv-help");
 
-  it("renders document rows in family words", () => {
-    const html = render(
-      <FamilyDocRow
-        title="Official receipt"
-        meta="You can open it here at any time."
-        status="Ready"
-        tone="success"
+    const withHelp = render(
+      <Answer
+        kicker="Help"
+        headline="Call us."
+        sub="Someone answers every day."
+        actions={<PrimaryAction href="/client/payments" label="See how to pay" />}
+        help
       />,
     );
-    expect(html).toContain("Official receipt");
-    expect(html).toContain("Ready");
+    expect(withHelp).toContain("fv-help");
+    expect(withHelp).toContain("0917 617 8489");
+  });
+});
+
+describe("the five-step chain", () => {
+  it("names the current step in words, not with a badge or a colour alone", () => {
+    const html = render(<Chain current={2} />);
+    expect(html).toContain("1 Arrangement");
+    expect(html).toContain("2 Viewing");
+    expect(html).toContain("· you are here");
+    expect(html).toContain("fv-chain__done");
+    expect(html).toContain("fv-chain__now");
   });
 
-  it("renders the arrangement steps without a workflow diagram", () => {
+  it("renders the steps without a marker when the case service is not wired", () => {
+    const html = render(<Chain />);
+    expect(html).toContain("5 Papers");
+    expect(html).not.toContain("you are here");
+    expect(html).not.toContain("fv-chain__now");
+  });
+});
+
+describe("the schedule (day · what · where)", () => {
+  it("prints three lines per moment", () => {
     const html = render(
-      <FamilySteps
-        steps={[
-          { state: "done", label: "We bring your loved one into our care", note: "10 September" },
-          { state: "now", label: "The viewing, at the chapel you chose" },
-          { state: "todo", label: "The interment, at your family's lot" },
+      <WhenList
+        items={[
+          {
+            day: "Saturday, 19 September · 10:00 AM",
+            what: "Ernesto’s funeral",
+            where: "Sanctuario de Mercedes y Gloria",
+          },
         ]}
       />,
     );
-    expect(html).toContain("fp-step--done");
-    expect(html).toContain("fp-step--now");
-    expect(html).toContain("We bring your loved one into our care");
+    expect(html).toContain("Saturday, 19 September · 10:00 AM");
+    expect(html).toContain("Ernesto’s funeral");
+    expect(html).toContain("Sanctuario de Mercedes y Gloria");
+  });
+});
+
+describe("rows, money and notes", () => {
+  it("gives every row one plain state word and one action", () => {
+    const html = render(
+      <Rows>
+        <Row
+          title="Official receipt"
+          meta="₱12,000 received 12 September"
+          state="Ready"
+          action={<QuietAction href="tel:+639176178489" label="Ask for a copy" />}
+        />
+      </Rows>,
+    );
+    expect(html).toContain("Official receipt");
+    expect(html).toContain("Ready");
+    expect(html).toContain("Ask for a copy");
   });
 
-  it("renders quick actions as real links", () => {
+  it("makes waiting states use a clock, never a red hue alone", () => {
     const html = render(
-      <FamilyQuickActions
-        items={[{ label: "Call us", note: "7am – 9pm daily", href: "tel:+639176178489" }]}
-      />,
+      <Row title="LGU burial assistance form" state="Waiting on you" wait />,
     );
-    expect(html).toContain('href="tel:+639176178489"');
-    expect(html).toContain("Call us");
+    expect(html).toContain("fv-row__state--wait");
+    expect(html).toContain("Waiting on you");
   });
 
-  it("states what is missing on a planned page instead of faking data", () => {
+  it("prints a figure with its meaning, never a bare number", () => {
     const html = render(
-      <FamilyPlannedPage
-        eyebrow="Remembering"
-        title="Memorials"
-        lead="The pages your family keeps."
-        missing="There is no memorial service yet."
-        blocks={[{ heading: "Your family's memorial pages", detail: "Private by default" }]}
-        help={<p>Call 0917 617 8489</p>}
+      <Money
+        figure="₱22,000 still to pay"
+        meaning="That is what is left of ₱42,000."
+        actions={<QuietAction href="/client/payments" label="How to pay" />}
       />,
     );
-    expect(html).toContain("not wired yet");
-    expect(html).toContain("What will be on this page");
+    expect(html).toContain("₱22,000 still to pay");
+    expect(html).toContain("That is what is left of ₱42,000.");
+  });
+
+  it("says the paid share in words as well as a bar", () => {
+    const html = render(
+      <PaidSoFar paid="₱20,000" total="₱42,000" words="almost half" percent={48} />,
+    );
+    expect(html).toContain("₱20,000 paid");
+    expect(html).toContain("almost half");
+    expect(html).toContain('role="img"');
+  });
+
+  it("renders the honest note as calm prose, never an alert", () => {
+    const html = render(
+      <Note>
+        <p>
+          <strong>About this page.</strong> The schedule updates here when the case service is on.
+        </p>
+      </Note>,
+    );
+    expect(html).toContain("fv-note");
+    expect(html).not.toContain("alert");
+  });
+});
+
+describe("a page whose service is not switched on", () => {
+  const page = (
+    <PlannedAnswer
+      kicker="The funeral"
+      headline="Ernesto’s funeral plan is kept by our office."
+      sub="The records are not connected to this page yet."
+      plannedTitle="What will be here"
+      planned={[{ label: "The viewing", detail: "Where to go and the hours" }]}
+      note="The arrangement records service is not switched on yet."
+    />
+  );
+
+  it("renders one answer, the planned rows and one calm note", () => {
+    const html = render(page);
+    expect(html.match(/<h1/g)).toHaveLength(1);
+    expect(html).toContain("The viewing");
+    expect(html).toContain("What will be here");
+    expect(html).toContain("About this page.");
     expect(html).toContain("0917 617 8489");
   });
 
+  it("never dresses the honest state up as a feature grid of cards", () => {
+    const html = render(page);
+    expect(html).not.toContain("fp-");
+    expect(html).not.toContain("card");
+  });
+});
+
+describe("plain words only", () => {
   it("never prints ledger-speak on a family surface", () => {
     const html = render(
-      <FamilySection title="Money and papers">
-        <FamilyNeeds needs={[DUE]} />
-      </FamilySection>,
+      <Section title="Money and papers">
+        <Money figure="₱22,000 still to pay" meaning="Next due Sep 15." />
+        <Note>
+          <p>All good.</p>
+        </Note>
+      </Section>,
     ).toLowerCase();
     for (const word of FAMILY_JARGON) {
       expect(html).not.toContain(word.toLowerCase());
