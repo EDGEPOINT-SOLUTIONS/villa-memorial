@@ -5,7 +5,7 @@ import { ErrorState } from "@/components/ui/states";
 import { CatalogueAddButton } from "@/components/catalogue-add-button";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 
-export const metadata = { title: "Plans & services — Villa Memorial" };
+export const metadata = { title: "Villa Memorial Plan — Villa Memorial" };
 
 /**
  * Public catalog (Module B/C public face) — villa-memorial item-card grammar on
@@ -38,7 +38,7 @@ export default async function PlansPage({
   } catch {
     return (
       <>
-        <h1>Plans &amp; services</h1>
+        <h1>Villa Memorial Plan</h1>
         <ErrorState message="The catalog is unavailable right now. Please try again shortly." />
       </>
     );
@@ -58,7 +58,7 @@ export default async function PlansPage({
         <div className="hero-premium__grid">
           <div>
             <p className="eyebrow-label">Memorial plans</p>
-            <h1 className="hero-premium__title">Plans &amp; services</h1>
+            <h1 className="hero-premium__title">Villa Memorial Plan</h1>
             <p className="hero-premium__lead">
               Choose what your family needs, spread the cost over time, and have the comfort
               of knowing everything is arranged.

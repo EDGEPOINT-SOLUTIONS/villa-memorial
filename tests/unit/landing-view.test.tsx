@@ -60,7 +60,32 @@ describe("the home renders the anchored catalogue shell", () => {
     const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
     expect(nav.indexOf('href="/">Home<')).toBeGreaterThanOrEqual(0);
     // Home is the first destination in the bar.
-    expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Services"));
+    expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Funeraria Memorial Services"));
+  });
+
+  it("public chrome names the pages /services, /plans and /map the captain's way", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    // Header bar (the ONE public nav — same component on every public page).
+    const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
+    expect(nav).toContain('href="/services">Funeraria Memorial Services</a>');
+    expect(nav).toContain('href="/plans">Villa Memorial Plan</a>');
+    expect(nav).toContain('href="/map">Villa Memorial Park</a>');
+    // Footer "Explore" column links the same three destinations.
+    expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
+    expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');
+    expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
+    // The retired short link labels are gone from visitor chrome.
+    for (const [href, label] of [
+      ["/services", "Services"],
+      ["/plans", "Plans"],
+      ["/plans", "Memorial plans & lots"],
+      ["/map", "Park map"],
+    ] as const) {
+      expect(html).not.toContain(`href="${href}">${label}</a>`);
+    }
   });
 
   it("middle sections render in order: about, services, plans grid, live map, then blog feed", async () => {

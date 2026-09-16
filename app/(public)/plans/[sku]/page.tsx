@@ -111,7 +111,7 @@ export default async function PlanDetailPage({
     return (
       <div className="plan-page">
         <p className="crumbs">
-          <Link href="/plans">Plans &amp; services</Link> <span aria-hidden="true">▸</span>{" "}
+          <Link href="/plans">Villa Memorial Plan</Link> <span aria-hidden="true">▸</span>{" "}
           {typeLabel}
         </p>
 
@@ -309,7 +309,7 @@ export default async function PlanDetailPage({
         <div className="hero-premium__grid">
           <div>
             <p className="eyebrow-label">
-              <Link href="/plans">Plans &amp; services</Link> · {typeLabel}
+              <Link href="/plans">Villa Memorial Plan</Link> · {typeLabel}
             </p>
             <h1 className="hero-premium__title">{item.name}</h1>
             {item.description ? (

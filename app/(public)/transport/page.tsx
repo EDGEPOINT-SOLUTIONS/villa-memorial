@@ -28,9 +28,9 @@ export default function Page() {
                 Villa Memorial Plan
               </Link>
             </div>
-            <nav aria-label="Back to services" style={{ marginTop: "var(--space-4)" }}>
+            <nav aria-label="Back to Funeraria Memorial Services" style={{ marginTop: "var(--space-4)" }}>
               <Link href="/services" className="back-link">
-                ← Back to services
+                ← Back to Funeraria Memorial Services
               </Link>
             </nav>
           </div>

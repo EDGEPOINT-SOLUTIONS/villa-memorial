@@ -114,8 +114,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   aria-current via usePathname + the live cart count in the same component.
   Never introduce a second public header/footer class set; if you must change
   the bar, change SiteHeaderBar + the "anchored catalogue home" CSS block and
-  it lands everywhere automatically. The rails hide their scrollbar until
-  hovered (.anchored-rail). Blog posts carry an optional `link` (set in the
+  it lands everywhere automatically. The three catalogue page names are the
+  captain's full forms — `/services` "Funeraria Memorial Services", `/plans`
+  "Villa Memorial Plan", `/map` "Villa Memorial Park" — in the bar, the mobile
+  flyout, the footer and the pages' own titles/h1s; don't shorten them. Because
+  those labels are wide, the CSS block tightens `.anchored-header__nav` chip
+  padding below 85rem so the phone chip and "Sign in" never wrap; keep both.
+  The rails hide their scrollbar until hovered (.anchored-rail). Blog posts
+  carry an optional `link` (set in the
   "/" editor) that makes the post's photos/caption navigate; seed posts ship
   sensible internal routes.
 

@@ -19,8 +19,8 @@ export default function Page() {
               <Link href="/contact" className="btn btn--accent">Immediate assistance</Link>
               <Link href="/plans" className="btn btn--secondary">Memorial plans</Link>
             </div>
-            <nav aria-label="Back to services" style={{ marginTop: "var(--space-4)" }}>
-              <Link href="/services" className="back-link">← Back to services</Link>
+            <nav aria-label="Back to Funeraria Memorial Services" style={{ marginTop: "var(--space-4)" }}>
+              <Link href="/services" className="back-link">← Back to Funeraria Memorial Services</Link>
             </nav>
           </div>
           <figure className="hero-premium__media">

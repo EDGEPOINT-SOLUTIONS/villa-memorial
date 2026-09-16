@@ -19,10 +19,10 @@ import { BrandMark } from "@/components/landing/brand-mark";
 /** Same order on every page — Home first, so visitors always know the way back. */
 export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/services" },
-  { label: "Plans", href: "/plans" },
+  { label: "Funeraria Memorial Services", href: "/services" },
+  { label: "Villa Memorial Plan", href: "/plans" },
   { label: "Lots", href: "/lots" },
-  { label: "Park map", href: "/map" },
+  { label: "Villa Memorial Park", href: "/map" },
   { label: "Cart", href: "/cart" },
   { label: "Contact", href: "/contact" },
 ];

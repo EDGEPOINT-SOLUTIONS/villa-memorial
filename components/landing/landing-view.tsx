@@ -332,12 +332,12 @@ export function LandingFooter({ content }: { content: LandingContent }) {
             title="Explore"
             links={[
               { label: "Home", href: "/" },
-              { label: "Services", href: "/services" },
-              { label: "Memorial plans & lots", href: "/plans" },
+              { label: "Funeraria Memorial Services", href: "/services" },
+              { label: "Villa Memorial Plan", href: "/plans" },
               { label: "Browse the lots", href: "/lots" },
               { label: "Products & caskets", href: "/products" },
               { label: "Transport", href: "/transport" },
-              { label: "Park map", href: "/map" },
+              { label: "Villa Memorial Park", href: "/map" },
             ]}
           />
 

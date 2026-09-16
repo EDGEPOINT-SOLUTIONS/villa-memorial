@@ -17,9 +17,9 @@ export default function SeniorBenefitsPage() {
           A complete memorial plan for our elders — with free flowers and a complete
           memorial package.
         </p>
-        <nav aria-label="Back to plans" style={{ marginTop: "var(--space-3)" }}>
+        <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
-    ← Back to plans &amp; services (All · Packages · Services · Add-ons)
+    ← Back to Villa Memorial Plan (All · Packages · Services · Add-ons)
   </Link>
 </nav>
       </section>
