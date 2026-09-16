@@ -1,24 +1,15 @@
 import Link from "next/link";
 import { AgentHero, AgentSection, Chip } from "@/components/agent/agent-ui";
+import { AgentParkMap } from "@/components/agent/agent-park-map";
 import { listAgentLotAvailability } from "@/lib/api-client/agent";
+import { listLots, type Lot } from "@/lib/api-client/property";
 import { LOT_GARDEN_NICHES, LOT_MAUSOLEUM, LOT_PREMIUM, LOT_PRIMARY } from "@/lib/media";
 import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import parksFile from "@/lib/fixtures/property/parks.json";
+import { hasAnyScope } from "@/lib/rbac/nav";
+import { ErrorState, ForbiddenState } from "@/components/ui/states";
 
 export const metadata = { title: "Lot availability — Villa Memorial agent portal" };
-
-type SeedPlot = {
-  id: string;
-  code: string;
-  lot_id: string | null;
-  status: string;
-  typeId?: string;
-  outline?: number[][];
-};
-type SeedPark = { id: string; name: string; image: string; plots: SeedPlot[] };
-
-const VILLA = (parksFile as { parks: SeedPark[] }).parks.find((p) => p.id === "villa");
 
 /** Photo per availability key — the same map the park editor uses (lib/media.ts). */
 const PHOTO: Record<string, string> = {
@@ -29,16 +20,6 @@ const PHOTO: Record<string, string> = {
   condo: LOT_MAUSOLEUM,
 };
 
-function centroid(outline: number[][] | undefined): { x: number; y: number } | null {
-  if (!outline || outline.length === 0) return null;
-  const xs = outline.map((p) => p[0]);
-  const ys = outline.map((p) => p[1]);
-  return {
-    x: xs.reduce((a, b) => a + b, 0) / xs.length,
-    y: ys.reduce((a, b) => a + b, 0) / ys.length,
-  };
-}
-
 function sheetPrice(category: string, product: string): { selling: number; monthly: number } | null {
   const row = LOT_PRICE_CATEGORIES.find((c) => c.title === category)?.rows.find(
     (r) => r.product === product,
@@ -47,13 +28,43 @@ function sheetPrice(category: string, product: string): { selling: number; month
 }
 
 /**
- * Lot availability (approved design page 10): the client's masterplan with the
- * office's plots pinned, and the client's own 2026 sheet prices. Availability is
- * the office's record, read-stamped — never a promise the page cannot keep.
+ * Lot availability (approved design page 10), on the office's OWN park map.
+ *
+ * The map is not a second picture of the park: it is `components/park-maps-view.tsx`,
+ * the same shared component the staff property screen renders, fed the same lot
+ * listing (`listLots()`), so agent and office always see the same plots with the
+ * same statuses. What differs is only what the agent may DO — select and read the
+ * shared plot profile, ask the office to hold an available lot (still disabled
+ * pending the captain/client decision) — with map editing gated by the session's
+ * scopes exactly as on the staff screen.
+ *
+ * Availability counts here are the office's record, read-stamped, and prices are
+ * the client's own 2026 sheet (lib/villa-pricing.ts) — never typed by an agent.
  */
 export default async function AgentLotsPage() {
-  await requirePortalSessionOrRedirect("agent");
+  const session = await requirePortalSessionOrRedirect("agent");
+
+  if (!hasAnyScope(session.scopes, ["property:read"])) {
+    return (
+      <div className="ag-page">
+        <AgentSection title="Lot availability">
+          <ForbiddenState requiredScopes={["property:read"]} />
+        </AgentSection>
+      </div>
+    );
+  }
+
   const availability = await listAgentLotAvailability();
+  const canEdit = hasAnyScope(session.scopes, ["property:write"]);
+
+  let lots: Lot[] = [];
+  let lotsError: string | null = null;
+  try {
+    lots = await listLots();
+  } catch {
+    lotsError = "The office's lot records could not be read just now.";
+  }
+
   const now = new Date();
   const readAt = new Intl.DateTimeFormat("en-PH", {
     timeZone: "Asia/Manila",
@@ -62,12 +73,6 @@ export default async function AgentLotsPage() {
     hour12: true,
   }).format(now);
 
-  const pins = (VILLA?.plots ?? [])
-    .filter((p) => p.lot_id && p.outline)
-    .map((p) => ({ ...p, at: centroid(p.outline) }))
-    .filter((p) => p.at)
-    .slice(0, 8);
-
   const totalAvailable = availability.reduce((sum, a) => sum + a.available, 0);
 
   return (
@@ -75,7 +80,7 @@ export default async function AgentLotsPage() {
       <AgentHero
         eyebrow="Lot availability · Sanctuario de Mercedes y Gloria"
         title={`${totalAvailable} lots are ready to show today.`}
-        lead="The park's own masterplan and the client's 2026 price sheet — the same figures the office quotes. Availability is the office's record, so this page stamps when it was last read."
+        lead="The office's own park map and the client's 2026 price sheet — the same figures the office quotes. Availability is the office's record, so this page stamps when it was last read."
         chips={
           <>
             <Chip>Read from the office at {readAt}</Chip>
@@ -87,67 +92,43 @@ export default async function AgentLotsPage() {
 
       <AgentSection
         title="What to show at the park"
-        sub="Available lots on the masterplan, with the sheet price for every type. Confirm the live list with the office before you promise a lot."
+        sub="The same park map the office works from — pick a plot to read its record. Confirm the live list with the office before you promise a lot."
       >
-        <div className="ag-lots">
-          <div className="ag-map">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={VILLA?.image ?? "/media/Park%20map.png"}
-              alt="The park masterplan with available lots pinned"
-            />
-            {pins.map((p) =>
-              p.at ? (
-                <span
-                  key={p.id}
-                  className={`ag-map__pin${
-                    p.status === "reserved"
-                      ? " ag-map__pin--reserved"
-                      : p.status === "sold" || p.status === "occupied"
-                        ? " ag-map__pin--sold"
-                        : ""
-                  }`}
-                  style={{ left: `${p.at.x}%`, top: `${p.at.y}%` }}
-                >
-                  {p.code}
-                </span>
-              ) : null,
-            )}
-            <div className="ag-map__caption">
-              Available · <strong>sky</strong> &nbsp; Reserved · <strong>amber</strong> &nbsp; Sold or occupied
-              · grey. Plot numbers are the office&apos;s demo records — confirm the live list before you
-              promise a lot.
+        {lotsError ? (
+          <ErrorState message={lotsError} />
+        ) : (
+          <div className="ag-lots">
+            <AgentParkMap lots={lots} canEdit={canEdit} />
+
+            <div className="ag-list">
+              {availability.map((a) => {
+                const price = sheetPrice(a.category, a.product);
+                return (
+                  <article className="ag-lot" key={a.key}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img className="ag-lot__photo" src={PHOTO[a.key] ?? LOT_PRIMARY} alt={`${a.product} at the park`} />
+                    <div>
+                      <p className="ag-lot__name">{a.product}</p>
+                      <p className="ag-lot__meta">
+                        {a.area_sqm} sqm · {a.available} available · {a.section}
+                      </p>
+                    </div>
+                    <div className="ag-lot__price">
+                      {price ? (
+                        <>
+                          <strong>{php(price.selling)}</strong>
+                          {php(price.monthly)} / month, 6 yrs
+                        </>
+                      ) : (
+                        <strong>Office confirms</strong>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
           </div>
-
-          <div className="ag-list">
-            {availability.map((a) => {
-              const price = sheetPrice(a.category, a.product);
-              return (
-                <article className="ag-lot" key={a.key}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="ag-lot__photo" src={PHOTO[a.key] ?? LOT_PRIMARY} alt={`${a.product} at the park`} />
-                  <div>
-                    <p className="ag-lot__name">{a.product}</p>
-                    <p className="ag-lot__meta">
-                      {a.area_sqm} sqm · {a.available} available · {a.section}
-                    </p>
-                  </div>
-                  <div className="ag-lot__price">
-                    {price ? (
-                      <>
-                        <strong>{php(price.selling)}</strong>
-                        {php(price.monthly)} / month, 6 yrs
-                      </>
-                    ) : (
-                      <strong>Office confirms</strong>
-                    )}
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
+        )}
 
         <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
           <Link className="btn btn--primary" href="/agent/marketing">
@@ -166,8 +147,9 @@ export default async function AgentLotsPage() {
             <p className="ag-note" style={{ margin: 0 }}>
               <strong>Two honest limits.</strong> (1) Whether an agent can hold a lot is an open captain /
               client question — this design offers “ask the office to hold”, and the office confirms. (2)
-              Prices are the client&apos;s own 2026 sheet (lib/villa-pricing.ts, LOT_PRICE_CATEGORIES); nothing
-              here is typed by an agent, and the office confirms the final figure on the contract.
+              Prices are the client&apos;s own 2026 sheet (lib/villa-pricing.ts, LOT_PRICE_CATEGORIES) and the
+              map is the office&apos;s shared park map — nothing here is typed by an agent, and the office
+              confirms the final figure on the contract.
             </p>
           </div>
         </div>
