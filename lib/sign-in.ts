@@ -15,8 +15,9 @@ export const SIGN_IN_BLURBS: Record<
   },
   family: {
     eyebrow: "Villa Memorial · Family",
-    title: "Family portal",
-    blurb: "Arrangements, plans, payments and documents — one calm place for your family.",
+    title: "Sign in to see what is happening",
+    blurb:
+      "This private page shows your family’s arrangement — the schedule, the payments and the papers. Only your family and the staff who serve you can see it.",
   },
   agent: {
     eyebrow: "Villa Memorial · Agent",

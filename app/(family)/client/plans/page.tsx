@@ -1,180 +1,106 @@
-import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Building2, ScrollText, Users } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
-import { paidPercent } from "@/lib/family/family-view";
+import { paidPercent, percentWords } from "@/lib/family/family-view";
 import {
-  FamilyKv,
-  FamilyMoney,
-  FamilyProgress,
-  FamilySection,
+  Answer,
+  Note,
+  PaidSoFar,
+  PrimaryAction,
+  QuietAction,
+  QuietLink,
+  Row,
+  Rows,
+  Section,
 } from "@/components/family/family-ui";
 
-export const metadata = { title: "Memorial plans — Villa Memorial" };
+export const metadata = { title: "Your plan — Villa Memorial" };
 
 /**
- * My Plans — approved design page 4.
- * Real today: the plan summary and the balance, both from the family snapshot.
- * Not yet real: the instalment schedule, per-payment receipts and plan documents;
- * the page says so where they would go.
+ * Your plan — the approved redesign (docs/08-delivery/family-portal-design).
+ * Real today: the plan summary and the balance, straight from the family
+ * snapshot. The instalment schedule and the plan certificate are not wired and
+ * are named in one calm note, never faked.
  */
 export default async function ClientPlansPage() {
   await requirePortalSessionOrRedirect("family");
   const snapshot = await getFamilySnapshot();
   const { plan_summary, balance, balance_cents } = snapshot;
 
+  const hasBalance = (balance_cents?.remaining ?? 0) > 0;
   const percent =
     balance_cents && balance_cents.total > 0
       ? paidPercent(balance_cents.total, balance_cents.paid)
       : null;
 
   return (
-    <div className="fp-page">
-      <header className="page-header">
-        <div>
-          <p className="page-header__eyebrow">Our arrangement</p>
-          <h1>Memorial plans</h1>
-          <p className="fp-lead">
-            The plans your family holds with Villa Memorial, and what is next on each.
-          </p>
-        </div>
-        <div className="page-header__actions">
-          <Link className="btn btn--secondary btn--sm" href="/client/support">
-            Ask about a plan
-          </Link>
-        </div>
-      </header>
-
-      <FamilySection
-        title={plan_summary.plan_name}
-        sub="Everything a plan holder asks: how much is left, what it covers, and who to ask."
-      >
-        <div className="fp-grid-3">
-          <FamilyMoney label="Plan status" value={plan_summary.status} note="With Villa Memorial" tone="ok" />
-          <FamilyMoney label="Term" value={plan_summary.term} note="Agreed with your family" />
-          <FamilyMoney
-            label="Still open"
-            value={balance.remaining}
-            note={`Next due ${plan_summary.next_due}`}
-            tone={balance_cents && balance_cents.remaining > 0 ? "due" : undefined}
-          />
-        </div>
-
-        <Card header={<h3 className="fp-h3">Where the payments are</h3>}>
-          {percent !== null ? (
-            <FamilyProgress
-              percent={percent}
-              note={`${balance.paid} of ${balance.total} paid · ${percent}% of the plan`}
+    <>
+      <Answer
+        kicker="Your plan"
+        headline={
+          hasBalance
+            ? `${plan_summary.plan_name} is active. ${balance.remaining} is still open.`
+            : `${plan_summary.plan_name} is active. It is fully paid.`
+        }
+        sub={`Your family’s plan with Villa Memorial. The next date in your agreement is ${plan_summary.next_due}. If anything here looks wrong, call us and we will fix it.`}
+        actions={
+          <>
+            <PrimaryAction
+              href={hasBalance ? "/client/payments" : "/client/documents"}
+              label={hasBalance ? "See how to pay" : "See your papers"}
             />
-          ) : (
-            <p className="fp-note">
-              {balance.paid} of {balance.total} paid. We will show the full instalment schedule
-              here as soon as the family records service is switched on.
-            </p>
-          )}
-          <div className="fp-split mt-4">
-            <div>
-              <FamilyKv
-                rows={[
-                  ["Plan", plan_summary.plan_name],
-                  ["Status", plan_summary.status],
-                  ["Term", plan_summary.term],
-                  ["Next due", plan_summary.next_due],
-                  ["Total", balance.total],
-                  ["Paid so far", balance.paid],
-                  ["Still open", balance.remaining],
-                ]}
-              />
-            </div>
-            <div>
-              <p className="fp-h3">The instalment schedule</p>
-              <p className="fp-note">
-                Not wired yet: the list of payments (dates, amounts, receipts) arrives with the
-                family records service. Until then, ask us and we will read your schedule to you
-                — {FAMILY_HELP.phone}, {FAMILY_HELP.hours}.
-              </p>
-              <div className="row row--wrap mt-4">
-                <Link className="btn btn--primary btn--sm" href="/client/payments">
-                  How to pay
-                </Link>
-                <Link className="btn btn--secondary btn--sm" href="/client/documents">
-                  Receipts &amp; contracts
-                </Link>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </FamilySection>
+            <QuietLink
+              href={FAMILY_HELP.phoneHref}
+              label="Call us about your plan"
+              icon={<Building2 size={20} aria-hidden="true" />}
+            />
+          </>
+        }
+      />
 
-      <FamilySection
+      <Section title="Paid so far">
+        <PaidSoFar
+          paid={balance.paid}
+          total={balance.total}
+          percent={percent ?? undefined}
+          words={percent === null ? "in all" : percentWords(percent)}
+        />
+      </Section>
+
+      <Section
         title="What your plan is for"
         sub="A plan is a long-term promise to the people you leave behind."
       >
-        <Card>
-          <div className="fp-split">
-            <div>
-              <p className="fp-h3">What we hold for your family</p>
-              <FamilyKv
-                rows={[
-                  ["Plan", plan_summary.plan_name],
-                  ["Covered by", "Villa Memorial · Funeraria Villa · Villa Agency"],
-                  ["Term", plan_summary.term],
-                  ["Status", plan_summary.status],
-                ]}
-              />
-            </div>
-            <div>
-              <p className="fp-h3">What is not shown yet — and why</p>
-              <ul className="fp-bullets">
-                <li>
-                  <strong>Plan terms</strong> (what is covered, transport, transferability) —
-                  they are on your plan certificate; the portal copy arrives with the family
-                  records service.
-                </li>
-                <li>
-                  <strong>Account maturity and claims</strong> — handled by Villa Agency with
-                  Eternal Plans, Inc. We will bring them into this page once the records exist.
-                </li>
-              </ul>
-              <div className="row row--wrap mt-4">
-                <Link className="btn btn--secondary btn--sm" href="/plans">
-                  See the public plan pages
-                </Link>
-                <Link className="btn btn--secondary btn--sm" href="/client/support">
-                  Ask a question
-                </Link>
-              </div>
-            </div>
-          </div>
-        </Card>
-      </FamilySection>
+        <Rows>
+          <Row
+            icon={<ScrollText size={22} aria-hidden="true" />}
+            title="Your plan certificate"
+            meta="A copy will be here when the family records service is switched on"
+          />
+          <Row
+            icon={<Users size={22} aria-hidden="true" />}
+            title="Beneficiaries"
+            meta="Who the plan protects, as recorded by Villa Agency"
+          />
+          <Row
+            icon={<Building2 size={22} aria-hidden="true" />}
+            title="Account maturity and claims"
+            meta="Handled by Villa Agency with Eternal Plans, Inc."
+            action={
+              <QuietAction href={FAMILY_HELP.agencyPhoneHref} label="Call Villa Agency" />
+            }
+          />
+        </Rows>
+      </Section>
 
-      <FamilySection title="Things you can ask for">
-        <div className="fp-quicks">
-          {[
-            ["Change a beneficiary", "keep your plan current", "/client/support"],
-            ["Transfer the plan", "to another living person", "/client/support"],
-            ["Request a certificate", "a copy for your records", "/client/documents"],
-            ["Ask about maturity", "when it is fully paid", "/client/support"],
-            ["Ask about a claim", "when the time comes", "/client/support"],
-            ["Talk to Villa Agency", FAMILY_HELP.agencyPhone, FAMILY_HELP.agencyPhoneHref],
-          ].map(([label, note, href]) => (
-            <Link className="fp-quick" href={href} key={label}>
-              <span>{label}</span>
-              <em>{note}</em>
-            </Link>
-          ))}
-        </div>
-        <div className="row row--wrap mt-4">
-          <Badge tone="info">Nothing here sends anything yet</Badge>
-          <p className="fp-note">
-            These actions open a page that explains what is planned; until the records service
-            exists, a call is the fastest way to change anything.
-          </p>
-        </div>
-      </FamilySection>
-    </div>
+      <Note>
+        <p>
+          <strong>The instalment schedule is not on this page yet.</strong> The list of payments,
+          with dates and receipts, arrives with the family records service. Until then, ask us and
+          we will read your schedule to you — {FAMILY_HELP.phone}, {FAMILY_HELP.hours}.
+        </p>
+      </Note>
+    </>
   );
 }

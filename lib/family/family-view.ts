@@ -4,30 +4,14 @@
  *
  * Everything here is DERIVED from what the family snapshot actually carries
  * (name, life dates, plan summary, balance, recent documents). Nothing is
- * invented: where a design block needs data that does not exist yet, the module
- * says so through `FAMILY_SOURCES_MISSING` and the page renders the honest
- * "not wired yet" state instead of a plausible fake.
+ * invented: where a design block needs data that does not exist yet, the page
+ * renders the honest "not wired yet" state instead of a plausible fake.
  *
  * Money rule (repo-wide, frozen): display strings from fixtures/APIs are shown
- * as-is and NEVER parsed. Amounts therefore come from the fixture's integer
- * minor units (`balance_cents`), and a fixture-contract test pins that the
- * display strings and the integers agree.
+ * as-is and NEVER parsed. The only amount arithmetic here is the paid share
+ * from the fixture's integer minor units (`balance_cents`), and a
+ * fixture-contract test pins that the display strings and the integers agree.
  */
-import type { FamilySnapshot } from "@/lib/api-client/family";
-
-/** The five bands of the "what needs me now" ladder, highest first. */
-export type FamilyNeedKind = "action" | "due" | "next" | "ready" | "memory";
-
-export type FamilyNeed = {
-  id: string;
-  kind: FamilyNeedKind;
-  /** The band's small label, e.g. "Waiting on you". */
-  band: string;
-  title: string;
-  detail: string;
-  action: { label: string; href: string };
-  quiet?: { label: string; href: string };
-};
 
 /** Family-facing document words for the raw status a record carries. */
 export type FamilyDocTone = "success" | "warning" | "info" | "neutral" | "danger";
@@ -40,19 +24,6 @@ export type FamilyDocumentView = {
   /** One line telling the family what happens next, when we know. */
   note: string;
 };
-
-/**
- * Design blocks whose data does not exist yet. Rendered on the page as an
- * honest note (never as a fake card) and listed here so a test can hold the
- * line: when one of these becomes real, it must be removed from this list.
- */
-export const FAMILY_SOURCES_MISSING = [
-  "the funeral schedule (viewing, service, interment times)",
-  "the case progress stages",
-  "your balance's payment history and receipts",
-  "memorial pages and tributes",
-  "requests, appointments and support tickets",
-] as const;
 
 /** The words a family never sees. A unit test walks every family page's copy. */
 export const FAMILY_JARGON = [
@@ -76,35 +47,45 @@ export const FAMILY_JARGON = [
   "dunning",
 ] as const;
 
-const BAND_LABEL: Record<FamilyNeedKind, string> = {
-  action: "Waiting on you",
-  due: "Money that matters now",
-  next: "Happening next",
-  ready: "Ready for you",
-  memory: "Remembering",
-};
-
-function band(kind: FamilyNeedKind): string {
-  return BAND_LABEL[kind];
-}
-
-/**
- * Format integer minor units as a peso amount for display. This is presentation
- * only and never re-parses a display string.
- */
-export function pesoFromCents(cents: number): string {
-  if (!Number.isInteger(cents) || cents < 0) {
-    throw new Error("amounts must be non-negative integer minor units");
-  }
-  const whole = Math.floor(cents / 100);
-  return `₱${whole.toLocaleString("en-PH")}`;
-}
-
 /** Share of a plan paid, 0–100, from integer minor units. Display only. */
 export function paidPercent(totalCents: number, paidCents: number): number {
   if (!Number.isInteger(totalCents) || totalCents <= 0) return 0;
   const pct = Math.round((paidCents / totalCents) * 100);
   return Math.max(0, Math.min(100, pct));
+}
+
+/**
+ * The same share said in words — “almost half”, never “48%”. The bar supports
+ * the sentence; it never replaces it.
+ */
+export function percentWords(percent: number): string {
+  const pct = Math.max(0, Math.min(100, Math.round(percent)));
+  if (pct <= 0) return "nothing yet";
+  if (pct >= 100) return "paid in full";
+  if (pct < 10) return "just started";
+  if (pct < 50) return "almost half";
+  if (pct === 50) return "half";
+  if (pct < 90) return "more than half";
+  return "almost finished";
+}
+
+const COUNT_WORDS = [
+  "No",
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five",
+  "Six",
+  "Seven",
+  "Eight",
+  "Nine",
+  "Ten",
+] as const;
+
+/** Small counts in a family's words — “Two papers”, never “2 papers” (up to ten). */
+export function countWord(count: number): string {
+  return COUNT_WORDS[count] ?? String(count);
 }
 
 /**
@@ -158,44 +139,23 @@ export function familyDocumentView(title: string, rawStatus: string): FamilyDocu
 }
 
 /**
- * The "what needs me now" feed — derived from the snapshot only, in the design's
- * band order. When nothing in the snapshot needs the family, the feed is empty
- * and Home says so in one calm sentence (design §"Nothing new is a state").
+ * The household name shown under the brand — presentation only, derived from
+ * the loved one's recorded name (“Ernesto Dela Cruz” → “Dela Cruz family”).
+ * Filipino surnames often carry two words (Dela Cruz, Del Rosario, San Juan),
+ * so a three-word name keeps its last two; a two-word name keeps its last.
+ * With no usable name the account holder's first name is used, then a plain
+ * fallback — the chrome must never invent a name or break on a provisional
+ * snapshot.
  */
-export function buildFamilyNeeds(snapshot: FamilySnapshot): FamilyNeed[] {
-  const needs: FamilyNeed[] = [];
-  const remaining = snapshot.balance_cents?.remaining ?? 0;
-  const nextDue = snapshot.plan_summary.next_due;
-
-  if (remaining > 0) {
-    needs.push({
-      id: "balance",
-      kind: "due",
-      band: band("due"),
-      title: `${pesoFromCents(remaining)} is still open on ${snapshot.plan_summary.plan_name}`,
-      detail: `Next due ${nextDue}. It can be paid in parts — tell us if the timing is hard and we will arrange it.`,
-      action: { label: "See how to pay", href: "/client/payments" },
-      quiet: { label: "Talk to us first", href: "/client/support" },
-    });
+export function familyHousehold(lovedOneName?: string | null, accountName?: string | null): string {
+  const name = (lovedOneName ?? "").trim();
+  if (name) {
+    const parts = name.split(/\s+/).filter(Boolean);
+    if (parts.length >= 3) return `${parts.slice(-2).join(" ")} family`;
+    if (parts.length === 2) return `${parts[1]} family`;
+    return `${parts[0]} family`;
   }
-
-  const docs = snapshot.recent_documents ?? [];
-  if (docs.length > 0) {
-    needs.push({
-      id: "documents",
-      kind: "ready",
-      band: band("ready"),
-      title:
-        docs.length === 1
-          ? `${docs[0].title} is ready for your family`
-          : `${docs.length} papers are ready for your family`,
-      detail:
-        "Receipts and contracts we have issued for your family. You can open or download them whenever you need them.",
-      action: { label: "Open the papers", href: "/client/documents" },
-    });
-  }
-
-  // Design rule: at most three cards, highest band first (the array is already
-  // built in band order).
-  return needs.slice(0, 3);
+  const account = (accountName ?? "").trim().split(/\s+/).filter(Boolean);
+  if (account.length > 0) return `${account[0]} family`;
+  return "your family";
 }

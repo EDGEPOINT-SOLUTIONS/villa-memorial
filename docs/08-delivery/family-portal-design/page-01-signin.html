@@ -3,15 +3,44 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sign in &amp; invitation — Villa Memorial family portal (design example)</title>
-<link rel="stylesheet" href="../../../styles/tokens.css">
-<link rel="stylesheet" href="../../../styles/base.css">
-<link rel="stylesheet" href="../../../styles/components.css">
-<link rel="stylesheet" href="../../../styles/utilities.css">
-<link rel="stylesheet" href="prototype.css">
+<title>Family sign-in — Villa Memorial</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="family-v2.css">
+<style>.fv-signin{min-height:100vh}</style>
 </head>
-<body class="fp-standalone">
-<!-- Example page for review: /client/login -->
-<div class="fp-signin"><div class="fp-signin__aside"><p class="fp-hero__eyebrow">Villa Memorial · Family</p><h1 class="fp-signin__title">Everything for your family, in one place.</h1><p class="fp-signin__lead">Your arrangement, the schedule, the papers, and the memories — kept together, private to your family.</p><ul class="fp-signin__list"><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 11h12v10H6zM9 11V8a3 3 0 0 1 6 0v3M12 15v2"/></svg><span>Private to your family. You decide who sees what.</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zm0 4a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM5.6 5.6l3.2 3.2M15.2 15.2l3.2 3.2M18.4 5.6l-3.2 3.2M8.8 15.2l-3.2 3.2"/></svg><span>Your coordinator is one tap away, every day.</span></li><li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.6-9.3-8.4A5.2 5.2 0 0 1 12 5.6a5.2 5.2 0 0 1 9.3 6C19 15.4 12 20 12 20z"/></svg><span>A memorial page your family can keep, later too.</span></li></ul><p class="fp-signin__park">Sanctuario de Mercedes y Gloria · Isabela City, Basilan</p></div><div class="fp-signin__card"><div class="signin-card"><p class="signin-card__eyebrow">Family sign-in</p><h2>Welcome</h2><p class="text-sm text-muted">Use the email your funeral director registered, or the one your invitation was sent to.</p><div class="field"><label for="em">Email</label><input class="input" id="em" type="email" value="cory.delacruz@gmail.com" readonly></div><div class="field"><label for="pw">Password</label><input class="input" id="pw" type="password" value="password" readonly></div><div class="row row--space"><label class="fp-check-row"><input type="checkbox" checked> <span>Keep me signed in on this device</span></label></div><button class="btn btn--primary btn--block" type="button"><span>Sign in</span></button><div class="fp-signin__or"><span>or</span></div><button class="btn btn--secondary btn--block" type="button"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18v12H3zM3 7l9 6 9-6"/></svg><span>Email me a sign-in link</span></button><p class="fp-signin__foot">Been invited? Open the link in your email or text — it signs you in and shows only what you were invited to see.</p></div></div></div>
+<body class="fv-body">
+<a class="fv-skip" href="#main">Skip to the main content</a>
+
+<div class="fv-signin">
+  <div class="fv-signin__card">
+    <div class="fv-signin__brand">
+      <span class="fv-brand__mark" aria-hidden="true">V</span>
+      <span class="fv-brand__text">
+        <span class="fv-brand__name">Villa Memorial</span>
+        <span class="fv-brand__who">The Dela Cruz family</span>
+      </span>
+    </div>
+    <h1 class="fv-signin__h">Sign in to see what is happening</h1>
+    <p class="fv-signin__sub">This private page shows your family&rsquo;s arrangement — the schedule,
+    the payments and the papers. Only your family and the staff who serve you can see it.</p>
+    <form action="#" method="post">
+      <div class="fv-field">
+        <label for="email">Your email address</label>
+        <input id="email" name="email" type="email" autocomplete="email" value="customer@vm.demo">
+      </div>
+      <div class="fv-field">
+        <label for="password">Your password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" value="demo">
+      </div>
+      <button class="fv-btn fv-btn--wide" type="submit"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Sign in</span></button>
+    </form>
+    <div class="fv-signin__help">
+      <p style="margin:0 0 .6rem"><a href="#">I forgot my password — email me a link to sign in</a></p>
+      <p style="margin:0">Need help? Call <a href="tel:+639176178489">0917 617 8489</a> — Marlon, your coordinator, answers 7am–9pm every day.</p>
+      <p class="fv-signin__demo"><button type="button">Demo account: Cory Customer</button></p>
+    </div>
+  </div>
+</div>
 </body>
 </html>

@@ -1,38 +1,56 @@
+import { Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
-import { FamilyHelpCard, FamilyPlannedPage } from "@/components/family/family-ui";
+import { PlannedAnswer, PrimaryAction, QuietLink } from "@/components/family/family-ui";
 
-export const metadata = { title: "Memorial property — Villa Memorial" };
+export const metadata = { title: "Your lot — Villa Memorial" };
 
 /**
- * Memorial property — approved family-portal design (docs/08-delivery/family-portal-design).
- *
- * The page is designed and the data path does not exist yet, so it states what
- * will be here and how to reach a person today. No invented data is rendered.
+ * Your lot — the approved redesign (docs/08-delivery/family-portal-design).
+ * Lot records for families do not exist yet, so this is the honest designed
+ * state. The park map is real, so it carries the primary action.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
 
   return (
-    <FamilyPlannedPage
-      eyebrow="Our arrangement"
-      title="Memorial property"
-      lead="The lots your family owns or is paying for, and what is happening on them."
-      missing="Lot records for families — who the lot belongs to, the sale terms, the interments and the maintenance history — are not modelled yet. The park map and the lot inventory exist on our side; the family view arrives with the property records service."
-      blocks={[
-        { heading: "The place", detail: "Park, section, block and lot, with the lot pinned on the park map" },
-        { heading: "Who it belongs to", detail: "Owner and authorized family, and the right of interment" },
-        { heading: "Payments for this lot", detail: "Total, paid and balance — with the ways we can arrange it" },
-        { heading: "On the lot right now", detail: "Interments, maintenance and the care fund" },
-        { heading: "What you can ask for", detail: "Transfer, marker, maintenance, a visit, the lot's QR record" },
+    <PlannedAnswer
+      kicker="Your lot"
+      headline="Your lot records are kept by our office. The park map is here, and it is real."
+      sub="Who the lot belongs to, the payments for it and what is on it now are held by the property office and are not connected to this page yet. Open the map to find your family’s place."
+      plannedTitle="What will be here"
+      planned={[
+        {
+          label: "The place",
+          detail: "Park, section, block and lot, pinned on the park map",
+        },
+        {
+          label: "Who it belongs to",
+          detail: "Owner, authorized family, and the right of interment",
+        },
+        {
+          label: "Payments for this lot",
+          detail: "Total, paid and balance — with the ways we can arrange it",
+        },
+        {
+          label: "On the lot right now",
+          detail: "Interments, maintenance and the care fund",
+        },
+        {
+          label: "What you can ask for",
+          detail: "Transfer, marker, maintenance, a visit",
+        },
       ]}
-      help={
-        <FamilyHelpCard
-          phone={FAMILY_HELP.phone}
-          phoneHref={FAMILY_HELP.phoneHref}
-          hours={FAMILY_HELP.hours}
-          office={FAMILY_HELP.office}
-        />
+      note="Lot records for families are not switched on yet. Until they are, call us and we will find anything about your lot."
+      action={
+        <>
+          <PrimaryAction href="/map" label="Open the park map" />
+          <QuietLink
+            href={FAMILY_HELP.phoneHref}
+            label="Call us about your lot"
+            icon={<Phone size={20} aria-hidden="true" />}
+          />
+        </>
       }
     />
   );

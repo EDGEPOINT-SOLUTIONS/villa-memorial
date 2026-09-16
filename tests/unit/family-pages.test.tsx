@@ -1,0 +1,119 @@
+import { describe, expect, it, vi } from "vitest";
+import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+
+/**
+ * The at-a-glance contract, pinned on the REAL family pages.
+ *
+ * Every family screen must render exactly one `<h1>` (the one fact), one
+ * primary action before the first content section, the office number one tap
+ * away, and no old `fp-*` presentation classes. The pages are the real server
+ * components; only the router, the session guard and the link element are
+ * stubbed so they can render outside a request.
+ */
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: { href?: string; children?: ReactNode } & AnchorHTMLAttributes<HTMLAnchorElement>) =>
+    createElement("a", { href, ...rest }, children),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/client/dashboard",
+  useRouter: () => ({ replace: () => {}, push: () => {} }),
+}));
+
+vi.mock("@/lib/auth/portal-guard", () => ({
+  requirePortalSessionOrRedirect: async () => ({
+    email: "customer@vm.demo",
+    scopes: [],
+  }),
+}));
+
+type PageComponent = () => Promise<React.ReactElement>;
+
+const { default: HomePage } = await import("@/app/(family)/client/dashboard/page");
+const { default: FuneralPage } = await import("@/app/(family)/client/cases/page");
+const { default: PaymentsPage } = await import("@/app/(family)/client/payments/page");
+const { default: PapersPage } = await import("@/app/(family)/client/documents/page");
+const { default: RememberingPage } = await import("@/app/(family)/client/memorials/page");
+const { default: HelpPage } = await import("@/app/(family)/client/support/page");
+const { default: DetailsPage } = await import("@/app/(family)/client/profile/page");
+const { default: PlanPage } = await import("@/app/(family)/client/plans/page");
+const { default: LotPage } = await import("@/app/(family)/client/property/page");
+const { default: VisitPage } = await import("@/app/(family)/client/appointments/page");
+const { default: RequestsPage } = await import("@/app/(family)/client/requests/page");
+const { default: NoticesPage } = await import("@/app/(family)/client/notifications/page");
+const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/page");
+const { default: AccessPage } = await import("@/app/(family)/client/family/page");
+
+const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
+  { name: "Home", Page: HomePage, headline: "is still to pay" },
+  { name: "The funeral", Page: FuneralPage, headline: "funeral plan is kept by our office" },
+  { name: "Payments", Page: PaymentsPage, headline: "is still to pay on your family" },
+  { name: "Papers", Page: PapersPage, headline: "papers are ready" },
+  { name: "Remembering", Page: RememberingPage, headline: "is published anywhere" },
+  { name: "Help", Page: HelpPage, headline: "Call us." },
+  { name: "Your details", Page: DetailsPage, headline: "details are correct" },
+  { name: "Your plan", Page: PlanPage, headline: "is active" },
+  { name: "Your lot", Page: LotPage, headline: "lot records are kept by our office" },
+  { name: "Ask for a visit", Page: VisitPage, headline: "we will set a time" },
+  { name: "Requests", Page: RequestsPage, headline: "Ask us for anything" },
+  { name: "What we tell you about", Page: NoticesPage, headline: "Nothing has been sent" },
+  { name: "Privacy Center", Page: PrivacyPage, headline: "shared unless you say so" },
+  { name: "Family and access", Page: AccessPage, headline: "one account signs in" },
+];
+
+async function render(page: PageComponent): Promise<string> {
+  return renderToStaticMarkup(await page());
+}
+
+describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline }) => {
+  it("renders one dominant headline that states the situation", async () => {
+    const html = await render(Page);
+    const headings = html.match(/<h1[^>]*>(.*?)<\/h1>/g) ?? [];
+    expect(headings, `${name} must have exactly one h1`).toHaveLength(1);
+    expect(headings[0]).toContain(headline);
+  });
+
+  it("puts one primary action before any supporting section", async () => {
+    const html = await render(Page);
+    const primary = html.indexOf('class="fv-btn"');
+    const firstSection = html.indexOf('class="fv-sec');
+    expect(primary, `${name} needs a primary action`).toBeGreaterThan(-1);
+    expect(primary, `${name}'s action must lead, not trail`).toBeLessThan(firstSection);
+  });
+
+  it("keeps the office number one tap away", async () => {
+    const html = await render(Page);
+    expect(html).toContain('href="tel:+639176178489"');
+  });
+
+  it("carries no old fp-* presentation class", async () => {
+    const html = await render(Page);
+    expect(html).not.toMatch(/class="[^"]*\bfp-/);
+  });
+});
+
+describe("the pages whose services are not switched on", () => {
+  const PLANNED = PAGES.filter((page) =>
+    [
+      "The funeral",
+      "Remembering",
+      "Your lot",
+      "Ask for a visit",
+      "Requests",
+      "What we tell you about",
+      "Privacy Center",
+      "Family and access",
+    ].includes(page.name),
+  );
+
+  it.each(PLANNED)("$name says so in one calm note", async ({ Page }) => {
+    const html = await render(Page);
+    expect(html).toContain("About this page.");
+    expect(html).not.toContain("alert");
+  });
+});

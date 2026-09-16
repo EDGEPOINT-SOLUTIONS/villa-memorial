@@ -1,243 +1,187 @@
-# Family portal — approved design (2026-09-16)
+# Family portal — the at-a-glance design (approved 2026-09-16)
 
-**Status:** captain-approved design, committed as the contract the implementation follows.
+**Status:** the approved design contract. It supersedes the earlier family-portal design
+(the dense 15-page portal shipped in PR #29) — **same routes, same data rules, same honest
+states**, rebuilt presentation: one dominant answer per screen, plain words, big calm type.
+The captain approved this direction to be built exactly as drawn (Q6, relayed
+2026-09-16T16:05Z).
+
 **Artifact:** [`family-portal-design.html`](./family-portal-design.html) — the Lavish review
-surface, also openable directly in a browser (it loads `../../../styles/*` and `prototype.css`).
-**Example pages:** [`page-01-signin.html`](./page-01-signin.html) … `page-16-home.html` — one
-complete, responsive example per screen, openable on their own at any width.
-**Companion report** (full rationale, review record, evidence): the scout report in the firstmate
-data directory (`data/villa-family-portal-design/report.md`).
+surface, also openable directly in a browser.
+**Sample pages:** [`page-01-signin.html`](./page-01-signin.html) … `page-10-papers-waiting.html` —
+one responsive page per key screen.
+**Before renders:** `before/*.png` — the shipped design captured at 1440 × 900 and 390 × 844.
+**Design audit:** [`audit-results.json`](./audit-results.json) — 20 viewport checks.
+**Implementation audit:** [`implementation-audit.json`](./implementation-audit.json) — the built
+portal measured the same way (14 screens + the sign-in page × 2 viewports); the full record,
+commands and screenshots live in the companion report
+(`data/villa-family-portal-design-v2/report.md`).
 
-The PRD that this designs against is in the in-memoriam repo:
-`docs/04-modules/screen-inventory.md:15` names the twelve family screens;
-`04-modules/{crm-cases,documents-contracts,finance-billing,memorial-property-gis,facilities-scheduling,commerce-catalog}.md`
-own their contents; `06-cultural-digital-memorial/*` owns the memorial and Filipino-practice
-rules; `02-architecture/roles-permissions.md:13` owns the "sensitive data is not exposed merely
-because a user can access the customer record" principle.
+The PRD this designs against is in the in-memoriam repo:
+`docs/04-modules/screen-inventory.md:15` names the twelve family screens; the module docs own
+their contents; `02-architecture/roles-permissions.md:13` owns the principle that sensitive
+data is not exposed merely because a user can access the customer record.
 
-> **Do not redesign on the way in.** The artifact is the reference. A deviation is the captain's
-> call, not the implementer's.
+> **Do not redesign on the way in.** The artifact is the reference. A deviation is the
+> captain’s call — except the standing captain rules below, which already override it.
 
 ---
 
-## 1. What the family portal is for
+## 1. The five rules every screen follows
 
-A family does not visit this product to manage an account. They arrive in the worst week of their
-lives, on a phone, from a group chat, in the middle of a wake — and they come back years later for a
-birthday. The portal has to work for both: an at-need week that is pure logistics and emotion, and a
-long, quiet relationship afterwards.
+1. **One answer per screen.** A large sentence states the situation; one button says what to
+   do next. Everything else sits below and looks quieter.
+2. **Plain words, numbers with meaning.** “The funeral”, not “Funeral case”. “Papers”, not
+   “Documents”. “₱22,000 still to pay”, never a bare figure. A term a family may not know
+   (interment, abuloy) is explained in the same breath.
+3. **Big and calm.** 18 px body, 30 px phone / 44 px desktop headlines, ≥ 52 px controls,
+   one card style, high contrast, no motion needed to understand anything, no red-alert
+   styling for routine news, no countdowns.
+4. **One column, no rails.** A single 44 rem reading column, readable top to bottom in one
+   scroll. Six plain navigation names on desktop; five tabs on the phone; the current place
+   marked in words + fill.
+5. **A person, one tap away.** “Call us” is in the top bar of every screen; the office number
+   is repeated in the answer or the note of every page.
 
-Three ideas carry the design:
+## 2. Standing captain rules applied in the build
 
-1. **One Home that answers "what needs me now"** — a priority feed, not an account summary. The
-   PRD's Customer Dashboard and Family Dashboard are merged into it (captain question Q1).
-2. **The arrangement belongs to the family, not to one account holder** — roles, invitations and
-   per-item visibility (`Family & access`).
-3. **Tell the truth, plainly, and never fake a service.** Where a page's data does not exist yet it
-   says so and gives the family a person to call; it never renders invented detail.
+- **Sky blue, never navy brand** (captain, 2026-09-16). Headers, rails, buttons, links, active
+  states, chips and focus rings use the `--sky-*` primitives; the `--navy-*` ladder stays the
+  ink. Every pairing passes WCAG AA (verified in the implementation audit).
+- **Honest states.** Any screen whose service is not wired says so in one calm note with the
+  office number. No invented figure, date, retention schedule, payment destination or
+  public-search default.
+- **The phone is the main device.** The 390 px hierarchy is the same as desktop — the answer
+  and its one action fit above the fold on a 390 × 844 phone.
+- **Client imagery and captions stay** where they exist; nothing about the storefront, staff
+  portal, agent portal, park map/editor or billing is touched.
 
-## 2. Information architecture
+## 3. Information architecture (routes unchanged)
 
-Six groups, 15 pages, mobile-first. Routes are unchanged from what the app already serves.
+| Destination | Route | In the bar? |
+|---|---|---|
+| Home | `/client/dashboard` | desktop + phone |
+| The funeral | `/client/cases` | desktop + phone |
+| Payments | `/client/payments` | desktop + phone |
+| Papers | `/client/documents` | desktop + phone |
+| Remembering | `/client/memorials` | desktop |
+| Your details | `/client/profile` | desktop |
+| Help and requests | `/client/support` | More |
+| Ask for a visit | `/client/appointments` | More |
+| Your plan | `/client/plans` | More |
+| Your lot | `/client/property` | More |
+| Family and access | `/client/family` | More |
+| What we tell you about | `/client/notifications` | More |
+| Privacy Center | `/client/privacy` | More |
 
-| Group | Pages |
+Desktop: one bar — Home · The funeral · Payments · Papers · Remembering · Your details +
+**Call us**. Phone: **Home · Funeral · Payments · Papers · More** + Call us in the bar.
+The five-step chain is the progress language: **1 Arrangement · 2 Viewing · 3 Funeral ·
+4 Burial · 5 Papers**, the current step filled and named (“· you are here”).
+
+## 4. The screens: one fact, one action (the built contract)
+
+| Screen | Route | The one fact in 3 s | The one action | Headline |
+|---|---|---|---|---|
+| Sign in | `/client/login` | This is the family’s private place | Sign in | “Sign in to see what is happening” |
+| Home | `/client/dashboard` | ₱22,000 is still to pay on Ernesto’s plan | See how to pay | “₱22,000 is still to pay on Ernesto’s plan.” |
+| The funeral | `/client/cases` | The plan is kept by our office — call and we will read it | Call 0917 617 8489 | “Ernesto’s funeral plan is kept by our office.” |
+| Payments | `/client/payments` | ₱22,000 is still to pay before the next date | See how to pay | “₱22,000 is still to pay on your family’s plan.” |
+| Papers | `/client/documents` | The papers are ready; nothing is waiting on you | See your papers | “Your papers are ready. Nothing is waiting on you.” |
+| Remembering | `/client/memorials` | Nothing about Ernesto is published anywhere | Call us | “Nothing about Ernesto is published anywhere.” |
+| Help | `/client/support` | Someone answers every day, 7am–9pm | Call 0917 617 8489 | “Call us. Someone is here every day…” |
+| Your details | `/client/profile` | The details are correct; writing can be bigger | Make the writing bigger | “Your details are correct. You can make the writing bigger if you like.” |
+| Your plan | `/client/plans` | The plan is active; ₱22,000 is open | See how to pay | “Premium Lawn · Lawn A-01 is active. ₱22,000 is still open.” |
+| Your lot | `/client/property` | Lot records are kept by the office; the map is real | Open the park map | “Your lot records are kept by our office…” |
+| Ask for a visit | `/client/appointments` | We can come to you; call to set a time | Call 0917 617 8489 | “We can come to you, or you can come to us.” |
+| Requests | `/client/requests` | Call and we write the request down | Call 0917 617 8489 | “Ask us for anything…” |
+| Notifications | `/client/notifications` | Nothing has been sent yet | Call 0917 617 8489 | “Nothing has been sent to your family yet.” |
+| Privacy Center | `/client/privacy` | Nothing is shared unless you say so | Call 0917 617 8489 | “Nothing about your family is shared unless you say so.” |
+| Family and access | `/client/family` | One account signs in today | Call 0917 617 8489 | “Today, one account signs in…” |
+
+States designed and built: Home “Nothing needs you today” (the calm week), Payments “fully
+paid”, Papers “nothing issued yet”, and one calm honest note on every page whose service is
+not switched on. **No routine sentence uses red; state is words + icon, never colour alone.**
+
+## 5. What happened to every element of the shipped design
+
+| Shipped element | Disposition | Why |
+|---|---|---|
+| Left rail, 14 grouped links | **Dropped** → top bar of 6 names + Call | The densest thing on the screen; six names fit one line |
+| Phone bar Home · Case · Payments · Help · More | **Simplified** → Home · Funeral · Payments · Papers · More + Call | “Case” is jargon; Call is always in the bar |
+| Hero: eyebrow, name, dates, welcome, chips, events aside | **Simplified** → one Answer card | Chips and side panel competed with the one fact |
+| “What needs you now” feed (≤3 cards, coloured rules) | **Simplified** → one Answer block | One dominant answer; routine items stop looking like alarms |
+| “Reach us in a tap” (6 tiles) | **Dropped** → actions live where they belong | A tile grid is a menu, not an answer |
+| “Where things stand” (5 stages + work card) | **Simplified** → the 5-word chain | “Where are we?” answered in one glance |
+| “The next few days” timeline + abroad switches | **Kept/simplified** → day · what · where list; switch to Your details | The schedule matters; the switch panel in the middle did not |
+| “Who is with you” coordinator + family list | **Moved** → the office number on every screen; the list under Family and access | One number, not an org chart |
+| “Money and papers” (3 money cards + 2 doc cards) | **Moved/simplified** → one money sentence + paper rows | Figures now carry their meaning |
+| Status badges / coloured need rules / money washes | **Simplified** → a word + icon; AA ink colours | State never by colour alone; routine news is never red |
+| 13–15 px notes across all blocks | **Dropped** → 18 px body, 17 px secondary, 15 px nav only | The family reads at arm’s length on a phone |
+| “Designed but not wired yet” alert boxes | **Kept, restyled** → one calm note at the bottom | Honesty stays; the alarm treatment goes |
+| Document rows (title · meta · badge · ghost button) | **Simplified** → name, one line, one state word, one full-size action | One decision per row |
+| Payment progress bar + % note | **Kept, made literal** → “₱20,000 paid · ₱42,000 in all · almost half” | The bar supports the sentence, never replaces it |
+| Reading preferences | **Kept, promoted** to the primary action on Your details | The one control that works today and serves the older reader |
+| Notification bell + demo notices | **Moved** → the More list; the page says plainly nothing was sent | A bell invites checking; a placeholder notice fakes delivery |
+| 7-stage case preview | **Simplified** → five family moments | Internal stages are the office’s model |
+| “What will be on this page” feature grids | **Simplified** → one honest sentence + phone number | A wall of “will be” reads like a brochure |
+
+## 6. What is real, what is the example, what is not wired
+
+- **Real today:** the family name, the loved one’s name and dates, the plan and the
+  ₱42,000 / ₱20,000 / ₱22,000 balance from `lib/fixtures/family/snapshot.json`; the client’s
+  numbers and places from `lib/family/contact.ts`; the sign-in; the device-local reading
+  preferences; the park map link.
+- **The example in the design samples (listed as such):** the funeral times, the paper
+  “waiting on you” list and the memorial messages. The built pages do **not** render them —
+  each is replaced by the honest designed state naming what is missing and the office number.
+- **Never invented:** no price outside the client’s 2026 tables, no retention schedule, no
+  payment destination, no public-search default, no coordinator name.
+
+## 7. Implementation deviations from the sample pages (all named)
+
+1. **Home headline uses the real fact.** The sample showed the example funeral date; the build
+   shows the real balance (and “Nothing needs you today” when settled). The schedule section
+   says the office holds the times.
+2. **The chain renders without “you are here”.** The case service is not connected, so the
+   build shows the five steps with one honest line instead of a guessed stage.
+3. **Sign-in keeps the shared card** under the family `fv-signin-scope` (bigger type, sky
+   button, the office number). No “forgot password” link: there is no reset service yet, and a
+   dead link is worse than the phone number that works.
+4. **Reading preferences are live switches**, not static samples.
+5. **The More sheet is built** (the samples only showed its trigger).
+
+## 8. Review record
+
+| Round | What happened |
 |---|---|
-| **Home** | Home (`/client/dashboard`) |
-| **Our arrangement** | Funeral case (`/client/cases`) · Memorial plans (`/client/plans`) · Memorial property (`/client/property`) |
-| **Money & papers** | Payments (`/client/payments`) · Documents (`/client/documents`) |
-| **Remembering** | Memorials (`/client/memorials`) |
-| **Getting help** | Appointments (`/client/appointments`) · Requests (`/client/requests`) · Support & tickets (`/client/support`) |
-| **Our family & privacy** | Family & access (`/client/family`, new) · Notifications (`/client/notifications`) · Privacy Center (`/client/privacy`) · My profile (`/client/profile`) |
+| Construction, 2026-09-16 | Design built and audited; 20/20 viewport checks clean; screenshots and JSON preserved |
+| Round 1, 2026-09-16 | Served for the captain’s review with six calls and the reference-screen question |
+| Decision, 2026-09-16T16:05Z | **Captain approved the direction to be built exactly as drawn** (Q6), with the sky-blue brand rule applied and the honesty rules kept; the six calls resolved as recommended. No reference screen was supplied |
 
-**Phone bottom bar** (four pinned + More, which opens the same groups in the drawer):
-`Home · Case · Payments · Help · More`. Targets ≥ 44 px; the coordinator's number is in the sidebar
-on every page and on Support.
+Open client questions (the client’s to answer, carried through firstmate):
+abuloy money model · Filipino/Chavacano translation priority · public memorial search ·
+DPA retention schedule + DPO · which payment destinations may be published.
 
-**Naming rules:** never "My Funeral Cases" when there is one funeral — the page title is the
-person's name; "Memorial property", never "My Lots"; case/invoice/document numbers live inside
-pages, never in titles.
+## 9. Verification
 
-**PRD traceability:** Customer Dashboard + Family Dashboard → Home; My Plans → Memorial plans;
-My Lots → Memorial property; My Payments → Payments; My Documents → Documents; My Memorials →
-Memorials; My Funeral Cases → Funeral case; My Requests → Requests; My Appointments → Appointments;
-Support/Ticket → Support & tickets; Privacy Center → Privacy Center. Added by the design because
-the PRD requires their behaviour elsewhere: Family & access (multiple family members, blueprint
-§25–26), Notifications (the bell's real page, §41), My profile (the edit path), and the states set.
+- **Design (this folder):** `audit-results.json` — 10 pages × 2 viewports: no sideways
+  scroll, one headline per page, primary action above the fold on 390 px, every tap target
+  ≥ 44 px, zero WCAG AA contrast failures, smallest meaningful text 15–17 px.
+- **Build (the implementation audit):** the real portal signed in as the family persona,
+  14 screens + sign-in × 2 viewports: same checks, all clean; plus `npm run lint`,
+  `typecheck`, `test` (564 tests) and a production build. The at-a-glance bar is pinned by
+  `tests/unit/family-pages.test.tsx` (one `h1`, one primary action before any section, the
+  office number one tap away, no `fp-*`), `family-ui.test.tsx`, `family-nav.test.ts`,
+  `family-view.test.ts` and `family-calm-state.test.tsx`.
 
-## 3. The dashboard: "what needs me now"
+## 10. Where the design lives in the build
 
-Five bands, evaluated in this order, at most three rendered on a phone, one calm sentence when all
-five are empty.
-
-| # | Band | Trigger | Action |
-|---|---|---|---|
-| 1 | Waiting on you | a missing paper, a signature, a decision only the family can make | one action (photograph/sign/upload/decide) |
-| 2 | Money that gates | due ≤ 7 days, or a balance the family's agreement makes a condition of a service | Pay · Talk to us first |
-| 3 | Happening next | the next service within 3 days | Directions · Share |
-| 4 | Ready for you | a receipt issued, a tribute to approve, a certificate ready | Open |
-| 5 | Remembering | birthday, anniversary, All Souls' | Candle · Remind me |
-
-Rules: **trigger beats date** (a missing permit outranks a payment); one primary action per card and
-at most one quiet alternative; **the care window** — from the death until two days after the
-interment, money cards demote below the schedule and payment notifications pause (the family can
-still open Payments and see everything); a dismissed card returns only if the condition still holds
-after 48 h, at most once a day; **no streaks, scores or "complete your profile" prompts**; stale
-figures are stamped with the time they were read; an empty feed is a designed state.
-
-The pure logic lives in `lib/family/family-view.ts` (`buildFamilyNeeds`) and is unit-tested in
-`tests/unit/family-view.test.ts`.
-
-## 4. Page-by-page spec
-
-Legend: **built** = implemented in this repo today; **partly** = renders from the family snapshot;
-**blocked** = designed, waiting on a service (the page says so).
-
-### 4.1 Sign in & invitation — `/client/login` · *built (shipped sign-in)*
-Reassurance column · the sign-in card (email, password, keep me signed in) · "email me a sign-in
-link" · one sentence about invitation links.
-**States:** wrong password (no attempt counter) · expired invitation (call the coordinator) ·
-service down (office number) · signed out.
-**Not real yet:** invitation links, magic links.
-
-### 4.2 Home — `/client/dashboard` · *partly*
-Breathing welcome (name, life dates, chips, "what needs you now" aside) → the needs feed →
-reach us in a tap → money and papers (plan total / paid / still open, latest papers, papers we
-still need) → remembering (monogram portrait, what the memorial will hold) → if something is wrong.
-**States:** nothing needs you · family summary unavailable (error) · a page whose schedule/case/
-memorial data is not wired (honest note) — mobile collapses the deep blocks.
-**Not real yet:** the funeral schedule, case progress, memorial pages.
-
-### 4.3 Funeral case — `/client/cases` · *blocked (designed page)*
-Where they are now (the seven stages in family words — previewed on the page) · the services and
-schedule · what the family arranged · the case papers · if something changes.
-**Missing:** a family-scoped read of the case, its schedule and its documents.
-
-### 4.4 Memorial plans — `/client/plans` · *partly*
-Plan money strip (status · term · still open) · where the payments are (progress from integer minor
-units) · what the plan is for · papers · things you can ask for.
-**Not real yet:** the instalment schedule, plan terms copy, receipts, plan documents.
-
-### 4.5 Memorial property — `/client/property` · *blocked (designed page)*
-The place (with the masterplan) · who it belongs to · payments for the lot (**the "fully paid before
-interment" rule stated early, with three ways out**) · on the lot right now (interments, maintenance,
-care fund) · what you can ask for.
-**Missing:** ownership, sale terms, interments, care fund, maintenance history.
-
-### 4.6 Payments — `/client/payments` · *partly*
-What needs you · how to pay (GCash/Maya on the number the office confirms · bank transfer on request ·
-cash/collection) · payment history (**honest: not wired yet**) · if money is tight (a grace sentence,
-never a penalty figure) · help with the cost (LGU, DSWD, senior, SSS/GSIS).
-**Not real yet:** payment history, per-payment receipts, online payment.
-
-### 4.7 Documents — `/client/documents` · *partly*
-Waiting on you (**honest: nothing right now**) · your family's papers (from the snapshot, in family
-words) · who can see these papers · when a paper is wrong.
-**Not real yet:** the full repository, missing-paper rules, uploads, copy requests, certified copies.
-
-### 4.8 Memorials — `/client/memorials` · *blocked (designed page)*
-Your family's pages · tributes waiting for approval · who can see it · remembrance dates · during a
-wake (guestbook, programme, private livestream).
-**Missing:** the whole memorial module (content, media, moderation, visibility).
-
-### 4.9 Requests — `/client/requests` · *blocked (designed page)*
-Open requests · what you can ask for · a new request · closed requests.
-**Missing:** the service desk (ticket number, owner, status, history).
-
-### 4.10 Appointments — `/client/appointments` · *blocked (designed page)*
-Upcoming (confirmed vs **requested, not yet confirmed**) · ask for a time (who is coming, what we
-should prepare) · past appointments · or just call.
-**Missing:** a family-facing request with a confirmation state.
-
-### 4.11 Support & tickets — `/client/support` · *built today (contact), blocked (tickets)*
-Talk to us now (coordinator, second line, Villa Agency, office and park) · send us a ticket
-(designed, with the honest "nothing you type here would reach us yet") · your tickets · the six
-questions families ask most.
-**Missing:** ticket creation, assignment, SLA, history.
-
-### 4.12 Family & access — `/client/family` · *blocked (designed page)*
-The people on the account · what each role can see · family living abroad · decisions and consent.
-**Missing:** family membership, roles, invitations.
-
-### 4.13 Notifications — `/client/notifications` · *partly*
-Latest (**clearly labelled placeholder notices from the portal build**) · what we send · how they
-reach you · quiet hours · "we never market to a family in an active arrangement".
-**Missing:** the notifications engine, preferences, delivery state.
-
-### 4.14 Privacy Center — `/client/privacy` · *blocked (designed page)*
-Our promise · what other people can see · who looked at your records · your choices · your Data
-Privacy Act rights · what we keep and for how long.
-**Missing:** the consent store, the access-log projection, DPA requests, the retention schedule
-(an open client decision).
-
-### 4.15 My profile — `/client/profile` · *partly*
-About you · language and reading (**device-local switches that really work**) · sign-in and family
-shortcuts.
-**Not real yet:** editing contact details, languages, the signed-in devices list.
-**Note:** the reading preferences are stored on the device (`localStorage`, `im_family_reading`) and
-applied through `[data-fp-reading]`; the page says so.
-
-### 4.16 States & accessibility — *(design system, not a route)*
-Empty · loading · error/offline · accessibility modes · the mobile gestures deliberately **not**
-used (no pull-to-refresh as the only path, no long-press primary actions, no swipe-to-delete, no
-infinite scroll on money or documents, no timed sessions).
-
-## 5. Grief-aware stance (testable)
-
-- **Language:** no ledger-speak. The banned list lives in `FAMILY_JARGON`
-  (`lib/family/family-view.ts`) and a unit test walks a rendered family block for it. Name the
-  person, not the process. Plain tense ("Ernesto is in our care"), never "the remains".
-- **No dark patterns:** no timers or scarcity; no pre-ticked consent; no cancellation maze; no
-  upsell inside an at-need flow; payments never the pre-selected action during the care window.
-- **Dignified imagery:** a photograph is never required — the monogram portrait is the default; no
-  stock faces, no caskets or graves as decoration; only the family's own and the client's own
-  imagery, with the park masterplan used as the lot map.
-- **Accessibility (WCAG 2.1 AA targets):** 16 px base in the family portal, ≥ 44 px targets, visible
-  focus ring, status never by colour alone, no horizontal scroll down to 320 px, motion
-  120–200 ms and disabled under `prefers-reduced-motion`, plus the device-local reading modes.
-- **Money:** amounts come from integer minor units and are never parsed out of display strings
-  (`lib/family/family-view.ts`, pinned by `tests/fixture-contract/family.test.ts`).
-
-## 6. What is built, what is blocked
-
-**Built in this repo:** the grouped rail + phone tab bar, Home, Memorial plans, Payments, Documents,
-My profile (with working reading preferences), Support's contact content, Notifications' placeholder
-list, and the designed honest pages for the blocked screens.
-
-**Blocked on the backend (eleven asks, in priority order):**
-
-1. **A family role and family scopes** — the customer persona holds only
-   `tenancy:modules:read` + `catalog:read` (`lib/fixtures/auth/personas.json`); the frozen
-   `rbac-scopes-v1` has no family scope. Adding a scope is additive.
-2. **Family-scoped projections** for cases, lots, invoices and documents (filtered and reshaped;
-   no internal notes, no aging buckets, no other families).
-3. **Family membership, roles and invitations** (owner / family / contributor / guest).
-4. **Memorial service** (content, media, moderation, visibility levels, QR, reminders).
-5. **Requests / tickets** (six-state lifecycle with assignment and history).
-6. **Family-facing appointments** (requested → confirmed, attendee and preparation fields).
-7. **Payment history, per-payment receipts, online payment** (a `payment.recorded` event; payer on
-   the receipt).
-8. **Consent store + access-log projection** ("who on staff looked at my family's record").
-9. **Document object storage** + a "required document" rule per contract with a due date.
-10. **Notifications engine + preferences + quiet hours**, with "never market to a bereaved family"
-    expressible as configuration.
-11. **Ownership / lot sale / interment records** for the memorial-property page.
-
-**Client data still to confirm (never invented in the UI):** the DPA retention schedule and privacy
-policy, public memorial search rules, payment destinations (no account numbers are published), and
-whether Chavacano is needed alongside English and Filipino.
-
-## 7. Fixtures
-
-The family snapshot (`lib/fixtures/family/snapshot.json`) now carries `balance_cents` beside its
-display strings: views never parse a display price, and
-`tests/fixture-contract/family.test.ts` pins the two forms together. It stays explicitly
-**provisional** — no family API contract exists yet.
-
-## 8. Files
-
-| File | What it is |
+| Design element | Code |
 |---|---|
-| `family-portal-design.html` | the review artifact (16 pages, desktop + phone, with the spec sheets) |
-| `page-*.html` | one standalone responsive example per screen |
-| `prototype.css` | the design pages' own stylesheet, loaded after `styles/components.css`; the shipped rules live in the components.css family block |
-| `family-review.css` | review-surface chrome only (device frames, spec cards, question controls) — not product CSS |
+| Shell: bar, phone tabs, More sheet, footer | `components/family/family-frame.tsx`, `components/portal-nav.ts`, `app/(family)/client/layout.tsx` |
+| Answer · chain · schedule · rows · money · note · planned page | `components/family/family-ui.tsx` |
+| The `fv-*` grammar (type scale, taps, sky tokens, phone rules) | `styles/components.css`, block “Family portal (client)” |
+| Reading preferences (`data-fv-reading`) | `components/family/family-reading-preferences.tsx` |
+| Family sign-in scope | `app/(signin)/client/layout.tsx`, `lib/sign-in.ts` |
+| Worker and sample pages | the ten `page-*.html` files beside this README |

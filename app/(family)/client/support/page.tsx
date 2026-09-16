@@ -1,167 +1,95 @@
-import Link from "next/link";
-import { Card } from "@/components/ui/card";
+import { Building2, MapPin, MessageCircle, Phone, Store } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
-import { FamilyHelpCard, FamilySection } from "@/components/family/family-ui";
+import {
+  Answer,
+  CallAction,
+  QuietAction,
+  QuietLink,
+  Row,
+  Rows,
+  Section,
+} from "@/components/family/family-ui";
 
-export const metadata = { title: "Support & tickets — Villa Memorial" };
+export const metadata = { title: "Help — Villa Memorial" };
 
 /**
- * Support & tickets — approved design page 11, and the phone tab's "Help".
- *
- * This page is deliberately useful TODAY: the three ways a family reaches a
- * person are real (the client's own hotlines and addresses). Ticket creation and
- * tracking are designed and not switched on, and the page says so.
+ * Help — the approved redesign (docs/08-delivery/family-portal-design,
+ * page 07). This page is real today: the client's own numbers and places,
+ * with the biggest button in the portal on the one action that always works.
  */
 export default async function ClientSupportPage() {
   await requirePortalSessionOrRedirect("family");
 
   return (
-    <div className="fp-page">
-      <header className="page-header">
-        <div>
-          <p className="page-header__eyebrow">Getting help</p>
-          <h1>Support &amp; tickets</h1>
-          <p className="fp-lead">Someone from Villa Memorial is always reachable — day or night.</p>
-        </div>
-      </header>
+    <>
+      <Answer
+        kicker="Help"
+        headline="Call us. Someone is here every day from 7 in the morning to 9 at night."
+        sub="Arrangements, payments, papers, or just a question — the office line is answered every day. If nobody picks up, leave your name and number and we will call you back."
+        actions={
+          <>
+            <CallAction label={`Call ${FAMILY_HELP.phone}`} />
+            <QuietLink
+              href="/client/appointments"
+              label="Ask us to come to you"
+              icon={<MessageCircle size={20} aria-hidden="true" />}
+            />
+          </>
+        }
+        help
+      />
 
-      <FamilySection
-        title="Talk to us now"
-        sub="The three ways a family actually reaches us, in the order you need them."
+      <Section title="Other numbers">
+        <Rows>
+          <Row
+            icon={<Phone size={22} aria-hidden="true" />}
+            title="Funerals — second line"
+            meta={`${FAMILY_HELP.secondPhone} · when the first line is busy`}
+            action={<QuietAction href={FAMILY_HELP.secondPhoneHref} label="Call" />}
+          />
+          <Row
+            icon={<Building2 size={22} aria-hidden="true" />}
+            title="Villa Agency — plan questions"
+            meta={`${FAMILY_HELP.agencyPhone} · beneficiaries, transfers, claims`}
+            action={<QuietAction href={FAMILY_HELP.agencyPhoneHref} label="Call" />}
+          />
+        </Rows>
+      </Section>
+
+      <Section title="Where to find us">
+        <Rows>
+          <Row
+            icon={<Store size={22} aria-hidden="true" />}
+            title="The office"
+            meta={FAMILY_HELP.office}
+          />
+          <Row
+            icon={<MapPin size={22} aria-hidden="true" />}
+            title="Funeraria Villa"
+            meta="Aguada, Isabela City · where the viewing is"
+          />
+          <Row
+            icon={<MapPin size={22} aria-hidden="true" />}
+            title="The park"
+            meta={FAMILY_HELP.park}
+          />
+        </Rows>
+        <p className="mt-4">
+          <QuietLink href="/map" label="Open the park map" />
+        </p>
+      </Section>
+
+      <Section
+        title="Something we did wrong?"
+        sub="Tell us. Call and ask for the manager — we would rather hear it from you than not at all."
       >
-        <div className="fp-grid-3">
-          <Card header={<h3 className="fp-h3">Your coordinator</h3>}>
-            <p className="fp-note">
-              Arrangements, schedules and anything about the service. Answered {FAMILY_HELP.hours}.
-            </p>
-            <a className="btn btn--primary btn--block mt-4" href={FAMILY_HELP.phoneHref}>
-              Call {FAMILY_HELP.phone}
-            </a>
-            <a className="btn btn--secondary btn--block mt-2" href={FAMILY_HELP.secondPhoneHref}>
-              Or {FAMILY_HELP.secondPhone}
-            </a>
-          </Card>
-          <Card header={<h3 className="fp-h3">Plan questions</h3>}>
-            <p className="fp-note">
-              Villa Agency handles the Villa Memorial Plan — transfers, beneficiaries and claims.
-            </p>
-            <a className="btn btn--secondary btn--block mt-4" href={FAMILY_HELP.agencyPhoneHref}>
-              Call {FAMILY_HELP.agencyPhone}
-            </a>
-            <p className="fp-note mt-2">Funeraria Villa · Aguada, Isabela City</p>
-          </Card>
-          <Card header={<h3 className="fp-h3">Visit the office</h3>}>
-            <p className="fp-note">{FAMILY_HELP.office}</p>
-            <p className="fp-note">
-              The park office is open at {FAMILY_HELP.park}.
-            </p>
-            <Link className="btn btn--secondary btn--block mt-4" href="/map">
-              Open the park map
-            </Link>
-          </Card>
-        </div>
-      </FamilySection>
-
-      <FamilySection
-        title="Send us a ticket"
-        sub="A written request you can follow — designed, not switched on yet."
-      >
-        <div className="fp-split">
-          <Card header={<h3 className="fp-h3">What will be on it</h3>}>
-            <ul className="fp-bullets">
-              <li>What it is about — the arrangement, a payment, a paper, the memorial, privacy</li>
-              <li>How urgent it is, in your words: normal, or urgent during a service</li>
-              <li>Your message, written however it comes out — a person reads it, not a machine</li>
-              <li>A reference number, and the name of whoever is handling it</li>
-              <li>Every reply in one thread, so you never have to explain it twice</li>
-            </ul>
-            <div className="alert alert--info mt-4" role="status">
-              <div>
-                <strong>Nothing you type here would reach us yet.</strong>
-                <br />
-                Ticket tracking needs the service desk, so this page does not offer a form that
-                cannot be answered. Call {FAMILY_HELP.phone} and we will write it down for you.
-              </div>
-            </div>
-          </Card>
-          <Card header={<h3 className="fp-h3">Your tickets</h3>}>
-            <p className="empty-state__title">No tickets yet — and none can be created here yet</p>
-            <p className="empty-state__hint">
-              When the service desk is on, every request you make will be listed here with its
-              status, who has it, and whether it is waiting on us or on you. Until then, a phone
-              call is the fastest way, and we write it in our own log.
-            </p>
-            <div className="row row--wrap mt-4">
-              <a className="btn btn--primary btn--sm" href={FAMILY_HELP.phoneHref}>
-                Call {FAMILY_HELP.phone}
-              </a>
-              <Link className="btn btn--secondary btn--sm" href="/client/requests">
-                See what requests will cover
-              </Link>
-            </div>
-          </Card>
-        </div>
-      </FamilySection>
-
-      <FamilySection
-        title="The questions we hear most"
-        sub="Short answers to the things families ask us on the phone."
-      >
-        <div className="fp-grid-3">
-          <Card header={<h3 className="fp-h3">How do I reach someone at night?</h3>}>
-            <p className="fp-note">
-              Call {FAMILY_HELP.phone}. During a wake or a service the duty line is answered around
-              the clock.
-            </p>
-          </Card>
-          <Card header={<h3 className="fp-h3">Where are you?</h3>}>
-            <p className="fp-note">
-              Office: {FAMILY_HELP.office}. Funeraria Villa is in Aguada, and the park is at{" "}
-              {FAMILY_HELP.park}.
-            </p>
-          </Card>
-          <Card header={<h3 className="fp-h3">How do I pay?</h3>}>
-            <p className="fp-note">
-              Cash at the office, bank transfer, or GCash/Maya on the number the office confirms.
-              Every payment gets an official receipt.
-            </p>
-            <Link className="btn btn--ghost btn--sm mt-2" href="/client/payments">
-              Payments
-            </Link>
-          </Card>
-          <Card header={<h3 className="fp-h3">How do I get a copy of a paper?</h3>}>
-            <p className="fp-note">
-              Call us, or tell us at the office. Certified copies for a bank, SSS or an insurer are
-              usually ready the same day.
-            </p>
-            <Link className="btn btn--ghost btn--sm mt-2" href="/client/documents">
-              Documents
-            </Link>
-          </Card>
-          <Card header={<h3 className="fp-h3">Who do I talk to about the plan?</h3>}>
-            <p className="fp-note">
-              Villa Agency on {FAMILY_HELP.agencyPhone} — they handle the plan, its certificate and
-              claims.
-            </p>
-          </Card>
-          <Card header={<h3 className="fp-h3">Something went wrong</h3>}>
-            <p className="fp-note">
-              Tell us. Call {FAMILY_HELP.phone} and ask to speak to a manager — we would rather hear
-              it from you directly.
-            </p>
-          </Card>
-        </div>
-      </FamilySection>
-
-      <FamilySection title="While you wait, a person can help">
-        <FamilyHelpCard
-          phone={FAMILY_HELP.phone}
-          phoneHref={FAMILY_HELP.phoneHref}
-          hours={FAMILY_HELP.hours}
-          office={FAMILY_HELP.office}
+        <QuietLink
+          href={FAMILY_HELP.phoneHref}
+          label="Call the office"
+          icon={<Phone size={20} aria-hidden="true" />}
         />
-      </FamilySection>
-    </div>
+      </Section>
+    </>
   );
 }
