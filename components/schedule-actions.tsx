@@ -9,7 +9,7 @@
  * and the list is refreshed so the screen stops offering illegal actions.
  */
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
@@ -205,18 +205,42 @@ export function NewBookingForm({ resources }: { resources: Resource[] }) {
   );
 }
 
-export function CancelBookingButton({ bookingId }: { bookingId: string }) {
+export function CancelBookingButton({
+  bookingId,
+  chapel = false,
+}: {
+  bookingId: string;
+  /**
+   * Chapel stays must say WHY the dates are given back: the cancellation reason
+   * is recorded app-side (the frozen cancel endpoint carries no body) and the
+   * office reads it on /staff/schedule.
+   */
+  chapel?: boolean;
+}) {
   const router = useRouter();
+  const reasonId = useId();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [reason, setReason] = useState("");
 
   async function cancel() {
-    if (!window.confirm("Cancel this booking? The resource window is freed.")) return;
+    if (!chapel && !window.confirm("Cancel this booking? The resource window is freed.")) return;
+    if (chapel && !reason.trim()) {
+      setError("Say why the chapel stay is being cancelled.");
+      return;
+    }
     setError(null);
     setPending(true);
     try {
       const res = await fetch(`/api/schedule/bookings/${encodeURIComponent(bookingId)}/cancel`, {
         method: "POST",
+        ...(chapel
+          ? {
+              headers: { "content-type": "application/json" },
+              body: JSON.stringify({ reason: reason.trim() }),
+            }
+          : {}),
       });
       const payload: unknown = await res.json().catch(() => null);
       if (!res.ok) {
@@ -228,6 +252,8 @@ export function CancelBookingButton({ bookingId }: { bookingId: string }) {
         router.refresh();
         return;
       }
+      setAsking(false);
+      setReason("");
       router.refresh();
     } catch {
       setError("Could not reach the scheduling service.");
@@ -236,12 +262,63 @@ export function CancelBookingButton({ bookingId }: { bookingId: string }) {
     }
   }
 
+  if (chapel && asking) {
+    return (
+      <div className="stack-3">
+        <Field
+          label="Why is it cancelled?"
+          htmlFor={reasonId}
+          hint="Recorded with the cancellation; the dates are freed either way."
+        >
+          <input
+            id={reasonId}
+            type="text"
+            disabled={pending}
+            value={reason}
+            onChange={(e) => {
+              setReason(e.target.value);
+              setError(null);
+            }}
+            placeholder="Family changed the dates"
+          />
+        </Field>
+        <div className="row">
+          <Button variant="danger" size="sm" onClick={cancel} disabled={pending}>
+            {pending ? "Cancelling…" : "Cancel booking"}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setAsking(false);
+              setReason("");
+              setError(null);
+            }}
+            disabled={pending}
+          >
+            Keep it
+          </Button>
+        </div>
+        {error ? (
+          <p className="field__error" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <>
-      <Button variant="danger" size="sm" onClick={cancel} disabled={pending}>
+      <Button
+        variant="danger"
+        size="sm"
+        onClick={chapel ? () => setAsking(true) : cancel}
+        disabled={pending}
+      >
         {pending ? "Cancelling…" : "Cancel"}
       </Button>
-      {error ? <p className="text-sm text-muted">{error}</p> : null}
+      {error ? <p className="field__error" role="alert">{error}</p> : null}
     </>
   );
 }

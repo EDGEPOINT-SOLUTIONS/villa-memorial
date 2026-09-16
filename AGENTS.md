@@ -209,24 +209,62 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   and the booking metadata a cart line carries. Server orchestration (chapel slice of
   the schedule, reserve, release) is `lib/api-client/chapel-reservations.ts`; the BFF
   routes are `/api/chapel/schedule`, `/api/chapel/bookings`,
-  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).
-- **Reserve on add, release on remove**: Add to cart creates a scheduling booking
+  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).- **Reserve on add, release on remove**: Add to cart creates a scheduling booking
   (title marker `Online chapel booking`), removing the line cancels it; the booking is
   re-checked against a fresh schedule and rolled back if the service flags a race
   (scheduling v1 flags conflicts instead of blocking — cut line #3). The cart line is
   keyed by `lineId` (`cartLineKey` in `lib/cart/cart-context.tsx`) so two stays of the
   same class coexist; checkout still sends only `{sku, quantity}` with quantity = days
   and the per-day unit price, so the server-repriced order totals the stay.
-- **PLACEHOLDER config**: `CHAPEL_CLASS_RULES` in `lib/chapel-booking.ts` maps the two
-  seeded resources (Chapel A → common, Chapel B → private). The client has not
-  confirmed the park's chapel count, names or classes — add/re-point rules there when
-  they do. Blocked/maintenance dates have no upstream shape yet (`blockedDates()` is the
-  single hook); the admin management screen is a separate queued task. Live mode has no
+- **PLACEHOLDER config**: which chapels exist, their names, classes and closed dates come
+  from the staff screen below (durable store) — `CHAPEL_CLASS_RULES` in
+  `lib/chapel-booking.ts` is now only the fallback for a resource the park's own records do
+  not list (same mapping as the seed fixture). Live mode has no
   public booking contract: scheduling v1 requires a staff session, so an anonymous
   visitor gets 401 and the dialog degrades to Request order — not a hidden stub.
 - Evidence: `tests/unit/chapel-booking.test.ts` (bounds, overlap/blocked/no-chapel
   refusals, range price, cart metadata, release-on-removal),
   `tests/unit/chapel-booking-dialog.test.tsx` (trigger + step rendering).
+
+## Chapel administration — staff side (read before touching chapel settings/availability)
+
+- **One store, two faces.** `/staff/schedule` (the chapel sections) and the customer dialog
+  read the same chapel records: `lib/api-client/chapel-store.ts` (seed
+  `lib/fixtures/scheduling/chapel-admin.json`; journal `CHAPEL_STORE_PATH` or
+  `.data/scheduling-chapel-admin.json`, gitignored — atomic writer like the orders store).
+  Closing a range or deactivating a chapel changes what a customer can book on the NEXT
+  read; nothing caches it.
+- **Rules**: `lib/chapel-admin.ts` (pure — chapel records/validation, closed ranges,
+  operator status `hold → confirmed / cancelled`, the free·held·booked·closed month grid);
+  server orchestration `lib/api-client/chapel-admin.ts`; BFF routes
+  `/api/schedule/chapels`, `/api/schedule/chapels/[id]`, `/api/schedule/chapels/[id]/blocks`,
+  `/api/schedule/chapel-blocks/[id]`, `/api/schedule/bookings/[id]/confirm` (+ the cancel
+  route below). All need `scheduling:write`; the shared gate is `app/api/schedule/_guard.ts`.
+  UI is route-local: `app/(staff)/staff/schedule/chapel-{settings,availability,bookings}.tsx`.
+- **Delete = deactivate.** An inactive chapel keeps its bookings and calendar but leaves the
+  storefront (`getChapelSchedule` filters it); a chapel added on the screen becomes a
+  fixture-mode scheduling resource (`app-chapel-…` ids merged by `listResources()`), names
+  are unique, and capacity/notes are staff-editable. The PLACEHOLDER notice on the card is
+  the client-question flag — the park's real chapel list is still unconfirmed.
+- **Cancelling a chapel booking requires a reason.** `POST /api/schedule/bookings/:id/cancel`
+  routes chapel bookings through `cancelChapelBooking` (cancel on the service FIRST — that
+  frees the dates — then record the reason app-side; booking-events-v1 carries no reason
+  field). Any other resource keeps the plain proxy. The generic `CancelBookingButton`
+  (`components/schedule-actions.tsx`) grows the reason form via its `chapel` prop.
+- **Holds vs confirmed.** A booking whose title carries `ONLINE_CHAPEL_BOOKING_MARKER` is
+  "only in a customer's cart" until staff confirm it or checkout claims it. The claim
+  (`POST /api/chapel/bookings/[id]/claim`, called best-effort by
+  `app/(public)/checkout/page.tsx` right after the order 201) is app-authored: the frozen
+  checkout contract still sends only `{sku, quantity}`, so the page that still holds the
+  reservation ids links them, and the server checks the order really carries that chapel
+  class line for that many days. A failed claim leaves an ordinary hold.
+- **Live mode**: booking-events-v1 has no resource write endpoint and no maintenance-window
+  shape, so settings/closures/confirmations answer 503 (`CHAPEL_ADMIN_NOT_WIRED`) instead of
+  inventing a contract; the chapel slice of the schedule still reads.
+- Evidence: `tests/unit/chapel-admin.test.ts` (closure → refusal, cancel frees + records the
+  reason, add/rename/deactivate, claim), `tests/unit/chapel-admin-rbac.test.tsx` (401/403,
+  page gating, same-store effects), `tests/fixture-contract/chapel-admin.test.ts` (seed pinned
+  to the scheduling resources fixture + the fallback rules).
 
 ## 2026 price list — where every client figure surfaces
 
