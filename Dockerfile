@@ -9,13 +9,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
-# NEXT_PUBLIC_* is inlined into client JS at build time, so demo-hint behaviour is a build
-# arg, not runtime config. Both default EMPTY: a deployed build fills the persona email
-# only. NEVER pass a real seed password here — it would ship admin credentials in public JS.
+# Demo-hint visibility is inlined into client JS at build time, so it is a build arg.
 ARG NEXT_PUBLIC_DEMO_HINTS=1
-ARG NEXT_PUBLIC_DEMO_PASSWORD=
 ENV NEXT_PUBLIC_DEMO_HINTS=$NEXT_PUBLIC_DEMO_HINTS
-ENV NEXT_PUBLIC_DEMO_PASSWORD=$NEXT_PUBLIC_DEMO_PASSWORD
+# Persona password quick-fill is deliberately NOT a build arg: NEXT_PUBLIC_DEMO_PASSWORD
+# is inlined into public JS and would publish the credential. Local dev sets it in
+# web/.env for `npm run dev` only. Deployed images enable one-click fill at runtime with
+# the server-side DEMO_QUICK_FILL (+ DEMO_QUICK_FILL_PASSWORD) — see .env.example.
 RUN npm run build
 
 FROM node:22-alpine AS run

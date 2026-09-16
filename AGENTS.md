@@ -64,6 +64,13 @@ docker compose up --build                            # SSR on :3000 against stub
 | Stub compose | `docker compose up --build` | Same fixtures served by `stub-gateway/` mirroring edge-gateway paths |
 | Live | `AUTH_BASE_URL=<gateway>` | BFF proxies `${AUTH_BASE_URL}/identity/api/v1/auth/*` |
 
+Demo one-click persona fill is a **server-side opt-in**: `DEMO_QUICK_FILL=1` (plus
+`DEMO_QUICK_FILL_PASSWORD` whenever `AUTH_BASE_URL` is set — the repo seed is never handed to a
+gateway) is resolved per request in `lib/demo-quick-fill.ts` and reaches the sign-in card as a
+prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the existing
+`NEXT_PUBLIC_DEMO_PASSWORD` path is local-dev only). Docs: README "Demo logins (fixture mode)",
+`docs/08-delivery/notes/known-limitations-cp1.md`.
+
 ## Landing page — content-model home (read before touching "/" or its admin)
 
 - The public home (app/page.tsx) is NOT hand-written JSX sections: it renders

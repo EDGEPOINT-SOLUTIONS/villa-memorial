@@ -91,12 +91,16 @@ Storefront and portal: `http://localhost:4000`. Gateway: `http://localhost:8081`
 
 ## 1. Login & session
 
-**Go to** `/login` → click **Ada Admin** (fills the email) → type the password → **Sign in**.
+**Go to** `/login` → click **Ada Admin** (fills the email; fills the password too when demo
+quick-fill is enabled — see note) → **Sign in**.
 
-> On a deployed box the persona buttons fill the **email only**. The password is generated per
-> deployment (`grep SEED_DEMO_PASSWORD deploy/vm-dedicated/.env` on the box) and is
-> deliberately never baked into the page — it would ship admin credentials in public
-> JavaScript. Locally, set `NEXT_PUBLIC_DEMO_PASSWORD` in `web/.env` to keep one-click sign-in.
+> One-click fill on a deployed box is an explicit opt-in: set the server-side runtime env
+> `DEMO_QUICK_FILL=1` **and** `DEMO_QUICK_FILL_PASSWORD=<the box's generated seed>`
+> (`grep SEED_DEMO_PASSWORD deploy/vm-dedicated/.env`). The password is resolved per request
+> and delivered only in that response — never baked into the page's public JavaScript.
+> Without those variables the persona buttons fill the email only. Locally,
+> `NEXT_PUBLIC_DEMO_PASSWORD` in `web/.env` is the dev-only inlining path; in fixture mode
+> `DEMO_QUICK_FILL=1` alone sources the recorded seed.
 
 **Say:** "RS256 JWTs issued by identity-access, verified at the edge gateway and again at every
 service boundary. The session is an httpOnly cookie — the token never reaches browser JS."
