@@ -5,7 +5,6 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
 import {
   Answer,
-  CallAction,
   Note,
   PaidSoFar,
   PrimaryAction,
@@ -15,14 +14,15 @@ import {
   Rows,
   Section,
 } from "@/components/family/family-ui";
+import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Payments — Villa Memorial" };
 
 /**
- * Payments — the approved redesign (docs/08-delivery/family-portal-design,
- * page 04). Real today: the balance and the three ways a family can pay.
- * The payment history is not wired, and says so in one calm note — never an
- * empty table that reads as if the family had never paid.
+ * Payments — the family's “My Payments” screen (PRD screen-inventory), on the
+ * shared portal kit. Real today: the balance and the three ways a family can
+ * pay. The payment history is not wired, and says so in one calm note — never
+ * an empty table that reads as if the family had never paid.
  */
 export default async function ClientPaymentsPage() {
   await requirePortalSessionOrRedirect("family");
@@ -49,6 +49,12 @@ export default async function ClientPaymentsPage() {
             ? `That is what is left of ${balance.total} — you have already paid ${balance.paid}. The next date in your agreement is ${plan_summary.next_due}.`
             : `${balance.total} of ${balance.total} · thank you. We will tell you if anything changes.`
         }
+        chips={
+          <>
+            <PortalChip>{plan_summary.plan_name}</PortalChip>
+            {percent !== null ? <PortalChip>{percentWords(percent)} paid</PortalChip> : null}
+          </>
+        }
         actions={
           <>
             <PrimaryAction href="#ways" label="See how to pay" />
@@ -61,14 +67,12 @@ export default async function ClientPaymentsPage() {
         }
       />
 
-      <Section title="Paid so far">
-        <PaidSoFar
-          paid={balance.paid}
-          total={balance.total}
-          percent={percent ?? undefined}
-          words={percent === null ? "in all" : percentWords(percent)}
-        />
-      </Section>
+      <PaidSoFar
+        paid={balance.paid}
+        total={balance.total}
+        percent={percent ?? undefined}
+        words={percent === null ? "in all" : percentWords(percent)}
+      />
 
       <Section
         id="ways"
@@ -81,7 +85,7 @@ export default async function ClientPaymentsPage() {
             title="GCash or Maya"
             meta="Call us while you send it, and we will confirm the number and your reference"
             state="Easiest"
-            action={<CallAction label="Call to pay" />}
+            action={<QuietAction href={FAMILY_HELP.phoneHref} label="Call to pay" />}
           />
           <Row
             icon={<Banknote size={22} aria-hidden="true" />}

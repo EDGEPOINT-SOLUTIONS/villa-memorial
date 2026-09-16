@@ -13,14 +13,15 @@ import {
   Rows,
   Section,
 } from "@/components/family/family-ui";
+import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Papers — Villa Memorial" };
 
 /**
- * Papers — the approved redesign (docs/08-delivery/family-portal-design,
- * pages 05 and 10). Real today: the papers the snapshot records, in family
- * words, with one decision per row. The full repository is not wired and says
- * so in one calm note.
+ * Papers — the family's “My Documents” screen (PRD screen-inventory), on the
+ * shared portal kit. Real today: the papers the snapshot records, in family
+ * words, with one decision per row (here as one action per row). The full
+ * repository is not wired and says so in one calm note.
  */
 export default async function ClientDocumentsPage() {
   await requirePortalSessionOrRedirect("family");
@@ -28,6 +29,7 @@ export default async function ClientDocumentsPage() {
   const documents = snapshot.recent_documents.map((doc) =>
     familyDocumentView(doc.title, doc.status),
   );
+  const waiting = documents.filter((doc) => doc.tone === "warning" || doc.tone === "danger");
 
   return (
     <>
@@ -45,6 +47,21 @@ export default async function ClientDocumentsPage() {
               } here for your family today. The rest arrive as the arrangement goes on — we will add them without you having to ask.`
             : "They appear here the moment they are ready. If you need something now, call us and we will find it for you."
         }
+        chips={
+          documents.length > 0 ? (
+            <>
+              <PortalChip>
+                {documents.length === 1 ? "One paper" : `${countWord(documents.length)} papers`} ready
+              </PortalChip>
+              {waiting.length > 0 ? (
+                <PortalChip>
+                  {waiting.length === 1 ? "One paper" : `${countWord(waiting.length)} papers`} being
+                  checked
+                </PortalChip>
+              ) : null}
+            </>
+          ) : null
+        }
         actions={
           <>
             <PrimaryAction href="#papers" label="See your papers" />
@@ -57,7 +74,11 @@ export default async function ClientDocumentsPage() {
         }
       />
 
-      <Section id="papers" title="Your papers">
+      <Section
+        id="papers"
+        title="Your papers"
+        sub="Every paper your family holds, and what happens next with each one."
+      >
         {documents.length > 0 ? (
           <Rows>
             {documents.map((doc) => (
@@ -75,7 +96,7 @@ export default async function ClientDocumentsPage() {
             ))}
           </Rows>
         ) : (
-          <p className="fv-sec__sub">
+          <p className="ag-sub">
             Nothing has been issued yet. Call us if you need a paper today and we will find it for
             you.
           </p>

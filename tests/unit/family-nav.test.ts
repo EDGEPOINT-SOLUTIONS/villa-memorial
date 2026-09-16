@@ -2,12 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  AGENT_PORTAL_GROUPS,
   AGENT_PORTAL_NAV,
   asSingleGroup,
-  FAMILY_MORE_NAV,
+  FAMILY_PORTAL_GROUPS,
   FAMILY_PORTAL_NAV,
   FAMILY_PORTAL_TABS,
-  FAMILY_PRIMARY_NAV,
 } from "@/components/portal-nav";
 
 const APP = path.resolve(__dirname, "..", "..", "app");
@@ -22,34 +22,37 @@ function routeExists(to: string): boolean {
   return routeDirs.some((dir) => fs.existsSync(path.join(dir, "page.tsx")));
 }
 
-describe("family portal navigation (approved redesign)", () => {
-  it("puts six plain names in the bar, in the family's reading order", () => {
-    expect(FAMILY_PRIMARY_NAV.map((item) => item.label)).toEqual([
+describe("family portal navigation (one house style with the agent portal)", () => {
+  it("groups the family rail the way the agent rail is grouped", () => {
+    expect(FAMILY_PORTAL_GROUPS.map((group) => group.label)).toEqual([
+      "",
+      "The funeral",
+      "Money and your plan",
+      "Remembering",
+      "Help",
+      "Your account",
+    ]);
+    for (const group of FAMILY_PORTAL_GROUPS) {
+      expect(group.items.length).toBeGreaterThan(0);
+      for (const item of group.items) {
+        expect(item.label.length).toBeGreaterThan(1);
+        expect(item.to.startsWith("/client/")).toBe(true);
+      }
+    }
+    // The agent portal keeps its own groups untouched.
+    expect(AGENT_PORTAL_GROUPS.flatMap((group) => group.items)).toEqual(AGENT_PORTAL_NAV);
+  });
+
+  it("leads with the answer, the funeral, the money and the papers", () => {
+    expect(FAMILY_PORTAL_NAV.slice(0, 4).map((item) => item.label)).toEqual([
       "Home",
       "The funeral",
-      "Payments",
       "Papers",
-      "Remembering",
-      "Your details",
-    ]);
-  });
-
-  it("keeps every remaining page behind More, each with one plain line", () => {
-    expect(FAMILY_MORE_NAV.map((item) => item.label)).toEqual([
-      "Help and requests",
       "Ask for a visit",
-      "Your plan",
-      "Your lot",
-      "Family and access",
-      "What we tell you about",
-      "Privacy Center",
     ]);
-    for (const item of FAMILY_MORE_NAV) {
-      expect(item.detail.length, `${item.label} needs a plain line`).toBeGreaterThan(8);
-    }
   });
 
-  it("uses no staff nouns and no ledger words in the bar", () => {
+  it("uses no staff nouns and no ledger words in the rail", () => {
     const labels = FAMILY_PORTAL_NAV.map((item) => item.label).join(" ");
     expect(labels).not.toContain("Case");
     expect(labels).not.toContain("My Funeral");
@@ -58,12 +61,10 @@ describe("family portal navigation (approved redesign)", () => {
   });
 
   it("keeps the routes the app already serves", () => {
-    for (const item of FAMILY_PORTAL_NAV) {
-      expect(item.to.startsWith("/client/")).toBe(true);
-    }
     const routes = FAMILY_PORTAL_NAV.map((item) => item.to);
     expect(routes).toContain("/client/dashboard");
     expect(routes).toContain("/client/documents");
+    expect(routes).toContain("/client/family");
     expect(routes).toContain("/client/privacy");
   });
 

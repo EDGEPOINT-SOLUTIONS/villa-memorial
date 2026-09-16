@@ -6,6 +6,16 @@ states**, rebuilt presentation: one dominant answer per screen, plain words, big
 The captain approved this direction to be built exactly as drawn (Q6, relayed
 2026-09-16T16:05Z).
 
+**Presentation update — one house style (captain, 2026-09-17).** The family portal's chrome and
+page grammar were reworked onto the **agent portal house style**
+([`../agent-portal-design`](../agent-portal-design/README.md)): the same PortalFrame (grouped sky
+rail, phone tabs + drawer), the same hero/action-band/section/card/row/note grammar (the shared
+kit `components/portal/portal-ui.tsx`), and the same `ag-*` block in `styles/components.css`.
+Everything this document calls a family FEATURE is untouched: the plain words, the one-answer
+pages, the honest not-switched-on states, the office number on every screen, the device-local
+reading preferences and the family reading scale. See §11 for what changed and how it was
+verified.
+
 **Artifact:** [`family-portal-design.html`](./family-portal-design.html) — the Lavish review
 surface, also openable directly in a browser.
 **Sample pages:** [`page-01-signin.html`](./page-01-signin.html) … `page-10-papers-waiting.html` —
@@ -58,24 +68,29 @@ data is not exposed merely because a user can access the customer record.
 
 ## 3. Information architecture (routes unchanged)
 
-| Destination | Route | In the bar? |
-|---|---|---|
-| Home | `/client/dashboard` | desktop + phone |
-| The funeral | `/client/cases` | desktop + phone |
-| Payments | `/client/payments` | desktop + phone |
-| Papers | `/client/documents` | desktop + phone |
-| Remembering | `/client/memorials` | desktop |
-| Your details | `/client/profile` | desktop |
-| Help and requests | `/client/support` | More |
-| Ask for a visit | `/client/appointments` | More |
-| Your plan | `/client/plans` | More |
-| Your lot | `/client/property` | More |
-| Family and access | `/client/family` | More |
-| What we tell you about | `/client/notifications` | More |
-| Privacy Center | `/client/privacy` | More |
+The 2026-09-17 alignment presents these destinations in the agent portal's grouped rail (six
+groups, same pattern as `AGENT_PORTAL_GROUPS`); the family's words and the route list below are
+unchanged, and the phone bar stays `Home · Funeral · Payments · Papers · More` plus Call.
 
-Desktop: one bar — Home · The funeral · Payments · Papers · Remembering · Your details +
-**Call us**. Phone: **Home · Funeral · Payments · Papers · More** + Call us in the bar.
+| Destination | Route | Where |
+|---|---|---|
+| Home | `/client/dashboard` | rail + phone tab |
+| The funeral | `/client/cases` | rail + phone tab |
+| Payments | `/client/payments` | rail + phone tab |
+| Papers | `/client/documents` | rail + phone tab |
+| Remembering | `/client/memorials` | rail + drawer |
+| Your details | `/client/profile` | rail + drawer |
+| Help and requests | `/client/support` | rail + drawer |
+| Ask for a visit | `/client/appointments` | rail + drawer |
+| Your plan | `/client/plans` | rail + drawer |
+| Your lot | `/client/property` | rail + drawer |
+| Your family (Family Dashboard) | `/client/family` | rail + drawer |
+| What we tell you about | `/client/notifications` | rail + drawer |
+| Privacy Center | `/client/privacy` | rail + drawer |
+
+Desktop: one grouped rail (identical pattern to the agent portal). Phone:
+**Home · Funeral · Payments · Papers · More**, with every one of the destinations above in the
+More drawer and **Call** in the top bar.
 The five-step chain is the progress language: **1 Arrangement · 2 Viewing · 3 Funeral ·
 4 Burial · 5 Papers**, the current step filled and named (“· you are here”).
 
@@ -179,9 +194,43 @@ DPA retention schedule + DPO · which payment destinations may be published.
 
 | Design element | Code |
 |---|---|
-| Shell: bar, phone tabs, More sheet, footer | `components/family/family-frame.tsx`, `components/portal-nav.ts`, `app/(family)/client/layout.tsx` |
-| Answer · chain · schedule · rows · money · note · planned page | `components/family/family-ui.tsx` |
-| The `fv-*` grammar (type scale, taps, sky tokens, phone rules) | `styles/components.css`, block “Family portal (client)” |
+| Shell: grouped rail, phone tabs, drawer, household + office help block, phone Call | `app/(family)/client/layout.tsx` + `components/portal-frame.tsx` (the same frame as the agent portal) |
+| Shared portal kit: hero, action band, sections, cards, rows, figures, progress, calm note | `components/portal/portal-ui.tsx` (renders the `ag-*` grammar) |
+| Family blocks: answer, chain, schedule, rows, money, planned page | `components/family/family-ui.tsx` |
+| Family-specific CSS: the reading scope, chain, schedule, reading switches, sign-in door | `styles/components.css`, block “Family portal (client) — one house style…” |
 | Reading preferences (`data-fv-reading`) | `components/family/family-reading-preferences.tsx` |
 | Family sign-in scope | `app/(signin)/client/layout.tsx`, `lib/sign-in.ts` |
+| PRD screen coverage (screen → route → state → module → missing) | `lib/family/portal-coverage.ts`, pinned by `tests/unit/family-prd-coverage.test.ts` |
 | Worker and sample pages | the ten `page-*.html` files beside this README |
+
+## 11. One house style (2026-09-17)
+
+**What changed.** The shell moved from the family-only top bar to the agent portal's
+`PortalFrame`: grouped sky rail with the family's own destinations, phone bottom tabs
+(`Home · Funeral · Payments · Papers · More`) and the drawer, the household name and office
+number in the sidebar help block, and a phone top-bar Call button. Every page now renders the
+shared kit: `.ag-hero` (eyebrow, one `<h1>`, lead, chips, action band), `.ag-sec` headings with
+`.ag-card` content, `.ag-*` rows/figures/progress, and the calm `.ag-note` for a service that is
+not switched on. `components/family/family-frame.tsx` and `family-signout.tsx` were removed
+(sign-out lives in the shared sidebar, as on the agent portal).
+
+**What did not change (the family features).** Same routes; same data rules (fixture-only
+snapshot, no invented figure, date, destination, retention or contact detail); the same plain
+words and honest states; the office number one tap away on every screen; the 18 px family reading
+scale and the device-local `Bigger writing · Stronger colours · Calmer page` switches, which now
+scale the shared kit through the `--text-*` tokens.
+
+**New coverage.** `lib/family/portal-coverage.ts` maps the PRD's 12 family screens
+(`docs/04-modules/screen-inventory.md`) plus the notifications and profile surfaces to their
+routes, state (built/partial/honest), owning PRD module and what is still missing.
+`/client/family` is now the **Family Dashboard** (household, holdings, who can see it) rather
+than only a family-and-access notice, so the PRD's “Family Dashboard” screen exists on the
+portal.
+
+**Verification (this change).** All 14 routes at 1440 × 900 and 390 × 844: one `<h1>` inside
+`.ag-hero`, the primary action before the first `.ag-sec`, no horizontal scroll, and the fact and
+the action both visible above the fold on 390 px. The family and agent dashboards, side by side:
+[`after/dashboards-side-by-side-desktop.png`](./after/dashboards-side-by-side-desktop.png),
+[`after/dashboards-side-by-side-phone.png`](./after/dashboards-side-by-side-phone.png). Pinned by
+`tests/unit/family-pages.test.tsx`, `family-portal-shell.test.tsx`, `portal-kit.test.tsx`,
+`family-nav.test.ts`, `family-prd-coverage.test.ts`.

@@ -1,13 +1,20 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { FamilyFrame } from "@/components/family/family-frame";
+import { Phone } from "lucide-react";
+import { PortalFrame } from "@/components/portal-frame";
+import { PortalPage } from "@/components/portal/portal-ui";
+import { FAMILY_PORTAL_GROUPS, FAMILY_PORTAL_TABS } from "@/components/portal-nav";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { familyHousehold } from "@/lib/family/family-view";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 /**
- * Family portal layout — the approved 2026-09-16 redesign: one plain top bar
- * with six names and the Call button, a single reading column, and five phone
- * tabs with More. Signed-out visitors get a slim brand bar; guarding happens
+ * Family portal layout — ONE HOUSE STYLE (captain, 2026-09-17): the same
+ * PortalFrame chrome as the agent portal (grouped sky rail, sky content, phone
+ * bottom tabs and drawer), carrying the family's own destinations and plain
+ * words. The Call button stays in the phone top bar, so a person is still one
+ * tap away on every screen; the sidebar help block names the household and the
+ * office line. Signed-out visitors get a slim brand bar; guarding happens
  * per-page via requirePortalSessionOrRedirect.
  */
 export default async function FamilyLayout({ children }: { children: React.ReactNode }) {
@@ -54,8 +61,33 @@ export default async function FamilyLayout({ children }: { children: React.React
   }
 
   return (
-    <FamilyFrame household={household} logoutTo="/client/login">
-      {children}
-    </FamilyFrame>
+    <PortalFrame
+      portal="family"
+      brandLabel="Family Portal"
+      email={email}
+      logoutTo="/client/login"
+      nav={FAMILY_PORTAL_GROUPS}
+      tabs={FAMILY_PORTAL_TABS}
+      headerAction={
+        <a className="portal-topbar__call" href={FAMILY_HELP.phoneHref}>
+          <Phone size={18} aria-hidden="true" />
+          <span>Call</span>
+        </a>
+      }
+      help={
+        <p className="portal-sidebar__help">
+          Looking after {household}
+          <br />
+          Call <strong>{FAMILY_HELP.phone}</strong>
+          <br />
+          <span>{FAMILY_HELP.hours}</span>
+        </p>
+      }
+    >
+      {/* The family reading scope: same kit, the family's own text scale. */}
+      <div className="fv-body">
+        <PortalPage>{children}</PortalPage>
+      </div>
+    </PortalFrame>
   );
 }

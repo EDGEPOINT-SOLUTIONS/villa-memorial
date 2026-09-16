@@ -393,6 +393,33 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
   in `tests/unit/park-3d-*`.
 
+## Family portal — one house style with the agent portal (read before touching `(family)/client/*`)
+
+- The family and agent portals render the SAME chrome and page grammar (captain, 2026-09-17):
+  both use `components/portal-frame.tsx`, the shared kit `components/portal/portal-ui.tsx`
+  (hero · action band · section · card · row · figure · progress · calm note), and the `ag-*`
+  block in `styles/components.css` — its sky theme scope covers `[data-portal="agent"]` and
+  `[data-portal="family"]`. The agent portal is the visual reference
+  (`docs/08-delivery/agent-portal-design`); the family-only frame/bar was deleted, so never
+  reintroduce a second family shell. Nav groups/tabs: `components/portal-nav.ts`
+  (`FAMILY_PORTAL_GROUPS`, `FAMILY_PORTAL_TABS`); the phone top bar keeps the Call button.
+- Family FEATURES stay family-owned in `components/family/family-ui.tsx` (answer, five-step
+  chain, schedule, planned/honest page): the plain words, the honest not-switched-on states,
+  the office number on every screen, the 18 px family reading scale (`.fv-body` overrides the
+  `--text-*` tokens inside the kit) and the device-local reading switches
+  (`data-fv-reading` large/contrast/calm, `components/family/family-reading-preferences.tsx`).
+- `lib/family/portal-coverage.ts` maps every PRD family screen (screen-inventory §Customer/family
+  portal + notifications/profile) to route → built/partial/honest → PRD module → what is
+  missing; `tests/unit/family-prd-coverage.test.ts` pins it and `family-nav.test.ts` pins the
+  rail. `/client/family` is the Family Dashboard. When a contract lands, change the page and
+  the coverage row together.
+- Data: `lib/api-client/family.ts` is PROVISIONAL fixture-only (no frozen family API
+  contract); `lib/family/contact.ts` holds the client's numbers. Never invent a figure, date,
+  payment destination or contact detail. Tests: `family-pages`, `family-portal-shell`,
+  `portal-kit`, `family-nav`, `family-prd-coverage`, `family-ui`, `family-calm-state`,
+  `family-view`; `docs/08-delivery/family-portal-design` §11 records the alignment and its
+  side-by-side verification.
+
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
 - Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed

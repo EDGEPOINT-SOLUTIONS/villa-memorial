@@ -3,13 +3,10 @@
  * AGENT_NAV order and labels. Icons are resolved by key inside the client
  * frame (lucide), keeping this file renderer-agnostic.
  *
- * FAMILY (approved redesign, 2026-09-16 — docs/08-delivery/family-portal-design):
- * the shipped 14-link grouped rail was replaced by six plain names in one bar
- * plus five phone tabs. Routes are unchanged; only the presentation names and
- * the order changed. The labels are the family's words:
- *   Home · The funeral · Payments · Papers · Remembering · Your details
- * Everything else (plans, property, family access, notifications, privacy) is
- * one level down in the More list — still reachable, no longer equal weight.
+ * ONE HOUSE STYLE (captain, 2026-09-17): the family portal now uses the same
+ * grouped rail as the agent portal (components/portal-frame.tsx). The family
+ * keeps its own plain words and its own destinations — routes are unchanged —
+ * but the navigation pattern, order and grouping are the agent portal's.
  *
  * `FAMILY_PORTAL_NAV` stays exported as the complete route list so route and
  * test consumers keep working.
@@ -26,36 +23,54 @@ export type PortalNavGroup = {
   items: PortalNavItem[];
 };
 
-/** An item in the phone/desktop “More” list, with one plain line about it. */
-export type FamilyMoreItem = PortalNavItem & { detail: string };
-
 /**
- * The six destinations in the top bar (desktop) — the things a family reaches
- * for while an arrangement is running. Order is deliberate: the answer, the
- * funeral, the money, the papers, the memory, then the account.
+ * The family rail, grouped the way the agent rail is (design §3 IA): the
+ * family's own plain words, in the family's reading order — the answer, the
+ * funeral, the money, the memory, the people, then help and the account.
  */
-export const FAMILY_PRIMARY_NAV: PortalNavItem[] = [
-  { key: "dashboard", label: "Home", to: "/client/dashboard" },
-  { key: "cases", label: "The funeral", to: "/client/cases" },
-  { key: "payments", label: "Payments", to: "/client/payments" },
-  { key: "documents", label: "Papers", to: "/client/documents" },
-  { key: "memorials", label: "Remembering", to: "/client/memorials" },
-  { key: "profile", label: "Your details", to: "/client/profile" },
-];
-
-/**
- * Behind “More” — every remaining family page, one plain row each. Help and
- * requests are here too; the Call button in the bar is the always-visible
- * human path, so help does not need its own tab.
- */
-export const FAMILY_MORE_NAV: FamilyMoreItem[] = [
-  { key: "support", label: "Help and requests", to: "/client/support", detail: "Call us, or ask us for something" },
-  { key: "appointments", label: "Ask for a visit", to: "/client/appointments", detail: "We can come to you" },
-  { key: "plans", label: "Your plan", to: "/client/plans", detail: "The plan your family holds" },
-  { key: "property", label: "Your lot", to: "/client/property", detail: "Your family's place at the park" },
-  { key: "family", label: "Family and access", to: "/client/family", detail: "Who can see this arrangement" },
-  { key: "notifications", label: "What we tell you about", to: "/client/notifications", detail: "Messages and reminders" },
-  { key: "privacy", label: "Privacy Center", to: "/client/privacy", detail: "What we hold, and who looked" },
+export const FAMILY_PORTAL_GROUPS: PortalNavGroup[] = [
+  {
+    label: "",
+    items: [{ key: "dashboard", label: "Home", to: "/client/dashboard" }],
+  },
+  {
+    label: "The funeral",
+    items: [
+      { key: "cases", label: "The funeral", to: "/client/cases" },
+      { key: "documents", label: "Papers", to: "/client/documents" },
+      { key: "appointments", label: "Ask for a visit", to: "/client/appointments" },
+    ],
+  },
+  {
+    label: "Money and your plan",
+    items: [
+      { key: "payments", label: "Payments", to: "/client/payments" },
+      { key: "plans", label: "Your plan", to: "/client/plans" },
+      { key: "property", label: "Your lot", to: "/client/property" },
+    ],
+  },
+  {
+    label: "Remembering",
+    items: [
+      { key: "memorials", label: "Remembering", to: "/client/memorials" },
+      { key: "family", label: "Your family", to: "/client/family" },
+    ],
+  },
+  {
+    label: "Help",
+    items: [
+      { key: "support", label: "Help and requests", to: "/client/support" },
+      { key: "requests", label: "Ask us for something", to: "/client/requests" },
+    ],
+  },
+  {
+    label: "Your account",
+    items: [
+      { key: "notifications", label: "What we tell you about", to: "/client/notifications" },
+      { key: "privacy", label: "Privacy Center", to: "/client/privacy" },
+      { key: "profile", label: "Your details", to: "/client/profile" },
+    ],
+  },
 ];
 
 /**
@@ -70,11 +85,10 @@ export const FAMILY_PORTAL_TABS = [
   { key: "more", label: "More", to: "", more: true },
 ] as const;
 
-/** Every family destination, bar + More, in reading order. */
-export const FAMILY_PORTAL_NAV: PortalNavItem[] = [
-  ...FAMILY_PRIMARY_NAV,
-  ...FAMILY_MORE_NAV.map(({ key, label, to }) => ({ key, label, to })),
-];
+/** Every family destination, in rail order. */
+export const FAMILY_PORTAL_NAV: PortalNavItem[] = FAMILY_PORTAL_GROUPS.flatMap(
+  (group) => group.items,
+);
 
 /**
  * The agent portal, grouped (design §"Information architecture"):

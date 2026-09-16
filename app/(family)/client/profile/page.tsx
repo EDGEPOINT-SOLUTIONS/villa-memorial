@@ -10,16 +10,17 @@ import {
   Rows,
   Section,
 } from "@/components/family/family-ui";
+import { PortalCard } from "@/components/portal/portal-ui";
 import { FamilyReadingPreferences } from "@/components/family/family-reading-preferences";
-import { FamilySignOut } from "@/components/family/family-signout";
 
 export const metadata = { title: "Your details — Villa Memorial" };
 
 /**
- * Your details — the approved redesign (docs/08-delivery/family-portal-design,
- * page 08). Real today: the account details the snapshot holds and the
- * device-local reading preferences — the one control that works right now and
- * serves the older reader.
+ * Your details — the family's profile screen, on the shared portal kit. Real
+ * today: the account details the snapshot holds and the device-local reading
+ * preferences — the one control that works right now and serves the older
+ * reader. Signing out lives in the sidebar (the same place as the agent
+ * portal's).
  */
 export default async function ClientProfilePage() {
   const session = await requirePortalSessionOrRedirect("family");
@@ -50,10 +51,12 @@ export default async function ClientProfilePage() {
         title="Make it easier to read"
         sub="These three settings work on this device, right away."
       >
-        <FamilyReadingPreferences />
+        <PortalCard>
+          <FamilyReadingPreferences />
+        </PortalCard>
       </Section>
 
-      <Section title="Your details">
+      <Section title="Your details" sub="Exactly as our office has them.">
         <Rows>
           <Row icon={<User size={22} aria-hidden="true" />} title="Name" meta={family.display_name} />
           <Row
@@ -67,7 +70,7 @@ export default async function ClientProfilePage() {
             meta={family.primary_contact}
           />
         </Rows>
-        <p className="fv-sec__sub mt-4">
+        <p className="ag-note">
           To change any of these, call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> or
           tell us at the office — it takes a minute.
         </p>
@@ -77,7 +80,7 @@ export default async function ClientProfilePage() {
         <Rows>
           <Row
             icon={<Users size={22} aria-hidden="true" />}
-            title="Family and access"
+            title="Your family"
             meta="Who in your family can see this arrangement"
             action={
               <QuietLink
@@ -112,10 +115,6 @@ export default async function ClientProfilePage() {
             }
           />
         </Rows>
-      </Section>
-
-      <Section>
-        <FamilySignOut to="/client/login" />
       </Section>
     </>
   );
