@@ -6,7 +6,7 @@ import {
 } from "@/lib/media";
 import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
 
-export const metadata = { title: "Services — Villa Memorial" };
+export const metadata = { title: "Funeraria Memorial Services — Villa Memorial" };
 
 /**
  * Static marketing content (Module C public face) plus the client's 2026 service
@@ -22,7 +22,7 @@ export default function ServicesPage() {
         <div className="hero-premium__grid">
           <div>
             <p className="eyebrow-label">What we help with</p>
-            <h1 className="hero-premium__title">Services</h1>
+            <h1 className="hero-premium__title">Funeraria Memorial Services</h1>
             <p className="hero-premium__lead">
               Compassionate guidance from the first call through the service itself.
             </p>
@@ -55,7 +55,7 @@ export default function ServicesPage() {
           package) and chapel use. Tables, not prose — see the source note below. */}
       <section className="stack-3" aria-labelledby="service-rates-title">
         <h2 className="section-title" id="service-rates-title">
-          Funeraria memorial services — the 2026 price list
+          The 2026 price list
         </h2>
         <p className="text-sm text-muted">
           Embalming priced per day (3–9 days, plus ₱1,500 for every day beyond nine),

@@ -10,8 +10,9 @@
 
 ## How to check (the plan)
 1. `cd web && npm run dev` (fixture mode — no env vars needed).
-2. Log in as each persona at `/login` (hints fill the email; password `Demo-Passw0rd!`):
-   admin (everything) · staff (operational) · customer (storefront/family).
+2. Log in as each persona at `/login` (hints fill the email; they fill the password too when
+   demo quick-fill is enabled — `DEMO_QUICK_FILL=1`, see `demo-script-cp1.md` — otherwise type
+   `Demo-Passw0rd!`): admin (everything) · staff (operational) · customer (storefront/family).
 3. Walk the tables below in order; for each route confirm the page renders and shows
    **real data, an honest empty state, or a "not wired yet" label** — never a broken page.
 4. Tick the box; a ❌ left over is a task card, not an accident.

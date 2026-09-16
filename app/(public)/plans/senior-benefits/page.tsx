@@ -16,9 +16,9 @@ export default function SeniorBenefitsPage() {
           A complete memorial plan for our elders — with free flowers and a complete
           memorial package.
         </p>
-        <nav aria-label="Back to plans" style={{ marginTop: "var(--space-3)" }}>
+        <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
-    ← Back to plans &amp; services (All · Packages · Services · Add-ons)
+    ← Back to Villa Memorial Plan (All · Packages · Services · Add-ons)
   </Link>
 </nav>
       </section>
@@ -38,7 +38,8 @@ export default function SeniorBenefitsPage() {
       <p className="text-sm text-muted">
         Compare with the <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>{" "}
         (ages 1–60) or browse <Link href="/products">coffin models with prices</Link>. The
-        full five-tier × four-term schedule is on <Link href="/plans">Plans &amp; services</Link>.
+        full five-tier × four-term schedule is on{" "}
+        <Link href="/plans">Villa Memorial Plan</Link>.
       </p>
     </div>
   );

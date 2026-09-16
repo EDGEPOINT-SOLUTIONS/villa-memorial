@@ -1,12 +1,17 @@
 import { SignInCard } from "@/components/sign-in-card";
+import { demoQuickFillPassword } from "@/lib/demo-quick-fill";
 
 export const metadata = { title: "Agent sign-in — Villa Memorial" };
+
+// Per-request: the DEMO_QUICK_FILL quick-fill switch is server-only runtime config.
+export const dynamic = "force-dynamic";
 
 export default function AgentLoginPage() {
   return (
     <SignInCard
       door="agent"
       fallbackDestination="/agent/dashboard"
+      quickFillPassword={demoQuickFillPassword()}
       personas={[{ email: "agent@vm.demo", display_name: "Alex Agent" }]}
     />
   );

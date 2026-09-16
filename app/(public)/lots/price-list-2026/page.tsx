@@ -50,7 +50,7 @@ export default function PriceList2026Page() {
         columns, reproduced exactly. Prices for coffins and services live on{" "}
         <Link href="/products">Coffins &amp; caskets</Link> and{" "}
         <Link href="/services">Services</Link>; the plan&rsquo;s own payment schedules are on{" "}
-        <Link href="/plans">Plans &amp; services</Link>.
+        <Link href="/plans">Villa Memorial Plan</Link>.
       </p>
 
       <p className="text-sm text-muted">

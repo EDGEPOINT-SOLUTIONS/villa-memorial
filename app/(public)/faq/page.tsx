@@ -27,7 +27,7 @@ export default function Page() {
           <p className="text-sm text-muted">The park map shows sections and availability. Staff can assist with reservations.</p></div></article>
       </div>
       
-      <nav className="page-links" aria-label="Next steps"><Link href="/plans">Browse plans &amp; services</Link><Link href="/map">Park map</Link><Link href="/contact">Contact us</Link></nav>
+      <nav className="page-links" aria-label="Next steps"><Link href="/plans">Villa Memorial Plan</Link><Link href="/map">Villa Memorial Park</Link><Link href="/contact">Contact us</Link></nav>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import "../globals.css";
 
 export const metadata: Metadata = {
-  title: "Villa Memorial — Plans & services",
+  title: "Villa Memorial",
 };
 
 // Chrome brand (wordmark + uploaded logo mark), the 24/7 line and the footer

@@ -64,6 +64,13 @@ docker compose up --build                            # SSR on :3000 against stub
 | Stub compose | `docker compose up --build` | Same fixtures served by `stub-gateway/` mirroring edge-gateway paths |
 | Live | `AUTH_BASE_URL=<gateway>` | BFF proxies `${AUTH_BASE_URL}/identity/api/v1/auth/*` |
 
+Demo one-click persona fill is a **server-side opt-in**: `DEMO_QUICK_FILL=1` (plus
+`DEMO_QUICK_FILL_PASSWORD` whenever `AUTH_BASE_URL` is set — the repo seed is never handed to a
+gateway) is resolved per request in `lib/demo-quick-fill.ts` and reaches the sign-in card as a
+prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the existing
+`NEXT_PUBLIC_DEMO_PASSWORD` path is local-dev only). Docs: README "Demo logins (fixture mode)",
+`docs/08-delivery/notes/known-limitations-cp1.md`.
+
 ## Landing page — content-model home (read before touching "/" or its admin)
 
 - The public home (app/page.tsx) is NOT hand-written JSX sections: it renders
@@ -107,8 +114,14 @@ docker compose up --build                            # SSR on :3000 against stub
   aria-current via usePathname + the live cart count in the same component.
   Never introduce a second public header/footer class set; if you must change
   the bar, change SiteHeaderBar + the "anchored catalogue home" CSS block and
-  it lands everywhere automatically. The rails hide their scrollbar until
-  hovered (.anchored-rail). Blog posts carry an optional `link` (set in the
+  it lands everywhere automatically. The three catalogue page names are the
+  captain's full forms — `/services` "Funeraria Memorial Services", `/plans`
+  "Villa Memorial Plan", `/map` "Villa Memorial Park" — in the bar, the mobile
+  flyout, the footer and the pages' own titles/h1s; don't shorten them. Because
+  those labels are wide, the CSS block tightens `.anchored-header__nav` chip
+  padding below 85rem so the phone chip and "Sign in" never wrap; keep both.
+  The rails hide their scrollbar until hovered (.anchored-rail). Blog posts
+  carry an optional `link` (set in the
   "/" editor) that makes the post's photos/caption navigate; seed posts ship
   sensible internal routes.
 
@@ -152,6 +165,21 @@ docker compose up --build                            # SSR on :3000 against stub
   (tier × term, regular + senior tables; 2026 sheet family captions live there too).
   The prototype wins over every older render.
 
+## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
+
+- The three routes render `components/public-forms/*` on the shared apply-form shell
+  (numbered `.capture-section` cards, `field-grid`, one `.capture-actions` bar); the
+  submit gate is one function per form in `lib/public-forms/validation.ts`. The shell
+  grammar carries no `*`/`(optional)` labels — optionality lives in field hints and
+  the gate. The appointment reason list there is PROVISIONAL: no shared taxonomy exists.
+- No crm-families / quotation / scheduling contract exists, so nothing is sent or
+  stored server-side. Quote and appointment confirmations must keep saying so
+  ("Request checked — nothing was sent."); contact captures land in the browser-local
+  demo store `lib/demo-inquiry-captures.ts`, which the staff inquiries board reads
+  after hydration (`app/(staff)/staff/inquiries/inquiry-board.tsx`). When a real write
+  contract lands, replace that store and the wording — never dress demo capture up as
+  delivery.
+
 ## 2026 price list — where every client figure surfaces
 
 - **One transcription home: `lib/villa-pricing.ts`.** Its header maps every export to
@@ -190,6 +218,7 @@ web/
 ├── lib/api-client/       # typed clients (generated from OpenAPI specs once published)
 ├── lib/fixtures/         # recorded contract fixtures; validated nightly vs specs
 ├── components/ui/        # design-system components — generic, zero domain vocabulary
+├── .agents/skills/       # vendored AWS agent-toolkit skills (skills-lock.json; `.claude/skills` symlinks) — not app code, excluded from lint
 └── styles/               # tokens.css is the single source of truth for visuals
 ```
 

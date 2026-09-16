@@ -5141,6 +5141,21 @@ a.card:hover {
   background: var(--color-bg-subtle);
 }
 
+/* The captain-approved page names (Funeraria Memorial Services · Villa
+   Memorial Plan · Villa Memorial Park) are much wider than the short labels
+   they replaced, so on the narrower desktop widths — above the 75rem mobile
+   switch, below the folio's full width — the bar takes its slack out of the
+   nav chips instead of letting the phone chip / “Sign in” wrap to two lines. */
+@media (max-width: 84.999rem) {
+  .anchored-header__nav {
+    gap: 0;
+  }
+
+  .anchored-header__nav a {
+    padding-inline: var(--space-2);
+  }
+}
+
 /* ---- three-column anchored grid ----
    Balanced anchored trio: symmetric FIXED-width rails (17rem each) flank a
    centred middle capped at 58rem (widened from 50rem). The grid uses justify-content:center so the

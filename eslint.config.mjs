@@ -19,6 +19,8 @@ const eslintConfig = [
       "stub-gateway/**",
       "legacy-mockup/**",
       "next-env.d.ts",
+      ".agents/**",
+      ".claude/**",
     ],
   },
 ];

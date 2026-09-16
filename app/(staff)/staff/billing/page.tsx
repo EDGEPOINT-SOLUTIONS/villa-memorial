@@ -65,6 +65,10 @@ export default async function BillingPage({
   const { status } = await searchParams;
   const statusFilter = (status ?? "").trim();
 
+  // Recording a payment is a write: the entry points appear only for sessions holding the
+  // frozen payments scope (billing:write), which the capture screen itself enforces.
+  const canRecordPayments = hasAnyScope(session.scopes, ["billing:write"]);
+
   let filtered = invoices;
   if (statusFilter) {
     filtered = filtered.filter((i) => i.status === statusFilter);
@@ -106,9 +110,16 @@ export default async function BillingPage({
         eyebrow="Finance"
         title="Billing & collections"
         actions={
-          <span className="text-sm text-muted">
-            {invoices.length} invoices
-          </span>
+          <>
+            <span className="text-sm text-muted">
+              {invoices.length} invoices
+            </span>
+            {canRecordPayments ? (
+              <Link href="/staff/billing/record-payment" className="btn btn--primary btn--sm">
+                Record payment
+              </Link>
+            ) : null}
+          </>
         }
       />
 
@@ -232,7 +243,19 @@ export default async function BillingPage({
               <tbody>
                 {filtered.map((inv) => (
                   <tr key={inv.id}>
-                    <td><code>{inv.invoice_number}</code></td>
+                    <td>
+                      {canRecordPayments ? (
+                        <Link
+                          href={`/staff/billing/record-payment?invoice=${encodeURIComponent(inv.invoice_number)}`}
+                          title={`Record a payment against ${inv.invoice_number}`}
+                          aria-label={`Record a payment against ${inv.invoice_number}`}
+                        >
+                          <code>{inv.invoice_number}</code>
+                        </Link>
+                      ) : (
+                        <code>{inv.invoice_number}</code>
+                      )}
+                    </td>
                     <td>{inv.customer_name}</td>
                     <td className="text-sm">{inv.order_number ?? "—"}</td>
                     <td className="text-sm">{formatMinorUnits(inv.total_cents, inv.currency)}</td>

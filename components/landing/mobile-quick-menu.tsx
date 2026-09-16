@@ -97,16 +97,16 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
                 Home
               </a>
               <a href="/services" onClick={() => setOpen(false)}>
-                Services
+                Funeraria Memorial Services
               </a>
               <a href="/plans" onClick={() => setOpen(false)}>
-                Plans
+                Villa Memorial Plan
               </a>
               <a href="/lots" onClick={() => setOpen(false)}>
                 Lots
               </a>
               <a href="/map" onClick={() => setOpen(false)}>
-                Park map
+                Villa Memorial Park
               </a>
               <a href="/contact" onClick={() => setOpen(false)}>
                 Contact

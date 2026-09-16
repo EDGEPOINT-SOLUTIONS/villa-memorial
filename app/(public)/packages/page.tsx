@@ -33,9 +33,9 @@ export default async function PackagesPage() {
           Complete arrangements at one clear price — so decisions stay calm when it
           matters most.
         </p>
-        <nav aria-label="Back to plans" style={{ marginTop: "var(--space-3)" }}>
+        <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
-    ← Back to plans &amp; services (All · Packages · Services · Add-ons)
+    ← Back to Villa Memorial Plan (All · Packages · Services · Add-ons)
   </Link>
 </nav>
       </section>

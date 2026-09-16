@@ -1,30 +1,33 @@
 import Link from "next/link";
-import { EmptyState } from "@/components/ui/empty-state";
+import { AppointmentForm } from "@/components/public-forms/appointment-form";
 
 export const metadata = { title: "Book an appointment — Villa Memorial" };
 
+/**
+ * Public appointment request (forms-UI report row 6 · D2 short measure). The
+ * form is a client component on the shared capture shell; the reason list is
+ * provisional (no shared taxonomy exists). No scheduling service exists and
+ * none is invented: a passed submission is confirmed as NOT sent.
+ */
 export default function Page() {
   return (
     <div className="stack-4">
-      <section className="hero-premium">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">Reach us</p>
-            <h1 className="hero-premium__title">Book an appointment</h1>
-            <p className="hero-premium__lead">Sit down with a coordinator at the park office — at a time that suits your family.</p>
-            <nav aria-label="Back" style={{ marginTop: "var(--space-4)" }}>
-              <Link href="/" className="back-link">← Back to home</Link>
-            </nav>
-          </div>
+      <div className="page-header">
+        <div>
+          <p className="page-header__eyebrow">Reach us</p>
+          <h1>Book an appointment</h1>
+          <p className="text-sm text-muted">
+            Sit down with a coordinator at the park office — at a time that suits
+            your family.
+          </p>
+          <nav aria-label="Back" style={{ marginTop: "var(--space-3)" }}>
+            <Link href="/" className="back-link">← Back to home</Link>
+          </nav>
         </div>
-      </section>
-      <EmptyState
-        title="Book an appointment — coming soon"
-        hint="online appointment booking arrives with the scheduling/family contracts"
-      />
-      <nav className="page-links" aria-label="While you wait">
-        <span className="text-sm text-muted">While you wait:</span> <Link href="/services">browse our services</Link>,{" "}
-        <Link href="/plans">view plans</Link>, or <Link href="/map">explore the park map</Link> · <Link href="/contact">Contact us</Link> · <Link href="/quote">Request a quote</Link></nav>
+      </div>
+      <div className="page-section" style={{ maxWidth: "46rem" }}>
+        <AppointmentForm />
+      </div>
     </div>
   );
 }

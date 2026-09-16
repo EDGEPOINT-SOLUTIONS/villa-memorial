@@ -23,9 +23,9 @@ export default function ProductsPage() {
           sophisticated Gold. Every 2026 model is listed below with its published price:
           the SRP, the senior-citizen discount and the discounted price.
         </p>
-        <nav aria-label="Back to plans" style={{ marginTop: "var(--space-3)" }}>
+        <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
   <Link href="/plans" className="back-link">
-    ← Back to plans &amp; services (All · Packages · Services · Add-ons)
+    ← Back to Villa Memorial Plan (All · Packages · Services · Add-ons)
   </Link>
 </nav>
       </section>
