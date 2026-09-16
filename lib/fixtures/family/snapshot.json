@@ -1,4 +1,9 @@
 {
+  "_provenance": {
+    "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
+    "recorded": "2026-09-16",
+    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree."
+  },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
   "family": {
     "display_name": "Cory Customer",
@@ -19,6 +24,11 @@
     "total": "₱42,000",
     "paid": "₱20,000",
     "remaining": "₱22,000"
+  },
+  "balance_cents": {
+    "total": 4200000,
+    "paid": 2000000,
+    "remaining": 2200000
   },
   "recent_documents": [
     { "title": "Service contract", "status": "Generated" },
