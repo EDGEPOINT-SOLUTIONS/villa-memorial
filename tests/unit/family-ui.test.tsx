@@ -34,7 +34,24 @@ describe("the family Answer (one dominant fact, one action)", () => {
     expect(html.match(/<h1/g)).toHaveLength(1);
     expect(html).toContain("₱22,000 is still to pay");
     expect(html).toContain("That is what is left of ₱42,000.");
-    expect(html.match(/class="fv-btn"/g)).toHaveLength(1);
+    expect(html.match(/btn--primary/g)).toHaveLength(1);
+    // The agent portal's own hero classes — one house style.
+    expect(html).toContain('class="ag-hero"');
+    expect(html).toContain('class="ag-hero__title"');
+  });
+
+  it("carries the facts as chips when the page has them", () => {
+    const html = render(
+      <Answer
+        kicker="Home"
+        headline="Nothing needs you today."
+        sub="All is well."
+        chips={<span className="ag-chip">Premium Lawn</span>}
+        actions={<PrimaryAction href="/client/documents" label="See your papers" />}
+      />,
+    );
+    expect(html).toContain('class="ag-hero__chips"');
+    expect(html).toContain("Premium Lawn");
   });
 
   it("keeps the human line off by default and shows the number when asked", () => {
@@ -107,15 +124,17 @@ describe("rows, money and notes", () => {
       </Rows>,
     );
     expect(html).toContain("Official receipt");
+    expect(html).toContain('class="ag-stage"');
     expect(html).toContain("Ready");
     expect(html).toContain("Ask for a copy");
+    expect(html).toContain("btn--secondary");
   });
 
-  it("makes waiting states use a clock, never a red hue alone", () => {
+  it("makes waiting states a warm chip, never a red hue alone", () => {
     const html = render(
       <Row title="LGU burial assistance form" state="Waiting on you" wait />,
     );
-    expect(html).toContain("fv-row__state--wait");
+    expect(html).toContain("ag-stage--warm");
     expect(html).toContain("Waiting on you");
   });
 
@@ -129,6 +148,7 @@ describe("rows, money and notes", () => {
     );
     expect(html).toContain("₱22,000 still to pay");
     expect(html).toContain("That is what is left of ₱42,000.");
+    expect(html).toContain('class="ag-money ag-money--hero"');
   });
 
   it("says the paid share in words as well as a bar", () => {
@@ -138,6 +158,7 @@ describe("rows, money and notes", () => {
     expect(html).toContain("₱20,000 paid");
     expect(html).toContain("almost half");
     expect(html).toContain('role="img"');
+    expect(html).toContain("ag-target__fill");
   });
 
   it("renders the honest note as calm prose, never an alert", () => {
@@ -148,7 +169,7 @@ describe("rows, money and notes", () => {
         </p>
       </Note>,
     );
-    expect(html).toContain("fv-note");
+    expect(html).toContain('class="ag-note"');
     expect(html).not.toContain("alert");
   });
 });
@@ -174,10 +195,12 @@ describe("a page whose service is not switched on", () => {
     expect(html).toContain("0917 617 8489");
   });
 
-  it("never dresses the honest state up as a feature grid of cards", () => {
+  it("uses the shared portal grammar, not a family-only shell", () => {
     const html = render(page);
     expect(html).not.toContain("fp-");
-    expect(html).not.toContain("card");
+    expect(html).toContain('class="ag-hero"');
+    expect(html).toContain('class="ag-sec"');
+    expect(html).toContain('class="ag-card"');
   });
 });
 

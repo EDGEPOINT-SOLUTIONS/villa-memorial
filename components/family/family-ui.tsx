@@ -1,6 +1,7 @@
 /**
- * Family-portal blocks — the approved 2026-09-16 redesign
- * (docs/08-delivery/family-portal-design).
+ * Family-portal blocks — the family's own features on the shared portal kit
+ * (components/portal/portal-ui.tsx, the same `ag-*` grammar the agent portal
+ * renders; captain's one-house-style call, 2026-09-17).
  *
  * ONE IDEA PER BLOCK, ONE PRIMARY ACTION PER SCREEN. The grammar:
  *   Answer   — the situation sentence + the one action (+ the human line)
@@ -10,12 +11,24 @@
  *   Note     — one calm sentence for the honest “not switched on yet” states
  *
  * Server-renderable and data-in/data-out; the pages pass the values they
- * actually hold and never invent a figure.
+ * actually hold and never invent a figure. The family's plain words, honest
+ * states and bigger reading scale are features and stay exactly as they read;
+ * only the presentation is the shared house style now.
  */
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, Clock, Phone } from "lucide-react";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import {
+  PortalActionBand,
+  PortalCard,
+  PortalHero,
+  PortalNote,
+  PortalProgress,
+  PortalRow,
+  PortalRows,
+  PortalSection,
+} from "@/components/portal/portal-ui";
 
 /* ------------------------------------------------------------- the answer --- */
 
@@ -24,28 +37,26 @@ export function Answer({
   headline,
   sub,
   actions,
+  chips,
   help = false,
 }: {
   /** Small calm line above the headline, e.g. “Today” or a page name. */
-  kicker: string;
-  headline: string;
+  kicker: ReactNode;
+  headline: ReactNode;
   /** One short supporting line — what the headline means. */
   sub: ReactNode;
   /** One primary action; a quiet second action at most. */
   actions: ReactNode;
+  /** Optional facts that carry their meaning (a plan name, a next date). */
+  chips?: ReactNode;
   /** The human path under the buttons; only the Help page turns it on. */
   help?: boolean;
 }) {
   return (
-    <section className="fv-answer" aria-labelledby="fv-answer-h">
-      <p className="fv-answer__kicker">{kicker}</p>
-      <h1 className="fv-answer__h" id="fv-answer-h">
-        {headline}
-      </h1>
-      <p className="fv-answer__sub">{sub}</p>
-      <div className="fv-answer__actions">{actions}</div>
+    <PortalHero eyebrow={kicker} title={headline} lead={sub} chips={chips}>
+      <PortalActionBand>{actions}</PortalActionBand>
       {help ? <HelpLine /> : null}
-    </section>
+    </PortalHero>
   );
 }
 
@@ -102,28 +113,36 @@ export function Chain({ current }: { current?: number }) {
 export function Section({
   title,
   sub,
+  more,
   children,
   id,
 }: {
   /** Omitted only for a trailing bare block (e.g. the sign-out action). */
   title?: string;
-  sub?: string;
+  sub?: ReactNode;
+  more?: ReactNode;
   children: ReactNode;
   id?: string;
 }) {
+  if (!title) {
+    return (
+      <section className="ag-sec" id={id}>
+        {sub ? <p className="ag-sub">{sub}</p> : null}
+        {children}
+      </section>
+    );
+  }
   return (
-    <section className="fv-sec" id={id}>
-      {title ? <h2 className="fv-sec__h">{title}</h2> : null}
-      {sub ? <p className="fv-sec__sub">{sub}</p> : null}
+    <PortalSection title={title} sub={sub} more={more} id={id}>
       {children}
-    </section>
+    </PortalSection>
   );
 }
 
 /* ------------------------------------------------------------- plain rows --- */
 
 export function Rows({ children }: { children: ReactNode }) {
-  return <ul className="fv-rows">{children}</ul>;
+  return <PortalRows>{children}</PortalRows>;
 }
 
 export function Row({
@@ -135,33 +154,29 @@ export function Row({
   action,
 }: {
   icon?: ReactNode;
-  title: string;
-  meta?: string;
+  title: ReactNode;
+  meta?: ReactNode;
   /** One plain word, e.g. “Ready” — never a colour code. */
-  state?: string;
-  /** Waiting-on-you states use a clock glyph, not a different hue alone. */
+  state?: ReactNode;
+  /** Waiting-on-you states use the warm chip and a clock glyph, not a red alarm. */
   wait?: boolean;
   action?: ReactNode;
 }) {
   return (
-    <li className="fv-row">
-      {icon ? (
-        <span className="fv-row__icon" aria-hidden="true">
-          {icon}
-        </span>
-      ) : null}
-      <span className="fv-row__body">
-        <span className="fv-row__title">{title}</span>
-        {meta ? <span className="fv-row__meta">{meta}</span> : null}
-      </span>
-      {state ? (
-        <span className={wait ? "fv-row__state fv-row__state--wait" : "fv-row__state"}>
-          {wait ? <Clock size={18} aria-hidden="true" /> : <Check size={18} aria-hidden="true" />}
-          {state}
-        </span>
-      ) : null}
-      {action ? <span className="fv-row__action">{action}</span> : null}
-    </li>
+    <PortalRow
+      icon={
+        wait && !icon ? (
+          <Clock size={20} aria-hidden="true" />
+        ) : (
+          icon
+        )
+      }
+      title={title}
+      meta={meta}
+      state={state}
+      wait={wait}
+      action={action}
+    />
   );
 }
 
@@ -177,7 +192,7 @@ export function PrimaryAction({
   icon?: ReactNode;
 }) {
   return (
-    <Link className="fv-btn" href={href}>
+    <Link className="btn btn--primary ag-btn-xl" href={href}>
       {icon}
       <span>{label}</span>
     </Link>
@@ -186,13 +201,14 @@ export function PrimaryAction({
 
 export function CallAction({ label, phoneHref = FAMILY_HELP.phoneHref }: { label: string; phoneHref?: string }) {
   return (
-    <a className="fv-btn" href={phoneHref}>
+    <a className="btn btn--primary ag-btn-xl" href={phoneHref}>
       <Phone size={20} aria-hidden="true" />
       <span>{label}</span>
     </a>
   );
 }
 
+/** The quiet alternative in an action band — a real link, never a fake button. */
 export function QuietLink({
   href,
   label,
@@ -203,14 +219,14 @@ export function QuietLink({
   icon?: ReactNode;
 }) {
   return (
-    <Link className="fv-quietlink" href={href}>
+    <Link className="btn btn--ghost" href={href}>
       {icon}
       <span>{label}</span>
     </Link>
   );
 }
 
-/** The quiet button used inside a money block — visible, never the headline. */
+/** The quiet button used inside a row — visible, never the headline. */
 export function QuietAction({
   href,
   label,
@@ -221,7 +237,7 @@ export function QuietAction({
   icon?: ReactNode;
 }) {
   return (
-    <Link className="fv-btn fv-btn--quiet" href={href}>
+    <Link className="btn btn--secondary" href={href}>
       {icon}
       <span>{label}</span>
     </Link>
@@ -267,14 +283,18 @@ export function Money({
   actions?: ReactNode;
 }) {
   return (
-    <div className="fv-money">
-      <p className="fv-money__fig">{figure}</p>
-      <p className="fv-money__mean">{meaning}</p>
-      {actions ? <div className="fv-money__actions">{actions}</div> : null}
+    <div className="ag-money ag-money--hero">
+      <p className="ag-money__value">{figure}</p>
+      <p className="ag-money__note">{meaning}</p>
+      {actions ? <div className="ag-action__buttons fv-money__actions">{actions}</div> : null}
     </div>
   );
 }
 
+/**
+ * The paid share — a bar that supports the sentence, never replaces it.
+ * Rendered as the house card so it sits beside the rest of the page.
+ */
 export function PaidSoFar({
   paid,
   total,
@@ -288,22 +308,32 @@ export function PaidSoFar({
   /** 0–100 from integer minor units; omitted when the fixture has none. */
   percent?: number;
 }) {
-  return (
-    <div className="fv-paid">
-      <strong>{paid} paid</strong>
-      {typeof percent === "number" ? (
-        <span
-          className="fv-paid__bar"
-          role="img"
-          aria-label={`${paid} of ${total} paid — ${words}`}
-        >
-          <span className="fv-paid__fill" style={{ width: `${Math.max(0, Math.min(100, percent))}%` }} />
+  const progress =
+    typeof percent === "number" ? (
+      <PortalProgress
+        left={
+          <>
+            <strong>{paid} paid</strong>
+          </>
+        }
+        right={`${total} in all · ${words}`}
+        percent={percent}
+        ariaLabel={`${paid} of ${total} paid — ${words}`}
+      />
+    ) : (
+      <div className="ag-target__legend">
+        <span>
+          <strong>{paid} paid</strong>
         </span>
-      ) : null}
-      <span>
-        {total} in all{percent === undefined ? "" : ` · ${words}`}
-      </span>
-    </div>
+        <span>
+          {total} in all · {words}
+        </span>
+      </div>
+    );
+  return (
+    <PortalCard title="Paid so far">
+      {progress}
+    </PortalCard>
   );
 }
 
@@ -315,7 +345,7 @@ export function PaidSoFar({
  * phone number when calling is the way forward.
  */
 export function Note({ children }: { children: ReactNode }) {
-  return <section className="fv-note">{children}</section>;
+  return <PortalNote>{children}</PortalNote>;
 }
 
 /** The full honest answer for a page whose service is not switched on yet. */

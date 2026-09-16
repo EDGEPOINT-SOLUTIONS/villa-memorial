@@ -2087,43 +2087,33 @@ input[type="checkbox"] {
 }
 
 /* ---------------------------------------------------------------------------
- * Family portal (client) — approved redesign, 2026-09-16
- * Source: docs/08-delivery/family-portal-design (Lavish review artifact).
+ * Family portal (client) — one house style with the agent portal, 2026-09-17
+ * Source: docs/08-delivery/family-portal-design (the family's own features,
+ * plain words, honest states and reading preferences are unchanged). The
+ * presentation is now the shared portal kit: components/portal/portal-ui.tsx
+ * renders the same `ag-*` grammar the agent portal renders, the family rail is
+ * the same PortalFrame, and the sky theme scope above covers both portals.
  *
- * ONE GRAMMAR: an Answer (the situation sentence + one action), plain rows, a
- * five-word chain, one calm honest note. The phone is the first device: one
- * reading column, five bottom tabs, everything reachable at 390 px.
- * Brand rule (captain, 2026-09-16): sky blue surfaces — the navy ladder stays
- * the ink. Every value below is a token from tokens.css; type never drops
- * below 15 px for navigation labels and 17 px for words that carry meaning.
+ * This block carries only what is the FAMILY'S OWN: the reading scope (the
+ * family reads a step larger, and the device-local reading modes scale it
+ * further), the five-step chain, the schedule list, the reading-preference
+ * switches, the phone Call button and the family sign-in door.
  * ------------------------------------------------------------------------- */
 
-/* --- the family shell ------------------------------------------------------- */
+/* --- the family reading scope ------------------------------------------------ */
 .fv-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  font-size: 1.125rem; /* 18px body */
-  line-height: 1.62;
-  color: var(--navy-700);
-  background: var(--color-bg-page);
+  /* Same kit, one comfortable step larger for older eyes. Every `ag-*`
+     element inside inherits these text tokens. */
+  --text-xs: 0.875rem;   /* 14px — labels and eyebrows */
+  --text-sm: 0.9375rem;  /* 15px — supporting lines */
+  --text-md: 1.0625rem;  /* 17px — row text and leads */
+  --text-base: 1.125rem; /* 18px — body */
+  --text-lg: 1.25rem;    /* 20px — card and row titles */
+  --text-xl: 1.5rem;     /* 24px — section headings */
 
-  /* one reading column, phone and desktop alike */
-  --fv-body: 1.125rem;
-  --fv-small: 1.0625rem; /* 17px — the smallest text that carries meaning */
-  --fv-lead: 1.25rem;
-  --fv-h1: clamp(1.875rem, 1.1rem + 3.2vw, 2.75rem);
-  --fv-h2: 1.375rem;
-  --fv-number: clamp(2rem, 1.2rem + 3.4vw, 2.75rem);
-  --fv-tap: 3.25rem;
-
-  --fv-ink: var(--navy-900);
-  --fv-ink-2: var(--navy-700);
-  --fv-quiet: var(--navy-600);
-  --fv-wash: var(--sky-50);
-  --fv-wash-2: var(--sky-100);
-  --fv-line: var(--sky-200);
-  --fv-line-2: var(--sky-300);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  color: var(--color-text-primary);
 }
 
 .fv-body :focus-visible {
@@ -2141,7 +2131,7 @@ input[type="checkbox"] {
 }
 
 .fv-body strong {
-  color: var(--fv-ink);
+  color: var(--color-figure);
 }
 
 :where(.fv-body) a {
@@ -2150,287 +2140,26 @@ input[type="checkbox"] {
   text-decoration-thickness: 0.06em;
 }
 
-.fv-skip {
-  position: absolute;
-  left: -9999px;
-  top: 0;
-  background: #fff;
-  padding: 0.75rem 1rem;
-  z-index: 100;
-}
-
-.fv-skip:focus {
-  left: 0.5rem;
-  top: 0.5rem;
-}
-
-.fv-wrap {
-  width: 100%;
-  max-width: 44rem;
-  margin-inline: auto;
-  padding-inline: var(--space-5);
-}
-
-.fv-main {
-  flex: 1 1 auto;
-  padding: 1.75rem 0 6.5rem;
-}
-
-@media (min-width: 64rem) {
-  .fv-main {
-    padding: 2.5rem 0 4rem;
-  }
-}
-
-/* --- top bar ---------------------------------------------------------------- */
-.fv-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: rgb(255 255 255 / 0.94);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--fv-line);
-}
-
-.fv-topbar__in {
-  max-width: 76rem;
-  margin-inline: auto;
-  padding: 0.6rem var(--space-5);
-  display: flex;
-  align-items: center;
-  gap: var(--space-5);
-  min-height: 4.25rem;
-}
-
-.fv-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: inherit;
-  min-width: 0;
-}
-
-.fv-brand__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 0.75rem;
-  background: var(--sky-700);
-  color: #fff;
-  font-family: var(--font-serif);
-  font-size: 1.25rem;
-  flex: none;
-}
-
-.fv-brand__text {
-  min-width: 0;
-}
-
-.fv-brand__name {
-  display: block;
-  font-weight: 700;
-  font-size: 1rem;
-  line-height: 1.2;
-  color: var(--fv-ink);
-  letter-spacing: 0.01em;
-}
-
-.fv-brand__who {
-  display: block;
-  font-size: var(--fv-small);
-  color: var(--fv-quiet);
-  line-height: 1.3;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.fv-nav {
-  display: flex;
-  flex: 1 1 auto;
-  justify-content: center;
-  gap: 0.25rem;
-}
-
-.fv-nav a {
-  display: inline-flex;
-  align-items: center;
+/* The family tap rule: every control is at least 44 px. */
+.fv-body .btn {
   min-height: 2.75rem;
-  padding: 0 0.9rem;
-  border-radius: 0.6rem;
-  font-size: 1.0625rem;
-  text-decoration: none;
-  color: var(--fv-ink-2);
-  white-space: nowrap;
 }
 
-.fv-nav a:hover {
-  background: var(--fv-wash);
-  color: var(--fv-ink);
+/* --- money actions ------------------------------------------------------------ */
+/* The figure block's actions (Money): the same row as the hero action band. */
+.fv-money__actions {
+  margin-top: var(--space-4);
 }
 
-.fv-nav a[aria-current="page"] {
-  background: var(--sky-100);
-  color: var(--sky-900);
-  font-weight: 650;
-}
-
-.fv-hero-call {
-  flex: none;
-}
-
-.fv-call {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: var(--fv-tap);
-  padding: 0 1.1rem;
-  border-radius: 0.7rem;
-  background: var(--sky-700);
-  color: #fff !important;
-  font-size: 1.0625rem;
-  font-weight: 650;
-  text-decoration: none;
-  white-space: nowrap;
-}
-
-.fv-call:hover {
-  background: var(--sky-800);
-}
-
-.fv-call svg {
-  flex: none;
-}
-
-/* --- the Answer ------------------------------------------------------------- */
-.fv-answer {
-  background: #fff;
-  border: 1px solid var(--fv-line);
-  border-radius: 1.1rem;
-  padding: 1.4rem 1.25rem 1.35rem;
-  box-shadow: var(--shadow-card);
-}
-
-@media (min-width: 48rem) {
-  .fv-answer {
-    padding: 2.1rem 2.25rem 2rem;
-  }
-}
-
-.fv-answer__kicker {
-  display: inline-block;
-  font-size: var(--fv-small);
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  color: var(--sky-800);
-  margin-bottom: 0.5rem;
-}
-
-.fv-answer__h {
-  font-family: var(--font-serif);
-  font-weight: 650;
-  font-size: var(--fv-h1);
-  line-height: 1.14;
-  color: var(--fv-ink);
-  letter-spacing: -0.005em;
-  margin: 0 0 0.7rem !important;
-}
-
-.fv-answer__sub {
-  font-size: var(--fv-lead);
-  line-height: 1.5;
-  color: var(--fv-ink-2);
-  max-width: 38rem;
-  margin: 0 0 1.1rem !important;
-}
-
-.fv-answer__sub strong {
-  font-weight: 650;
-}
-
-.fv-answer__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 1.1rem;
-  align-items: center;
-  margin-top: 1.15rem;
-}
-
-/* --- buttons ---------------------------------------------------------------- */
-.fv-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.6rem;
-  min-height: var(--fv-tap);
-  padding: 0.5rem 1.4rem;
-  border: 1.5px solid transparent;
-  border-radius: 0.7rem;
-  background: var(--sky-700);
-  color: #fff !important;
-  font: inherit;
-  font-size: 1.125rem;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.fv-btn:hover {
-  background: var(--sky-800);
-  color: #fff;
-}
-
-.fv-btn--quiet {
-  background: #fff;
-  color: var(--sky-800) !important;
-  border-color: var(--fv-line-2);
-}
-
-.fv-btn--quiet:hover {
-  background: var(--fv-wash);
-  color: var(--sky-900) !important;
-}
-
-.fv-btn--wide {
-  width: 100%;
-}
-
-.fv-quietlink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 2.75rem;
-  font-size: 1.0625rem;
-  font-weight: 600;
-  color: var(--sky-800);
-}
-
-button.fv-quietlink {
-  border: 0;
-  background: none;
-  font-family: inherit;
-  cursor: pointer;
-  padding: 0;
-}
-
-button.fv-quietlink:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
-/* --- the human line --------------------------------------------------------- */
+/* --- the human line ----------------------------------------------------------- */
 .fv-help {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  margin-top: 1.25rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--fv-line);
-  font-size: 1.0625rem;
-  color: var(--fv-ink-2);
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--sky-200);
+  color: var(--color-text-secondary);
   flex-wrap: wrap;
 }
 
@@ -2440,55 +2169,33 @@ button.fv-quietlink:disabled {
 }
 
 .fv-help a {
-  font-weight: 650;
-}
-
-/* --- sections --------------------------------------------------------------- */
-.fv-sec {
-  margin-top: 2.75rem;
-}
-
-.fv-sec__h {
-  font-family: var(--font-sans);
-  font-size: var(--fv-h2);
   font-weight: 700;
-  color: var(--fv-ink);
-  line-height: 1.25;
-  margin: 0 0 0.35rem !important;
 }
 
-.fv-sec__sub {
-  font-size: var(--fv-body);
-  color: var(--fv-quiet);
-  margin: 0 0 1rem !important;
-  max-width: 40rem;
-}
-
-/* --- the chain -------------------------------------------------------------- */
+/* --- the chain ---------------------------------------------------------------- */
 .fv-chain {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.4rem 0.5rem;
+  gap: var(--space-2);
   padding: 0;
-  margin: 0.9rem 0 0;
 }
 
 .fv-chain li {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.95rem;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
   border-radius: 999px;
-  border: 1.5px solid var(--fv-line);
-  background: #fff;
-  font-size: 1.0625rem;
-  color: var(--fv-quiet);
+  border: 1px solid var(--sky-200);
+  background: var(--color-bg-surface-raised);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 
 .fv-chain__done {
-  color: var(--fv-ink-2);
+  color: var(--color-text-primary);
 }
 
 .fv-chain__done svg {
@@ -2498,29 +2205,29 @@ button.fv-quietlink:disabled {
 .fv-chain__now {
   background: var(--sky-100);
   border-color: var(--sky-300);
-  color: var(--sky-900);
-  font-weight: 750;
+  color: var(--color-figure);
+  font-weight: 700;
 }
 
 .fv-chain__now small {
-  font-size: 0.9375rem;
+  font-size: var(--text-xs);
   font-weight: 700;
   color: var(--sky-800);
 }
 
-/* --- the schedule (day · what · where) -------------------------------------- */
+/* --- the schedule (day · what · where) ---------------------------------------- */
 .fv-when {
   list-style: none;
   padding: 0;
-  margin: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .fv-when li {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 0.15rem;
-  padding: 1rem 0 1.1rem;
-  border-bottom: 1px solid var(--fv-line);
+  gap: 2px;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--sky-100);
 }
 
 .fv-when li:last-child {
@@ -2528,418 +2235,58 @@ button.fv-quietlink:disabled {
 }
 
 .fv-when__day {
-  font-size: 1.0625rem;
-  font-weight: 750;
+  font-size: var(--text-sm);
+  font-weight: 700;
   color: var(--sky-800);
-  letter-spacing: 0.01em;
 }
 
 .fv-when__what {
-  font-size: 1.25rem;
-  font-weight: 650;
-  color: var(--fv-ink);
-  line-height: 1.3;
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--color-figure);
 }
 
 .fv-when__where {
-  font-size: var(--fv-small);
-  color: var(--fv-ink-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 
 .fv-when__now {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 1.0625rem;
-  font-weight: 650;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 700;
   color: var(--sky-800);
-  margin-top: 0.2rem;
 }
 
-/* --- plain rows ------------------------------------------------------------- */
-.fv-rows {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.fv-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--fv-line);
-}
-
-.fv-row:last-child {
-  border-bottom: 0;
-}
-
-.fv-row__icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 0.75rem;
-  background: var(--fv-wash-2);
-  color: var(--sky-800);
-  flex: none;
-}
-
-.fv-row__body {
-  flex: 1 1 14rem;
-  min-width: 0;
-}
-
-.fv-row__title {
-  display: block;
-  font-size: 1.125rem;
-  font-weight: 650;
-  color: var(--fv-ink);
-  line-height: 1.35;
-}
-
-.fv-row__meta {
-  display: block;
-  font-size: var(--fv-small);
-  color: var(--fv-quiet);
-}
-
-.fv-row__state {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 1.0625rem;
-  font-weight: 650;
-  color: var(--color-status-success-ink);
-  white-space: nowrap;
-}
-
-.fv-row__state--wait {
-  color: var(--color-status-warning-ink);
-}
-
-.fv-row__action {
-  flex: none;
-}
-
-/* --- money ------------------------------------------------------------------ */
-.fv-money {
-  margin-top: 1.5rem;
-}
-
-.fv-money__fig {
-  font-family: var(--font-serif);
-  font-size: var(--fv-number);
-  font-weight: 650;
-  color: var(--fv-ink);
-  line-height: 1.05;
-  font-variant-numeric: tabular-nums;
-}
-
-.fv-money__mean {
-  font-size: var(--fv-lead);
-  color: var(--fv-ink-2);
-  margin: 0.4rem 0 0 !important;
-}
-
-.fv-money__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem 1.1rem;
-  align-items: center;
-  margin-top: 1.1rem;
-}
-
-.fv-paid {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  font-size: var(--fv-body);
-  color: var(--fv-ink-2);
-  margin-top: 1.4rem;
-  flex-wrap: wrap;
-}
-
-.fv-paid__bar {
-  flex: 1 1 8rem;
-  height: 0.75rem;
-  border-radius: 999px;
-  background: var(--sky-100);
-  border: 1px solid var(--fv-line);
-  overflow: hidden;
-  align-self: center;
-}
-
-.fv-paid__fill {
-  display: block;
-  height: 100%;
-  background: var(--sky-500);
-}
-
-/* --- the honest note -------------------------------------------------------- */
-.fv-note {
-  margin-top: 1.5rem;
-  padding: 1.1rem 1.25rem;
-  border-radius: 0.9rem;
-  background: var(--marble-100);
-  color: var(--fv-ink-2);
-  font-size: var(--fv-small);
-}
-
-.fv-note strong {
-  color: var(--fv-ink);
-}
-
-.fv-note p + p {
-  margin-top: 0.5rem;
-}
-
-/* --- phone: one thumb, five tabs -------------------------------------------- */
-.fv-tabbar {
-  display: none;
-}
-
-@media (max-width: 63.99rem) {
-  .fv-nav {
-    display: none;
-  }
-
-  .fv-topbar__in {
-    padding: 0.5rem 1.25rem;
-    min-height: 3.75rem;
-    gap: 0.85rem;
-  }
-
-  .fv-brand__mark {
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.65rem;
-  }
-
-  .fv-call {
-    padding: 0 0.95rem;
-  }
-
-  .fv-wrap {
-    padding-inline: 1.25rem;
-  }
-
-  .fv-answer__actions .fv-btn {
-    width: 100%;
-  }
-
-  .fv-answer__actions {
-    gap: 0.55rem;
-  }
-
-  .fv-answer__actions .fv-quietlink {
-    justify-content: center;
-    width: 100%;
-    min-height: 2.75rem;
-  }
-
-  .fv-row__action {
-    width: 100%;
-  }
-
-  .fv-row__action .fv-btn {
-    width: 100%;
-  }
-
-  .fv-tabbar {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 50;
-    background: #fff;
-    border-top: 1px solid var(--fv-line);
-    padding-bottom: env(safe-area-inset-bottom, 0);
-  }
-
-  .fv-tabbar a,
-  .fv-tabbar button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.15rem;
-    min-height: 4rem;
-    padding: 0.45rem 0.15rem;
-    border: 0;
-    background: none;
-    font: inherit;
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--fv-quiet);
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .fv-tabbar a[aria-current="page"] {
-    color: var(--sky-900);
-    background: var(--sky-50);
-  }
-
-  .fv-tabbar svg {
-    width: 1.5rem;
-    height: 1.5rem;
-  }
-}
-
-/* --- More sheet (phone) ----------------------------------------------------- */
-.fv-more {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  background: rgb(13 41 66 / 0.32);
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-}
-
-.fv-more__bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1.25rem;
-  background: #fff;
-  border-bottom: 1px solid var(--fv-line);
-}
-
-.fv-more__title {
-  font-size: 1.125rem;
-  font-weight: 750;
-  color: var(--fv-ink);
-}
-
-.fv-more__close {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 0;
-  border-radius: 0.6rem;
-  background: var(--sky-50);
-  color: var(--sky-900);
-  cursor: pointer;
-}
-
-.fv-sheet {
-  background: #fff;
-  max-height: 76vh;
-  overflow-y: auto;
-  padding-bottom: env(safe-area-inset-bottom, 0);
-}
-
-.fv-sheet a,
-.fv-sheet .fv-quietlink--button {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  min-height: 3.75rem;
-  padding: 0.6rem 1.25rem;
-  border: 0;
-  border-bottom: 1px solid var(--fv-line);
-  background: none;
-  font-family: inherit;
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--fv-ink) !important;
-  text-decoration: none;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-}
-
-.fv-sheet a svg,
-.fv-sheet .fv-quietlink--button svg {
-  color: var(--sky-700);
-  flex: none;
-}
-
-.fv-sheet__text {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.fv-sheet__text strong {
-  font-weight: 650;
-}
-
-.fv-sheet a em {
-  font-style: normal;
-  color: var(--fv-quiet);
-  font-size: var(--fv-small);
-}
-
-/* --- footer ----------------------------------------------------------------- */
-.fv-foot {
-  padding: 1.5rem 0 2.5rem;
-  border-top: 1px solid var(--fv-line);
-  background: #fff;
-  color: var(--fv-quiet);
-  font-size: var(--fv-small);
-}
-
-@media (max-width: 63.99rem) {
-  .fv-foot {
-    padding-bottom: 6.5rem;
-  }
-}
-
-@media (min-width: 64rem) {
-  .fv-foot {
-    padding-bottom: 2.5rem;
-  }
-}
-
-.fv-foot__in {
-  max-width: 76rem;
-  margin-inline: auto;
-  padding-inline: var(--space-5);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.5rem;
-  align-items: center;
-}
-
-/* --- reading preferences (device-local switches) ----------------------------- */
+/* --- reading preferences (device-local switches) ------------------------------- */
 .fv-reader {
   display: grid;
-  gap: 0.75rem;
 }
 
 .fv-toggle-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--fv-line);
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--sky-100);
 }
 
 .fv-toggle-row:last-of-type {
   border-bottom: 0;
 }
 
-.fv-toggle-row__title {
-  font-size: 1.125rem;
-  font-weight: 650;
-  color: var(--fv-ink);
+.fv-body .fv-toggle-row__title {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--color-figure);
 }
 
-.fv-toggle-row__detail {
-  font-size: var(--fv-small);
-  color: var(--fv-ink-2);
-  margin-top: 0.15rem !important;
+.fv-body .fv-toggle-row__detail {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
 }
 
 .fv-toggle-row__body {
@@ -2951,7 +2298,7 @@ button.fv-quietlink:disabled {
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: var(--space-2);
   flex: none;
   min-height: 2.75rem;
   cursor: pointer;
@@ -2973,7 +2320,7 @@ button.fv-quietlink:disabled {
   height: 2rem;
   border-radius: 999px;
   background: var(--sky-100);
-  border: 1.5px solid var(--fv-line-2);
+  border: 1.5px solid var(--sky-300);
   flex: none;
 }
 
@@ -3007,35 +2354,51 @@ button.fv-quietlink:disabled {
 
 .fv-switch__state {
   min-width: 1.9rem;
-  font-size: var(--fv-small);
+  font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--fv-quiet);
+  color: var(--color-text-secondary);
 }
 
-/* --- device-local reading modes --------------------------------------------- */
+/* --- device-local reading modes ------------------------------------------------ */
 [data-fv-reading~="large"] .fv-body {
-  --fv-body: 1.3rem;
-  --fv-small: 1.25rem;
-  --fv-lead: 1.4rem;
-  --fv-h1: clamp(2.1rem, 1.3rem + 3.4vw, 3rem);
-  --fv-h2: 1.5rem;
-  --fv-number: clamp(2.25rem, 1.4rem + 3.6vw, 3rem);
+  --text-xs: 1rem;
+  --text-sm: 1.0625rem;
+  --text-md: 1.25rem;
+  --text-base: 1.3125rem;
+  --text-lg: 1.4375rem;
+  --text-xl: 1.75rem;
 }
 
 [data-fv-reading~="contrast"] .fv-body {
-  --fv-ink-2: var(--navy-950);
-  --fv-quiet: var(--navy-700);
-  --fv-line: var(--sky-300);
-  --fv-line-2: var(--sky-400);
-}
-
-[data-fv-reading~="contrast"] .fv-note {
-  background: var(--sky-50);
+  --color-text-secondary: var(--navy-950);
+  --color-text-muted: var(--navy-800);
+  --color-border: var(--sky-300);
+  --color-border-strong: var(--sky-400);
 }
 
 [data-fv-reading~="calm"] .fv-body * {
   transition-duration: 0.01ms !important;
   animation-duration: 0.01ms !important;
+}
+
+/* --- the phone Call button (family top bar) ------------------------------------ */
+.portal-topbar__call {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--sky-700);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.portal-topbar__call:hover {
+  background: var(--sky-800);
 }
 
 /* --- family sign-in (scoped; the staff and agent doors are untouched) -------- */
@@ -10496,113 +9859,142 @@ a.card:hover {
  * dominant hero + single action band, the priority work list, big quick
  * actions, figures, the commission shape, people, the agenda, pipeline
  * cards/lanes, lot availability, material tiles and the capture form.
+ *
+ * The FAMILY portal renders this same kit (components/portal/portal-ui.tsx,
+ * captain's one-house-style call 2026-09-17); its own reading scope and
+ * family-feature blocks live under “Family portal (client)” below.
  * ------------------------------------------------------------------------- */
 /* The foundation for this block is recorded in the design README. Namespaced
    `ag-*` so the shared kit stays free of agent-domain vocabulary. */
 /* --- Sky theme scope --------------------------------------------------------
-   Scoped to the agent PortalFrame so the staff/family chrome is untouched. */
-.portal-frame[data-portal="agent"] {
+   Scoped to the sky portals (agent + family) so the staff chrome is untouched.
+   The family portal carries the same treatment by design — the captain's
+   one-house-style call, 2026-09-17. */
+.portal-frame[data-portal="agent"],
+.portal-frame[data-portal="family"] {
   background: var(--sky-50);
 }
 
 /* Brand colour is the captain's SKY BLUE — light-sky brand surfaces carrying
    navy ink (the public site's own treatment), never a navy/dark-blue surface.
    The active rail item is a sky wash + a strong sky edge, so it stays AA. */
-.portal-frame[data-portal="agent"] .portal-sidebar {
+.portal-frame[data-portal="agent"] .portal-sidebar,
+.portal-frame[data-portal="family"] .portal-sidebar {
   background: linear-gradient(180deg, var(--sky-100) 0%, var(--sky-50) 100%);
   border-right: 1px solid var(--sky-200);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__brand {
+.portal-frame[data-portal="agent"] .portal-sidebar__brand,
+.portal-frame[data-portal="family"] .portal-sidebar__brand {
   color: var(--color-figure);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__brand-sub {
+.portal-frame[data-portal="agent"] .portal-sidebar__brand-sub,
+.portal-frame[data-portal="family"] .portal-sidebar__brand-sub {
   color: var(--sky-800);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__user {
+.portal-frame[data-portal="agent"] .portal-sidebar__user,
+.portal-frame[data-portal="family"] .portal-sidebar__user {
   color: var(--color-text-secondary);
 }
 
-.portal-frame[data-portal="agent"] .portal-nav__label {
+.portal-frame[data-portal="agent"] .portal-nav__label,
+.portal-frame[data-portal="family"] .portal-nav__label {
   color: var(--sky-800);
 }
 
-.portal-frame[data-portal="agent"] .portal-nav__item {
+.portal-frame[data-portal="agent"] .portal-nav__item,
+.portal-frame[data-portal="family"] .portal-nav__item {
   color: var(--color-text-secondary);
 }
 
-.portal-frame[data-portal="agent"] .portal-nav__item:hover {
+.portal-frame[data-portal="agent"] .portal-nav__item:hover,
+.portal-frame[data-portal="family"] .portal-nav__item:hover {
   background: var(--sky-100);
   color: var(--color-text-primary);
 }
 
 .portal-frame[data-portal="agent"] .portal-nav__item--active,
-.portal-frame[data-portal="agent"] .portal-nav__item--active:hover {
+.portal-frame[data-portal="family"] .portal-nav__item--active,
+.portal-frame[data-portal="agent"] .portal-nav__item--active:hover,
+.portal-frame[data-portal="family"] .portal-nav__item--active:hover {
   background: var(--sky-200);
   color: var(--color-figure);
   font-weight: 700;
   box-shadow: inset 3px 0 0 var(--sky-600);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__foot {
+.portal-frame[data-portal="agent"] .portal-sidebar__foot,
+.portal-frame[data-portal="family"] .portal-sidebar__foot {
   border-top-color: var(--sky-200);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__logout {
+.portal-frame[data-portal="agent"] .portal-sidebar__logout,
+.portal-frame[data-portal="family"] .portal-sidebar__logout {
   color: var(--color-text-secondary);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__logout:hover {
+.portal-frame[data-portal="agent"] .portal-sidebar__logout:hover,
+.portal-frame[data-portal="family"] .portal-sidebar__logout:hover {
   background: var(--sky-100);
   color: var(--color-text-primary);
 }
 
-.portal-frame[data-portal="agent"] .portal-switch--inverse a {
+.portal-frame[data-portal="agent"] .portal-switch--inverse a,
+.portal-frame[data-portal="family"] .portal-switch--inverse a {
   color: var(--sky-800);
 }
 
-.portal-frame[data-portal="agent"] .portal-switch--inverse a:hover {
+.portal-frame[data-portal="agent"] .portal-switch--inverse a:hover,
+.portal-frame[data-portal="family"] .portal-switch--inverse a:hover {
   background: var(--sky-100);
   color: var(--sky-900);
 }
 
-.portal-frame[data-portal="agent"] .portal-topbar {
+.portal-frame[data-portal="agent"] .portal-topbar,
+.portal-frame[data-portal="family"] .portal-topbar {
   background: var(--color-bg-surface);
   border-bottom: 1px solid var(--sky-200);
 }
 
-.portal-frame[data-portal="agent"] .portal-content {
+.portal-frame[data-portal="agent"] .portal-content,
+.portal-frame[data-portal="family"] .portal-content {
   background:
     radial-gradient(900px 320px at 88% -120px, var(--sky-100), transparent 62%),
     var(--sky-50);
 }
 
-.portal-frame[data-portal="agent"] .portal-content__inner {
+.portal-frame[data-portal="agent"] .portal-content__inner,
+.portal-frame[data-portal="family"] .portal-content__inner {
   max-width: 62rem;
 }
 
 /* The agent sidebar keeps the family scroll rule (grouped rail + pinned foot). */
-.portal-frame[data-portal="agent"] .portal-sidebar .portal-nav {
+.portal-frame[data-portal="agent"] .portal-sidebar .portal-nav,
+.portal-frame[data-portal="family"] .portal-sidebar .portal-nav {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__help {
+.portal-frame[data-portal="agent"] .portal-sidebar__help,
+.portal-frame[data-portal="family"] .portal-sidebar__help {
   background: var(--sky-50);
   border-color: var(--sky-200);
   color: var(--color-text-secondary);
 }
 
-.portal-frame[data-portal="agent"] .portal-sidebar__help strong { color: var(--color-figure); }
-.portal-frame[data-portal="agent"] .portal-sidebar__help span { color: var(--color-text-muted); }
+.portal-frame[data-portal="agent"] .portal-sidebar__help strong,
+.portal-frame[data-portal="family"] .portal-sidebar__help strong { color: var(--color-figure); }
+.portal-frame[data-portal="agent"] .portal-sidebar__help span,
+.portal-frame[data-portal="family"] .portal-sidebar__help span { color: var(--color-text-muted); }
 
 /* The shipped .portal-tabbar already carries the sky active state; the agent
    portal only adds the clearance so the fixed bar never covers content. */
 @media (max-width: 63.99rem) {
-  .portal-frame[data-portal="agent"] .portal-content {
+  .portal-frame[data-portal="agent"] .portal-content,
+  .portal-frame[data-portal="family"] .portal-content {
     padding-bottom: 6rem;
   }
 }

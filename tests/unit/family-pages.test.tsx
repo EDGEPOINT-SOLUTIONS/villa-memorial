@@ -3,13 +3,14 @@ import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react"
 import { renderToStaticMarkup } from "react-dom/server";
 
 /**
- * The at-a-glance contract, pinned on the REAL family pages.
+ * The shared-house contract, pinned on the REAL family pages.
  *
- * Every family screen must render exactly one `<h1>` (the one fact), one
- * primary action before the first content section, the office number one tap
- * away, and no old `fp-*` presentation classes. The pages are the real server
- * components; only the router, the session guard and the link element are
- * stubbed so they can render outside a request.
+ * Every family screen must render exactly one `<h1>` (the one fact) inside the
+ * shared hero the agent portal uses, one primary action before the first
+ * content section, the office number one tap away, and no old `fp-*`/family-only
+ * presentation classes. The pages are the real server components; only the
+ * router, the session guard and the link element are stubbed so they can render
+ * outside a request.
  */
 vi.mock("next/link", () => ({
   default: ({
@@ -47,7 +48,7 @@ const { default: VisitPage } = await import("@/app/(family)/client/appointments/
 const { default: RequestsPage } = await import("@/app/(family)/client/requests/page");
 const { default: NoticesPage } = await import("@/app/(family)/client/notifications/page");
 const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/page");
-const { default: AccessPage } = await import("@/app/(family)/client/family/page");
+const { default: FamilyDashboardPage } = await import("@/app/(family)/client/family/page");
 
 const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "Home", Page: HomePage, headline: "is still to pay" },
@@ -63,7 +64,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "Requests", Page: RequestsPage, headline: "Ask us for anything" },
   { name: "What we tell you about", Page: NoticesPage, headline: "Nothing has been sent" },
   { name: "Privacy Center", Page: PrivacyPage, headline: "shared unless you say so" },
-  { name: "Family and access", Page: AccessPage, headline: "one account signs in" },
+  { name: "Your family", Page: FamilyDashboardPage, headline: "everything your family holds" },
 ];
 
 async function render(page: PageComponent): Promise<string> {
@@ -71,19 +72,26 @@ async function render(page: PageComponent): Promise<string> {
 }
 
 describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline }) => {
-  it("renders one dominant headline that states the situation", async () => {
+  it("renders one dominant headline inside the shared hero", async () => {
     const html = await render(Page);
     const headings = html.match(/<h1[^>]*>(.*?)<\/h1>/g) ?? [];
     expect(headings, `${name} must have exactly one h1`).toHaveLength(1);
     expect(headings[0]).toContain(headline);
+    expect(html, `${name} must use the shared hero`).toContain('class="ag-hero"');
   });
 
   it("puts one primary action before any supporting section", async () => {
     const html = await render(Page);
-    const primary = html.indexOf('class="fv-btn"');
-    const firstSection = html.indexOf('class="fv-sec');
+    const primary = html.indexOf('class="btn btn--primary');
+    const firstSection = html.indexOf('class="ag-sec');
     expect(primary, `${name} needs a primary action`).toBeGreaterThan(-1);
     expect(primary, `${name}'s action must lead, not trail`).toBeLessThan(firstSection);
+  });
+
+  it("uses the shared portal grammar for its sections", async () => {
+    const html = await render(Page);
+    expect(html, `${name} must use the shared section grammar`).toContain('class="ag-sec"');
+    expect(html).toContain('class="ag-h2"');
   });
 
   it("keeps the office number one tap away", async () => {
@@ -91,9 +99,11 @@ describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline
     expect(html).toContain('href="tel:+639176178489"');
   });
 
-  it("carries no old fp-* presentation class", async () => {
+  it("carries no old fp-* presentation class and no parallel family shell", async () => {
     const html = await render(Page);
     expect(html).not.toMatch(/class="[^"]*\bfp-/);
+    expect(html).not.toContain("fv-topbar");
+    expect(html).not.toContain("fv-answer");
   });
 });
 
@@ -107,7 +117,6 @@ describe("the pages whose services are not switched on", () => {
       "Requests",
       "What we tell you about",
       "Privacy Center",
-      "Family and access",
     ].includes(page.name),
   );
 

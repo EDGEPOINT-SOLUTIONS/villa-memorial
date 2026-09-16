@@ -14,14 +14,15 @@ import {
   Rows,
   Section,
 } from "@/components/family/family-ui";
+import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Your plan — Villa Memorial" };
 
 /**
- * Your plan — the approved redesign (docs/08-delivery/family-portal-design).
- * Real today: the plan summary and the balance, straight from the family
- * snapshot. The instalment schedule and the plan certificate are not wired and
- * are named in one calm note, never faked.
+ * Your plan — the family's “My Plans” screen (PRD screen-inventory), on the
+ * shared portal kit. Real today: the plan summary and the balance, straight
+ * from the family snapshot. The instalment schedule and the plan certificate
+ * are not wired and are named in one calm note, never faked.
  */
 export default async function ClientPlansPage() {
   await requirePortalSessionOrRedirect("family");
@@ -44,6 +45,12 @@ export default async function ClientPlansPage() {
             : `${plan_summary.plan_name} is active. It is fully paid.`
         }
         sub={`Your family’s plan with Villa Memorial. The next date in your agreement is ${plan_summary.next_due}. If anything here looks wrong, call us and we will fix it.`}
+        chips={
+          <>
+            <PortalChip>{plan_summary.status}</PortalChip>
+            <PortalChip>Over {plan_summary.term}</PortalChip>
+          </>
+        }
         actions={
           <>
             <PrimaryAction
@@ -59,14 +66,12 @@ export default async function ClientPlansPage() {
         }
       />
 
-      <Section title="Paid so far">
-        <PaidSoFar
-          paid={balance.paid}
-          total={balance.total}
-          percent={percent ?? undefined}
-          words={percent === null ? "in all" : percentWords(percent)}
-        />
-      </Section>
+      <PaidSoFar
+        paid={balance.paid}
+        total={balance.total}
+        percent={percent ?? undefined}
+        words={percent === null ? "in all" : percentWords(percent)}
+      />
 
       <Section
         title="What your plan is for"

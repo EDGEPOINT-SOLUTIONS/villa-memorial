@@ -11,10 +11,12 @@
  * Optional additions for any portal:
  * - grouped sidebar navigation with plain-language headings;
  * - a phone bottom tab bar — pinned destinations plus More;
- * - a sidebar help block (e.g. a coordinator's number).
- * All three are opt-in through props. The family portal no longer uses this
- * frame — it has its own at-a-glance shell (components/family/family-frame.tsx,
- * docs/08-delivery/family-portal-design); this component is the agent portal's.
+ * - a sidebar help block (e.g. a coordinator's number);
+ * - one extra top-bar action on phones (the family portal's always-visible
+ *   Call button).
+ * All four are opt-in through props. Both signed-in portals use this frame —
+ * the agent portal and, since the captain's one-house-style call
+ * (2026-09-17), the family portal too — so the two read as one product.
  *
  * Signed-in children render in the content column; sign-out posts to the real
  * auth BFF. The PortalSwitch keeps the four surfaces connected (one product).
@@ -109,6 +111,7 @@ export function PortalFrame({
   logoutTo,
   nav,
   bell,
+  headerAction,
   tabs,
   help,
   children,
@@ -120,7 +123,9 @@ export function PortalFrame({
   /** Grouped navigation (a single unnamed group renders exactly as before). */
   nav: PortalNavGroup[];
   bell?: ReactNode;
-  /** Optional phone bottom bar (family portal). */
+  /** One extra control in the phone top bar (family: the office number). */
+  headerAction?: ReactNode;
+  /** Optional phone bottom bar (any portal that needs pinned destinations). */
   tabs?: readonly PortalTab[];
   /** Optional sidebar help block (family portal: the coordinator's number). */
   help?: ReactNode;
@@ -170,6 +175,7 @@ export function PortalFrame({
       <header className="portal-topbar">
         <div className="portal-topbar__brand">{brand}</div>
         <div className="row">
+          {headerAction}
           {bell}
           <button
             type="button"

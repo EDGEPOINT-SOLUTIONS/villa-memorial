@@ -14,9 +14,10 @@ import {
 export const metadata = { title: "Help — Villa Memorial" };
 
 /**
- * Help — the approved redesign (docs/08-delivery/family-portal-design,
- * page 07). This page is real today: the client's own numbers and places,
- * with the biggest button in the portal on the one action that always works.
+ * Help — the family's “Support/Ticket” screen (PRD screen-inventory), on the
+ * shared portal kit. This page is real today: the client's own numbers and
+ * places, with the biggest button in the portal on the one action that always
+ * works.
  */
 export default async function ClientSupportPage() {
   await requirePortalSessionOrRedirect("family");
@@ -75,7 +76,7 @@ export default async function ClientSupportPage() {
             meta={FAMILY_HELP.park}
           />
         </Rows>
-        <p className="mt-4">
+        <p>
           <QuietLink href="/map" label="Open the park map" />
         </p>
       </Section>

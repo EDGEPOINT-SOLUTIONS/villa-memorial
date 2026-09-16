@@ -101,7 +101,7 @@ export function FamilyReadingPreferences() {
           </label>
         </div>
       ))}
-      <p className="fv-note" style={{ marginTop: "1.25rem" }}>
+      <p className="ag-note">
         <strong>Saved on this device only</strong> — nothing is sent to us, and your phone&rsquo;s own
         accessibility settings always win.
       </p>
