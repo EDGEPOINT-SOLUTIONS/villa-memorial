@@ -14,6 +14,7 @@ import {
   CHAPEL_RATES,
   COFFIN_COVER_UNSTATED,
   COFFIN_TIER_NOTE,
+  EMBALMING_RATES,
   coffinCover,
   php,
 } from "@/lib/villa-pricing";
@@ -22,8 +23,8 @@ import {
   CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
   COFFIN_SAMPLE_PHOTOS,
-  SERVICE_CARRIAGE_IMAGE,
-  SERVICE_SAMPLE_NOTE,
+  DEATH_AT_HOME_IMAGE,
+  DEATH_AT_HOSPITAL_IMAGE,
   VIEWING_CARE_IMAGE,
   casketSamplePhoto,
 } from "@/lib/media";
@@ -84,7 +85,15 @@ function escapeRe(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-describe("/services reads as the premium service page", () => {
+/**
+ * The captain-approved 2026-09-16 services design (docs/08-delivery/services-design/).
+ * The assertions below pin the same intent the premium pass pinned — three priced
+ * sections, both actions per sellable line, the chapel photographs and their
+ * illustrative labels, the senior column and the booking step (never a straight
+ * chapel add) — against the approved DOM: .sv-section blocks, .sv-price-card
+ * cards, .sv-chapel cards, .sv-stay rows and the sticky .sv-subnav anchors.
+ */
+describe("/services reads as the approved senior-first service page", () => {
   let html: string;
 
   beforeAll(async () => {
@@ -92,19 +101,18 @@ describe("/services reads as the premium service page", () => {
   });
 
   it("groups the 2026 rates into the three priced sections", () => {
-    expect(html).toContain('id="at-need-title"');
-    expect(html).toContain("At-need services");
+    expect(html).toContain('id="services-rates-title"');
+    expect(html).toContain("Services and prices");
     expect(html).toContain('id="embalming-title"');
-    expect(html).toContain("Embalming — per day");
+    expect(html).toContain("Embalming — priced by the day");
     expect(html).toContain('id="chapel-title"');
-    expect(html).toContain("Chapel options");
-    // Each block is a .mid-section (the package page's premium section grammar).
-    expect((html.match(/class="mid-section"/g) ?? []).length).toBeGreaterThanOrEqual(3);
+    expect(html).toContain("Chapel — check the dates and book online");
+    // Each block is an .sv-section (the senior-first section grammar).
+    expect((html.match(/class="sv-section"/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 
   it("renders one icon card per at-need service with both actions", () => {
-    expect((html.match(/class="svc-card"/g) ?? []).length).toBe(ALACARTE_LINES.length);
-    expect((html.match(/class="svc-card__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
+    expect((html.match(/class="sv-price-card__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
       ALACARTE_LINES.length,
     );
     for (const line of ALACARTE_LINES) {
@@ -112,16 +120,15 @@ describe("/services reads as the premium service page", () => {
       expect(html, `${line.service} amount`).toContain(php(line.amount));
     }
     // The sheet's own bottom line stays published in its own band.
-    expect(html).toContain('class="svc-total"');
+    expect(html).toContain('class="sv-total"');
     expect(html).toContain(php(19500));
-    expect(html).toContain("request the whole set");
+    expect(html).toContain("send the whole set as one request");
   });
 
   it("gives the common and private chapel their own sample photograph", () => {
     expect(html).toContain(CHAPEL_COMMON_IMAGE);
     expect(html).toContain(CHAPEL_PRIVATE_IMAGE);
-    expect(html).toContain('class="chapel-grid"');
-    expect((html.match(/class="chapel-card"/g) ?? []).length).toBe(2);
+    expect((html.match(/class="sv-chapel"/g) ?? []).length).toBe(2);
     expect(html).toContain("Common chapel");
     expect(html).toContain("Private chapel");
     // The photographs carry descriptive alt text…
@@ -132,34 +139,76 @@ describe("/services reads as the premium service page", () => {
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("labels the at-need photographs as the client's own samples", () => {
-    expect(html).toContain(SERVICE_CARRIAGE_IMAGE);
+  it("labelled the two first-steps guide photographs as samples", () => {
+    expect(html).toContain(DEATH_AT_HOME_IMAGE);
+    expect(html).toContain(DEATH_AT_HOSPITAL_IMAGE);
     expect(html).toContain(VIEWING_CARE_IMAGE);
-    expect(html).toContain("Sample service");
-    expect(unescaped(html)).toContain(SERVICE_SAMPLE_NOTE);
+    expect(html).toContain("/services/death-at-home");
+    expect(html).toContain("/services/death-at-hospital");
     expect(html).toMatch(/sample viewing set-up from the client/);
   });
 
   it("keeps both chapel rates and their senior column on the schedule", () => {
     expect(html).toContain("3 days — regular");
     expect(html).toContain("3 days — senior citizen");
-    expect(html).toContain("Request this stay");
+    // Every 3–9 day stay publishes both columns in the .sv-stay rows.
+    expect((html.match(/Senior citizen/g) ?? []).length).toBeGreaterThanOrEqual(
+      CHAPEL_RATES.length * 2,
+    );
+    for (const r of CHAPEL_RATES) {
+      expect(html, `common stay ${r.days}`).toContain(php(r.common.regular));
+      expect(html, `common senior ${r.days}`).toContain(php(r.common.senior));
+      expect(html, `private stay ${r.days}`).toContain(php(r.private.regular));
+      expect(html, `private senior ${r.days}`).toContain(php(r.private.senior));
+    }
   });
 
-  it("still opens the chapel booking step instead of a straight add (main's booking intent)", () => {
-    // A chapel is never a one-click cart item: the cards' "Book these dates" and
-    // every 3–9 day row's "Book common/private N days" open the booking dialog.
-    expect(html).toContain("Book these dates");
+  it("opens the chapel booking step instead of a straight add (main's booking intent)", () => {
+    // A chapel is never a one-click cart item: the cards' "Check dates & price"
+    // and every 3–9 day row's "Book N days" open the booking dialog. The row's
+    // accessible name carries the chapel its group heading carries visually.
+    expect((html.match(/Check dates &amp; price/g) ?? []).length).toBe(2);
     for (const r of CHAPEL_RATES) {
-      expect(html, `common stay ${r.days}`).toContain(`Book common ${r.days} days`);
-      expect(html, `private stay ${r.days}`).toContain(`Book private ${r.days} days`);
+      expect(html, `stay ${r.days}`).toContain(`Book ${r.days} days`);
+      expect(html, `common aria ${r.days}`).toContain(
+        `aria-label="Book ${r.days} days — Common chapel"`,
+      );
+      expect(html, `private aria ${r.days}`).toContain(
+        `aria-label="Book ${r.days} days — Private chapel"`,
+      );
     }
     expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(
       2 + CHAPEL_RATES.length * 2,
     );
-    // No plain chapel add-to-cart survived the premium restyle.
+    // No plain chapel add-to-cart survived the senior-first redesign.
     expect(html).not.toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
     expect(html).not.toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
+  });
+
+  it("makes the 12,000 px page navigable: anchors, back-to-top and a call bar", () => {
+    expect(html).toContain('class="sv-subnav"');
+    expect(html).toContain("On this page");
+    for (const id of ["first-steps", "services", "embalming", "chapel", "sources"]) {
+      expect(html, `anchor ${id}`).toContain(`href="#${id}"`);
+    }
+    expect(html).toContain('href="#top"');
+    expect(html).toContain("Back to top");
+    // The 24/7 call stays one thumb away and leads the page.
+    expect(html).toContain('class="sv-call"');
+    expect(html).toMatch(/href="tel:\+639170001234"/);
+    expect(html).toContain('class="sv-callbar"');
+  });
+
+  it("prices embalming through the day picker and the full day rows", () => {
+    expect(html).toContain("How many days will the viewing be open?");
+    expect(html).toContain('class="sv-days"');
+    for (const r of EMBALMING_RATES) {
+      expect(html, `day button ${r.days}`).toContain(`>${r.days}</button>`);
+      expect(html, `day row ${r.days}`).toContain(`${r.days} days`);
+    }
+    // The full sheet stays published behind the disclosure, one row per stay.
+    expect(html).toContain('class="sv-stay"');
+    expect(html).toMatch(/More than 9/);
   });
 });
 

@@ -10007,3 +10007,1376 @@ a.card:hover {
     flex: 1;
   }
 }
+
+/* ===========================================================================
+ * Services page — the approved 2026-09-16 redesign ("sv-*" block)
+ *
+ * Contract: docs/08-delivery/services-design/ (the captain-approved artifact and
+ * the companion report). Senior-first: 18px body, 1.6+ line-height, no page text
+ * under 16px, >=48px buttons, prices always with their unit. Sky-blue theme:
+ * every brand surface here uses the --sky-* ladder with navy ink; the dark navy
+ * is ink and structure only. The chapel booking step keeps its own classes.
+ *
+ * Markers below are read by the docs build (docs/08-delivery/services-design/
+ * services-pages.css is generated from this block) — keep them.
+ * =========================================================================== */
+/* ============================================================================
+   services-pages.css — the PROPOSED services-page design block ("sv-*").
+   Loads AFTER the app's own tokens.css / base.css / components.css, exactly the
+   way a shipped implementation would add these rules to
+   styles/components.css. Every colour, size and space here resolves to a token
+   from styles/tokens.css — no raw hex, no invented figure.
+
+   Design contract (captain's brief, 2026-09-16):
+     · senior-first: 18 px body, 1.6-1.7 line-height, ≥48 px targets, no text
+       below 16 px anywhere, body contrast ≥ 7:1 (WCAG AAA) on the sky surfaces
+       where the palette allows;
+     · sky-blue theme (--sky-*), navy ink, gold reserved for the ceremonial
+       booking/confirmation accent (same grammar as the package page);
+     · prices always in one format: ₱X,XXX plus the unit in words;
+     · one plain-language "Need help? Call" path that never scrolls away.
+   ========================================================================== */
+
+/* --- Senior-first reading base -------------------------------------------- */
+.sv-page {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.65;
+  color: var(--navy-900);
+  background: var(--sky-50);
+}
+
+.sv-page p,
+.sv-page li,
+.sv-page dt,
+.sv-page dd,
+.sv-page td,
+.sv-page th,
+.sv-page figcaption {
+  font-size: 1.125rem;
+  line-height: 1.62;
+}
+
+/* Secondary copy stays 16px and uses navy-700 (9.6:1 on white) — never the
+   13px/5.2:1 muted grey the live page uses. */
+.sv-page .sv-note,
+.sv-page .sv-small {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--navy-700);
+}
+
+.sv-page h1 {
+  font-size: clamp(2.1rem, 4.6vw, 3rem);
+  line-height: 1.15;
+}
+
+.sv-page h2 {
+  font-size: clamp(1.7rem, 3.2vw, 2.25rem);
+  line-height: 1.2;
+}
+
+.sv-page h3 {
+  font-size: 1.375rem;
+  line-height: 1.25;
+}
+
+/* Buttons: min 48 px tall, 17px label, and full width where a card stacks. */
+.sv-page .btn {
+  min-height: 3rem;
+  padding: 0.7rem 1.25rem;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  gap: var(--space-2);
+}
+
+.sv-page .btn--sm {
+  min-height: 2.75rem;
+  font-size: 1rem;
+}
+
+.sv-page .btn--block {
+  width: 100%;
+}
+
+.sv-page .btn svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+/* Sheet tables keep their semantics; their type joins the senior scale. */
+.sv-page .table th,
+.sv-page .table td {
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  padding: var(--space-3) var(--space-4);
+}
+
+.sv-page .table thead th {
+  font-size: 1rem;
+  letter-spacing: 0;
+}
+
+.sv-main {
+  max-width: 76rem;
+  margin-inline: auto;
+  padding-block: var(--space-4) var(--space-7);
+}
+
+/* --- Breadcrumb ------------------------------------------------------------ */
+.sv-breadcrumb {
+  margin: var(--space-3) 0 var(--space-2);
+}
+
+.sv-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1rem;
+  color: var(--navy-700);
+}
+
+.sv-breadcrumb li + li::before {
+  content: "/";
+  margin-right: var(--space-2);
+  color: var(--navy-500);
+}
+
+.sv-breadcrumb a {
+  color: var(--sky-800);
+  font-weight: 600;
+}
+
+.sv-breadcrumb [aria-current="page"] {
+  color: var(--navy-900);
+  font-weight: 700;
+}
+
+/* --- Hero ------------------------------------------------------------------ */
+.sv-hero {
+  padding: var(--space-5) 0 var(--space-6);
+}
+
+.sv-hero__eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold-800); /* 9.9:1 on white — clears AAA at 16px */
+}
+
+.sv-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  align-items: center;
+}
+
+@media (max-width: 62rem) {
+  .sv-hero__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sv-hero__title {
+  margin: 0 0 var(--space-3);
+}
+
+.sv-hero__lead {
+  margin: 0 0 var(--space-4);
+  max-width: 38rem;
+  font-size: 1.25rem;
+  line-height: 1.55;
+  color: var(--navy-800);
+}
+
+.sv-hero__media {
+  margin: 0;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-hero__media img {
+  display: block;
+  width: 100%;
+  height: 20rem;
+  object-fit: cover;
+}
+
+@media (max-width: 62rem) {
+  .sv-hero__media img {
+    height: 16rem;
+  }
+}
+
+.sv-hero__media figcaption {
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
+  color: var(--navy-700);
+}
+
+/* --- The 24/7 call panel — the first thing a bereaved family needs --------- */
+.sv-call {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: center;
+  margin-top: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-call__title {
+  margin: 0 0 var(--space-1);
+  font-size: 1.3rem;
+}
+
+.sv-call__text {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+.sv-call__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.sv-call .btn--primary {
+  font-size: 1.25rem;
+  min-height: 3.5rem;
+  padding-inline: 1.75rem;
+}
+
+@media (max-width: 62rem) {
+  .sv-call {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-5);
+  }
+  .sv-call__actions .btn {
+    width: 100%;
+  }
+}
+
+/* --- "What to do first" three steps ---------------------------------------- */
+.sv-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: sv-step;
+}
+
+.sv-steps > li {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-steps > li::before {
+  counter-increment: sv-step;
+  content: counter(sv-step);
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: var(--sky-100);
+  border: 1px solid var(--sky-300);
+  color: var(--sky-800);
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.sv-steps h3 {
+  margin: 0;
+}
+
+.sv-steps p {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+@media (max-width: 62rem) {
+  .sv-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- Sticky "On this page" nav --------------------------------------------- */
+.sv-subnav {
+  position: sticky;
+  top: 4.25rem; /* the anchored header's own height */
+  z-index: 40;
+  margin: 0 calc(-1 * var(--space-5)) var(--space-5);
+  padding: var(--space-3) var(--space-5);
+  background: color-mix(in srgb, var(--color-bg-surface-raised) 94%, transparent);
+  border-block: 1px solid var(--sky-200);
+  backdrop-filter: blur(6px);
+}
+
+.sv-subnav__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 76rem;
+  margin-inline: auto;
+}
+
+.sv-subnav__label {
+  flex: none;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy-700);
+  margin-right: var(--space-2);
+}
+
+.sv-subnav ul {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sv-subnav ul::-webkit-scrollbar {
+  display: none;
+}
+
+.sv-subnav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--sky-200);
+  border-radius: 999px;
+  background: var(--sky-50);
+  color: var(--sky-900);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.sv-subnav a[aria-current="true"],
+.sv-subnav a:hover {
+  background: var(--sky-600);
+  border-color: var(--sky-700);
+  color: #ffffff;
+}
+
+.sv-subnav .sv-top {
+  margin-left: auto;
+  flex: none;
+}
+
+.sv-subnav .sv-top a {
+  background: transparent;
+  border-color: transparent;
+  color: var(--sky-800);
+  text-decoration: underline;
+}
+
+@media (max-width: 62rem) {
+  /* One compact row that scrolls; a wrapped three-row bar ate a third of the
+     phone screen. The last chip stays reachable by swiping. */
+  .sv-subnav ul {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(90deg, #000 92%, transparent);
+  }
+  .sv-subnav li {
+    scroll-snap-align: start;
+  }
+  .sv-subnav__label {
+    display: none;
+  }
+  .sv-subnav .sv-top {
+    display: none;
+  }
+  .sv-page [id] {
+    scroll-margin-top: 9.5rem;
+  }
+}
+
+/* Anchor offsets: a heading scrolled to must clear the sticky header + bar. */
+.sv-page [id] {
+  scroll-margin-top: 8rem;
+}
+
+@media (max-width: 62rem) {
+  .sv-page [id] {
+    scroll-margin-top: 9rem;
+  }
+}
+
+/* --- Section shell ---------------------------------------------------------- */
+.sv-section {
+  padding: var(--space-7) 0;
+  border-top: 1px solid var(--sky-200);
+}
+
+.sv-section__kicker {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--sky-800);
+}
+
+.sv-section__title {
+  margin: 0 0 var(--space-3);
+}
+
+.sv-section__intro {
+  max-width: 46rem;
+  margin: 0 0 var(--space-5);
+  color: var(--navy-800);
+}
+
+.sv-section--plain {
+  border-top: 1px solid var(--sky-200);
+}
+
+/* --- Price cards (at-need services) ---------------------------------------- */
+.sv-prices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 46rem) {
+  .sv-prices {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sv-price-card {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-price-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sv-price-card__icon {
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--gold-wash);
+  color: var(--gold-700);
+}
+
+.sv-price-card__icon svg {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.sv-price-card h3 {
+  margin: 0;
+  font-size: 1.45rem;
+}
+
+.sv-price-card__amount {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy-900);
+}
+
+.sv-price-card__unit {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--navy-700);
+}
+
+.sv-price-card__plain {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+.sv-price-card__actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* Explicit "these two buttons" legend — repeated once per section, not per
+   card, so nobody has to infer what the pair means. */
+.sv-howto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+  margin: 0 0 var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--sky-50);
+  font-size: 1rem;
+  color: var(--navy-800);
+}
+
+.sv-howto b {
+  color: var(--navy-900);
+}
+
+/* Total band */
+.sv-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3) var(--space-5);
+  margin-top: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--sky-100), var(--sky-200));
+}
+
+.sv-total__label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy-800);
+}
+
+.sv-total__amount {
+  font-family: var(--font-serif);
+  font-size: 2.25rem;
+  color: var(--navy-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-total p {
+  flex: 1 1 20rem;
+  margin: 0;
+  color: var(--navy-800);
+}
+
+.sv-aside {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.sv-helper {
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: var(--sky-100);
+  color: var(--navy-900);
+}
+
+.sv-helper p {
+  margin: 0;
+}
+
+.sv-page .alert {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.sv-page .empty-state__title {
+  font-size: 1.3rem;
+}
+
+.sv-page .empty-state__hint {
+  font-size: 1rem;
+}
+
+/* --- Two-column block (table/picker + client photo) ------------------------ */
+.sv-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(var(--space-4), 3vw, var(--space-6));
+  align-items: start;
+}
+
+@media (max-width: 62rem) {
+  .sv-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sv-figure {
+  margin: 0;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-figure img {
+  display: block;
+  width: 100%;
+  height: 16rem;
+  object-fit: cover;
+}
+
+.sv-figure figcaption {
+  padding: var(--space-3) var(--space-4);
+  font-size: 1rem;
+  color: var(--navy-700);
+}
+
+/* --- Stay chooser (embalming day picker) ----------------------------------- */
+.sv-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.sv-days button {
+  min-width: 4.5rem;
+  min-height: 3.25rem;
+  padding: 0 var(--space-4);
+  border: 2px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  color: var(--navy-900);
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.sv-days button[aria-pressed="true"] {
+  border-color: var(--sky-700);
+  background: var(--sky-600);
+  color: #ffffff;
+}
+
+.sv-picker {
+  padding: var(--space-5);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-picker__summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-2);
+}
+
+.sv-picker__amount {
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  color: var(--navy-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-picker__unit {
+  font-size: 1.125rem;
+  color: var(--navy-800);
+}
+
+.sv-picker__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+@media (max-width: 46rem) {
+  .sv-picker__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Full table behind a disclosure — the long-content case. */
+.sv-disclosure {
+  margin-top: var(--space-4);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+}
+
+.sv-disclosure > summary {
+  display: flex;
+  align-items: center;
+  min-height: 3.25rem;
+  padding: 0 var(--space-5);
+  cursor: pointer;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  color: var(--sky-800);
+}
+
+.sv-disclosure[open] > summary {
+  border-bottom: 1px solid var(--sky-200);
+}
+
+.sv-disclosure__body {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  overflow-x: auto;
+}
+
+/* --- Chapel cards ----------------------------------------------------------- */
+.sv-chapels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 62rem) {
+  .sv-chapels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sv-chapel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-chapel__media {
+  margin: 0;
+  border-bottom: 1px solid var(--sky-200);
+  background: var(--marble-100);
+}
+
+.sv-chapel__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.sv-chapel__body {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  flex: 1;
+  align-content: start;
+}
+
+.sv-chapel__name {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.sv-chapel__rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 2.4rem;
+  color: var(--navy-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-chapel__unit {
+  font-family: var(--font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--navy-800);
+}
+
+.sv-chapel__what {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+.sv-chapel__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.sv-chapel__facts > div {
+  padding: var(--space-3);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+}
+
+.sv-chapel__facts dt {
+  font-size: 1rem;
+  color: var(--navy-700);
+}
+
+.sv-chapel__facts dd {
+  margin: var(--space-1) 0 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-chapel__actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.sv-chapel__illus {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--navy-700);
+}
+
+/* "What does this chapel name mean" — the placeholder disclosure. */
+.sv-placeholder {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border: 1px dashed var(--amber-500);
+  border-radius: var(--radius-lg);
+  background: var(--amber-100);
+  color: var(--navy-900);
+  font-size: 1rem;
+}
+
+.sv-placeholder b {
+  color: var(--navy-900);
+}
+
+/* --- Per-stay schedule rows (the table, made senior-readable) -------------- */
+.sv-stays {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sv-stay {
+  display: grid;
+  grid-template-columns: minmax(7rem, auto) minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+}
+
+.sv-stay__days {
+  font-family: var(--font-serif);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  white-space: nowrap;
+}
+
+.sv-stay__prices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-stay__prices b {
+  font-size: 1.3rem;
+}
+
+.sv-stay__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+@media (max-width: 62rem) {
+  .sv-stay {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    padding: var(--space-4);
+  }
+  .sv-stay__prices {
+    gap: var(--space-1) var(--space-4);
+  }
+  .sv-stay__actions {
+    justify-content: stretch;
+  }
+  .sv-stay__actions .btn {
+    flex: 1 1 8rem;
+    min-height: 2.9rem;
+    white-space: nowrap;
+  }
+}
+
+.sv-senior {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  margin-top: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: var(--sky-100);
+  color: var(--navy-900);
+}
+
+.sv-senior svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  margin-top: 2px;
+  color: var(--gold-700);
+}
+
+.sv-senior p {
+  margin: 0;
+}
+
+/* --- States ----------------------------------------------------------------- */
+.sv-cartchip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--sage-500);
+  border-radius: var(--radius-md);
+  background: var(--sage-100);
+  color: var(--navy-900);
+  font-size: 1rem;
+}
+
+.sv-cartchip b {
+  color: var(--navy-900);
+}
+
+.sv-cardchip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: start;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--sage-500);
+  border-radius: 999px;
+  background: var(--sage-100);
+  color: var(--navy-900);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.sv-stateblock {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+}
+
+.sv-stateblock__label {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--sky-800);
+}
+
+.sv-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 62rem) {
+  .sv-state-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sv-skeleton {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-5) 0;
+}
+
+.sv-skeleton span {
+  display: block;
+  height: 1.5rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(90deg, var(--sky-100), var(--sky-200), var(--sky-100));
+  background-size: 200% 100%;
+  animation: sv-shimmer 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sv-skeleton span {
+    animation: none;
+  }
+}
+
+@keyframes sv-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* --- Booking step, in context ---------------------------------------------- */
+/* The live dialog (.booking-modal) is fixed; in the sample it is placed in
+   flow inside a stage so it can be reviewed next to the page it opens from. */
+.sv-booking-stage {
+  position: relative;
+  margin-top: var(--space-5);
+}
+
+.sv-booking-stage .booking-modal {
+  position: static;
+  display: block;
+  padding: 0;
+}
+
+.sv-booking-stage .booking-modal__backdrop {
+  display: none;
+}
+
+.sv-booking-stage .booking-modal__panel {
+  position: static;
+  width: 100%;
+  max-width: 46rem;
+  max-height: none;
+  margin-inline: auto;
+  box-shadow: var(--shadow-raised);
+}
+
+/* Senior-first type inside the booking step: 17px body, 16px minimum. */
+.sv-page .booking-step__title {
+  font-size: 1.3rem;
+}
+
+.sv-page .booking-step__blurb,
+.sv-page .booking-class__option span,
+.sv-page .booking-note,
+.sv-page .field__hint,
+.sv-page .booking-price__row dd span {
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.sv-page .booking-class__option strong {
+  font-size: 1.125rem;
+}
+
+.sv-page .booking-chapel__name strong {
+  font-size: 1.125rem;
+}
+
+.sv-page .booking-chip {
+  font-size: 0.95rem;
+}
+
+.sv-page .booking-range__day {
+  font-size: 1rem;
+}
+
+/* --- Help band + mobile call bar ------------------------------------------- */
+/* Captain's brand rule (2026-09-16): the public page paints the sky ladder
+   with navy ink, never a dark-navy band. The band matches the .sv-call panel:
+   light sky gradient, navy-900 text (16.8:1 on the sky-100 stop). */
+.sv-help {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  margin-top: var(--space-6);
+  padding: var(--space-6);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background-color: var(--sky-100); /* explicit fallback so contrast tools can read it */
+  background-image: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  color: var(--navy-900);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-help h2 {
+  margin: 0 0 var(--space-2);
+  color: var(--navy-900);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+.sv-help p {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+.sv-help__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.sv-help .btn--secondary {
+  background: var(--color-bg-surface-raised);
+  border-color: var(--sky-400);
+}
+
+@media (max-width: 62rem) {
+  .sv-help {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-5);
+  }
+  .sv-help__actions .btn {
+    width: 100%;
+  }
+}
+
+/* Phone-only sticky call bar — the "Need help?" path that never scrolls away.
+   It sits above the existing MobileQuickMenu FAB (bottom: 5.5rem). */
+.sv-callbar {
+  position: fixed;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: var(--space-3);
+  z-index: 60;
+  display: none;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: 999px;
+  background: var(--sky-700);
+  color: #ffffff;
+  box-shadow: var(--shadow-card-hover);
+}
+
+.sv-callbar span {
+  font-size: 1rem;
+  color: #ffffff;
+}
+
+.sv-callbar a {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  border-radius: 999px;
+  background: var(--gold-400);
+  color: var(--navy-950);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+@media (max-width: 62rem) {
+  /* The bar sits clear ABOVE the MobileQuickMenu FAB (1rem offset + 3.25rem
+     button + 1.25rem gap): the FAB must never cover the 24/7 number. */
+  .sv-callbar {
+    display: flex;
+    bottom: 5.5rem;
+  }
+  .sv-page {
+    padding-bottom: 10rem; /* clear the call bar + the FAB below it */
+  }
+}
+
+/* --- Sources block ----------------------------------------------------------- */
+.sv-sources {
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--sky-50);
+}
+
+.sv-sources h2 {
+  margin-bottom: var(--space-2);
+  font-size: 1.5rem;
+}
+
+.sv-sources p {
+  margin: 0 0 var(--space-3);
+  color: var(--navy-800);
+}
+
+.sv-sources p:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Review pages only: standalone body padding ----------------------------- */
+.sv-standalone {
+  padding-bottom: 2rem;
+}
+
+.sv-page .sv-demo-note {
+  margin: var(--space-4) auto 0;
+  max-width: 76rem;
+  padding: var(--space-3) var(--space-5);
+  border: 1px dashed var(--sky-300);
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+  color: var(--navy-700);
+  font-size: 1rem;
+}
+
+
+/* --- Booking step on a phone: keep the senior type, let every row wrap ------ */
+@media (max-width: 46rem) {
+  .sv-page .booking-modal__body {
+    padding: var(--space-4);
+  }
+  .sv-page .booking-chapel {
+    flex-wrap: wrap;
+  }
+  .sv-page .booking-chapel__name {
+    flex: 1 1 10rem;
+  }
+  .sv-page .booking-chip {
+    white-space: normal;
+    margin-left: 0;
+  }
+  .sv-page .booking-class {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sv-page .booking-range {
+    grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr));
+  }
+  .sv-page .booking-modal__actions .btn {
+    width: 100%;
+  }
+}
+
+/* Guide cards on the services page reuse the price-card shell with a photo. */
+.sv-prices--guides .sv-price-card {
+  padding: var(--space-4);
+}
+
+.sv-card-media {
+  margin: var(--space-2) 0;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--marble-100);
+}
+
+.sv-card-media img {
+  display: block;
+  width: 100%;
+  height: 12rem;
+  object-fit: cover;
+}
+
+/* Embalming aside fact (icon + one sentence). */
+.sv-fact {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.sv-fact svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex: none;
+  margin-top: 2px;
+  color: var(--gold-700);
+}
+
+.sv-fact p {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+/* Grouping label above a picker; stay-list chapel heading. */
+.sv-picker-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sv-stay__heading {
+  margin: var(--space-4) 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--navy-900);
+}
+
+.sv-section__note {
+  margin-top: var(--space-4);
+}
+
+/* "In your cart" chip + its actions (approved Q3). */
+.sv-cartrow {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--sage-500);
+  border-radius: var(--radius-md);
+  background: var(--sage-100);
+  justify-items: start;
+}
+
+/* Inside the row, the chip and its detail are plain content: the row itself
+   already carries the sage surface and border. */
+.sv-cartrow .sv-cardchip,
+.sv-cartrow .sv-cartchip {
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+.sv-cartrow__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.sv-cartrow__error {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--navy-900);
+}
+
+/* ---- end services page (sv-*) ---------------------------------------- */
