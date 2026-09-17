@@ -7,6 +7,6 @@ export default function inventoryPage() {
     "Inventory",
     "Commerce",
     ["catalog:write"],
-    "read:Stock levels and catalog write endpoints are dev-authored (catalog-pricing serves reads today); this screen lands with the catalog-management contract.",
+    "Stock levels and catalog write endpoints are dev-authored (catalog-pricing serves reads today); this screen lands with the catalog-management contract.",
   );
 }

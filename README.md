@@ -16,8 +16,8 @@ the UX reference; this app is what actually runs against the platform services).
 |---|---|---|---|
 | **Public site** | `/` (landing) + `/plans` `/lots` `/map` `/packages` etc. | none | ✅ real (catalog/lot data, cart/checkout on frozen commerce contract) |
 | **Staff portal** | `/login` → `/staff/*` | `admin@vm.demo` / `staff@vm.demo` | ✅ real core (dashboard, billing, cases, schedule, property map, documents, audit) + honest "not wired yet" screens |
-| **Family portal** | `/client/login` → `/client/*` | `customer@vm.demo` | Shell: real auth + portal frame; data screens run on a recorded snapshot fixture until the family API contract freezes (dev-authored) |
-| **Agent portal** | `/agent/login` → `/agent/*` | `agent@vm.demo` | Shell: real auth + portal frame; screens labelled "coming soon" until the agent/commission contract exists |
+| **Family portal** | `/client/login` → `/client/*` | `customer@vm.demo` | Built: real auth + the shared family/agent portal frame; screens read one recorded family snapshot fixture until the family API contract freezes (dev-authored), and the family's own papers (service contract, receipts) always show |
+| **Agent portal** | `/agent/login` → `/agent/*` | `agent@vm.demo` | Built: real auth + the same portal frame; 11 screens read one provisional agent-workspace fixture until the agent/commission contract exists, so commission amounts are `null` by design |
 
 All four doors use the **same login BFF** (`POST /api/auth/login`) and the same
 httpOnly session. Doors are separate today because the JWT carries permission
@@ -56,8 +56,10 @@ npm run lint && npm run typecheck && npm test && npm run build
 ```
 
 Fixture mode serves recorded contract fixtures in-process so every surface demos
-standalone. Live mode = set the gateway base URLs (`.env.example`) — screens flip
-to real services with no code changes.
+standalone. Live mode = set the gateway base URLs (`.env.example`): screens whose contract is
+frozen flip to real services with no code changes, while app-authored admin stores
+(catalog/plans/pricing/orders, chapel admin) answer an honest 503 until their own contract
+freezes — the named blocker travels with the page.
 
 ## "Not wired yet" labels are honest, not decoration
 
@@ -74,4 +76,4 @@ Nothing fake-wires data that has no backend. Tracked per route in
 - `components/ui/*` — shared design-system kit (tokens + BEM, zero domain vocabulary)
 - `components/*` — feature components; `lib/api-client/*` typed clients (fixture/live)
 - `lib/fixtures/*` — recorded contract fixtures (provenance in `lib/fixtures/README.md`)
-- `styles/tokens.css` — single source of truth for every visual decision (DOC palette)
+- `styles/tokens.css` — single source of truth for every visual decision (premium sky/navy/gold palette, captain direction)
