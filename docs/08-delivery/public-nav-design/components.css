@@ -5791,9 +5791,13 @@ a.card:hover {
   transform: translateY(-1px);
 }
 
-/* Active-page marking for the shared anchored header nav lives with the rest
-   of the two-layer header grammar (see the anchored-header block): a gold
-   underline + a weight change, never colour alone. */
+/* Current page in the shared anchored header nav (desktop + mobile same rule). */
+.anchored-header__nav a[aria-current="page"] {
+  color: var(--navy-900);
+  background: var(--color-bg-subtle);
+  font-weight: 700;
+  box-shadow: inset 0 -2px 0 var(--gold-500);
+}
 
 /* Consistent cross-page link chips (replaces bare text rows). */
 .page-links {
@@ -7091,50 +7095,15 @@ a.card:hover {
   background: var(--color-bg-desk);
 }
 
-/* ---- shared header (sticky, TWO layers — captain-approved 2026-09-17) ----
-   Utility row: location · hours + the 24/7 number as a real call button.
-   Main row: brand · short page links · grouped "Plan ahead" · Sign in · cart
-   icon. Sticky and it NEVER auto-hides: the phone is always one tap away.
-   The full bar height (utility + main row) is for sticky surfaces that must
-   sit under it (the home rails, the services page's in-page nav). Sticky
-   offsets only matter once scrolled, when the bar is compressed — the value
-   below is that compressed height, so nothing peeks through the seam. */
-:root {
-  --anchored-header-h: 6.875rem; /* 110 px = utility 52 + compressed main 56 */
-}
-
-/* First focusable on every public page — keyboard users go straight to the
-   content. */
-.anchored-skip {
-  position: fixed;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 200;
-  transform: translateY(-200%);
-  padding: 0.7rem 1rem;
-  border-radius: var(--radius-md);
-  background: var(--navy-900);
-  color: #fff;
-  font-size: 0.875rem;
-  font-weight: 600;
-  text-decoration: none;
-  box-shadow: 0 10px 24px -10px rgb(8 28 49 / 0.5);
-  transition: transform var(--motion-fast);
-}
-
-.anchored-skip:focus {
-  transform: translateY(0);
-}
-
+/* ---- shared header (sticky; sets --anchored-top the rails stick under) ---- */
 .anchored-header {
   position: sticky;
   top: 0;
   z-index: 40;
   background: color-mix(in srgb, var(--color-bg-surface-raised) 92%, transparent);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--color-rule);
-  transition: box-shadow var(--motion-base);
 }
 
 .anchored-header::before {
@@ -7145,106 +7114,6 @@ a.card:hover {
   background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 }
 
-/* D5 — quiet compression once scrolled: the main row shortens, the sheet goes
-   more opaque and takes a soft shadow. Utility row + call button stay put. */
-.anchored-header--compressed {
-  background: color-mix(in srgb, var(--color-bg-surface-raised) 97%, transparent);
-  box-shadow: 0 10px 26px -18px rgb(8 28 49 / 0.35);
-}
-
-/* ---- utility row: the trust facts + the 24/7 call button ---- */
-.anchored-header__utility {
-  background: var(--color-bg-surface);
-  border-bottom: 1px solid var(--sky-100);
-}
-
-.anchored-header--compressed .anchored-header__utility {
-  background: color-mix(in srgb, var(--color-bg-surface-raised) 96%, transparent);
-}
-
-.anchored-header__utility-bar {
-  max-width: var(--layout-folio-w);
-  margin-inline: auto;
-  min-height: 3.25rem;
-  padding: 0 var(--space-5);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-}
-
-.anchored-header__utility-meta {
-  margin: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  font-size: var(--text-sm);
-  line-height: 1.2;
-  color: var(--navy-700); /* 10.1:1 on the near-white surface — AAA */
-  white-space: nowrap;
-}
-
-.anchored-header__utility-meta svg {
-  flex: none;
-  color: var(--navy-500);
-}
-
-.anchored-header__utility-sep {
-  color: var(--sky-500);
-  padding: 0 0.1rem;
-}
-
-/* The 24/7 number as a real call button — navy ink on the brand's sky
-   gradient (13.1:1 → 8.2:1, AAA), 44 px tall. */
-.anchored-header__call {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  min-height: 2.75rem;
-  padding: 0.35rem 0.95rem;
-  border: 1px solid var(--sky-500);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, var(--sky-200) 0%, var(--sky-400) 100%);
-  color: var(--navy-950);
-  text-decoration: none;
-  box-shadow: 0 1px 2px rgb(8 28 49 / 0.18);
-  transition: border-color var(--motion-fast), filter var(--motion-fast);
-}
-
-.anchored-header__call:hover {
-  border-color: var(--sky-600);
-  filter: brightness(1.03);
-}
-
-.anchored-header__call svg {
-  flex: none;
-}
-
-.anchored-header__call-text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1.15;
-}
-
-.anchored-header__call-label {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--navy-900); /* 11.3:1 → 7.1:1 across the gradient — AAA */
-}
-
-.anchored-header__call-number {
-  font-family: var(--font-serif);
-  font-weight: 800;
-  font-size: 1.0625rem;
-  letter-spacing: 0.01em;
-  color: var(--navy-950);
-  white-space: nowrap;
-}
-
-/* ---- main row: brand · page links · Plan ahead · actions ---- */
 .anchored-header__bar {
   max-width: var(--layout-folio-w);
   margin-inline: auto;
@@ -7254,18 +7123,10 @@ a.card:hover {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   gap: var(--space-5);
-  transition: height var(--motion-base);
-}
-
-.anchored-header--compressed .anchored-header__bar {
-  height: 3.5rem; /* D5: 68 px → 56 px, never hiding */
 }
 
 .anchored-header__brand {
-  /* stretch (not start) so the wordmark can ellipsize inside its track on
-     narrow phones instead of painting under the actions */
-  justify-self: stretch;
-  min-width: 0;
+  justify-self: start;
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
@@ -7274,7 +7135,6 @@ a.card:hover {
 }
 
 .anchored-header__wordmark {
-  min-width: 0; /* lets the narrow-phone ellipsis engage instead of overlapping */
   font-family: var(--font-serif);
   font-weight: 700;
   font-size: 1.05rem;
@@ -7310,8 +7170,7 @@ a.card:hover {
 }
 
 /* Nav sits in the middle auto track of the balanced grid → truly centred in
-   the header bar regardless of how wide the brand or the actions are. The
-   short labels (D1) keep it breatheable at every width. */
+   the header bar regardless of how wide the brand or the actions are. */
 .anchored-header__nav {
   justify-self: center;
   display: flex;
@@ -7319,165 +7178,78 @@ a.card:hover {
   gap: var(--space-1);
 }
 
-.anchored-header__nav > a,
-.anchored-header__plan-trigger {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  min-height: 2.75rem; /* 44 px — the tap-target floor */
-  padding: 0.5rem 0.75rem;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: transparent;
-  font: inherit;
-  font-size: var(--text-sm);
-  color: var(--navy-700); /* 10.3:1 on white — AAA */
+.anchored-header__nav a {
+  color: var(--navy-700);
   text-decoration: none;
-  cursor: pointer;
-  white-space: nowrap;
+  font-size: var(--text-sm);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
   transition: color var(--motion-fast), background-color var(--motion-fast);
 }
 
-.anchored-header__nav > a:hover,
-.anchored-header__plan-trigger:hover,
-.anchored-header__plan-trigger[aria-expanded="true"] {
+.anchored-header__nav a:hover {
   color: var(--gold-700);
   background: var(--color-bg-subtle);
 }
 
-/* Active page: a gold underline + a weight change (never colour alone). */
-.anchored-header__nav > a[aria-current="page"] {
-  color: var(--navy-900);
-  font-weight: 700;
-}
-
-.anchored-header__nav > a[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.3rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--gold-400);
-}
-
-/* ---- grouped "Plan ahead" (D1): the client's full page names one tap away ---- */
-.anchored-header__plan {
-  position: relative;
-}
-
-.anchored-header__plan-trigger svg {
-  transition: transform var(--motion-fast);
-}
-
-.anchored-header__plan-trigger[aria-expanded="true"] svg {
-  transform: rotate(180deg);
-}
-
-.anchored-header__plan-menu {
-  position: absolute;
-  top: calc(100% + 0.6rem);
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(24rem, 92vw);
-  padding: 0.5rem;
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--sky-200);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 24px 48px -22px rgb(8 28 49 / 0.32);
-  z-index: 60;
-}
-
-.anchored-header__plan-menu[hidden] {
-  display: none;
-}
-
-.anchored-header__plan-heading {
-  margin: 0;
-  padding: 0.55rem 0.75rem 0.35rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gold-800);
-}
-
-.anchored-header__plan-item {
-  display: block;
-  min-height: 2.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-}
-
-.anchored-header__plan-item:hover {
-  background: var(--sky-50);
-}
-
-.anchored-header__plan-item strong {
-  display: block;
-  font-size: 0.9375rem;
-  font-weight: 650;
-  color: var(--navy-900);
-}
-
-.anchored-header__plan-item span {
-  display: block;
-  margin-top: 0.1rem;
-  font-size: var(--text-sm);
-  color: var(--navy-600);
+/* Live cart count — a small gold superscript on the Cart link (client pages
+   only; the framework-free home renders the plain link). Hidden at rest. */
+.anchored-header__cart-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.05rem;
+  height: 1.05rem;
+  margin-left: 0.2rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+  color: var(--navy-950);
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  vertical-align: super;
 }
 
 .anchored-header__actions {
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
-/* Cart (D2) — an icon with its count beside Sign in, never a text link among
-   the pages. 44 × 44 target; the badge rides the icon's corner. */
-.anchored-header__cart {
-  position: relative;
-  display: inline-grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: var(--radius-md);
-  color: var(--navy-800);
+.anchored-header__phone {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
   text-decoration: none;
-  transition: color var(--motion-fast), background-color var(--motion-fast);
+  border: 1px solid var(--color-rule-strong);
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.75rem;
+  line-height: 1.25;
+  transition: border-color var(--motion-fast);
 }
 
-.anchored-header__cart:hover {
-  color: var(--navy-950);
-  background: var(--color-bg-subtle);
+.anchored-header__phone:hover {
+  border-color: var(--gold-500);
 }
 
-.anchored-header__cart-count {
-  position: absolute;
-  top: 0.2rem;
-  right: 0.1rem;
-  display: inline-grid;
-  place-items: center;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  padding: 0 0.25rem;
-  border-radius: 999px;
-  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
-  color: var(--navy-950); /* 11.1:1 → 6.7:1 — AA+ */
-  font-size: 0.6875rem;
-  font-weight: 800;
-  line-height: 1;
-  box-shadow: 0 0 0 2px var(--color-bg-surface-raised);
+.anchored-header__phone-label {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.anchored-header__phone-number {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--navy-900);
 }
 
 .anchored-header__signin {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem; /* 44 px — the tap-target floor */
   font-size: var(--text-sm);
   color: var(--navy-600);
   text-decoration: none;
@@ -7490,185 +7262,18 @@ a.card:hover {
   background: var(--color-bg-subtle);
 }
 
-/* Compact desktops (75–85rem): the two-layer bar still fits, but keep taking
-   slack out of the nav chips and the Plan ahead trigger so nothing wraps. */
+/* The captain-approved page names (Funeraria Memorial Services · Villa
+   Memorial Plan · Villa Memorial Park) are much wider than the short labels
+   they replaced, so on the narrower desktop widths — above the 75rem mobile
+   switch, below the folio's full width — the bar takes its slack out of the
+   nav chips instead of letting the phone chip / “Sign in” wrap to two lines. */
 @media (max-width: 84.999rem) {
   .anchored-header__nav {
     gap: 0;
   }
 
-  .anchored-header__nav > a,
-  .anchored-header__plan-trigger {
+  .anchored-header__nav a {
     padding-inline: var(--space-2);
-  }
-}
-
-/* ---- phone action bar (D3) — permanent, two big targets ------------------
-   Call 24/7 and Plan ahead stay reachable at every scroll position, above
-   nothing and below nothing: the bar never hides and no target moves under a
-   thumb. Desktop keeps it in the DOM and hides it. */
-.anchored-phonebar {
-  display: none;
-}
-
-/* ---- the phone "Plan ahead" sheet — a real dialog with the full names ---- */
-.anchored-plan-sheet {
-  position: fixed;
-  inset: 0;
-  z-index: 80;
-}
-
-.anchored-plan-sheet__backdrop {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  padding: 0;
-  background: rgb(8 28 49 / 0.5);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
-  cursor: pointer;
-}
-
-.anchored-plan-sheet__panel {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  max-height: 82vh;
-  overflow-y: auto;
-  background: var(--color-bg-surface);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  box-shadow: 0 -18px 44px -20px rgb(8 28 49 / 0.4);
-  padding: var(--space-4) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
-  display: grid;
-  gap: var(--space-2);
-  align-content: start;
-}
-
-.anchored-plan-sheet__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--sky-100);
-}
-
-.anchored-plan-sheet__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 1.125rem;
-  color: var(--navy-900);
-}
-
-.anchored-plan-sheet__close {
-  display: inline-grid;
-  place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 1px solid var(--sky-200);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-  color: var(--navy-800);
-  cursor: pointer;
-}
-
-.anchored-plan-sheet__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  min-height: 3.25rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-}
-
-.anchored-plan-sheet__item:hover {
-  background: var(--sky-50);
-}
-
-.anchored-plan-sheet__item strong {
-  display: block;
-  font-size: 0.9375rem;
-  color: var(--navy-900);
-}
-
-.anchored-plan-sheet__item span {
-  display: block;
-  font-size: var(--text-sm);
-  color: var(--navy-600);
-}
-
-.anchored-plan-sheet__item svg {
-  flex: none;
-  color: var(--sky-600);
-}
-
-@media (max-width: 74.999rem) {
-  /* Phones carry the call target in the bottom bar, so the utility row is
-     location + hours only — never two call buttons on one screen. */
-  .anchored-header__call {
-    display: none;
-  }
-
-  :root {
-    --anchored-header-h: 6.875rem; /* 110 px = utility 52 + compressed main 56 + the 2 hairlines */
-  }
-
-  .anchored-header__bar {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .anchored-phonebar {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 55;
-    display: flex;
-    align-items: stretch;
-    gap: 0.6rem;
-    padding: 0.5rem var(--space-4);
-    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
-    background: color-mix(in srgb, var(--color-bg-surface-raised) 97%, transparent);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid var(--sky-200);
-    box-shadow: 0 -10px 26px -18px rgb(8 28 49 / 0.35);
-  }
-
-  .anchored-phonebar__btn {
-    flex: 1 1 0;
-    min-width: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.45rem;
-    min-height: 3rem; /* 48 px — above the 44 px floor */
-    padding: 0.4rem 0.6rem;
-    border-radius: var(--radius-md);
-    font-size: 0.9375rem;
-    font-weight: 700;
-    text-decoration: none;
-    cursor: pointer;
-  }
-
-  .anchored-phonebar__btn--call {
-    border: 1px solid var(--sky-500);
-    background: linear-gradient(180deg, var(--sky-200) 0%, var(--sky-400) 100%);
-    color: var(--navy-950);
-  }
-
-  .anchored-phonebar__btn--plan {
-    border: 1px solid var(--sky-300);
-    background: var(--color-bg-surface-raised);
-    color: var(--navy-800);
-  }
-
-  /* Keep every page's content clear of the fixed bar (the public wrappers
-     carry this class because they always render the bar). */
-  .has-phonebar {
-    padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -7717,9 +7322,9 @@ a.card:hover {
    entirely until hover. */
 .anchored-rail {
   position: sticky;
-  top: calc(var(--anchored-header-h) + var(--space-4));
-  max-height: calc(100vh - var(--anchored-header-h) - var(--space-6));
-  max-height: calc(100dvh - var(--anchored-header-h) - var(--space-6));
+  top: calc(4.25rem + var(--space-4));
+  max-height: calc(100vh - 4.25rem - var(--space-6));
+  max-height: calc(100dvh - 4.25rem - var(--space-6));
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none; /* Firefox: no scrollbar at rest */
@@ -8836,8 +8441,7 @@ a.card:hover {
     place-items: center;
     position: fixed;
     right: 1rem;
-    /* sits just above the permanent phone action bar */
-    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+    bottom: 1rem;
     z-index: 60;
     width: 3.25rem;
     height: 3.25rem;
@@ -8850,49 +8454,10 @@ a.card:hover {
   }
 }
 
-/* Narrow phones: a tighter utility row and brand row (the 24/7 number lives
-   in the bottom action bar, never squeezed into the header). */
+/* Narrow phones: the 24/7 number lives in the quick-menu flyout (and the
+   header CTA row would otherwise overflow the bar). */
 @media (max-width: 39.999rem) {
-  :root {
-    --anchored-header-h: 6.125rem; /* 98 px = utility 44 + compressed main 52 + the 2 hairlines */
-  }
-
-  .anchored-header__utility-bar {
-    min-height: 2.75rem;
-    padding-inline: var(--space-4);
-  }
-
-  .anchored-header__utility-meta {
-    font-size: var(--text-xs);
-    gap: 0.35rem;
-  }
-
-  .anchored-header__bar {
-    padding-inline: var(--space-4);
-    gap: var(--space-3);
-    height: 3.75rem;
-  }
-
-  .anchored-header--compressed .anchored-header__bar {
-    height: 3.25rem;
-  }
-
-  .anchored-header__wordmark {
-    font-size: 0.9375rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-/* Very narrow phones (≤359 px): keep the utility row on one line by tightening
-   the gap and dropping the separator dot — location, hours and their icons all
-   stay. */
-@media (max-width: 22.499rem) {
-  .anchored-header__utility-meta {
-    gap: 0.25rem;
-  }
-
-  .anchored-header__utility-sep {
+  .anchored-header__phone {
     display: none;
   }
 }
@@ -12291,7 +11856,7 @@ a.card:hover {
 /* --- Sticky "On this page" nav --------------------------------------------- */
 .sv-subnav {
   position: sticky;
-  top: var(--anchored-header-h); /* the two-layer bar's own height */
+  top: 4.25rem; /* the anchored header's own height */
   z-index: 40;
   margin: 0 calc(-1 * var(--space-5)) var(--space-5);
   padding: var(--space-3) var(--space-5);
@@ -12385,18 +11950,18 @@ a.card:hover {
     display: none;
   }
   .sv-page [id] {
-    scroll-margin-top: 12rem;
+    scroll-margin-top: 9.5rem;
   }
 }
 
 /* Anchor offsets: a heading scrolled to must clear the sticky header + bar. */
 .sv-page [id] {
-  scroll-margin-top: 11.5rem;
+  scroll-margin-top: 8rem;
 }
 
 @media (max-width: 62rem) {
   .sv-page [id] {
-    scroll-margin-top: 12rem;
+    scroll-margin-top: 9rem;
   }
 }
 
@@ -13347,107 +12912,3 @@ a.card:hover {
 }
 
 /* ---- end services page (sv-*) ---------------------------------------- */
-
-/* ---- pricing admin editors (/staff/plans, /staff/pricing) ----------------
-   The two money-table screens from the admin-commerce plan: a state/action bar,
-   one card per table family, and numeric cells that scroll sideways on narrow
-   screens. Tokens only (design-system.md consumption rule #1). */
-.pricing-editor__bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
-
-.pricing-editor__state,
-.pricing-editor__actions,
-.pricing-editor__checklist,
-.pricing-editor__family-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.pricing-editor__family {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.pricing-editor__family .field-grid {
-  flex: 1 1 32rem;
-}
-
-.pricing-editor__scroll {
-  overflow-x: auto;
-}
-
-.pricing-editor__table {
-  min-width: 64rem;
-}
-
-.pricing-editor__table th[scope="row"] {
-  white-space: nowrap;
-}
-
-.pricing-editor__name {
-  min-width: 12rem;
-  padding: var(--space-1) var(--space-2);
-}
-
-.pricing-editor__num {
-  width: 6.5rem;
-  min-width: 5.5rem;
-  padding: var(--space-1) var(--space-2);
-  text-align: right;
-}
-
-/* ---------------------------------------------------------------------------
- * Staff catalog admin — the create/edit form's photo control
- * ---------------------------------------------------------------------------
- * The catalogue form attaches a photo from the park's media library, a device
- * upload (a data URL stored inside the item record) or a public URL. The
- * control shows the current photo beside its source so staff can see what the
- * storefront will publish; every colour/size below is a token.
- * ------------------------------------------------------------------------- */
-.cat-image {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
-
-.cat-image__thumb {
-  width: 5.5rem;
-  height: 5.5rem;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-subtle);
-}
-
-.cat-image__thumb--empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-muted);
-  font-size: var(--text-xs);
-  text-align: center;
-}
-
-.cat-image__meta {
-  flex: 1 1 18rem;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  min-width: 0;
-
-}

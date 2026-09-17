@@ -22,6 +22,7 @@ import type {
   ServiceCard,
 } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
+import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
 import { heroBackgroundLayer } from "@/lib/landing/hero-background";
@@ -560,14 +561,14 @@ function MapSection({
 
 export function LandingView({ content, planPricing, lotCategories, mapNode, mapLive, sectionCount }: LandingViewProps) {
   return (
-    <div className="anchored-page">
+    <div className="anchored-page has-phonebar">
       <LandingHeader content={content} />
       <div className="anchored-grid">
         <aside className="anchored-rail anchored-rail--left" aria-label="Care and services">
           <RailPanel config={content.rails.left} side="left" contact={content.contact} />
         </aside>
 
-        <main className="anchored-mid">
+        <main id="main" className="anchored-mid">
           <div className="anchored-mid__inner">
             <HeroSection content={content} />
             <AboutSection content={content} />
@@ -589,6 +590,7 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
           <RailPanel config={content.rails.right} side="right" contact={content.contact} />
         </aside>
       </div>
+      <PhoneActionBar contact={content.contact} />
       <LandingFooter content={content} />
     </div>
   );

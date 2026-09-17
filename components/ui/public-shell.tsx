@@ -5,6 +5,7 @@ import { CartProvider, useCart } from "@/lib/cart/cart-context";
 import type { LandingContent } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
 import { MobileQuickMenu } from "@/components/landing/mobile-quick-menu";
+import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { LandingFooter } from "@/components/landing/landing-view";
 
 /**
@@ -16,9 +17,9 @@ import { LandingFooter } from "@/components/landing/landing-view";
  * fed from the same landing content document (logo wordmark + uploaded mark,
  * 24/7 line). Interior pages add two client-only niceties the framework-free
  * home can't: an active-link highlight (aria-current via usePathname) and the
- * live cart count. Everything else — brand row, nav items incl. Home, phone
- * chip, Sign in, responsive mobile quick-menu — is pixel-identical, so the
- * navigation never changes while navigating between pages.
+ * live cart count. Everything else — brand row, page links, grouped Plan
+ * ahead, cart icon, phone bottom action bar — is identical on every public
+ * page, so the navigation never changes while navigating between pages.
  *
  * Pass flush for full-bleed heroes: the page supplies its own containers.
  */
@@ -49,12 +50,16 @@ export function PublicShell({
 }) {
   return (
     <CartProvider>
-      <div className="public-shell">
+      <div className="public-shell has-phonebar">
         <PublicChromeHeader content={content} />
-        <main className={flush ? "public-main public-main--flush" : "container public-main"}>
+        <main
+          id="main"
+          className={flush ? "public-main public-main--flush" : "container public-main"}
+        >
           {children}
         </main>
         <MobileQuickMenu content={content} />
+        <PhoneActionBar contact={content.contact} />
         <LandingFooter content={content} />
       </div>
     </CartProvider>

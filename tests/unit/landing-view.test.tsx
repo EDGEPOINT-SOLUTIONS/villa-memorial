@@ -81,29 +81,37 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Funeraria Memorial Services"));
   });
 
-  it("public chrome names the pages /services, /plans and /map the captain's way", async () => {
+  it("public chrome carries the approved short labels and keeps the client's full names in the Plan ahead menu", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    // Header bar (the ONE public nav — same component on every public page).
+    // Header bar (the ONE public nav — same component on every public page):
+    // the short words the captain approved (D1).
     const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
-    expect(nav).toContain('href="/services">Funeraria Memorial Services</a>');
-    expect(nav).toContain('href="/plans">Villa Memorial Plan</a>');
-    expect(nav).toContain('href="/map">Villa Memorial Park</a>');
-    // Footer "Explore" column links the same three destinations.
+    for (const [href, label] of [
+      ["/", "Home"],
+      ["/services", "Services"],
+      ["/plans", "Plans"],
+      ["/lots", "Lots"],
+      ["/map", "Park"],
+      ["/contact", "Contact"],
+    ] as const) {
+      expect(nav).toContain(`href="${href}">${label}</a>`);
+    }
+    // The client's full names stay verbatim inside the grouped Plan ahead menu.
+    const menu = nav.slice(nav.indexOf("anchored-header__plan-menu"));
+    expect(menu).toContain("Funeraria Memorial Services");
+    expect(menu).toContain("Villa Memorial Plan");
+    expect(menu).toContain("Villa Memorial Park");
+    // ...and are no longer long chips in the bar itself.
+    expect(nav).not.toContain(">Funeraria Memorial Services</a>");
+    expect(nav).not.toContain(">Villa Memorial Plan</a>");
+    expect(nav).not.toContain(">Villa Memorial Park</a>");
+    // Footer "Explore" column links the same three destinations verbatim.
     expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
     expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');
     expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
-    // The retired short link labels are gone from visitor chrome.
-    for (const [href, label] of [
-      ["/services", "Services"],
-      ["/plans", "Plans"],
-      ["/plans", "Memorial plans & lots"],
-      ["/map", "Park map"],
-    ] as const) {
-      expect(html).not.toContain(`href="${href}">${label}</a>`);
-    }
   });
 
   it("middle sections render in order: about, service cards, plan board, live map, then blog feed", async () => {
