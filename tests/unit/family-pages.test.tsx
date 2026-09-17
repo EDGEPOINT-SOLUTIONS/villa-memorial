@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { assertNoParagraphNesting } from "../helpers/paragraph-nesting";
 
 /**
  * The shared-house contract, pinned on the REAL family pages.
@@ -104,6 +105,14 @@ describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline
     expect(html).not.toMatch(/class="[^"]*\bfp-/);
     expect(html).not.toContain("fv-topbar");
     expect(html).not.toContain("fv-answer");
+  });
+
+  // The captain's console error: the note rendered a `<p>` inside its own `<p>`,
+  // so the browser split the tags and hydration regenerated the tree. Every page
+  // here ends in a note; none of them may repeat that nesting.
+  it("keeps every paragraph out of a paragraph (hydration safety)", async () => {
+    const html = await render(Page);
+    assertNoParagraphNesting(html, name);
   });
 });
 

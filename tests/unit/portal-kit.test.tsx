@@ -12,6 +12,7 @@ import {
   PortalRows,
   PortalSection,
 } from "@/components/portal/portal-ui";
+import { assertNoParagraphNesting } from "../helpers/paragraph-nesting";
 
 /**
  * The shared portal kit is the one house style: the agent portal's `ag-*`
@@ -81,5 +82,20 @@ describe("the shared portal kit", () => {
     expect(html).toContain('class="ag-card"');
     expect(html).toContain('class="ag-note"');
     expect(html).not.toContain("alert");
+  });
+
+  // Every family call site passes its prose as a `<p>`. The note itself must be a
+  // block container, or that `<p>` lands inside the note's own `<p>` and the
+  // browser splits the tags on hydration (the captain's console error).
+  it("accepts the block content its call sites pass — a paragraph in a paragraph is the defect", () => {
+    const html = render(
+      <PortalNote>
+        <p>
+          <strong>About this page.</strong> The records are not connected yet.
+        </p>
+      </PortalNote>,
+    );
+    expect(html).not.toMatch(/<p[^>]*class="ag-note"/);
+    assertNoParagraphNesting(html, "PortalNote");
   });
 });
