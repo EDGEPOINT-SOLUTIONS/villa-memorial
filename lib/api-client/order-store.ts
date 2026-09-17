@@ -27,13 +27,17 @@
  * order-admin list or transition endpoint, so live mode answers 503 honestly
  * (`lib/api-client/commerce.ts` NOT_WIRED) until one freezes; the lifecycle never rewrites
  * the frozen payment `status` (phase 1 processes no payments and issues no refunds).
+ *
+ * Pricing reads the DURABLE CATALOGUE (`lib/api-client/catalog-store.ts`), not the
+ * recorded seed: an admin's price edit is what checkout charges, and a deactivated item
+ * is no longer orderable.
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { ApiError } from "@/lib/api-client/api-error";
-import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
+import { listPublishedCatalogRecords } from "@/lib/api-client/catalog-store";
 import ordersFile from "@/lib/fixtures/commerce/orders.json";
-import type { CatalogItem, CheckoutInput, OrderResponse } from "@/lib/api-client/commerce";
+import type { CheckoutInput, OrderResponse } from "@/lib/api-client/commerce";
 
 /* ----------------------------- admin record ----------------------------- */
 
@@ -319,8 +323,6 @@ export async function getFixtureAdminOrder(number: string): Promise<AdminOrder |
   return orders.find((record) => record.order.number === number) ?? null;
 }
 
-const CATALOG = catalogFile as unknown as { items: CatalogItem[] };
-
 /** Same numbering as the old fixture path but derived from the store, so seed rows cannot collide. */
 function nextSequence(orders: AdminOrder[]): number {
   let max = 0;
@@ -342,7 +344,10 @@ export async function createFixtureOrder(input: CheckoutInput): Promise<OrderRes
     throw new ApiError("customer details are incomplete", 422);
   }
 
-  // Merge duplicate SKUs; validate against the seeded catalog (server-priced).
+  // Merge duplicate SKUs; validate against the durable catalogue (server-priced).
+  // Reading the STORE (not the recorded seed) is what makes an admin's price
+  // edit the price checkout charges, and makes a deactivated item unorderable.
+  const catalog = await listPublishedCatalogRecords();
   const merged = new Map<string, number>();
   for (const line of items ?? []) {
     const qty = Number(line.quantity);
@@ -354,9 +359,9 @@ export async function createFixtureOrder(input: CheckoutInput): Promise<OrderRes
   if (merged.size === 0) throw new ApiError("at least one item is required", 422);
 
   const lines = [...merged.entries()].map(([sku, quantity]) => {
-    const item = CATALOG.items.find((i) => i.sku === sku);
-    if (!item) throw new ApiError("not_found", 404); // contract: unknown SKU
-    return { item, quantity };
+    const record = catalog.find((entry) => entry.item.sku === sku);
+    if (!record) throw new ApiError("not_found", 404); // contract: unknown SKU
+    return { item: record.item, quantity };
   });
 
   return withStoreLock(async () => {

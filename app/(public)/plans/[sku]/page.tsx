@@ -84,8 +84,10 @@ async function packageTierItems(): Promise<TierCartItem[]> {
 const PACKAGE_TAGLINE =
   "Simple, dignified, and affordable — a complete memorial service to give your loved one the respect they deserve.";
 
-/** Best available uploaded photo for a catalogue item (falls back to grounds). */
-function mediaFor(item: { item_type: string; sku: string }): string {
+/** Best available uploaded photo for a catalogue item (falls back to grounds).
+ * An admin's own photo wins when the catalogue carries one. */
+function mediaFor(item: { item_type: string; sku: string; image?: string | null }): string {
+  if (item.image) return item.image;
   if (item.item_type === "package") return PLAN_PACKAGES_IMAGE;
   if (item.sku === "SRV-DELIVERY") return TRANSPORT_IMAGE;
   return SAMPLE_PARK_IMAGE;

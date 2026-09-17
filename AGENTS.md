@@ -464,6 +464,48 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - Seed numbers, customers and totals mirror the billing fixture's invoices and every line's
   SKU/price is pinned to `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`;
   store/transition/RBAC behavior by `tests/unit/order-store.test.ts` + `tests/unit/orders-admin.test.tsx`.
+  Checkout PRICES from the durable catalogue store (below), not the recorded seed: an admin's
+  price edit is what checkout charges and a deactivated item answers the contract's 404.
+
+## Catalog admin — durable fixture store (read before touching `/staff/catalog`, `/api/catalog`)
+
+- `/staff/catalog` is the real catalogue administration: list (search + type/published filters)
+  → create (`/staff/catalog/new`) → edit (`/staff/catalog/[id]/edit`, numeric id = stable
+  identity) → deactivate (`Take off storefront`; items are never deleted). It edits EXACTLY what
+  the storefront sells: the public readers in `lib/api-client/commerce.ts` read the same fold, so
+  a change reaches `/plans`, `/services`, `/products`, the cart preview and checkout on the next
+  request. The edit form's photo picker reuses `components/landing/editor-pickers.tsx`
+  (`MediaPicker`: library · device data URL · URL), and `app/(public)/plans` (the grid card and
+  the detail hero) prefers `item.image` with its previous default photo.
+- Store: recorded seed `lib/fixtures/commerce/catalog-items.json` + append-only journal
+  (`CATALOG_STORE_PATH` or `.data/commerce-catalog.json`, gitignored; atomic writer + one
+  in-process write chain, `version: 1`, `item_created` / `item_updated` keyed by item id). Ids
+  allocate above the seed's highest; SKUs are unique CASE-INSENSITIVELY under the lock.
+- `published`, `image` and `price_unit` are APP-AUTHORED — no frozen contract names a catalogue
+  write endpoint. The public `CatalogItem` keeps the frozen envelope and gains only the optional
+  `image`; `display_price` is DERIVED (`lib/catalog-admin.ts` `catalogDisplayPrice`) from integer
+  minor units + currency + the presentation suffix seeded from the recorded string
+  (`catalogPriceUnit`), so a price edit can never publish a stale amount. Never restate an amount.
+- One rules home: `lib/catalog-admin.ts` (draft shape, field limits, `validateCatalogDraft` with
+  per-control errors, `parseMajorToMinorUnits` — the form edits pesos, the wire is integer
+  centavos). Form, BFF route and store all run the same rule; the store throws `ApiError` with
+  `fieldErrors` (422) and the route forwards them.
+- RBAC (frozen `rbac-scopes-v1`): `catalog:read` lists (read-only without `catalog:write`, with
+  the reason on screen); `catalog:write` gates create/edit/toggle. Routes
+  `GET/POST /api/catalog/items` + `GET/PATCH /api/catalog/items/[idOrSku]`, gate
+  `app/api/catalog/_guard.ts`. The public GET list is the cart's rehydration read — projected
+  to the five fields the cart needs and never showing unpublished items; and
+  `getCatalogItem`/checkout answer 404 `not_found` for an unpublished item.
+  The cart (`lib/cart/cart-context.tsx`) persists a display snapshot and refreshes known SKUs
+  from that GET, so an item created in the admin survives a cart reload.
+- Live mode: the platform has no catalogue write API → 503 `ADMIN_CATALOG_NOT_WIRED` (contract
+  ask recorded in the PR), never a fake write.
+- Tests: `tests/unit/catalog-admin.test.ts` (validation, store round trip, uniqueness,
+  durability, corrupt-journal 500, data-URL photo, live-mode 503),
+  `tests/unit/catalog-admin-rbac.test.tsx` (401/403, page gating, created item visible to the
+  storefront reader), `tests/fixture-contract/catalog-admin.test.ts` (seed identity + derived
+  display prices). `tests/setup.ts` (vitest `setupFiles`) points every suite's store paths at a
+  throwaway temp dir so a dev `.data/` store can never leak into a test.
 
 ## Structure conventions
 ```
