@@ -2,7 +2,7 @@
   "_provenance": {
     "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
     "recorded": "2026-09-16",
-    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree."
+    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree. `recent_documents[].kind` is the family-safe classification (service_contract / official_receipt / other): the first two are the family's own papers, the portal never asks them to request those, and `lib/api-client/family.ts::toFamilyDocument` drops every field a document record carries beyond title/status/kind/reference/issued_on/amount/covers."
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
   "family": {
@@ -31,7 +31,7 @@
     "remaining": 2200000
   },
   "recent_documents": [
-    { "title": "Service contract", "status": "Generated" },
-    { "title": "Official receipt", "status": "Sent" }
+    { "title": "Service contract", "status": "Generated", "kind": "service_contract" },
+    { "title": "Official receipt", "status": "Sent", "kind": "official_receipt" }
   ]
 }
