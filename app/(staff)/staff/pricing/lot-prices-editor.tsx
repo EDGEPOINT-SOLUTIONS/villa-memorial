@@ -245,16 +245,18 @@ export function LotPricesEditor({
   ) {
     const amount = categories[ci].rows[ri][table][term];
     return (
-      <input
-        className="input pricing-editor__num"
-        type="number"
-        min={0}
-        step={1}
-        inputMode="numeric"
-        aria-label={`${categories[ci].title || `Family ${ci + 1}`} · ${rowLabel || `Row ${ri + 1}`} · ${table === "regular" ? "Regular" : "Senior"} ${TERM_LABEL[term]} (pesos)`}
-        value={Number.isFinite(amount) ? amount : ""}
-        onChange={(e) => patchFigure(ci, ri, table, term, e.target.value)}
-      />
+      <td key={`${ci}-${ri}-${table}-${term}`}>
+        <input
+          className="input pricing-editor__num"
+          type="number"
+          min={0}
+          step={1}
+          inputMode="numeric"
+          aria-label={`${categories[ci].title || `Family ${ci + 1}`} · ${rowLabel || `Row ${ri + 1}`} · ${table === "regular" ? "Regular" : "Senior"} ${TERM_LABEL[term]} (pesos)`}
+          value={Number.isFinite(amount) ? amount : ""}
+          onChange={(e) => patchFigure(ci, ri, table, term, e.target.value)}
+        />
+      </td>
     );
   }
 
@@ -397,7 +399,7 @@ export function LotPricesEditor({
                     </th>
                   </tr>
                   <tr>
-                    {(["regular", "senior"] as const).map((table) =>
+                    {(["regular", "senior"] as const).flatMap((table) =>
                       FIGURE_TERMS.map((term) => (
                         <th scope="col" key={`${table}-${term}`}>
                           {TERM_LABEL[term]}
