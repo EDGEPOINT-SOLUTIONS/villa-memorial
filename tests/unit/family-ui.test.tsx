@@ -15,6 +15,7 @@ import {
   WhenList,
 } from "@/components/family/family-ui";
 import { FAMILY_JARGON } from "@/lib/family/family-view";
+import { assertNoParagraphNesting } from "../helpers/paragraph-nesting";
 
 function render(node: React.ReactElement): string {
   return renderToStaticMarkup(node);
@@ -171,6 +172,7 @@ describe("rows, money and notes", () => {
     );
     expect(html).toContain('class="ag-note"');
     expect(html).not.toContain("alert");
+    assertNoParagraphNesting(html, "Note");
   });
 });
 
@@ -193,6 +195,7 @@ describe("a page whose service is not switched on", () => {
     expect(html).toContain("What will be here");
     expect(html).toContain("About this page.");
     expect(html).toContain("0917 617 8489");
+    assertNoParagraphNesting(html, "PlannedAnswer");
   });
 
   it("uses the shared portal grammar, not a family-only shell", () => {

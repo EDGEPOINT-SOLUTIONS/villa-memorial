@@ -251,12 +251,18 @@ export function PortalProgress({
  * The calm honesty block. A page whose service is not switched on ends with
  * one of these: plain words, what is missing, and the office number when
  * calling is the way forward. Never an alert box.
+ *
+ * The wrapper is a `<div>`, not a `<p>`: every call site passes its prose as a
+ * paragraph (and some pass lists), and a `<p>` inside the note's own `<p>` is
+ * invalid HTML — the browser splits the tags and hydration regenerates the tree
+ * (`<p> cannot be a descendant of <p>`). `.ag-note` is a class selector, so the
+ * block renders exactly as before.
  */
 export function PortalNote({ children }: { children: ReactNode }) {
   return (
     <section className="ag-card">
       <div className="ag-card__body">
-        <p className="ag-note">{children}</p>
+        <div className="ag-note">{children}</div>
       </div>
     </section>
   );
