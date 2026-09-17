@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     include: ["tests/**/*.test.{ts,tsx}"],
     environment: "node",
+    // Fresh temp paths for the durable fixture stores (.data/ is the dev demo store).
+    setupFiles: ["./tests/setup.ts"],
   },
   resolve: {
     alias: {

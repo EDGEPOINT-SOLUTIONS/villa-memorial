@@ -12912,3 +12912,44 @@ a.card:hover {
 }
 
 /* ---- end services page (sv-*) ---------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+ * Staff catalog admin — the create/edit form's photo control
+ * ---------------------------------------------------------------------------
+ * The catalogue form attaches a photo from the park's media library, a device
+ * upload (a data URL stored inside the item record) or a public URL. The
+ * control shows the current photo beside its source so staff can see what the
+ * storefront will publish; every colour/size below is a token.
+ * ------------------------------------------------------------------------- */
+.cat-image {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.cat-image__thumb {
+  width: 5.5rem;
+  height: 5.5rem;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+}
+
+.cat-image__thumb--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  text-align: center;
+}
+
+.cat-image__meta {
+  flex: 1 1 18rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}

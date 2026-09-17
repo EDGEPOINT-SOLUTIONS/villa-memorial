@@ -12,10 +12,14 @@ import catalogFixture from "@/lib/fixtures/commerce/catalog-items.json";
 import { toChapelBookingLine, type ChapelBookingLine } from "@/lib/chapel-booking";
 
 /**
- * Client-side cart (localStorage persisted). Only SKU + quantity are persisted
- * (no prices sent to servers, no PII); display fields (name/price) are
- * rehydrated from the seeded catalog fixture so previews stay fresh.
- * The authoritative price always comes from the checkout response.
+ * Client-side cart (localStorage persisted). SKU + quantity + a display snapshot
+ * are persisted (no PII; and no prices are ever SENT to a server — checkout sends
+ * only sku+quantity). Display fields are rehydrated from the catalogue store so
+ * previews stay fresh: the bundled recorded seed hydrates instantly, then the
+ * live published catalogue is read from GET /api/catalog/items (the SAME durable
+ * store the staff catalogue admin writes), so an item an admin created — or a
+ * price an admin changed — shows correctly after a reload. The authoritative
+ * price always comes from the checkout response.
  *
  * Chapel booking lines additionally persist their reservation (`booking`): the
  * chapel, the range and the day count, so the cart can still show — and
@@ -67,11 +71,18 @@ type FixtureItem = {
   currency: string;
 };
 
-const CATALOG_BY_SKU = new Map<string, FixtureItem>(
-  ((catalogFixture as { items: FixtureItem[] }).items ?? []).map((i) => [i.sku, i]),
+type CatalogMap = Map<string, FixtureItem>;
+
+function buildCatalogMap(items: FixtureItem[]): CatalogMap {
+  return new Map(items.map((i) => [i.sku, i]));
+}
+
+/** The bundled recorded catalogue — an instant, offline-safe hydration source. */
+const RECORDED_CATALOG: CatalogMap = buildCatalogMap(
+  (catalogFixture as { items: FixtureItem[] }).items ?? [],
 );
 
-function sanitize(raw: unknown): CartLine[] {
+function sanitize(raw: unknown, catalog: CatalogMap): CartLine[] {
   if (!Array.isArray(raw)) return [];
   const lines: CartLine[] = [];
   for (const entry of raw) {
@@ -115,7 +126,7 @@ function sanitize(raw: unknown): CartLine[] {
       continue;
     }
 
-    const fixture = CATALOG_BY_SKU.get(sku);
+    const fixture = catalog.get(sku);
     if (!fixture) continue;
     lines.push({
       sku,
@@ -134,16 +145,58 @@ function sanitize(raw: unknown): CartLine[] {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [ready, setReady] = useState(false);
+  const [catalog, setCatalog] = useState<CatalogMap>(RECORDED_CATALOG);
 
+  // Persisted lines hydrate immediately from the bundled recorded catalogue.
   useEffect(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY);
-      setLines(sanitize(raw ? JSON.parse(raw) : []));
+      setLines(sanitize(raw ? JSON.parse(raw) : [], RECORDED_CATALOG));
     } catch {
       setLines([]);
     }
     setReady(true);
   }, []);
+
+  // Then the published catalogue arrives from the BFF, which reads the durable
+  // store the staff admin writes. Failure keeps the recorded catalogue.
+  useEffect(() => {
+    let alive = true;
+    fetch("/api/catalog/items")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((payload: unknown) => {
+        if (!alive || typeof payload !== "object" || payload === null) return;
+        const items = (payload as { items?: unknown }).items;
+        if (!Array.isArray(items)) return;
+        setCatalog(buildCatalogMap(items as FixtureItem[]));
+      })
+      .catch(() => {
+        // Offline or the store is unreadable — previews stay on the recorded catalogue.
+      });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  // Refresh display fields for known SKUs when the catalogue changes. Lines are
+  // never dropped here: a customer's line survives until they remove it.
+  useEffect(() => {
+    if (!ready) return;
+    setLines((prev) =>
+      prev.map((line) => {
+        const item = catalog.get(line.sku);
+        return item
+          ? {
+              ...line,
+              name: item.name,
+              itemType: item.item_type,
+              unitPriceCents: item.unit_price_cents,
+              currency: item.currency,
+            }
+          : line;
+      }),
+    );
+  }, [catalog, ready]);
 
   useEffect(() => {
     if (!ready) return;
@@ -151,6 +204,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const persisted = lines.map((l) => ({
         sku: l.sku,
         quantity: l.quantity,
+        // A display snapshot, so a line whose SKU is not in the bundled recorded
+        // catalogue (an item the office just created) still shows after a reload;
+        // the published catalogue refreshes these on the next request.
+        name: l.name,
+        itemType: l.itemType,
+        unitPriceCents: l.unitPriceCents,
+        currency: l.currency,
         ...(l.lineId ? { lineId: l.lineId } : {}),
         ...(l.booking ? { booking: l.booking } : {}),
       }));

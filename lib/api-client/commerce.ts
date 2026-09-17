@@ -22,6 +22,17 @@
  */
 import { ApiError } from "@/lib/api-client/api-error";
 import {
+  createCatalogRecord,
+  getCatalogRecord,
+  listCatalogRecords,
+  listPublishedCatalogRecords,
+  updateCatalogRecord,
+  type AdminCatalogItem,
+  type CatalogDraft,
+  type CatalogDraftErrors,
+  type CatalogItemRecord,
+} from "@/lib/api-client/catalog-store";
+import {
   createFixtureOrder,
   getFixtureAdminOrder,
   listFixtureAdminOrders,
@@ -29,7 +40,6 @@ import {
   type AdminOrder,
   type OrderTransition,
 } from "@/lib/api-client/order-store";
-import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
 
 export {
   availableTransitions,
@@ -39,6 +49,8 @@ export {
   type OrderTimelineEvent,
   type OrderTransition,
 } from "@/lib/api-client/order-store";
+
+export type { AdminCatalogItem, CatalogDraft, CatalogDraftErrors, CatalogItemRecord };
 
 const BASE_URL = process.env.COMMERCE_BASE_URL ?? "";
 
@@ -59,6 +71,10 @@ export type CatalogItem = {
   unit_price_cents: number;
   currency: string;
   display_price: string;
+  /** APP-AUTHORED storefront photo (the catalogue admin's media picker). NOT a
+   * frozen contract field: live upstream never sends it → null, and the public
+   * views fall back to their own recorded imagery. */
+  image?: string | null;
 };
 
 export type OrderResponse = {
@@ -78,8 +94,6 @@ export type OrderResponse = {
   placed_at?: string;
   event_uuid?: string;
 };
-
-type CatalogStore = { items: CatalogItem[] };
 
 async function getJson(path: string): Promise<unknown> {
   let res: Response;
@@ -137,6 +151,7 @@ function asCatalogItem(raw: unknown): CatalogItem {
     unit_price_cents: Number(r.unit_price_cents),
     currency: String(r.currency),
     display_price: String(r.display_price),
+    image: typeof r.image === "string" && r.image.trim().length > 0 ? r.image : null,
   };
 }
 
@@ -260,24 +275,76 @@ export async function transitionOrder(
   return transitionFixtureOrder(number, status, actor);
 }
 
-/* ----------------------------- fixture mode ----------------------------- */
+/* --------------------------- admin (staff) mode --------------------------- */
 
-const STORE = catalogFile as unknown as CatalogStore;
+/**
+ * Staff catalogue administration (list · read · create · edit · deactivate).
+ *
+ * The frozen order-payment-api-v1 contract carries no catalogue write endpoint,
+ * so LIVE MODE HONESTLY REFUSES (503) instead of inventing a contract — the
+ * same posture as the orders admin. Fixture mode reads and writes the durable
+ * store (lib/api-client/catalog-store.ts), which folds the recorded seed with
+ * every admin edit; the storefront readers below read the SAME fold, so a
+ * change here is what `/products`, `/plans`, `/services`, the cart and checkout
+ * see on the next request. `catalog:read` guards the screens, `catalog:write`
+ * the create/edit routes.
+ *
+ * CONTRACT ASK (recorded in the PR): the platform needs a catalog write API
+ * (create/update/publish) before live mode can offer this screen.
+ */
+export const ADMIN_CATALOG_NOT_WIRED =
+  "catalogue administration is fixture-mode only: the platform has no catalogue " +
+  "write API yet, so creating, editing or deactivating an item would invent a contract.";
 
-function fixtureListCatalogItems(
-  itemType?: CatalogItem["item_type"],
-): CatalogItem[] {
-  return STORE.items.filter((i) => !itemType || i.item_type === itemType);
+/** Every catalogue item for the staff admin screen, published or not. */
+export async function listAdminCatalogItems(): Promise<AdminCatalogItem[]> {
+  if (commerceLiveModeEnabled()) throw new ApiError(ADMIN_CATALOG_NOT_WIRED, 503);
+  return listCatalogRecords();
 }
 
-function fixtureGetCatalogItem(idOrSku: string): CatalogItem {
-  const item =
-    STORE.items.find((i) => i.sku === idOrSku) ||
-    (/^\d+$/.test(idOrSku)
-      ? STORE.items.find((i) => i.id === Number(idOrSku))
-      : undefined);
-  if (!item) throw new ApiError("not_found", 404);
-  return item;
+/** One item for the admin edit screen, or null when the id/SKU is unknown. */
+export async function getAdminCatalogItem(
+  idOrSku: string,
+): Promise<AdminCatalogItem | null> {
+  if (commerceLiveModeEnabled()) throw new ApiError(ADMIN_CATALOG_NOT_WIRED, 503);
+  return getCatalogRecord(idOrSku);
+}
+
+/** Creates an item from a draft; field errors arrive as an ApiError's fieldErrors. */
+export async function createCatalogItem(raw: unknown): Promise<AdminCatalogItem> {
+  if (commerceLiveModeEnabled()) throw new ApiError(ADMIN_CATALOG_NOT_WIRED, 503);
+  return createCatalogRecord(raw);
+}
+
+/** Edits an item by id or SKU (uniqueness re-checked; items are never deleted). */
+export async function updateCatalogItem(
+  idOrSku: string,
+  raw: unknown,
+): Promise<AdminCatalogItem> {
+  if (commerceLiveModeEnabled()) throw new ApiError(ADMIN_CATALOG_NOT_WIRED, 503);
+  return updateCatalogRecord(idOrSku, raw);
+}
+
+/* ----------------------------- fixture mode ----------------------------- */
+
+/**
+ * The public storefront read: the durable store's PUBLISHED items only, so an
+ * item created in the admin is offered and a deactivated one disappears on the
+ * next request. App-authored extras (image) ride along; the frozen fields are
+ * unchanged.
+ */
+async function fixtureListCatalogItems(
+  itemType?: CatalogItem["item_type"],
+): Promise<CatalogItem[]> {
+  const records = await listPublishedCatalogRecords(itemType);
+  return records.map((record) => record.item);
+}
+
+async function fixtureGetCatalogItem(idOrSku: string): Promise<CatalogItem> {
+  const record = await getCatalogRecord(idOrSku);
+  // Unpublished is invisible to the public reader — same 404 as an unknown SKU.
+  if (!record || !record.published) throw new ApiError("not_found", 404);
+  return record.item;
 }
 
 /**

@@ -50,12 +50,12 @@ import {
  */
 
 // Fixture-mode checkout persists through the durable order store
-// (lib/api-client/order-store.ts). Point it at a throwaway file so the suite never
-// writes (or reads) the repo's .data/ store.
-process.env.ORDERS_STORE_PATH = path.join(
-  mkdtempSync(path.join(os.tmpdir(), "vm-orders-contract-")),
-  "orders.json",
-);
+// (lib/api-client/order-store.ts) and prices from the durable catalogue store,
+// so point BOTH at throwaway files: the suite never writes (or reads) the repo's
+// .data/ store.
+const STORE_DIR = mkdtempSync(path.join(os.tmpdir(), "vm-orders-contract-"));
+process.env.ORDERS_STORE_PATH = path.join(STORE_DIR, "orders.json");
+process.env.CATALOG_STORE_PATH = path.join(STORE_DIR, "catalog.json");
 
 /** The 11 upstream SKUs — identity must never change, whatever the price. */
 const UPSTREAM_SKUS: Array<[string, string]> = [

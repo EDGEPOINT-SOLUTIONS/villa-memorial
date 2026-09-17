@@ -126,7 +126,7 @@ export default async function PlansPage({
               <div className="item-card__media">
                 {/* eslint-disable-next-line @next/next/no-img-element -- local sample imagery */}
                 <img
-                  src={PLAN_PACKAGES_IMAGE}
+                  src={item.image ?? PLAN_PACKAGES_IMAGE}
                   alt=""
                   loading="lazy"
                 />
