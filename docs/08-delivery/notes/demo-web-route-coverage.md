@@ -1,96 +1,100 @@
-# Demo → Web Route Coverage Checklist (living document)
+# Portal route coverage — current build (living document)
 
-> Purpose: track every ui-ux-demo route against production `web/` so nothing is silently
-> missing. **Check = open the route in a running build** (`cd web && npm run dev`) and tick
-> the status below. When a route is a stub, its page says why ("not wired yet" / "Coming
-> soon") — that label is the honest state, not the end state.
+> Purpose: one short, honest map of what every portal route serves today, so agents and
+> reviewers don't have to re-audit `app/**`. Per-screen PRD alignment, evidence and the
+> gap lists live in [`prd-alignment-audit.md`](../prd-alignment-audit.md); this note is only
+> the route index. Check = open the route in a running build (`npm run dev`, fixture mode by
+> default) and confirm it renders data, an honest empty state, or an honest placeholder —
+> never a broken page.
 >
-> Status legend: ✅ real screen (works against fixtures/live) · ⚠ stub ("not wired yet"
-> page exists, RBAC-gated) · 🚧 in progress · ❌ absent.
+> Legend: ✅ real screen (live contract or durable fixture store) · ⚠ honest placeholder
+> ("not wired yet" / "coming soon", naming what unblocks it) · ❌ absent.
+> When a contract lands, change the page **and** its row here in the same PR.
 
-## How to check (the plan)
-1. `cd web && npm run dev` (fixture mode — no env vars needed).
-2. Log in as each persona at `/login` (hints fill the email; they fill the password too when
-   demo quick-fill is enabled — `DEMO_QUICK_FILL=1`, see `demo-script-cp1.md` — otherwise type
-   `Demo-Passw0rd!`): admin (everything) · staff (operational) · customer (storefront/family).
-3. Walk the tables below in order; for each route confirm the page renders and shows
-   **real data, an honest empty state, or a "not wired yet" label** — never a broken page.
-4. Tick the box; a ❌ left over is a task card, not an accident.
+## Public site — `app/(public)`
 
-## Public / marketing
-| Demo route | Web route | Status |
-|---|---|---|
-| `/`, `/home` (landing) | `/` | ✅ Landing page (memorial-park marketing; links to catalog/map/login) |
-| `/site/services` + death-at-home/hospital | `/services` | ✅ Static service pages (links; content is marketing copy) |
-| `/site/plans` + `/site/plans/:slug` | `/plans`, `/plans/:sku` | ✅ real (catalog) |
-| `/site/plans/compare` | `/plans/compare` | ✅ real-data comparison (packages) |
-| `/site/plans/senior-benefits` | `/plans/senior-benefits` | ✅ static content page |
-| `/site/lots` + `/site/lots/:slug` | `/lots` + `/lots/[id]` | ✅ real lot browse/detail (fixture/live-gated like the map) |
-| `/site/map` | `/map` | ✅ shared park map |
-| `/site/packages` + detail | `/packages` (detail via `/plans/:sku`) | ✅ real packages from catalog |
-| `/site/products` + detail | `/products` | ⚠ door page (no product type in catalog contract yet) |
-| `/site/transport` | — | ❌ absent (defer) |
-| `/site/contact` · `/site/quote` · `/site/appointments` · `/site/faq` | — | ❌ absent (needs inquiry/CRM contract) |
-| `/site/register` | `/register` | ✅ |
+| Route | What it serves |
+|---|---|
+| `/` | ✅ content-model home (editable LandingPage document; live park map in the middle column) |
+| `/services`, `/services/death-at-home`, `/services/death-at-hospital`, `/transport` | ✅ client's 2026 a-la-carte/embalming/chapel sheets; chapel lines open the booking dialog |
+| `/products`, `/products/[sku]` | ✅ 24 casket models from the 2026 sheet; sample imagery labelled illustrative |
+| `/plans`, `/plans/[sku]`, `/plans/compare`, `/plans/senior-benefits`, `/plans/villa-memorial-plan`, `/packages` | ✅ plan tables + catalogue read the pricing/catalog stores |
+| `/lots`, `/lots/[id]`, `/lots/price-list-2026` | ✅ lot browse/filter, detail, 2026 lot families |
+| `/map` | ✅ shared park map — 2D masterplan + 3D mode (plotting is `property:write` only) |
+| `/cart`, `/checkout`, `/orders/[number]` | ✅ cart and real order creation on the frozen commerce contract |
+| `/quote`, `/appointments` | ⚠ real capture, nothing sent/stored server-side (no quotation/scheduling write contract); confirmation says so |
+| `/contact` | ✅ request landing; captures to the browser-local demo store the staff inquiries board reads (no CRM service) |
+| `/faq` | ✅ static content |
+| `/register` | ⚠ account provisioning is not frozen; submission ends in an explicit demo state |
 
-## Storefront
-| Demo route | Web route | Status |
-|---|---|---|
-| `/cart` · `/checkout` | same | ✅ real |
-| `/order/:reference` | `/orders/[number]` | ✅ real |
-| `/orders` (staff) | `/staff/orders` | ⚠ stub (no list API yet) |
+Sign-in doors: `/login` (staff) ✅ · `/client/login` (family) ✅ · `/agent/login` (agent) ✅ —
+one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 
-## Staff portal
-| Demo route | Web route | Status |
-|---|---|---|
-| `/dashboard` | `/staff/dashboard` | ✅ |
-| `/customers` + `/:id` | same under /staff | ✅ fixture-backed |
-| `/customers/new` | — | ❌ (needs crm contract) |
-| `/inquiries` + `/inquiries/new` | `/staff/inquiries` | ✅ list; new-form ❌ |
-| `/plans` + `/:id` (staff) | — | ❌ (staff catalog mgmt = catalog:write contract) |
-| `/catalog` | `/staff/catalog` | ⚠ |
-| `/inventory` | `/staff/inventory` | ⚠ |
-| `/pricing` | `/staff/pricing` | ⚠ |
-| `/pipeline` | `/staff/pipeline` | ⚠ |
-| `/cases` + `/new` + `/:id` | same | ✅ |
-| `/schedule` + `/schedule/new` | `/staff/schedule` | ✅ (new = inline form) |
-| `/dispatch` | `/staff/dispatch` | ⚠ |
-| `/property` + `/:id` | `/staff/property` + `[id]` | ✅ map pilot + purchase-application section (reads fixture application where captured) |
-| — | `/staff/property/[id]/apply` | ✅ fixture-backed purchase-application capture (fixture mode; live 503 — no application contract frozen yet) |
-| `/work-orders` | `/staff/work-orders` | ⚠ |
-| `/notifications` | — | ❌ (no scope/contract) |
-| `/billing` | `/staff/billing` | ✅ |
-| `/accounting` | `/staff/accounting` | ⚠ |
-| `/hr` + `/:id` | same | ✅ fixture-backed |
-| `/hr/new` | — | ❌ (hr contract) |
-| `/documents` + `/:id` + `/documents/new` | `/staff/documents` | ✅ repo; detail/generate partial |
-| `/reports` | `/staff/dashboard` covers | ❌ separate (reporting contract) |
-| `/admin/users` + `/new` | `/staff/users` | ⚠ users; new ❌ |
-| `/admin/store` | `/staff/store` | ⚠ |
-| `/admin/workflows` + `/new` | `/staff/workflows` | ⚠ |
-| `/admin/settings` | `/staff/settings` | ⚠ |
-| `/admin/audit` | `/staff/audit` | ✅ |
+## Staff portal — `app/(staff)/staff`
 
-## Family portal (customer/family)
-| Demo route | Web route | Status |
-|---|---|---|
-| `/client/login` | `/client/login` | ✅ (real auth; family persona) |
-| `/client/dashboard` | `/client/dashboard` | ✅ fixture-backed summary |
-| `/client/profile` | same | ✅ |
-| `/client/plans` | same | ⚠ coming-soon (no family plans API) |
-| `/client/property` | same | ⚠ coming-soon |
-| `/client/payments` | same | ⚠ coming-soon (billing is staff-scoped) |
-| `/client/cases` | same | ⚠ coming-soon |
-| `/client/documents` | same | ⚠ coming-soon |
-| `/client/memorials` · `/requests` · `/notifications` · `/appointments` · `/support` · `/privacy` | same | ⚠ coming-soon (no backend concept yet) |
+| Route | What it serves |
+|---|---|
+| `/staff/dashboard` | ✅ scope-gated ops/finance/lots aggregation from the same clients as the screens |
+| `/staff/customers`, `/[id]`, `/staff/inquiries` | ✅ fixture-backed records (no crm-families contract yet); `new` forms ⚠ (crm-families) |
+| `/staff/pipeline` | ⚠ sales pipeline (crm-families) |
+| `/staff/cases`, `/[id]`, `/new`, `/[id]/service-contract` | ✅ frozen case contract + capture/export |
+| `/staff/schedule` | ✅ chapel administration (settings/availability/bookings) over the scheduling store |
+| `/staff/dispatch` | ⚠ vehicle dispatch (vehicles as scheduling resources; scheduling delivery) |
+| `/staff/work-orders` | ⚠ lot maintenance (deferred property workflow) |
+| `/staff/property`, `/[id]`, `/[id]/apply`, `/[id]/document` | ✅ shared park map; lot reserve; purchase application is PROVISIONAL (503 live) |
+| `/staff/catalog`, `/new`, `/[id]/edit` | ✅ durable catalogue store (503 live — no catalog write contract); public storefront reads the same store |
+| `/staff/plans`, `/staff/pricing` | ✅ editable pricing store for plan rates + lot families; `/staff/plans/[id]` and `/new` ⚠ |
+| `/staff/orders`, `/[number]` | ✅ durable orders store + app-authored lifecycle (503 live — no order-admin contract) |
+| `/staff/billing`, `/record-payment` | ✅ frozen billing list + payment recording |
+| `/staff/accounting` | ⚠ no staff-facing ledger API |
+| `/staff/notifications` | ⚠ no notification rule/event contract |
+| `/staff/reports` | ⚠ reporting-analytics unbuilt; the dashboard aggregates today |
+| `/staff/landing` | ✅ real content editor for the home document |
+| `/staff/store` | ⚠ broader storefront-content editor (no content contract); landing is the real CMS seam |
+| `/staff/documents`, `/[id]` | ✅ repository + generation/export; upload disabled (no object store); `/new` ⚠ |
+| `/staff/hr`, `/[id]` | ✅ fixture-backed directory; `/new` ⚠ (hr service) |
+| `/staff/users` | ⚠ auth/roles are real; user provisioning is dev-authored; `/new` is the invite door |
+| `/staff/workflows`, `/new`, `/staff/settings` | ⚠ config/workflow engine deferred |
+| `/staff/audit` | ✅ frozen audit-events read |
 
-## Agent portal
-| Demo route | Web route | Status |
-|---|---|---|
-| all `/agent/*` (7) | — | ❌ absent — needs agent/commission contract; not built (defer) |
+Every ⚠ page renders the shared `NotWiredState` with the unblocking contract named, after a
+scope gate that renders the designed `ForbiddenState` when the session lacks it
+(`tests/unit/staff-scope-vocabulary.test.ts` pins that every gate uses frozen scope tokens).
 
-## Standing rules for every row
-- ✅ means the screen shows live-or-fixture data and passes RBAC — not just "the route exists".
-- ⚠ "not wired yet" pages must say **what unblocks them** (contract name), not just exist.
-- Never render a route that pretends to have data it cannot fetch (❌ vs ⚠ distinction).
-- Re-run this checklist before every demo; update ticks in the same PR as the screens.
+## Family portal — `app/(family)/client`
+
+All screens share the family/agent house style (`components/portal-frame.tsx`). Data is one
+recorded family snapshot fixture until the family API contract freezes — the honesty state is
+the deliverable, not a leftover.
+
+| Route | What it serves |
+|---|---|
+| `/client/dashboard` | ⚠ partial snapshot summary (loved one, balance, next due) |
+| `/client/family` | ⚠ household links; each row points at its honest screen |
+| `/client/plans`, `/payments`, `/property`, `/cases`, `/appointments`, `/requests`, `/memorials`, `/notifications`, `/privacy` | ⚠ snapshot or honest state; the missing service/contract is named on the page |
+| `/client/documents`, `/client/documents/receipts/[reference]` | ⚠ the family's own papers (service contract, official receipts) always show; a receipt copy prints only from a record that carries number+date+amount, else 404 |
+| `/client/support` | ✅ the client's real numbers/places with the office call as the action |
+| `/client/profile` | ⚠ partial; device-local reading preferences are real |
+
+## Agent portal — `app/(agent)/agent`
+
+11 routes (`dashboard`, `prospects`, `prospects/[id]`, `clients`, `clients/[id]`, `sales`,
+`lots`, `applications`, `appointments`, `marketing`, `new`): ⚠ all read one provisional
+agent-workspace fixture — no agent/commission contract exists, so commission amounts are
+`null` by design and the pages say so. `/agent/lots` mounts the same shared park map as
+`/staff/property` and `/map`.
+
+## Absent (not routes yet) — needs a contract or a decision
+
+Platform-admin screens (tenant management, platform login); public Smart Service
+Builder; interment/exhumation/ownership/transfer workflows; commission engine; digital
+memorial (e-memorial, e-wake, abuloy, QR, search); AI copilot. See the audit's §7.2/§7.3
+for what each one is blocked on.
+
+## Standing rules
+
+- ✅ means real data and RBAC — not just "the route exists".
+- ⚠ pages must name **what unblocks them** (contract/service), not just exist.
+- Never render a screen pretending to have data it cannot fetch; a route that cannot exist
+  honestly stays absent.
+- Re-run this checklist before every demo; update the row in the same PR as the screen.

@@ -20,7 +20,10 @@ on backend services.
 3. **Sessions server-side only.** Access tokens live in httpOnly cookies managed by BFF routes
    (`app/api/auth/*`); tokens never reach browser JS, localStorage, or logs.
 4. **RBAC gates nav AND actions.** Hiding a button is UX; authorization still happens at
-   services. The UI must render graceful 403 states when scopes don't allow an action.
+   services. The UI must render graceful 403 states when scopes don't allow an action. Staff
+   page gates declare inline scope arrays from the frozen vocabulary
+   (`docs/08-delivery/contracts/rbac-scopes-v1.md`); `tests/unit/staff-scope-vocabulary.test.ts`
+   fails any token outside it and checks the admin persona resolves every gate.
 5. **Every async screen has error/empty/loading states per design system before merge**
    (`components/ui/states.tsx`). No bare spinners-only screens.
 

@@ -6,7 +6,7 @@ export default function workordersPage() {
   return gatedSectionPage(
     "Work orders",
     "Operations",
-    ["property"],
-    "read:Lot-maintenance work orders are a deferred property workflow; property-gis covers lots, reservations and sales today.",
+    ["property:read"],
+    "Lot-maintenance work orders are a deferred property workflow; property-gis covers lots, reservations and sales today.",
   );
 }
