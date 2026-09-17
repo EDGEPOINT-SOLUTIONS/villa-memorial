@@ -301,7 +301,7 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const seed = readLandingContent((contentFile as { content: unknown }).content);
     expect(seed.hero.background).toBeNull();
     expect(seed.hero.backgroundTransparency).toBe(100);
-    expect(validateLandingContent(seed).ok).toBe(true);
+    expect(validateLandingContent(seed, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 
   it("reads a legacy document that lacks both fields as no colour + fully transparent", async () => {
@@ -314,7 +314,7 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const read = readLandingContent(legacy);
     expect(read.hero.background).toBeNull();
     expect(read.hero.backgroundTransparency).toBe(100);
-    expect(validateLandingContent(read).ok).toBe(true);
+    expect(validateLandingContent(read, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 
   it("round-trips a colour + transparency through the real save path", async () => {
@@ -346,12 +346,12 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     for (const transparency of [0, 100]) {
       const doc = cloneDoc(content);
       doc.hero.backgroundTransparency = transparency;
-      expect(validateLandingContent(doc).ok).toBe(true);
+      expect(validateLandingContent(doc, LOT_PRICE_CATEGORIES).ok).toBe(true);
     }
     for (const transparency of [-1, 101, Number.NaN]) {
       const doc = cloneDoc(content);
       doc.hero.backgroundTransparency = transparency;
-      const verdict = validateLandingContent(doc);
+      const verdict = validateLandingContent(doc, LOT_PRICE_CATEGORIES);
       expect(verdict.ok).toBe(false);
       if (!verdict.ok) expect(verdict.error).toMatch(/transparency.*0 to 100/);
     }
@@ -361,7 +361,7 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const content = await listLandingContent();
     const bad = cloneDoc(content);
     bad.hero.background = "url(https://evil.test/x.png)";
-    const verdict = validateLandingContent(bad);
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
     expect(verdict.ok).toBe(false);
     if (!verdict.ok) expect(verdict.error).toMatch(/valid CSS colour/);
   });

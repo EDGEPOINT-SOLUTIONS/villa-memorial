@@ -267,7 +267,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     legacy.hero.background = null;
     legacy.hero.backgroundTransparency = 100;
     const html = renderToStaticMarkup(
-      LandingView({ content: legacy, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: legacy, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home__wash");
   });
@@ -278,7 +278,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     tinted.hero.background = "#3f97d1";
     tinted.hero.backgroundTransparency = 45;
     const html = renderToStaticMarkup(
-      LandingView({ content: tinted, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: tinted, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain('class="hero-home__wash"');
     expect(html.split("hero-home__wash").length - 1).toBe(1);
@@ -292,7 +292,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     transparent.hero.background = "#3f97d1";
     transparent.hero.backgroundTransparency = 100;
     const html = renderToStaticMarkup(
-      LandingView({ content: transparent, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: transparent, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home__wash");
   });
@@ -303,7 +303,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     hostile.hero.background = "url(https://evil.test/x.png)";
     hostile.hero.backgroundTransparency = 0;
     const html = renderToStaticMarkup(
-      LandingView({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home__wash");
     expect(html).not.toContain("evil.test");
