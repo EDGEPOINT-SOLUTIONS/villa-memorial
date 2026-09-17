@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Villa Memorial ↔ IN MEMORIAM PRD — alignment audit</title>
+<style>
+  /* Design source: the project's own design system — tokens transcribed from
+     villa-memorial styles/tokens.css (sky/navy/gold "Radiant Compassion"), the
+     same serif display / sans body pairing and BEM-ish grammar the app uses. */
+  :root{
+    --sky-50:#f2f9fe; --sky-100:#e2f2fc; --sky-200:#c4e6f8; --sky-300:#98d2f1;
+    --sky-400:#6bbce8; --sky-500:#3f97d1; --sky-600:#2b7cb4; --sky-700:#22699a;
+    --sky-800:#1a5278; --sky-900:#143f5c; --sky-950:#0d2c42;
+    --navy-50:#f4f7fb; --navy-100:#e6edf5; --navy-200:#c8d8e8; --navy-300:#9db6d0;
+    --navy-500:#4c6e93; --navy-700:#27486b; --navy-800:#1b3a58; --navy-900:#12293f;
+    --gold-300:#f1cc5e; --gold-400:#e2b633; --gold-500:#c79b1e; --gold-600:#7a5c00; --gold-700:#8a6708;
+    --sage-500:#6f8f6a; --sage-100:#e7ede5; --clay-500:#b3695e; --clay-100:#f4e4e1;
+    --amber-500:#b08a3e; --amber-100:#f3ecdb; --slate-info:#5b7086; --slate-info-100:#e4eaf0;
+    --paper:#fbfdff; --paper-raised:#ffffff; --line:var(--sky-200); --line-strong:var(--sky-300);
+    --ink:var(--navy-900); --ink-2:var(--navy-700); --muted:var(--navy-500);
+    --shadow:0 10px 30px rgba(13,44,66,.08);
+    --radius:14px; --radius-sm:8px;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:
+      radial-gradient(1200px 500px at 85% -80px, var(--sky-100), transparent 60%),
+      linear-gradient(180deg,var(--sky-50), var(--paper) 420px);
+    color:var(--ink);font:16px/1.55 var(--sans)}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px 80px;min-width:0}
+  a{color:var(--sky-800)}
+  h1,h2,h3{font-family:var(--serif);color:var(--navy-900);line-height:1.15;margin:0}
+  h1{font-size:clamp(28px,4vw,44px);letter-spacing:-.01em}
+  h2{font-size:clamp(21px,2.4vw,28px);margin-top:0}
+  h3{font-size:18px}
+  p{margin:.5em 0}
+  .eyebrow{text-transform:uppercase;letter-spacing:.14em;font-size:11px;font-weight:700;color:var(--gold-700);margin:0 0 8px}
+  .masthead{padding:44px 0 22px;border-bottom:1px solid var(--line)}
+  .masthead .wrap{padding-bottom:22px}
+  .masthead p.lede{max-width:74ch;color:var(--ink-2);font-size:17px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:13px;margin-top:14px}
+  .meta code{font-family:var(--mono);font-size:12px;background:var(--sky-100);padding:2px 6px;border-radius:6px}
+  main .wrap>section{margin-top:44px}
+  .card{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px 24px;min-width:0}
+  .card+.card{margin-top:18px}
+  .verdict{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:20px;align-items:start}
+  @media (max-width:840px){.verdict{grid-template-columns:minmax(0,1fr)}}
+  .verdict__stamp{font-family:var(--serif);font-size:24px;color:var(--sky-900);margin:0 0 6px}
+  .verdict__body p{color:var(--ink-2)}
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;letter-spacing:.02em;white-space:nowrap;border:1px solid transparent}
+  .pill--ok{background:var(--sage-100);color:#3c5a38;border-color:#cbd9c7}
+  .pill--partial{background:var(--amber-100);color:#6d5419;border-color:#e3d5ae}
+  .pill--gap{background:var(--clay-100);color:#7c3d34;border-color:#e3c3bc}
+  .pill--beyond{background:var(--slate-info-100);color:#3d5064;border-color:#c6d4e0}
+  .pill--defect{background:#fdecea;color:#8a2f22;border-color:#f0c6bd}
+  .counts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+  @media (max-width:840px){.counts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .count{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;min-width:0}
+  .count b{display:block;font-family:var(--serif);font-size:38px;line-height:1;color:var(--sky-900)}
+  .count span{display:block;font-size:12.5px;color:var(--muted);margin-top:6px}
+  .bar{height:8px;border-radius:99px;background:var(--sky-100);overflow:hidden;margin-top:10px}
+  .bar i{display:block;height:100%;background:var(--sky-500)}
+  .bar.b-ok i{background:var(--sage-500)}.bar.b-partial i{background:var(--amber-500)}.bar.b-gap i{background:var(--clay-500)}.bar.b-beyond i{background:var(--slate-info)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;position:sticky;top:0;z-index:5;background:linear-gradient(180deg,var(--sky-50) 70%,rgba(242,249,254,.85));padding:10px 0;border-bottom:1px solid var(--line)}
+  .toolbar strong{font-size:13px;color:var(--muted);font-weight:600;margin-right:4px}
+  .chip-btn{border:1px solid var(--line-strong);background:var(--paper-raised);color:var(--ink-2);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer}
+  .chip-btn[aria-pressed="true"]{background:var(--sky-800);border-color:var(--sky-800);color:#fff}
+  .group{margin-top:30px}
+  .group>h2{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  .group>h2 small{font-family:var(--sans);font-weight:600;font-size:13px;color:var(--muted)}
+  .group .note{color:var(--muted);font-size:13.5px;margin:4px 0 12px}
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--paper-raised);min-width:0}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+  caption{text-align:left;padding:12px 14px 0;font-size:12.5px;color:var(--muted)}
+  th{position:sticky;top:54px;background:var(--sky-800);color:#fff;text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;padding:9px 12px;z-index:2}
+  td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top;min-width:0}
+  tr:nth-child(even) td{background:var(--sky-50)}
+  tr[hidden]{display:none}
+  td.item{font-weight:600;color:var(--navy-900);max-width:230px}
+  td.where{font-family:var(--mono);font-size:11.5px;color:var(--navy-700);max-width:270px;overflow-wrap:anywhere}
+  td.ref{font-family:var(--mono);font-size:11px;color:var(--muted);max-width:170px;overflow-wrap:anywhere}
+  td.why{color:var(--ink-2);min-width:280px}
+  .idbadge{font-family:var(--mono);font-size:10.5px;color:var(--muted);display:block;margin-bottom:3px}
+  .owner{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  @media (max-width:840px){.owner{grid-template-columns:minmax(0,1fr)}}
+  .owner .card h3{margin:0 0 4px}
+  .owner .card .pills{margin:4px 0 10px}
+  ul.tight{margin:8px 0 0;padding-left:18px}
+  ul.tight li{margin:6px 0;color:var(--ink-2)}
+  .dev{border-left:4px solid var(--gold-500);background:var(--paper-raised);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;margin:10px 0;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .dev b{display:block;color:var(--navy-900)}
+  .dev p{margin:4px 0 0;color:var(--ink-2);font-size:13.5px}
+  .dev code{font-family:var(--mono);font-size:12px;background:var(--sky-100);padding:1px 5px;border-radius:5px}
+  .defect{background:#fff7f5;border:1px solid #f0c6bd;border-radius:var(--radius);padding:16px 18px;margin:10px 0}
+  .defect b{color:#8a2f22}
+  details{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--paper-raised);padding:10px 14px;margin:8px 0}
+  details summary{cursor:pointer;font-weight:600;color:var(--navy-800)}
+  details .inner{padding:8px 2px 2px;color:var(--ink-2);font-size:13.5px}
+  details .inner code{font-family:var(--mono);font-size:12px;background:var(--sky-100);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+  .qgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  @media (max-width:840px){.qgrid{grid-template-columns:minmax(0,1fr)}}
+  .q{background:var(--paper-raised);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;min-width:0}
+  .q label{display:flex;gap:9px;align-items:flex-start;margin:8px 0;font-size:13.5px;color:var(--ink-2);cursor:pointer}
+  .q input{margin-top:3px}
+  .q button{margin-top:10px;background:var(--sky-800);color:#fff;border:0;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer}
+  .q button:hover{background:var(--sky-900)}
+  .q .queued{font-size:12px;color:var(--sage-500);display:none;margin-left:8px}
+  .q.sent .queued{display:inline}
+  footer{margin-top:56px;border-top:1px solid var(--line);padding-top:16px;color:var(--muted);font-size:12.5px}
+  .kbd{font-family:var(--mono);font-size:12px;background:var(--sky-100);padding:1px 5px;border-radius:5px}
+  .legendline{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--muted);margin:8px 0 0}
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">Alignment audit · captain's review</p>
+    <h1>Is villa-memorial still following the IN&nbsp;MEMORIAM PRD?</h1>
+    <p class="lede">An honest read of everything built in this repo against the in-memoriam PRD: what is in line and why,
+      what is an honest placeholder, what is missing, and what we built that the PRD never asked for.</p>
+    <div class="meta">
+      <span>Audited commit <code>f2ce5c7</code> (PRs #38 + #40; project main is one commit ahead at <code>ab0a70f</code>)</span>
+      <span>PRD: <code>/home/gab/firstmate/projects/in-memoriam/docs</code></span>
+      <span>2026-09-17</span>
+      <span>805/805 tests green · 99/99 routes rendered 200</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ======================= VERDICT ======================= -->
+  <section id="verdict">
+    <div class="verdict">
+      <div class="card verdict__body">
+        <p class="verdict__stamp">Verdict: yes — in line, and honest about the gaps.</p>
+        <p>The frozen architecture is followed (Next.js BFF per ADR-003/004, frozen lot/case/order/booking/document contracts,
+          scope-gated RBAC, tokens-only styling), the client's real 2026 prices and papers drive the storefront, and every
+          screen without a live service says so in designed wording instead of faking data.</p>
+        <p><b>Where we are not in line:</b> 20 PRD screens are not built (mostly blocked on unbuilt services), 25 are honest
+          placeholders naming their blocker, and the repo has grown 13 captain-approved extensions the PRD screen inventory
+          never named — the 3D park, the agent portal, the admin stores, the sky/navy/gold palette. None conflicts with a PRD
+          rule, but the PRD no longer describes the whole shipped surface, and that drift is the thing to manage.</p>
+        <p><b>Defects found:</b> four staff screens render a 403 to the admin because their scope tokens are malformed —
+          the honest placeholder exists, it is just gated by the wrong word. Two villa docs describe a pre-portal build.</p>
+      </div>
+      <div class="card">
+        <div class="legendline">
+          <span class="pill pill--ok">Built</span>
+          <span class="pill pill--partial">Honest placeholder</span>
+          <span class="pill pill--gap">Not built</span>
+          <span class="pill pill--beyond">Beyond PRD</span>
+          <span class="pill pill--defect">Defect</span>
+        </div>
+        <p style="margin-top:12px;color:var(--muted);font-size:13.5px">Every table row carries its villa route/component and its
+          PRD file:line. Status is exactly one bucket. Rows are annotation targets — select any text or element and queue a note.</p>
+        <p style="color:var(--muted);font-size:13.5px">The full evidence trail (commands, rendered routes, what could not be
+          verified) is in the report: <code style="font-family:var(--mono);font-size:12px">docs/08-delivery/prd-alignment-audit.md</code>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= COUNTS ======================= -->
+  <section id="counts">
+    <p class="eyebrow">The counts, per PRD screen</p>
+    <h2 style="margin-bottom:14px">79 PRD screens: 34 built · 25 honest · 20 missing</h2>
+    <div class="counts">
+      <div class="count"><b>79</b><span>PRD screens in the inventory — 32 public, 12 family, 32 staff, 3 platform
+        <br><small>screen-inventory.md:7-12, 15-16, 19-24, 26-27</small></span>
+        <div class="bar b-beyond"><i style="width:100%"></i></div>
+      </div>
+      <div class="count"><b style="color:#3c5a38">34</b><span>Built — screen does its job with real or recorded data and actions</span>
+        <div class="bar b-ok"><i style="width:43%"></i></div>
+      </div>
+      <div class="count"><b style="color:#6d5419">25</b><span>Honest placeholder — screen exists, names what unblocks it, never fakes data</span>
+        <div class="bar b-partial"><i style="width:32%"></i></div>
+      </div>
+      <div class="count"><b style="color:#7c3d34">20</b><span>Not built — no route; blocked on a service/contract, a role/scope, or not started</span>
+        <div class="bar b-gap"><i style="width:25%"></i></div>
+      </div>
+    </div>
+    <p style="margin-top:12px;color:var(--muted);font-size:13.5px">Plus <b>13 extensions beyond the inventory</b> (captain-approved villa work) — the 3D park, agent portal,
+      admin stores, palette, portal switcher, hero editor, device uploads, demo tooling. They extend named PRD rules; the PRD was not updated to name them.</p>
+  </section>
+
+  <!-- ======================= FILTER ======================= -->
+  <section id="tables">
+    <div class="toolbar" role="group" aria-label="Filter alignment rows">
+      <strong>Show:</strong>
+      <button class="chip-btn" data-filter="all" aria-pressed="true">All rows</button>
+      <button class="chip-btn" data-filter="built" aria-pressed="false">Built</button>
+      <button class="chip-btn" data-filter="honest" aria-pressed="false">Honest placeholder</button>
+      <button class="chip-btn" data-filter="missing" aria-pressed="false">Not built</button>
+      <button class="chip-btn" data-filter="beyond" aria-pressed="false">Beyond PRD</button>
+    </div>
+
+    <!-- ============ PUBLIC ============ -->
+    <div class="group" data-group>
+      <h2>Public website <small>32 PRD screens → 20 built · 4 honest · 8 missing</small></h2>
+      <p class="note">Source: <span class="kbd">04-modules/screen-inventory.md:7-12</span> + the module rules each screen answers.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>PRD item</th><th>Where it lives</th><th>PRD reference</th><th>Status</th><th>Why it is aligned — or not</th></tr></thead>
+          <tbody>
+          <tr data-status="built"><td class="item"><span class="idbadge">P1</span>Homepage</td><td class="where">/ · app/page.tsx · components/landing/landing-view.tsx (content doc lib/fixtures/landing/content.json)</td><td class="ref">screen-inventory.md:7</td><td><span class="pill pill--ok">Built</span></td><td class="why">Full content-model home (hero, rails, about, services, plans, live park map, blog) — the PRD asks for a homepage and the build delivers an editable one.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P2</span>Funeral Services listing</td><td class="where">/services · components/villa/service-rates-2026.tsx</td><td class="ref">screen-inventory.md:7 · facilities-scheduling.md:3-7</td><td><span class="pill pill--ok">Built</span></td><td class="why">The client's 2026 a-la-carte, embalming and chapel sheets published with Add-to-cart / Request actions; every figure from lib/villa-pricing.ts.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P3</span>Service detail</td><td class="where">/services/death-at-home · /services/death-at-hospital · /transport</td><td class="ref">screen-inventory.md:7</td><td><span class="pill pill--ok">Built</span></td><td class="why">Per-scenario guide pages replace a generic /services/[slug]; every sellable line is actionable in place. Adapted IA, same job.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P4</span>Products listing</td><td class="where">/products · components/villa/casket-catalogue.tsx</td><td class="ref">screen-inventory.md:7 · commerce-catalog.md:7-10</td><td><span class="pill pill--ok">Built</span></td><td class="why">24 casket models grouped by collection, SRP/senior/discount from the 2026 sheet; sample imagery labelled illustrative.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P5</span>Product detail</td><td class="where">/products/[sku] · lib/catalogue-skus.ts (coffinModelForSku)</td><td class="ref">screen-inventory.md:7</td><td><span class="pill pill--ok">Built</span></td><td class="why">Card → View details → facts/prices/inclusions from catalogue + lib/villa-pricing.ts; unknown SKU 404s.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P6</span>Packages listing</td><td class="where">/packages</td><td class="ref">screen-inventory.md:7</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real catalogue (item_type=package) cards with Add-to-cart + detail link.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P7</span>Package detail</td><td class="where">/plans/[sku] · app/(public)/plans/[sku]/price-list-2026-module.tsx</td><td class="ref">screen-inventory.md:7</td><td><span class="pill pill--ok">Built</span></td><td class="why">The client-approved package.html layout: breadcrumb → hero → VMP panel → 5-column package grid → 2026 price module → rail buy card.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P8</span>Package comparison</td><td class="where">/plans/compare</td><td class="ref">screen-inventory.md:7</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real-data comparison over the catalogue.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P9</span>Smart Service Builder</td><td class="where">—</td><td class="ref">commerce-catalog.md:12-17</td><td><span class="pill pill--gap">Not built</span></td><td class="why">The configurator (identify what the family has → compose arrangement → live total) has no route/engine; it needs the pricing/availability rule engine, also unbuilt.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P10</span>Memorial Lots listing</td><td class="where">/lots · lib/lots-legend.ts</td><td class="ref">screen-inventory.md:7 · memorial-property-gis.md:76-91</td><td><span class="pill pill--ok">Built</span></td><td class="why">Filters by park/status/legend type with live chip counts over the real lot listing.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P11</span>Interactive Lot Map</td><td class="where">/map · components/public-park-map.tsx · park-maps-view.tsx</td><td class="ref">memorial-property-gis.md:87-94</td><td><span class="pill pill--ok">Built</span></td><td class="why">Interactive masterplan shared with staff/agent; click a plot → its digital profile (the PRD's "killer UX"). The 3D mode is beyond the PRD.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P12</span>Lot Search</td><td class="where">/lots search + type filters · lib/lots-legend.ts</td><td class="ref">memorial-property-gis.md:96-99</td><td><span class="pill pill--ok">Built</span></td><td class="why">Search over lot number/section and filter by type/status; proximity and AI/natural-language search are not built.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P13</span>Lot Detail</td><td class="where">/lots/[id]</td><td class="ref">memorial-property-gis.md:76-81</td><td><span class="pill pill--ok">Built</span></td><td class="why">Lot attributes, status, price, /map link, request action.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">P14</span>Lot Reservation</td><td class="where">components/lot-reserve-action.tsx + POST /api/property/lots/:id/reserve; public request link</td><td class="ref">memorial-property-gis.md:96-99</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Reservation is real for property:write sessions and enforced by property-gis; a public visitor gets the honest request path because no public reservation contract exists (period/expiry/payment flow unbuilt).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P15</span>Pre-Need Plans</td><td class="where">/plans · /plans/villa-memorial-plan · /plans/senior-benefits</td><td class="ref">screen-inventory.md:8 · finance-billing.md:42-48</td><td><span class="pill pill--ok">Built</span></td><td class="why">Five tiers × four terms, regular + senior, through one renderer fed the pricing store.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P16</span>Plan Detail</td><td class="where">/plans/[sku] · PlanTermSelector</td><td class="ref">screen-inventory.md:8</td><td><span class="pill pill--ok">Built</span></td><td class="why">Tier × term prices through planRate(); non-monthly terms open the prefilled request — the PRD's plan-subject-to-contract-rules pattern.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P17</span>Plan Comparison</td><td class="where">/plans/compare</td><td class="ref">screen-inventory.md:8</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real plan comparison.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P18</span>Cart</td><td class="where">/cart · lib/cart/cart-context.tsx</td><td class="ref">commerce-catalog.md:19-25</td><td><span class="pill pill--ok">Built</span></td><td class="why">One cart for products/services/packages/chapel stays; localStorage persistence + display-snapshot refresh (frozen checkout sends sku+quantity only).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P19</span>Checkout</td><td class="where">/checkout → POST /api/orders</td><td class="ref">commerce-catalog.md:19-25 · order-payment-api-v1 (frozen)</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real order creation on the frozen contract; chapel holds are claimed after the 201 (best effort).</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">P20</span>Quote Request</td><td class="where">/quote · lib/public-forms/*</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Form and gate are real; nothing is sent or stored server-side (no quotation service) — the confirmation says exactly that.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">P21</span>Appointment Booking</td><td class="where">/appointments · lib/public-forms/*</td><td class="ref">screen-inventory.md:10 · facilities-scheduling.md:16-19</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Designed capture, no scheduling write contract; confirmation: "Request checked — nothing was sent."</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P22</span>Immediate Assistance</td><td class="where">24/7 call panel on / and /services</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No dedicated screen; the call-first answer exists inline but the screen is absent.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P23</span>Contact</td><td class="where">/contact · lib/public-forms/request-prefill.ts</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--ok">Built</span></td><td class="why">Publishes numbers/address; captures to the browser-local demo store the staff inquiries board reads (no CRM service).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P24</span>FAQ</td><td class="where">/faq</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--ok">Built</span></td><td class="why">Static FAQ page; content is hand-written rather than a CMS collection (minor consistency note).</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P25</span>Facilities</td><td class="where">—</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No park facilities page; chapels are documented on /services instead.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P26</span>Virtual Tour</td><td class="where">—</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--gap">Not built</span></td><td class="why">The 3D park is a different, beyond-PRD experience; no tour route.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P27</span>Gallery</td><td class="where">—</td><td class="ref">screen-inventory.md:10</td><td><span class="pill pill--gap">Not built</span></td><td class="why">Client photography exists in public/media but no gallery page.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P28</span>Digital Memorial Search</td><td class="where">—</td><td class="ref">digital-memorial.md:18-20</td><td><span class="pill pill--gap">Not built</span></td><td class="why">The memorial service does not exist.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P29</span>Digital Memorial Page</td><td class="where">—</td><td class="ref">digital-memorial.md:6-11</td><td><span class="pill pill--gap">Not built</span></td><td class="why">Family /client/memorials is the honest "not switched on" state.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">P30</span>Find My Loved One</td><td class="where">—</td><td class="ref">digital-memorial.md:18-20 · memorial-property-gis.md:112-115</td><td><span class="pill pill--gap">Not built</span></td><td class="why">Needs the deceased/memorial search service and the privacy rules the PRD itself leaves open.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">P31</span>Login</td><td class="where">/login · /client/login · /agent/login → POST /api/auth/login</td><td class="ref">screen-inventory.md:12</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real BFF session (httpOnly cookies, defensive claim parse). Three doors caused by the missing role claim (deviation).</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">P32</span>Register</td><td class="where">/register → RegisterCard</td><td class="ref">screen-inventory.md:12</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">UX complete; account provisioning is not frozen, so submission ends in an explicit demo success state.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ PLANS & PROPERTY ============ -->
+    <div class="group" data-group>
+      <h2>Plans &amp; property <small>PRD rules — the store, the map, chapels, cases, papers</small></h2>
+      <p class="note">The PRD treats lots as property/assets with GIS and lifecycle (memorial-property-gis.md), and pricing as a governed store (finance-billing.md). This is where the build added the most captain-approved depth.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Item</th><th>Where it lives</th><th>PRD reference</th><th>Status</th><th>Why</th></tr></thead>
+          <tbody>
+          <tr data-status="built"><td class="item">Pricing store (plan rates + lot families)</td><td class="where">lib/api-client/pricing-store.ts · pricing.ts · seed lib/fixtures/commerce/pricing.json · editors /staff/pricing &amp; /staff/plans</td><td class="ref">finance-billing.md:42-48 · commerce-catalog.md:3-5</td><td><span class="pill pill--ok">Built</span></td><td class="why">One editable home for every published figure; lib/pricing-model.ts validates (four modes, peso integrity, mode identity, senior ≤ regular, ₱3 lot rounding). Public pages read it per request. No platform write contract → live 503.</td></tr>
+          <tr data-status="built"><td class="item">Lot price list from the client's sheets</td><td class="where">/lots/price-list-2026 + lot families in the pricing store</td><td class="ref">memorial-property-gis.md:76-81</td><td><span class="pill pill--ok">Built</span></td><td class="why">Six families regular + senior, six-year amortization; the two unresolved client conflicts ride as read-only <code>questions</code> beside the document.</td></tr>
+          <tr data-status="built"><td class="item">2D park map + plot store</td><td class="where">lib/park-maps.ts · components/park-maps-view.tsx · parks-canvas.tsx</td><td class="ref">memorial-property-gis.md:87-94</td><td><span class="pill pill--ok">Built</span></td><td class="why">Shared between public /map, staff /staff/property, agent /agent/lots; image-space plots with status/type/section; demo-local persistence (deviation).</td></tr>
+          <tr data-status="beyond"><td class="item">3D park</td><td class="where">lib/park-3d/* · components/park3d/*</td><td class="ref">memorial-property-gis.md:117-119 (digital twin, roadmap)</td><td><span class="pill pill--beyond">Beyond PRD</span></td><td class="why">Implements the digital-twin direction the PRD marks future; masterplan-only, placeholder inventory labelled, property:write gates plotting.</td></tr>
+          <tr data-status="built"><td class="item">Chapel booking (customer)</td><td class="where">components/chapel-booking-dialog.tsx · lib/chapel-booking.ts · BFF /api/chapel/*</td><td class="ref">facilities-scheduling.md:3-7</td><td><span class="pill pill--ok">Built</span></td><td class="why">3–9 day stays, per-day availability, exact range price, reserve-on-add / release-on-remove with race check — the PRD's chapel-only rental is sold. Chapel names/count are PLACEHOLDER rows.</td></tr>
+          <tr data-status="built"><td class="item">Chapel administration</td><td class="where">/staff/schedule · lib/chapel-admin.ts · chapel-store.ts · BFF /api/schedule/*</td><td class="ref">facilities-scheduling.md:3-7 · screen-inventory.md:20</td><td><span class="pill pill--ok">Built</span></td><td class="why">One store, two faces (staff settings/availability/bookings, customer dialog); holds vs confirmed; cancel-with-reason; live mode 503 for the app-authored write shape.</td></tr>
+          <tr data-status="built"><td class="item">Case management</td><td class="where">/staff/cases · [id] · lib/api-client/operations.ts</td><td class="ref">crm-cases.md:57-65 · case-events-v1 (frozen)</td><td><span class="pill pill--ok">Built</span></td><td class="why">List/detail, stage progression, task checklist, intake capture, service-contract link; live branch implemented.</td></tr>
+          <tr data-status="built"><td class="item">Case intake + service contract</td><td class="where">/staff/cases/new · [id]/service-contract</td><td class="ref">crm-cases.md:57-65 · documents-contracts.md:86-90 · current-state-forms.md:3-16</td><td><span class="pill pill--ok">Built</span></td><td class="why">Villa's paper Service Contract captured as structured data and exportable; intake addendum is additive per the frozen event contract.</td></tr>
+          <tr data-status="honest"><td class="item">Purchase application + agreement</td><td class="where">/staff/property/[id]/apply · [id]/document · components/purchase-application-*</td><td class="ref">current-state-forms.md:18-43 · documents-contracts.md:86-99</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">PROVISIONAL app-authored shape (no frozen sale-financing contract); fixture capture + real DOCX/PDF export; live mode 503.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ COMMERCE ============ -->
+    <div class="group" data-group>
+      <h2>Commerce <small>catalog · orders · cart — the frozen contracts</small></h2>
+      <p class="note">Source: commerce-catalog.md (catalog as authoritative source, unified cart) + order-payment-api-v1 (frozen).</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Item</th><th>Where it lives</th><th>PRD reference</th><th>Status</th><th>Why</th></tr></thead>
+          <tbody>
+          <tr data-status="built"><td class="item">Catalogue as authoritative source</td><td class="where">lib/api-client/commerce.ts (durable catalogue store) → /plans /services /products /packages + /staff/catalog</td><td class="ref">commerce-catalog.md:3-5</td><td><span class="pill pill--ok">Built</span></td><td class="why">One storefront source for public and staff; an admin edit reaches the storefront on the next request. Real 2026 figures replace the upstream placeholder seed.</td></tr>
+          <tr data-status="beyond"><td class="item">Catalog admin</td><td class="where">/staff/catalog + new/edit · lib/catalog-admin.ts · lib/api-client/catalog-store.ts</td><td class="ref">commerce-catalog.md:7-10 (Product/Service Management)</td><td><span class="pill pill--beyond">Beyond PRD</span></td><td class="why">Real storefront-facing admin with deactivate-not-delete and photo picker — depth the PRD rules imply but the inventory only names as a screen. No platform write API → live 503.</td></tr>
+          <tr data-status="beyond"><td class="item">Orders admin lifecycle</td><td class="where">/staff/orders · [number] · lib/api-client/order-store.ts</td><td class="ref">commerce-catalog.md:19-25 · order-payment-api-v1</td><td><span class="pill pill--beyond">Beyond PRD</span></td><td class="why">Durable store, filters, app-authored new→confirmed→fulfilled/cancelled lifecycle that never rewrites the frozen payment status; live 503.</td></tr>
+          <tr data-status="built"><td class="item">Checkout → order</td><td class="where">/checkout → POST /orders</td><td class="ref">commerce-catalog.md:19-25</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real order creation on the frozen contract; quote-required items route to the request form.</td></tr>
+          <tr data-status="built"><td class="item">Cart rules</td><td class="where">lib/cart/cart-context.tsx · lib/plan-selection.ts</td><td class="ref">commerce-catalog.md:19-25</td><td><span class="pill pill--ok">Built</span></td><td class="why">Mixed cart of services/caskets/packages/chapel days; plan tier × term only carts the monthly non-senior selection, otherwise opens the request naming the sheet amount.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ STAFF ============ -->
+    <div class="group" data-group>
+      <h2>Staff operations <small>32 PRD screens → 13 built · 10 honest · 9 missing</small></h2>
+      <p class="note">Source: screen-inventory.md:19-24, with module rules from crm-cases, facilities-scheduling, finance-billing, reporting-dashboards, documents-contracts.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>PRD item</th><th>Where it lives</th><th>PRD reference</th><th>Status</th><th>Why</th></tr></thead>
+          <tbody>
+          <tr data-status="built"><td class="item"><span class="idbadge">S1</span>Admin Dashboard</td><td class="where">/staff/dashboard · lib/api-client/reporting.ts</td><td class="ref">reporting-dashboards.md:131-140 · roles-permissions.md:16-23</td><td><span class="pill pill--ok">Built</span></td><td class="why">Ops + finance + lots summaries aggregated from the SAME clients the screens use (structural no-contradiction), each figure scope-gated.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S2</span>Operations Board</td><td class="where">—</td><td class="ref">facilities-scheduling.md:21-24</td><td><span class="pill pill--gap">Not built</span></td><td class="why">Today's retrievals/embalmings/viewings/dispatches/ceremonies/interments with owners has no board; the dashboard's upcoming list and /staff/schedule are adjacent, not it.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S3</span>CRM</td><td class="where">/staff/customers · [id] · /staff/inquiries</td><td class="ref">crm-cases.md:39-46</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Screens real over recorded fixtures; crm-families is unbuilt, so no live customer/inquiry data.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S4</span>Lead Detail</td><td class="where">—</td><td class="ref">crm-cases.md:39-46</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No lead record route; customer detail is not a lead. Blocked on crm-families.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S5</span>Sales Pipeline</td><td class="where">/staff/pipeline</td><td class="ref">commerce-catalog.md:32-36</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Honest not-wired stub (crm-families) — but currently renders a 403 to admin due to the scope defect (see Defects).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S6</span>Product/Service Management</td><td class="where">/staff/catalog</td><td class="ref">commerce-catalog.md:7-10</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real admin over the durable catalogue store.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S7</span>Package Management</td><td class="where">/staff/plans · /staff/catalog</td><td class="ref">commerce-catalog.md:7-10</td><td><span class="pill pill--ok">Built</span></td><td class="why">Package prices/tiers edited in the plan-rate admin; package items in the catalogue admin.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S8</span>Pricing Rules</td><td class="where">/staff/pricing · /staff/plans</td><td class="ref">finance-billing.md:42-48 · commerce-catalog.md:19-25</td><td><span class="pill pill--ok">Built</span></td><td class="why">Same validation function as the BFF save; preview renders the public components; client questions read-only beside the document.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S9</span>Order Management</td><td class="where">/staff/orders</td><td class="ref">commerce-catalog.md:19-25</td><td><span class="pill pill--ok">Built</span></td><td class="why">Durable store, filters, lifecycle, RBAC orders:read/write.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S10</span>Funeral Case Management</td><td class="where">/staff/cases (+new/intake/service-contract)</td><td class="ref">crm-cases.md:57-65</td><td><span class="pill pill--ok">Built</span></td><td class="why">Frozen case contract; stages/tasks/intake; live branch real.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S11</span>Embalming/Preparation</td><td class="where">case task "Confirm embalming completion" only</td><td class="ref">crm-cases.md:67-71</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No prep record screen (embalmer, schedule, dressing/cosmetics, checklist) — only a case task. Needs a funeral-cases extension.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S12</span>Chapel Calendar</td><td class="where">/staff/schedule</td><td class="ref">facilities-scheduling.md:3-7</td><td><span class="pill pill--ok">Built</span></td><td class="why">Chapel settings/availability/bookings with confirmation and reason-cancel; the customer dialog reads the same store.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S13</span>Vehicle Dispatch</td><td class="where">/staff/dispatch</td><td class="ref">facilities-scheduling.md:9-14</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Honest stub (vehicles as scheduling resources; UX with scheduling delivery) — currently 403 to admin (scope defect).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S14</span>Cemetery Map</td><td class="where">/staff/property</td><td class="ref">memorial-property-gis.md:87-94</td><td><span class="pill pill--ok">Built</span></td><td class="why">Same shared map as public/agent; plotting for property:write; reserve/sell transitions.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S15</span>Lot Management</td><td class="where">/staff/property/[id]</td><td class="ref">memorial-property-gis.md:76-81</td><td><span class="pill pill--ok">Built</span></td><td class="why">Lot detail, status, owner, reserve, purchase-application capture; demo plots labelled.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S16</span>Ownership</td><td class="where">—</td><td class="ref">memorial-property-gis.md:101-104</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No ownership/co-owner/authorized-family record or certificate issuance. Deferred upstream.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S17</span>Transfers</td><td class="where">—</td><td class="ref">memorial-property-gis.md:101-104</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No transfer request→verify→approve workflow. Deferred upstream.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S18</span>Interments</td><td class="where">case stage "interment" only</td><td class="ref">memorial-property-gis.md:106-110</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No verify-deceased/lot/ownership/payment/permit workflow or GIS update. Deferred upstream.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S19</span>Exhumations</td><td class="where">—</td><td class="ref">memorial-property-gis.md:106-110</td><td><span class="pill pill--gap">Not built</span></td><td class="why">Not built. Deferred upstream.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S20</span>Maintenance/Work Orders</td><td class="where">/staff/work-orders</td><td class="ref">facilities-scheduling.md:31-34</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Honest stub (deferred property workflow) — currently 403 to admin (scope defect).</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S21</span>Inventory</td><td class="where">/staff/inventory</td><td class="ref">facilities-scheduling.md:26-29</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Honest stub (no stock API) — renders its reason with a stray "read:" prefix (defect).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S22</span>Contracts/Documents</td><td class="where">/staff/documents · [id] · generated contract pages · /api/documents/generate, /render</td><td class="ref">documents-contracts.md:86-103</td><td><span class="pill pill--ok">Built</span></td><td class="why">Repository + generation (service contract, purchase agreement, receipts) and export; upload disabled with an honest reason (no object store).</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S23</span>Payments/Collections</td><td class="where">/staff/billing · /staff/billing/record-payment</td><td class="ref">finance-billing.md:42-48 · billing-list-api-v1 (frozen)</td><td><span class="pill pill--ok">Built</span></td><td class="why">Live-capable billing list + record payment; overdue/aging derived client-side as documented.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S24</span>Accounting</td><td class="where">/staff/accounting</td><td class="ref">finance-billing.md:50-53</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">The accounting service exists but no staff-facing ledger/trial-balance API is frozen.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S25</span>Commission</td><td class="where">— (agent fixture view only)</td><td class="ref">finance-billing.md:55-61</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No staff commission engine screens; the agent portal's Sales &amp; commissions is a fixture-shaped agent view, not the admin engine.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S26</span>Notifications</td><td class="where">/staff/notifications</td><td class="ref">documents-contracts.md:105-109</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">No notification rule/event contract or scope.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S27</span>CMS</td><td class="where">/staff/landing (real editor) · /staff/store (stub)</td><td class="ref">documents-contracts.md:111-115</td><td><span class="pill pill--ok">Built</span></td><td class="why">Real content editor for the home document (hero, rails, sections, plan card, blog) with pickers and device uploads; /staff/store remains the honest stub for a broader content editor.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S28</span>Reports/BI</td><td class="where">/staff/reports</td><td class="ref">reporting-dashboards.md:125-140</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Dashboard aggregates today; reporting-analytics is unbuilt.</td></tr>
+          <tr data-status="missing"><td class="item"><span class="idbadge">S29</span>AI Copilot</td><td class="where">—</td><td class="ref">05-ai/ai-capabilities.md (not read in full)</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No AI surface at all; explicitly deferred by the CP plan.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S30</span>User/Roles/Permissions</td><td class="where">/staff/users (+/new stub) · lib/rbac/nav.ts · frozen scopes</td><td class="ref">roles-permissions.md:4-13 · rbac-scopes-v1</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Auth + nav gating are real; user provisioning/role assignment API is dev-authored → the page is the honest invite stub.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">S31</span>Audit Log</td><td class="where">/staff/audit · lib/api-client/audit.ts</td><td class="ref">audit-event-types-v1 (frozen)</td><td><span class="pill pill--ok">Built</span></td><td class="why">Live-capable audit trail read under audit:events:read; outcome filters.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">S32</span>System Settings</td><td class="where">/staff/settings</td><td class="ref">platform-administration.md (classification)</td><td><span class="pill pill--partial">Honest placeholder</span></td><td class="why">Module-flag reads frozen but the config-engine surface is deferred.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ FAMILY ============ -->
+    <div class="group" data-group>
+      <h2>Family portal <small>12 PRD screens → 1 built · 11 honest/partial</small></h2>
+      <p class="note">The machine-readable table is <span class="kbd">lib/family/portal-coverage.ts</span>, pinned by tests; states below match the rendered pages. Source: screen-inventory.md:15-16 + the modules each screen answers.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>PRD item</th><th>Route</th><th>PRD reference</th><th>Status</th><th>Why</th></tr></thead>
+          <tbody>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F1</span>Customer Dashboard</td><td class="where">/client/dashboard</td><td class="ref">screen-inventory.md:15 · crm-cases.md:43-50</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Real snapshot summary (loved one, balance, next due); funeral schedule/case progress not projected — says so and points to the office line.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F2</span>Family Dashboard</td><td class="where">/client/family</td><td class="ref">screen-inventory.md:15 · digital-memorial.md:26-30</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Family membership with roles needs identity work; lot/interment/memorial projections not wired; each row links to its honest screen.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F3</span>My Plans</td><td class="where">/client/plans</td><td class="ref">screen-inventory.md:15 · finance-billing.md:42-48</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Plan snapshot shown; instalment schedule/certificate need the contracts/documents service.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F4</span>My Lots</td><td class="where">/client/property</td><td class="ref">screen-inventory.md:15 · memorial-property-gis.md:76-81</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">No family-facing ownership projection; the park map is real and carries the action.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F5</span>My Payments</td><td class="where">/client/payments</td><td class="ref">screen-inventory.md:15 · finance-billing.md:42-48</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Balance/due shown from the snapshot; payment history, receipts, online payment need the payments/AR service.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F6</span>My Documents</td><td class="where">/client/documents (+ receipts/[reference])</td><td class="ref">screen-inventory.md:15 · documents-contracts.md:92-99</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">The family's own papers (service contract, official receipt) always show as "Yours" via the family-safe projection; full repository/download/certified copies need the documents service. The receipt-copy route 404s honestly while the snapshot carries no receipt number.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F7</span>My Memorials</td><td class="where">/client/memorials</td><td class="ref">screen-inventory.md:15 · digital-memorial.md:6-11</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Memorial service absent; page states nothing is published until the family says yes.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F8</span>My Funeral Cases</td><td class="where">/client/cases</td><td class="ref">screen-inventory.md:16 · crm-cases.md:57-65</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Case projection service absent; the page carries the office answer and the family papers.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F9</span>My Requests</td><td class="where">/client/requests</td><td class="ref">screen-inventory.md:16 · crm-cases.md:79-83</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">No service desk/ticket contract; a phone call is the one route that reaches a person.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F10</span>My Appointments</td><td class="where">/client/appointments</td><td class="ref">screen-inventory.md:16</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Scheduling has no family-facing contract; a time is only real when the office confirms.</td></tr>
+          <tr data-status="built"><td class="item"><span class="idbadge">F11</span>Support/Ticket</td><td class="where">/client/support</td><td class="ref">screen-inventory.md:16 · crm-cases.md:79-83</td><td><span class="pill pill--ok">Built</span></td><td class="why">The client's real numbers/places with the biggest action on the one channel that always works.</td></tr>
+          <tr data-status="honest"><td class="item"><span class="idbadge">F12</span>Privacy Center</td><td class="where">/client/privacy</td><td class="ref">screen-inventory.md:16 · roles-permissions.md:13</td><td><span class="pill pill--partial">Honest/partial</span></td><td class="why">Consent controls/access log need a privacy service; published promises only, no invented defaults.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ AGENT ============ -->
+    <div class="group" data-group>
+      <h2>Agent portal <small>not in the inventory — answers the commissions module</small></h2>
+      <p class="note">Finance-billing.md:55-61 asks for an agent dashboard (leads · prospects · follow-ups · sales · plans/lots sold · commission · collection · targets · conversion). The captain-approved agent portal answers that field list; the screen inventory never enumerates it.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Item</th><th>Where it lives</th><th>PRD reference</th><th>Status</th><th>Why</th></tr></thead>
+          <tbody>
+          <tr data-status="beyond"><td class="item">Agent portal — 9 screens (Today, Prospects, Clients, Appointments &amp; tasks, Lot availability, Sales &amp; commissions, Applications, Marketing &amp; materials, New lead)</td><td class="where">app/(agent)/agent/* · components/agent/agent-ui.tsx · lib/api-client/agent.ts · fixture lib/fixtures/agent/workspace.json</td><td class="ref">finance-billing.md:55-61 · roles-permissions.md:4-7 · commerce-catalog.md:32-36 · facilities-scheduling.md:16-19</td><td><span class="pill pill--beyond">Beyond + honest</span></td><td class="why">The PRD's agent dashboard fields are all present. No agent-workspace API contract exists (crm-families unbuilt, commission engine deferred), so every screen reads one provisional fixture and says so; every commission amount is null until Villa configures rates.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ PLATFORM ============ -->
+    <div class="group" data-group>
+      <h2>Platform administration <small>3 PRD screens — none in this repo</small></h2>
+      <p class="note">Source: screen-inventory.md:26-27 ("not tenant-scoped") + platform-administration.md.</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>PRD item</th><th>Where it lives</th><th>PRD reference</th><th>Status</th><th>Why</th></tr></thead>
+          <tbody>
+          <tr data-status="missing"><td class="item">Platform Dashboard / Tenant Management</td><td class="where">— (tenant switcher is cosmetic only)</td><td class="ref">screen-inventory.md:26-27 · platform-administration.md</td><td><span class="pill pill--gap">Not built</span></td><td class="why">The platform (not tenant-scoped) surface is not part of the villa frontend; lib/demo-tenants.ts is explicitly cosmetic.</td></tr>
+          <tr data-status="missing"><td class="item">Platform Login</td><td class="where">—</td><td class="ref">screen-inventory.md:26-27</td><td><span class="pill pill--gap">Not built</span></td><td class="why">Tenant login exists; platform login is a separate identity surface not built here.</td></tr>
+          <tr data-status="missing"><td class="item">Tenant Sign-Up</td><td class="where">—</td><td class="ref">screen-inventory.md:26-27</td><td><span class="pill pill--gap">Not built</span></td><td class="why">No self-serve tenant provisioning screen; the platform track owns it.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ======================= BEYOND ======================= -->
+  <section id="beyond">
+    <p class="eyebrow">What we built that the PRD did not ask for</p>
+    <h2>13 extensions — captain-approved, documented, and the reason the PRD needs a reconcile</h2>
+    <p class="note">None conflicts with a PRD rule; each extends one. The drift risk is that the PRD documents no longer describe the whole product.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>#</th><th>Extension</th><th>Where</th><th>Approval / evidence</th><th>Conflict?</th></tr></thead>
+        <tbody>
+        <tr data-status="beyond"><td class="ref">B1</td><td class="item">3D park (orbit navigation, plot picking, placeholder inventory)</td><td class="where">lib/park-3d/* · components/park3d/* · /map</td><td class="ref">docs/07-client-villa/park-3d-spec.md (captain 2026-09-16; orbit 2026-09-17)</td><td class="why">None — the PRD's digital-twin direction (§43), ahead of its roadmap; anti-hallucination contract stricter than the PRD.</td></tr>
+        <tr data-status="beyond"><td class="ref">B2</td><td class="item">Agent portal (9 screens)</td><td class="where">app/(agent)/agent/*</td><td class="ref">agent-portal-design README (captain 2026-09-16)</td><td class="why">None — answers finance-billing.md:56-61, a screen set the inventory does not enumerate.</td></tr>
+        <tr data-status="beyond"><td class="ref">B3</td><td class="item">Premium navy/gold/sky palette</td><td class="where">styles/tokens.css</td><td class="ref">premium-admin-direction.md (2026-09-08) + sky-blue rule in services-design README (2026-09-16)</td><td class="why">Deviates from design-system.md:27-31 (granite/marble/brass). Token mechanism preserved; PRD palette text not updated.</td></tr>
+        <tr data-status="beyond"><td class="ref">B4</td><td class="item">Landing-page content model + editor</td><td class="where">/staff/landing · lib/api-client/landing.ts · lib/landing/*</td><td class="ref">AGENTS.md landing block; Lavish villa-landing-plan</td><td class="why">None — CMS §50 implemented as a document store; the PRD has no content contract, so the app is the authority.</td></tr>
+        <tr data-status="beyond"><td class="ref">B5</td><td class="item">Hero background colour + transparency editor</td><td class="where">components/landing/hero-background-field.tsx · lib/landing/hero-background.ts</td><td class="ref">AGENTS.md</td><td class="why">None — CMS extension; documents that never touched the fields render unchanged.</td></tr>
+        <tr data-status="beyond"><td class="ref">B6</td><td class="item">Device uploads into content documents</td><td class="where">components/landing/device-uploader.tsx · lib/device-upload.ts</td><td class="ref">AGENTS.md</td><td class="why">None — substitutes for the missing object store (media live in the JSON document).</td></tr>
+        <tr data-status="beyond"><td class="ref">B7</td><td class="item">Pricing store + editor</td><td class="where">/staff/pricing · /staff/plans · lib/api-client/pricing-store.ts</td><td class="ref">AGENTS.md pricing block</td><td class="why">None — implements Pricing Rules. No platform write API (live 503).</td></tr>
+        <tr data-status="beyond"><td class="ref">B8</td><td class="item">Catalog admin store</td><td class="where">/staff/catalog · lib/api-client/catalog-store.ts</td><td class="ref">AGENTS.md catalog block</td><td class="why">None — implements Product/Service Management. Live 503 by design.</td></tr>
+        <tr data-status="beyond"><td class="ref">B9</td><td class="item">Orders admin lifecycle</td><td class="where">/staff/orders · lib/api-client/order-store.ts</td><td class="ref">AGENTS.md orders block</td><td class="why">Lifecycle is APP-AUTHORED around the frozen envelope; no contract names it. Live 503 by design.</td></tr>
+        <tr data-status="beyond"><td class="ref">B10</td><td class="item">Chapel admin + customer booking workflow</td><td class="where">/staff/schedule · chapel-booking-dialog.tsx · lib/chapel-admin.ts</td><td class="ref">AGENTS.md chapel sections</td><td class="why">None — implements chapel-only rental + calendar; extends booking-events v1 with app-authored blocks/states.</td></tr>
+        <tr data-status="beyond"><td class="ref">B11</td><td class="item">Paper exports (DOCX/PDF) + purchase-application capture</td><td class="where">components/paper/* · lib/export/* · /api/export/paper-pdf</td><td class="ref">premium-admin-direction.md · FORMS_PLAN.md</td><td class="why">None — the generation module requires it; PDF was "deferred" upstream and is now built for papers.</td></tr>
+        <tr data-status="beyond"><td class="ref">B12</td><td class="item">Portal switcher + separate sign-in doors</td><td class="where">components/portal-switch.tsx · three sign-in routes</td><td class="ref">README "four surfaces"</td><td class="why">Fills the missing role/portal claim; one door when the contract lands.</td></tr>
+        <tr data-status="beyond"><td class="ref">B13</td><td class="item">Demo tooling: tenant switcher, quick-fill, browser-local captures, stub-gateway, AWS agent toolkit</td><td class="where">lib/demo-*.ts · stub-gateway/ · .agents/skills/</td><td class="ref">README · AGENTS.md · .env.example</td><td class="why">Tooling/dev surfaces — no product conflict; clearly labelled, never fake data.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================= GAPS ======================= -->
+  <section id="gaps">
+    <p class="eyebrow">The gap list</p>
+    <h2>Sorted by who owns the fix</h2>
+    <div class="owner">
+      <div class="card">
+        <h3>1 · Villa frontend — fixable now, no contract</h3>
+        <div class="pills"><span class="pill pill--defect">G1 scope defects</span><span class="pill pill--partial">doc drift</span></div>
+        <ul class="tight">
+          <li><b>G1</b> — /staff/dispatch <code>["scheduling"]</code>, /staff/pipeline <code>["cases"]</code>, /staff/work-orders <code>["property"]</code> never match real scopes → 403 to admin where the honest placeholder belongs.</li>
+          <li><b>G1b</b> — /staff/inventory passes a reason starting <code>"read:"</code>, so its not-wired text renders malformed.</li>
+          <li><b>G2</b> — docs/08-delivery/notes/demo-web-route-coverage.md is stale (claims family/agent portals absent, /staff/plans absent, no product catalogue…).</li>
+          <li><b>G3</b> — README is stale (DOC palette, portals "coming soon", old demo-password path).</li>
+          <li><b>G4</b> — no sitemap.ts/robots.ts/canonical/OpenGraph/structured data (documents-contracts.md:111-115).</li>
+          <li><b>G5</b> — /staff/store stub overlaps the real /staff/landing editor (IA debt).</li>
+          <li><b>G6</b> — villa docs snapshot (2026-09-08) drifted 17 files from the canonical PRD; refresh/backport policy is manual.</li>
+          <li><b>G7</b> — /faq content is not in the CMS content model (staff cannot edit it).</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>2 · Platform / dev contract — 503 or stub until frozen</h3>
+        <div class="pills"><span class="pill pill--gap">blocked</span></div>
+        <ul class="tight">
+          <li><b>crm-families</b> (read+write) — customers, inquiries, lead detail, pipeline, agent sync.</li>
+          <li><b>HR</b> — directory live data, attendance/leave writes.</li>
+          <li><b>reporting-analytics</b> — reports/BI, executive dashboards.</li>
+          <li><b>accounting screens API</b> — journal/trial-balance UI.</li>
+          <li><b>catalog + pricing write APIs; order-admin record/lifecycle</b> — live admin mode.</li>
+          <li><b>notification contract + scope</b> — staff and family notifications.</li>
+          <li><b>family API contract + family scopes</b> — the 11 honest family screens.</li>
+          <li><b>agent workspace/commission contract</b> — agent live data, commission engine.</li>
+          <li><b>public lots read path; family scheduling contract</b> — /map live mode; true appointment times.</li>
+          <li><b>sale-financing/application record</b> — purchase application persistence.</li>
+          <li><b>document upload/object store, versioning, e-signature; per-installment receipt event; payer on receipt.</b></li>
+          <li><b>interment / exhumation / ownership / transfer workflows.</b></li>
+          <li><b>commission engine; AI capabilities; platform administration; digital-memorial services (e-memorial, e-wake, abuloy, QR, search); Smart Service Builder engine.</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>3 · Client data — needs Villa's answer</h3>
+        <div class="pills"><span class="pill pill--partial">waiting on client</span></div>
+        <ul class="tight">
+          <li><b>Chapel names/count/classes</b> — Chapel A/B are PLACEHOLDER rows (open-questions.md:51).</li>
+          <li><b>Commission rates/rules</b> — every amount null by design (open-questions.md:70).</li>
+          <li><b>Senior chapel rate conflict</b> — 96% column vs ₱1,800/₱4,200 footnote, published as printed (Q8).</li>
+          <li><b>Lot A-001 ₱85,000</b> — matches no 2026 sheet row; do not fold.</li>
+          <li><b>2025 vs 2026 refund/cancellation + lot classifications</b> — contract lifecycle divergence.</li>
+          <li><b>Park sections/blocks/dimensions, legal model wording, payment gateways, notification channels, DPA retention, AI governance, SLAs.</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>4 · Firstmate tooling</h3>
+        <div class="pills"><span class="pill pill--beyond">tooling</span></div>
+        <ul class="tight">
+          <li><b>.agents/skills</b> AWS agent toolkit vendored in the app repo — excluded from lint; re-check that exclusion as CI changes.</li>
+          <li><b>Docs-snapshot sync</b> — SYNC.md protects villa-only docs, but snapshot content diverged from the canonical PRD (17 files). Decide what backports.</li>
+          <li><b>Audit regeneration</b> — the render script from this audit can be re-run to keep the route inventory current.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= DEVIATIONS ======================= -->
+  <section id="deviations">
+    <p class="eyebrow">Known deviations — reason and consequence</p>
+    <h2>What we deliberately do differently, and why</h2>
+    <div class="dev"><b>1 · Fixture-first data instead of live services</b><p>Reason: the cross-track plan is contract-driven and several services are unbuilt. Consequence: every portal demos standalone; live branches are real where contracts are frozen (property, cases, billing, auth, audit, documents, ordering) and honest 503 where they are not.</p></div>
+    <div class="dev"><b>2 · Browser-local demo persistence</b><p>Reason: no write contracts/object store. Consequence: inquiries, agent field captures, cart, reading preferences, park edits and the tenant switcher live in localStorage; nothing survives a device change; confirmations say so.</p></div>
+    <div class="dev"><b>3 · Family/agent role missing from the frozen RBAC contract</b><p>Reason: jwt-claims-v1/rbac-scopes-v1 define scopes only (customer holds catalog:read + tenancy:modules:read; agent holds orders:*, property:read, catalog:read). Consequence: lib/auth/destination.ts infers the portal from scope heuristics; four doors exist; the family room has no scope of its own.</p></div>
+    <div class="dev"><b>4 · No catalogue/pricing write API platform-side</b><p>Reason: no frozen contract names one. Consequence: /staff/catalog, /staff/plans, /staff/pricing write app-authored fixture stores; live mode 503 (ADMIN_CATALOG_NOT_WIRED, PRICING_ADMIN_NOT_WIRED).</p></div>
+    <div class="dev"><b>5 · Placeholder chapel names/count; commission rates unconfigured</b><p>Reason: client has not confirmed either. Consequence: honest PLACEHOLDER rows, every commission amount null, no invented figures.</p></div>
+    <div class="dev"><b>6 · Unresolved client-data conflicts, published not reconciled</b><p>Senior chapel rate (96% vs footnote), Lot A-001 vs the sheet, 2025/2026 refund+rules divergence. Reason: awaiting Villa. Consequence: both conflicts are read-only <code>questions</code> outside the editable pricing document — a save can never resolve them.</p></div>
+    <div class="dev"><b>7 · Catalogue diverges from the upstream placeholder seed</b><p>Reason: the client's real 2026 figures win. Consequence: upstream parity is a captain/dev decision; 4 items with no 2026 sheet keep seed prices by design.</p></div>
+    <div class="dev"><b>8 · The repo grew past the PRD documents</b><p>Reason: villa-specific captain work. Consequence: the PRD does not describe the 3D park, portals, admin stores or palette; the villa docs snapshot adds them but is not the PRD and contains stale files. This is the drift to manage.</p></div>
+    <div class="dev"><b>9 · Palette deviation from design-system.md</b><p>Reason: captain direction (blue/gold 2026-09-08, sky blue 2026-09-16). Consequence: token architecture honored; the PRD's palette text is out of date.</p></div>
+    <div class="dev"><b>10 · Four sign-in doors / portal switcher</b><p>Reason: no role claim. Consequence: a visible workaround that collapses to one door when the contract lands.</p></div>
+    <div class="dev"><b>11 · Two frontends / source-of-truth split</b><p>Reason: open dev decision (PORT_PLAN.md). Consequence: project main is already one PR ahead of the audited commit; sync tooling exists but is manual.</p></div>
+    <div class="dev"><b>12 · Demo quick-fill / tenant switcher are non-production by design</b><p>Reason: demo UX. Consequence: quick-fill password is a server-side opt-in; the tenant switcher is cosmetic and cannot change tenant context (verified in code).</p></div>
+  </section>
+
+  <!-- ======================= DEFECTS ======================= -->
+  <section id="defects">
+    <p class="eyebrow">Actionable now</p>
+    <h2>Defects found — small, low-risk, worth fixing</h2>
+    <div class="defect"><b>1 · Three staff screens 403 their admin</b><p class="why">/staff/dispatch (<code>["scheduling"]</code>), /staff/pipeline (<code>["cases"]</code>), /staff/work-orders (<code>["property"]</code>) pass scope tokens that can never match the frozen vocabulary (<code>scheduling:read</code>, <code>cases:read</code>, <code>property:read</code>), so an admin session gets ForbiddenState instead of the designed not-wired page. Fix: correct the three arrays; add a test that every gated-section scope token is in the frozen vocabulary.</p></div>
+    <div class="defect"><b>2 · One honest reason renders malformed</b><p class="why">/staff/inventory passes its reason with a stray <code>read:</code> prefix, so the page prints "read:Stock levels and catalog write endpoints are dev-authored…". Fix: strip the prefix.</p></div>
+    <div class="defect"><b>3 · Two docs describe a pre-portal build</b><p class="why">docs/08-delivery/notes/demo-web-route-coverage.md and README.md are stale in ways that mislead the next agent about what exists. Fix: refresh or archive.</p></div>
+  </section>
+
+  <!-- ======================= METHOD ======================= -->
+  <section id="method">
+    <p class="eyebrow">Method &amp; evidence</p>
+    <h2>What was read, what was rendered, what could not be verified</h2>
+    <details open>
+      <summary>Read</summary>
+      <div class="inner">
+        <p><b>PRD (canonical in-memoriam docs):</b> screen-inventory.md (full); commerce-catalog.md; crm-cases.md; documents-contracts.md; facilities-scheduling.md; finance-billing.md; memorial-property-gis.md; reporting-dashboards.md; roles-permissions.md; design-system.md; adr-003; adr-004; rbac-scopes-v1.md; known-limitations-cp1.md; phase-2-backlog.md; checkpoint-delivery-plan.md; digital-memorial.md; filipino-culture-module.md; client-to-saas-mapping.md; open-questions.md; current-state-forms.md; README.md.</p>
+        <p><b>Villa-only docs:</b> park-3d-spec.md; premium-admin-direction.md; services-design/README; family-portal-design/README; agent-portal-design/README; demo-web-route-coverage.md.</p>
+        <p><b>Build:</b> app/** (all four route groups + BFF routes), components/**, lib/api-client/** (property, operations, commerce, catalog-store, pricing-store, order-store, chapel-admin, chapel-reservations, family, agent, landing, audit, hr, finance, documents), lib/fixtures/** provenance, lib/rbac/nav.ts, lib/auth/portal-guard.ts + destination.ts, lib/family/portal-coverage.ts, lib/pricing-model.ts, portal-nav.ts, styles/tokens.css, AGENTS.md, README.md, PORT_PLAN.md, SYNC.md, FORMS_PLAN.md, package.json.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Rendered (fixture-mode next dev on :4001, curl + cookie login per persona)</summary>
+      <div class="inner">
+        <p><b>Public 27/27 → 200.</b> Staff 49/49 → 200 (16 render the designed not-wired state; dispatch/pipeline/work-orders show a 403 from the scope defect). Family 14/15 → 200; the one 404 is correct behaviour (receipt copy has no number in the snapshot). Agent 9/9 → 200.</p>
+        <p>Login: <code>POST /api/auth/login</code> with each demo persona; session checked via <code>/api/auth/session</code>. The full route list and status codes are in report.md §2 and §4.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Commands</summary>
+      <div class="inner"><p><code>npm test</code> → 75 files, 805 tests, all pass. <code>npx next dev --port 4001</code> (fixture mode). Curl checks per route/persona. <code>diff -rq docs &lt;in-memoriam&gt;/docs</code> for the snapshot drift check.</p></div>
+    </details>
+    <details>
+      <summary>Could not verify</summary>
+      <div class="inner">
+        <p>Live mode (no gateway / *_BASE_URL available) — live branches reviewed by code only. <code>npm run build</code> not re-run this session. docker-compose stub stack not started. PRD docs read only as listed above (01-product/*, 03-domain/*, 05-ai/*, most ADRs and remaining contracts were not opened). Captain approvals are quoted from the villa design docs' own records.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- ======================= DECISIONS ======================= -->
+  <section id="decisions">
+    <p class="eyebrow">Your call</p>
+    <h2>What should happen next?</h2>
+    <p class="note">Pick what you want firstmate to act on. Selections stay local until you queue them; each question sends one prompt.</p>
+    <div class="qgrid">
+      <form class="q" data-lavish-question="scope-fix" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('fix'); if(!v) return; window.lavish.queuePrompt('PRD audit — scope defects: ' + v, {tag:'choice', text:'Scope defects: ' + v, element: event.currentTarget, data:{question:'scope-fix', answer:v}}); event.currentTarget.classList.add('sent');">
+        <h3>Fix the scope defects now?</h3>
+        <label><input type="radio" name="fix" value="Fix the 3 malformed scopes + the read: prefix in one small PR, with a vocabulary test"> Yes — one small PR + a scope-vocabulary test</label>
+        <label><input type="radio" name="fix" value="Leave the defects documented in the audit report; prioritize PRD work first"> No — leave documented, prioritize elsewhere</label>
+        <button type="submit">Queue this answer</button><span class="queued">✓ queued</span>
+      </form>
+      <form class="q" data-lavish-question="prd-drift" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('drift'); if(!v) return; window.lavish.queuePrompt('PRD audit — drift policy: ' + v, {tag:'choice', text:'PRD drift policy: ' + v, element: event.currentTarget, data:{question:'prd-drift', answer:v}}); event.currentTarget.classList.add('sent');">
+        <h3>How should the PRD/villa drift be handled?</h3>
+        <label><input type="radio" name="drift" value="Backport the 13 villa extensions into the in-memoriam PRD as a named villa-extension layer"> Backport them into the PRD as a named layer</label>
+        <label><input type="radio" name="drift" value="Keep them villa-only and refresh the villa docs snapshot so agents are not misled"> Keep villa-only; refresh the snapshot</label>
+        <label><input type="radio" name="drift" value="Decide per-extension with a review of the 13 items"> Decide per extension (walk the 13)</label>
+        <button type="submit">Queue this answer</button><span class="queued">✓ queued</span>
+      </form>
+      <form class="q" data-lavish-question="next-gap" onsubmit="event.preventDefault(); const v = [...event.currentTarget.querySelectorAll('input[name=gap]:checked')].map(i=>i.value); if(!v.length) return; window.lavish.queuePrompt('PRD audit — next gap to prioritize: ' + v.join(', '), {tag:'choice', text:'Next gap: ' + v.join(', '), element: event.currentTarget, data:{question:'next-gap', answers:v}}); event.currentTarget.classList.add('sent');">
+        <h3>If one missing area gets attention next, which?</h3>
+        <label><input type="checkbox" name="gap" value="Digital memorial (e-memorial, e-wake, abuloy, QR, Find My Loved One)"> Digital memorial family (P28–P30, F7)</label>
+        <label><input type="checkbox" name="gap" value="crm-families (customers, inquiries, leads, pipeline)"> CRM (crm-families)</label>
+        <label><input type="checkbox" name="gap" value="Interment / ownership / transfer / exhumation workflows"> Lot lifecycle workflows (S16–S19)</label>
+        <label><input type="checkbox" name="gap" value="Accounting / reporting screens"> Accounting &amp; reporting (S24, S28)</label>
+        <label><input type="checkbox" name="gap" value="Smart Service Builder"> Smart Service Builder (P9)</label>
+        <button type="submit">Queue selected</button><span class="queued">✓ queued</span>
+      </form>
+      <form class="q" data-lavish-question="client-asks" onsubmit="event.preventDefault(); const v = new FormData(event.currentTarget).get('ask'); if(!v) return; window.lavish.queuePrompt('PRD audit — client questions: ' + v, {tag:'choice', text:'Client questions: ' + v, element: event.currentTarget, data:{question:'client-asks', answer:v}}); event.currentTarget.classList.add('sent');">
+        <h3>Carry the client questions to Villa?</h3>
+        <label><input type="radio" name="ask" value="Compile the open client-data list (chapel list, commission rates, senior-rate conflict, A-001, 2025/2026 divergence) into one client ask"> Yes — one compiled client ask</label>
+        <label><input type="radio" name="ask" value="Leave them as published questions in the app until the client raises them"> No — leave published as-is</label>
+        <button type="submit">Queue this answer</button><span class="queued">✓ queued</span>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <p>Audit artifact · villa-memorial @ <code class="kbd">f2ce5c7</code> vs IN MEMORIAM PRD · 2026-09-17 · full report: <code class="kbd">docs/08-delivery/prd-alignment-audit.md</code></p>
+    <p>Read-only: no production file was changed. Render evidence from a fixture-mode dev server; live mode was reviewed by code only.</p>
+  </footer>
+</main>
+
+<script>
+(function(){
+  var btns = document.querySelectorAll('.chip-btn');
+  var rows = document.querySelectorAll('tr[data-status]');
+  btns.forEach(function(b){
+    b.addEventListener('click', function(){
+      btns.forEach(function(x){ x.setAttribute('aria-pressed', String(x===b)); });
+      var f = b.getAttribute('data-filter');
+      rows.forEach(function(r){
+        var s = r.getAttribute('data-status');
+        r.hidden = !(f === 'all' || s === f);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>
