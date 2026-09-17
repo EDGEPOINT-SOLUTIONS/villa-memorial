@@ -117,7 +117,7 @@
      "id": "lot-b-001",
      "code": "B-001",
      "lot_id": "00000000-0000-4000-8000-000000000D05",
-     "status": "occupied",
+     "status": "available",
      "typeId": "lt-premium",
      "sectionBlock": "B · 1",
      "outline": [
@@ -137,8 +137,7 @@
        44.8,
        8.61
       ]
-     ],
-     "owner": "Liwayway Cruz"
+     ]
     },
     {
      "id": "lot-b-002",
@@ -170,7 +169,7 @@
      "id": "lot-b-003",
      "code": "B-003",
      "lot_id": "00000000-0000-4000-8000-000000000D07",
-     "status": "reserved",
+     "status": "available",
      "typeId": "lt-premium",
      "sectionBlock": "B · 3",
      "outline": [
@@ -190,8 +189,7 @@
        51.97,
        8.61
       ]
-     ],
-     "owner": "Danilo Reyes"
+     ]
     },
     {
      "id": "lot-b-004",

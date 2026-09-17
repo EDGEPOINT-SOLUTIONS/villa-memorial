@@ -16,10 +16,10 @@
     },
     "lots": {
       "total": 12,
-      "available": 6,
-      "reserved": 3,
+      "available": 8,
+      "reserved": 2,
       "sold": 2,
-      "occupied": 1
+      "occupied": 0
     },
     "finance": {
       "total_invoices": 8,
