@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import snapshot from "@/lib/fixtures/family/snapshot.json";
@@ -19,8 +19,9 @@ vi.mock("next/link", () => ({
     createElement("a", { href, ...rest }, children),
 }));
 
+const navState = vi.hoisted(() => ({ pathname: "/client/dashboard" }));
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/client/dashboard",
+  usePathname: () => navState.pathname,
   useRouter: () => ({ replace: () => {}, push: () => {} }),
 }));
 
@@ -45,6 +46,27 @@ vi.mock("@/lib/api-client/family", async (importOriginal) => {
 
 const { default: FamilyLayout } = await import("@/app/(family)/client/layout");
 const { default: AgentLayout } = await import("@/app/(agent)/agent/layout");
+
+beforeEach(() => {
+  navState.pathname = "/client/dashboard";
+});
+
+/** The hrefs the rail and the phone tabs mark as the current place. */
+function activeHrefs(html: string): string[] {
+  // The PortalSwitch (bottom of the sidebar) also marks the active *portal*, so the
+  // match is scoped to the navigation blocks themselves.
+  const segments = [
+    html.slice(html.indexOf('class="portal-nav"'), html.indexOf('class="portal-sidebar__foot"')),
+    html.slice(html.indexOf('class="portal-tabbar"'), html.indexOf('class="portal-drawer"')),
+  ];
+  const hrefs: string[] = [];
+  for (const segment of segments) {
+    for (const match of segment.matchAll(/<a[^>]*href="([^"]+)"[^>]*aria-current="page"/g)) {
+      hrefs.push(match[1]);
+    }
+  }
+  return hrefs;
+}
 
 describe("the family portal chrome is the agent portal chrome", () => {
   it("renders the same PortalFrame on both portals", async () => {
@@ -83,5 +105,19 @@ describe("the family portal chrome is the agent portal chrome", () => {
     ]) {
       expect(html, `${label} missing from the family rail`).toContain(`>${label}</span>`);
     }
+  });
+});
+
+describe("the rail follows the section, not the exact URL", () => {
+  it("keeps Papers active while one receipt's own page is open", async () => {
+    navState.pathname = "/client/documents/receipts/OR-2026-00412";
+    const html = renderToStaticMarkup(await FamilyLayout({ children: createElement("p", null, "body") }));
+    expect(new Set(activeHrefs(html))).toEqual(new Set(["/client/documents"]));
+  });
+
+  it("keeps the agent rail's section active on a client detail page too (same shared frame)", async () => {
+    navState.pathname = "/agent/clients/00000000-0000-4000-8000-000000000001";
+    const html = renderToStaticMarkup(await AgentLayout({ children: createElement("p", null, "body") }));
+    expect(new Set(activeHrefs(html))).toEqual(new Set(["/agent/clients"]));
   });
 });

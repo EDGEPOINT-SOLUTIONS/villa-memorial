@@ -3,6 +3,7 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyDocumentView, paidPercent, percentWords } from "@/lib/family/family-view";
+import { isOwnedPaper, ownedPaperNote } from "@/lib/family/family-documents";
 import {
   Answer,
   Chain,
@@ -70,8 +71,16 @@ export default async function ClientDashboardPage() {
   }
 
   const { loved_one, plan_summary, balance, balance_cents, recent_documents } = snapshot;
-  const documents = recent_documents.map((doc) => familyDocumentView(doc.title, doc.status));
-  const waiting = documents.filter((doc) => doc.tone === "warning" || doc.tone === "danger");
+  // The family's own papers (contract, receipts) keep the “Yours” treatment wherever
+  // they surface; everything else keeps the request path (lib/family/family-documents).
+  const documents = recent_documents.map((record) => ({
+    record,
+    owned: isOwnedPaper(record),
+    view: familyDocumentView(record.title, record.status),
+  }));
+  const waiting = documents.filter(
+    ({ view }) => view.tone === "warning" || view.tone === "danger",
+  );
   const firstName = loved_one.name.split(/\s+/)[0] || "your family";
   const hasBalance = (balance_cents?.remaining ?? 0) > 0;
   const percent =
@@ -146,7 +155,7 @@ export default async function ClientDashboardPage() {
               action={<QuietAction href="/client/payments" label="See how to pay" />}
             />
           ) : null}
-          {waiting.map((doc) => (
+          {waiting.map(({ view: doc, owned }) => (
             <Row
               key={doc.title}
               icon={<FileText size={22} aria-hidden="true" />}
@@ -154,7 +163,13 @@ export default async function ClientDashboardPage() {
               meta={doc.note}
               state={doc.status}
               wait
-              action={<QuietAction href={FAMILY_HELP.phoneHref} label="Ask about it" />}
+              action={
+                owned ? (
+                  <QuietAction href="/client/documents" label="See it in your papers" />
+                ) : (
+                  <QuietAction href={FAMILY_HELP.phoneHref} label="Ask about it" />
+                )
+              }
             />
           ))}
           {!hasBalance && waiting.length === 0 ? (
@@ -209,15 +224,21 @@ export default async function ClientDashboardPage() {
         </PortalFigures>
 
         <Rows>
-          {documents.map((doc) => (
+          {documents.map(({ record, owned, view: doc }) => (
             <Row
               key={doc.title}
               icon={<FileText size={22} aria-hidden="true" />}
               title={doc.title}
-              meta={doc.note}
-              state={doc.status}
-              wait={doc.tone === "warning" || doc.tone === "danger"}
-              action={<QuietAction href={FAMILY_HELP.phoneHref} label="Ask for a copy" />}
+              meta={owned ? ownedPaperNote(record) : doc.note}
+              state={owned ? "Yours" : doc.status}
+              wait={!owned && (doc.tone === "warning" || doc.tone === "danger")}
+              action={
+                owned ? (
+                  <QuietAction href="/client/documents" label="See it in your papers" />
+                ) : (
+                  <QuietAction href={FAMILY_HELP.phoneHref} label="Ask for a copy" />
+                )
+              }
             />
           ))}
         </Rows>

@@ -358,6 +358,7 @@ export function PlannedAnswer({
   planned,
   note,
   action,
+  children,
 }: {
   kicker: string;
   headline: string;
@@ -369,6 +370,8 @@ export function PlannedAnswer({
   note: string;
   /** Overrides the default “Call {phone}” primary action. */
   action?: ReactNode;
+  /** Extra sections that belong on this page (e.g. the family's own papers). */
+  children?: ReactNode;
 }) {
   return (
     <>
@@ -391,6 +394,7 @@ export function PlannedAnswer({
           ))}
         </Rows>
       </Section>
+      {children}
       <Note>
         <p>
           <strong>About this page.</strong> {note}

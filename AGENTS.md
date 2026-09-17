@@ -445,6 +445,21 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `portal-kit`, `family-nav`, `family-prd-coverage`, `family-ui`, `family-calm-state`,
   `family-view`; `docs/08-delivery/family-portal-design` §11 records the alignment and its
   side-by-side verification.
+- **The family's own papers are never request-gated** (captain, 2026-09-17): the service
+  contract and every official receipt are the family's by right — `/client/documents` and the
+  funeral page (`/client/cases`) always show them as “Yours”, with a real copy when the record
+  can produce one and the honest “getting it ready for this page” state plus the office line
+  when it cannot; “Ask for a copy” stays only for certificates/permits/other kinds. The
+  classification + words live in `lib/family/family-documents.ts` (rows:
+  `components/family/family-papers.tsx`; the snapshot's `recent_documents[].kind` is the
+  source, unknown kinds stay requestable). `lib/api-client/family.ts::toFamilyDocument` is the
+  family-safe projection (drops uploader, file size, internal notes/ids — pinned by
+  `tests/unit/family-documents.test.ts`). One receipt opens as a copy at
+  `/client/documents/receipts/[reference]` (shared paper sheet + Print/Word/PDF) only when its
+  record carries number + date + amount; a half-record 404s rather than printing a plausible
+  receipt. Until the family contract lands, the snapshot carries no receipt detail, so the
+  honest state is what ships — the backend ask (generate the document, attach it to the family
+  record, notify the family) stays open.
 
 ## Agent lots map — the office's map, never a second one (read before touching `/agent/lots`)
 
