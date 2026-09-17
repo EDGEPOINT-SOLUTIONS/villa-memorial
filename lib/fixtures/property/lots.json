@@ -70,13 +70,13 @@
       "section": "B",
       "block": "1",
       "type": "family",
-      "status": "occupied",
+      "status": "available",
       "area_sqm": 7,
       "price_cents": 16500000,
       "currency": "PHP",
-      "owner_name": "Liwayway Cruz",
-      "reserved_at": "2025-06-20T08:00:00Z",
-      "sold_at": "2025-07-15T11:00:00Z"
+      "owner_name": null,
+      "reserved_at": null,
+      "sold_at": null
     },
     {
       "id": "00000000-0000-4000-8000-000000000D06",
@@ -98,12 +98,12 @@
       "section": "B",
       "block": "2",
       "type": "individual",
-      "status": "reserved",
+      "status": "available",
       "area_sqm": 3.5,
       "price_cents": 9200000,
       "currency": "PHP",
-      "owner_name": "Danilo Reyes",
-      "reserved_at": "2026-08-20T16:00:00Z",
+      "owner_name": null,
+      "reserved_at": null,
       "sold_at": null
     },
     {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getLot, listLots, reserveLot } from "@/lib/api-client/property";
 import lotsFile from "@/lib/fixtures/property/lots.json";
+import parksFile from "@/lib/fixtures/property/parks.json";
 
 /**
  * Module D fixture-contract tests. NO frozen API exists yet (property-gis is
@@ -35,6 +36,34 @@ describe("property fixtures follow the documented domain shapes", () => {
       expect(l.currency).toBe("PHP");
     }
     expect(lotsFile.tenant_id).toBe("00000000-0000-4000-8000-000000000001");
+  });
+
+  it("keeps every PREMIUM LOTS (section B) sample lot available", async () => {
+    // Captain's demo state (2026-09): no premium lot reads reserved, occupied or
+    // sold anywhere a status is stored — the lots fixture AND the park plots the
+    // public /lots page and both map modes seed from. Sections A, C and D keep
+    // their mixed demo statuses; only B is all-available.
+    const premium = (await listLots()).filter((l) => l.section === "B");
+    expect(premium.length).toBeGreaterThan(0);
+    for (const lot of premium) {
+      expect(lot).toMatchObject({
+        status: "available",
+        owner_name: null,
+        reserved_at: null,
+        sold_at: null,
+      });
+    }
+
+    type SeedPlot = { code: string; status: string; owner?: string };
+    const villa = (
+      parksFile as { parks: Array<{ id: string; plots: SeedPlot[] }> }
+    ).parks.find((p) => p.id === "villa");
+    const premiumPlots = villa!.plots.filter((p) => /^B-\d+$/.test(p.code));
+    expect(premiumPlots.length).toBeGreaterThan(0);
+    for (const plot of premiumPlots) {
+      expect(plot.status, plot.code).toBe("available");
+      expect(plot.owner, plot.code).toBeUndefined();
+    }
   });
 
   it("lot by id returns a single record", async () => {
