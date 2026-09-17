@@ -260,6 +260,56 @@ describe("the hero accepts a background photo", () => {
   });
 });
 
+describe("the hero renders the staff-chosen background colour layer", () => {
+  it("renders no wash at all for a legacy document (no colour) — today's look", async () => {
+    const content = await listLandingContent();
+    const legacy = cloneDoc(content);
+    legacy.hero.background = null;
+    legacy.hero.backgroundTransparency = 100;
+    const html = renderToStaticMarkup(
+      LandingView({ content: legacy, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain("hero-home__wash");
+  });
+
+  it("renders ONE wash layer carrying the colour and its alpha", async () => {
+    const content = await listLandingContent();
+    const tinted = cloneDoc(content);
+    tinted.hero.background = "#3f97d1";
+    tinted.hero.backgroundTransparency = 45;
+    const html = renderToStaticMarkup(
+      LandingView({ content: tinted, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain('class="hero-home__wash"');
+    expect(html.split("hero-home__wash").length - 1).toBe(1);
+    expect(html).toContain("background:#3f97d1");
+    expect(html).toContain("opacity:0.55");
+  });
+
+  it("renders no wash at 100% transparency (the colour is disabled, not half-applied)", async () => {
+    const content = await listLandingContent();
+    const transparent = cloneDoc(content);
+    transparent.hero.background = "#3f97d1";
+    transparent.hero.backgroundTransparency = 100;
+    const html = renderToStaticMarkup(
+      LandingView({ content: transparent, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain("hero-home__wash");
+  });
+
+  it("never paints an invalid content value into the page", async () => {
+    const content = await listLandingContent();
+    const hostile = cloneDoc(content);
+    hostile.hero.background = "url(https://evil.test/x.png)";
+    hostile.hero.backgroundTransparency = 0;
+    const html = renderToStaticMarkup(
+      LandingView({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain("hero-home__wash");
+    expect(html).not.toContain("evil.test");
+  });
+});
+
 describe("the home degrades gracefully on sparse content", () => {
   it("an empty service-card list renders an empty-state note, not a crash", async () => {
     const content = await listLandingContent();

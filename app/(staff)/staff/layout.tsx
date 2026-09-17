@@ -40,10 +40,10 @@ export default async function StaffLayout({ children }: { children: React.ReactN
       }
       footer={
         <div className="stack-3">
-          <p className="mb-0 text-sm" style={{ color: "var(--color-text-inverse-muted)" }}>
+          <p className="mb-0 text-sm" style={{ color: "var(--color-text-secondary)" }}>
             Signed in as
             <br />
-            <strong style={{ color: "var(--color-text-inverse)" }}>
+            <strong style={{ color: "var(--color-text-primary)" }}>
               {session.email}
             </strong>
           </p>

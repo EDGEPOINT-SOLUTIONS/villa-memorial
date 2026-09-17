@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { MediaPicker, RailPicker } from "@/components/landing/editor-pickers";
+import { HeroBackgroundField } from "@/components/landing/hero-background-field";
 import { SERVICE_CARD_ICONS } from "@/components/landing/service-icons";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import {
@@ -48,6 +49,7 @@ import {
   type ServicesSection,
 } from "@/lib/api-client/landing";
 import { mediaLabel } from "@/lib/media";
+import { isValidCssColor } from "@/lib/landing/hero-background";
 import { lotCategoryFromPriceOf, type LotCategory, type PlanPricing } from "@/lib/pricing-model";
 import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
 
@@ -929,6 +931,21 @@ export function LandingPageEditor({
 
   function clientIssues(): string[] {
     const issues: string[] = [];
+    if (content.hero.background !== null && !isValidCssColor(content.hero.background)) {
+      issues.push(
+        "The hero background colour must be a valid CSS colour — like #3f97d1, rgb(…), hsl(…) or a named colour.",
+      );
+    }
+    const transparency = content.hero.backgroundTransparency;
+    if (
+      typeof transparency !== "number" ||
+      !Number.isFinite(transparency) ||
+      transparency < 0 ||
+      transparency > 100 ||
+      transparency % 1 !== 0
+    ) {
+      issues.push("The hero background transparency must be a whole number from 0 to 100.");
+    }
     content.services.items.forEach((card, i) => {
       if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
         issues.push(`Service card ${i + 1} needs a title, a line of copy and a link before publishing.`);
@@ -1132,6 +1149,10 @@ export function LandingPageEditor({
           htmlFor="hero-image"
           value={hero.image}
           onChange={(v) => patch((d) => void (d.hero.image = v))}
+        />
+        <HeroBackgroundField
+          hero={hero}
+          onChange={(next) => patch((d) => void Object.assign(d.hero, next))}
         />
         {ctaFields(hero.primaryCta, (next) => patch((d) => void (d.hero.primaryCta = next)), "primary", "I need help now button")}
         {ctaFields(hero.secondaryCta, (next) => patch((d) => void (d.hero.secondaryCta = next)), "secondary", "Plan ahead button")}

@@ -24,6 +24,7 @@ import type {
 import { SiteHeaderBar } from "@/components/landing/site-header";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
+import { heroBackgroundLayer } from "@/lib/landing/hero-background";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import {
   lotCategoryFromPriceOf,
@@ -382,6 +383,10 @@ export function LandingFooter({ content }: { content: LandingContent }) {
 
 function HeroSection({ content }: { content: LandingContent }) {
   const { hero, logo, contact } = content;
+  // Staff-chosen background colour (hero zone of the Landing Page editor): one
+  // dedicated layer over the photo + its scrim and under every copy block.
+  // Absent (null) when no colour is set or transparency is 100% — today's look.
+  const wash = heroBackgroundLayer(hero);
   return (
     <section
       className={`hero-home${hero.image ? " hero-home--photo" : ""}`}
@@ -393,6 +398,7 @@ function HeroSection({ content }: { content: LandingContent }) {
           <img src={hero.image} alt="" />
         </figure>
       ) : null}
+      {wash ? <div className="hero-home__wash" aria-hidden="true" style={wash} /> : null}
       <div className="hero-home__brand">
         <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
         <span className="hero-home__wordmark">{logo.wordmark}</span>

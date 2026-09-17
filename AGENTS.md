@@ -82,6 +82,16 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
   hold UNLIMITED items per side — an empty service-card or blog list is legal).
+  The hero also carries a staff-chosen background colour + transparency
+  (`hero.background` / `hero.backgroundTransparency`; palette, colour validation
+  and the layer helper live in `lib/landing/hero-background.ts`): the colour
+  paints as ONE `.hero-home__wash` layer ABOVE the photo + its scrim and BELOW
+  all hero copy, transparency 0 = solid and 100 = fully see-through — the
+  default, so documents that never touched the fields render today's look
+  untouched. The editor control is
+  `components/landing/hero-background-field.tsx` (palette · free input · live
+  preview · 0–100% slider). The left rail's 24/7 call card is a sky-blue
+  surface (navy ink, gold-800 label) — never navy.
   The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
   the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the
@@ -161,8 +171,10 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   and applies that table only when a family does NOT take a package.
 - Theme: the public brand colour is **sky blue** (captain 2026-09-16), applied through
   the `--sky-*` primitives + remapped semantic roles in `styles/tokens.css`. `--navy-*`
-  stays the ink/structure ladder and the staff portal's premium navy/gold direction
-  (`.app-shell` keeps navy buttons). Home, footer, hero and public surfaces paint
+  stays the ink/structure ladder. The staff sidebar is sky blue too (captain
+  2026-09-17 — the `.app-shell` premium block paints a sky-200→sky-400 gradient with
+  navy ink and gold-800 accents; the staff content chrome keeps its navy/gold buttons).
+  Home, footer, hero and public surfaces paint
   `--sky-*` with navy ink; gold/brass accents are unchanged.
 - Styles live in the "package page" block of `styles/components.css`
   (`.plan-layout` / `.plan-main` / `.plan-side` / `.pkg-*`); the feature icons are
@@ -497,6 +509,48 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - Seed numbers, customers and totals mirror the billing fixture's invoices and every line's
   SKU/price is pinned to `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`;
   store/transition/RBAC behavior by `tests/unit/order-store.test.ts` + `tests/unit/orders-admin.test.tsx`.
+  Checkout PRICES from the durable catalogue store (below), not the recorded seed: an admin's
+  price edit is what checkout charges and a deactivated item answers the contract's 404.
+
+## Catalog admin — durable fixture store (read before touching `/staff/catalog`, `/api/catalog`)
+
+- `/staff/catalog` is the real catalogue administration: list (search + type/published filters)
+  → create (`/staff/catalog/new`) → edit (`/staff/catalog/[id]/edit`, numeric id = stable
+  identity) → deactivate (`Take off storefront`; items are never deleted). It edits EXACTLY what
+  the storefront sells: the public readers in `lib/api-client/commerce.ts` read the same fold, so
+  a change reaches `/plans`, `/services`, `/products`, the cart preview and checkout on the next
+  request. The edit form's photo picker reuses `components/landing/editor-pickers.tsx`
+  (`MediaPicker`: library · device data URL · URL), and `app/(public)/plans` (the grid card and
+  the detail hero) prefers `item.image` with its previous default photo.
+- Store: recorded seed `lib/fixtures/commerce/catalog-items.json` + append-only journal
+  (`CATALOG_STORE_PATH` or `.data/commerce-catalog.json`, gitignored; atomic writer + one
+  in-process write chain, `version: 1`, `item_created` / `item_updated` keyed by item id). Ids
+  allocate above the seed's highest; SKUs are unique CASE-INSENSITIVELY under the lock.
+- `published`, `image` and `price_unit` are APP-AUTHORED — no frozen contract names a catalogue
+  write endpoint. The public `CatalogItem` keeps the frozen envelope and gains only the optional
+  `image`; `display_price` is DERIVED (`lib/catalog-admin.ts` `catalogDisplayPrice`) from integer
+  minor units + currency + the presentation suffix seeded from the recorded string
+  (`catalogPriceUnit`), so a price edit can never publish a stale amount. Never restate an amount.
+- One rules home: `lib/catalog-admin.ts` (draft shape, field limits, `validateCatalogDraft` with
+  per-control errors, `parseMajorToMinorUnits` — the form edits pesos, the wire is integer
+  centavos). Form, BFF route and store all run the same rule; the store throws `ApiError` with
+  `fieldErrors` (422) and the route forwards them.
+- RBAC (frozen `rbac-scopes-v1`): `catalog:read` lists (read-only without `catalog:write`, with
+  the reason on screen); `catalog:write` gates create/edit/toggle. Routes
+  `GET/POST /api/catalog/items` + `GET/PATCH /api/catalog/items/[idOrSku]`, gate
+  `app/api/catalog/_guard.ts`. The public GET list is the cart's rehydration read — projected
+  to the five fields the cart needs and never showing unpublished items; and
+  `getCatalogItem`/checkout answer 404 `not_found` for an unpublished item.
+  The cart (`lib/cart/cart-context.tsx`) persists a display snapshot and refreshes known SKUs
+  from that GET, so an item created in the admin survives a cart reload.
+- Live mode: the platform has no catalogue write API → 503 `ADMIN_CATALOG_NOT_WIRED` (contract
+  ask recorded in the PR), never a fake write.
+- Tests: `tests/unit/catalog-admin.test.ts` (validation, store round trip, uniqueness,
+  durability, corrupt-journal 500, data-URL photo, live-mode 503),
+  `tests/unit/catalog-admin-rbac.test.tsx` (401/403, page gating, created item visible to the
+  storefront reader), `tests/fixture-contract/catalog-admin.test.ts` (seed identity + derived
+  display prices). `tests/setup.ts` (vitest `setupFiles`) points every suite's store paths at a
+  throwaway temp dir so a dev `.data/` store can never leak into a test.
 
 ## Structure conventions
 ```

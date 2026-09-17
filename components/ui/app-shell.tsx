@@ -2,9 +2,11 @@ import type { NavSection } from "@/lib/rbac/nav";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 
 /**
- * App shell: inverse-surface sidebar (granite-900) with brass accent on the
- * active link; collapses to stacked layout below 48rem (design-system.md).
- * Generic by design — labels/sections arrive as props.
+ * App shell: sky-blue sidebar (captain's 2026-09-17 brand call — the staff nav
+ * is a light-sky surface carrying navy ink, styled by the .app-shell block in
+ * styles/components.css) with brass accents on the active link; collapses to
+ * stacked layout below 48rem (design-system.md). Generic by design — labels and
+ * sections arrive as props.
  */
 export function AppShell({
   brandEyebrow,
