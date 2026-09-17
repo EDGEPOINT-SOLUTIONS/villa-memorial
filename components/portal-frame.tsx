@@ -134,6 +134,11 @@ export function PortalFrame({
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // A sub-page (e.g. one receipt under /client/documents/receipts/…) still belongs
+  // to its rail entry, so the active state follows the section, not the exact URL —
+  // the same rule on the rail, the drawer and the phone tabs.
+  const isActive = (to: string) => pathname === to || pathname.startsWith(`${to}/`);
+
   const brand = (
     <>
       <span className="portal-sidebar__brand">Villa Memorial</span>
@@ -143,7 +148,7 @@ export function PortalFrame({
 
   const renderItem = (item: PortalNavItem) => {
     const Icon = ICONS[item.key] ?? LayoutDashboard;
-    const active = pathname === item.to;
+    const active = isActive(item.to);
     return (
       <Link
         key={item.key}
@@ -221,7 +226,7 @@ export function PortalFrame({
         <nav className="portal-tabbar" aria-label={`${brandLabel} quick navigation`}>
           {tabs.map((tab) => {
             const Icon = ICONS[tab.key] ?? Menu;
-            const active = !tab.more && pathname === tab.to;
+            const active = !tab.more && isActive(tab.to);
             if (tab.more) {
               return (
                 <button

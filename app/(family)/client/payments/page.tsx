@@ -1,4 +1,4 @@
-import { Banknote, MessageCircle, Phone, Store } from "lucide-react";
+import { Banknote, FileText, MessageCircle, Phone, Store } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
@@ -117,11 +117,22 @@ export default async function ClientPaymentsPage() {
 
       <Note>
         <p>
-          <strong>Your payment history is not on this page yet.</strong> Every payment and its
-          official receipt will be listed here when the family records service is switched on. Until
-          then, ask us for a statement and we will send it to you or read it to you on the phone.
+          <strong>Your payment history is not on this page yet.</strong> Every payment gets its own
+          official receipt, and every receipt is kept in your papers — it is yours, and you never
+          need to ask for it. The full history joins them here when the family records service is
+          switched on. Until then, call us and we will read your statement to you.
         </p>
       </Note>
+      <Section
+        title="Your official receipts"
+        sub="Every receipt we issue is kept in your papers, always available to you."
+      >
+        <QuietLink
+          href="/client/documents"
+          label="See your official receipts"
+          icon={<FileText size={20} aria-hidden="true" />}
+        />
+      </Section>
     </>
   );
 }

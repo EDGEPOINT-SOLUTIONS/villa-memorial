@@ -52,4 +52,17 @@ describe("family snapshot fixture", () => {
     expect(s._provenance?.status ?? "").toMatch(/PROVISIONAL/);
     expect(s._provenance?.note ?? "").toMatch(/balance_cents/);
   });
+
+  it("classifies the family-owned papers so the portal never asks for a copy of them", async () => {
+    // The contract and every official receipt are the family's own (kind); anything the
+    // app cannot classify stays requestable (family.test in unit/family-documents pins
+    // the projection that reads this).
+    const { toFamilyDocument } = await import("@/lib/api-client/family");
+    const s = snapshot as unknown as { recent_documents: unknown[] };
+    const documents = s.recent_documents.map(toFamilyDocument);
+    expect(documents.map((doc) => doc?.kind)).toEqual(["service_contract", "official_receipt"]);
+    for (const doc of documents) {
+      expect(doc).not.toBeNull();
+    }
+  });
 });
