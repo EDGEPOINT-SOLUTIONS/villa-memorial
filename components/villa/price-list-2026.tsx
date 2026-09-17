@@ -1,8 +1,3 @@
-import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { buildRequestHref } from "@/lib/public-forms/request-prefill";
-import { LOT_PRICE_CATEGORIES, php, type LotPriceRow } from "@/lib/villa-pricing";
-
 /**
  * The official 2026 price list — all four product families, regular and
  * senior-citizen rates, six-year amortization. ONE renderer shared by
@@ -10,8 +5,10 @@ import { LOT_PRICE_CATEGORIES, php, type LotPriceRow } from "@/lib/villa-pricing
  * each product, service and plan must be captured on the website … the price
  * list must be followed exactly”), so the two surfaces can never drift.
  *
- * Figures come from lib/villa-pricing.ts (the transcribed client sheet) — this
- * component never authors a number.
+ * Figures come from the pricing document handed in by the server page
+ * (lib/api-client/pricing.ts → the editable fixture store) — this component
+ * never authors a number, and an office edit through /staff/pricing is what it
+ * prints.
  *
  * Lots are NOT cart items (a lot needs a buyer, a block/lot number and a signed
  * purchase agreement), so every row carries the two honest actions instead:
@@ -19,6 +16,13 @@ import { LOT_PRICE_CATEGORIES, php, type LotPriceRow } from "@/lib/villa-pricing
  * row and the published selling price — and "See it on the map". A request is an
  * enquiry and never reserves the lot.
  */
+import Link from "next/link";
+import { Card } from "@/components/ui/card";
+import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import type { LotCategory, LotPriceRow } from "@/lib/pricing-model";
+import { php } from "@/lib/villa-pricing";
+
+/** One row's "Request this lot" href. */
 function lotRequestHref(category: string, row: LotPriceRow): string {
   return buildRequestHref({
     item: `${category} — ${row.product}`,
@@ -27,10 +31,10 @@ function lotRequestHref(category: string, row: LotPriceRow): string {
   });
 }
 
-export function PriceList2026Tables() {
+export function PriceList2026Tables({ categories }: { categories: ReadonlyArray<LotCategory> }) {
   return (
     <>
-      {LOT_PRICE_CATEGORIES.map((cat) => (
+      {categories.map((cat) => (
         <Card key={cat.title} header={<h3>{cat.title} — 6 years amortization</h3>}>
           <div className="table-wrapper">
             <table className="table price-table">

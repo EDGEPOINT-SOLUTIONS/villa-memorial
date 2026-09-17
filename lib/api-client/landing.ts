@@ -20,7 +20,8 @@
  * displayed prices are content strings sourced from lib/villa-pricing.ts.
  */
 import { ApiError } from "@/lib/api-client/api-error";
-import { LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
+import type { LotCategory } from "@/lib/pricing-model";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
 export type RailItemKind = "product" | "service" | "plan" | "link";
@@ -82,10 +83,10 @@ export type AboutSection = {
  * One "Services we offer" card (home.html · SERVICES WE OFFER — the client's
  * four-families sheet, one card each).
  *
- * NO AMOUNT IS AUTHORED HERE: `category` names the LOT_PRICE_CATEGORIES family
- * the card prices from, and the view derives the prototype's meta line ("from
- * ₱75,000 · ₱1,125 / month, 6 yrs") through lotCategoryFromPrice() in
- * lib/villa-pricing.ts. `icon` names one of the four prototype glyphs
+ * NO AMOUNT IS AUTHORED HERE: `category` names a LIVE lot family from the
+ * editable pricing store (`lib/api-client/pricing.ts`), and the view derives the
+ * prototype's meta line ("from ₱75,000 · ₱1,125 / month, 6 yrs") through
+ * lotCategoryFromPriceOf() — no amount is typed. `icon` names one of the four prototype glyphs
  * (components/landing/service-icons.tsx); an unknown key degrades to the
  * generic glyph rather than breaking the card.
  */
@@ -95,7 +96,7 @@ export type ServiceCard = {
   title: string;
   text: string;
   href: string;
-  /** LOT_PRICE_CATEGORIES title — the client's own 2026 sheet heading. */
+  /** A live lot-family title from the editable pricing store. */
   category: string;
 };
 
@@ -369,7 +370,10 @@ export function readLandingContent(raw: unknown): LandingContent {
  * Displayed prices are free content strings — no money validation (prices are
  * never computed here).
  */
-export function validateLandingContent(content: LandingContent): { ok: true } | { ok: false; error: string } {
+export function validateLandingContent(
+  content: LandingContent,
+  lotCategories: ReadonlyArray<LotCategory>,
+): { ok: true } | { ok: false; error: string } {
   if (!content.hero.headline.trim()) return { ok: false, error: "The hero headline can't be empty." };
   if (!content.hero.primaryCta.label.trim() || !content.hero.primaryCta.href.trim()) {
     return { ok: false, error: "The primary call-to-action needs a label and a destination." };
@@ -400,10 +404,10 @@ export function validateLandingContent(content: LandingContent): { ok: true } | 
     if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
       return { ok: false, error: `“${card.title || "A service card"}” needs a title, a line of copy and a link.` };
     }
-    if (!LOT_PRICE_CATEGORIES.some((c) => c.title === card.category)) {
+    if (!lotCategories.some((c) => c.title === card.category)) {
       return {
         ok: false,
-        error: `“${card.title}” must price from one of the 2026 lot families (lib/villa-pricing.ts).`,
+        error: `“${card.title}” must price from one of the 2026 lot families in the pricing store.`,
       };
     }
   }
@@ -438,7 +442,11 @@ export async function listLandingContent(): Promise<LandingContent> {
  */
 export async function saveLandingContent(raw: unknown): Promise<LandingContent> {
   const content = readLandingContent(raw);
-  const verdict = validateLandingContent(content);
+  // The card's lot family must exist in the CURRENT pricing store, not a
+  // build-time list: renaming a family in /staff/pricing must not silently
+  // orphan a home-page price line.
+  const pricing = await loadPricingDocument();
+  const verdict = validateLandingContent(content, pricing.lotCategories);
   if (!verdict.ok) {
     throw new ApiError(verdict.error, 422);
   }

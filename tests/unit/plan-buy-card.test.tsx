@@ -7,7 +7,10 @@ import { CartProvider } from "@/lib/cart/cart-context";
 // render under test only needs the hook to resolve.
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 import { PlanTermSelector } from "@/app/(public)/plans/[sku]/plan-term-selector";
-import { php2, planRate } from "@/lib/villa-pricing";
+import { SEED_PRICING, php2, planRate } from "@/lib/villa-pricing";
+
+/** The recorded seed plan tables — the buy card reads them here. */
+const pricing = SEED_PRICING.plans;
 
 /**
  * The plan buy card's rendered contract: it opens on the page's own tier at the
@@ -32,7 +35,7 @@ function render(props: Parameters<typeof PlanTermSelector>[0]) {
 
 describe("the plan buy card opens on the page's own tier", () => {
   it("shows the sheet's monthly amount and the real add-to-cart control", () => {
-    const html = render({ item, ownTier: "bronze1" });
+    const html = render({ pricing, item, ownTier: "bronze1" });
     expect(html).toContain(`${php2(planRate("bronze1", "monthly"))}`);
     expect(html).toContain("/ month");
     expect(html).toContain("Add to cart");
@@ -49,7 +52,7 @@ describe("the plan buy card opens on the page's own tier", () => {
   it("falls back to the request path when the tier has no catalogue SKU", () => {
     // Bronze 2 has no package SKU, so even the opening state must be actionable
     // through the request — the card never renders a dead end.
-    const html = render({ item, ownTier: "bronze2" });
+    const html = render({ pricing, item, ownTier: "bronze2" });
     expect(html).toContain("Request this plan");
     expect(html).toContain("/contact?item=");
     expect(html).toContain(`${php2(planRate("bronze2", "monthly"))}`);

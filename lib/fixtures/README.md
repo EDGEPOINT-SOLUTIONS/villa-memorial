@@ -34,6 +34,19 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      Fixture-mode checkout APPENDS to `ORDERS_STORE_PATH` (default
      `.data/commerce-orders.json`, gitignored) — see
      `lib/api-client/order-store.ts` for the storage rationale.
+   - `commerce/pricing.json` ← the RECORDED 2026 plan tables + lot price list
+     (app-recorded content, NOT a service response): no catalog-pricing read or
+     write contract exists, so live mode keeps this seed for display and refuses
+     admin writes with 503. The plan/lot figures are transcribed from the
+     client's own sheets (COMPLETE MEMORIAL PACKAGE.jpg, TYPES OF COFFIN.jpg,
+     PRICE LIST FOR 2026.jpg) and pinned by `tests/unit/villa-pricing.test.ts` +
+     `tests/fixture-contract/pricing.test.ts` (plan monthly figures must equal
+     the plan SKUs in `commerce/catalog-items.json`). It also carries the
+     read-only `questions` (the senior-rate sheet conflict and the lot A-001
+     fixture-vs-sheet disagreement), deliberately OUTSIDE the editable document.
+     Fixture-mode edits from `/staff/plans` and `/staff/pricing` APPEND to
+     `PRICING_STORE_PATH` (default `.data/commerce-pricing.json`, gitignored) —
+     see `lib/api-client/pricing-store.ts`.
    - `scheduling/chapel-admin.json` ← the park's OWN chapel administration
      records (staff Schedule → chapels/availability/bookings): the editable
      PLACEHOLDER chapel list (class · capacity · active · notes) keyed to the

@@ -48,7 +48,8 @@ import {
   type ServicesSection,
 } from "@/lib/api-client/landing";
 import { mediaLabel } from "@/lib/media";
-import { LOT_PRICE_CATEGORIES, lotCategoryFromPrice, php } from "@/lib/villa-pricing";
+import { lotCategoryFromPriceOf, type LotCategory, type PlanPricing } from "@/lib/pricing-model";
+import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 function uid(prefix: string): string {
@@ -247,10 +248,15 @@ function CountChip({ count, tone = "neutral" }: { count: number; tone?: "neutral
 function RailEditor({
   side,
   config,
+  lotCategories,
+  planPricing,
   onChange,
 }: {
   side: "left" | "right";
   config: LandingContent["rails"]["left"];
+  /** LIVE pricing slices for the picker's derived price lines. */
+  lotCategories?: LotCategory[];
+  planPricing?: PlanPricing;
   onChange: (next: LandingContent["rails"]["left"]) => void;
 }) {
   const [picking, setPicking] = useState(false);
@@ -402,6 +408,8 @@ function RailEditor({
       <RailPicker
         open={picking}
         side={side}
+        lotCategories={lotCategories}
+        planPricing={planPricing}
         onClose={() => setPicking(false)}
         onAdd={add}
         onAddMany={addMany}
@@ -460,9 +468,12 @@ function PlanBoardEditor({
  */
 function ServicesEditor({
   section,
+  lotCategories,
   onChange,
 }: {
   section: ServicesSection;
+  /** LIVE lot families from the pricing store — the card's price line reads these. */
+  lotCategories: ReadonlyArray<LotCategory>;
   onChange: (next: ServicesSection) => void;
 }) {
   function patchCard(id: string, patch: Partial<ServiceCard>) {
@@ -504,7 +515,7 @@ function ServicesEditor({
                   title: "",
                   text: "",
                   href: "/lots",
-                  category: LOT_PRICE_CATEGORIES[0].title,
+                  category: lotCategories[0]?.title ?? "",
                 },
               ],
             })
@@ -519,7 +530,7 @@ function ServicesEditor({
       ) : (
         <div className="ed-services">
           {section.items.map((card, i) => {
-            const from = lotCategoryFromPrice(card.category);
+            const from = lotCategoryFromPriceOf(lotCategories, card.category);
             return (
               <details key={card.id} className="ed-service" open={!card.title}>
                 <summary className="ed-service__summary">
@@ -548,7 +559,7 @@ function ServicesEditor({
                     htmlFor={`svc-category-${card.id}`}
                     value={card.category}
                     onChange={(v) => patchCard(card.id, { category: v })}
-                    options={LOT_PRICE_CATEGORIES.map((c) => ({ value: c.title, label: c.caption }))}
+                    options={lotCategories.map((c) => ({ value: c.title, label: c.caption }))}
                     hint="The “from …” line is read from the client's 2026 sheet for this family — the amount is never typed here."
                   />
                 </div>
@@ -849,10 +860,21 @@ function formatStamp(iso: string | null): string {
 export function LandingPageEditor({
   initialContent,
   sessionName,
+  lotCategories,
+  planPricing,
 }: {
   initialContent: LandingContent;
   sessionName?: string;
+  /**
+   * The CURRENT pricing store slices (app/(staff)/staff/landing loads them). The
+   * editor's service-card price lines and rail catalogue derive from these so a
+   * pricing edit is reflected; omitting them falls back to the recorded seed for
+   * static tests.
+   */
+  lotCategories?: LotCategory[];
+  planPricing?: PlanPricing;
 }) {
+  const categories = lotCategories ?? LOT_PRICE_CATEGORIES;
   const [content, setContent] = useState<LandingContent>(() => clone(initialContent));
   const savedJson = useRef(JSON.stringify(initialContent));
   const [busy, setBusy] = useState(false);
@@ -1124,10 +1146,22 @@ export function LandingPageEditor({
       >
         <div className="ed-rails-grid">
           <div className="ed-rail-card">
-            <RailEditor side="left" config={rails.left} onChange={(next) => patch((d) => void (d.rails.left = next))} />
+            <RailEditor
+              side="left"
+              config={rails.left}
+              lotCategories={lotCategories}
+              planPricing={planPricing}
+              onChange={(next) => patch((d) => void (d.rails.left = next))}
+            />
           </div>
           <div className="ed-rail-card">
-            <RailEditor side="right" config={rails.right} onChange={(next) => patch((d) => void (d.rails.right = next))} />
+            <RailEditor
+              side="right"
+              config={rails.right}
+              lotCategories={lotCategories}
+              planPricing={planPricing}
+              onChange={(next) => patch((d) => void (d.rails.right = next))}
+            />
           </div>
         </div>
       </EdSection>
@@ -1154,7 +1188,11 @@ export function LandingPageEditor({
           )
         }
       >
-        <ServicesEditor section={services} onChange={(next) => patch((d) => void (d.services = next))} />
+        <ServicesEditor
+          section={services}
+          lotCategories={categories}
+          onChange={(next) => patch((d) => void (d.services = next))}
+        />
       </EdSection>
 
       <EdSection

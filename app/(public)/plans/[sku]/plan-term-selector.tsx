@@ -6,13 +6,13 @@ import { Badge } from "@/components/ui/badge";
 import type { CartLine } from "@/lib/cart/cart-context";
 import { planRequestAction, planSelectionAction } from "@/lib/plan-selection";
 import {
-  PLAN_TIERS,
-  PLAN_TERMS,
-  php2,
-  planRate,
+  PLAN_TERM_DEFS,
+  planRateOf,
+  type PlanPricing,
   type PlanTier,
   type PlanTerm,
-} from "@/lib/villa-pricing";
+} from "@/lib/pricing-model";
+import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
 import { planTierPackageSku } from "@/lib/catalogue-skus";
 import { AddToCartControl } from "./add-to-cart";
 
@@ -20,6 +20,12 @@ import { AddToCartControl } from "./add-to-cart";
 export type TierCartItem = { tier: PlanTier; cartItem: Omit<CartLine, "quantity"> };
 
 type Props = {
+  /**
+   * The CURRENT plan tables (lib/api-client/pricing.ts `loadPricingDocument()`),
+   * handed down by the server page: the selector must print the office's
+   * published rates, never a build-time constant.
+   */
+  pricing: PlanPricing;
   /** The catalogue item this page sells (the cart line for the page's own SKU). */
   item: Omit<CartLine, "quantity">;
   /** The tier this page's package corresponds to (e.g. PKG-BASIC = Bronze 1). */
@@ -41,15 +47,15 @@ type Props = {
  * takes it (the catalogue prices the monthly amortization) or the prefilled
  * request opens. A request is an enquiry, never a reservation.
  */
-export function PlanTermSelector({ item, ownTier, tierItems = [] }: Props) {
+export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Props) {
   const [tier, setTier] = useState<PlanTier>(ownTier);
   const [term, setTerm] = useState<PlanTerm>("monthly");
   const [senior, setSenior] = useState(false);
 
-  const termDef = PLAN_TERMS.find((t) => t.id === term)!;
-  const amount = planRate(tier, term, senior);
+  const termDef = PLAN_TERM_DEFS.find((t) => t.id === term)!;
+  const amount = planRateOf(pricing, tier, term, senior);
   const tierName = PLAN_TIERS.find((t) => t.id === tier)?.name ?? "Bronze 1";
-  const action = planSelectionAction({ tier, term, senior });
+  const action = planSelectionAction({ pricing, tier, term, senior });
 
   const cartItem = tier === ownTier ? item : tierItems.find((t) => t.tier === tier)?.cartItem;
   // "request" carries the selection's own prefill; the cart case only falls
@@ -57,7 +63,7 @@ export function PlanTermSelector({ item, ownTier, tierItems = [] }: Props) {
   const requestHref =
     action.kind === "request"
       ? action.href
-      : planRequestAction({ tier, term, senior, sku: planTierPackageSku(tier) }).href;
+      : planRequestAction({ pricing, tier, term, senior, sku: planTierPackageSku(tier) }).href;
 
   return (
     <>
@@ -98,7 +104,7 @@ export function PlanTermSelector({ item, ownTier, tierItems = [] }: Props) {
           Plan term
         </div>
         <div className="term-grid" role="group" aria-labelledby="plan-term-label">
-          {PLAN_TERMS.map((t) => (
+          {PLAN_TERM_DEFS.map((t) => (
             <button
               key={t.id}
               type="button"
@@ -107,7 +113,7 @@ export function PlanTermSelector({ item, ownTier, tierItems = [] }: Props) {
               onClick={() => setTerm(t.id)}
             >
               <span className="term-btn__name">{t.label}</span>
-              <span className="term-btn__price">{php2(planRate(tier, t.id, senior))}</span>
+              <span className="term-btn__price">{php2(planRateOf(pricing, tier, t.id, senior))}</span>
               <span className="term-btn__check" aria-hidden="true">
                 ✓
               </span>

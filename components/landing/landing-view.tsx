@@ -25,10 +25,23 @@ import { SiteHeaderBar } from "@/components/landing/site-header";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
-import { lotCategoryFromPrice, php } from "@/lib/villa-pricing";
+import {
+  lotCategoryFromPriceOf,
+  type LotCategory,
+  type PlanPricing,
+} from "@/lib/pricing-model";
+import { php } from "@/lib/villa-pricing";
 
 export type LandingViewProps = {
   content: LandingContent;
+  /**
+   * The CURRENT plan tables + lot families (lib/api-client/pricing.ts
+   * `loadPricingDocument()`), supplied by the page. The service cards' “from …”
+   * line and the "Plan ahead" board derive every amount from these — never a
+   * build-time constant — so an office edit is what the home prints.
+   */
+  planPricing: PlanPricing;
+  lotCategories: LotCategory[];
   /** Live interactive park map (supplied by the page; optional in tests). */
   mapNode?: ReactNode;
   /** True when the real lot listing is available for the map intro. */
@@ -217,11 +230,11 @@ function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
   );
 }
 
-function ServiceCardLink({ card }: { card: ServiceCard }) {
+function ServiceCardLink({ card, lotCategories }: { card: ServiceCard; lotCategories: LotCategory[] }) {
   // The prototype's meta line ("from ₱75,000 · ₱1,125 / month, 6 yrs") is
   // DERIVED from the card's 2026 lot family — no amount is ever authored in
-  // content (lib/villa-pricing.ts is the one transcription home).
-  const from = lotCategoryFromPrice(card.category);
+  // content (lib/pricing-model.ts is the one derivation home).
+  const from = lotCategoryFromPriceOf(lotCategories, card.category);
   return (
     <a className="svc-card" href={card.href}>
       <span className="svc-card__icon" aria-hidden="true">
@@ -438,7 +451,7 @@ function AboutSection({ content }: { content: LandingContent }) {
   );
 }
 
-function ServicesSection({ content }: { content: LandingContent }) {
+function ServicesSection({ content, lotCategories }: { content: LandingContent; lotCategories: LotCategory[] }) {
   const { services } = content;
   return (
     <section className="mid-section" aria-labelledby="services-title">
@@ -450,7 +463,7 @@ function ServicesSection({ content }: { content: LandingContent }) {
       ) : (
         <div className="svc-grid">
           {services.items.map((card) => (
-            <ServiceCardLink key={card.id} card={card} />
+            <ServiceCardLink key={card.id} card={card} lotCategories={lotCategories} />
           ))}
         </div>
       )}
@@ -460,8 +473,8 @@ function ServicesSection({ content }: { content: LandingContent }) {
 
 /** "Plan ahead" — the prototype's Villa Memorial Plan board: the promo figure
  * beside the tier × term board (switch · table · footnote · partner logos).
- * Every amount on the board comes from lib/villa-pricing.ts. */
-function PlansSection({ content }: { content: LandingContent }) {
+ * Every amount on the board comes from the current pricing document. */
+function PlansSection({ content, planPricing }: { content: LandingContent; planPricing: PlanPricing }) {
   const { plans } = content;
   return (
     <section className="mid-section" aria-labelledby="vmp-title">
@@ -476,7 +489,7 @@ function PlansSection({ content }: { content: LandingContent }) {
             alt="Villa Memorial Plan — comprehensive packages for your peace of mind"
           />
         </figure>
-        <PlanBoard note={plans.note} />
+        <PlanBoard note={plans.note} pricing={planPricing} />
       </div>
     </section>
   );
@@ -539,7 +552,7 @@ function MapSection({
 
 /* --------------------------------- the view --------------------------------- */
 
-export function LandingView({ content, mapNode, mapLive, sectionCount }: LandingViewProps) {
+export function LandingView({ content, planPricing, lotCategories, mapNode, mapLive, sectionCount }: LandingViewProps) {
   return (
     <div className="anchored-page">
       <LandingHeader content={content} />
@@ -552,8 +565,8 @@ export function LandingView({ content, mapNode, mapLive, sectionCount }: Landing
           <div className="anchored-mid__inner">
             <HeroSection content={content} />
             <AboutSection content={content} />
-            <ServicesSection content={content} />
-            <PlansSection content={content} />
+            <ServicesSection content={content} lotCategories={lotCategories} />
+            <PlansSection content={content} planPricing={planPricing} />
             <MapSection
               content={content}
               mapNode={mapNode}

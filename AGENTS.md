@@ -315,10 +315,12 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 ## 2026 price list — where every client figure surfaces
 
-- **One transcription home: `lib/villa-pricing.ts`.** Its header maps every export to
-  the client's sheet; `tests/unit/villa-pricing.test.ts` pins each figure, and
-  `tests/unit/price-surfacing.test.tsx` renders the real pages and asserts each one is
-  published. Never author or restate an amount in a view.
+- **One transcription home per figure: the pricing store for plan rates + lot prices,
+  `lib/villa-pricing.ts` for the rest.** The plan tables and lot families are the editable
+  document described in the next section; coffins, inclusions, a-la-carte and chapel rates
+  stay in `lib/villa-pricing.ts`. `tests/unit/villa-pricing.test.ts` pins every figure
+  (store seed included), and `tests/unit/price-surfacing.test.tsx` renders the real pages
+  and asserts each one is published. Never author or restate an amount in a view.
 - Sheet → page map (all four surfaces already render the full sheets):
   `/products` = casket catalogue (`CASKET_MODELS` — SRP, senior SRP, discount,
   discounted price, grouped by collection) + per-family inclusions
@@ -328,8 +330,8 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `components/villa/service-rates-2026.tsx`;
   `/plans`, `/plans/villa-memorial-plan`, `/plans/senior-benefits` = the five tiers ×
   four terms, regular + senior, through ONE renderer
-  (`components/villa/plan-payment-table.tsx`);
-  `/lots/price-list-2026` = `LOT_PRICE_CATEGORIES` (regular + senior).
+  (`components/villa/plan-payment-table.tsx`), fed the current pricing store document;
+  `/lots/price-list-2026` = the store's lot families (regular + senior).
 - The a-la-carte/embalming table and the chapel-use table are scoped by the sheets
   themselves: they apply when the family does NOT take a package (package embalming
   stays "no fixed day count" — the package sheet's "7 days" wording is deliberately
@@ -355,6 +357,37 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   its own footnote says ₱1,800/₱4,200 per day; (2) no sheet maps the Bronze/Silver/Gold
   tier photography to the named Lumina/White Rose/Crown/Dynasty models. `2026 price FV
   website A.pdf` is byte-identical to `PRICE LIST FOR 2026 II.pdf` (one source, two names).
+  Both, plus the lot A-001 fixture-vs-sheet disagreement, are carried as read-only client
+  `questions` in the pricing fixture — see the next section.
+
+## Plan rates & lot prices — the pricing store (read before touching `/staff/plans`, `/staff/pricing`)
+
+- **One editable home: the pricing store.** The plan tables + lot families live in
+  `lib/fixtures/commerce/pricing.json` (recorded from the client's sheets) and persist
+  through `lib/api-client/pricing-store.ts` (seed + append-only journal,
+  `PRICING_STORE_PATH` or `.data/commerce-pricing.json`, gitignored), read through
+  `lib/api-client/pricing.ts`. `lib/villa-pricing.ts` now only re-exports the validated
+  seed (`SEED_PRICING`, `VMP_PAYMENTS`, `SENIOR_PAYMENTS`, `LOT_PRICE_CATEGORIES`) for
+  static consumers/tests — never render those on a public page. Public pages (`/plans*`,
+  `/lots/price-list-2026`, the home board, the package page, the agent lot list) read
+  `loadPricingDocument()` per request (`force-dynamic`) and derive every figure through
+  `planRateOf` / `lotCategoryFromPriceOf` / `lib/plan-selection.ts`; client components
+  receive the document as props.
+- **Rules live in `lib/pricing-model.ts`** (pure): four payment modes exactly once,
+  whole-peso amounts, annual = semi×2 = quarterly×4 = monthly×12, senior ≤ regular per
+  cell, unique family/product names, and lot annual × 6 ≈ selling within
+  `LOT_AMORTIZATION_ROUNDING` (₱3 — the sheet's rounding). A violating save is a 422 with
+  a plain sentence; the editors run the same function live, disable Save, and render the
+  public components (`PlanPaymentTable`, `PriceList2026Tables`) as the preview.
+- **Scopes/API/honesty**: `/api/pricing` GET needs `catalog:read`, POST needs
+  `catalog:write` (the provisional scope the Commerce nav entries already use). Live mode
+  (`COMMERCE_BASE_URL`) keeps the seed for display and refuses writes with 503
+  (`PRICING_ADMIN_NOT_WIRED`) — no catalog-pricing read/write contract has frozen; the PR
+  carries that ask. The client questions are read-only fixture metadata, outside the
+  editable document: a save can never drop or silently resolve one.
+- Evidence: `tests/unit/pricing-model.test.ts`, `tests/unit/pricing-store.test.ts`,
+  `tests/unit/pricing-admin-render.test.tsx` (an edit reaches the public pages),
+  `tests/unit/pricing-admin-rbac.test.tsx`, `tests/fixture-contract/pricing.test.ts`.
 
 ## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
 

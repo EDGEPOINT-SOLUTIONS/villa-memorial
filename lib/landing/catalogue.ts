@@ -9,6 +9,7 @@
  * placeholder prices — deliberately NOT offered here as marketing content.)
  */
 import { php, planRate, COFFINS, LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
+import { planRateOf, type LotCategory, type PlanPricing } from "@/lib/pricing-model";
 import {
   COFFIN_BRONZE,
   COFFIN_SILVER,
@@ -36,14 +37,20 @@ export type CatalogueEntry = {
 type CatalogueGroup = { label: string; entries: CatalogueEntry[] };
 
 /** Real "lot only" regular selling price for a 2026 list product name. */
-function sellingPriceOf(product: string): string | null {
-  const category = LOT_PRICE_CATEGORIES[0];
+function sellingPriceOf(product: string, lotCategories: ReadonlyArray<LotCategory>): string | null {
+  const category = lotCategories[0];
+  if (!category) return null;
   const row = category.rows.find((r) => r.product === product);
   return row ? php(row.regular.selling) : null;
 }
 
-function lotEntry(product: string, marketing: string, image: string): CatalogueEntry | null {
-  const price = sellingPriceOf(product);
+function lotEntry(
+  product: string,
+  marketing: string,
+  image: string,
+  lotCategories: ReadonlyArray<LotCategory>,
+): CatalogueEntry | null {
+  const price = sellingPriceOf(product, lotCategories);
   if (!price) return null;
   return {
     kind: "plan",
@@ -67,8 +74,20 @@ function coffinEntries(): CatalogueEntry[] {
   }));
 }
 
-/** Everything a staff editor may pin to a rail, grouped by kind for the picker. */
-export function buildRailCatalogue(): CatalogueGroup[] {
+/** Everything a staff editor may pin to a rail, grouped by kind for the picker.
+ *
+ * `options` carries the LIVE pricing document (the caller reads the fixture
+ * store) so the picker's plan price line tracks an office edit; omitting it
+ * falls back to the recorded 2026 seed for static tests.
+ */
+export function buildRailCatalogue(options?: {
+  lotCategories?: ReadonlyArray<LotCategory>;
+  planPricing?: PlanPricing;
+}): CatalogueGroup[] {
+  const lotCategories = options?.lotCategories ?? LOT_PRICE_CATEGORIES;
+  const monthlyFrom = options?.planPricing
+    ? planRateOf(options.planPricing, "bronze1", "monthly")
+    : planRate("bronze1", "monthly");
   const groups: CatalogueGroup[] = [
     {
       label: "Services",
@@ -127,7 +146,12 @@ export function buildRailCatalogue(): CatalogueGroup[] {
                 : product === "Prime Lots"
                   ? LOT_PRIMARY
                   : LOT_PREMIUM;
-          const entry = lotEntry(product, product === "Prime Lots" ? "Prime Lot" : product === "Premium Lots" ? "Premium Lot" : product, image);
+          const entry = lotEntry(
+            product,
+            product === "Prime Lots" ? "Prime Lot" : product === "Premium Lots" ? "Premium Lot" : product,
+            image,
+            lotCategories,
+          );
           return entry ? [entry] : [];
         }),
         {
@@ -136,7 +160,7 @@ export function buildRailCatalogue(): CatalogueGroup[] {
           caption: "Complete memorial service · from",
           // Derived from the client's payment-mode table (Bronze 1 monthly) —
           // never hand-authored, so the picker can't contradict the price list.
-          price: `from ${php(planRate("bronze1", "monthly"))}/month`,
+          price: `from ${php(monthlyFrom)}/month`,
           image: PLAN_PACKAGES_IMAGE,
           href: "/plans/villa-memorial-plan",
         },
@@ -212,8 +236,11 @@ export function buildRailCatalogue(): CatalogueGroup[] {
 }
 
 /** Convenience flatten for tests and the editor "add" affordance. */
-export function flattenCatalogue(): CatalogueEntry[] {
-  return buildRailCatalogue().flatMap((g) => g.entries);
+export function flattenCatalogue(options?: {
+  lotCategories?: ReadonlyArray<LotCategory>;
+  planPricing?: PlanPricing;
+}): CatalogueEntry[] {
+  return buildRailCatalogue(options).flatMap((g) => g.entries);
 }
 
 /** Turns a catalogue entry into a pin-able rail item with a stable id. */

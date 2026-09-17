@@ -3,6 +3,7 @@ import { PublicParkMap } from "@/components/public-park-map";
 import { MobileQuickMenu } from "@/components/landing/mobile-quick-menu";
 import { LandingView } from "@/components/landing/landing-view";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { listLots } from "@/lib/api-client/property";
 
 export const metadata = {
@@ -26,9 +27,10 @@ export const dynamic = "force-dynamic";
  * like /map. Staff edit the whole document at /staff/landing.
  */
 export default async function LandingPage() {
-  const [content, lots] = await Promise.all([
+  const [content, lots, pricing] = await Promise.all([
     listLandingContent(),
     listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
+    loadPricingDocument(),
   ]);
 
   const sectionCount = new Set(lots.map((l) => l.section)).size;
@@ -40,6 +42,8 @@ export default async function LandingPage() {
     <>
       <LandingView
         content={content}
+        planPricing={pricing.plans}
+        lotCategories={pricing.lotCategories}
         mapNode={mapNode}
         mapLive={lots.length > 0}
         sectionCount={sectionCount}

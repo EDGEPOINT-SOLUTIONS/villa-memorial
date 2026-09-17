@@ -12743,3 +12743,65 @@ a.card:hover {
 }
 
 /* ---- end services page (sv-*) ---------------------------------------- */
+
+/* ---- pricing admin editors (/staff/plans, /staff/pricing) ----------------
+   The two money-table screens from the admin-commerce plan: a state/action bar,
+   one card per table family, and numeric cells that scroll sideways on narrow
+   screens. Tokens only (design-system.md consumption rule #1). */
+.pricing-editor__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+}
+
+.pricing-editor__state,
+.pricing-editor__actions,
+.pricing-editor__checklist,
+.pricing-editor__family-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.pricing-editor__family {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.pricing-editor__family .field-grid {
+  flex: 1 1 32rem;
+}
+
+.pricing-editor__scroll {
+  overflow-x: auto;
+}
+
+.pricing-editor__table {
+  min-width: 64rem;
+}
+
+.pricing-editor__table th[scope="row"] {
+  white-space: nowrap;
+}
+
+.pricing-editor__name {
+  min-width: 12rem;
+  padding: var(--space-1) var(--space-2);
+}
+
+.pricing-editor__num {
+  width: 6.5rem;
+  min-width: 5.5rem;
+  padding: var(--space-1) var(--space-2);
+  text-align: right;
+}

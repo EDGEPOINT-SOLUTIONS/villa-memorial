@@ -24,12 +24,13 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP } from "@/lib/media";
-import { PLAN_TERMS, PLAN_TIERS, php, planRate, type PlanTerm, type PlanTier } from "@/lib/villa-pricing";
+import { PLAN_TERM_DEFS, planRateOf, type PlanPricing, type PlanTerm, type PlanTier } from "@/lib/pricing-model";
+import { PLAN_TIERS, php } from "@/lib/villa-pricing";
 
 /**
  * The prototype lists the switch Monthly · Semi-Annual · Quarterly · Annual
  * (home.html) while the table keeps the price sheet's own column order — so the
- * switch order is its own list here, with labels still read from PLAN_TERMS.
+ * switch order is its own list here, with labels still read from PLAN_TERM_DEFS.
  */
 const SWITCH_ORDER: ReadonlyArray<PlanTerm> = ["monthly", "semi", "quarterly", "annual"];
 
@@ -44,8 +45,8 @@ const SKU_BY_TIER: Partial<Record<PlanTier, string>> = { bronze1: "PKG-BASIC" };
  * `{packagePage}` → the anchor to the package page. Staff author the sentence;
  * the amounts and the destination are never typed.
  */
-function PlanNote({ note }: { note: string }) {
-  const seniorMonthly = php(planRate("bronze1", "monthly", true));
+function PlanNote({ note, pricing }: { note: string; pricing: PlanPricing }) {
+  const seniorMonthly = php(planRateOf(pricing, "bronze1", "monthly", true));
   const packagePage = (
     <a key="package-page" href="/plans/PKG-BASIC">
       package page
@@ -65,7 +66,7 @@ function PlanNote({ note }: { note: string }) {
   );
 }
 
-export function PlanBoard({ note }: { note: string | null }) {
+export function PlanBoard({ note, pricing }: { note: string | null; pricing: PlanPricing }) {
   const [term, setTerm] = useState<PlanTerm>("monthly");
   const highlighted = (id: PlanTerm): string => (id === term ? " is-term-hl" : "");
 
@@ -75,7 +76,7 @@ export function PlanBoard({ note }: { note: string | null }) {
         <span className="buy-card__label">Payment mode</span>
         <div className="term-switch" role="group" aria-label="Plan term">
           {SWITCH_ORDER.map((id) => {
-            const def = PLAN_TERMS.find((t) => t.id === id);
+            const def = PLAN_TERM_DEFS.find((t) => t.id === id);
             if (!def) return null;
             return (
               <button
@@ -102,7 +103,7 @@ export function PlanBoard({ note }: { note: string | null }) {
           <thead>
             <tr>
               <th scope="col">Plan tier</th>
-              {PLAN_TERMS.map((t) => (
+              {PLAN_TERM_DEFS.map((t) => (
                 <th key={t.id} scope="col" className={`num${highlighted(t.id)}`} data-col={t.id}>
                   {t.label}
                 </th>
@@ -116,9 +117,9 @@ export function PlanBoard({ note }: { note: string | null }) {
                   {tier.name}
                   {SKU_BY_TIER[tier.id] ? <Badge tone="accent">{SKU_BY_TIER[tier.id]}</Badge> : null}
                 </th>
-                {PLAN_TERMS.map((t) => (
+                {PLAN_TERM_DEFS.map((t) => (
                   <td key={t.id} className={`num${highlighted(t.id)}`} data-col={t.id}>
-                    {php(planRate(tier.id, t.id))}
+                    {php(planRateOf(pricing, tier.id, t.id))}
                   </td>
                 ))}
               </tr>
@@ -127,7 +128,7 @@ export function PlanBoard({ note }: { note: string | null }) {
         </table>
       </div>
 
-      {note ? <PlanNote note={note} /> : null}
+      {note ? <PlanNote note={note} pricing={pricing} /> : null}
 
       <p className="logo-row">
         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}

@@ -15,19 +15,33 @@
  *    regular & senior, 3–9 days), the ₱1,000 miscellaneous-fee note, and the
  *    per-casket-family inclusion rows (flowers, tarp, lapida, family car,
  *    1 doz roses, thank-you card, common/private chapel day rate).
- *  · "PRICE LIST FOR 2026.jpg" — LOT_PRICE_CATEGORIES (four families, 6-year
- *    amortization, regular + senior).
- *  · "COMPLETE MEMORIAL PACKAGE.jpg" — VMP_PAYMENTS, CASH_ASSISTANCE,
- *    VMP_ELIGIBILITY, VMP_NOTES (the plan's standard table).
- *  · "TYPES OF COFFIN.jpg" — SENIOR_PAYMENTS, SENIOR_TERMS, the coffin tier
- *    photography/descriptions and the equal-or-greater-value substitution note.
+ *  · "PRICE LIST FOR 2026.jpg" — the four lot-price families. Since the pricing
+ *    store phase these are NOT constants here: the plan tables and the lot
+ *    families live in `lib/fixtures/commerce/pricing.json` and are editable
+ *    from /staff/plans and /staff/pricing. Public surfaces read the CURRENT
+ *    document through `lib/api-client/pricing.ts`; the exports below are the
+ *    RECORDED SEED for static consumers and tests.
+ *  · "COMPLETE MEMORIAL PACKAGE.jpg" — the plan's standard payment-mode table
+ *    + CASH_ASSISTANCE, VMP_ELIGIBILITY, VMP_NOTES.
+ *  · "TYPES OF COFFIN.jpg" — the senior payment-mode table + SENIOR_TERMS, the
+ *    coffin tier photography/descriptions and the substitution note.
  *
- * tests/unit/villa-pricing.test.ts pins every one of those figures, so a future
- * transcription slip cannot ship; this module is the only place a public price
- * may live.
+ * tests/unit/villa-pricing.test.ts pins every one of those figures (including
+ * the ones now in the fixture), so a future transcription slip cannot ship.
  */
+import pricingSeedFile from "@/lib/fixtures/commerce/pricing.json";
+import {
+  assertPricingDocument,
+  lotCategoryFromPriceOf,
+  planRateOf,
+  planTermOptionsOf,
+  PLAN_TERM_DEFS,
+  type LotCategory,
+  type PaymentRow,
+  type PricingDocument,
+} from "@/lib/pricing-model";
 
-export type PaymentRow = { mode: string; bronze1: number; bronze2: number; silver1: number; silver2: number; gold: number };
+export type { LotCategory, LotPriceRow, PaymentRow } from "@/lib/pricing-model";
 
 /** Villa Memorial Plan tiers, in the client's order (bronze → gold). */
 export type PlanTier = "bronze1" | "bronze2" | "silver1" | "silver2" | "gold";
@@ -44,24 +58,42 @@ export const PLAN_TIERS: ReadonlyArray<{ id: PlanTier; name: string }> = [
 ];
 
 /**
- * The four plan terms exactly as the client's payment-mode sheets name them.
- * `paymentsPerYear` documents the arithmetic invariant the tables must keep
- * (monthly × 12 = quarterly × 4 = semi-annual × 2 = annual) — asserted in
- * tests/unit/villa-pricing.test.ts so a transcription slip like the former
- * ₱500 Bronze-1 monthly cannot ship unnoticed.
+ * The four plan terms exactly as the client's payment-mode sheets name them —
+ * the ONE definition, shared with the pricing store's validator
+ * (`lib/pricing-model.ts`). `paymentsPerYear` documents the arithmetic
+ * invariant the tables must keep (monthly × 12 = quarterly × 4 = semi-annual ×
+ * 2 = annual); an office edit that breaks it is refused by the store, and a
+ * transcription slip can never ship unnoticed.
  */
-export const PLAN_TERMS: ReadonlyArray<{
-  id: PlanTerm;
-  label: string;
-  mode: PaymentRow["mode"];
-  per: string;
-  paymentsPerYear: number;
-}> = [
-  { id: "monthly", label: "Monthly", mode: "Monthly", per: "/ month", paymentsPerYear: 12 },
-  { id: "quarterly", label: "Quarterly", mode: "Quarterly", per: "/ quarter", paymentsPerYear: 4 },
-  { id: "semi", label: "Semi-Annual", mode: "Semi-annual", per: "/ semi-annual", paymentsPerYear: 2 },
-  { id: "annual", label: "Annual", mode: "Annual", per: "/ year", paymentsPerYear: 1 },
-];
+export { PLAN_TERM_DEFS as PLAN_TERMS };
+
+/* ===========================================================================
+ * RECORDED PRICING SEED — plan tables + lot families
+ *
+ * These used to be constants here. They now live in the fixture store
+ * (`lib/fixtures/commerce/pricing.json`) so the office can edit them without a
+ * developer. The exports below are the RECORDED SEED (the client's own 2026
+ * sheets) kept for STATIC consumers — the staff pickers, the agent lot cards
+ * and the tests that pin the sheet — NOT the value a public page must print:
+ * public surfaces read the CURRENT document through
+ * `loadPricingDocument()` (lib/api-client/pricing.ts) and derive every figure
+ * with `planRateOf` / `lotCategoryFromPriceOf`.
+ * ========================================================================= */
+
+/**
+ * The validated recorded seed document (plan tables + lot families). Exported
+ * for tests and static consumers — public pages read the store.
+ */
+export const SEED_PRICING: PricingDocument = assertPricingDocument(pricingSeedFile);
+
+/** The plan's standard payment-mode table (COMPLETE MEMORIAL PACKAGE sheet) — recorded seed. */
+export const VMP_PAYMENTS: PaymentRow[] = SEED_PRICING.plans.regular;
+
+/** The senior-citizen payment-mode table (TYPES OF COFFIN sheet) — recorded seed. */
+export const SENIOR_PAYMENTS: PaymentRow[] = SEED_PRICING.plans.senior;
+
+/** The four lot families (PRICE LIST FOR 2026) — recorded seed. */
+export const LOT_PRICE_CATEGORIES: LotCategory[] = SEED_PRICING.lotCategories;
 
 /**
  * The client's TYPES OF COFFIN sheet — the five tiers with their photography.
@@ -118,13 +150,6 @@ export function coffinCover(model: string): string | undefined {
 export const COFFIN_COVER_UNSTATED =
   "The 2026 sheet names no cover for this model — its sample coffins are photographed with half-glass and full-glass lids, and the office confirms the exact cover.";
 
-export const SENIOR_PAYMENTS: PaymentRow[] = [
-  { mode: "Annual", bronze1: 6600, bronze2: 8400, silver1: 11400, silver2: 13200, gold: 18000 },
-  { mode: "Semi-annual", bronze1: 3300, bronze2: 4200, silver1: 5700, silver2: 6600, gold: 9000 },
-  { mode: "Quarterly", bronze1: 1650, bronze2: 2100, silver1: 2850, silver2: 3300, gold: 4500 },
-  { mode: "Monthly", bronze1: 550, bronze2: 700, silver1: 950, silver2: 1100, gold: 1500 },
-];
-
 export const SENIOR_TERMS = [
   "Must be 61–100 years old",
   "Senior citizens have no insurance benefit",
@@ -132,16 +157,6 @@ export const SENIOR_TERMS = [
   "With FREE flowers",
   "With complete memorial package",
   "Transferable / assignable (terms apply)",
-];
-
-export const VMP_PAYMENTS: PaymentRow[] = [
-  { mode: "Annual", bronze1: 7200, bronze2: 9240, silver1: 12000, silver2: 13440, gold: 18240 },
-  { mode: "Semi-annual", bronze1: 3600, bronze2: 4620, silver1: 6000, silver2: 6720, gold: 9120 },
-  { mode: "Quarterly", bronze1: 1800, bronze2: 2310, silver1: 3000, silver2: 3360, gold: 4560 },
-  // Bronze 1 monthly is ₱600 on the client's payment-mode sheet (and on the
-  // reference package page): annual 7,200 ÷ 12. It was mis-keyed as 500 here,
-  // which published a wrong public price — pinned by tests/unit/villa-pricing.test.ts.
-  { mode: "Monthly", bronze1: 600, bronze2: 770, silver1: 1000, silver2: 1120, gold: 1520 },
 ];
 
 export const CASH_ASSISTANCE = [
@@ -173,76 +188,11 @@ export const VMP_NOTES = {
   adjust: "Amortization can be adjusted to 8 years and 10 years.",
 };
 
-export type LotPriceRow = {
-  product: string;
-  area: number;
-  regular: { selling: number; annual: number; semi: number; quarter: number; monthly: number };
-  senior: { selling: number; annual: number; semi: number; quarter: number; monthly: number };
-};
-
-function row(product: string, area: number, r: [number, number, number, number, number], s: [number, number, number, number, number]): LotPriceRow {
-  return {
-    product,
-    area,
-    regular: { selling: r[0], annual: r[1], semi: r[2], quarter: r[3], monthly: r[4] },
-    senior: { selling: s[0], annual: s[1], semi: s[2], quarter: s[3], monthly: s[4] },
-  };
-}
-
-export const LOT_PRICE_CATEGORIES: Array<{ title: string; caption: string; rows: LotPriceRow[] }> = [
-  {
-    title: "1. Lot Only",
-    // `caption` = the family name as printed on the 2026 sheet (the package
-    // page's price module renders the prototype's table captions exactly).
-    caption: "Lot only",
-    rows: [
-      row("Mausoleum", 24, [1073000, 178833, 92993, 48285, 16095], [924462, 154077, 80120, 41601, 13867]),
-      row("Garden Niches", 12, [567000, 94500, 49140, 25515, 8505], [491400, 81900, 42588, 22113, 7371]),
-      row("Prime Lots", 2.5, [128000, 21333, 11093, 5760, 1920], [112521, 18753, 9752, 5063, 1688]),
-      row("Premium Lots", 2.5, [114000, 19000, 9880, 5130, 1710], [99859, 16643, 8654, 4494, 1498]),
-      row("Condo-type", 2.5, [75000, 12500, 6500, 3375, 1125], [64910, 10818, 5626, 2921, 974]),
-    ],
-  },
-  {
-    title: "2. Lot + Interment (1st Burial Only)",
-    caption: "Lot + interment (1st burial only)",
-    rows: [
-      row("Mausoleum", 24, [1106000, 184333, 95853, 49770, 16590], [951054, 158509, 82425, 42797, 14266]),
-      row("Garden Niches", 12, [600000, 100000, 52000, 27000, 9000], [517992, 86332, 44893, 23310, 7770]),
-      row("Prime Lots", 2.5, [161000, 26833, 13953, 7245, 2415], [139113, 23185, 12056, 6260, 2087]),
-      row("Premium Lots", 2.5, [147000, 24500, 12740, 6615, 2205], [126451, 21075, 10959, 5690, 1897]),
-      row("Condo-type", 2.5, [97000, 16167, 8407, 4365, 1455], [82638, 13773, 7162, 3719, 1240]),
-    ],
-  },
-  {
-    title: "3. Lot + Interment + VMP",
-    caption: "Lot + interment + VMP",
-    rows: [
-      row("Mausoleum", 24, [1135000, 189167, 98367, 50129, 17025], [979854, 163309, 84921, 44093, 14698]),
-      row("Garden Niches", 12, [629000, 104833, 54513, 27781, 9435], [546792, 91132, 47389, 24606, 8202]),
-      row("Prime Lots", 2.5, [190000, 31667, 16467, 8392, 2850], [167913, 27985, 14552, 7556, 2519]),
-      row("Premium Lots", 2.5, [176000, 29333, 15253, 7773, 2640], [155251, 25875, 13455, 6986, 2329]),
-      row("Condo-type", 2.5, [126000, 21000, 10920, 5565, 1890], [111438, 18573, 9658, 5015, 1672]),
-    ],
-  },
-  {
-    title: "4. Mausoleum + Construction",
-    caption: "Mausoleum + construction",
-    rows: [
-      row("Mausoleum + Construction", 24, [1573000, 262167, 136327, 70785, 23595], [1258400, 209733, 109061, 56628, 18876]),
-      row("Mausoleum + Construction + 1st Interment", 24, [1607000, 267833, 139273, 72315, 24105], [1285600, 214267, 111419, 57852, 19284]),
-      row("Mausoleum + Construction + 1st Interment + Life Plan", 24, [1639000, 273167, 142047, 73755, 24585], [1311200, 218533, 113637, 59004, 19668]),
-    ],
-  },
-];
-
 /**
- * One LOT_PRICE_CATEGORIES family's entry-level "from" figures: the lowest
- * regular selling price in that family and that row's matching monthly
- * installment (the client's 6-year amortization). The home page's "Services we
- * offer" cards render "from ₱75,000 · ₱1,125 / month, 6 yrs" through this, so
- * the meta line can never drift from the 2026 sheet (and no view restates an
- * amount). Unknown/absent family → null; the view then omits the meta line.
+ * One lot family's entry-level “from” figures (the recorded seed). Same shape
+ * and rules as `lotCategoryFromPriceOf` in lib/pricing-model.ts — this wrapper
+ * exists for STATIC surfaces and tests; a public page reads the current
+ * document's categories and calls the model function directly.
  */
 export function lotCategoryFromPrice(categoryTitle: string): {
   category: { title: string; caption: string };
@@ -251,15 +201,7 @@ export function lotCategoryFromPrice(categoryTitle: string): {
   selling: number;
   monthly: number;
 } | null {
-  const category = LOT_PRICE_CATEGORIES.find((c) => c.title === categoryTitle);
-  if (!category || category.rows.length === 0) return null;
-  const row = category.rows.reduce((min, r) => (r.regular.selling < min.regular.selling ? r : min));
-  return {
-    category: { title: category.title, caption: category.caption },
-    product: row.product,
-    selling: row.regular.selling,
-    monthly: row.regular.monthly,
-  };
+  return lotCategoryFromPriceOf(LOT_PRICE_CATEGORIES, categoryTitle);
 }
 
 export function php(n: number): string {
@@ -272,27 +214,18 @@ export function php2(n: number): string {
 }
 
 /**
- * One plan rate: the client's published amount for a tier × term, regular or
- * senior-citizen table. The Plan Term selector reads through this function so
- * prices are never copied into a view.
+ * The RECORDED SEED plan rate — kept for STATIC surfaces (the landing picker)
+ * and tests. A public page must read the current document
+ * (`loadPricingDocument()`) and call `planRateOf` so an office edit is what the
+ * visitor sees.
  */
 export function planRate(tier: PlanTier, term: PlanTerm, senior = false): number {
-  const def = PLAN_TERMS.find((t) => t.id === term);
-  if (!def) throw new Error(`Unknown plan term: ${term}`);
-  const rows = senior ? SENIOR_PAYMENTS : VMP_PAYMENTS;
-  const row = rows.find((r) => r.mode === def.mode);
-  if (!row) throw new Error(`No ${def.mode} row in the ${senior ? "senior" : "standard"} table`);
-  return row[tier];
+  return planRateOf(SEED_PRICING.plans, tier, term, senior);
 }
 
-/** The four terms a given tier can be paid in, ready for the selector. */
+/** The four terms a given tier can be paid in — recorded seed (see planRate). */
 export function planTermOptions(tier: PlanTier, senior = false): Array<{ term: PlanTerm; label: string; per: string; amount: number }> {
-  return PLAN_TERMS.map((t) => ({
-    term: t.id,
-    label: t.label,
-    per: t.per,
-    amount: planRate(tier, t.id, senior),
-  }));
+  return planTermOptionsOf(SEED_PRICING.plans, tier, senior);
 }
 
 /** All five inclusions shown on the package page (client's COMPLETE MEMORIAL

@@ -11,18 +11,19 @@
  *    senior-citizen rate (the office must qualify eligibility) — opens the
  *    prefilled request naming the tier, the term and the sheet's amount.
  *
- * The plan's rate card itself is untouched: every amount here comes from
- * lib/villa-pricing.ts (`planRate`).
+ * The plan's rate card itself is untouched: every amount here comes from the
+ * CURRENT pricing document (lib/api-client/pricing.ts → planRateOf), never a
+ * constant, so an office edit is what the visitor requests.
  */
 import { planTierPackageSku } from "@/lib/catalogue-skus";
 import {
-  PLAN_TERMS,
-  PLAN_TIERS,
-  php2,
-  planRate,
+  PLAN_TERM_DEFS,
+  planRateOf,
+  type PlanPricing,
   type PlanTier,
   type PlanTerm,
-} from "@/lib/villa-pricing";
+} from "@/lib/pricing-model";
+import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
 import { buildRequestHref, type RequestPrefill } from "@/lib/public-forms/request-prefill";
 
 export type PlanSelectionAction =
@@ -36,20 +37,22 @@ export type PlanSelectionAction =
  * saw.
  */
 export function planRequestAction({
+  pricing,
   tier,
   term,
   senior,
   sku,
 }: {
+  pricing: PlanPricing;
   tier: PlanTier;
   term: PlanTerm;
   senior: boolean;
   sku?: string;
 }): Extract<PlanSelectionAction, { kind: "request" }> {
-  const termDef = PLAN_TERMS.find((t) => t.id === term);
+  const termDef = PLAN_TERM_DEFS.find((t) => t.id === term);
   if (!termDef) throw new Error(`Unknown plan term: ${term}`);
   const tierName = PLAN_TIERS.find((t) => t.id === tier)?.name ?? tier;
-  const amount = planRate(tier, term, senior);
+  const amount = planRateOf(pricing, tier, term, senior);
   const prefill: RequestPrefill = {
     item: `${tierName} plan — ${termDef.label}`,
     sku,
@@ -62,10 +65,12 @@ export function planRequestAction({
 }
 
 export function planSelectionAction({
+  pricing,
   tier,
   term,
   senior,
 }: {
+  pricing: PlanPricing;
   tier: PlanTier;
   term: PlanTerm;
   senior: boolean;
@@ -76,5 +81,5 @@ export function planSelectionAction({
     return { kind: "cart", sku };
   }
 
-  return planRequestAction({ tier, term, senior, sku });
+  return planRequestAction({ pricing, tier, term, senior, sku });
 }
