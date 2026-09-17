@@ -1,0 +1,620 @@
+/* ============================================================================
+   nav.css — PROPOSED two-layer public navigation (design scout, scratch).
+   Everything here resolves to a token from styles/tokens.css (consumption
+   rule #1). Class prefix `vn-` so nothing can collide with production
+   `.anchored-header` / `.quick-menu` rules while the proposal is unbuilt.
+
+   Layers:
+     1. `.vn-utility`  slim trust row: location + hours (left), 24/7 call
+                       button (right) — always visible, never auto-hides.
+     2. `.vn-main`     brand · page links · quiet Sign in · cart icon+count.
+   States: `.vn-header--compressed` (after scroll), `[aria-current="page"]`
+   (gold underline + weight), `.vn-menu--open` (Plan ahead group),
+   `.vn-bottombar` (< 75rem only, permanent Call 24/7 + Plan ahead + menu).
+   =========================================================================== */
+
+/* ---- skip link (accessibility as a feature) ---- */
+.vn-skip {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 200;
+  transform: translateY(-160%);
+  background: var(--navy-900);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 24px -10px rgb(8 28 49 / 0.5);
+  transition: transform var(--motion-fast);
+}
+
+.vn-skip:focus {
+  transform: translateY(0);
+}
+
+.vn-skip:focus-visible {
+  outline: 2px solid var(--gold-400);
+  outline-offset: 2px;
+}
+
+/* ---- header shell (sticky; keeps the product's blur + gold hairline) ---- */
+.vn-header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--color-bg-surface-raised) 92%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-rule);
+  transition: background-color var(--motion-base), box-shadow var(--motion-base);
+}
+
+.vn-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--gold-hairline);
+}
+
+.vn-header--compressed {
+  background: color-mix(in srgb, var(--color-bg-surface-raised) 97%, transparent);
+  box-shadow: 0 10px 26px -18px rgb(8 28 49 / 0.35);
+}
+
+/* ============================ UTILITY ROW ================================ */
+.vn-utility {
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid var(--sky-100);
+  transition: background-color var(--motion-base);
+}
+
+.vn-header--compressed .vn-utility {
+  background: color-mix(in srgb, var(--color-bg-surface-raised) 96%, transparent);
+}
+
+/* Sky-blue variant of the utility row (D4): `.vn-header--sky-utility`. */
+.vn-header--sky-utility .vn-utility {
+  background: linear-gradient(90deg, var(--sky-100), var(--sky-200));
+  border-bottom-color: var(--sky-300);
+}
+
+.vn-utility__bar {
+  max-width: var(--layout-folio-w);
+  margin-inline: auto;
+  min-height: 3.25rem;
+  padding: 0 var(--space-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.vn-utility__meta {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.45rem;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  color: var(--navy-700); /* 10.3:1 on white — AAA */
+  white-space: nowrap;
+}
+
+.vn-utility__meta svg {
+  flex: none;
+  color: var(--navy-500);
+}
+
+.vn-utility__sep {
+  color: var(--sky-500);
+  padding: 0 0.1rem;
+}
+
+/* The 24/7 call button — the utility row's one job. Navy ink on the product's
+   own sky gradient; measured 13.1:1 (top) / 8.2:1 (bottom) — AAA throughout. */
+.vn-call {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 2.75rem; /* 44px — the brief's tap-target floor */
+  padding: 0.35rem 0.95rem;
+  border: 1px solid var(--sky-500);
+  border-radius: var(--radius-md);
+  background: linear-gradient(180deg, var(--sky-200) 0%, var(--sky-400) 100%);
+  color: var(--navy-950);
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgb(8 28 49 / 0.18);
+  transition: border-color var(--motion-fast), filter var(--motion-fast);
+}
+
+.vn-call:hover {
+  border-color: var(--sky-600);
+  filter: brightness(1.03);
+}
+
+.vn-call:focus-visible {
+  outline-color: var(--navy-900);
+}
+
+.vn-call svg {
+  flex: none;
+}
+
+.vn-call__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+}
+
+.vn-call__label {
+  font-size: 0.6875rem; /* 11px — small, but AAA contrast and paired with 17px number */
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--navy-900); /* 11.3:1 → 7.1:1 across the gradient — AAA */
+}
+
+.vn-call__number {
+  font-family: var(--font-serif);
+  font-weight: 800;
+  font-size: 1.0625rem;
+  letter-spacing: 0.01em;
+  color: var(--navy-950);
+  white-space: nowrap;
+}
+
+/* ============================ MAIN ROW =================================== */
+.vn-main__bar {
+  max-width: var(--layout-folio-w);
+  margin-inline: auto;
+  padding: 0 var(--space-5);
+  height: 4.25rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-5);
+  transition: height var(--motion-base);
+}
+
+.vn-header--compressed .vn-main__bar {
+  height: 3.5rem; /* the "slightly shorter row" — 68px → 56px */
+}
+
+.vn-brand {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  color: var(--color-text-primary);
+  min-height: 2.75rem;
+}
+
+.vn-brand__wordmark {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  color: var(--navy-900);
+  white-space: nowrap;
+}
+
+.vn-brand .brand-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 1px 4px rgb(10 30 52 / 0.25);
+}
+
+/* ---- page links ---- */
+.vn-nav {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.vn-nav > a,
+.vn-nav__trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--navy-700);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--motion-fast), background-color var(--motion-fast);
+}
+
+.vn-nav > a:hover,
+.vn-nav__trigger:hover,
+.vn-nav__trigger[aria-expanded="true"] {
+  color: var(--navy-900);
+  background: var(--color-bg-subtle);
+}
+
+/* Active page: gold underline + weight change (never colour alone). */
+.vn-nav > a[aria-current="page"] {
+  color: var(--navy-900);
+  font-weight: 700;
+}
+
+.vn-nav > a[aria-current="page"]::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.3rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gold-400);
+}
+
+/* ---- grouped "Plan ahead" menu ---- */
+.vn-nav__group {
+  position: relative;
+}
+
+.vn-nav__trigger svg {
+  transition: transform var(--motion-fast);
+}
+
+.vn-nav__trigger[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.vn-menu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(24rem, 92vw);
+  padding: 0.5rem;
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 48px -22px rgb(8 28 49 / 0.32);
+  z-index: 60;
+}
+
+.vn-menu[hidden] {
+  display: none;
+}
+
+.vn-menu__heading {
+  margin: 0;
+  padding: 0.55rem 0.75rem 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold-800);
+}
+
+.vn-menu__item {
+  display: block;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  min-height: 2.75rem;
+}
+
+.vn-menu__item:hover {
+  background: var(--sky-50);
+}
+
+.vn-menu__item strong {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 650;
+  color: var(--navy-900);
+}
+
+.vn-menu__item span {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.8125rem;
+  color: var(--navy-600);
+}
+
+/* ---- actions: quiet Sign in + cart icon with count ---- */
+.vn-actions {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.vn-signin {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--navy-600);
+  text-decoration: none;
+  transition: color var(--motion-fast), background-color var(--motion-fast);
+}
+
+.vn-signin:hover {
+  color: var(--gold-700);
+  background: var(--color-bg-subtle);
+}
+
+.vn-cart {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-md);
+  color: var(--navy-800);
+  text-decoration: none;
+  transition: background-color var(--motion-fast), color var(--motion-fast);
+}
+
+.vn-cart:hover {
+  color: var(--navy-950);
+  background: var(--color-bg-subtle);
+}
+
+.vn-cart__count {
+  position: absolute;
+  top: 0.2rem;
+  right: 0.1rem;
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  padding: 0 0.25rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+  color: var(--navy-950);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--color-bg-surface-raised);
+}
+
+/* ======================= PHONE: BOTTOM ACTION BAR ======================== */
+.vn-bottombar {
+  display: none;
+}
+
+/* ============================ RESPONSIVE ================================= */
+@media (max-width: 84.999rem) {
+  .vn-nav {
+    gap: 0;
+  }
+  .vn-nav > a,
+  .vn-nav__trigger {
+    padding-inline: 0.55rem;
+  }
+}
+
+@media (max-width: 74.999rem) {
+  /* phones/tablets: the bottom bar owns the call target, so the utility row
+     is location + hours only (never two call buttons on one screen) */
+  .vn-call {
+    display: none;
+  }
+
+  .vn-utility__meta {
+    font-size: 0.8125rem;
+  }
+  .vn-nav {
+    display: none; /* the full menu (FAB) carries links below 75rem */
+  }
+
+  .vn-main__bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  /* permanent bottom action bar — two big targets, always reachable */
+  .vn-bottombar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 55;
+    display: flex;
+    align-items: stretch;
+    gap: 0.6rem;
+    padding: 0.5rem var(--space-4);
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--color-bg-surface-raised) 97%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--sky-200);
+    box-shadow: 0 -10px 26px -18px rgb(8 28 49 / 0.35);
+  }
+
+  .vn-bottombar__btn {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    min-height: 3rem; /* 48px — above the 44px floor */
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius-md);
+    font-size: 0.9375rem;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .vn-bottombar__btn--call {
+    border: 1px solid var(--sky-500);
+    background: linear-gradient(180deg, var(--sky-200) 0%, var(--sky-400) 100%);
+    color: var(--navy-950);
+  }
+
+  .vn-bottombar__btn--plan {
+    border: 1px solid var(--sky-300);
+    background: var(--color-bg-surface-raised);
+    color: var(--navy-800);
+  }
+
+  .vn-bottombar__btn:focus-visible {
+    outline-color: var(--navy-900);
+  }
+
+  /* the existing full menu (quick-menu FAB) sits above the bottom bar */
+  .quick-menu-fab {
+    bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* keep page content clear of the fixed bar */
+  body.vn-has-bottombar {
+    padding-bottom: 5.25rem;
+  }
+}
+
+@media (max-width: 39.999rem) {
+  .vn-utility__bar {
+    min-height: 2.75rem;
+    padding-inline: var(--space-4);
+  }
+
+  .vn-utility__meta {
+    font-size: 0.75rem;
+    gap: 0.35rem;
+  }
+
+  .vn-utility__hours {
+    display: inline;
+  }
+
+  .vn-main__bar {
+    padding-inline: var(--space-4);
+    height: 3.75rem;
+  }
+
+  .vn-header--compressed .vn-main__bar {
+    height: 3.25rem;
+  }
+
+  .vn-brand__wordmark {
+    font-size: 0.9375rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ---- "Plan ahead" phone sheet -------------------------------------------------
+   The bottom bar's Plan ahead target opens the same full client names in a
+   dialog-style sheet; the existing quick menu stays the full section list. */
+.vn-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+}
+
+.vn-sheet[hidden] {
+  display: none;
+}
+
+.vn-sheet__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(8 28 49 / 0.5);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.vn-sheet__panel {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  max-height: 82vh;
+  overflow-y: auto;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  box-shadow: 0 -18px 44px -20px rgb(8 28 49 / 0.4);
+  padding: var(--space-4) var(--space-4) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+
+.vn-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--sky-100);
+}
+
+.vn-sheet__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.125rem;
+  color: var(--navy-900);
+}
+
+.vn-sheet__close {
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  color: var(--navy-800);
+  cursor: pointer;
+}
+
+.vn-sheet__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 3.25rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+}
+
+.vn-sheet__item:hover {
+  background: var(--sky-50);
+}
+
+.vn-sheet__item strong {
+  display: block;
+  font-size: 0.9375rem;
+  color: var(--navy-900);
+}
+
+.vn-sheet__item span {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--navy-600);
+}
+
+.vn-sheet__item svg {
+  flex: none;
+  color: var(--sky-600);
+}

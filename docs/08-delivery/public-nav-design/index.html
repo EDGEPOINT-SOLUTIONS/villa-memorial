@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Public navigation — design review (before / after, at real size)</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <link rel="stylesheet" href="base.css" />
+  <link rel="stylesheet" href="components.css" />
+  <link rel="stylesheet" href="utilities.css" />
+  <link rel="stylesheet" href="nav.css" />
+  <link rel="stylesheet" href="review.css" />
+</head>
+<body class="rv">
+<div class="rv-wrap">
+
+  <!-- ================= MASTHEAD ================= -->
+  <header class="rv-hero">
+    <p class="rv-eyebrow">Villa Memorial Park · public navigation · design review</p>
+    <h1>A front door that answers first</h1>
+    <p class="rv-lead">
+      The proposal puts the 24/7 number and the customer's location in one slim row, the page links in a
+      second, and the cart where a cart belongs — an icon with a count. The page content does not change;
+      only the navigation and its states change. Every state below is the real thing rendered in the
+      app's own design system, at real size: desktop 1440, phone 390.
+    </p>
+    <div class="rv-chips">
+      <span class="rv-chip">Review round 1 — closed: approved 2026-09-17</span>
+      <span class="rv-chip">Before / after at 1440 &amp; 390</span>
+      <span class="rv-chip">A / B label options</span>
+      <span class="rv-chip">Scrolled · active · menu · bottom bar</span>
+      <span class="rv-chip rv-chip--gold">5 decisions at the end — answer in place</span>
+    </div>
+    <div class="rv-legend">
+      <span><b>Real</b> — copied from the app or the client's own details.</span>
+      <span><b>Proposed</b> — new two-layer bar + bottom action bar.</span>
+      <span><b>Unchanged</b> — every page below the bar.</span>
+    </div>
+  </header>
+
+  <!-- ================= 1 · THE PLAN ================= -->
+  <section class="rv-section" id="plan">
+    <h2><span class="rv-num">01</span> The plan, in plain terms</h2>
+    <p class="rv-sub">
+      Today one 68 px row carries everything: the brand, seven wide labels, a small phone chip and the
+      sign-in. That works at 1440 and breaks on a phone — measured below, "Sign in" is painted on top of
+      the brand at 390. The proposal gives each job its own row and its own size.
+    </p>
+
+    <div class="rv-grid rv-grid--4">
+      <article class="rv-card rv-reason">
+        <h3>Two layers, not one</h3>
+        <p>
+          A slim utility row holds the trust facts — <b>Isabela City, Basilan · every hour, every day</b> —
+          and the 24/7 number as a real call button. The main row holds the brand, the page links,
+          a quiet Sign in and the cart.
+        </p>
+        <p class="rv-buy"><strong>Buys →</strong> the number stops competing with seven menu labels, and the
+          bar never has to squeeze either one.</p>
+      </article>
+
+      <article class="rv-card rv-reason">
+        <h3>The cart becomes an icon</h3>
+        <p>
+          The cart is a place you return to, not a page you browse. It moves out of the label row into a
+          44 px icon with a gold count, beside Sign in.
+        </p>
+        <p class="rv-buy"><strong>Buys →</strong> one less full word in the row, a count the customer can
+          read at a glance, and no more "Cart" sitting where "Contact" should be.</p>
+      </article>
+
+      <article class="rv-card rv-reason">
+        <h3>Short labels, full names</h3>
+        <p>
+          The bar carries short unmistakable words — <b>Home · Services · Plans · Lots · Park · Contact</b> —
+          while the client's full names ("Funeraria Memorial Services", "Villa Memorial Plan", "Villa
+          Memorial Park") stay as the page headings and live in a grouped <b>Plan ahead</b> menu.
+        </p>
+        <p class="rv-buy"><strong>Buys →</strong> a bar that can breathe at every width; the full names are
+          still one tap away, in full.</p>
+      </article>
+
+      <article class="rv-card rv-reason">
+        <h3>The phone is always reachable</h3>
+        <p>
+          On phones a permanent bottom bar carries two big targets — <b>Call 24/7</b> and <b>Plan ahead</b> —
+          with the existing full menu button just above it. The header never hides on scroll.
+        </p>
+        <p class="rv-buy"><strong>Buys →</strong> a family at the worst moment never has to scroll to find
+          a human, and no target ever moves under a thumb.</p>
+      </article>
+    </div>
+
+    <div class="rv-card" style="margin-top: var(--space-4)">
+      <table class="rv-table">
+        <thead>
+          <tr><th>Change</th><th>Why</th><th>What the customer gets</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>Utility row</b></td><td>Location, hours and the number are trust facts, not wayfinding.</td><td>"They are open, they are here, I can call now."</td></tr>
+          <tr><td><b>Call button</b></td><td>Today's 13 px phone chip is the same size as a menu word.</td><td>A 45 px sky-blue target, readable from arm's length (AAA contrast).</td></tr>
+          <tr><td><b>Cart icon + count</b></td><td>A cart is a return destination, not a section of the site.</td><td>One glance shows what is waiting; nothing is hidden behind a word.</td></tr>
+          <tr><td><b>Gold underline</b></td><td>Colour alone is not a state; weight + underline is.</td><td>You always know which page you are on.</td></tr>
+          <tr><td><b>Quiet compression</b></td><td>Sticky chrome earns its space when it gets shorter, not when it disappears.</td><td>The bar gives back 12–14 px after scrolling and the phone stays put.</td></tr>
+          <tr><td><b>Skip link + focus rings</b></td><td>Keyboard visitors need to bypass the bar and see where they are.</td><td>The page is usable without a mouse — visibly.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= 2 · BEFORE → AFTER ================= -->
+  <section class="rv-section" id="compare">
+    <h2><span class="rv-num">02</span> Before → after, same page, real size</h2>
+    <p class="rv-sub">
+      The page under the bar is the live site itself — the captures below are of today's pages, and the
+      page content is untouched. Only the bar is different.
+    </p>
+
+    <h3 style="margin: 0 0 var(--space-3)">Desktop · 1440 px</h3>
+    <div class="rv-compare">
+      <div class="rv-pane">
+        <div class="rv-pane__label rv-pane__label--today"><span>Today</span><span>1 row · 69 px</span></div>
+        <div class="rv-pane__body">
+          <img class="rv-shot" src="shots/before-home-1440.png" alt="Today's home page at 1440: one row with brand, seven nav labels, phone chip and Sign in." />
+          <p class="rv-cap">
+            Brand · 7 labels (three of them full client names) · a small bordered phone chip · Sign in.
+            Every target in this row is <b>36 px</b> tall — below the 44 px tap-target floor.
+          </p>
+        </div>
+      </div>
+      <div class="rv-pane">
+        <div class="rv-pane__label rv-pane__label--new"><span>Proposed — Option A</span><span>2 rows · 122 px</span></div>
+        <div class="rv-pane__body">
+          <img class="rv-shot" src="shots/after-a-home-1440.png" alt="The proposed home page at 1440: utility row with location, hours and a sky-blue call button, then brand, short labels, Plan ahead, Sign in and a cart icon with a count." />
+          <p class="rv-cap">
+            Utility: <b>Isabela City, Basilan · every hour, every day</b> + a 45 px sky-blue call button.
+            Main: short labels + grouped <b>Plan ahead</b> · quiet Sign in · cart icon with count. All targets
+            now <b>44 px</b>.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin: var(--space-5) 0 var(--space-3)">Phone · 390 px</h3>
+    <div class="rv-compare">
+      <div class="rv-pane">
+        <div class="rv-pane__label rv-pane__label--today"><span>Today</span><span>1 row · 69 px</span></div>
+        <div class="rv-pane__body">
+          <img class="rv-shot rv-shot--phone" src="shots/before-home-390.png" alt="Today's phone bar at 390: brand only, with Sign in overlapping the wordmark, and a floating menu button." />
+          <p class="rv-cap">
+            Measured on the live bar: <b>Sign in overlaps the brand wordmark by 68 px</b> at 390
+            (and at 320) — the sign-in falls into the middle grid track because the label row is hidden.
+            <span style="display:block;margin-top:0.4rem">
+              <img class="rv-shot" src="shots/crop-before-390-zoom.png" alt="Zoom of today's 390 bar showing the Sign in label painted over the end of the Villa Memorial Park wordmark." />
+            </span>
+          </p>
+        </div>
+      </div>
+      <div class="rv-pane">
+        <div class="rv-pane__label rv-pane__label--new"><span>Proposed — Option A</span><span>2 rows + bottom bar</span></div>
+        <div class="rv-pane__body">
+          <img class="rv-shot rv-shot--phone" src="shots/after-a-home-390.png" alt="The proposed phone bar at 390: utility row with location and hours, brand with Sign in and a cart icon sorted to the right, and a bottom bar with Call 24/7 and Plan ahead." />
+          <p class="rv-cap">
+            Utility row keeps the trust facts; brand left, Sign in + cart right; permanent bottom bar with
+            <b>Call 24/7</b> and <b>Plan ahead</b>, full menu above it. No overlap, no horizontal scroll
+            (measured at 390 and 320).
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3 · LABEL OPTIONS ================= -->
+  <section class="rv-section" id="labels">
+    <h2><span class="rv-num">03</span> Labels: Option A or Option B</h2>
+    <p class="rv-sub">
+      Both options keep the two layers, the call button, the cart icon and the bottom bar. The only
+      difference is what the page links say. <b>D1</b> at the bottom is your call.
+    </p>
+    <div class="rv-compare">
+      <div class="rv-pane">
+        <div class="rv-pane__label rv-pane__label--new"><span>Option A — short + grouped menu</span><span>Recommended</span></div>
+        <div class="rv-pane__body">
+          <img class="rv-shot" src="shots/after-a-home-1440.png" alt="Option A: Home, Services, Plans, Lots, Park, Contact, plus a Plan ahead menu." />
+          <p class="rv-cap">
+            Home · Services · Plans · Lots · Park · Contact, plus <b>Plan ahead</b> — a grouped menu that
+            carries the full client names: Villa Memorial Plan · Senior benefits · Funeraria Memorial
+            Services · Villa Memorial Park.
+          </p>
+        </div>
+      </div>
+      <div class="rv-pane">
+        <div class="rv-pane__label rv-pane__label--new"><span>Option B — full names verbatim</span><span>Your call</span></div>
+        <div class="rv-pane__body">
+          <img class="rv-shot" src="shots/after-b-home-1440.png" alt="Option B: the client's full page names in the bar." />
+          <p class="rv-cap">
+            The client's own names in the bar — <b>Funeraria Memorial Services · Villa Memorial Plan ·
+            Villa Memorial Park</b> — still in the two-row layout, still fitting comfortably at 1440.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 · STATES ================= -->
+  <section class="rv-section" id="states">
+    <h2><span class="rv-num">04</span> The states, one by one</h2>
+    <p class="rv-sub">Every state a customer can meet, rendered at real size.</p>
+
+    <div class="rv-grid rv-grid--2">
+      <div class="rv-tile">
+        <div class="rv-tile__head">Scrolled — desktop 1440 <span class="rv-tag">122 → 110 px</span></div>
+        <div class="rv-tile__body"><img class="rv-shot" src="shots/after-a-home-1440-scrolled.png" alt="The proposed desktop bar after scrolling: the main row shortens and the background becomes more opaque with a soft shadow." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">The main row shortens 68 → 56 px, the background turns more opaque and a soft shadow appears — <b>never hidden</b>, so the call button is always there.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Scrolled — phone 390 <span class="rv-tag">106 → 98 px</span></div>
+        <div class="rv-tile__body"><img class="rv-shot rv-shot--phone" src="shots/after-a-home-390-scrolled.png" alt="The proposed phone bar after scrolling: compressed header, bottom bar still visible." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">The utility row stays, the main row shortens by 8 px, and the bottom bar never moves.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Active page — Services <span class="rv-tag">gold underline + weight</span></div>
+        <div class="rv-tile__body"><img class="rv-shot" src="shots/after-a-services-1440.png" alt="The proposed bar on the Services page: Services is bold with a gold underline." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">The current page gets a gold underline <b>and</b> a weight change — never colour alone — and keeps <span class="rv-kbd">aria-current="page"</span>.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Plan ahead — grouped menu <span class="rv-tag">full names</span></div>
+        <div class="rv-tile__body"><img class="rv-shot" src="shots/after-a-menu-1440.png" alt="The Plan ahead menu open, listing Villa Memorial Plan, Senior benefits, Funeraria Memorial Services and Villa Memorial Park with plain-language notes." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">The full client names, each with one plain sentence. Button carries <span class="rv-kbd">aria-expanded</span>; Escape and outside-click close it.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Utility row — neutral (default) vs sky blue <span class="rv-tag">D4</span></div>
+        <div class="rv-tile__body rv-tile__body--flush">
+          <img class="rv-shot" src="shots/crop-neutral-utility.png" alt="The utility row in its neutral near-white treatment." />
+          <img class="rv-shot" src="shots/crop-sky-utility.png" alt="The utility row in a sky-blue wash treatment." />
+        </div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">Top: neutral. Bottom: sky-blue wash. Both keep the same AAA text contrast; D4 picks one.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Phone bottom bar in context <span class="rv-tag">always reachable</span></div>
+        <div class="rv-tile__body"><img class="rv-shot rv-shot--phone" src="shots/after-a-bottombar-390.png" alt="A scrolled phone page with the bottom Call 24/7 and Plan ahead bar and the full-menu button above it." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">Two 48 px targets plus the existing full menu — no auto-hiding, no target moving under a finger.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Phone — existing full menu <span class="rv-tag">unchanged</span></div>
+        <div class="rv-tile__body"><img class="rv-shot rv-shot--phone" src="shots/after-a-quick-390.png" alt="The existing quick menu dialog open on a phone, with the 24/7 line, site links, portal doors and pinned rail items." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">The full menu stays exactly as it is today — the rails, the portal doors, the 24/7 line. The bottom bar lives beside it, not instead of it.</p>
+      </div>
+
+      <div class="rv-tile">
+        <div class="rv-tile__head">Phone — Plan ahead sheet <span class="rv-tag">new</span></div>
+        <div class="rv-tile__body"><img class="rv-shot rv-shot--phone" src="shots/after-a-sheet-390.png" alt="The Plan ahead bottom sheet open on a phone, listing the full client names." /></div>
+        <p class="rv-cap" style="padding: 0 var(--space-3) var(--space-3)">The bottom bar's Plan ahead target opens the same full names in a dialog-style sheet (role=dialog, aria-modal, Escape closes).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5 · TRY IT LIVE ================= -->
+  <section class="rv-section" id="live">
+    <h2><span class="rv-num">05</span> Try it live</h2>
+    <p class="rv-sub">
+      The stage below is the proposed bar itself, rendered from the same code as the screenshots — press
+      the buttons to switch states, then annotate any element you want changed. Under it, two live frames
+      let you scroll and click the real pages.
+    </p>
+
+    <div class="rv-toolbar">
+      <button type="button" data-rv-toggle="variant" aria-pressed="false">Option A / B labels</button>
+      <button type="button" data-rv-toggle="compressed" aria-pressed="false">Scrolled state</button>
+      <button type="button" data-rv-toggle="sky" aria-pressed="false">Sky utility row</button>
+      <button type="button" data-rv-toggle="menu" aria-pressed="false">Plan ahead open</button>
+      <button type="button" data-rv-toggle="page" aria-pressed="false">Active: Services</button>
+    </div>
+    <div class="rv-stage-scroll">
+      <div class="rv-stage" data-rv-stage></div>
+    </div>
+    <p class="rv-hint">Scroll this box sideways if your window is narrower than 1440 px. These elements are part of this page, so you can annotate them directly.</p>
+
+    <p class="rv-hint">
+      The two live demo frames ran against real page captures inside the review session. This
+      committed reference keeps the interactive stage above plus the captured states in §04; the
+      live production build is the interactive reference now. The demo scaffolding
+      (<span class="rv-kbd">demo.html</span>/<span class="rv-kbd">demo.js</span>) stayed in the
+      scout worktree and is not committed here.
+    </p>
+  </section>
+
+  <!-- ================= 6 · EVIDENCE ================= -->
+  <section class="rv-section" id="evidence">
+    <h2><span class="rv-num">06</span> What was checked</h2>
+    <p class="rv-sub">
+      Measured with Chrome DevTools at 1440 × 900, 390 × 844 and 320 × 800, against the live app and the
+      proposal. Raw numbers: <span class="rv-kbd">.lavish/villa-nav/shots/measure-*.json</span>.
+    </p>
+
+    <div class="rv-grid rv-grid--2">
+      <div class="rv-card">
+        <h3 style="margin-top: 0">Contrast (WCAG, measured from the tokens)</h3>
+        <table class="rv-table">
+          <thead><tr><th>Element</th><th>Ink / surface</th><th>Ratio</th><th>Level</th></tr></thead>
+          <tbody>
+            <tr><td>Utility text — location, hours</td><td>navy-700 on near-white</td><td><b>10.08:1</b></td><td class="ok">AAA</td></tr>
+            <tr><td>Call number</td><td>navy-950 on sky gradient</td><td><b>13.12 → 8.18:1</b></td><td class="ok">AAA</td></tr>
+            <tr><td>Call label "24/7 assistance line"</td><td>navy-900 on sky gradient</td><td><b>11.34 → 7.07:1</b></td><td class="ok">AAA</td></tr>
+            <tr><td>Page links</td><td>navy-700 on white</td><td><b>10.27:1</b></td><td class="ok">AAA</td></tr>
+            <tr><td>Sign in</td><td>navy-600 on white</td><td><b>7.65:1</b></td><td class="ok">AAA</td></tr>
+            <tr><td>Cart count</td><td>navy-950 on gold</td><td><b>11.09 → 6.66:1</b></td><td class="ok">AA+</td></tr>
+          </tbody>
+        </table>
+        <p class="rv-note" style="margin-top: 0.6rem">Gradient ranges are the two gradient stops; the worst stop is the one reported.</p>
+      </div>
+
+      <div class="rv-card">
+        <h3 style="margin-top: 0">Targets &amp; widths</h3>
+        <table class="rv-table">
+          <thead><tr><th></th><th>Today</th><th>Proposed</th></tr></thead>
+          <tbody>
+            <tr><td>Nav links</td><td class="warn">36.1 px</td><td class="ok">44 px</td></tr>
+            <tr><td>Sign in</td><td class="warn">36.1 px</td><td class="ok">44 px</td></tr>
+            <tr><td>Phone chip / call button</td><td class="warn">43.1 px</td><td class="ok">45.4 px (desktop) · 48 px (bottom bar)</td></tr>
+            <tr><td>Cart</td><td class="warn">text link</td><td class="ok">44 × 44 icon + count</td></tr>
+            <tr><td>Bottom bar targets</td><td>—</td><td class="ok">≥48 px</td></tr>
+            <tr><td>Horizontal scroll at 390 / 320</td><td>none</td><td>none</td></tr>
+            <tr><td>Sign in vs brand overlap at 390</td><td class="warn">68 px overlap</td><td class="ok">none</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="rv-grid rv-grid--2" style="margin-top: var(--space-4)">
+      <div class="rv-card">
+        <h3 style="margin-top: 0">Accessibility as a feature</h3>
+        <ul class="rv-list">
+          <li><b>Skip link</b> — first focusable element, jumps to <span class="rv-kbd">#main</span>; appears on focus (shown below).</li>
+          <li><b>Focus rings</b> — the product's 2 px brass ring at 2 px offset, and a navy ring on the sky call buttons so it stays visible.</li>
+          <li><b>Grouped menu</b> — a disclosure button (<span class="rv-kbd">aria-expanded</span>, <span class="rv-kbd">aria-haspopup</span>) with <span class="rv-kbd">role="menu"</span>; Escape and outside click close it.</li>
+          <li><b>Sheet and full menu</b> — <span class="rv-kbd">role="dialog"</span>, <span class="rv-kbd">aria-modal="true"</span>, scroll lock, Escape closes, focus returns to the opener.</li>
+          <li><b>Reduced motion</b> — the app-wide <span class="rv-kbd">prefers-reduced-motion</span> rule disables the height/opacity transitions.</li>
+          <li><b>Never auto-hiding</b> — the header and bottom bar have no hide-on-scroll behaviour, so a target never moves under a thumb.</li>
+        </ul>
+      </div>
+      <div class="rv-card">
+        <h3 style="margin-top: 0">Skip link + focus ring (forced-state capture)</h3>
+        <img class="rv-shot" src="shots/crop-focus-skip.png" alt="The skip-to-content link visible at the top-left, and a focus ring drawn around the Services link and the call button." />
+        <img class="rv-shot" src="shots/focus-call-1440.png" alt="The proposed bar with focus rings drawn around the Services link and the sky-blue call button." style="margin-top: var(--space-3)" />
+        <p class="rv-note" style="margin-top: 0.5rem">
+          Captured with the states forced: headless Chrome does not activate <span class="rv-kbd">:focus</span>
+          styles without window focus, so the appearance is shown by rule rather than by pointer.
+        </p>
+      </div>
+    </div>
+
+    <div class="rv-card" style="margin-top: var(--space-4)">
+      <h3 style="margin-top: 0">Design-system files used (copied into this review, unmodified)</h3>
+      <p style="font-size: 0.875rem; color: var(--navy-700); margin: 0">
+        <span class="rv-kbd">tokens.css</span> · <span class="rv-kbd">base.css</span> ·
+        <span class="rv-kbd">components.css</span> · <span class="rv-kbd">utilities.css</span> — byte-identical
+        copies of <span class="rv-kbd">styles/*</span> from the app. New files, scratch only:
+        <span class="rv-kbd">nav.css</span> (the proposed bar, tokens-only, prefix <span class="rv-kbd">vn-</span>),
+        <span class="rv-kbd">nav-core.js</span> (markup + behaviour), <span class="rv-kbd">demo.html</span> /
+        <span class="rv-kbd">demo.js</span> (the live demo), <span class="rv-kbd">review.css</span> /
+        <span class="rv-kbd">artifact.js</span> (this review surface only — not design).
+        No production file was touched.
+      </p>
+      <p class="rv-note" style="margin-top: 0.5rem">
+        Real data only: the phone <b>0917 000 1234</b> (<span class="rv-kbd">tel:+639170001234</span>),
+        <b>Isabela City, Basilan</b>, the wordmark <b>Villa Memorial Park</b> and the logo all come from
+        <span class="rv-kbd">lib/fixtures/landing/content.json</span>.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= 7 · DECISIONS ================= -->
+  <section class="rv-section" id="decisions">
+    <h2><span class="rv-num">07</span> Decisions — five, all in place</h2>
+    <p class="rv-sub">
+      Pick one option per question and press <b>Queue this answer</b>. Each answer comes straight back to
+      the agent with your selection; you can keep annotating anything else at the same time.
+    </p>
+
+    <div class="rv-grid rv-grid--2">
+      <form class="rv-q" data-rv-decision="D1" data-rv-question="Label style">
+        <div class="rv-q__head"><span class="rv-q__id">D1</span><h3>What should the page links say?</h3></div>
+        <p class="rv-q__why">Short words + a grouped menu, the client's full names verbatim, or short words alone.</p>
+        <div class="rv-opts">
+          <label class="rv-opt"><input type="radio" name="d1" value="a" data-label="Option A — short labels + grouped Plan ahead menu (full names inside the menu)" checked /><span><b>Option A — short + grouped menu <span class="rv-opt__rec">recommended</span></b><span>Home · Services · Plans · Lots · Park · Contact, with the full names in Plan ahead.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d1" value="b" data-label="Option B — the client's full names verbatim in the bar" /><span><b>Option B — full names verbatim</b><span>Funeraria Memorial Services · Villa Memorial Plan · Villa Memorial Park in the bar.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d1" value="c" data-label="Option C — short labels only, no grouped menu" /><span><b>Option C — short labels only</b><span>Home · Services · Plans · Lots · Park · Contact, no Plan ahead menu.</span></span></label>
+        </div>
+        <div class="rv-q__foot">
+          <button class="rv-q__submit" type="submit">Queue this answer</button>
+          <span class="rv-q__queued" data-queued hidden></span>
+        </div>
+      </form>
+
+      <form class="rv-q" data-rv-decision="D2" data-rv-question="Cart placement">
+        <div class="rv-q__head"><span class="rv-q__id">D2</span><h3>Where does the cart live?</h3></div>
+        <p class="rv-q__why">Today "Cart" is a full text link among the pages.</p>
+        <div class="rv-opts">
+          <label class="rv-opt"><input type="radio" name="d2" value="a" data-label="Cart as an icon with a count at the right of the bar, next to Sign in" checked /><span><b>Icon + count at the right <span class="rv-opt__rec">recommended</span></b><span>44 px icon, gold count badge, beside Sign in.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d2" value="b" data-label="Cart icon with count AND keep a Cart text link among the page links" /><span><b>Icon + count, and keep the text link</b><span>Both entries; slightly busier bar.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d2" value="c" data-label="Keep the cart as a text link among the page links (today)" /><span><b>Keep today's text link</b><span>No icon, no count in the bar.</span></span></label>
+        </div>
+        <div class="rv-q__foot">
+          <button class="rv-q__submit" type="submit">Queue this answer</button>
+          <span class="rv-q__queued" data-queued hidden></span>
+        </div>
+      </form>
+
+      <form class="rv-q" data-rv-decision="D3" data-rv-question="Phone bottom bar">
+        <div class="rv-q__head"><span class="rv-q__id">D3</span><h3>Should the phone bottom bar be permanent?</h3></div>
+        <p class="rv-q__why">Call 24/7 + Plan ahead, with the full menu button above it.</p>
+        <div class="rv-opts">
+          <label class="rv-opt"><input type="radio" name="d3" value="a" data-label="Permanent bottom bar on phones — always visible" checked /><span><b>Permanent <span class="rv-opt__rec">recommended</span></b><span>The phone is never more than one tap away; nothing moves under a thumb.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d3" value="b" data-label="Bottom bar that hides while scrolling and returns at rest" /><span><b>Scroll-away bar</b><span>More content visible, but the target moves under the finger.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d3" value="c" data-label="No bottom bar — the call stays in the header and the full menu" /><span><b>No bottom bar</b><span>Today's behaviour; the call is one tap deep in the menu.</span></span></label>
+        </div>
+        <div class="rv-q__foot">
+          <button class="rv-q__submit" type="submit">Queue this answer</button>
+          <span class="rv-q__queued" data-queued hidden></span>
+        </div>
+      </form>
+
+      <form class="rv-q" data-rv-decision="D4" data-rv-question="Utility row colour">
+        <div class="rv-q__head"><span class="rv-q__id">D4</span><h3>Utility row: neutral or sky blue?</h3></div>
+        <p class="rv-q__why">The slim top row with the location, hours and the call button.</p>
+        <div class="rv-opts">
+          <label class="rv-opt"><input type="radio" name="d4" value="a" data-label="Neutral near-white utility row (current proposal)" checked /><span><b>Neutral <span class="rv-opt__rec">recommended</span></b><span>Quiet fabric; the sky call button is the only colour up there.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d4" value="b" data-label="Sky-blue wash utility row" /><span><b>Sky-blue wash</b><span>More brand, a little louder above the fold.</span></span></label>
+        </div>
+        <div class="rv-q__foot">
+          <button class="rv-q__submit" type="submit">Queue this answer</button>
+          <span class="rv-q__queued" data-queued hidden></span>
+        </div>
+      </form>
+
+      <form class="rv-q" data-rv-decision="D5" data-rv-question="Scroll compression" style="grid-column: 1 / -1">
+        <div class="rv-q__head"><span class="rv-q__id">D5</span><h3>What should scroll do to the bar?</h3></div>
+        <p class="rv-q__why">Today nothing changes; the bar is simply always 69 px.</p>
+        <div class="rv-opts" style="grid-template-columns: repeat(3, minmax(0, 1fr))">
+          <label class="rv-opt"><input type="radio" name="d5" value="a" data-label="Slightly compress the main row after scroll (68 → 56 px), more opaque background, soft shadow; utility row stays" checked /><span><b>Quiet compression <span class="rv-opt__rec">recommended</span></b><span>122 → 110 px desktop, 106 → 98 px phone; the utility row and call stay put.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d5" value="b" data-label="No change on scroll — the bar keeps its full height" /><span><b>No change (today)</b><span>The bar keeps its height; simplest to build.</span></span></label>
+          <label class="rv-opt"><input type="radio" name="d5" value="c" data-label="Collapse the utility row on scroll and move the call button into the main row" /><span><b>Collapse the utility row</b><span>More compact, but the call button moves — a target change.</span></span></label>
+        </div>
+        <div class="rv-q__foot">
+          <button class="rv-q__submit" type="submit">Queue this answer</button>
+          <span class="rv-q__queued" data-queued hidden></span>
+        </div>
+      </form>
+    </div>
+
+    <div class="rv-callout">
+      <b>Anything else?</b> Annotate any element above — a label, a size, a colour, a state — and it comes
+      back with your pin. The agent revises this same session and re-serves it in place. No production
+      file changes until you say the design is right.
+    </div>
+  </section>
+
+  <!-- ================= 8 · RECORD ================= -->
+  <section class="rv-section" id="record">
+    <h2><span class="rv-num">08</span> Review record</h2>
+    <table class="rv-table">
+      <thead><tr><th>Round</th><th>When</th><th>What happened</th></tr></thead>
+      <tbody>
+        <tr><td><b>Construction</b></td><td>2026-09-17</td><td>Plan written; bar, bottom bar, menus and sheet built in the app's tokens; captures at 1440 / 390 / 320; no horizontal overflow; contrast and target sizes measured; five decisions prepared.</td></tr>
+        <tr><td><b>Round 1</b></td><td>2026-09-17</td><td>Session served; the captain approved the design as presented and asked for it to be implemented.</td></tr>
+        <tr><td><b>Decision</b></td><td>2026-09-17</td><td><b>Approved verbatim:</b> “ok im good please implement that” — every recommended option (D1–D5 = A). No element annotations were queued. The worker closed the session; the report carries the full record and the implementation handoff.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+</div>
+<script src="nav-core.js"></script>
+<script src="artifact.js"></script>
+</body>
+</html>
