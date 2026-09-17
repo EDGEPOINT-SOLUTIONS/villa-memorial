@@ -462,6 +462,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (`docs/08-delivery/agent-portal-design`); the family-only frame/bar was deleted, so never
   reintroduce a second family shell. Nav groups/tabs: `components/portal-nav.ts`
   (`FAMILY_PORTAL_GROUPS`, `FAMILY_PORTAL_TABS`); the phone top bar keeps the Call button.
+- The calm note (`PortalNote`, re-exported as the family `Note`) is a **block container**
+  (`div.ag-note`), never a `<p>`: every call site passes its own `<p>` (and lists are legal),
+  so a paragraph wrapper recreates the captain-reported 2026-09-17 `<p> cannot be a descendant
+  of <p>` hydration error on every family page. `.ag-note` CSS is class-only — keep the class
+  on a block container; `tests/helpers/paragraph-nesting.ts` pins the rendered pages.
 - Family FEATURES stay family-owned in `components/family/family-ui.tsx` (answer, five-step
   chain, schedule, planned/honest page): the plain words, the honest not-switched-on states,
   the office number on every screen, the 18 px family reading scale (`.fv-body` overrides the
