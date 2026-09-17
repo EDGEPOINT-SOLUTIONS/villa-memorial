@@ -12,7 +12,7 @@ import { LOT_PRICE_CATEGORIES } from "@/lib/villa-pricing";
  * the column highlight can never silently lose its target.
  */
 describe("the package page's Official price list 2026 module", () => {
-  const html = renderToStaticMarkup(<PriceList2026Module />);
+  const html = renderToStaticMarkup(<PriceList2026Module categories={LOT_PRICE_CATEGORIES} />);
 
   it("renders the prototype's price-module head + controls", () => {
     expect(html).toContain("Sanctuario de Mercedes y Gloria");

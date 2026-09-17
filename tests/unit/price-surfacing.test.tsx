@@ -1,4 +1,6 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
+import os from "node:os";
+import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CartProvider } from "@/lib/cart/cart-context";
@@ -42,6 +44,10 @@ vi.mock("next/link", () => ({
     </a>
   ),
 }));
+
+// These tests pin the recorded seed: point the pricing store at a path that does
+// not exist, so a developer's local .data/commerce-pricing.json cannot leak in.
+process.env.PRICING_STORE_PATH = path.join(os.tmpdir(), "villa-price-surfacing-no-store.json");
 
 const { default: ProductsPage } = await import("@/app/(public)/products/page");
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
@@ -349,7 +355,11 @@ describe("the plan payment tables render on every plan surface", () => {
 });
 
 describe("/lots/price-list-2026 makes every lot row a request, never a cart line", () => {
-  const html = renderToStaticMarkup(<LotsPriceListPage />);
+  let html: string;
+
+  beforeAll(async () => {
+    html = renderToStaticMarkup(await LotsPriceListPage());
+  });
 
   it("keeps every 2026 lot figure the client's sheet prints", () => {
     for (const cat of LOT_PRICE_CATEGORIES) {

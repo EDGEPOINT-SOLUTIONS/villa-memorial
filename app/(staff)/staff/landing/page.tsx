@@ -5,6 +5,7 @@ import { ForbiddenState, ErrorState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { LandingPageEditor } from "@/components/landing/landing-page-editor";
 
 export const metadata: Metadata = { title: "Landing page — Staff Portal" };
@@ -38,8 +39,10 @@ export default async function LandingPageAdminPage() {
   }
 
   let content;
+  let pricing;
   try {
     content = await listLandingContent();
+    pricing = await loadPricingDocument();
   } catch {
     return (
       <>
@@ -64,6 +67,8 @@ export default async function LandingPageAdminPage() {
       />
       <LandingPageEditor
         initialContent={content}
+        lotCategories={pricing.lotCategories}
+        planPricing={pricing.plans}
         sessionName={session.displayName.split(" ")[0] ?? session.displayName}
       />
     </div>

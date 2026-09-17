@@ -1,8 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LandingView } from "@/components/landing/landing-view";
+import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
-import { PLAN_TERMS, PLAN_TIERS, lotCategoryFromPrice, php, planRate } from "@/lib/villa-pricing";
+import {
+  LOT_PRICE_CATEGORIES,
+  PLAN_TERMS,
+  PLAN_TIERS,
+  SENIOR_PAYMENTS,
+  VMP_PAYMENTS,
+  lotCategoryFromPrice,
+  php,
+  planRate,
+} from "@/lib/villa-pricing";
 
 /**
  * Public-interface render tests for the anchored catalogue home (executed through
@@ -16,6 +25,15 @@ import { PLAN_TERMS, PLAN_TIERS, lotCategoryFromPrice, php, planRate } from "@/l
 const cloneDoc = (doc: LandingContent): LandingContent =>
   JSON.parse(JSON.stringify(doc)) as LandingContent;
 
+/** The seed pricing slices the view now takes as props (tests render the seed). */
+const SEED_PLANS = { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS };
+type ViewProps = Omit<LandingViewProps, "planPricing" | "lotCategories">;
+
+/** Render helper: pricing props default to the recorded seed in these tests. */
+function view(props: ViewProps) {
+  return LandingView({ ...props, planPricing: SEED_PLANS, lotCategories: LOT_PRICE_CATEGORIES });
+}
+
 /** React escapes text nodes; the lead title "Viewing & wake set-up" renders as &amp;. */
 const escaped = (text: string): string =>
   text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -27,7 +45,7 @@ describe("the home renders the anchored catalogue shell", () => {
   it("renders left rail + middle + right rail from the recorded content", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
 
     // Three-column anatomy: two fixed rails flanking the scrollable middle.
@@ -55,7 +73,7 @@ describe("the home renders the anchored catalogue shell", () => {
   it("header nav leads with an explicit Home link so visitors always know the way back", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
     expect(nav.indexOf('href="/">Home<')).toBeGreaterThanOrEqual(0);
@@ -66,7 +84,7 @@ describe("the home renders the anchored catalogue shell", () => {
   it("public chrome names the pages /services, /plans and /map the captain's way", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     // Header bar (the ONE public nav — same component on every public page).
     const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
@@ -91,7 +109,7 @@ describe("the home renders the anchored catalogue shell", () => {
   it("middle sections render in order: about, service cards, plan board, live map, then blog feed", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     const heroPos = html.indexOf("hero-home__title");
     const aboutPos = html.indexOf("about-grid");
@@ -115,7 +133,7 @@ describe("the home renders the anchored catalogue shell", () => {
   it("renders the prototype's four “Services we offer” cards with their derived 2026 from-prices", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("What we do");
     expect(html).toContain("Services we offer");
@@ -150,7 +168,7 @@ describe("the home renders the anchored catalogue shell", () => {
   it("renders the Villa Memorial Plan board from the 2026 payment-mode tables", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     // The prototype's heading, kicker and promo figure.
     expect(html).toContain("Plan ahead");
@@ -195,7 +213,7 @@ describe("the rails carry one oversized lead image each", () => {
   it("renders exactly one lead card per rail, with the featured item's photo and copy", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     const leads = html.match(/class="rail-item rail-item--lead"/g) ?? [];
     expect(leads).toHaveLength(2);
@@ -225,7 +243,7 @@ describe("the hero accepts a background photo", () => {
     const withPhoto = cloneDoc(content);
     withPhoto.hero.image = "/media/hero-1.jpg";
     const html = renderToStaticMarkup(
-      LandingView({ content: withPhoto, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: withPhoto, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("hero-home--photo");
     expect(html).toContain("/media/hero-1.jpg");
@@ -236,7 +254,7 @@ describe("the hero accepts a background photo", () => {
     const bare = cloneDoc(content);
     bare.hero.image = null;
     const html = renderToStaticMarkup(
-      LandingView({ content: bare, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: bare, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home--photo");
   });
@@ -249,7 +267,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     legacy.hero.background = null;
     legacy.hero.backgroundTransparency = 100;
     const html = renderToStaticMarkup(
-      LandingView({ content: legacy, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: legacy, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home__wash");
   });
@@ -260,7 +278,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     tinted.hero.background = "#3f97d1";
     tinted.hero.backgroundTransparency = 45;
     const html = renderToStaticMarkup(
-      LandingView({ content: tinted, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: tinted, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain('class="hero-home__wash"');
     expect(html.split("hero-home__wash").length - 1).toBe(1);
@@ -274,7 +292,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     transparent.hero.background = "#3f97d1";
     transparent.hero.backgroundTransparency = 100;
     const html = renderToStaticMarkup(
-      LandingView({ content: transparent, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: transparent, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home__wash");
   });
@@ -285,7 +303,7 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     hostile.hero.background = "url(https://evil.test/x.png)";
     hostile.hero.backgroundTransparency = 0;
     const html = renderToStaticMarkup(
-      LandingView({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("hero-home__wash");
     expect(html).not.toContain("evil.test");
@@ -298,7 +316,7 @@ describe("the home degrades gracefully on sparse content", () => {
     const sparse = cloneDoc(content);
     sparse.services.items = [];
     const html = renderToStaticMarkup(
-      LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain('class="svc-card"');
     expect(html).toContain("Service cards will appear here once staff publishes them.");
@@ -313,7 +331,7 @@ describe("the home degrades gracefully on sparse content", () => {
       { ...content.blog.posts[0], id: "caption-only", caption: "A caption with no photos or videos attached.", media: [] },
     ];
     const html = renderToStaticMarkup(
-      LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("post-card");
     expect(html).not.toContain("post-media");
@@ -326,7 +344,7 @@ describe("the home degrades gracefully on sparse content", () => {
     empty.rails.left.items = [];
     empty.rails.right.items = [];
     const html = renderToStaticMarkup(
-      LandingView({ content: empty, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: empty, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("Care &amp; services");
     expect(html).toContain("Nothing pinned here yet.");
@@ -335,7 +353,7 @@ describe("the home degrades gracefully on sparse content", () => {
   it("a missing live map renders a graceful fallback line inside the map section", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
-      LandingView({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("momentarily unavailable");
   });
@@ -353,7 +371,7 @@ describe("rails are unlimited through the public home read", () => {
     expect(kept.rails.left.items.length).toBe(10);
 
     const html = renderToStaticMarkup(
-      LandingView({ content: kept, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: kept, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(railItemCount(html)).toBe(10 + content.rails.right.items.length);
   });
@@ -372,7 +390,7 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
       },
     ];
     const html = renderToStaticMarkup(
-      LandingView({ content: linked, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: linked, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     // Every one of that post's 4 photos is now a door to the post's route.
     // Media anchors carry an aria-label after the href, so match the opening tag.
@@ -390,7 +408,7 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
       { ...sparse.blog.posts[0], id: "post-unlinked", link: null, caption: "Just a story.", media: sparse.blog.posts[0].media },
     ];
     const html = renderToStaticMarkup(
-      LandingView({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).not.toContain("post-media__link");
     expect(html).not.toContain("post-card__caption-link");
@@ -403,7 +421,7 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
     const videoPost = linked.blog.posts.find((p) => p.media.some((m) => m.kind === "video"));
     expect(videoPost).toBeDefined();
     const html = renderToStaticMarkup(
-      LandingView({
+      view({
         content: {
           ...linked,
           blog: { ...linked.blog, posts: [{ ...(videoPost as (typeof linked.blog.posts)[number]), link: "/services" }] },

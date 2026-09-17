@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PriceList2026Tables } from "@/components/villa/price-list-2026";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { VMP_NOTES } from "@/lib/villa-pricing";
 import {
   LOT_GARDEN_NICHES,
@@ -10,8 +11,12 @@ import {
 
 export const metadata = { title: "2026 Price list — Lots & mausoleum" };
 
+// Reads the pricing store per request — an office edit must be visible here.
+export const dynamic = "force-dynamic";
+
 /** Villa Memorial 2026 price list: all categories, regular + senior, 6-year amortization. */
-export default function PriceList2026Page() {
+export default async function PriceList2026Page() {
+  const pricing = await loadPricingDocument();
   return (
     <div className="stack-4">
       <section className="page-hero">
@@ -42,7 +47,7 @@ export default function PriceList2026Page() {
         ))}
       </div>
 
-      <PriceList2026Tables />
+      <PriceList2026Tables categories={pricing.lotCategories} />
 
       <p className="text-sm text-muted">
         Source: the client&rsquo;s own PRICE LIST FOR 2026 (Sanctuario de Mercedes y Gloria) —

@@ -6,17 +6,20 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import {
   CASH_ASSISTANCE,
   php,
-  SENIOR_PAYMENTS,
   VMP_ELIGIBILITY,
   VMP_INCLUSIONS,
   VMP_NOTES,
-  VMP_PAYMENTS,
 } from "@/lib/villa-pricing";
 
 export const metadata = { title: "Villa Memorial Plan — Villa Memorial" };
+
+// Reads the pricing store per request — a staff edit must be what the NEXT
+// visitor sees, never a build-time snapshot.
+export const dynamic = "force-dynamic";
 
 /**
  * Public catalog (Module B/C public face) — villa-memorial item-card grammar on
@@ -29,8 +32,9 @@ export const metadata = { title: "Villa Memorial Plan — Villa Memorial" };
  *
  * Below the catalog the page prints the plan's own price list — the client's two
  * 2026 payment-mode schedules (regular + senior), cash assistance, eligibility
- * and notes — from lib/villa-pricing.ts, so a family can price the plan without
- * leaving the page (the full walk-through stays on /plans/villa-memorial-plan).
+ * and notes — from the CURRENT pricing store, so a family can price the plan
+ * without leaving the page (the full walk-through stays on
+ * /plans/villa-memorial-plan) and an office edit is what they read.
  */
 const TYPE_LABELS: Record<string, string> = {
   package: "Packages",
@@ -60,6 +64,7 @@ export default async function PlansPage({
     );
   }
   const items = filter ? itemsAll.filter((i) => i.item_type === filter) : itemsAll;
+  const pricing = await loadPricingDocument();
   const counts = itemsAll.reduce<Record<string, number>>(
     (acc, i) => {
       acc[i.item_type] = (acc[i.item_type] ?? 0) + 1;
@@ -181,13 +186,13 @@ export default async function PlansPage({
         <div className="split-grid">
           <Card header={<h3>Regular rate</h3>}>
             <PlanPaymentTable
-              rows={VMP_PAYMENTS}
+              rows={pricing.plans.regular}
               label="Villa Memorial Plan — regular payment schedule"
             />
           </Card>
           <Card header={<h3>Senior citizen rate</h3>}>
             <PlanPaymentTable
-              rows={SENIOR_PAYMENTS}
+              rows={pricing.plans.senior}
               senior
               label="Villa Memorial Plan — senior citizen payment schedule"
             />

@@ -1,0 +1,450 @@
+{
+  "_provenance": {
+    "status": "RECORDED SEED — app-authored pricing content, NOT a service response. The fixture store for plan rates + lot prices; no catalog-pricing read/write contract exists yet (see lib/api-client/pricing.ts), so live mode keeps this seed for display and refuses admin writes with 503.",
+    "recorded": "2026-09-17",
+    "note": [
+      "Transcribed from the client's own 2026 sheets, exactly as lib/villa-pricing.ts did before this store existed: plans.regular ← COMPLETE MEMORIAL PACKAGE.jpg; plans.senior ← TYPES OF COFFIN.jpg; lotCategories ← PRICE LIST FOR 2026.jpg (six-year amortization, regular + senior).",
+      "Every figure is pinned by tests/unit/villa-pricing.test.ts and tests/fixture-contract/pricing.test.ts; an office edit through /staff/plans or /staff/pricing appends to PRICING_STORE_PATH (default .data/commerce-pricing.json, gitignored) — never hand-edit this seed to make a test pass.",
+      "`questions` are read-only client conflicts carried beside the prices, deliberately OUTSIDE the editable document: they stay visible on the admin screens until the client answers, and no save can alter them."
+    ]
+  },
+  "version": 1,
+  "updated_at": null,
+  "updated_by": null,
+  "plans": {
+    "regular": [
+      {
+        "mode": "Annual",
+        "bronze1": 7200,
+        "bronze2": 9240,
+        "silver1": 12000,
+        "silver2": 13440,
+        "gold": 18240
+      },
+      {
+        "mode": "Semi-annual",
+        "bronze1": 3600,
+        "bronze2": 4620,
+        "silver1": 6000,
+        "silver2": 6720,
+        "gold": 9120
+      },
+      {
+        "mode": "Quarterly",
+        "bronze1": 1800,
+        "bronze2": 2310,
+        "silver1": 3000,
+        "silver2": 3360,
+        "gold": 4560
+      },
+      {
+        "mode": "Monthly",
+        "bronze1": 600,
+        "bronze2": 770,
+        "silver1": 1000,
+        "silver2": 1120,
+        "gold": 1520
+      }
+    ],
+    "senior": [
+      {
+        "mode": "Annual",
+        "bronze1": 6600,
+        "bronze2": 8400,
+        "silver1": 11400,
+        "silver2": 13200,
+        "gold": 18000
+      },
+      {
+        "mode": "Semi-annual",
+        "bronze1": 3300,
+        "bronze2": 4200,
+        "silver1": 5700,
+        "silver2": 6600,
+        "gold": 9000
+      },
+      {
+        "mode": "Quarterly",
+        "bronze1": 1650,
+        "bronze2": 2100,
+        "silver1": 2850,
+        "silver2": 3300,
+        "gold": 4500
+      },
+      {
+        "mode": "Monthly",
+        "bronze1": 550,
+        "bronze2": 700,
+        "silver1": 950,
+        "silver2": 1100,
+        "gold": 1500
+      }
+    ]
+  },
+  "lotCategories": [
+    {
+      "title": "1. Lot Only",
+      "caption": "Lot only",
+      "rows": [
+        {
+          "product": "Mausoleum",
+          "area": 24,
+          "regular": {
+            "selling": 1073000,
+            "annual": 178833,
+            "semi": 92993,
+            "quarter": 48285,
+            "monthly": 16095
+          },
+          "senior": {
+            "selling": 924462,
+            "annual": 154077,
+            "semi": 80120,
+            "quarter": 41601,
+            "monthly": 13867
+          }
+        },
+        {
+          "product": "Garden Niches",
+          "area": 12,
+          "regular": {
+            "selling": 567000,
+            "annual": 94500,
+            "semi": 49140,
+            "quarter": 25515,
+            "monthly": 8505
+          },
+          "senior": {
+            "selling": 491400,
+            "annual": 81900,
+            "semi": 42588,
+            "quarter": 22113,
+            "monthly": 7371
+          }
+        },
+        {
+          "product": "Prime Lots",
+          "area": 2.5,
+          "regular": {
+            "selling": 128000,
+            "annual": 21333,
+            "semi": 11093,
+            "quarter": 5760,
+            "monthly": 1920
+          },
+          "senior": {
+            "selling": 112521,
+            "annual": 18753,
+            "semi": 9752,
+            "quarter": 5063,
+            "monthly": 1688
+          }
+        },
+        {
+          "product": "Premium Lots",
+          "area": 2.5,
+          "regular": {
+            "selling": 114000,
+            "annual": 19000,
+            "semi": 9880,
+            "quarter": 5130,
+            "monthly": 1710
+          },
+          "senior": {
+            "selling": 99859,
+            "annual": 16643,
+            "semi": 8654,
+            "quarter": 4494,
+            "monthly": 1498
+          }
+        },
+        {
+          "product": "Condo-type",
+          "area": 2.5,
+          "regular": {
+            "selling": 75000,
+            "annual": 12500,
+            "semi": 6500,
+            "quarter": 3375,
+            "monthly": 1125
+          },
+          "senior": {
+            "selling": 64910,
+            "annual": 10818,
+            "semi": 5626,
+            "quarter": 2921,
+            "monthly": 974
+          }
+        }
+      ]
+    },
+    {
+      "title": "2. Lot + Interment (1st Burial Only)",
+      "caption": "Lot + interment (1st burial only)",
+      "rows": [
+        {
+          "product": "Mausoleum",
+          "area": 24,
+          "regular": {
+            "selling": 1106000,
+            "annual": 184333,
+            "semi": 95853,
+            "quarter": 49770,
+            "monthly": 16590
+          },
+          "senior": {
+            "selling": 951054,
+            "annual": 158509,
+            "semi": 82425,
+            "quarter": 42797,
+            "monthly": 14266
+          }
+        },
+        {
+          "product": "Garden Niches",
+          "area": 12,
+          "regular": {
+            "selling": 600000,
+            "annual": 100000,
+            "semi": 52000,
+            "quarter": 27000,
+            "monthly": 9000
+          },
+          "senior": {
+            "selling": 517992,
+            "annual": 86332,
+            "semi": 44893,
+            "quarter": 23310,
+            "monthly": 7770
+          }
+        },
+        {
+          "product": "Prime Lots",
+          "area": 2.5,
+          "regular": {
+            "selling": 161000,
+            "annual": 26833,
+            "semi": 13953,
+            "quarter": 7245,
+            "monthly": 2415
+          },
+          "senior": {
+            "selling": 139113,
+            "annual": 23185,
+            "semi": 12056,
+            "quarter": 6260,
+            "monthly": 2087
+          }
+        },
+        {
+          "product": "Premium Lots",
+          "area": 2.5,
+          "regular": {
+            "selling": 147000,
+            "annual": 24500,
+            "semi": 12740,
+            "quarter": 6615,
+            "monthly": 2205
+          },
+          "senior": {
+            "selling": 126451,
+            "annual": 21075,
+            "semi": 10959,
+            "quarter": 5690,
+            "monthly": 1897
+          }
+        },
+        {
+          "product": "Condo-type",
+          "area": 2.5,
+          "regular": {
+            "selling": 97000,
+            "annual": 16167,
+            "semi": 8407,
+            "quarter": 4365,
+            "monthly": 1455
+          },
+          "senior": {
+            "selling": 82638,
+            "annual": 13773,
+            "semi": 7162,
+            "quarter": 3719,
+            "monthly": 1240
+          }
+        }
+      ]
+    },
+    {
+      "title": "3. Lot + Interment + VMP",
+      "caption": "Lot + interment + VMP",
+      "rows": [
+        {
+          "product": "Mausoleum",
+          "area": 24,
+          "regular": {
+            "selling": 1135000,
+            "annual": 189167,
+            "semi": 98367,
+            "quarter": 50129,
+            "monthly": 17025
+          },
+          "senior": {
+            "selling": 979854,
+            "annual": 163309,
+            "semi": 84921,
+            "quarter": 44093,
+            "monthly": 14698
+          }
+        },
+        {
+          "product": "Garden Niches",
+          "area": 12,
+          "regular": {
+            "selling": 629000,
+            "annual": 104833,
+            "semi": 54513,
+            "quarter": 27781,
+            "monthly": 9435
+          },
+          "senior": {
+            "selling": 546792,
+            "annual": 91132,
+            "semi": 47389,
+            "quarter": 24606,
+            "monthly": 8202
+          }
+        },
+        {
+          "product": "Prime Lots",
+          "area": 2.5,
+          "regular": {
+            "selling": 190000,
+            "annual": 31667,
+            "semi": 16467,
+            "quarter": 8392,
+            "monthly": 2850
+          },
+          "senior": {
+            "selling": 167913,
+            "annual": 27985,
+            "semi": 14552,
+            "quarter": 7556,
+            "monthly": 2519
+          }
+        },
+        {
+          "product": "Premium Lots",
+          "area": 2.5,
+          "regular": {
+            "selling": 176000,
+            "annual": 29333,
+            "semi": 15253,
+            "quarter": 7773,
+            "monthly": 2640
+          },
+          "senior": {
+            "selling": 155251,
+            "annual": 25875,
+            "semi": 13455,
+            "quarter": 6986,
+            "monthly": 2329
+          }
+        },
+        {
+          "product": "Condo-type",
+          "area": 2.5,
+          "regular": {
+            "selling": 126000,
+            "annual": 21000,
+            "semi": 10920,
+            "quarter": 5565,
+            "monthly": 1890
+          },
+          "senior": {
+            "selling": 111438,
+            "annual": 18573,
+            "semi": 9658,
+            "quarter": 5015,
+            "monthly": 1672
+          }
+        }
+      ]
+    },
+    {
+      "title": "4. Mausoleum + Construction",
+      "caption": "Mausoleum + construction",
+      "rows": [
+        {
+          "product": "Mausoleum + Construction",
+          "area": 24,
+          "regular": {
+            "selling": 1573000,
+            "annual": 262167,
+            "semi": 136327,
+            "quarter": 70785,
+            "monthly": 23595
+          },
+          "senior": {
+            "selling": 1258400,
+            "annual": 209733,
+            "semi": 109061,
+            "quarter": 56628,
+            "monthly": 18876
+          }
+        },
+        {
+          "product": "Mausoleum + Construction + 1st Interment",
+          "area": 24,
+          "regular": {
+            "selling": 1607000,
+            "annual": 267833,
+            "semi": 139273,
+            "quarter": 72315,
+            "monthly": 24105
+          },
+          "senior": {
+            "selling": 1285600,
+            "annual": 214267,
+            "semi": 111419,
+            "quarter": 57852,
+            "monthly": 19284
+          }
+        },
+        {
+          "product": "Mausoleum + Construction + 1st Interment + Life Plan",
+          "area": 24,
+          "regular": {
+            "selling": 1639000,
+            "annual": 273167,
+            "semi": 142047,
+            "quarter": 73755,
+            "monthly": 24585
+          },
+          "senior": {
+            "selling": 1311200,
+            "annual": 218533,
+            "semi": 113637,
+            "quarter": 59004,
+            "monthly": 19668
+          }
+        }
+      ]
+    }
+  ],
+  "questions": [
+    {
+      "id": "senior-rate-sheet-conflict",
+      "scope": "plans",
+      "title": "The 2026 senior chapel sheet contradicts itself (published as printed)",
+      "detail": "PRICE LIST FOR 2026 III computes the chapel senior column as 96% of the regular total (₱1,440 / ₱3,360 per day) while its own footnote prints ₱1,800 / ₱4,200 per day. The captain approved publishing both as printed (Q8, services design 2026-09-16). This does not change the plan tables on this screen — but the client has not yet said which senior figure is right, so do not reconcile senior numbers on your own.",
+      "source": "PRICE LIST FOR 2026 III · docs/08-delivery/services-design/README.md (Q8) · CHAPEL_RATES in lib/villa-pricing.ts"
+    },
+    {
+      "id": "lot-a001-fixture-vs-sheet",
+      "scope": "lots",
+      "title": "Lot A-001's recorded price matches no 2026 price-list row",
+      "detail": "The property fixture records A-001 (individual, 3.5 sqm) at ₱85,000; the 2026 sheet's families start at ₱75,000 (Condo-type, 2.5 sqm) and ₱114,000 (Premium Lots, 2.5 sqm), and no sheet row is 3.5 sqm. The office's per-plot prices and the sheet have never been reconciled — do not fold A-001 into a family here or change either figure until the client answers.",
+      "source": "lib/fixtures/property/lots.json · PRICE LIST FOR 2026.jpg"
+    }
+  ]
+}

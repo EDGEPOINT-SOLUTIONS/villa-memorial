@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  LOT_PRICE_CATEGORIES,
-  type LotPriceRow,
-  type PlanTerm,
-} from "@/lib/villa-pricing";
+import type { LotCategory, LotPriceRow, PlanTerm } from "@/lib/pricing-model";
 
 /**
  * Official 2026 price list — the package page's price module, prototype-exact
@@ -20,8 +16,10 @@ import {
  *    "6 years amortization" group over the four terms, then the
  *    "(Senior citizen) 6 years amortization" group over selling price + terms.
  *
- * Every figure comes from lib/villa-pricing.ts (the transcribed client sheet);
- * this component never authors a number.
+ * Every figure comes from the pricing document handed in by the server page
+ * (lib/api-client/pricing.ts → the editable fixture store); this component
+ * never authors a number, and an office edit through /staff/pricing is what it
+ * prints.
  */
 
 /** The prototype's switch order — Annual first (PLAN_TERMS is Monthly first). */
@@ -61,7 +59,7 @@ function cellClass(term: PlanTerm, selected: PlanTerm, senior: boolean): string 
   return classes.join(" ");
 }
 
-export function PriceList2026Module() {
+export function PriceList2026Module({ categories }: { categories: ReadonlyArray<LotCategory> }) {
   const [term, setTerm] = useState<PlanTerm>("monthly");
   const [senior, setSenior] = useState(false);
 
@@ -107,7 +105,7 @@ export function PriceList2026Module() {
         </div>
       </div>
 
-      {LOT_PRICE_CATEGORIES.map((cat) => (
+      {categories.map((cat) => (
         <div className="pl-scroll" key={cat.title}>
           <table className="pl-table">
             <caption>{cat.caption}</caption>

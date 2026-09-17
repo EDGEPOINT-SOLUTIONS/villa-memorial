@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import os from "node:os";
+import path from "node:path";
 import {
   listLandingContent,
   readLandingContent,
@@ -9,6 +11,11 @@ import {
 import contentFile from "@/lib/fixtures/landing/content.json";
 import { buildRailCatalogue, flattenCatalogue } from "@/lib/landing/catalogue";
 import { LOT_PRICE_CATEGORIES, lotCategoryFromPrice, php, planRate } from "@/lib/villa-pricing";
+
+// The landing save path validates service-card families against the pricing
+// store; point it at a path that does not exist so the recorded seed is used and
+// a developer's local .data store cannot leak into these fixtures.
+process.env.PRICING_STORE_PATH = path.join(os.tmpdir(), "villa-landing-contract-no-store.json");
 
 /**
  * Landing content fixture-contract tests.
@@ -181,7 +188,7 @@ describe("landing fixture follows the approved content model", () => {
     expect(read.services.items).toEqual([]);
     expect(read.blog.posts.length).toBe(2);
     expect(read.blog.posts[0].media).toEqual([]);
-    expect(validateLandingContent(read).ok).toBe(true);
+    expect(validateLandingContent(read, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 
   it("rejects a service card whose price family is not on the 2026 sheet", async () => {
@@ -190,7 +197,7 @@ describe("landing fixture follows the approved content model", () => {
     bad.services.items = [{ ...bad.services.items[0], category: "5. Invented Family" }];
     const read = readLandingContent(bad);
     expect(lotCategoryFromPrice(read.services.items[0].category)).toBeNull();
-    const verdict = validateLandingContent(read);
+    const verdict = validateLandingContent(read, LOT_PRICE_CATEGORIES);
     expect(verdict.ok).toBe(false);
     if (!verdict.ok) expect(verdict.error).toMatch(/2026 lot families/);
   });
@@ -241,13 +248,13 @@ describe("the save path accepts unlimited rail items", () => {
     const content = await listLandingContent();
     const badHero = cloneDoc(content);
     badHero.hero.headline = "   ";
-    const verdict = validateLandingContent(badHero);
+    const verdict = validateLandingContent(badHero, LOT_PRICE_CATEGORIES);
     expect(verdict.ok).toBe(false);
     if (!verdict.ok) expect(verdict.error).toMatch(/headline/);
 
     const badItem = cloneDoc(content);
     badItem.rails.right.items = [{ ...badItem.rails.right.items[0], title: " " }];
-    const verdict2 = validateLandingContent(readLandingContent(badItem));
+    const verdict2 = validateLandingContent(readLandingContent(badItem), LOT_PRICE_CATEGORIES);
     expect(verdict2.ok).toBe(false);
   });
 
@@ -285,7 +292,7 @@ describe("blog posts carry the optional link the staff sets on the \"/\" editor"
     expect(read.blog.posts.find((p) => p.id === "linked")?.link).toBe("/map?plot=A-001");
     expect(read.blog.posts.find((p) => p.id === "blank")?.link).toBeNull();
     expect(read.blog.posts.find((p) => p.id === "none")?.link).toBeNull();
-    expect(validateLandingContent(read).ok).toBe(true);
+    expect(validateLandingContent(read, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 });
 
@@ -294,7 +301,7 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const seed = readLandingContent((contentFile as { content: unknown }).content);
     expect(seed.hero.background).toBeNull();
     expect(seed.hero.backgroundTransparency).toBe(100);
-    expect(validateLandingContent(seed).ok).toBe(true);
+    expect(validateLandingContent(seed, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 
   it("reads a legacy document that lacks both fields as no colour + fully transparent", async () => {
@@ -307,7 +314,7 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const read = readLandingContent(legacy);
     expect(read.hero.background).toBeNull();
     expect(read.hero.backgroundTransparency).toBe(100);
-    expect(validateLandingContent(read).ok).toBe(true);
+    expect(validateLandingContent(read, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 
   it("round-trips a colour + transparency through the real save path", async () => {
@@ -339,12 +346,12 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     for (const transparency of [0, 100]) {
       const doc = cloneDoc(content);
       doc.hero.backgroundTransparency = transparency;
-      expect(validateLandingContent(doc).ok).toBe(true);
+      expect(validateLandingContent(doc, LOT_PRICE_CATEGORIES).ok).toBe(true);
     }
     for (const transparency of [-1, 101, Number.NaN]) {
       const doc = cloneDoc(content);
       doc.hero.backgroundTransparency = transparency;
-      const verdict = validateLandingContent(doc);
+      const verdict = validateLandingContent(doc, LOT_PRICE_CATEGORIES);
       expect(verdict.ok).toBe(false);
       if (!verdict.ok) expect(verdict.error).toMatch(/transparency.*0 to 100/);
     }
@@ -354,7 +361,7 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const content = await listLandingContent();
     const bad = cloneDoc(content);
     bad.hero.background = "url(https://evil.test/x.png)";
-    const verdict = validateLandingContent(bad);
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
     expect(verdict.ok).toBe(false);
     if (!verdict.ok) expect(verdict.error).toMatch(/valid CSS colour/);
   });

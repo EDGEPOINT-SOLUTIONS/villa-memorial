@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
 import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import {
   CASH_ASSISTANCE,
   PLAN_TIERS,
@@ -36,6 +37,9 @@ import {
 } from "./package-icons";
 
 export const metadata = { title: "Plan details — Villa Memorial" };
+
+// Reads the pricing store per request — an office edit must be visible here.
+export const dynamic = "force-dynamic";
 
 const TYPE_LABEL: Record<string, string> = {
   package: "Package",
@@ -118,6 +122,7 @@ export default async function PlanDetailPage({
   const typeLabel = TYPE_LABEL[item.item_type] ?? item.item_type.replace("_", "-");
   const isPackage = item.item_type === "package";
   const tierItems = isPackage ? await packageTierItems() : [];
+  const pricing = await loadPricingDocument();
 
   const cartItem = {
     sku: item.sku,
@@ -232,7 +237,7 @@ export default async function PlanDetailPage({
             </section>
 
             <section className="mid-section price-module" aria-labelledby="pl-title">
-              <PriceList2026Module />
+              <PriceList2026Module categories={pricing.lotCategories} />
             </section>
 
             <section className="mid-section" aria-labelledby="sheet-title">
@@ -301,6 +306,7 @@ export default async function PlanDetailPage({
 
             <section className="buy-card" aria-labelledby="buy-title">
               <PlanTermSelector
+                pricing={pricing.plans}
                 item={cartItem}
                 ownTier={planTierForPackageSku(item.sku) ?? "bronze1"}
                 tierItems={tierItems}

@@ -3,8 +3,10 @@ import { AgentHero, AgentSection, Chip } from "@/components/agent/agent-ui";
 import { AgentParkMap } from "@/components/agent/agent-park-map";
 import { listAgentLotAvailability } from "@/lib/api-client/agent";
 import { listLots, type Lot } from "@/lib/api-client/property";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { LOT_GARDEN_NICHES, LOT_MAUSOLEUM, LOT_PREMIUM, LOT_PRIMARY } from "@/lib/media";
-import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
+import type { LotCategory } from "@/lib/pricing-model";
+import { php } from "@/lib/villa-pricing";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
@@ -20,8 +22,8 @@ const PHOTO: Record<string, string> = {
   condo: LOT_MAUSOLEUM,
 };
 
-function sheetPrice(category: string, product: string): { selling: number; monthly: number } | null {
-  const row = LOT_PRICE_CATEGORIES.find((c) => c.title === category)?.rows.find(
+function sheetPrice(categories: ReadonlyArray<LotCategory>, category: string, product: string): { selling: number; monthly: number } | null {
+  const row = categories.find((c) => c.title === category)?.rows.find(
     (r) => r.product === product,
   );
   return row ? { selling: row.regular.selling, monthly: row.regular.monthly } : null;
@@ -39,7 +41,8 @@ function sheetPrice(category: string, product: string): { selling: number; month
  * scopes exactly as on the staff screen.
  *
  * Availability counts here are the office's record, read-stamped, and prices are
- * the client's own 2026 sheet (lib/villa-pricing.ts) — never typed by an agent.
+ * the client's own 2026 sheet, read from the editable pricing store
+ * (lib/api-client/pricing.ts) — never typed by an agent.
  */
 export default async function AgentLotsPage() {
   const session = await requirePortalSessionOrRedirect("agent");
@@ -56,6 +59,7 @@ export default async function AgentLotsPage() {
 
   const availability = await listAgentLotAvailability();
   const canEdit = hasAnyScope(session.scopes, ["property:write"]);
+  const pricing = await loadPricingDocument();
 
   let lots: Lot[] = [];
   let lotsError: string | null = null;
@@ -102,7 +106,7 @@ export default async function AgentLotsPage() {
 
             <div className="ag-list">
               {availability.map((a) => {
-                const price = sheetPrice(a.category, a.product);
+                const price = sheetPrice(pricing.lotCategories, a.category, a.product);
                 return (
                   <article className="ag-lot" key={a.key}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -147,9 +151,9 @@ export default async function AgentLotsPage() {
             <p className="ag-note" style={{ margin: 0 }}>
               <strong>Two honest limits.</strong> (1) Whether an agent can hold a lot is an open captain /
               client question — this design offers “ask the office to hold”, and the office confirms. (2)
-              Prices are the client&apos;s own 2026 sheet (lib/villa-pricing.ts, LOT_PRICE_CATEGORIES) and the
-              map is the office&apos;s shared park map — nothing here is typed by an agent, and the office
-              confirms the final figure on the contract.
+              Prices are the client&apos;s own 2026 sheet, read from the same editable price list the office
+              keeps (/staff/pricing), and the map is the office&apos;s shared park map — nothing here is
+              typed by an agent, and the office confirms the final figure on the contract.
             </p>
           </div>
         </div>

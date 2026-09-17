@@ -1,22 +1,24 @@
 import Link from "next/link";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP, PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import {
   CASH_ASSISTANCE,
   COFFINS,
-  LOT_PRICE_CATEGORIES,
   php,
-  SENIOR_PAYMENTS,
   SENIOR_TERMS,
   VMP_ELIGIBILITY,
   VMP_NOTES,
   VMP_PACKAGE,
-  VMP_PAYMENTS,
 } from "@/lib/villa-pricing";
 
 export const metadata = { title: "Villa Memorial Plan — Products & Price List 2026" };
 
-export default function VillaMemorialPlanPage() {
+// Reads the pricing store per request — an office edit must be visible here.
+export const dynamic = "force-dynamic";
+
+export default async function VillaMemorialPlanPage() {
+  const pricing = await loadPricingDocument();
   return (
     <div className="stack-4">
       {/* Hero */}
@@ -132,7 +134,7 @@ export default function VillaMemorialPlanPage() {
           <div className="card__body stack-3">
             <h3>Payment schedule (PHP)</h3>
             <PlanPaymentTable
-              rows={SENIOR_PAYMENTS}
+              rows={pricing.plans.senior}
               senior
               label="Senior citizen payment schedule"
             />
@@ -207,7 +209,7 @@ export default function VillaMemorialPlanPage() {
           <div className="card__body stack-3">
             <h3>Villa Memorial Plan — payment schedule (PHP)</h3>
             <PlanPaymentTable
-              rows={VMP_PAYMENTS}
+              rows={pricing.plans.regular}
               label="Villa Memorial Plan — regular payment schedule"
             />
           </div>
@@ -226,7 +228,7 @@ export default function VillaMemorialPlanPage() {
           Six-year amortization shown for regular and senior citizens.{" "}
           <strong>{VMP_NOTES.adjust}</strong>
         </p>
-        {LOT_PRICE_CATEGORIES.map((cat) => (
+        {pricing.lotCategories.map((cat) => (
           <div className="card" key={cat.title}>
             <div className="card__body stack-3">
               <h3>{cat.title} — 6 years amortization</h3>

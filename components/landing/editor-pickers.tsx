@@ -15,6 +15,7 @@ import { X, Search, Image as ImageIcon, Link2, UploadCloud, CheckSquare, Check, 
 import { MEDIA_LIBRARY } from "@/lib/media";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import { buildRailCatalogue } from "@/lib/landing/catalogue";
+import type { LotCategory, PlanPricing } from "@/lib/pricing-model";
 import type { RailItemKind } from "@/lib/api-client/landing";
 import { DeviceUploader } from "@/components/landing/device-uploader";
 
@@ -187,12 +188,17 @@ const entryKey = (e: CatalogueEntry) => `${e.kind}::${e.title}`;
 export function RailPicker({
   open,
   side,
+  lotCategories,
+  planPricing,
   onClose,
   onAdd,
   onAddMany,
 }: {
   open: boolean;
   side: "left" | "right";
+  /** LIVE pricing document slices — the picker's price lines track office edits. */
+  lotCategories?: ReadonlyArray<LotCategory>;
+  planPricing?: PlanPricing;
   onClose: () => void;
   /** Instant single pin — clicking a catalogue row pins that one item. */
   onAdd: (entry: CatalogueEntry) => void;
@@ -205,7 +211,10 @@ export function RailPicker({
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    if (open && !groups) setGroups(buildRailCatalogue());
+    if (open && !groups) setGroups(buildRailCatalogue({ lotCategories, planPricing }));
+    // The first open snapshots the pricing document for this editing session;
+    // a price edit lands in /staff/pricing, not mid-pin, so no refetch is needed.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see note above
   }, [open, groups]);
 
   // Each open starts clean: no stale bulk selection from a previous session.

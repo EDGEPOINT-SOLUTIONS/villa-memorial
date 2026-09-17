@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
-import { SENIOR_PAYMENTS, SENIOR_TERMS } from "@/lib/villa-pricing";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { SENIOR_TERMS } from "@/lib/villa-pricing";
 
 export const metadata = { title: "Senior citizen plan — Villa Memorial" };
 
+// Reads the pricing store per request — an office edit must be visible here.
+export const dynamic = "force-dynamic";
+
 /** Villa Memorial senior citizen plan — real terms & payment schedule. */
-export default function SeniorBenefitsPage() {
+export default async function SeniorBenefitsPage() {
+  const pricing = await loadPricingDocument();
   return (
     <div className="stack-4">
       <section className="page-hero">
@@ -33,7 +38,7 @@ export default function SeniorBenefitsPage() {
 
       <Card header={<h3>Payment schedule (PHP)</h3>}>
         <PlanPaymentTable
-          rows={SENIOR_PAYMENTS}
+          rows={pricing.plans.senior}
           senior
           label="Senior citizen payment schedule"
         />

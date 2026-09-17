@@ -1,15 +1,16 @@
 /**
- * Villa Memorial Plan pricing invariants.
+ * Villa Memorial Plan pricing invariants — now read through the PRICING STORE.
  *
- * Regression home for the ₱500 → ₱600 defect: the client's payment-mode sheets
- * (COMPLETE MEMORIAL PACKAGE.jpg standard, TYPES OF COFFIN.jpg senior) publish
- * one amount per tier per term, and the four term columns must stay in the
- * exact ratio of the schedule (annual × 1 = semi-annual × 2 = quarterly × 4 =
- * monthly × 12). A transcription slip such as the former Bronze-1 monthly of
- * ₱500 breaks that ratio while still rendering happily — which is why the
- * fixture-contract test (which reads the same module) could not catch it.
+ * The plan tables and lot price list live in lib/fixtures/commerce/pricing.json
+ * (the editable document the office changes from /staff/plans and /staff/pricing);
+ * lib/villa-pricing.ts re-exports the validated seed for static surfaces and
+ * these tests. The regression home for the ₱500 → ₱600 defect stays here, and
+ * now the SAME rules run as the store's save validation (lib/pricing-model.ts):
+ * a transcription slip or a bad office edit is refused with a plain message
+ * rather than published.
  */
 import { describe, expect, it } from "vitest";
+import { checkLotCategories, checkPlanPricing } from "@/lib/pricing-model";
 import {
   ALACARTE_SERVICE_FEES,
   ALACARTE_SERVICE_TOTAL,
@@ -28,6 +29,7 @@ import {
   PLAN_TERMS,
   PLAN_TIERS,
   SENIOR_PAYMENTS,
+  SEED_PRICING,
   VMP_INCLUSIONS,
   VMP_PACKAGE,
   VMP_PAYMENTS,
@@ -42,6 +44,13 @@ describe("Villa Memorial Plan payment-mode tables", () => {
   it("publishes the client's Bronze 1 monthly rate (₱600, not ₱500)", () => {
     expect(planRate("bronze1", "monthly")).toBe(600);
     expect(planRate("bronze1", "monthly", true)).toBe(550);
+  });
+
+  it("pins the stored seed as the published schedules (the save rules accept it)", () => {
+    // The store's own validators run over the recorded seed: every mode once,
+    // whole-peso amounts, the schedule ratio, and senior ≤ regular.
+    expect(checkPlanPricing(SEED_PRICING.plans)).toBeNull();
+    expect(checkLotCategories(SEED_PRICING.lotCategories)).toBeNull();
   });
 
   it("keeps every term column in the schedule's ratio", () => {
