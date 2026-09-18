@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ErrorState } from "@/components/ui/states";
 import { getLot } from "@/lib/api-client/property";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { formatMinorUnits } from "@/lib/money";
+import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { SAMPLE_PARK_IMAGE, VILLA_SECTION_PHOTOS } from "@/lib/media";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import { pageMetadata } from "@/lib/seo";
@@ -50,6 +52,8 @@ export default async function PublicLotDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+
+  const { contact } = await listLandingContent();
 
   let lot;
   try {
@@ -123,15 +127,37 @@ export default async function PublicLotDetailPage({
       </div>
 
       {lot.status === "available" ? (
-        <p className="text-sm text-muted">
-          This lot is available. Reservations are handled by the memorial park office —
-          online reservation and checkout are not available yet.
-        </p>
+        <div className="stack-3">
+          <p className="text-sm text-muted">
+            This lot is available. Online reservation is not available yet — the park
+            office holds the lot for you and confirms the terms.
+          </p>
+          <div className="row row--wrap">
+            <a className="btn btn--primary" href={contact.phoneHref}>
+              Call {contact.phoneDisplay}
+            </a>
+            <Link
+              className="btn btn--secondary"
+              href={buildRequestHref({
+                item: `Lot ${lot.lot_number} (${lot.section}, block ${lot.block})`,
+                price: lot.price_cents > 0 ? formatMinorUnits(lot.price_cents, lot.currency) : undefined,
+                note: "Hold request — nothing is reserved by this message.",
+              })}
+            >
+              Ask the office to hold this lot
+            </Link>
+          </div>
+        </div>
       ) : (
-        <p className="text-sm text-muted">
-          This lot is {lotStatusLabel(lot.status).toLowerCase()}. Please contact the
-          memorial park office for more information.
-        </p>
+        <div className="stack-3">
+          <p className="text-sm text-muted">
+            This lot is {lotStatusLabel(lot.status).toLowerCase()} — the park office can
+            tell you what is possible.
+          </p>
+          <p>
+            <a href={contact.phoneHref}>Call {contact.phoneDisplay}</a>
+          </p>
+        </div>
       )}
     </div>
   );

@@ -17063,3 +17063,191 @@ a.ia-alt:hover {
     justify-items: start;
   }
 }
+
+/* ============================================================================
+   F-17 · Journey fixes — the closing action layer + the contact surface
+   ----------------------------------------------------------------------------
+   Every public page ends with the SAME three options — call the office, ask a
+   question, or start the arrangement — in one band; the office-assisted route
+   (the phone) leads, because that is how Villa actually sells. The band is
+   rendered by PublicShell (interior pages) and LandingView (the home) from the
+   same staff-editable contact document, so the closing grammar never varies
+   per page. Sky surface + navy ink + gold rule: the same folio as the chrome.
+   The contact page's facts panel reuses the palette and the same control
+   grammar, so the office's published numbers/addresses are stated once, in one
+   place, before the form.
+   ============================================================================ */
+
+.next-steps {
+  border-top: 2px solid var(--gold-500);
+  background:
+    radial-gradient(700px 240px at 100% -40px, rgb(241 204 94 / 0.16), transparent 60%),
+    linear-gradient(180deg, var(--sky-50), var(--sky-200));
+  color: var(--color-text-primary);
+}
+
+.next-steps__inner {
+  max-width: var(--layout-folio-w);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+@media (min-width: 62.001rem) {
+  .next-steps__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .next-steps__meta {
+    grid-column: 1 / -1;
+  }
+}
+
+.next-steps__kicker {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.next-steps__title {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.next-steps__line {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.next-steps__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* The phone rule: a real tap target (≥ 44 px) on the smallest screens. */
+.next-steps__actions .btn {
+  min-height: 44px;
+  padding-inline: var(--space-5);
+}
+
+.next-steps__meta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* --- the contact surface's published facts (/contact) ---------------------- */
+.contact-facts {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(600px 200px at 0% -60px, rgb(241 204 94 / 0.14), transparent 60%),
+    var(--color-bg-surface);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.contact-facts__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.contact-facts__grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.contact-fact {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.contact-fact__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.contact-fact__value {
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.contact-fact__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.contact-fact--call .btn {
+  justify-self: start;
+  min-height: 44px;
+}
+
+.contact-fact__number {
+  justify-self: start;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.contact-fact__number:hover {
+  color: var(--color-text-accent);
+}
+
+.contact-fact__link {
+  justify-self: start;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-accent);
+}
+
+.contact-facts__doors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--color-rule);
+  padding-top: var(--space-4);
+}
+
+.contact-facts__doors a {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.contact-facts__doors a:hover {
+  color: var(--color-text-accent);
+}
+
+/* The advisor cards on the package/casket detail pages carry the same
+   staff-editable call target — an anchor now, so it stays a real tel: link. */
+a.plan-advisor__phone {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+a.plan-advisor__phone:hover {
+  color: var(--color-text-accent);
+}

@@ -275,6 +275,10 @@ describe("the provisional sheet", () => {
         phoneDisplay: "0917 617 8489",
         phoneHref: "tel:+639176178489",
         location: "Isabela City, Basilan",
+        secondPhoneDisplay: "0917 183 9262",
+        secondPhoneHref: "tel:+639171839262",
+        officeAddress: "Capilla de San Jose Bldg., Sunrise, Isabela City, Basilan",
+        parkAddress: "Sanctuario de Mercedes y Gloria, Purok 3, Begang, Isabela City, Basilan",
       },
     });
     expect(mapped).toEqual(office);

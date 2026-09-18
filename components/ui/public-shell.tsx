@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { CartProvider, useCart } from "@/lib/cart/cart-context";
 import type { LandingContent } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
+import { NextSteps } from "@/components/landing/next-steps";
 import { MobileQuickMenu } from "@/components/landing/mobile-quick-menu";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { LandingFooter } from "@/components/landing/landing-view";
@@ -37,6 +38,17 @@ function PublicChromeHeader({ content }: { content: LandingContent }) {
   );
 }
 
+/**
+ * The closing action band on interior pages (F-17), with the one documented
+ * exception: /immediate-assistance IS the call-first screen (F-01), so it keeps
+ * its own content order and gets no second action band.
+ */
+function PublicNextSteps({ content }: { content: LandingContent }) {
+  const pathname = usePathname();
+  if (pathname === "/immediate-assistance") return null;
+  return <NextSteps contact={content.contact} />;
+}
+
 export function PublicShell({
   children,
   content,
@@ -58,6 +70,9 @@ export function PublicShell({
         >
           {children}
         </main>
+        {/* The one closing action layer (F-17) — every public page ends with the
+            same three options, immediately above the footer. */}
+        <PublicNextSteps content={content} />
         <MobileQuickMenu content={content} />
         <PhoneActionBar contact={content.contact} />
         <LandingFooter content={content} />

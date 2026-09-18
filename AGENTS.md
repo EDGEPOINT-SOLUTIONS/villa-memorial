@@ -224,6 +224,37 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   missing from `PUBLIC_PAGES` (or a listed path has no page) — add the route in
   the same PR that adds the page.
 
+## Public action & contact layer — the closing band and the contact surface (F-17)
+
+- **Every public page ends on the SAME three options** through ONE band:
+  `components/landing/next-steps.tsx`, rendered by `PublicShell` (interior pages)
+  and `LandingView` (home) from the landing contact document — call the office
+  (primary, a real `tel:` link with a “Call …” label), ask a question (`/contact`),
+  start the arrangement (`/builder`). `/immediate-assistance` is the one documented
+  exemption: it IS the call-first screen (F-01) and renders no band. Never add a
+  second closing grammar or a per-page CTA list; a new public page inherits it
+  from the shell.
+- **The contact surface is `/contact`**: it leads with the office's published
+  facts — both hotlines, the main-office and park addresses, availability —
+  before the form, plus the quote/appointment paths. Those facts are the
+  staff-editable landing contact region (`secondPhoneDisplay/Href`,
+  `officeAddress`, `parkAddress`; editor zone 01 at `/staff/landing`), seeded from
+  the client's 2026 Purchase Application Form letterhead; the validator keeps the
+  second line a number + `tel:` pair or empty. Never type a number into a view and
+  never invent walk-in hours (the client material carries none).
+- **No public raster art may print a contact detail the landing document does not
+  carry.** The plan poster (`public/media/plan-packages.png`, served by `/plans`,
+  the package routes and `/packages`) printed the prototype placeholder
+  `0917 123 4567`; F-17 masked the advisor strip's left band to the poster's own
+  navy (art and gold tagline untouched) and re-derived the composition thumbs
+  (`scripts/build-composition-images.mjs`; only the two `plan-packages-*.webp`
+  files changed). Check a newly uploaded poster for baked-in numbers before
+  publishing it.
+- Evidence: `tests/unit/journey-actions.test.tsx` (band, exemption, contact facts,
+  placeholder-number source scan), `tests/fixture-contract/landing.test.ts`
+  (letterhead provenance); record + 1440/390 shots
+  `docs/08-delivery/journey-fixes-design/`.
+
 ## Public page copy — the reading budget (captain, 2026-09-18)
 
 - The client read the site as "too wordy… understandable at a glance", so
