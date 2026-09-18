@@ -677,12 +677,13 @@ function ReceiptPanel({ payment, invoice }: { payment: RecordedPayment; invoice:
           <p className="text-sm text-muted">{PROVISIONAL_RECEIPT_NOTE}</p>
           <PaperExportActions
             blocks={slip.blocks}
+            profile={slip.profile}
             filename={provisionalReceiptFileStem({
               against: payment.invoice_number,
               received_on: payment.received_on,
             })}
           />
-          <PaperSheet blocks={slip.blocks} />
+          <PaperSheet blocks={slip.blocks} profile={slip.profile} />
         </div>
       </Card>
     );
@@ -694,9 +695,10 @@ function ReceiptPanel({ payment, invoice }: { payment: RecordedPayment; invoice:
       <div className="stack">
         <PaperExportActions
           blocks={paper.blocks}
+          profile={paper.profile}
           filename={officialReceiptFileStem(figures.number, figures.received_on)}
         />
-        <PaperSheet blocks={paper.blocks} />
+        <PaperSheet blocks={paper.blocks} profile={paper.profile} />
         <p className="text-sm text-muted">
           The family&apos;s copy is in their papers. The documents repository lists the same
           receipt number.

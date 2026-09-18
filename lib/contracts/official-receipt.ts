@@ -33,6 +33,7 @@ import {
   type PaperBlock,
   type PaperCell,
 } from "@/lib/export/types";
+import { PAPER_PROFILES, type PaperProfile } from "@/lib/export/paper-profile";
 
 /** The park's own letterhead — the same institution the purchase papers carry. */
 export const RECEIPT_PARK_NAME = "VILLA MEMORIAL";
@@ -90,7 +91,12 @@ export type OfficialReceiptFigures = {
   reference?: string | null;
 };
 
-export type OfficialReceipt = { title: string; blocks: PaperBlock[] };
+export type OfficialReceipt = {
+  title: string;
+  blocks: PaperBlock[];
+  /** No receipt paper is archived; the sheet follows the office's own legal stationery. */
+  profile: PaperProfile;
+};
 
 /**
  * A receipt is its own number, the day the money was received and the amount. Anything
@@ -179,6 +185,7 @@ export function buildOfficialReceiptPaper(
 
   return {
     title: RECEIPT_TITLE,
+    profile: PAPER_PROFILES["official-receipt"],
     blocks: [
       line(RECEIPT_PARK_NAME, { align: "center", bold: true, size: 13 }),
       line(RECEIPT_TITLE, { align: "center", bold: true, size: 11, caps: true }),

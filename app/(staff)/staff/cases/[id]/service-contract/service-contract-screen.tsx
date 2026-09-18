@@ -22,7 +22,7 @@ import {
   type PaperRow,
   validateDraft,
 } from "@/lib/contracts/service-contract-capture";
-import { ServiceContractPaper } from "@/components/service-contract-paper";
+import { PaperSheet } from "@/components/paper/paper-sheet";
 
 function valueOf(iso: string | null | undefined): string {
   return iso ? iso.slice(0, 10) : "—";
@@ -118,12 +118,18 @@ export function ServiceContractScreen({
   if (preview) {
     return (
       <div className="stack">
-        <PaperExportActions blocks={paperDoc.blocks} filename={paperStem}>
+        <PaperExportActions
+          blocks={paperDoc.blocks}
+          profile={paperDoc.profile}
+          filename={paperStem}
+        >
           <Button type="button" size="sm" variant="secondary" onClick={() => setPreview(false)}>
             Back to editing
           </Button>
         </PaperExportActions>
-        <ServiceContractPaper kase={kase} intake={intake} order={order} draft={draft} terms={terms} signedOn={signedOn} />
+        {/* The preview IS the artifact: the same blocks and profile the Word/PDF exports
+            carry, so the counter reviews the paper it prints. */}
+        <PaperSheet blocks={paperDoc.blocks} profile={paperDoc.profile} />
       </div>
     );
   }

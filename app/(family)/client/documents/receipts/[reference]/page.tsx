@@ -71,8 +71,8 @@ export default async function ClientReceiptPage({
         title="Your receipt"
         sub="Exactly as it is recorded on your family's account. Print it, or download it as Word or PDF."
       >
-        <PaperExportActions blocks={paper.blocks} filename={filename} />
-        <PaperSheet blocks={paper.blocks} />
+        <PaperExportActions blocks={paper.blocks} profile={paper.profile} filename={filename} />
+        <PaperSheet blocks={paper.blocks} profile={paper.profile} />
       </Section>
     </>
   );

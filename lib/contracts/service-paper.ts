@@ -34,6 +34,7 @@ import {
   type PaperBlock,
   type PaperCell,
 } from "@/lib/export/types";
+import { PAPER_PROFILES, type PaperProfile } from "@/lib/export/paper-profile";
 
 function displayDate(iso: string | null | undefined): string {
   if (!iso) return "";
@@ -56,7 +57,10 @@ export function buildServicePaper(input: ServicePaperInput): {
   blocks: PaperBlock[];
   title: string;
   terms: TermsRevision | null;
+  /** The client's own service-contract sheet (8.5 × 14 in Legal, Times New Roman 10.5 pt). */
+  profile: PaperProfile;
 } {
+  const profile = PAPER_PROFILES["service-contract"];
   const { kase, intake, order, draft, terms, signedOn } = input;
   const contractDate = (intake?.contract_date || signedOn).slice(0, 10);
   const dueDate = addDays(contractDate, PAYMENT_TERM_DAYS);
@@ -209,7 +213,7 @@ export function buildServicePaper(input: ServicePaperInput): {
   // ---- Versioned terms ----
   if (!terms) {
     push(line("The terms revision for this contract date could not be resolved; the printed terms are unavailable until it is.", { size: 10, spaceAfter: 6 }));
-    return { blocks, title: "Service Contract", terms: null };
+    return { blocks, title: "Service Contract", terms: null, profile };
   }
   push(line("KNOW ALL MEN BY THESE PRESENTS:", { bold: true, size: 10.5, spaceAfter: 4 }));
   body(
@@ -217,17 +221,46 @@ export function buildServicePaper(input: ServicePaperInput): {
       intake?.co_maker_name ? `, together with Co-Maker ${intake.co_maker_name}` : ""
     }, jointly and solidarily liable, under the terms below.`,
   );
+
+  // The paper's party block (Service Contract Form.docx): each party named over its
+  // role. The roles are read from the terms revision (villa-terms.ts) — the same source
+  // the signature labels below use — so the block and the signature area cannot name
+  // different parties. No clause wording is authored here.
+  push(line(terms.partyFirst, { bold: true, size: 10.5, spaceAfter: 1 }));
+  push(line(terms.partyFirstRole.toUpperCase(), { size: 9, spaceAfter: 5 }));
+  push(line("-and-", { align: "center", size: 10.5, spaceAfter: 5 }));
+  push(
+    line((intake?.client_name ?? "").trim() || "______________________________", {
+      bold: true,
+      size: 10.5,
+      spaceAfter: 1,
+    }),
+  );
+  push(line(terms.partySecondRole.toUpperCase(), { size: 9, spaceAfter: 4 }));
+  if (intake?.co_maker_name) {
+    push(line(`Co-Maker: ${intake.co_maker_name}`, { size: 10.5, spaceAfter: 1 }));
+    if (terms.partyThirdRole) {
+      push(line(terms.partyThirdRole.toUpperCase(), { size: 9, spaceAfter: 4 }));
+    }
+  }
+
+  // The office's contract opens its provisions with WITNESSETH: (the form's own
+  // heading); the numbered clauses below are the terms the revision carries.
+  push(line("WITNESSETH:", { align: "center", bold: true, size: 10.5, spaceAfter: 5 }));
   terms.clauses.forEach((clause, index) => body(`${index + 1}. ${clause}`, 5));
   body(
     "The parties hereby indicate by their signatures below that they have read and agree with the terms and conditions of this contract in its entirety.",
   );
 
-  // ---- Signature block ----
-  push(space(4));
+  // ---- Signature block (the form's three signatories, labels from the revision) ----
+  push(space(6));
+  push(line("IN WITNESS WHEREOF:", { bold: true, size: 10.5, spaceAfter: 8 }));
+  const secondRole = terms.partySecondRole.toUpperCase();
+  const thirdRole = (terms.partyThirdRole ?? "Co-Maker").toUpperCase();
   const signRows: PaperCell[][] = [
     [
-      { label: undefined, value: `${intake?.client_name ?? ""}\n\nCLIENT (Sign over Printed Name)`, span: 2 },
-      { label: undefined, value: `${intake?.co_maker_name ?? ""}\n\nCo-Maker (Sign over Printed Name)`, span: 2 },
+      { label: undefined, value: `${intake?.client_name ?? ""}\n\n${secondRole} (Sign over Printed Name)`, span: 2 },
+      { label: undefined, value: `${intake?.co_maker_name ?? ""}\n\n${thirdRole} (Sign over Printed Name)`, span: 2 },
       { label: undefined, value: `Armando A. Villa\n\nFuneraria Villa`, span: 2 },
     ],
   ];
@@ -238,5 +271,5 @@ export function buildServicePaper(input: ServicePaperInput): {
   push(pageBreak());
   push(line(terms.notarialNote, { size: 10, spaceAfter: 6 }));
 
-  return { blocks, title: "Service Contract", terms };
+  return { blocks, title: "Service Contract", terms, profile };
 }

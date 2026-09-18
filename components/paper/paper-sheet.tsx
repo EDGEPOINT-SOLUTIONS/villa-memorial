@@ -3,12 +3,19 @@
 /**
  * PaperSheet — renders the shared PaperBlock grammar as a document sheet on screen.
  *
- * Presentational only: the same blocks produce the .docx and .pdf exports, so the page
- * you review is the file you get. The sheet is set in Times (the papers' typeface) and
- * prints on Letter paper: the print stylesheet hides everything except this sheet, so
- * "Print" from any screen carrying one yields the paper document.
+ * Presentational only: the same blocks and the same `PaperProfile` produce the .docx and
+ * .pdf exports, so the page you review is the file you get. The profile decides the
+ * sheet's page width, its margins (as the sheet's padding) and its two faces; the print
+ * stylesheet prints only this sheet, and the profile's `@page` rule below is what makes
+ * Print yield the document's own paper (Legal 8.5 × 14 for the contract, the 8.5 × 13
+ * folio for the purchase document, …) rather than the browser's default.
  */
 import type { PaperBlock, PaperCell, PaperTable } from "@/lib/export/types";
+import {
+  paperPrintPageCss,
+  paperSheetVars,
+  type PaperProfile,
+} from "@/lib/export/paper-profile";
 
 function cellText(cell: PaperCell): string {
   const label = cell.label ? `${cell.label}${cell.value ? ":" : ""}` : "";
@@ -73,9 +80,17 @@ function TableView({ block }: { block: PaperTable }) {
   );
 }
 
-export function PaperSheet({ blocks }: { blocks: PaperBlock[] }) {
+export function PaperSheet({ blocks, profile }: { blocks: PaperBlock[]; profile: PaperProfile }) {
   return (
-    <div className="paper-sheet" data-paper-sheet>
+    <div
+      className="paper-sheet"
+      data-paper-sheet
+      data-paper-profile={profile.id}
+      style={paperSheetVars(profile) as React.CSSProperties}
+    >
+      {/* The profile's own page box for Print — one paper document per screen, so this
+          is the only @page rule in play and the last one wins. */}
+      <style>{paperPrintPageCss(profile)}</style>
       <div className="paper-sheet__sheet">
         {blocks.map((block, i) => {
           switch (block.kind) {
@@ -85,6 +100,7 @@ export function PaperSheet({ blocks }: { blocks: PaperBlock[] }) {
                 alignClass(block.align),
                 block.bold ? "paper-line--bold" : "",
                 block.caps ? "paper-line--caps" : "",
+                block.typeface === "heading" ? "paper-line--head" : "",
               ]
                 .filter(Boolean)
                 .join(" ");
@@ -93,7 +109,7 @@ export function PaperSheet({ blocks }: { blocks: PaperBlock[] }) {
                   key={i}
                   className={classes}
                   style={{
-                    fontSize: `${block.size ?? 10.5}pt`,
+                    ...(block.size ? { fontSize: `${block.size}pt` } : {}),
                     marginBottom: `${(block.spaceAfter ?? 2) * 2}px`,
                   }}
                 >

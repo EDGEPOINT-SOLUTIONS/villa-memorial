@@ -91,3 +91,27 @@
     U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
     U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+
+/* --- Paper faces — the CLIENT's papers, not the product's voice --------------
+   The printed documents (components/paper/*) are the office's own papers, and the
+   faces on them come from the client's archived .docx files: Times New Roman for the
+   service contract and application body, Bookman Old Style for the 2026 forms'
+   letterhead — see lib/export/paper-profile.ts, the ONE paper-type home. Screen and
+   print use the real face when the office machine has it (Office ships both); the
+   declarations below are the fallback for machines that do not, so the same face
+   appears everywhere. "TeX Gyre Bonum" is the free (GUST Font License, licence text
+   beside the files) URW Bookman release, the same face the PDF embeds. */
+@font-face {
+  font-family: "TeX Gyre Bonum";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/paper/texgyrebonum-regular.otf") format("opentype");
+}
+@font-face {
+  font-family: "TeX Gyre Bonum";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/paper/texgyrebonum-bold.otf") format("opentype");
+}

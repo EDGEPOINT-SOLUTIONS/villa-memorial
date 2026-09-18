@@ -40,6 +40,7 @@ import {
   type PaperBlock,
   type PaperCell,
 } from "@/lib/export/types";
+import { PAPER_PROFILES, type PaperProfile } from "@/lib/export/paper-profile";
 
 export const MEMBERSHIP_PAPER_TITLE = "Membership Application";
 
@@ -70,7 +71,7 @@ function planTierLabel(tier: MembershipPaperData["plan_tier"]): string {
  */
 export function buildMembershipApplicationPaper(
   application: MembershipPaperData,
-): { blocks: PaperBlock[]; title: string } {
+): { blocks: PaperBlock[]; title: string; profile: PaperProfile } {
   const holder = planHolderFullName(application);
   const age = planHolderAgeOn(application.date_of_birth, application.application_date);
   const per = planTermPer(application.plan_term);
@@ -79,8 +80,22 @@ export function buildMembershipApplicationPaper(
   );
 
   const blocks: PaperBlock[] = [
-    line("VILLA MEMORIAL PLAN", { align: "center", bold: true, caps: true, size: 14, spaceAfter: 1 }),
-    line("MEMBERSHIP APPLICATION", { align: "center", bold: true, caps: true, size: 11.5, spaceAfter: 2 }),
+    line("VILLA MEMORIAL PLAN", {
+      align: "center",
+      bold: true,
+      caps: true,
+      size: 14,
+      spaceAfter: 1,
+      typeface: "heading",
+    }),
+    line("MEMBERSHIP APPLICATION", {
+      align: "center",
+      bold: true,
+      caps: true,
+      size: 11.5,
+      spaceAfter: 2,
+      typeface: "heading",
+    }),
     line(APPLICATION_NOT_A_COC_NOTE, { align: "center", size: 9.5, spaceAfter: 8 }),
     table(2, [
       [
@@ -192,7 +207,7 @@ export function buildMembershipApplicationPaper(
   blocks.push(space(8));
   blocks.push(line(PAPER_AUTHORITY_NOTE, { size: 9, spaceAfter: 0 }));
 
-  return { blocks, title: MEMBERSHIP_PAPER_TITLE };
+  return { blocks, title: MEMBERSHIP_PAPER_TITLE, profile: PAPER_PROFILES["membership-application"] };
 }
 
 /** Export filename stem: what it is, whose application, the date on it. */

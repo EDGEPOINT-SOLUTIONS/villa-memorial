@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { PaperSheet } from "@/components/paper/paper-sheet";
 import { PaperExportActions } from "@/components/paper/paper-export-actions";
+import type { PaperProfile } from "@/lib/export/paper-profile";
 import {
   APPLICATION_NOT_A_COC_NOTE,
   DPA_CONSENT_STATEMENT,
@@ -118,7 +119,11 @@ export function MembershipApplicationFolio({
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [gateMessage, setGateMessage] = useState<string | null>(null);
-  const [paper, setPaper] = useState<{ blocks: ReturnType<typeof buildMembershipApplicationPaper>["blocks"]; title: string } | null>(null);
+  const [paper, setPaper] = useState<{
+    blocks: ReturnType<typeof buildMembershipApplicationPaper>["blocks"];
+    title: string;
+    profile: PaperProfile;
+  } | null>(null);
 
   function set<K extends keyof FolioValues>(key: K, value: FolioValues[K]) {
     setValues((v) => ({ ...v, [key]: value }));
@@ -197,7 +202,7 @@ export function MembershipApplicationFolio({
     }
     setGateMessage(null);
     const built = buildMembershipApplicationPaper(paperData);
-    setPaper({ blocks: built.blocks, title: built.title });
+    setPaper({ blocks: built.blocks, title: built.title, profile: built.profile });
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -273,7 +278,7 @@ export function MembershipApplicationFolio({
                 {php2(rate)} {per} — the same content you export as Word and PDF.
               </p>
             </div>
-            <PaperExportActions blocks={paper.blocks} filename={fileStem}>
+            <PaperExportActions blocks={paper.blocks} profile={paper.profile} filename={fileStem}>
               <Button type="button" variant="secondary" size="sm" onClick={() => setPaper(null)}>
                 <ArrowLeft size={16} aria-hidden="true" />
                 Back to editing
@@ -285,7 +290,7 @@ export function MembershipApplicationFolio({
           {APPLICATION_NOT_A_COC_NOTE} Print it for the office&rsquo;s working record; the
           office issues the real document from its own paper.
         </Alert>
-        <PaperSheet blocks={paper.blocks} />
+        <PaperSheet blocks={paper.blocks} profile={paper.profile} />
       </div>
     );
   }

@@ -13,6 +13,7 @@ import { FileDown, FileText, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import type { PaperBlock } from "@/lib/export/types";
+import type { PaperProfile } from "@/lib/export/paper-profile";
 
 function download(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
@@ -27,10 +28,13 @@ function download(blob: Blob, filename: string): void {
 
 export function PaperExportActions({
   blocks,
+  profile,
   filename,
   children,
 }: {
   blocks: PaperBlock[];
+  /** The same profile the on-screen sheet renders — Print, Word and PDF all carry it. */
+  profile: PaperProfile;
   /** Filename stem without extension — the safe name is computed by the caller. */
   filename: string;
   /** Extra context buttons rendered before the exports (e.g. "Back to editing"). */
@@ -44,7 +48,7 @@ export function PaperExportActions({
     setBusy("docx");
     try {
       const { paperToDocxBlob } = await import("@/lib/export/docx");
-      const blob = await paperToDocxBlob(blocks);
+      const blob = await paperToDocxBlob(blocks, profile);
       download(blob, `${filename}.docx`);
     } catch {
       setError("Word export failed — please try again.");
@@ -60,7 +64,7 @@ export function PaperExportActions({
       const res = await fetch("/api/export/paper-pdf", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ blocks }),
+        body: JSON.stringify({ blocks, profile: profile.id }),
       });
       if (!res.ok) {
         throw new Error(`pdf export failed (${res.status})`);
@@ -88,7 +92,7 @@ export function PaperExportActions({
           variant="secondary"
           size="sm"
           onClick={() => window.print()}
-          title="Print this document (save as PDF from the print dialog if you like)"
+          title={`Print this document on ${profile.label} — save as PDF from the print dialog if you like`}
         >
           <Printer size={16} aria-hidden="true" />
           Print
@@ -99,7 +103,7 @@ export function PaperExportActions({
           size="sm"
           onClick={downloadWord}
           disabled={busy !== null}
-          title="Download as a Microsoft Word (.docx) document"
+          title={`Download as a Microsoft Word (.docx) document on ${profile.label}`}
         >
           <FileDown size={16} aria-hidden="true" />
           {busy === "docx" ? "Building Word file…" : "Word (.docx)"}
@@ -109,7 +113,7 @@ export function PaperExportActions({
           size="sm"
           onClick={downloadPdf}
           disabled={busy !== null}
-          title="Download as a PDF"
+          title={`Download as a PDF on ${profile.label}`}
         >
           <FileText size={16} aria-hidden="true" />
           {busy === "pdf" ? "Building PDF…" : "PDF"}

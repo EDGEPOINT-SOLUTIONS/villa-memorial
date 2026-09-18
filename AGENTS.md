@@ -1258,6 +1258,28 @@ web/
   Re-run an axe pass over the route set when touching shared chrome: the F-16 PR records
   35 public × 2 viewports + 58 staff + 14 family + 11 agent routes at zero violations.
 
+## Printed papers — the document sheet (read before touching `components/paper/*`, `lib/export/*` or a `lib/contracts/*-paper.ts`)
+
+- **One profile home: `lib/export/paper-profile.ts`.** Page size, margins and faces are
+  MEASURED from the client's own `.docx` files staged in `docs/07-client-villa/paper-forms/`:
+  service contract 8.5 × 14 Legal (margins 1/1/1.8/1 in), 2026 combined purchase form
+  8.5 × 13 folio (0.5 in), 2025 standalone purchase agreement 8.5 × 14 Arial, and the two
+  documents with NO archived paper (receipts, membership folio) say so in their provenance.
+  Screen (`components/paper/paper-sheet.tsx`), print (the `@page` rule it injects), Word
+  (`lib/export/docx.ts`) and PDF (`lib/export/pdf.ts`) all read the profile; every document
+  builder returns it beside its blocks and every `PaperSheet`/`PaperExportActions` call
+  passes it. Never hardcode a page size, margin or face in a paper view or renderer.
+- Faces: Times New Roman (contract + receipt + application body), Arial (2025 purchase
+  agreement), Bookman Old Style (the 2026 forms' letterhead — mark the block
+  `typeface: "heading"`). `Times-Roman`/`Helvetica` are the metric-compatible PDF base-14
+  names; Bookman Old Style embeds the vendored TeX Gyre Bonum (`public/fonts/paper/`, GUST
+  Font License) because no base-14 Bookman exists. The 2025 service contract's Latin text
+  resolves to Calibri (Word theme default) — the sheet prints Times, reasoning in the module
+  header; changing it is that profile's `body` line.
+- `tests/unit/paper-profile.test.ts` re-reads the client `.docx` files and fails on drift;
+  the typography gate allows pt sizes only for the sheet's `--paper-body-pt`. Evidence and
+  before/after artifacts: `docs/08-delivery/paper-layer-design/`.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.

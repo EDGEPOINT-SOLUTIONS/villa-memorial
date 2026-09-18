@@ -79,8 +79,8 @@ describe("service contract docx export", () => {
     draft.deductions.sss_id = "33-4455-6677";
 
     const terms = termsByVersion("service-contract-2025") ?? null;
-    const { blocks } = buildServicePaper({ kase: KASE, intake: INTAKE, order: ORDER, draft, terms, signedOn: "2026-08-28" });
-    const buffer = await paperToDocxBuffer(blocks);
+    const { blocks, profile } = buildServicePaper({ kase: KASE, intake: INTAKE, order: ORDER, draft, terms, signedOn: "2026-08-28" });
+    const buffer = await paperToDocxBuffer(blocks, profile);
 
     const zip = await JSZip.loadAsync(buffer);
     const documentXml = zip.file("word/document.xml");
@@ -100,8 +100,8 @@ describe("service contract pdf export", () => {
   it("produces a structurally valid PDF", async () => {
     const draft = emptyDraftForCase({ services: [] });
     const terms = termsByVersion("service-contract-2025") ?? null;
-    const { blocks } = buildServicePaper({ kase: KASE, intake: INTAKE, order: null, draft, terms, signedOn: "2026-08-28" });
-    const buffer = await paperToPdfBuffer(blocks);
+    const { blocks, profile } = buildServicePaper({ kase: KASE, intake: INTAKE, order: null, draft, terms, signedOn: "2026-08-28" });
+    const buffer = await paperToPdfBuffer(blocks, profile);
     expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     const text = buffer.toString("latin1");
     expect(text).toContain("/Type /Catalog");

@@ -50,6 +50,7 @@ import {
   type PaperBlock,
   type PaperCell,
 } from "@/lib/export/types";
+import { PAPER_PROFILES, type PaperProfile } from "@/lib/export/paper-profile";
 
 export const PROVISIONAL_RECEIPT_TITLE = "Provisional Receipt";
 
@@ -112,6 +113,8 @@ export type ProvisionalPaperData = {
 export type ProvisionalReceipt = {
   title: string;
   blocks: PaperBlock[];
+  /** The same sheet the official receipt prints on (no receipt paper is archived). */
+  profile: PaperProfile;
 };
 
 /** The letterhead line: the office's place and its own telephone, when the document has them. */
@@ -167,7 +170,7 @@ export function buildProvisionalReceipt(
     line("Signature: ______________________________", { size: 10 }),
   );
 
-  return { title: PROVISIONAL_RECEIPT_TITLE, blocks };
+  return { title: PROVISIONAL_RECEIPT_TITLE, blocks, profile: PAPER_PROFILES["provisional-receipt"] };
 }
 
 /** Export filename stem: what it is, what it pays against, when it was received. */

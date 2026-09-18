@@ -85,7 +85,7 @@ export default async function MembershipApplicationPage({
   const tierName = PLAN_TIERS.find((t) => t.id === application.plan_tier)?.name ?? application.plan_tier;
   const per = planTermPer(application.plan_term);
   const rate = formatMinorUnits(application.rate_cents);
-  const { blocks, title } = buildMembershipApplicationPaper(application);
+  const { blocks, title, profile } = buildMembershipApplicationPaper(application);
   const fileStem = membershipPaperFileStem(application);
 
   return (
@@ -271,7 +271,7 @@ export default async function MembershipApplicationPage({
                   PDF.
                 </p>
               </div>
-              <PaperExportActions blocks={blocks} filename={fileStem}>
+              <PaperExportActions blocks={blocks} profile={profile} filename={fileStem}>
                 <Link
                   href="/staff/plans/membership/new"
                   className="btn btn--secondary btn--sm"
@@ -282,7 +282,7 @@ export default async function MembershipApplicationPage({
               </PaperExportActions>
             </div>
           </div>
-          <PaperSheet blocks={blocks} />
+          <PaperSheet blocks={blocks} profile={profile} />
         </div>
       </PageSection>
     </div>

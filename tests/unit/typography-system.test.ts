@@ -90,11 +90,16 @@ describe("type ladder", () => {
 
   it("keeps every font-size in the stylesheets on a ladder token (no raw values, no clamps, nothing under 12px)", () => {
     const offenders: string[] = [];
+    // The printed paper sheet is allowed its own print sizes in points, and only from
+    // the ONE paper profile (lib/export/paper-profile.ts): the sheet's sizes are the
+    // client's own paper sizes, declared as `--paper-body-pt` on the sheet element.
+    const PAPER_PT_SIZE = /^(?:var\(--paper-body-pt,[^)]*\)|calc\(var\(--paper-body-pt,[^)]*\)[^)]*\))$/;
     for (const file of STYLESHEETS) {
       for (const match of read(file).matchAll(/font-size: *([^;}]+);/g)) {
         const value = match[1].trim();
         // `pt` is allowed only for the printed paper-sheet simulation.
         if (LADDER_TOKENS.has(value) || value.endsWith("pt")) continue;
+        if (PAPER_PT_SIZE.test(value)) continue;
         offenders.push(`${file}: ${value}`);
       }
     }

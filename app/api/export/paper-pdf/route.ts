@@ -3,16 +3,17 @@ import { NextResponse } from "next/server";
 import { parseAccessTokenClaims, ACCESS_COOKIE } from "@/lib/auth/session";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { paperToPdfBuffer } from "@/lib/export/pdf";
+import { paperProfileById } from "@/lib/export/paper-profile";
 import type { PaperBlock } from "@/lib/export/types";
 
 /**
  * BFF: POST /api/export/paper-pdf — renders the staff's current paper document to a real
  * PDF file from the same PaperBlocks the on-screen sheet and the .docx export use.
  *
- * The browser sends the assembled blocks (the document content it is displaying); the
- * route is a pure renderer — it adds no data, computes no money and reaches no service.
- * Gated on a signed-in staff session with property read (the same floor as the screens
- * that show the purchase document).
+ * The browser sends the assembled blocks (the document content it is displaying) and the
+ * profile id of the sheet it is showing; the route is a pure renderer — it adds no data,
+ * computes no money and reaches no service. Gated on a signed-in staff session with
+ * property read (the same floor as the screens that show the purchase document).
  */
 export async function POST(request: Request) {
   const jar = await cookies();
@@ -33,14 +34,21 @@ export async function POST(request: Request) {
   } catch {
     return NextResponse.json({ error: "invalid request" }, { status: 400 });
   }
-  const raw = (body ?? {}) as { blocks?: unknown; filename?: unknown };
+  const raw = (body ?? {}) as { blocks?: unknown; filename?: unknown; profile?: unknown };
   const blocks = sanitizeBlocks(raw.blocks);
   if (!blocks) {
     return NextResponse.json({ error: "malformed document blocks" }, { status: 400 });
   }
+  const profile = paperProfileById(raw.profile);
+  if (!profile) {
+    return NextResponse.json(
+      { error: "unknown paper profile — the sheet's profile must be declared" },
+      { status: 400 },
+    );
+  }
 
   try {
-    const buffer = await paperToPdfBuffer(blocks);
+    const buffer = await paperToPdfBuffer(blocks, profile);
     const filename =
       typeof raw.filename === "string" && /^[A-Za-z0-9-_. ]{1,120}$/.test(raw.filename)
         ? raw.filename.replace(/\.pdf$/i, "")

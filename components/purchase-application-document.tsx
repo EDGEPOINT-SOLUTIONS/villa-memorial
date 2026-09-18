@@ -17,6 +17,7 @@ import type { PurchaseApplication } from "@/lib/contracts/purchase-application";
 import { buyerFullName } from "@/lib/contracts/purchase-application";
 import type { Lot } from "@/lib/api-client/property";
 import { buildPurchasePaper, purchasePaperFromApplication } from "@/lib/contracts/purchase-paper";
+import { PAPER_PROFILES } from "@/lib/export/paper-profile";
 import { paperFileStem } from "@/lib/export/types";
 
 export function PurchaseApplicationDocument({
@@ -36,6 +37,9 @@ export function PurchaseApplicationDocument({
       return {
         ok: false as const,
         message: err instanceof Error ? err.message : "Could not assemble the paper document.",
+        // Nothing is rendered or exported on this branch; the profile only keeps the
+        // result's shape uniform so the toolbar can pass it through untouched.
+        profile: PAPER_PROFILES["purchase-application"],
       };
     }
   }, [application, lot]);
@@ -59,7 +63,11 @@ export function PurchaseApplicationDocument({
               download as Word or PDF.
             </p>
           </div>
-          <PaperExportActions blocks={doc.ok ? doc.blocks : []} filename={filename}>
+          <PaperExportActions
+            blocks={doc.ok ? doc.blocks : []}
+            profile={doc.profile}
+            filename={filename}
+          >
             <a href={editHref} className="btn btn--secondary btn--sm">
               <Pencil size={15} aria-hidden="true" />
               Edit application
@@ -69,7 +77,7 @@ export function PurchaseApplicationDocument({
         </div>
 
       {doc.ok ? (
-        <PaperSheet blocks={doc.blocks} />
+        <PaperSheet blocks={doc.blocks} profile={doc.profile} />
       ) : (
         <Alert tone="danger" title="Could not assemble the paper document">
           {doc.message}

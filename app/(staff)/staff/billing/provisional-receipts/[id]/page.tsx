@@ -188,12 +188,13 @@ export default async function ProvisionalReceiptPage({
                 <>
                   <PaperExportActions
                     blocks={officialPaper.blocks}
+                    profile={officialPaper.profile}
                     filename={officialReceiptFileStem(
                       official.document_number,
                       official.figures?.received_on ?? record.received_on,
                     )}
                   />
-                  <PaperSheet blocks={officialPaper.blocks} />
+                  <PaperSheet blocks={officialPaper.blocks} profile={officialPaper.profile} />
                 </>
               ) : (
                 <p className="text-sm text-muted">
@@ -224,12 +225,13 @@ export default async function ProvisionalReceiptPage({
               </Alert>
               <PaperExportActions
                 blocks={slip.blocks}
+                profile={slip.profile}
                 filename={provisionalReceiptFileStem({
                   against: record.invoice_number,
                   received_on: record.received_on,
                 })}
               />
-              <PaperSheet blocks={slip.blocks} />
+              <PaperSheet blocks={slip.blocks} profile={slip.profile} />
             </div>
           </Card>
         </PageSection>
