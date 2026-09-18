@@ -93,8 +93,15 @@ exists to avoid.
 
 ## Verification
 
-- `npm run lint` ✓ · `npm run typecheck` ✓ · `npm test` → **98 files / 1064 tests passed** ✓ ·
+- `npm run lint` ✓ · `npm run typecheck` ✓ · `npm test` → **114 files / 1252 tests passed** ✓ ·
   `npm run build` ✓ (routes build dynamic: list 242 B, detail 3.78 kB, capture 4.12 kB).
+- **Rebased onto main after #60–#62** (guarantee instruments · typography · gallery). The rebase
+  surfaced main's own type gate failing on the F-03 gallery block: five `font-size: var(--text-base)`
+  (a token the typography work retired, so those texts were rendering at the inherited size) and
+  four raw clamps. The nine declarations were normalized to ladder tokens (`--text-md`,
+  `--text-3xl`, `--text-display`) — desktop sizes preserved within ~2 px — because
+  `tests/unit/typography-system.test.ts` is a merge blocker. Nothing else of the gallery block was
+  touched.
 - **New tests:**
   - `tests/unit/provisional-receipts.test.ts` (15) — rules (shared billing half, payer bounds),
     the sheet's mark/fields/no-number, the office letterhead, the official-receipt match
@@ -113,8 +120,8 @@ exists to avoid.
 
   | Viewport | `h1` count | `scrollWidth` / `clientWidth` | Paper sheet | Export buttons |
   |---|---|---|---|---|
-  | 1440 × 900 | 1 (`Provisional receipt`, 279 × 42 at 288,116) | 1440 / 1440 | full Letter sheet inside the main column | Print 76 · Word 129 · PDF 71 wide, one row |
-  | 390 × 844 | 1 (full page; the staff rail precedes `main`) | 390 / 390 | 276 × 874 at (57,1948), fully inside the viewport | Print 76 × 41 · Word 113 × 41 · PDF 71 × 41, all reachable |
+  | 1440 × 900 | 1 (`Provisional receipt`, 271 × 42 at 288,116) | 1440 / 1440 | full Letter sheet inside the main column | Print · Word · PDF, one row |
+  | 390 × 844 | 1 (full page; the staff rail precedes `main`) | 390 / 390 | 276 × 874 at (57,1967), fully inside the viewport | Print 75 × 44 · Word 115 × 44 · PDF 70 × 44, all reachable |
 
   The provisional mark is present at both widths (`document.body.innerText.includes("Not an
   official receipt — the official receipt will replace this paper.")` → true). The list renders
