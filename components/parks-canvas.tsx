@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LegendEntry, PlotArea } from "@/lib/park-maps";
+import { labelsTightAt } from "@/lib/park-maps";
 
 const W = 100;
 const H = 75;
@@ -116,6 +117,7 @@ export function ParksCanvas({
   const scaleRef = useRef(scale);
   scaleRef.current = scale;
   const overlayUnitsRef = useRef({ w: W, h: H });
+  const overviewZoomRef = useRef<number | null>(null);
 
   const updateCrisp = useCallback(() => {
     const map = mapRef.current;
@@ -128,6 +130,21 @@ export function ParksCanvas({
     const pxPerUnit = Math.abs(b.x - a.x) / 100;
     const displayWidth = pxPerUnit * overlayUnitsRef.current.w;
     img.classList.toggle("geo-image-pixelated", displayWidth > img.naturalWidth * 1.05);
+  }, []);
+
+  /* Overview label density: at the whole-park view the legend-type line on
+     every plot label repeats the legend below the map and buries the lot
+     codes. The type line returns once the visitor zooms past the overview;
+     the code and owner stay at every zoom (rule in lib/park-maps.ts). */
+  const updateLabelDensity = useCallback(() => {
+    const el = holder.current;
+    const map = mapRef.current;
+    if (!el || !map) return;
+    const overview = overviewZoomRef.current ?? map.getZoom();
+    el.setAttribute(
+      "data-label-density",
+      labelsTightAt(map.getZoom(), overview) ? "tight" : "full",
+    );
   }, []);
 
   // Fit the image by its NATURAL aspect ratio (contain, centered, no stretch).
@@ -175,6 +192,7 @@ export function ParksCanvas({
       [0, 0],
       [H, W],
     ]);
+    overviewZoomRef.current = map.getZoom();
     mapRef.current = map;
     groupRef.current = L.layerGroup().addTo(map);
 
@@ -182,6 +200,7 @@ export function ParksCanvas({
     map.on("mouseup", onMapUp);
     map.on("click", onMapClick);
     map.on("zoomend", updateCrisp);
+    map.on("zoomend", updateLabelDensity);
     map.on("resize", updateCrisp);
 
     // Initial framing: the map is built before layout settles, so the first
@@ -205,7 +224,9 @@ export function ParksCanvas({
         [0, 0],
         [H, W],
       ]);
+      overviewZoomRef.current = current.getZoom();
       updateCrisp();
+      updateLabelDensity();
     };
     const observer = new ResizeObserver(refit);
     observer.observe(box);

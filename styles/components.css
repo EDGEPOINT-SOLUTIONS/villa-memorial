@@ -3862,6 +3862,16 @@ because the shared `.ag-appt` rule comes later in this file. */
   box-shadow: 0 0 2px var(--color-bg-surface);
 }
 
+/* Overview label density (type-voice decision, 2026-09-18): at the whole-park
+   view every plot label would repeat the legend's type name on top of its
+   neighbours — the legend below the map already names the types. The canvas
+   sets data-label-density="tight" at/one step out from the overview
+   (lib/park-maps.ts labelsTightAt) and the type line returns once the visitor
+   zooms in; the lot code and owner stay at every zoom. */
+.geo-map[data-label-density="tight"] .plot-label__type {
+  display: none;
+}
+
 /* ---------------------------------------------------------------------------
  * 3D park — the masterplan, orbit-navigated (components/park3d/*)
  * One page, two connected modes: this is the 3D half's surface. The 3D mode is a

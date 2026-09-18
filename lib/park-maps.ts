@@ -350,6 +350,20 @@ export function circleOverlapsAny(x: number, y: number, r: number, areas: PlotAr
   }) ?? null;
 }
 
+/**
+ * Plot labels at map scale (type-voice decision, 2026-09-18).
+ *
+ * Every plot draws a label; in the overview the plots sit a few pixels apart,
+ * so the label's legend-type line repeats the legend and buries the lot codes
+ * beside it. The type line is redundant while the visitor is at (or one step
+ * out from) the whole-park overview — the legend below the map already names
+ * the types — and returns once they zoom in past it. The lot code and owner
+ * always stay. Pure so the canvas, the CSS and the tests share one rule.
+ */
+export function labelsTightAt(zoom: number, overviewZoom: number): boolean {
+  return zoom <= overviewZoom + 1;
+}
+
 export function nextAreaCode(areas: PlotArea[], parkName: string): string {
   const prefix = parkName
     .split(" ")
