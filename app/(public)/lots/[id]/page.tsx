@@ -90,7 +90,7 @@ export default async function PublicLotDetailPage({
         </div>
 
         <div className="detail-sticky">
-<Card header={<h3>Lot details</h3>}>
+<Card header={<h2 className="text-lg">Lot details</h2>}>
           <div className="stack-3">
             <div>
               <Badge tone={LOT_TONE[lot.status] ?? "neutral"}>

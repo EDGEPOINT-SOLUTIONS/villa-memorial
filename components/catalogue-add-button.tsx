@@ -55,9 +55,11 @@ export function CatalogueAddButton({
       size="sm"
       aria-live="polite"
       aria-label={
+        // WCAG 2.5.3 — the accessible name starts with the visible label, so a
+        // speech user can say what they see ("Add 3 days: Embalming — 3 days").
         quantity > 1
-          ? `Add ${item.name} to cart, quantity ${quantity}`
-          : `Add ${item.name} to cart`
+          ? `${label}: ${item.name} (quantity ${quantity})`
+          : `${label}: ${item.name}`
       }
       onClick={() => {
         cart.add(item, quantity);

@@ -106,8 +106,8 @@ export default async function LotDetailPage({
       />
 
       <PageSection>
-        <Card header={<h3>Lot details</h3>}>
-          <div className="table-wrapper">
+        <Card header={<h2>Lot details</h2>}>
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <tbody>
                 <tr>
@@ -165,10 +165,10 @@ export default async function LotDetailPage({
       </PageSection>
 
       <PageSection>
-        <Card header={<h3>Lot records</h3>}>
+        <Card header={<h2>Lot records</h2>}>
           {recordSummaries ? (
             <>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <caption className="visually-hidden">
                     The lot&rsquo;s paperwork records
@@ -224,7 +224,7 @@ export default async function LotDetailPage({
       </PageSection>
 
       <PageSection>
-        <Card header={<h3>Purchase application</h3>}>
+        <Card header={<h2>Purchase application</h2>}>
           {application === "unavailable" ? (
             <p className="text-sm text-muted">
               Purchase applications are unavailable in live mode — no contract is frozen
@@ -232,7 +232,7 @@ export default async function LotDetailPage({
             </p>
           ) : applicationRecord ? (
             <div className="stack">
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <tbody>
                     <tr>
@@ -358,7 +358,7 @@ export default async function LotDetailPage({
 
       {canGeneratePurchaseAgreement(lot, applicationRecord) ? (
         <PageSection>
-          <Card header={<h3>Purchase agreement</h3>}>
+          <Card header={<h2>Purchase agreement</h2>}>
             {canGenerateDocuments ? (
               <GenerateAgreementForm
                 lotId={lot.id}

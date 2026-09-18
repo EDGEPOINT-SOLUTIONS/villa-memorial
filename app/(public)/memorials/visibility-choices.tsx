@@ -12,7 +12,7 @@ import { MEMORIAL_VISIBILITY } from "@/lib/memorials";
 export function VisibilityChoices({ title = "What a family can choose" }: { title?: string }) {
   return (
     <div className="mem-choices">
-      <h3 className="mem-choices__title">{title}</h3>
+      <h2 className="text-lg">{title}</h2>
       <ul className="mem-choices__list">
         {MEMORIAL_VISIBILITY.map((choice) => (
           <li className={`mem-choice mem-choice--${choice.id}`} key={choice.id}>

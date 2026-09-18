@@ -153,7 +153,7 @@ export function InquiryBoard({
                 01
               </span>
               <div>
-                <h3 className="capture-section__title">Who is asking</h3>
+                <h2 className="capture-section__title">Who is asking</h2>
                 <p className="capture-section__blurb">
                   Enough to call them back — name and contact number are the only
                   essentials.
@@ -198,7 +198,7 @@ export function InquiryBoard({
                 02
               </span>
               <div>
-                <h3 className="capture-section__title">What they need</h3>
+                <h2 className="capture-section__title">What they need</h2>
                 <p className="capture-section__blurb">
                   The topic is the one thing the inquiries board filters on.
                 </p>
@@ -274,7 +274,7 @@ export function InquiryBoard({
           }
         />
       ) : (
-        <div className="table-wrapper">
+        <div className="table-wrapper" tabIndex={0}>
           <table className="table">
             <thead>
               <tr>

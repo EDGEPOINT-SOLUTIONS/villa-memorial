@@ -13,8 +13,8 @@ export const metadata: Metadata = {
  */
 export default function RegisterPage() {
   return (
-    <div className="auth-shell">
+    <main className="auth-shell" id="main">
       <RegisterCard />
-    </div>
+    </main>
   );
 }

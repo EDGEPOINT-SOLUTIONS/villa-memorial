@@ -35,7 +35,7 @@ export default async function SeniorBenefitsPage() {
 </nav>
       </section>
 
-      <Card header={<h3>Eligibility &amp; terms</h3>}>
+      <Card header={<h2 className="text-lg">Eligibility &amp; terms</h2>}>
         <ul className="stack-3">
           {SENIOR_TERMS.map((t) => (
             <li key={t}>{t}</li>
@@ -43,7 +43,7 @@ export default async function SeniorBenefitsPage() {
         </ul>
       </Card>
 
-      <Card header={<h3>Payment schedule (PHP)</h3>}>
+      <Card header={<h2 className="text-lg">Payment schedule (PHP)</h2>}>
         <PlanPaymentTable
           rows={pricing.plans.senior}
           senior

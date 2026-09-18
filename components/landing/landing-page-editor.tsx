@@ -538,14 +538,14 @@ function ServicesEditor({
           {section.items.map((card, i) => {
             const from = lotCategoryFromPriceOf(lotCategories, card.category);
             return (
-              <details key={card.id} className="ed-service" open={!card.title}>
+              <div className="ed-row" key={card.id}>
+              <details className="ed-service" open={!card.title}>
                 <summary className="ed-service__summary">
                   <span className="ed-service__num">{String(i + 1).padStart(2, "0")}</span>
                   <span className="ed-service__name">{card.title || "Untitled service card"}</span>
                   <span className="ed-price">
                     {from ? `from ${php(from.selling)} · ${php(from.monthly)} / mo` : "no price family"}
                   </span>
-                  <MoveRowButtons label={card.title || "service card"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(card.id, -1)} onDown={() => move(card.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((c) => c.id !== card.id) })} />
                 </summary>
                 <div className="ed-service__fields">
                   <div className="field-grid field-grid--3">
@@ -570,6 +570,10 @@ function ServicesEditor({
                   />
                 </div>
               </details>
+              <span className="ed-row__tools">
+                <MoveRowButtons label={card.title || "service card"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(card.id, -1)} onDown={() => move(card.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((c) => c.id !== card.id) })} />
+              </span>
+              </div>
             );
           })}
         </div>
@@ -745,14 +749,12 @@ function BlogEditor({
       ) : (
         <div className="ed-posts">
           {section.posts.map((post) => (
-            <details key={post.id} className="ed-post" open={!post.caption && post.media.length === 0}>
+            <div className="ed-row" key={post.id}>
+            <details className="ed-post" open={!post.caption && post.media.length === 0}>
               <summary className="ed-post__summary">
                 <span className="post-card__avatar" aria-hidden="true">{(post.author.charAt(0) || "V").toUpperCase()}</span>
                 <span className="ed-post__name">{post.caption ? post.caption.slice(0, 60) + (post.caption.length > 60 ? "…" : "") : "New post"}</span>
                 <span className="ed-post__meta">{post.date} · {post.media.length} attachment{post.media.length === 1 ? "" : "s"}</span>
-                <Button variant="ghost" size="sm" className="ed-post__remove" onClick={() => onChange({ ...section, posts: section.posts.filter((p) => p.id !== post.id) })} aria-label="Delete post">
-                  <Trash2 size={14} aria-hidden="true" />
-                </Button>
               </summary>
               <div className="ed-post__fields">
                 <div className="field-grid field-grid--3">
@@ -794,6 +796,12 @@ function BlogEditor({
                 )}
               </div>
             </details>
+            <span className="ed-row__tools">
+              <Button variant="ghost" size="sm" className="ed-post__remove" onClick={() => onChange({ ...section, posts: section.posts.filter((p) => p.id !== post.id) })} aria-label="Delete post">
+                <Trash2 size={14} aria-hidden="true" />
+              </Button>
+            </span>
+            </div>
           ))}
         </div>
       )}
@@ -894,26 +902,30 @@ function FaqEditor({
       ) : (
         <div className="ed-services">
           {section.items.map((item, i) => (
-            <details key={item.id} className="ed-service" open={!item.question}>
+            <div className="ed-row" key={item.id}>
+            <details className="ed-service" open={!item.question}>
               <summary className="ed-service__summary">
                 <span className="ed-service__num">{String(i + 1).padStart(2, "0")}</span>
                 <span className="ed-service__name">{item.question || "Untitled question"}</span>
-                <MoveRowButtons
-                  label={item.question || "question"}
-                  first={i === 0}
-                  last={i === section.items.length - 1}
-                  onUp={() => moveItem(item.id, -1)}
-                  onDown={() => moveItem(item.id, 1)}
-                  onRemove={() =>
-                    onChange({ ...section, items: section.items.filter((x) => x.id !== item.id) })
-                  }
-                />
               </summary>
               <div className="ed-service__fields">
                 <TextField label="Question" htmlFor={`faq-q-${item.id}`} value={item.question} onChange={(v) => patchItem(item.id, { question: v })} placeholder="e.g. What happens when I call?" />
                 <TextAreaField label="Answer" htmlFor={`faq-a-${item.id}`} rows={3} value={item.answer} onChange={(v) => patchItem(item.id, { answer: v })} hint="The straight answer a family reads — keep it short and honest." />
               </div>
             </details>
+            <span className="ed-row__tools">
+              <MoveRowButtons
+                label={item.question || "question"}
+                first={i === 0}
+                last={i === section.items.length - 1}
+                onUp={() => moveItem(item.id, -1)}
+                onDown={() => moveItem(item.id, 1)}
+                onRemove={() =>
+                  onChange({ ...section, items: section.items.filter((x) => x.id !== item.id) })
+                }
+              />
+            </span>
+            </div>
           ))}
         </div>
       )}

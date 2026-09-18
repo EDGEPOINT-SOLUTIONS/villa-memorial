@@ -105,7 +105,7 @@ export default async function LotTransfersPage({
 
       {current ? (
         <PageSection>
-          <Card header={<h3>The request in progress</h3>}>
+          <Card header={<h2>The request in progress</h2>}>
             <dl className="kv lot-rec-kv">
               <div>
                 <dt>State</dt>
@@ -159,7 +159,7 @@ export default async function LotTransfersPage({
         </PageSection>
       ) : (
         <PageSection>
-          <Card header={<h3>The request in progress</h3>}>
+          <Card header={<h2>The request in progress</h2>}>
             <EmptyState
               title="No transfer request is recorded for this lot"
               hint="A transfer starts with a written request from the present owner. The purchase agreement allows it only with the office's written consent — and the platform's write path does not exist yet."
@@ -186,7 +186,7 @@ export default async function LotTransfersPage({
               footer={`Requested ${formatRecordDay(transfer.asked_on)}`}
             >
               <div className="stack">
-                <div className="table-wrapper">
+                <div className="table-wrapper" tabIndex={0}>
                   <table className="table">
                     <caption className="visually-hidden">
                       {transfer.from} to {transfer.to}: the request&rsquo;s four words
@@ -219,7 +219,7 @@ export default async function LotTransfersPage({
                 </div>
 
                 <div>
-                  <h4 className="mb-0">What verification still needs</h4>
+                  <h3 className="mb-0 text-md">What verification still needs</h3>
                   {outstanding.length > 0 && transfer.still_needed.length > 0 ? (
                     <ul>
                       {transfer.still_needed.map((item) => (
@@ -234,7 +234,7 @@ export default async function LotTransfersPage({
                 </div>
 
                 <div>
-                  <h4 className="mb-0">The office&rsquo;s fee / requirement notes</h4>
+                  <h3 className="mb-0 text-md">The office&rsquo;s fee / requirement notes</h3>
                   <ul>
                     {transfer.requirements.map((note) => (
                       <li key={note}>{note}</li>

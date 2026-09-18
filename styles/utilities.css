@@ -24,6 +24,10 @@
 
 .text-muted { color: var(--color-text-muted); }
 .text-sm { font-size: var(--text-sm); }
+.text-md { font-size: var(--text-md); }
+/* Keeps a promoted heading (h2 carrying sub-section weight) on its old ladder
+   step — semantics move, the approved type scale does not. */
+.text-lg { font-size: var(--text-lg); }
 
 /* Stack + row spacing helpers (stack used by shipped client forms; was referenced but
    never defined — demo provenance has it as flex column with --space-4 gap). */

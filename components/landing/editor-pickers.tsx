@@ -12,6 +12,7 @@
  */
 import { useEffect, useState } from "react";
 import { X, Search, Image as ImageIcon, Link2, UploadCloud, CheckSquare, Check, Square } from "lucide-react";
+import { useModalFocus } from "@/components/ui/use-modal-focus";
 import { MEDIA_LIBRARY } from "@/lib/media";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import { buildRailCatalogue } from "@/lib/landing/catalogue";
@@ -36,11 +37,12 @@ function ModalShell({
   children: React.ReactNode;
   width?: string;
 }) {
+  const { panelRef } = useModalFocus<HTMLDivElement>(open, onClose);
   if (!open) return null;
   return (
     <div className="ed-modal" role="dialog" aria-modal="true" aria-label={title}>
       <div className="ed-modal__backdrop" onClick={onClose} />
-      <div className="ed-modal__panel" style={{ maxWidth: width }}>
+      <div className="ed-modal__panel" ref={panelRef} tabIndex={-1} style={{ maxWidth: width }}>
         <header className="ed-modal__head">
           <div>
             {eyebrow ? <p className="ed-modal__eyebrow">{eyebrow}</p> : null}
@@ -149,6 +151,9 @@ export function MediaPicker({
             Paste a public image URL (https://… or an in-app /media/… path).
           </p>
           <div className="row" style={{ gap: "var(--space-2)" }}>
+            <label htmlFor="ed-media-url" className="visually-hidden">
+              Image URL
+            </label>
             <input
               id="ed-media-url"
               type="text"
@@ -283,6 +288,7 @@ export function RailPicker({
         <Search size={15} aria-hidden="true" />
         <input
           type="search"
+          aria-label="Search the catalogue"
           placeholder="Search the catalogue…"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}

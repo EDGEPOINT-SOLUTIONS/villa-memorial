@@ -136,7 +136,7 @@ export function ChapelBookings({
               : "Nothing in this filter."}
           </p>
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>

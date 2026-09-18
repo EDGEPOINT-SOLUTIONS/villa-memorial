@@ -344,7 +344,7 @@ export function MembershipApplicationFolio({
               01
             </span>
             <div>
-              <h3 className="capture-section__title">The plan holder</h3>
+              <h2 className="capture-section__title">The plan holder</h2>
               <p className="capture-section__blurb">
                 Exactly who the plan is recorded in. The date of birth is what the two
                 published rate classes key on.
@@ -456,7 +456,7 @@ export function MembershipApplicationFolio({
               02
             </span>
             <div>
-              <h3 className="capture-section__title">Who the plan protects</h3>
+              <h2 className="capture-section__title">Who the plan protects</h2>
               <p className="capture-section__blurb">
                 The client&rsquo;s own relationship list: legal spouse, child of legal age,
                 parent or sibling. Add a row for each person.
@@ -544,7 +544,7 @@ export function MembershipApplicationFolio({
               03
             </span>
             <div>
-              <h3 className="capture-section__title">Plan &amp; payment</h3>
+              <h2 className="capture-section__title">Plan &amp; payment</h2>
               <p className="capture-section__blurb">
                 The tier and payment mode the family chose. The rate prints from the
                 office&rsquo;s rate card — the folio never types an amount.
@@ -643,7 +643,7 @@ export function MembershipApplicationFolio({
               04
             </span>
             <div>
-              <h3 className="capture-section__title">Declarations</h3>
+              <h2 className="capture-section__title">Declarations</h2>
               <p className="capture-section__blurb">
                 The two declarations the plan&rsquo;s paper carries. They are recorded with
                 the application and print on it.
@@ -701,7 +701,7 @@ export function MembershipApplicationFolio({
       </div>
 
       {/* Right rail: the folio's sections, readiness and the paper action. */}
-      <aside className="capture-rail">
+      <aside className="capture-rail" aria-label="Application steps">
         <div className="card capture-rail__card">
           <div className="capture-rail__head">
             <p className="capture-rail__eyebrow">Application folio</p>

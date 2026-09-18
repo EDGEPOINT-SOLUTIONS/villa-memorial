@@ -50,6 +50,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { PortalSwitch } from "@/components/portal-switch";
+import { SkipLink } from "@/components/ui/skip-link";
+import { useModalFocus } from "@/components/ui/use-modal-focus";
 import type { PortalNavGroup, PortalNavItem } from "@/components/portal-nav";
 
 const ICONS: Record<string, LucideIcon> = {
@@ -133,6 +135,9 @@ export function PortalFrame({
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Drawer behaviour: focus in, Tab trapped, Escape closes, scroll locked,
+  // focus returned to the More button (components/ui/use-modal-focus.ts).
+  const { panelRef } = useModalFocus<HTMLDivElement>(menuOpen, () => setMenuOpen(false));
 
   // A sub-page (e.g. one receipt under /client/documents/receipts/…) still belongs
   // to its rail entry, so the active state follows the section, not the exact URL —
@@ -176,6 +181,7 @@ export function PortalFrame({
 
   return (
     <div className="portal-frame" data-portal={portal}>
+      <SkipLink target="#main" />
       {/* Mobile / tablet top bar */}
       <header className="portal-topbar">
         <div className="portal-topbar__brand">{brand}</div>
@@ -217,7 +223,7 @@ export function PortalFrame({
       </aside>
 
       {/* Content */}
-      <main className="portal-content">
+      <main className="portal-content" id="main">
         <div className="portal-content__inner">{children}</div>
       </main>
 
@@ -258,7 +264,7 @@ export function PortalFrame({
 
       {/* Mobile drawer */}
       {menuOpen ? (
-        <div className="portal-drawer" role="dialog" aria-modal="true" aria-label="Menu">
+        <div className="portal-drawer" role="dialog" aria-modal="true" aria-label="Menu" ref={panelRef} tabIndex={-1}>
           <div className="portal-drawer__bar">
             <span className="portal-sidebar__brand">Villa Memorial</span>
             <button

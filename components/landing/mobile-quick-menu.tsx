@@ -10,8 +10,9 @@
  * number and then lists both rails' pinned items grouped under their headings.
  * Hidden entirely on desktop (CSS) where the real rails take over.
  */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Menu, Phone, X } from "lucide-react";
+import { useModalFocus } from "@/components/ui/use-modal-focus";
 import type { LandingContent } from "@/lib/api-client/landing";
 import { RailThumb, BrandMark } from "@/components/landing/landing-view";
 import type { RailItem } from "@/lib/api-client/landing";
@@ -31,21 +32,9 @@ function RailItemRow({ item }: { item: RailItem }) {
 
 export function MobileQuickMenu({ content }: { content: LandingContent }) {
   const [open, setOpen] = useState(false);
-
-  // Lock page scroll while the drawer is open (effect only — safe for SSR).
-  useEffect(() => {
-    if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  // Focus moves in, Tab is trapped, Escape closes, page scroll locks and focus
+  // returns to the floating menu button (components/ui/use-modal-focus.ts).
+  const { panelRef } = useModalFocus<HTMLDivElement>(open, () => setOpen(false));
 
   const { contact, logo, rails } = content;
 
@@ -65,7 +54,7 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
       {open ? (
         <div className="quick-menu" role="dialog" aria-modal="true" aria-label="Quick menu">
           <div className="quick-menu__backdrop" onClick={() => setOpen(false)} />
-          <div className="quick-menu__panel">
+          <div className="quick-menu__panel" ref={panelRef} tabIndex={-1}>
             <div className="quick-menu__head">
               <span className="quick-menu__brand">
                 <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} />

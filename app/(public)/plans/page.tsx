@@ -292,7 +292,7 @@ export default async function PlansPage({
           </Card>
 
           <Card header={<h3>Cash assistance with hospital benefit</h3>}>
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table price-table">
                 <thead>
                   <tr>

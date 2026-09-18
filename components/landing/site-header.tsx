@@ -194,6 +194,12 @@ export function SiteHeaderBar({
                 </span>
               ) : null}
             </a>
+            {/* One atomic status line for a cart that changes while the visitor
+                is on the page (WCAG 2.4.6 contextual updates): the visible badge
+                is aria-hidden, this is what a screen reader hears. */}
+            <span className="visually-hidden" role="status">
+              {hasCart ? `${cartCount} item${cartCount === 1 ? "" : "s"} in cart` : ""}
+            </span>
           </div>
         </div>
         <HeaderBehavior />

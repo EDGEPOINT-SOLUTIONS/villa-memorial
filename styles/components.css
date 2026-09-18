@@ -63,7 +63,7 @@
 }
 
 .btn--danger {
-  background: var(--color-status-danger);
+  background: var(--color-status-danger-strong);
   color: #ffffff;
 }
 
@@ -96,6 +96,22 @@
   font-size: var(--text-md);
 }
 
+/* Touch targets (F-16 craft pass): on phone widths every control a person taps
+   reaches 44px in its smallest dimension. Desktop density is unchanged.
+   Dense link lists (footer columns, inline text links) keep the WCAG 2.5.8
+   spacing rule instead of a forced 44px row — see the PR's rule table. */
+@media (max-width: 40rem) {
+  .btn,
+  .btn--sm,
+  .pill-toggle,
+  .anchored-phonebar__btn,
+  .quick-menu-fab,
+  input:not([type="checkbox"]):not([type="radio"]),
+  select {
+    min-height: 2.75rem;
+  }
+}
+
 /* Block buttons fill their container (card actions, submit rows). */
 .btn--block {
   width: 100%;
@@ -126,9 +142,10 @@ textarea:hover {
 input:not([type="checkbox"]):not([type="radio"]):focus,
 select:focus,
 textarea:focus {
-  outline: none;
+  /* The ONE focus ring is the global :focus-visible rule (base.css); the
+     gold border is just the input's own brand cue. No outline reset here —
+     that used to hide the keyboard ring on every field. */
   border-color: var(--gold-500);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold-300) 30%, transparent);
 }
 
 input[type="checkbox"] {
@@ -156,6 +173,13 @@ input[type="checkbox"] {
 .card__header h2,
 .card__header h3 {
   margin: 0;
+}
+
+/* A card's own header keeps the card-title ladder step whichever heading level
+   the semantics need (F-16: an h1→h3 skip is fixed by promoting the tag, not
+   by resizing the card). */
+.card__header h2 {
+  font-size: var(--text-lg);
 }
 
 .card__body {
@@ -360,10 +384,12 @@ input[type="checkbox"] {
 }
 
 .badge--neutral { background: var(--color-bg-subtle); color: var(--color-text-secondary); }
-.badge--success { background: var(--color-status-success-bg); color: var(--color-status-success); }
+/* Small status text uses the dedicated -ink roles (tokens.css): the banner hues
+   (sage/clay/slate-500) measure 3.0–4.2:1 on their own wash at badge size. */
+.badge--success { background: var(--color-status-success-bg); color: var(--color-status-success-ink); }
 .badge--warning { background: var(--color-status-warning-bg); color: var(--color-status-warning-ink); }
-.badge--danger  { background: var(--color-status-danger-bg); color: var(--color-status-danger); }
-.badge--info    { background: var(--color-status-info-bg); color: var(--color-status-info); }
+.badge--danger  { background: var(--color-status-danger-bg); color: var(--color-status-danger-ink); }
+.badge--info    { background: var(--color-status-info-bg); color: var(--color-status-info-ink); }
 .badge--accent  { background: var(--marble-200); color: var(--color-text-accent); }
 
 /* --- Alerts / feedback ----------------------------------------------------------- */
@@ -382,6 +408,9 @@ input[type="checkbox"] {
 .alert--warning { border-left-color: var(--color-status-warning); background: var(--color-status-warning-bg); }
 .alert--danger  { border-left-color: var(--color-status-danger); background: var(--color-status-danger-bg); }
 .alert--info    { border-left-color: var(--color-status-info); background: var(--color-status-info-bg); }
+/* Helper text inside a status wash keeps 4.5:1 — navy-500 is 4.2–4.4:1 on the
+   warning/danger/info tints. */
+.alert .text-muted { color: var(--color-text-secondary); }
 
 /* --- Scaffolding: page headers / sections ------------------------------------------ */
 .page-header {
@@ -2488,11 +2517,6 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-primary);
 }
 
-.fv-body :focus-visible {
-  outline: 2px solid var(--sky-600);
-  outline-offset: 2px;
-}
-
 .fv-body h1,
 .fv-body h2,
 .fv-body h3,
@@ -2918,8 +2942,9 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .fv-switch input:focus-visible + .fv-switch__track {
-  outline: 2px solid var(--sky-600);
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-focus-ring-halo);
 }
 
 .fv-switch__state {
@@ -3259,7 +3284,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   height: 1.0625rem;
   padding: 0 3px;
   border-radius: 999px;
-  background: var(--color-status-danger);
+  background: var(--color-status-danger-strong);
   color: #fff;
   font-size: var(--text-xs);
   font-weight: 700;
@@ -3868,7 +3893,15 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .chapel-day--outside {
-  opacity: 0.45;
+  /* A day outside the month stays clearly "not this month" without dimming
+     its text below 4.5:1 (opacity blends the date toward the page). */
+  background: var(--color-bg-page);
+  border-style: dashed;
+}
+
+.chapel-day--outside .chapel-day__num,
+.chapel-day--outside .chapel-day__state {
+  color: var(--color-text-muted);
 }
 
 .chapel-day__num {
@@ -3892,7 +3925,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .chapel-day--held .chapel-day__state {
-  color: var(--color-status-warning);
+  color: var(--color-status-warning-ink);
   font-weight: 600;
 }
 
@@ -3902,7 +3935,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .chapel-day--booked .chapel-day__state {
-  color: var(--color-status-success);
+  color: var(--color-status-success-ink);
   font-weight: 600;
 }
 
@@ -3916,7 +3949,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .chapel-day--blocked .chapel-day__state {
-  color: var(--color-status-danger);
+  color: var(--color-status-danger-ink);
   font-weight: 600;
 }
 
@@ -6774,18 +6807,8 @@ h1, h2, h3, h4 {
   color: var(--color-text-primary);
 }
 
-/* Keyboard users: one consistent brass focus ring everywhere. */
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-summary:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid var(--color-focus-ring);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
+/* Keyboard focus is ONE rule in styles/base.css (ring + halo from tokens) —
+   no per-surface overrides below. */
 
 /* Uniform motion on every interactive element. */
 .btn,
@@ -8506,7 +8529,8 @@ a.card:hover {
 
 /* First focusable on every public page — keyboard users go straight to the
    content. */
-.anchored-skip {
+.anchored-skip,
+.skip-link {
   position: fixed;
   top: 0.5rem;
   left: 0.5rem;
@@ -8523,7 +8547,8 @@ a.card:hover {
   transition: transform var(--motion-fast);
 }
 
-.anchored-skip:focus {
+.anchored-skip:focus,
+.skip-link:focus {
   transform: translateY(0);
 }
 
@@ -10004,8 +10029,9 @@ a.card:hover {
 }
 
 .plan-scroll:focus-visible {
-  outline: 2px solid var(--sky-500);
+  outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--color-focus-ring-halo);
 }
 
 .plan-table {
@@ -10218,6 +10244,9 @@ a.card:hover {
   width: 100%;
   max-height: 30rem;
   background: var(--navy-950);
+  /* The <video> element's own fallback line paints on the navy surface when
+     the browser cannot decode the file; keep it readable there. */
+  color: var(--marble-100);
 }
 
 /* Odd gallery tail spans the full row (newsfeed grammar). */
@@ -10957,7 +10986,7 @@ a.card:hover {
   gap: var(--space-2);
   font-size: var(--text-xs);
   font-weight: 700;
-  color: var(--sage-500);
+  color: var(--color-status-success-ink);
   background: var(--sage-100);
   border-radius: 999px;
   padding: 0.2rem 0.65rem 0.2rem 0.2rem;
@@ -11239,6 +11268,28 @@ a.card:hover {
   display: grid;
   gap: var(--space-3);
   margin-top: var(--space-2);
+}
+
+/* One accordion row: the <details> plus its move/remove tools as SIBLINGS.
+   Interactive tools may not live inside <summary> (nested interactives), so
+   they are positioned over the card's top-right corner instead — the summary
+   reserves the space so text never runs under them. */
+.ed-row {
+  position: relative;
+}
+
+.ed-row__tools {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-4);
+  z-index: 1;
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.ed-row .ed-service__summary,
+.ed-row .ed-post__summary {
+  padding-right: 7.5rem;
 }
 
 .ed-service,
@@ -12786,7 +12837,17 @@ a.card:hover {
   box-shadow: var(--shadow-card);
 }
 
-.ag-appt--past { opacity: 0.62; }
+/* Past appointments read as past without stacking opacity on their text:
+   dimming the whole card pushed the muted time line under 4.5:1 (F-16). The
+   flat page-tinted surface + a lighter title keep the cue. */
+.ag-appt--past {
+  background: var(--color-bg-page);
+  box-shadow: none;
+}
+
+.ag-appt--past .ag-appt__title {
+  color: var(--color-text-secondary);
+}
 
 .ag-appt__time {
   font-family: var(--font-serif);

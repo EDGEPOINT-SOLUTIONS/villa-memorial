@@ -103,7 +103,7 @@ export function AppointmentForm() {
             01
           </span>
           <div>
-            <h3 className="capture-section__title">Who is visiting</h3>
+            <h2 className="capture-section__title">Who is visiting</h2>
             <p className="capture-section__blurb">The coordinator greets you by name.</p>
           </div>
         </div>
@@ -158,7 +158,7 @@ export function AppointmentForm() {
             02
           </span>
           <div>
-            <h3 className="capture-section__title">When and why</h3>
+            <h2 className="capture-section__title">When and why</h2>
             <p className="capture-section__blurb">
               Pick the reason and a preferred slot; the office confirms by phone or email.
             </p>

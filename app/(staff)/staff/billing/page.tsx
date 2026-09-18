@@ -159,7 +159,7 @@ export default async function BillingPage({
 
       <PageSection>
         {currencies.length === 0 ? (
-          <Card header={<h3>Aging at a glance</h3>}>
+          <Card header={<h2>Aging at a glance</h2>}>
             <p className="text-sm text-muted">No outstanding balances.</p>
           </Card>
         ) : (
@@ -168,7 +168,7 @@ export default async function BillingPage({
             const total: number = Object.values(aging).reduce((n: number, v: number) => n + v, 0);
             const width = (v: number) => (total > 0 ? Math.round((v / total) * 1000) / 10 : 0);
             return (
-              <Card key={c} header={<h3>Aging at a glance{currencies.length > 1 ? ` — ${c}` : ""}</h3>}>
+              <Card key={c} header={<h2>Aging at a glance{currencies.length > 1 ? ` — ${c}` : ""}</h2>}>
                 <div className="stackbar" role="img" aria-label="Aging breakdown">
                   {AGING_BUCKETS.map((bk) => (
                     <span
@@ -226,7 +226,7 @@ export default async function BillingPage({
             }
           />
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>

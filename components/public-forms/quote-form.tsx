@@ -101,7 +101,7 @@ export function QuoteForm() {
             01
           </span>
           <div>
-            <h3 className="capture-section__title">What the quote is for</h3>
+            <h2 className="capture-section__title">What the quote is for</h2>
             <p className="capture-section__blurb">
               Pick the closest interest — the office confirms the details.
             </p>
@@ -175,7 +175,7 @@ export function QuoteForm() {
             02
           </span>
           <div>
-            <h3 className="capture-section__title">Anything we should know?</h3>
+            <h2 className="capture-section__title">Anything we should know?</h2>
             <p className="capture-section__blurb">
               Preferred area, budget, timing — the details that shape the quote.
             </p>

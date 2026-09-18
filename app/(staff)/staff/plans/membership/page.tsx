@@ -97,7 +97,7 @@ export default async function MembershipsPage() {
             hint="Open a new folio to enrol a plan holder."
           />
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <caption className="sr-only">Recorded membership applications</caption>
               <thead>

@@ -111,7 +111,7 @@ export default async function ProvisionalReceiptsPage() {
             hint="When the counter hands a family a provisional receipt, it appears here — with the official receipt that replaces it once finance issues one."
           />
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>

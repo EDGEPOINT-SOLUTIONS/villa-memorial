@@ -31,7 +31,7 @@ export function PlanPaymentTable({
   senior?: boolean;
 }) {
   return (
-    <div className="table-wrapper">
+    <div className="table-wrapper" tabIndex={0}>
       <table className="table price-table">
         {label ? <caption>{label}</caption> : null}
         <thead>

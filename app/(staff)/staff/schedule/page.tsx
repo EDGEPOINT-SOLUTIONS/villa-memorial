@@ -146,7 +146,7 @@ export default async function SchedulePage({
         <div className="card" id="sched-day-board">
           <div className="card__header row row--space row--wrap">
             <div className="row row--wrap">
-              <h3>Day board</h3>
+              <h2>Day board</h2>
               {selectedDate === today ? <Badge tone="info">Today</Badge> : null}
               <span className="text-sm text-muted">
                 {scheduleDayLabel(selectedDate)}
@@ -210,7 +210,7 @@ export default async function SchedulePage({
                 ) : null}
               </>
             ) : (
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <thead>
                     <tr>
@@ -267,7 +267,7 @@ export default async function SchedulePage({
       <PageSection>
         <div className="card">
           <div className="card__header row row--space">
-            <h3>Week at a glance</h3>
+            <h2>Week at a glance</h2>
             <span className="text-sm text-muted">next 7 days · confirmed only</span>
           </div>
           <div className="card__body">

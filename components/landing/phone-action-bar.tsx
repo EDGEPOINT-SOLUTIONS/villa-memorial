@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { ArrowRight, LifeBuoy, Phone, X } from "lucide-react";
 import type { ContactInfo } from "@/lib/api-client/landing";
 import { PLAN_AHEAD_LINKS } from "@/components/landing/site-header";
+import { useModalFocus } from "@/components/ui/use-modal-focus";
 
 /**
  * Phone action bar (D3) — the permanent bottom bar below 75rem with the two
@@ -20,34 +21,15 @@ import { PLAN_AHEAD_LINKS } from "@/components/landing/site-header";
  */
 export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
   const [open, setOpen] = useState(false);
-  const openerRef = useRef<HTMLButtonElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
 
   // Every close path (Escape, backdrop, close button) returns focus to the
-  // target that opened the sheet.
-  const close = useCallback(() => {
-    setOpen(false);
-    openerRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    closeRef.current?.focus();
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") close();
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open, close]);
+  // target that opened the sheet — the shared modal focus contract.
+  const close = useCallback(() => setOpen(false), []);
+  const { panelRef } = useModalFocus<HTMLDivElement>(open, close);
 
   return (
     <>
-      <div className="anchored-phonebar">
+      <nav className="anchored-phonebar" aria-label="Quick actions">
         <a className="anchored-phonebar__btn anchored-phonebar__btn--call" href={contact.phoneHref}>
           <Phone size={18} aria-hidden="true" />
           Call 24/7
@@ -57,7 +39,6 @@ export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
           Get help
         </a>
         <button
-          ref={openerRef}
           type="button"
           className="anchored-phonebar__btn anchored-phonebar__btn--plan"
           aria-haspopup="dialog"
@@ -67,7 +48,7 @@ export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
         >
           Plan ahead
         </button>
-      </div>
+      </nav>
 
       {open ? (
         <div className="anchored-plan-sheet" role="dialog" aria-modal="true" aria-label="Plan ahead">
@@ -77,11 +58,10 @@ export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
             aria-label="Close plan ahead"
             onClick={close}
           />
-          <div className="anchored-plan-sheet__panel">
+          <div className="anchored-plan-sheet__panel" ref={panelRef} tabIndex={-1}>
             <div className="anchored-plan-sheet__head">
               <h2 className="anchored-plan-sheet__title">Plan ahead</h2>
               <button
-                ref={closeRef}
                 type="button"
                 className="anchored-plan-sheet__close"
                 aria-label="Close plan ahead"

@@ -101,7 +101,7 @@ export default function CartPage() {
         </div>
       ) : null}
       <div className="page-section">
-        <div className="table-wrapper">
+        <div className="table-wrapper" tabIndex={0}>
           <table className="table">
             <thead>
               <tr>

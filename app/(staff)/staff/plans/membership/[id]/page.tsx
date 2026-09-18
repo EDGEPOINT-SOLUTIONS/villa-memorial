@@ -143,7 +143,7 @@ export default async function MembershipApplicationPage({
             <h2 id="holder-title">The plan holder</h2>
           </div>
           <div className="card__body">
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <tbody>
                   <tr>
@@ -202,7 +202,7 @@ export default async function MembershipApplicationPage({
             <h2 id="plan-title">The plan &amp; rate</h2>
           </div>
           <div className="card__body">
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <tbody>
                   <tr>

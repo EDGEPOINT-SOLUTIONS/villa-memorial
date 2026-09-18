@@ -259,6 +259,9 @@ export function ParkMapsView({
 
   return (
     <div className="stack-4">
+      {/* Sections below are drawn on the map image, so the outline needs one
+          heading before the legend/editor sub-headings (h1 → h3 would skip). */}
+      <h2 className="visually-hidden">Park map</h2>
       <div className="row row--wrap" style={{ justifyContent: "space-between" }}>
         <nav className="row row--wrap" aria-label="Choose park map">
           {parks.map((p) => (
@@ -286,7 +289,7 @@ export function ParkMapsView({
           <div className="card__body stack-4">
             {/* Legend — plot types (unlimited) */}
             <div className="row row--wrap" style={{ justifyContent: "space-between" }}>
-              <h4 className="mb-0">Legend — plot types</h4>
+              <h3 className="mb-0 text-md">Legend — plot types</h3>
               <span className="text-sm text-muted">unlimited · every plot must carry a type</span>
             </div>
             <div
@@ -400,7 +403,7 @@ export function ParkMapsView({
 
             {/* Image */}
             <div className="row row--wrap" style={{ justifyContent: "space-between" }}>
-              <h4 className="mb-0">Image</h4>
+              <h3 className="mb-0 text-md">Image</h3>
               <div className="row">
                 <Button size="sm" variant="secondary" disabled={imageLocked} onClick={() => fileRef.current?.click()}>
                   Upload image
@@ -409,7 +412,7 @@ export function ParkMapsView({
                   {imageLocked ? "Image locked" : "Lock image"}
                 </Button>
               </div>
-              <input ref={fileRef} type="file" accept="image/*" className="visually-hidden" onChange={(e) => uploadImage(e.target.files?.[0] ?? null)} />
+              <input ref={fileRef} type="file" accept="image/*" aria-label="Upload map image" className="visually-hidden" onChange={(e) => uploadImage(e.target.files?.[0] ?? null)} />
             </div>
 
             {!imageLocked ? (
@@ -442,7 +445,7 @@ export function ParkMapsView({
 
             {/* Plots (circles) */}
             <div className="row row--wrap" style={{ justifyContent: "space-between" }}>
-              <h4 className="mb-0">Plots</h4>
+              <h3 className="mb-0 text-md">Plots</h3>
               <div className="row">
                 {mode === "place" ? (
                   <Button size="sm" variant="secondary" onClick={() => { setMode("view"); setMessage(null); }}>

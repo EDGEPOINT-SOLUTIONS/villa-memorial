@@ -125,7 +125,7 @@ export function IntakeForm({
             01
           </span>
           <div>
-            <h3 className="capture-section__title">The deceased</h3>
+            <h2 className="capture-section__title">The deceased</h2>
             <p className="capture-section__blurb">
               As written on the death certificate — the contract header prints these.
             </p>
@@ -168,7 +168,7 @@ export function IntakeForm({
             02
           </span>
           <div>
-            <h3 className="capture-section__title">The client</h3>
+            <h2 className="capture-section__title">The client</h2>
             <p className="capture-section__blurb">
               The person who signs and owes — not always the deceased&rsquo;s next of kin.
             </p>
@@ -182,7 +182,7 @@ export function IntakeForm({
           </div>
           <div className="field-grid field-grid--1">{text("client_address", "Address")}</div>
 
-          <h4 className="capture-subhead">Contact</h4>
+          <h3 className="capture-subhead">Contact</h3>
           <div className="field-grid field-grid--3">
             {text(
               "client_contact",
@@ -193,7 +193,7 @@ export function IntakeForm({
             {text("client_email", "Email", undefined, "email")}
           </div>
 
-          <h4 className="capture-subhead">Identity</h4>
+          <h3 className="capture-subhead">Identity</h3>
           <div className="field-grid field-grid--3">
             {text("client_relationship", "Relationship to deceased")}
             {text("client_id_presented", "ID presented", "e.g. Driver's License, UMID, Passport")}
@@ -216,7 +216,7 @@ export function IntakeForm({
             03
           </span>
           <div>
-            <h3 className="capture-section__title">Contract</h3>
+            <h2 className="capture-section__title">Contract</h2>
             <p className="capture-section__blurb">
               Two dates that drive everything after the counter.
             </p>

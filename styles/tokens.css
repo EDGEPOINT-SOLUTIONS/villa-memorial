@@ -63,6 +63,7 @@
   --sage-500: #6f8f6a;
   --sage-100: #e7ede5;
   --clay-500: #b3695e;
+  --clay-700: #96493f; /* danger fill for white ink (6.3:1) */
   --clay-100: #f4e4e1;
   --amber-500: #b08a3e;
   --amber-100: #f3ecdb;
@@ -126,7 +127,12 @@
   --color-accent: var(--brass-500);
   --color-accent-strong: var(--brass-600);
   --color-accent-soft: var(--brass-300);
-  --color-focus-ring: var(--brass-400);
+  /* ONE focus ring, every surface (F-16 craft pass). The brass ring alone was
+     1.8:1 on the light sky/page surfaces; the pair below is drawn together —
+     a dark sky ring (>=3:1 on every light surface) and a marble halo filling
+     the outline gap so the same ring stays visible on navy/dark surfaces. */
+  --color-focus-ring: var(--sky-800);
+  --color-focus-ring-halo: var(--marble-50);
 
   /* Text inks (type-voice decision, 2026-09-18): four roles on light
      surfaces. Decorative gold (gold-300/400/500/600) is for rules, washes
@@ -136,6 +142,8 @@
   --color-status-success: var(--sage-500);
   --color-status-success-bg: var(--sage-100);
   --color-status-danger: var(--clay-500);
+  /* Danger FILL for a white-ink control (the clay-500 banner hue is 4.1:1). */
+  --color-status-danger-strong: var(--clay-700);
   --color-status-danger-bg: var(--clay-100);
   --color-status-warning: var(--amber-500);
   --color-status-warning-bg: var(--amber-100);

@@ -48,7 +48,7 @@ export default async function PriceList2026Page() {
               <img src={x.img} alt={x.label} loading="lazy" />
             </div>
             <figcaption className="card__body">
-              <h3>{x.label}</h3>
+              <h2 className="text-lg">{x.label}</h2>
             </figcaption>
           </figure>
         ))}

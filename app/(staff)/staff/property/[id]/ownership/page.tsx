@@ -140,7 +140,7 @@ export default async function LotOwnershipPage({
 
       {/* The answer at a glance: who the papers name, where the lot stands. */}
       <PageSection>
-        <Card header={<h3>The owner on the papers</h3>}>
+        <Card header={<h2>The owner on the papers</h2>}>
           <dl className="kv lot-rec-kv">
             <div>
               <dt>Owner</dt>
@@ -197,7 +197,7 @@ export default async function LotOwnershipPage({
       </PageSection>
 
       <PageSection>
-        <Card header={<h3>Right of interment</h3>}>
+        <Card header={<h2>Right of interment</h2>}>
           <dl className="kv lot-rec-kv">
             <div>
               <dt>Recorded with</dt>
@@ -247,10 +247,10 @@ export default async function LotOwnershipPage({
       </PageSection>
 
       <PageSection>
-        <Card header={<h3>Papers on file</h3>}>
+        <Card header={<h2>Papers on file</h2>}>
           {applicationPaper || ownership.papers.length > 0 ? (
             <>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <caption className="visually-hidden">
                     Papers recorded against lot {lot.lot_number}

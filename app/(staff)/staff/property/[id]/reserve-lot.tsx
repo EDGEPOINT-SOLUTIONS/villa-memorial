@@ -85,7 +85,7 @@ export function ReserveLotForm({ lotId, lotNumber }: { lotId: string; lotNumber:
             01
           </span>
           <div>
-            <h3 className="capture-section__title">Reservation</h3>
+            <h2 className="capture-section__title">Reservation</h2>
             <p className="capture-section__blurb">
               Reserving holds this lot for a named party. Completing the sale is a separate
               step — buying a lot through storefront checkout is not wired yet.

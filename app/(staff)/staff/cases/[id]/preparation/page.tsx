@@ -179,7 +179,7 @@ export default async function CasePreparationPage({
 
           <PageSection>
             <Card header={<h3>Preparation record</h3>}>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <thead>
                     <tr>
@@ -239,7 +239,7 @@ export default async function CasePreparationPage({
                   No tasks are recorded on this case.
                 </p>
               ) : (
-                <div className="table-wrapper">
+                <div className="table-wrapper" tabIndex={0}>
                   <table className="table">
                     <thead>
                       <tr>

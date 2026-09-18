@@ -76,10 +76,13 @@ textarea {
   color: inherit;
 }
 
+/* One visible, consistent keyboard focus ring everywhere (tokens.css): the
+   dark sky ring clears 3:1 on every light surface, and the marble halo fills
+   the outline gap so the same ring reads on the navy/dark surfaces too. */
 :focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
+  box-shadow: 0 0 0 2px var(--color-focus-ring-halo);
 }
 
 ::placeholder {
@@ -96,17 +99,21 @@ textarea {
   padding-inline: var(--space-5);
 }
 
-/* Accessibility helpers */
+/* Accessibility helpers. The box values use !important because form-control
+   rules (input:not(...){width:100%}) are more specific and would otherwise
+   stretch a visually-hidden file input to the viewport width (F-16: it broke
+   horizontal scroll on /staff/property). */
 .visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
   clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   white-space: nowrap;
-  border: 0;
+  border: 0 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

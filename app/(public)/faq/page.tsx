@@ -50,7 +50,7 @@ export default async function Page() {
           {faq.items.map((item) => (
             <article className="card" key={item.id}>
               <div className="card__body">
-                <h3>{item.question}</h3>
+                <h2 className="text-lg">{item.question}</h2>
                 <p className="text-sm text-muted">{item.answer}</p>
               </div>
             </article>

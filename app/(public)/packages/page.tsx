@@ -58,9 +58,9 @@ export default async function PackagesPage() {
                 <img src={PLAN_PACKAGES_IMAGE} alt="" loading="lazy" />
               </div>
               <div className="item-card__body">
-                <h3 className="item-card__title">
+                <h2 className="item-card__title">
                   <Link href={`/plans/${item.sku}`}>{item.name}</Link>
-                </h3>
+                </h2>
                 {item.description ? (
                   <p className="item-card__meta">{item.description}</p>
                 ) : null}

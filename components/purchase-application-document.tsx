@@ -52,7 +52,7 @@ export function PurchaseApplicationDocument({
         <div className="paper-view__toolbar-row">
           <div className="paper-view__toolbar-head">
             <p className="page-header__eyebrow">Paper document · on file {application.application_date}</p>
-            <h3>{doc.ok ? doc.title : "Purchase document"}</h3>
+            <h2 className="text-lg">{doc.ok ? doc.title : "Purchase document"}</h2>
             <p className="text-sm text-muted">
               {lot.lot_number}
               {buyer ? ` · ${buyer}` : ""} — what the buyer signs. Print for signature, or

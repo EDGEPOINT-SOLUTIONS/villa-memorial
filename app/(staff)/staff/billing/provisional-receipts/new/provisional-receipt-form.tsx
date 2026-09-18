@@ -214,7 +214,7 @@ export function ProvisionalReceiptForm({
               01
             </span>
             <div>
-              <h3 className="capture-section__title">What it settles</h3>
+              <h2 className="capture-section__title">What it settles</h2>
               <p className="capture-section__blurb">
                 The recorded invoice, its balance and the order or case it belongs to.
               </p>
@@ -300,7 +300,7 @@ export function ProvisionalReceiptForm({
               02
             </span>
             <div>
-              <h3 className="capture-section__title">What the family handed over</h3>
+              <h2 className="capture-section__title">What the family handed over</h2>
               <p className="capture-section__blurb">
                 Exactly as the counter slip asks — the payer, the amount and how it arrived.
               </p>
@@ -419,7 +419,7 @@ export function ProvisionalReceiptForm({
               03
             </span>
             <div>
-              <h3 className="capture-section__title">Who received it</h3>
+              <h2 className="capture-section__title">Who received it</h2>
               <p className="capture-section__blurb">
                 The paper names the staff member who took the money.
               </p>
@@ -469,7 +469,7 @@ export function ProvisionalReceiptForm({
         </div>
       </div>
 
-      <aside className="capture-rail">
+      <aside className="capture-rail" aria-label="Steps and readiness">
         <div className="card capture-rail__card">
           <div className="capture-rail__head">
             <p className="capture-rail__eyebrow">Paper document</p>

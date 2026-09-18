@@ -106,7 +106,13 @@ export function PriceList2026Module({ categories }: { categories: ReadonlyArray<
       </div>
 
       {categories.map((cat) => (
-        <div className="pl-scroll" key={cat.title}>
+        <div
+          className="pl-scroll"
+          key={cat.title}
+          role="region"
+          aria-label={`${cat.title} — price list`}
+          tabIndex={0}
+        >
           <table className="pl-table">
             <caption>{cat.caption}</caption>
             <thead>

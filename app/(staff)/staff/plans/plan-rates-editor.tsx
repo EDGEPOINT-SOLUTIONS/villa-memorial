@@ -214,7 +214,7 @@ export function PlanRatesEditor({
                 Amounts in pesos. Annual × 1 = Semi-Annual × 2 = Quarterly × 4 = Monthly × 12 —
                 the save refuses a table that breaks the schedule.
               </p>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table pricing-editor__table">
                   <caption className="sr-only">{label} — five tiers, four payment modes</caption>
                   <thead>
