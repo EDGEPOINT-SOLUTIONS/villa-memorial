@@ -40,6 +40,7 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   // The park's rooms (chapels + grounds) — its own page beside the map, so a
   // family choosing where to hold a wake does not have to read /services.
   { label: "Facilities", href: "/facilities" },
+  { label: "Gallery", href: "/gallery" },
   { label: "Contact", href: "/contact" },
 ];
 

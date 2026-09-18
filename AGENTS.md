@@ -348,6 +348,26 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   "Explore" column and `PUBLIC_PAGES`. Render record + shots:
   `docs/08-delivery/facilities-design/README.md`.
 
+## Public gallery & virtual tour — `/gallery` (read before touching the gallery or its media)
+
+- `/gallery` is the one photographic front door to the park: grouped client photography
+  (gate · pavilion & grounds · chapels/viewing/carriage) plus the ONE entry to the existing
+  `/map` (map + full-screen 3D) — the walk-through is linked, never rebuilt, and the line
+  beside it says which view is which. The 24/7 number is read from the landing content's
+  `contact` (never typed). Nav: `SITE_NAV_LINKS` + footer/mobile flyout; `PUBLIC_PAGES` in
+  `lib/seo.ts` (its test fails a public page missing from it).
+- Content and honesty rules live in `lib/gallery.ts`: every photo is client material in
+  `public/media`; the sheet's samples keep `CHAPEL_SAMPLE_NOTE` / `SERVICE_SAMPLE_NOTE`
+  ("Illustration purposes only"), the masterplan is captioned as a drawing, and the carriage
+  card is cropped from the sheet's own photograph — the 350×140 `service-carriage.jpg` tile is
+  only the photo's top strip and crops to the building behind it.
+  `tests/unit/gallery-page.test.tsx` pins the labels, the single `/map` link, reserved image
+  dimensions and the published file weights; `tests/unit/reading-budget.test.tsx` gates the copy.
+- Derivatives, not originals: `scripts/build-gallery-images.mjs` writes
+  `public/media/gallery/*.webp` (1×/2× widths, 3:2 card crops, no upscaling). Re-run it when a
+  source photo changes — the page loads ~287 KB at 1440/DIP1 and ~510 KB at 390/DIP3 from
+  ~3 MB of source originals, so never republish a multi-MB original.
+
 ## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
 
 - The three routes render `components/public-forms/*` on the shared apply-form shell

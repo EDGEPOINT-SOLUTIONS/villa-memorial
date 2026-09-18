@@ -16,11 +16,12 @@ import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
  *  · list items stay short too, so prose cannot move into a list.
  *
  * Scope: the public content pages that joined this guard — /services, /plans,
- * /immediate-assistance and /facilities — plus the agent portal's lead record
- * (F-09); each page joined in the PR that added it (a room page is read at a
- * glance; the lead record must answer the person, the state and the next step in
- * the first screenful). All are executed as the real page components (the same
- * render harness the other page tests use). The home page's copy lives in the
+ * /immediate-assistance, /facilities and /gallery — plus the agent portal's
+ * lead record (F-09); each page joined in the PR that added it (a room page is
+ * read at a glance; the lead record must answer the person, the state and the
+ * next step in the first screenful). All are executed as the real page
+ * components (the same render harness the other page tests use). The home
+ * page's copy lives in the
  * staff-editable LandingPage document (content, not code), so it is measured in
  * the PR record, not gated here; a future page adds itself to PAGES in the same
  * PR that compresses it.
@@ -58,6 +59,7 @@ const { default: ImmediateAssistancePage } = await import(
   "@/app/(public)/immediate-assistance/page"
 );
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
+const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
 
 const BUDGET = {
@@ -109,6 +111,12 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     // renders without the cart context.
     render: async () => renderToStaticMarkup(await FacilitiesPage()),
     openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/gallery",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await GalleryPage())),
+    openingLead: /<p class="gal-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/agent/prospects/[id] (lead record)",

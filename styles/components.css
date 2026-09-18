@@ -5701,6 +5701,352 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 /* ===========================================================================
+ * Photo gallery & virtual tour (/gallery) — the park in the client's own
+ * photographs, plus the ONE entry to the walk-through (the existing /map and
+ * its full-screen 3D mode are linked, never rebuilt).
+ *
+ * The figures are plain <img> elements fed the generated WebP derivatives
+ * (scripts/build-gallery-images.mjs); lib/gallery.ts carries the published
+ * pixel sizes and the per-layout `sizes`, so each media box reserves its space
+ * and a late photo can never shift the page. Cards are all 3:2 for the same
+ * reason — the browser gets the exact crop the layout shows, and the client
+ * sheet's small samples are never upscaled. Sky surfaces carry navy ink; the
+ * gold hairline stays the ceremonial accent.
+ * ========================================================================= */
+
+.gal-page {
+  max-width: 76rem;
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* Breadcrumb — the services page's grammar, on this page's own classes. */
+.gal-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-base);
+  color: var(--navy-700);
+}
+
+.gal-crumbs li + li::before {
+  content: "/";
+  margin-right: var(--space-2);
+  color: var(--navy-500);
+}
+
+.gal-crumbs a {
+  color: var(--sky-800);
+  font-weight: 600;
+}
+
+.gal-crumbs [aria-current="page"] {
+  color: var(--navy-900);
+  font-weight: 700;
+}
+
+/* --- a figure, in four sizes --------------------------------------------- */
+.gal-figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.gal-figure__media {
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--marble-100);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.gal-figure__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--motion-slow) ease;
+}
+
+.gal-figure figcaption {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2) 0;
+}
+
+.gal-figure__caption {
+  font-size: var(--text-md);
+  font-weight: 650;
+  line-height: 1.4;
+  color: var(--navy-900);
+}
+
+.gal-figure__note {
+  font-size: var(--text-sm);
+  line-height: 1.45;
+  color: var(--navy-600);
+}
+
+/* Hero figure — the client's gate photo, 16:9 like the source. */
+.gal-figure--hero .gal-figure__media {
+  aspect-ratio: 16 / 9;
+}
+
+/* The one wide photograph of the grounds, kept near its native width. */
+.gal-feature {
+  max-width: 60rem;
+}
+
+.gal-figure--feature .gal-figure__media {
+  aspect-ratio: 940 / 545;
+}
+
+/* The chapels group: four equal 3:2 cards, 2-up on tablets and phones. */
+.gal-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 64rem) {
+  .gal-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 23rem) {
+  .gal-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gal-figure--card .gal-figure__media {
+  aspect-ratio: 3 / 2;
+}
+
+.gal-figure--card:hover .gal-figure__media img,
+.gal-figure--card:focus-within .gal-figure__media img {
+  transform: scale(1.03);
+}
+
+/* --- page opening --------------------------------------------------------- */
+.gal-hero {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.22), transparent 55%),
+    linear-gradient(165deg, var(--sky-100), var(--color-bg-surface));
+  box-shadow: var(--shadow-card-rest);
+}
+
+.gal-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+}
+
+.gal-hero__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  align-items: center;
+}
+
+@media (max-width: 52rem) {
+  .gal-hero__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gal-hero__eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--gold-800);
+}
+
+.gal-hero__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(2.1rem, 4.6vw, 3rem);
+  line-height: 1.12;
+  color: var(--navy-900);
+}
+
+.gal-hero__lead {
+  margin: var(--space-3) 0 0;
+  max-width: 34rem;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--navy-800);
+}
+
+.gal-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* --- photo groups --------------------------------------------------------- */
+.gal-group {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.gal-group__head {
+  max-width: 46rem;
+}
+
+.gal-group__kicker {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-800);
+}
+
+.gal-group__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  line-height: 1.2;
+  color: var(--navy-900);
+}
+
+.gal-group__intro {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--navy-800);
+}
+
+.gal-provenance {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--navy-700);
+}
+
+/* --- the walk-through entry ----------------------------------------------- */
+.gal-walk {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.gal-walk__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: clamp(var(--space-5), 4vw, var(--space-6));
+  align-items: center;
+}
+
+@media (max-width: 62rem) {
+  .gal-walk__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.gal-walk__kicker {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gold-800);
+}
+
+.gal-walk__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 3.2vw, 2.25rem);
+  line-height: 1.2;
+  color: var(--navy-900);
+}
+
+.gal-walk__line {
+  margin: var(--space-3) 0 0;
+  max-width: 40rem;
+  font-size: var(--text-lg);
+  line-height: 1.6;
+  color: var(--navy-800);
+}
+
+.gal-walk__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.gal-figure--plan {
+  max-width: 18rem;
+  justify-self: center;
+}
+
+.gal-figure--plan .gal-figure__media {
+  aspect-ratio: 1 / 1;
+}
+
+/* --- next step: ask the office about a visit ------------------------------ */
+.gal-visit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-6);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--sky-100), var(--sky-200));
+}
+
+@media (max-width: 62rem) {
+  .gal-visit {
+    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-5);
+  }
+
+  .gal-visit__actions .btn {
+    width: 100%;
+  }
+}
+
+.gal-visit__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  color: var(--navy-900);
+}
+
+.gal-visit__text {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+.gal-visit__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* ===========================================================================
  * Casket detail (/products/[sku]) — sample photograph, facts, inclusions
  * ========================================================================= */
 
