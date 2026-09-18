@@ -672,6 +672,28 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   call shape) and `tests/unit/ops-board-rbac.test.tsx` (401/403/422/404, store effects, page
   render for writer vs reader, live-mode endpoints).
 
+## Agent lead record — `/agent/prospects/[id]` (read before touching it or the agent fixture)
+
+- F-09 (captain 2026-09-18) grew the approved page-04 prospect record into the lead record the
+  pipeline opens: hero (name · how/when they came in · who handles them · contact chips · stage),
+  the recorded next step in the action band with call/text from the record's own phone, then
+  **Where they are** (the PRD trail plus the recorded `stage_history` — every move with its date
+  and author, oldest first), the two content cards, the conversation timeline, and the designed
+  move-forward choices (disabled; the write waits). One short line names what waits on the unbuilt
+  customer-records service (crm-families). The record stays at the pipeline's existing route —
+  never fork a second lead route for the same person.
+- Data is `lib/fixtures/agent/workspace.json` read through `lib/api-client/agent.ts`: each lead
+  carries `first_contact_at` + `stage_history` (first move `new` at `first_contact_at`, last move
+  the current stage at `last_contact_at`; instants render through `manilaDay`). Never invent a
+  stage move, activity entry or value at render time — `tests/fixture-contract/agent.test.ts` pins
+  the record, `tests/unit/lead-detail.test.tsx` pins the screen (one h1, the four questions, the
+  empty states, the single honest paragraph).
+- Vocabulary lives in `lib/agent/agent-view.ts` (`PIPELINE_STAGES`/`stageTrail`,
+  `leadSourceLabel`, `activityKindLabel`) — extend it there, not in the view. The office number on
+  the screen is read from `lib/family/contact.ts` (the one contact module), never typed. The page
+  is in `tests/unit/reading-budget.test.tsx`. Evidence shots:
+  `docs/08-delivery/agent-portal-design/shots/`.
+
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
 - Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed

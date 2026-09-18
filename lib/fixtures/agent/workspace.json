@@ -8,7 +8,8 @@
       "COMMISSION IS UNCONFIGURED BY DESIGN: every commission/target amount is null and `configured` is false — the client has not fixed rates (docs/07-client-villa/open-questions.md:26). Never fill these with invented figures.",
       "Money is integer minor units (`*_cents`) only; views format through lib/money.ts and never parse display strings.",
       "`possible_value_cents` is the full contract value (the 2026 sheet's monthly figure × the term), never a monthly quote — a monthly amount entered as cents reads 100× too small.",
-      "Appointment `starts_at` values are true instants: rendering them through lib/agent/agent-view.ts manilaTime() must reproduce the fixture's own `time_label`.",
+      "`first_contact_at` and `stage_history` are each lead's recorded movement: the first stage is `new` at `first_contact_at`, the last move is where the lead stands and lands on `last_contact_at`, and the dates line up with `prospect_activity` where an entry records the same conversation.",
+      "Appointment `starts_at` values are true instants: rendering them through lib/agent/agent-view.ts manilaTime() must reproduce the fixture's own `time_label`; lead-record dates render through manilaDay() the same way.",
       "`example_*` records exist so the review design stays legible; they are labelled as examples in the UI and are not a live record."
     ]
   },
@@ -150,7 +151,16 @@
       "stage": "new",
       "owner": "Alex Agent",
       "possible_value_cents": 12800000,
+      "first_contact_at": "2026-09-14T09:00:00Z",
       "last_contact_at": "2026-09-14T09:00:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-14T09:00:00Z",
+          "by": "Alex Agent",
+          "note": "Walked in and asked about a lawn lot for her parents."
+        }
+      ],
       "next_action": "Call about a park visit this Friday",
       "urgency": "today",
       "best_time": "Mornings, by call",
@@ -167,7 +177,16 @@
       "stage": "new",
       "owner": "Alex Agent",
       "possible_value_cents": 1200000,
+      "first_contact_at": "2026-09-15T13:40:00Z",
       "last_contact_at": "2026-09-15T13:40:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-15T13:40:00Z",
+          "by": "Alex Agent",
+          "note": "Messaged the Facebook page about embalming only."
+        }
+      ],
       "next_action": "First call",
       "urgency": "new",
       "best_time": "Any time after 6 PM",
@@ -184,7 +203,22 @@
       "stage": "contacted",
       "owner": "Alex Agent",
       "possible_value_cents": 4500000,
+      "first_contact_at": "2026-09-15T13:10:00Z",
       "last_contact_at": "2026-09-16T08:42:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-15T13:10:00Z",
+          "by": "Alex Agent",
+          "note": "Messaged the Facebook page and asked for the price list."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-16T08:42:00Z",
+          "by": "Alex Agent",
+          "note": "Sent the 2026 price list; waiting for him to open it."
+        }
+      ],
       "next_action": "Call back tomorrow if he does not open it",
       "urgency": "today",
       "best_time": "Lunchtime",
@@ -201,7 +235,22 @@
       "stage": "contacted",
       "owner": "Alex Agent",
       "possible_value_cents": 16100000,
+      "first_contact_at": "2026-09-10T08:00:00Z",
       "last_contact_at": "2026-09-12T11:20:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-10T08:00:00Z",
+          "by": "Alex Agent",
+          "note": "Referred by the Santos family; wants the park map."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-12T11:20:00Z",
+          "by": "Alex Agent",
+          "note": "First call; asked for the map and the lot price list."
+        }
+      ],
       "next_action": "Send the park map and the lot price list",
       "urgency": "warm",
       "best_time": "Weekends",
@@ -218,7 +267,28 @@
       "stage": "qualified",
       "owner": "Alex Agent",
       "possible_value_cents": 5544000,
-      "last_contact_at": "2026-09-14T19:42:00Z",
+      "first_contact_at": "2026-09-08T10:30:00Z",
+      "last_contact_at": "2026-09-14T11:42:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-08T10:30:00Z",
+          "by": "Alex Agent",
+          "note": "Walked in after the Sunday service; wants cover for her mother."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-12T08:30:00Z",
+          "by": "Alex Agent",
+          "note": "First call; asked for the monthly amount in writing."
+        },
+        {
+          "stage": "qualified",
+          "at": "2026-09-14T11:42:00Z",
+          "by": "Alex Agent",
+          "note": "Opened the payment-mode sheet again; senior rate may apply."
+        }
+      ],
       "next_action": "Call about Bronze 2 (or the senior plan for age 68)",
       "urgency": "hot",
       "best_time": "After 4 PM, by call",
@@ -235,7 +305,28 @@
       "stage": "qualified",
       "owner": "Alex Agent",
       "possible_value_cents": 5040000,
+      "first_contact_at": "2026-09-08T09:00:00Z",
       "last_contact_at": "2026-09-13T10:10:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-08T09:00:00Z",
+          "by": "Alex Agent",
+          "note": "Walked in and asked about the senior-rate plan."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-10T10:00:00Z",
+          "by": "Alex Agent",
+          "note": "Started the application by phone."
+        },
+        {
+          "stage": "qualified",
+          "at": "2026-09-13T10:10:00Z",
+          "by": "Alex Agent",
+          "note": "Application complete except the senior ID photo."
+        }
+      ],
       "next_action": "Remind about the senior ID photo",
       "urgency": "waiting",
       "best_time": "Mornings",
@@ -252,7 +343,40 @@
       "stage": "proposal",
       "owner": "Alex Agent",
       "possible_value_cents": 9120000,
-      "last_contact_at": "2026-09-13T17:05:00Z",
+      "first_contact_at": "2026-09-02T10:00:00Z",
+      "last_contact_at": "2026-09-13T09:05:00Z",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-02T10:00:00Z",
+          "by": "Alex Agent",
+          "note": "Met at the community event; asked about the Gold plan."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-06T08:00:00Z",
+          "by": "Alex Agent",
+          "note": "First call; sent the plan flyer after."
+        },
+        {
+          "stage": "qualified",
+          "at": "2026-09-09T11:00:00Z",
+          "by": "Alex Agent",
+          "note": "Chose the Gold plan; the family still decides."
+        },
+        {
+          "stage": "presentation",
+          "at": "2026-09-11T08:00:00Z",
+          "by": "Alex Agent",
+          "note": "Met at the park; walked through the payment modes."
+        },
+        {
+          "stage": "proposal",
+          "at": "2026-09-13T09:05:00Z",
+          "by": "Alex Agent",
+          "note": "Left the proposal with the family; decision Saturday."
+        }
+      ],
       "next_action": "Call Rosa — decision day Saturday",
       "urgency": "warm",
       "best_time": "Evenings",
@@ -264,14 +388,14 @@
       {
         "id": "act-c1",
         "kind": "link",
-        "at": "2026-09-14T19:42:00Z",
+        "at": "2026-09-14T11:42:00Z",
         "title": "She opened the payment-mode sheet for the second time",
         "detail": "No message sent. A good moment to call tomorrow morning."
       },
       {
         "id": "act-c2",
         "kind": "call",
-        "at": "2026-09-12T15:05:00Z",
+        "at": "2026-09-12T08:30:00Z",
         "title": "Called about the Bronze 2 monthly",
         "detail": "“Magkano kada buwan?” She wants the figure in writing. Sent the sheet right after the call. Senior rate may apply — her mother is 68."
       },
@@ -294,7 +418,7 @@
       {
         "id": "act-p2",
         "kind": "message",
-        "at": "2026-09-15T21:10:00Z",
+        "at": "2026-09-15T13:10:00Z",
         "title": "Messaged the Facebook page",
         "detail": "“Pwede po ba makahingi ng price list?” — asked for the casket and services list."
       }
@@ -305,9 +429,9 @@
       {
         "id": "share-c1",
         "title": "Plan payment-mode sheet",
-        "sent_at": "2026-09-12T15:20:00Z",
+        "sent_at": "2026-09-12T08:35:00Z",
         "opens": 2,
-        "last_open": "2026-09-14T19:42:00Z"
+        "last_open": "2026-09-14T11:42:00Z"
       },
       {
         "id": "share-c2",

@@ -156,6 +156,22 @@ real object/contract where one exists and says plainly where nothing exists.
 
 ---
 
+## 4a. Lead record — F-09 (built 2026-09-18)
+
+The prospect record (page 04) is now the lead record the checklist asks for, still on the recorded
+fixture and still in this design's grammar. Page order is: the hero (who they are — name, contact,
+how/when they came in, who handles them) and its next-step band → **Where they are** (the PRD trail
+plus the recorded `stage_history`, every move with its date and author, oldest first) → the two
+content cards → **Every conversation** (kind · date · time, newest first) → **Move them forward**
+(the designed choices, disabled while the write waits) → one calm line naming the customer-records
+service, with the office number read from `lib/family/contact.ts`.
+
+`tests/unit/lead-detail.test.tsx` and `tests/fixture-contract/agent.test.ts` pin the screen and the
+recorded movement; the page is in `tests/unit/reading-budget.test.tsx`. Fold shots:
+`shots/lead-record-1440.png`, `shots/lead-record-390.png`; full-page captures in the same folder.
+
+---
+
 ## 5. PRD screen → page
 
 | PRD source | Line | Screen(s) |
