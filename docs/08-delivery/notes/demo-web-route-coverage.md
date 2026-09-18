@@ -37,8 +37,8 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 | Route | What it serves |
 |---|---|
 | `/staff/dashboard` | ✅ scope-gated ops/finance/lots aggregation from the same clients as the screens |
-| `/staff/customers`, `/[id]`, `/staff/inquiries` | ✅ fixture-backed records (no crm-families contract yet); `new` forms ⚠ (crm-families) |
-| `/staff/pipeline` | ⚠ sales pipeline (crm-families) |
+| `/staff/customers`, `/[id]`, `/staff/inquiries` | ✅ fixture-backed records (no crm-families contract yet); the Customers list also links the recorded lead records; `new` forms ⚠ (crm-families) |
+| `/staff/pipeline`, `/[id]` | ✅ the staff lead record (PRD S4 Lead Detail) + the recorded lead list, read-only over `lib/fixtures/crm/lead-records.json`; the pipeline's own stage moves/assignment ⚠ (crm-families unbuilt) |
 | `/staff/cases`, `/[id]`, `/new`, `/[id]/service-contract`, `/[id]/preparation` | ✅ frozen case contract + capture/export; the preparation record is a PROVISIONAL recorded fixture (no preparation contract — live answers 503, and a case without one shows its task lines) |
 | `/staff/schedule` | ✅ day board over the bookings API (fixtures; live with `SCHEDULING_BASE_URL`) + chapel administration (settings/availability/bookings) over the scheduling store |
 | `/staff/dispatch` | ⚠ vehicle dispatch (vehicles as scheduling resources; scheduling delivery) |
