@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -14,8 +15,14 @@ import {
   type LegendPlotRow,
 } from "@/lib/lots-legend";
 import parksFile from "@/lib/fixtures/property/parks.json";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Memorial lots — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Memorial lots — Villa Memorial",
+  description:
+    "Browse the park's plots by park, status and legend type — see availability and the published lot prices, then reserve with the park office.",
+  path: "/lots",
+});
 
 /**
  * Public lot browse (Module D public face) — villa item-card grammar on the DOC

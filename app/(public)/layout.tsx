@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import { PublicShell } from "@/components/ui/public-shell";
+import { JsonLd } from "@/components/seo/json-ld";
 import { listLandingContent } from "@/lib/api-client/landing";
 import "../globals.css";
 
+// Fallback metadata for any public page that does not set its own (the two
+// client-rendered transaction pages import their own noindex layout).
+// Deliberately NO canonical URL: no page should inherit a canonical it does not
+// own — every content page supplies its own through pageMetadata().
 export const metadata: Metadata = {
-  title: "Villa Memorial",
+  title: "Villa Memorial — Memorial & funeral services, Isabela City, Basilan",
+  description:
+    "Funeral services, memorial plans and garden lots at Villa Memorial Park — the first memorial park in Basilan, Isabela City.",
 };
 
 // Chrome brand (wordmark + uploaded logo mark), the 24/7 line and the footer
@@ -15,5 +22,12 @@ export const dynamic = "force-dynamic";
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const content = await listLandingContent();
-  return <PublicShell content={content}>{children}</PublicShell>;
+  return (
+    <PublicShell content={content}>
+      {/* LocalBusiness + WebSite structured data on every public page, read from
+          the same content document the chrome uses (lib/seo.ts). */}
+      <JsonLd content={content} />
+      {children}
+    </PublicShell>
+  );
 }

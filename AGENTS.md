@@ -126,6 +126,16 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   view via react-dom/server) + `tests/fixture-contract/landing.test.ts` (pins
   seed prices to lib/villa-pricing.ts). vitest.config compiles .tsx with the
   automatic JSX runtime for those.
+- **The same document also drives the FAQ page (`/faq`)**: its `faq` region
+  (eyebrow · heading · lead · items · next-step links) is edited in editor zone
+  09 and rendered by `app/(public)/faq/page.tsx`. Never re-hardcode FAQ copy —
+  seed + tolerant reader + validator + save path are `lib/api-client/landing.ts`,
+  and `tests/unit/faq-page.test.tsx` pins that an edit reaches the page.
+- **ONE content editor** (captain, 2026-09-18): `/staff/landing` (nav
+  "Pages & content") is the only content surface; the retired `/staff/store`
+  stub is a redirect to it and its duplicate nav entry is gone. Storefront
+  COMMERCE settings live on `/staff/catalog`, `/staff/pricing`, `/staff/plans` —
+  never recreate a second content route. Evidence: `tests/unit/content-editor-nav.test.ts`.
 - Public lot browse (/lots) filters plots by park, status and legend type; the
   type-filter + live chip counts live in `lib/lots-legend.ts` (pure + unit-
   tested at tests/unit/lots-legend.test.ts) and read types from
@@ -148,6 +158,29 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   carry an optional `link` (set in the
   "/" editor) that makes the post's photos/caption navigate; seed posts ship
   sensible internal routes.
+
+## Public SEO surface (read before touching metadata, sitemap or robots)
+
+- **One home: `lib/seo.ts`.** `pageMetadata()` builds every public page's
+  canonical + OpenGraph + Twitter card; `PUBLIC_PAGES` is the `app/sitemap.ts`
+  table; `localBusinessJsonLd()` builds the `FuneralHome` + `WebSite` structured
+  data from the landing content document's own wordmark / 24-7 line / location
+  (never a typed contact detail — the seeded public number is still the template
+  placeholder, so the editor field is the place to fix it); `siteUrl()` reads
+  `SITE_URL` (documented in `.env.example`), defaulting to the documented
+  deployment host `https://in-memoriam.edgepoint-ai.com`.
+- `app/sitemap.ts` publishes `PUBLIC_PAGES` plus the real coffin / package /
+  lot detail URLs from the same stores the pages read. `app/robots.ts` allows
+  the storefront and disallows `/api`, `/staff`, `/client`, `/agent`, `/cart`,
+  `/checkout`, `/orders` and the sign-in doors. `components/seo/json-ld.tsx`
+  renders the structured-data block on the home and in the `(public)` layout.
+- Every public page exports `pageMetadata(...)`; dynamic detail routes export
+  `generateMetadata`. `/cart` and `/checkout` (client pages) carry pass-through
+  layouts that noindex them, and the `(public)` layout deliberately sets **no**
+  canonical so no page inherits one it does not own.
+- `tests/unit/seo.test.ts` walks `app/(public)` and fails if a public page is
+  missing from `PUBLIC_PAGES` (or a listed path has no page) — add the route in
+  the same PR that adds the page.
 
 ## Package page — `/plans/[sku]` (design target — read before touching it)
 

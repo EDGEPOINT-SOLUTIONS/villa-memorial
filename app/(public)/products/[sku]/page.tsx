@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +13,9 @@ import {
 import { getCatalogItem } from "@/lib/api-client/commerce";
 import { casketDetailHref, coffinModelForSku, coffinSku } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
-import { COFFIN_SAMPLE_PHOTOS } from "@/lib/media";
+import { COFFIN_SAMPLE_PHOTOS, casketSamplePhoto } from "@/lib/media";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { pageMetadata } from "@/lib/seo";
 
 /**
  * Casket detail — /products/[sku] (the "View details" action on every catalogue
@@ -29,14 +31,26 @@ import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 
 type CasketDetailParams = { params: Promise<{ sku: string }> };
 
-export async function generateMetadata({ params }: CasketDetailParams) {
+export async function generateMetadata({ params }: CasketDetailParams): Promise<Metadata> {
   const { sku } = await params;
-  const model = coffinModelForSku(sku);
-  if (!model) return { title: "Coffins & caskets — Villa Memorial" };
-  return {
+  const model = coffinModelForSku(decodeURIComponent(sku));
+  if (!model) {
+    // Unknown SKU: the route 404s; canonicalise the head to the catalogue.
+    return pageMetadata({
+      title: "Coffins & caskets — Villa Memorial",
+      description:
+        "The client's full 2026 casket catalogue at published prices — SRP, senior-citizen price and the inclusions per family.",
+      path: "/products",
+    });
+  }
+  return pageMetadata({
     title: `${model.model} casket — 2026 price — Villa Memorial`,
-    description: `${model.model} (${model.collection}) — the client's 2026 SRP, senior-citizen price and inclusions.`,
-  };
+    description: `${model.model} (${model.collection}) — the client's 2026 SRP of ${php(model.srp)} and the senior-citizen price of ${php(model.seniorPrice)}, with the inclusions this model carries.`,
+    // Canonicalise every case/spelling variant to the sheet's own SKU URL.
+    path: `/products/${coffinSku(model.model)}`,
+    image: casketSamplePhoto(model).src,
+    imageAlt: `Illustrative sample coffin — ${casketSamplePhoto(model).label}`,
+  });
 }
 
 /** Chips shared by the detail page's hero. */

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
@@ -5,8 +6,14 @@ import { listCatalogItems } from "@/lib/api-client/commerce";
 import { COFFIN_SKUS } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE } from "@/lib/villa-pricing";
 import { CasketCatalogue, type SellableCasket } from "@/components/villa/casket-catalogue";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Coffins & caskets — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Coffins & caskets — Villa Memorial",
+  description:
+    "The client's full 2026 casket catalogue at published prices — SRP, senior-citizen price and the inclusions per family, with details for every model.",
+  path: "/products",
+});
 
 /** Bind each sheet model to its catalogue entry (SKU map: lib/catalogue-skus.ts). */
 function bindCaskets(

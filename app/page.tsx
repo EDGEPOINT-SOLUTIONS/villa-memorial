@@ -2,15 +2,17 @@ import type { ReactNode } from "react";
 import { PublicParkMap } from "@/components/public-park-map";
 import { MobileQuickMenu } from "@/components/landing/mobile-quick-menu";
 import { LandingView } from "@/components/landing/landing-view";
+import { JsonLd } from "@/components/seo/json-ld";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { listLots } from "@/lib/api-client/property";
+import { SITE_DESCRIPTION, pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Villa Memorial Park — Memorial & funeral services, Isabela City, Basilan",
-  description:
-    "Honoring every life with dignity and light — funeral services, memorial plans and garden lots from the first memorial park in Basilan. Anchored catalogue: every service, plan and price one click away.",
-};
+  description: SITE_DESCRIPTION,
+  path: "/",
+});
 
 // Reads the in-process content store + lot listing per request (like /map) — never
 // let the home serve stale prerendered HTML after a staff edit lands in the store.
@@ -40,6 +42,9 @@ export default async function LandingPage() {
 
   return (
     <>
+      {/* LocalBusiness + WebSite structured data from the same content document
+          the page renders — see lib/seo.ts. */}
+      <JsonLd content={content} />
       <LandingView
         content={content}
         planPricing={pricing.plans}

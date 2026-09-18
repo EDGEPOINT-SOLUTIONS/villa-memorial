@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +28,7 @@ import { PlanTermSelector } from "./plan-term-selector";
 import type { TierCartItem } from "./plan-term-selector";
 import { AddToCartControl } from "./add-to-cart";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { pageMetadata } from "@/lib/seo";
 import { PriceList2026Module } from "./price-list-2026-module";
 import {
   IconCashAssistance,
@@ -36,7 +38,33 @@ import {
   INCLUSION_ICONS,
 } from "./package-icons";
 
-export const metadata = { title: "Plan details — Villa Memorial" };
+type PlanDetailParams = { params: Promise<{ sku: string }> };
+
+/**
+ * Per-item metadata: the catalogue item's own name and recorded description,
+ * canonicalised to its SKU URL. An unknown SKU 404s in the page itself, so the
+ * head points at the plan index instead of inventing a title.
+ */
+export async function generateMetadata({ params }: PlanDetailParams): Promise<Metadata> {
+  const { sku } = await params;
+  const item = await getCatalogItem(decodeURIComponent(sku)).catch(() => null);
+  if (!item) {
+    return pageMetadata({
+      title: "Villa Memorial Plan — Villa Memorial",
+      description:
+        "Villa Memorial Plan tiers and terms with the client's 2026 payment-mode tables — regular and senior rates, six-year amortization, and what each plan includes.",
+      path: "/plans",
+    });
+  }
+  return pageMetadata({
+    title: `${item.name} — Villa Memorial`,
+    description:
+      item.description?.trim() ||
+      `${item.name} — the Villa Memorial Plan's inclusions, eligibility and published 2026 prices.`,
+    path: `/plans/${item.sku}`,
+    image: item.image ?? undefined,
+  });
+}
 
 // Reads the pricing store per request — an office edit must be visible here.
 export const dynamic = "force-dynamic";

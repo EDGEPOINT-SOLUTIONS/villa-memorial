@@ -272,6 +272,43 @@ describe("the save path accepts unlimited rail items", () => {
   });
 });
 
+describe("the FAQ page is content, not JSX", () => {
+  it("the seed carries the shipped questions, answers and next-step links", async () => {
+    const content = await listLandingContent();
+    expect(content.faq.eyebrow).toBe("Help");
+    expect(content.faq.heading).toBe("Frequently asked questions");
+    expect(content.faq.lead.length).toBeGreaterThan(0);
+    expect(content.faq.items).toHaveLength(3);
+    expect(content.faq.items[0].question).toBe("What happens when I call?");
+    for (const item of content.faq.items) {
+      expect(item.question.trim().length).toBeGreaterThan(0);
+      expect(item.answer.trim().length).toBeGreaterThan(0);
+      expect(item.id.length).toBeGreaterThan(0);
+    }
+    for (const link of content.faq.links) {
+      expect(link.label.length).toBeGreaterThan(0);
+      expect(link.href.startsWith("/")).toBe(true);
+    }
+    // The whole document still validates with the FAQ region present.
+    expect(validateLandingContent(content, LOT_PRICE_CATEGORIES).ok).toBe(true);
+  });
+
+  it("the reader drops a row with no words and keeps whitespace for the validator to name", async () => {
+    const content = await listLandingContent();
+    const doc = cloneDoc(content);
+    doc.faq.items = [
+      { id: "kept", question: "Kept?", answer: "Yes." },
+      { id: "blank", question: "   ", answer: "" },
+      { id: "dropped", question: "", answer: "" },
+    ];
+    const read = readLandingContent(doc);
+    expect(read.faq.items.map((i) => i.id)).toEqual(["kept", "blank"]);
+    const verdict = validateLandingContent(read, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/question and an answer/i);
+  });
+});
+
 describe("blog posts carry the optional link the staff sets on the \"/\" editor", () => {
   it("seed posts ship sensible internal routes so photos open real pages", async () => {
     const content = await listLandingContent();

@@ -1,10 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { SENIOR_TERMS } from "@/lib/villa-pricing";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Senior citizen plan — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Senior citizen plan — Villa Memorial",
+  description:
+    "The Villa Memorial Plan for senior citizens: the client's senior-citizen payment tables, free flowers and the complete memorial package inclusions.",
+  path: "/plans/senior-benefits",
+});
 
 // Reads the pricing store per request — an office edit must be visible here.
 export const dynamic = "force-dynamic";

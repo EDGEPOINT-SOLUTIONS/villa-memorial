@@ -1,10 +1,12 @@
 "use client";
 
 /**
- * Landing Page editor — the premium staff "Landing Page" surface for the whole
- * public home (/). Every region of the anchored catalogue home is editable here
- * and saves through the BFF (POST /api/landing/content), which validates +
- * persists into the same fixture store the public page renders from.
+ * Content editor (staff /staff/landing) — the premium surface for every public
+ * page that renders from the LandingPage content document: the anchored
+ * catalogue home (/) and the FAQ page (/faq). Every region of both pages is
+ * editable here and saves through the BFF (POST /api/landing/content), which
+ * validates + persists into the same fixture store the public pages render
+ * from.
  *
  * Structure (blue/gold folio, design-system tokens only):
  *  - a sticky document console: sync state + Publish/Discard always in reach;
@@ -42,6 +44,8 @@ import {
   type AboutSection,
   type BlogPost,
   type Cta,
+  type FaqItem,
+  type FaqSection,
   type LandingContent,
   type MediaItem,
   type PlansSection,
@@ -828,6 +832,155 @@ function MapEditor({
   );
 }
 
+/* -------------------------------- FAQ editor ------------------------------ */
+
+/**
+ * The FAQ page (/faq). The page's words live in this same document so staff
+ * edit them here — the hero copy, the question cards and the next-step link
+ * row. The layout on /faq is the page's own; only the words move.
+ */
+function FaqEditor({
+  section,
+  onChange,
+}: {
+  section: FaqSection;
+  onChange: (next: FaqSection) => void;
+}) {
+  function patchItem(id: string, patch: Partial<FaqItem>) {
+    onChange({
+      ...section,
+      items: section.items.map((item) => (item.id === id ? { ...item, ...patch } : item)),
+    });
+  }
+
+  function moveItem(id: string, delta: -1 | 1) {
+    const items = clone(section.items);
+    const index = items.findIndex((item) => item.id === id);
+    const target = index + delta;
+    if (index < 0 || target < 0 || target >= items.length) return;
+    [items[index], items[target]] = [items[target], items[index]];
+    onChange({ ...section, items });
+  }
+
+  return (
+    <div className="stack">
+      <div className="field-grid field-grid--3">
+        <TextField label="Eyebrow" htmlFor="faq-eyebrow" value={section.eyebrow} onChange={(v) => onChange({ ...section, eyebrow: v })} hint="The small line above the heading." />
+        <TextField label="Page heading" htmlFor="faq-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
+        <TextField label="Lead line" htmlFor="faq-lead" value={section.lead} onChange={(v) => onChange({ ...section, lead: v })} hint="The sentence under the heading." />
+      </div>
+
+      <div className="row row--space" style={{ margin: "var(--space-1) 0" }}>
+        <p className="ed-subhead">
+          Questions &amp; answers <Badge tone="info">{section.items.length}</Badge>
+          <span className="ed-muted"> — the cards on /faq, in this order.</span>
+        </p>
+        <Button
+          variant="accent"
+          size="sm"
+          onClick={() =>
+            onChange({
+              ...section,
+              items: [...section.items, { id: uid("faq"), question: "", answer: "" }],
+            })
+          }
+        >
+          <Plus size={15} aria-hidden="true" /> Add a question
+        </Button>
+      </div>
+
+      {section.items.length === 0 ? (
+        <p className="ed-hint">No questions yet — /faq shows an empty-state note until you add one.</p>
+      ) : (
+        <div className="ed-services">
+          {section.items.map((item, i) => (
+            <details key={item.id} className="ed-service" open={!item.question}>
+              <summary className="ed-service__summary">
+                <span className="ed-service__num">{String(i + 1).padStart(2, "0")}</span>
+                <span className="ed-service__name">{item.question || "Untitled question"}</span>
+                <MoveRowButtons
+                  label={item.question || "question"}
+                  first={i === 0}
+                  last={i === section.items.length - 1}
+                  onUp={() => moveItem(item.id, -1)}
+                  onDown={() => moveItem(item.id, 1)}
+                  onRemove={() =>
+                    onChange({ ...section, items: section.items.filter((x) => x.id !== item.id) })
+                  }
+                />
+              </summary>
+              <div className="ed-service__fields">
+                <TextField label="Question" htmlFor={`faq-q-${item.id}`} value={item.question} onChange={(v) => patchItem(item.id, { question: v })} placeholder="e.g. What happens when I call?" />
+                <TextAreaField label="Answer" htmlFor={`faq-a-${item.id}`} rows={3} value={item.answer} onChange={(v) => patchItem(item.id, { answer: v })} hint="The straight answer a family reads — keep it short and honest." />
+              </div>
+            </details>
+          ))}
+        </div>
+      )}
+
+      <div className="row row--space" style={{ margin: "var(--space-1) 0" }}>
+        <p className="ed-subhead">
+          Next-step links <Badge tone="info">{section.links.length}</Badge>
+          <span className="ed-muted"> — the link row closing /faq.</span>
+        </p>
+        <Button
+          variant="accent"
+          size="sm"
+          onClick={() => onChange({ ...section, links: [...section.links, { label: "", href: "/" }] })}
+        >
+          <Plus size={15} aria-hidden="true" /> Add a link
+        </Button>
+      </div>
+
+      {section.links.length === 0 ? (
+        <p className="ed-hint">No links yet — leave it this way for a page that ends at the answers.</p>
+      ) : (
+        <div className="ed-services">
+          {section.links.map((link, i) => (
+            <div className="field-grid field-grid--2" key={i}>
+              <TextField
+                label={`Link ${i + 1} label`}
+                htmlFor={`faq-link-label-${i}`}
+                value={link.label}
+                onChange={(v) =>
+                  onChange({
+                    ...section,
+                    links: section.links.map((l, j) => (j === i ? { ...l, label: v } : l)),
+                  })
+                }
+              />
+              <div className="row" style={{ gap: "var(--space-2)", alignItems: "flex-end" }}>
+                <div style={{ flex: 1 }}>
+                  <TextField
+                    label="Destination"
+                    htmlFor={`faq-link-href-${i}`}
+                    value={link.href}
+                    onChange={(v) =>
+                      onChange({
+                        ...section,
+                        links: section.links.map((l, j) => (j === i ? { ...l, href: v } : l)),
+                      })
+                    }
+                    hint="Internal path, e.g. /plans."
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onChange({ ...section, links: section.links.filter((_, j) => j !== i) })}
+                  aria-label={`Remove link ${link.label || i + 1}`}
+                >
+                  <Trash2 size={14} aria-hidden="true" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ------------------------------- main editor ------------------------------ */
 
 function ctaFields(cta: Cta, onChange: (next: Cta) => void, key: string, labelPrefix: string) {
@@ -850,6 +1003,7 @@ const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: strin
   { id: "ed-plans", num: "06", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
   { id: "ed-map", num: "07", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
   { id: "ed-blog", num: "08", label: "Blog & newsfeed", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
+  { id: "ed-faq", num: "09", label: "FAQ page", hint: "The help page at /faq: the questions families ask most, the answers under each one, and the next-step links that close the page." },
 ];
 
 function formatStamp(iso: string | null): string {
@@ -904,7 +1058,10 @@ export function LandingPageEditor({
     ).length;
     const media = content.blog.posts.reduce((n, p) => n + p.media.filter((m) => !m.src.trim()).length, 0);
     const posts = content.blog.posts.filter((p) => !p.caption.trim() && p.media.length === 0).length;
-    return { services, media, posts };
+    const faq =
+      content.faq.items.filter((item) => !item.question.trim() || !item.answer.trim()).length +
+      content.faq.links.filter((link) => !link.label.trim() || !link.href.trim()).length;
+    return { services, media, posts, faq };
   }, [content]);
 
   // Scroll-spy: keep the navigator's active zone in step with what's on screen.
@@ -956,6 +1113,16 @@ export function LandingPageEditor({
         if (!m.src.trim()) issues.push(`A ${m.kind} attachment on “${post.caption.slice(0, 30) || post.date || "new post"}” is missing its source.`);
       });
     });
+    content.faq.items.forEach((item, i) => {
+      if (!item.question.trim() || !item.answer.trim()) {
+        issues.push(`FAQ entry ${i + 1} needs both a question and an answer before publishing.`);
+      }
+    });
+    content.faq.links.forEach((link, i) => {
+      if (!link.label.trim() || !link.href.trim()) {
+        issues.push(`FAQ next-step link ${i + 1} needs a label and a destination before publishing.`);
+      }
+    });
     return issues;
   }
 
@@ -992,7 +1159,7 @@ export function LandingPageEditor({
       } else {
         savedJson.current = JSON.stringify(content);
       }
-      setNotice({ tone: "success", msg: "Published — the public home at / now shows this document." });
+      setNotice({ tone: "success", msg: "Published — the public pages at / and /faq now show this document." });
     } catch {
       setNotice({ tone: "danger", msg: "Could not reach the content store." });
     } finally {
@@ -1006,16 +1173,16 @@ export function LandingPageEditor({
     setNotice(null);
   }
 
-  const { logo, contact, hero, rails, about, services, plans, blog, map } = content;
-  const attention = flags.services + flags.media;
+  const { logo, contact, hero, rails, about, services, plans, blog, map, faq } = content;
+  const attention = flags.services + flags.media + flags.faq;
 
   const statusLine = busy
     ? "Publishing to the content store…"
     : dirty
-      ? "Unsaved changes — the live home still shows the last published version."
+      ? "Unsaved changes — the live pages still show the last published version."
       : lastSaved
-        ? `Published ${formatStamp(lastSaved)} — the home at / shows this document.`
-        : "Seed content — the home currently shows the recorded starter document.";
+        ? `Published ${formatStamp(lastSaved)} — the pages at / and /faq show this document.`
+        : "Seed content — the pages currently show the recorded starter document.";
 
   return (
     <div className="stack-4">
@@ -1028,7 +1195,7 @@ export function LandingPageEditor({
             {busy ? <Loader2 size={15} aria-hidden="true" /> : dirty ? null : <Check size={15} aria-hidden="true" />}
           </span>
           <div className="ed-console__copy">
-            <p className="ed-console__title">Public home · /</p>
+            <p className="ed-console__title">Public pages · / and /faq</p>
             <p className="ed-console__sub">
               {sessionName ? `Good day, ${sessionName} — ` : ""}
               {statusLine}
@@ -1075,10 +1242,13 @@ export function LandingPageEditor({
                   ? services.items.length
                   : zone.id === "ed-blog"
                     ? blog.posts.length
-                    : null;
+                    : zone.id === "ed-faq"
+                      ? faq.items.length
+                      : null;
             const warn =
               (zone.id === "ed-services" && flags.services > 0) ||
-              (zone.id === "ed-blog" && (flags.media > 0 || flags.posts > 0));
+              (zone.id === "ed-blog" && (flags.media > 0 || flags.posts > 0)) ||
+              (zone.id === "ed-faq" && flags.faq > 0);
             return (
               <li key={zone.id}>
                 <button
@@ -1251,14 +1421,30 @@ export function LandingPageEditor({
         <BlogEditor section={blog} onChange={(next) => patch((d) => void (d.blog = next))} />
       </EdSection>
 
+      <EdSection
+        id="ed-faq"
+        num="09"
+        title="FAQ page — /faq"
+        hint="The questions families ask most, the answer under each one and the next-step links that close the page. The page's layout is fixed; every word below is yours."
+        badge={
+          flags.faq > 0 ? (
+            <span className="ed-chip ed-chip--warn">{flags.faq} need attention</span>
+          ) : (
+            <CountChip count={faq.items.length} />
+          )
+        }
+      >
+        <FaqEditor section={faq} onChange={(next) => patch((d) => void (d.faq = next))} />
+      </EdSection>
+
       {/* 4 · Closing publish row — the same obvious action, repeated at the end of the document */}
       <div className="ed-publish-row">
         <p className="ed-hint">
           {attention > 0
             ? `${attention} item${attention === 1 ? "" : "s"} flagged for review — the amber markers above show what to check.`
             : dirty
-              ? "Your edits are ready to go live on the public home."
-              : "This document matches what visitors see on /. Nothing to publish."}
+              ? "Your edits are ready to go live on the public pages."
+              : "This document matches what visitors see on / and /faq. Nothing to publish."}
         </p>
         <div className="row" style={{ gap: "var(--space-2)" }}>
           {dirty ? (

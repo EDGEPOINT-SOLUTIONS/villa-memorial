@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { DEATH_AT_HOSPITAL_IMAGE } from "@/lib/media";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Death at hospital — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Death at hospital — Villa Memorial",
+  description:
+    "When a death happens at the hospital, one call covers the coordination, the documents and the transport — day or night, with a coordinator beside you.",
+  path: "/services/death-at-hospital",
+});
 
 export default function Page() {
   return (

@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { PublicParkMap } from "@/components/public-park-map";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
 import { optionalSession } from "@/lib/auth/guard";
 import { canEditPlots } from "@/lib/park-3d/capability";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Villa Memorial Park — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Villa Memorial Park — Villa Memorial",
+  description:
+    "Walk the Villa Memorial Park map — sections, plots, availability and deep links to any plot, with the interactive 3D view of the grounds.",
+  path: "/map",
+});
 
 // Fixture mode is static-friendly, but once a live public lots path lands the page must
 // re-read per request (env/cookies) — never let it serve stale prerendered HTML.
