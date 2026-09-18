@@ -39,6 +39,14 @@ on backend services.
   folders/config; shared kit stays generic (ⓡ discipline applies to UI too).
 - Hard-coding colors/sizes in views — every visual decision goes through `styles/tokens.css`
   (design-system.md consumption rule #1).
+- **Typing a font or an off-ladder size.** The product owns two faces — Alegreya (display serif)
+  and Source Sans 3 (interface sans), SIL OFL 1.1, self-hosted under `public/fonts/` and declared
+  in `styles/fonts.css` (imported first in `app/globals.css`). Every readable text size is one
+  of the seven ladder steps in `styles/tokens.css` (12px hard floor; the public hero is the one
+  fluid `--text-display`); text ink is one of the four `--color-text-*` roles, and decorative
+  gold never carries text. `tests/unit/typography-system.test.ts` fails a raw/off-ladder size,
+  a sub-12px value, a second typeface or a gold-as-text rule; `tests/unit/park-map-labels.test.ts`
+  pins the overview map label density rule.
 - **Inventing a shape or a scope ahead of the contract, then not flagging it loudly enough.**
   Fixtures-first is the right pattern — screens must not wait on services — but a fixture
   invented before a freeze becomes the de facto contract by the time anyone reviews it. The

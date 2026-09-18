@@ -18,6 +18,25 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* The product's own typefaces (styles/fonts.css) — preload the two
+            latin subsets used above the fold so the folio voice paints on the
+            first pass; latin-ext (the peso sign among it) streams behind. */}
+        <link
+          rel="preload"
+          href="/fonts/alegreya/alegreya-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/source-sans-3/source-sans-3-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );
