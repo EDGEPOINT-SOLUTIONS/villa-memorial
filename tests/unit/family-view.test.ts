@@ -2,8 +2,15 @@ import { describe, expect, it } from "vitest";
 import {
   countWord,
   FAMILY_JARGON,
+  familyAppointmentState,
+  familyDayLabel,
   familyDocumentView,
   familyHousehold,
+  familyInstantDateLabel,
+  familyInstantTimeLabel,
+  familyInstantWeekday,
+  familyRequestState,
+  monogram,
   paidPercent,
   percentWords,
 } from "@/lib/family/family-view";
@@ -76,5 +83,55 @@ describe("family-facing copy guard", () => {
     for (const word of FAMILY_JARGON) {
       expect(word.trim().length).toBeGreaterThan(2);
     }
+  });
+});
+
+describe("the days a family screen prints", () => {
+  it("prints a recorded calendar date in UTC, so no reader's timezone shifts it", () => {
+    expect(familyDayLabel("2026-09-12")).toBe("12 September");
+    expect(familyDayLabel("2026-01-01")).toBe("1 January");
+  });
+
+  it("prints an instant in the park's own time, day and clock separately", () => {
+    // 2026-09-22T02:00:00Z is 10:00 AM on Tuesday in Asia/Manila (UTC+8) — the
+    // boundary that would break a naive formatter is 16:00Z → the next day.
+    expect(familyInstantWeekday("2026-09-22T02:00:00Z")).toBe("Tuesday");
+    expect(familyInstantDateLabel("2026-09-22T02:00:00Z")).toBe("22 September");
+    expect(familyInstantTimeLabel("2026-09-22T02:00:00Z")).toBe("10:00 AM");
+    expect(familyInstantDateLabel("2026-09-22T16:30:00Z")).toBe("23 September");
+  });
+
+  it("renders a dash for an unusable value — never a broken or invented day", () => {
+    expect(familyDayLabel("not-a-date")).toBe("—");
+    expect(familyInstantWeekday("")).toBe("—");
+    expect(familyInstantDateLabel("nope")).toBe("—");
+    expect(familyInstantTimeLabel("nope")).toBe("—");
+  });
+});
+
+describe("the requests and appointments wording", () => {
+  it("says where a request stands in a family's words, and which wait is on them", () => {
+    expect(familyRequestState("with_office")).toEqual({ label: "With the office", wait: false });
+    expect(familyRequestState("waiting_on_you")).toEqual({ label: "Waiting on you", wait: true });
+    expect(familyRequestState("done")).toEqual({ label: "Done", wait: false });
+    // An unknown state never reaches the screen as a service-desk code.
+    expect(familyRequestState("SLA_BREACH").label).toBe("With the office");
+  });
+
+  it("never presents an unconfirmed time as agreed", () => {
+    expect(familyAppointmentState("confirmed")).toBe("Confirmed by the office");
+    expect(familyAppointmentState("waiting")).toBe("Waiting for the office");
+    expect(familyAppointmentState("past")).toBe("Happened");
+    expect(familyAppointmentState("done")).toBe("Happened");
+  });
+});
+
+describe("the memorial initials", () => {
+  it("takes the first and last initial, never more than two letters", () => {
+    expect(monogram("Ernesto Dela Cruz")).toBe("ED");
+    expect(monogram("Rosa Villa")).toBe("RV");
+    expect(monogram("Bong")).toBe("B");
+    expect(monogram("  ")).toBe("");
+    expect(monogram(undefined)).toBe("");
   });
 });

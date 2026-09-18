@@ -234,3 +234,43 @@ the action both visible above the fold on 390 px. The family and agent dashboard
 [`after/dashboards-side-by-side-phone.png`](./after/dashboards-side-by-side-phone.png). Pinned by
 `tests/unit/family-pages.test.tsx`, `family-portal-shell.test.tsx`, `portal-kit.test.tsx`,
 `family-nav.test.ts`, `family-prd-coverage.test.ts`.
+
+## 12. The four record-backed screens (2026-09-18)
+
+**What changed.** Requests (`/client/requests`), Ask for a visit (`/client/appointments`),
+Your lot (`/client/property`) and Remembering (`/client/memorials`) moved from designed-only
+honest pages to the office's own record, shown through one app-authored workspace fixture
+(`lib/fixtures/family/workspace.json`, provenance in the file). They keep §1's five rules and
+§11's grammar: one answer, one primary action, plain words, the office number everywhere.
+
+- **Your lot** leads with `Lot A-01` (`snapshot.plan_summary.plan_name`'s own words) and a folio
+  **record card** — the place, the plan, the name the record is held in and who keeps it — then
+  the fields the property office still holds (the ownership papers, co-owners, the right of
+  interment, the history), the plan's already-recorded money, and the park/office/map paths.
+- **Remembering** shows the memorial record we actually hold — the initials plate (`ED`, the
+  sample's own letters for Ernesto Dela Cruz, in the same marble plate), name and life dates,
+  the place and the plan — then the three visibility choices and the content the service will
+  add, every one marked **“Not decided yet”**. Nothing is published, no default exists and no
+  tribute, photo or date we do not hold appears.
+- **Requests** shows the family's requests with the office's state in a family's words
+  (“With the office” · “Waiting on you” · “Done”), each row with its own way to reach a person,
+  then the office's request list (crm-cases.md:44) in a two-up grid on desktop.
+- **Ask for a visit** shows what the office confirmed, what still waits for a person to confirm
+  it and what has happened — each card carrying the day, the clock, the reason, where to be and
+  who confirmed it — then the three numbered steps that set a time. No chapel is named (the
+  park's chapel list is still a staff-side PLACEHOLDER) and no time is presented as agreed when
+  a human has not confirmed it.
+
+**New presentation in the family block** (`styles/components.css`, “Family portal (client)”):
+`.fv-record` / `.fv-record__mark` / `.fv-record__grid` (the folio record card with the initials
+plate and label-over-value facts), `.fv-steps` (numbered steps, counter-rendered), `.fv-ask`
+(the request-list grid) and `.ag-appt.fv-appt` (the wider day column the family card needs).
+No new colours, radii or shadows — tokens only.
+
+**Verification.** All four routes at 1440 × 900 and 390 × 844 (dev server, family persona), no
+console or hydration errors, one `<h1>` in `.ag-hero`, the primary action before the first
+`.ag-sec`, and the office number one tap away. Pinned by `tests/unit/family-records.test.tsx`
+(the job each screen does, and what must never appear: no amount outside the snapshot, no
+chapel, no published memorial) and `tests/fixture-contract/family-workspace.test.ts` (the
+fixture's cross-references to the snapshot, the contact module, the PRD taxonomy and the
+appointment-reason vocabulary; every recorded day/time label reproduced from its instant).
