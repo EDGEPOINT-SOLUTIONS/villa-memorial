@@ -1,0 +1,145 @@
+{
+  "_provenance": {
+    "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
+    "recorded": "2026-09-18",
+    "note": [
+      "The family's own records for the four screens that wait on a family-facing service: Requests (crm-cases.md » Customer service ticketing, blueprint §40), Appointments (facilities-scheduling.md » Appointment & scheduling engine, blueprint §35), the lot record (memorial-property-gis.md » Lot record + sales/ownership, blueprint §15/§19) and the memorial record (06-cultural-digital-memorial/digital-memorial.md » Villa eMemorial page, blueprint §22).",
+      "WHAT THIS IS: app-authored UI records, the same pattern as lib/fixtures/agent/workspace.json. No service desk, no family scheduling read/write contract, no family-facing lot/ownership projection and no digital-memorial service exists, so every screen that reads this file ends in one calm note naming the missing contract, and the office phone stays the action that reaches a person. Nothing here is a live record.",
+      "WHAT IT CROSS-REFERENCES (pinned by tests/fixture-contract/family-workspace.test.ts): `lot.plan_name` and `lot.owner_name` are the family snapshot's own words (lib/fixtures/family/snapshot.json), `lot.park`/appointment `where` wording comes from lib/family/contact.ts and the park masterplan's own POIs (lib/park-3d/masterplan.ts), the request kinds mirror crm-cases.md:44 (lot concern · payment · maintenance · document request · transfer · interment · memorial update · chapel/funeral inquiry · other), and the appointment reasons are the PRD's seven (facilities-scheduling.md:35).",
+      "NEVER INVENTED: no chapel is named (the park's chapel list is still a PLACEHOLDER in staff scheduling — scheduling/chapel-admin.json), no amount and no currency appears in this file (money lives in the family snapshot and lib/villa-pricing.ts), no ticket number exists (the office writes a request down; the app does not issue one), no coordinator is named, and nothing about the loved one is published — the memorial page is a state, not content.",
+      "Appointment `starts_at` values are true instants: rendering them through lib/family/family-view.ts must reproduce the fixture's own `day_label`/`time_label` (Asia/Manila)."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "requests": [
+    {
+      "id": "req-grass",
+      "title": "Cut the grass around your lot",
+      "detail": "The grass along the path has grown over the marker.",
+      "asked_on": "2026-09-12",
+      "state": "with_office",
+      "next": "The park team has it. We will tell you the moment it is done.",
+      "action_label": "Call for the latest"
+    },
+    {
+      "id": "req-contract-copy",
+      "title": "A certified copy of the service contract",
+      "detail": "The bank asked for a certified copy before it releases anything.",
+      "asked_on": "2026-09-15",
+      "state": "waiting_on_you",
+      "next": "Nothing is wrong — we need your signature on the release slip before we can hand the copy over.",
+      "action_label": "Call and we will sort it"
+    },
+    {
+      "id": "req-statement",
+      "title": "Your balance, written down",
+      "detail": "A written statement of what is paid and what is left on the plan.",
+      "asked_on": "2026-09-08",
+      "state": "done",
+      "next": "Sent to the email address on this account. Say the word if you would like another copy.",
+      "action_label": "Ask for another copy"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "appt-home",
+      "kind": "home_visit",
+      "starts_at": "2026-09-22T02:00:00Z",
+      "day_label": "Tuesday 22 September",
+      "time_label": "10:00 AM",
+      "title": "The office comes to you",
+      "reason": "Discuss a service arrangement",
+      "where": "Your home — we call before we set off",
+      "bring": ["Any papers you would like us to look at"],
+      "state": "confirmed",
+      "action_label": "Call to move this visit",
+      "next": "Confirmed by the office. To move it, call us — nothing is fixed in stone."
+    },
+    {
+      "id": "appt-park",
+      "kind": "park_visit",
+      "starts_at": "2026-09-29T01:30:00Z",
+      "day_label": "Tuesday 29 September",
+      "time_label": "9:30 AM",
+      "title": "Walk to your lot with us",
+      "reason": "Visit a memorial lot",
+      "where": "Sanctuario de Mercedes y Gloria · the Main Entrance",
+      "bring": [],
+      "state": "waiting",
+      "action_label": "Call to set the day",
+      "next": "Waiting for the office to confirm. One call sets the day you prefer."
+    },
+    {
+      "id": "appt-sat",
+      "kind": "office_visit",
+      "starts_at": "2026-09-12T05:00:00Z",
+      "day_label": "Saturday 12 September",
+      "time_label": "1:00 PM",
+      "title": "Sat with us at the office",
+      "reason": "Discuss a service arrangement",
+      "where": "The office · Sunrise, Isabela City",
+      "bring": [],
+      "state": "past",
+      "action_label": "Ask about this visit",
+      "discussed": "The plan, the balance and what each paper means. Nothing was left for you to bring or follow up."
+    }
+  ],
+  "ask_for": [
+    {
+      "key": "lot",
+      "label": "Something at the lot",
+      "detail": "Grass, the marker, the path — anything you notice when you visit."
+    },
+    {
+      "key": "papers",
+      "label": "A paper or a copy",
+      "detail": "A contract, a receipt, a certificate, a permit, or a certified copy for a bank or an insurer."
+    },
+    {
+      "key": "payment",
+      "label": "A payment question",
+      "detail": "What is left, what comes next, or a schedule that fits your family better."
+    },
+    {
+      "key": "transfer",
+      "label": "A change to who the lot belongs to",
+      "detail": "A transfer, a co-owner, or someone new authorized to decide for the lot."
+    },
+    {
+      "key": "interment",
+      "label": "Interment or exhumation",
+      "detail": "A new interment, or moving someone to another place."
+    },
+    {
+      "key": "memorial",
+      "label": "Something about remembering",
+      "detail": "A correction, a name, a photo, or a message when the memorial opens."
+    },
+    {
+      "key": "services",
+      "label": "A chapel or funeral question",
+      "detail": "Times, rooms, a mass, or any question about the arrangement."
+    },
+    {
+      "key": "other",
+      "label": "Anything else",
+      "detail": "Tell us in your own words — we would rather hear it than not."
+    }
+  ],
+  "lot": {
+    "plan_name": "Premium Lawn · Lawn A-01",
+    "park": "Sanctuario de Mercedes y Gloria",
+    "section": "A",
+    "lot_number": "A-01",
+    "owner_name": "Cory Customer",
+    "owner_note": "The name on this account",
+    "kept_by": "The property office, Sunrise",
+    "record_note": "The grass, the paths and the marker are looked after by the park team. What has been done on your lot, and when, is written in the office's own record — call us and we will read it out.",
+    "with_office": [
+      "Who is named as co-owner, and who else may decide for this lot",
+      "Who may be interred here — the right of interment is on the ownership papers",
+      "Every interment already on the lot, and the date we recorded it",
+      "The care fund, and every repair we have made here"
+    ]
+  }
+}

@@ -16,6 +16,13 @@
  *   honest  — the service does not exist yet, so the screen is the designed
  *             honest page (what will be here, what is missing, who to call).
  *
+ * The four screens that needed a family-facing service (lots, memorials,
+ * requests, appointments) moved from `honest` to `partial` on 2026-09-18: each
+ * now shows the office's own record through one provisional fixture
+ * (`lib/fixtures/family/workspace.json`), each ends in the calm note naming the
+ * contract it still waits on, and none of them invents a figure, a chapel, a
+ * ticket number or a published memorial.
+ *
  * tests/unit/family-prd-coverage.test.ts pins every route to a page on disk and
  * every screen to a family rail entry, so this table cannot drift.
  */
@@ -62,10 +69,10 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
   {
     screen: "My Lots",
     route: "/client/property",
-    state: "honest",
+    state: "partial",
     module: "memorial-property-gis.md",
     missing:
-      "A family-facing lot/ownership projection does not exist yet; the park map is real and carries the action.",
+      "The family's lot record shows the place, the plan and the money already on it; the ownership papers, co-owners, right of interment and lot history wait on a family-facing lot/ownership projection.",
   },
   {
     screen: "My Payments",
@@ -86,10 +93,10 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
   {
     screen: "My Memorials",
     route: "/client/memorials",
-    state: "honest",
+    state: "partial",
     module: "06-cultural-digital-memorial/digital-memorial.md",
     missing:
-      "The memorial service (content, moderation, visibility) is not built; nothing is published until the family says yes.",
+      "The record we hold (name, dates, place) and the choices are on the page, and the state is plainly “nothing published”; the digital-memorial service (content, moderation, visibility) is not built, so the page itself cannot open.",
   },
   {
     screen: "My Funeral Cases",
@@ -102,18 +109,18 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
   {
     screen: "My Requests",
     route: "/client/requests",
-    state: "honest",
+    state: "partial",
     module: "crm-cases.md » Customer service ticketing",
     missing:
-      "The service desk / ticket contract does not exist yet, so a phone call is the one route that reaches a person.",
+      "The office's own record of the family's requests shows with each state; the service desk / ticket contract (assignment, SLA, history) does not exist yet, so a phone call is the one route that reaches a person.",
   },
   {
     screen: "My Appointments",
     route: "/client/appointments",
-    state: "honest",
+    state: "partial",
     module: "facilities-scheduling.md",
     missing:
-      "Scheduling has no family-facing contract; a time is only real when the office confirms it.",
+      "Confirmed, waiting and past times show from the office's record; scheduling has no family-facing read/write contract, so booking, moving and reminders stay with the office and a time is only real once a person confirms it.",
   },
   {
     screen: "Support/Ticket",

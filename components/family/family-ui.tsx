@@ -19,6 +19,8 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, Clock, Phone } from "lucide-react";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import { familyAppointmentState, familyInstantDateLabel, familyInstantTimeLabel, familyInstantWeekday } from "@/lib/family/family-view";
+import type { FamilyAppointment } from "@/lib/api-client/family";
 import {
   PortalActionBand,
   PortalCard,
@@ -334,6 +336,112 @@ export function PaidSoFar({
     <PortalCard title="Paid so far">
       {progress}
     </PortalCard>
+  );
+}
+
+/* ------------------------------------------------------- the record card ---- */
+
+/**
+ * The folio card for something the family's own record holds — the lot, the
+ * memorial. Kicker, title, optional monogram (initials, never a photo the
+ * family has not shared) and optional subtitle, then the facts as children.
+ * Presentation only: the page passes recorded values and never a guess.
+ */
+export function RecordCard({
+  kicker,
+  title,
+  subtitle,
+  monogram,
+  children,
+}: {
+  kicker: ReactNode;
+  title: ReactNode;
+  subtitle?: ReactNode;
+  /** One or two initials, rendered decoratively (the name is right beside it). */
+  monogram?: string;
+  children?: ReactNode;
+}) {
+  return (
+    <div className="fv-record">
+      {monogram ? (
+        <span className="fv-record__mark" aria-hidden="true">
+          {monogram}
+        </span>
+      ) : null}
+      <div className="fv-record__body">
+        <p className="fv-record__kicker">{kicker}</p>
+        <p className="fv-record__title">{title}</p>
+        {subtitle ? <p className="fv-record__sub">{subtitle}</p> : null}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/** The facts inside a record card — two columns where they fit, one on a phone. */
+export function RecordFacts({ children }: { children: ReactNode }) {
+  return <div className="fv-record__grid">{children}</div>;
+}
+
+/* ---------------------------------------------------------- appointments --- */
+
+/**
+ * One appointment from the family's record: the day and time the office agreed,
+ * what it is, where to be and whether it is confirmed. The chain of
+ * responsibility is on the card — a time is only real once a person confirmed
+ * it, and the page says which it is.
+ */
+export function AppointmentCard({ appointment }: { appointment: FamilyAppointment }) {
+  const past = appointment.state === "past";
+  return (
+    <article className={`ag-appt fv-appt${past ? " ag-appt--past" : ""}`}>
+      <div className="ag-appt__time">
+        {familyInstantWeekday(appointment.starts_at)}
+        <small>{familyInstantDateLabel(appointment.starts_at)}</small>
+        <small>{familyInstantTimeLabel(appointment.starts_at)}</small>
+      </div>
+      <div>
+        <p className="ag-appt__title">{appointment.title}</p>
+        <p className="ag-appt__where">{appointment.where}</p>
+        {appointment.bring.length > 0 ? (
+          <p className="ag-appt__where">Bring: {appointment.bring.join(", ")}</p>
+        ) : null}
+        <p className="fv-state">
+          <span className={appointment.state === "waiting" ? "ag-stage ag-stage--warm" : "ag-stage"}>
+            {familyAppointmentState(appointment.state)}
+          </span>
+          <span className="ag-stage">{appointment.reason}</span>
+        </p>
+        {appointment.next || appointment.discussed ? (
+          <p className="ag-appt__where">{appointment.next ?? appointment.discussed}</p>
+        ) : null}
+      </div>
+      <div className="ag-appt__actions">
+        <QuietAction href={FAMILY_HELP.phoneHref} label={appointment.action_label} />
+      </div>
+    </article>
+  );
+}
+
+/* ------------------------------------------------------------ numbered ----- */
+
+/**
+ * A short numbered list of steps — the order something happens in. Numbered
+ * because the order matters (call, agree a day, we write it down), not as
+ * decoration; the labels are the caller's own plain words.
+ */
+export function Steps({ steps }: { steps: Array<{ title: string; detail: string }> }) {
+  return (
+    <ol className="fv-steps">
+      {steps.map((step) => (
+        <li key={step.title}>
+          <span className="fv-steps__body">
+            <span className="fv-steps__title">{step.title}</span>
+            <span className="fv-steps__detail">{step.detail}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
   );
 }
 

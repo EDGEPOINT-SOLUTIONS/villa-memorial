@@ -11,7 +11,14 @@
  * as-is and NEVER parsed. The only amount arithmetic here is the paid share
  * from the fixture's integer minor units (`balance_cents`), and a
  * fixture-contract test pins that the display strings and the integers agree.
+ *
+ * The workspace records (`FamilyRequest`, `FamilyAppointment`) carry the office's
+ * own dates and instants, so the label helpers below are the ONE way a family
+ * screen prints a day: calendar dates format in UTC (deterministic), instants
+ * format in Asia/Manila (the park's own time), and the fixture's recorded labels
+ * are pinned to both by tests/fixture-contract/family-workspace.test.ts.
  */
+import type { FamilyAppointmentState, FamilyRequestState } from "@/lib/api-client/family";
 
 /** Family-facing document words for the raw status a record carries. */
 export type FamilyDocTone = "success" | "warning" | "info" | "neutral" | "danger";
@@ -158,4 +165,94 @@ export function familyHousehold(lovedOneName?: string | null, accountName?: stri
   const account = (accountName ?? "").trim().split(/\s+/).filter(Boolean);
   if (account.length > 0) return `${account[0]} family`;
   return "your family";
+}
+
+/* ------------------------------------------------------- days and instants --- */
+
+const DAY_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+  day: "numeric",
+  month: "long",
+});
+const MANILA_WEEKDAY_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Manila",
+  weekday: "long",
+});
+const MANILA_DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Manila",
+  day: "numeric",
+  month: "long",
+});
+const MANILA_TIME_FORMAT = new Intl.DateTimeFormat("en-PH", {
+  timeZone: "Asia/Manila",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
+
+/**
+ * A calendar date (yyyy-mm-dd) the office wrote down — “12 September”. Calendar
+ * dates are day-only records, so they format in UTC: the reader's timezone can
+ * never shift a recorded day. Unusable values render as a dash, never a broken
+ * date and never a made-up one.
+ */
+export function familyDayLabel(iso: string): string {
+  const date = new Date(`${iso}T00:00:00Z`);
+  return Number.isNaN(date.getTime()) ? "—" : DAY_FORMAT.format(date);
+}
+
+/** A true instant in the park's own time — the weekday alone (“Tuesday”). */
+export function familyInstantWeekday(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "—" : MANILA_WEEKDAY_FORMAT.format(date);
+}
+
+/** The same instant's day and month — “22 September”. */
+export function familyInstantDateLabel(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "—" : MANILA_DATE_FORMAT.format(date);
+}
+
+/** The same instant's clock time — “10:00 AM”. */
+export function familyInstantTimeLabel(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "—" : MANILA_TIME_FORMAT.format(date);
+}
+
+/* ------------------------------------------------------------ the records ---- */
+
+export type FamilyRequestView = {
+  /** The state in a family's words. */
+  label: string;
+  /** True only for “waiting on you” — the warm chip, never a red alarm. */
+  wait: boolean;
+};
+
+/** Where a request stands, in words a family would use. Unknown values never leak. */
+export function familyRequestState(state: FamilyRequestState | string): FamilyRequestView {
+  if (state === "waiting_on_you") return { label: "Waiting on you", wait: true };
+  if (state === "done") return { label: "Done", wait: false };
+  return { label: "With the office", wait: false };
+}
+
+/** A time is real only once a person confirmed it — the state is a sentence, not a colour. */
+export function familyAppointmentState(state: FamilyAppointmentState | string): string {
+  if (state === "confirmed") return "Confirmed by the office";
+  if (state === "waiting") return "Waiting for the office";
+  return "Happened";
+}
+
+/**
+ * The initials a memorial shows before the family shares a photograph —
+ * “Ernesto Dela Cruz” → “ED”, the approved design sample's own letters for
+ * exactly this name (page-06-remembering: initials until the family is ready).
+ * A single name keeps its one letter; no name gives an empty plate the page
+ * simply does not render.
+ */
+export function monogram(name?: string | null): string {
+  const parts = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "";
+  const first = [...parts[0]][0] ?? "";
+  const second = parts.length > 1 ? [...parts[1]][0] ?? "" : "";
+  return `${first}${second}`.toUpperCase();
 }

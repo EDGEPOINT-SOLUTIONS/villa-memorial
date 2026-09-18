@@ -74,18 +74,27 @@ describe("the PRD family screen list is fully covered", () => {
     const honest = FAMILY_PRD_SCREENS.filter((screen) => screen.state === "honest").map(
       (screen) => screen.screen,
     );
-    // These six have no family-facing service behind them at all.
-    expect(honest).toEqual([
-      "My Lots",
-      "My Memorials",
-      "My Funeral Cases",
-      "My Requests",
-      "My Appointments",
-      "Privacy Center",
-    ]);
+    // These two have no family-facing service behind them at all.
+    expect(honest).toEqual(["My Funeral Cases", "Privacy Center"]);
     expect(FAMILY_SUPPORTING_SCREENS.map((screen) => screen.route)).toEqual([
       "/client/notifications",
       "/client/profile",
     ]);
+  });
+
+  it("records the four screens the captain approved building on 2026-09-18 as partial", () => {
+    // Lots, memorials, requests and appointments now show the office's own recorded
+    // record with named honest states; none of them is a designed-only page any more,
+    // and none claims to be fully real while its contract is missing.
+    const rebuilt = FAMILY_PRD_SCREENS.filter((screen) =>
+      ["My Lots", "My Memorials", "My Requests", "My Appointments"].includes(screen.screen),
+    );
+    expect(rebuilt).toHaveLength(4);
+    for (const screen of rebuilt) {
+      expect(screen.state, `${screen.screen} must be record-backed now`).toBe("partial");
+      expect(screen.missing, `${screen.screen} must still name its missing contract`).toMatch(
+        /contract|service|projection/,
+      );
+    }
   });
 });

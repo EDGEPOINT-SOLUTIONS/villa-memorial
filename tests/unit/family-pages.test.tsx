@@ -116,7 +116,9 @@ describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline
   });
 });
 
-describe("the pages whose services are not switched on", () => {
+describe("the pages that end in a calm honesty note", () => {
+  // Every page whose service (or part of it) is not switched on says so in one calm
+  // note — the record-backed screens included, since each still waits on a contract.
   const PLANNED = PAGES.filter((page) =>
     [
       "The funeral",

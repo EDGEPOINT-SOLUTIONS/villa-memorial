@@ -17,10 +17,22 @@
  * stays `other`, which is the REQUESTABLE bucket: a paper the app cannot classify never
  * silently gains the ownership wording the family's own contract and receipts carry.
  *
+ * THE FAMILY WORKSPACE (requests · appointments · the lot record): the same discipline,
+ * one seam further out. `lib/fixtures/family/workspace.json` carries the records the four
+ * screens that wait on a family-facing service show — a request log (crm-cases ticket
+ * service), the family's appointments (facilities-scheduling) and the lot/ownership
+ * record (memorial-property-gis). It is APP-AUTHORED example data with provenance, exactly
+ * like `lib/fixtures/agent/workspace.json`: no ticket number is issued, no chapel is named,
+ * no amount lives there and nothing is published. Every reader below is a tolerant reader
+ * (malformed shape → 500, never a cast) and every screen that reads one names the missing
+ * contract and keeps the office phone as the action that reaches a person.
+ *
  * When the family contract freezes, this file gains a live branch behind a FAMILY_BASE_URL
- * env var and the snapshot's provenance comment is replaced by the contract reference.
+ * env var and the fixtures' provenance comments are replaced by contract references.
  */
 import snapshotFile from "@/lib/fixtures/family/snapshot.json";
+import workspaceFile from "@/lib/fixtures/family/workspace.json";
+import { ApiError } from "@/lib/api-client/api-error";
 
 /**
  * Which paper a document is, as the family sees it.
@@ -87,8 +99,139 @@ export function toFamilyDocument(raw: unknown): FamilyDocument | null {
   };
 }
 
+/* --------------------------------------------------------------- the workspace --- */
+
+/**
+ * One request the family made. `state` is the family's own word for where it stands —
+ * never a service-desk code and never a ticket number: the office writes a request down,
+ * the app does not issue one. `next` is one line of what happens now, in plain words.
+ */
+export type FamilyRequestState =
+  | "with_office"
+  | "waiting_on_you"
+  | "done";
+
+export type FamilyRequest = {
+  id: string;
+  title: string;
+  detail: string;
+  /** Calendar date (yyyy-mm-dd) the office wrote the request down. */
+  asked_on: string;
+  state: FamilyRequestState;
+  /** What happens now — one plain sentence. */
+  next: string;
+  /** The visible word on the row's one action (distinct per row, so links never repeat). */
+  action_label: string;
+};
+
+/**
+ * One appointment in the family's record. A time is only real once the office confirms
+ * it (`state`), and `where` never names a chapel — the park's chapel list is still a
+ * PLACEHOLDER in staff scheduling.
+ */
+export type FamilyAppointmentState = "confirmed" | "waiting" | "past";
+
+export type FamilyAppointment = {
+  id: string;
+  kind: "home_visit" | "park_visit" | "office_visit";
+  /** A true instant; the day/time labels are rendered from it (Asia/Manila). */
+  starts_at: string;
+  day_label: string;
+  time_label: string;
+  title: string;
+  /** The reason vocabulary the PRD fixes (facilities-scheduling.md:35). */
+  reason: string;
+  where: string;
+  bring: string[];
+  state: FamilyAppointmentState;
+  /** The visible word on the card's one action (distinct per card, so links never repeat). */
+  action_label: string;
+  /** What happens now — or, for a past appointment, what was discussed. */
+  next?: string;
+  discussed?: string;
+};
+
+/** One kind of thing a family can ask the office for (crm-cases.md:44). */
+export type FamilyAskFor = {
+  key: string;
+  label: string;
+  detail: string;
+};
+
+/**
+ * The family's lot as the portal may show it: what the office's record carries, plus the
+ * fields the office holds but this page does not project yet (`with_office`). No amount
+ * is carried here — the plan's money stays in the snapshot where it is recorded.
+ */
+export type FamilyLotRecord = {
+  plan_name: string;
+  park: string;
+  section: string;
+  lot_number: string;
+  /** The name on the family's account — never asserted as legal ownership. */
+  owner_name: string;
+  owner_note: string;
+  kept_by: string;
+  record_note: string;
+  /** The parts of the ownership record this page cannot show yet, in the office's words. */
+  with_office: string[];
+};
+
+export type FamilyWorkspace = {
+  tenant_id: string;
+  requests: FamilyRequest[];
+  appointments: FamilyAppointment[];
+  ask_for: FamilyAskFor[];
+  lot: FamilyLotRecord;
+};
+
 export function familyLiveModeEnabled(): boolean {
   return false; // no family API contract yet — fixture only until the dev freeze
+}
+
+/**
+ * Tolerant reader in the staff-client style (see `lib/api-client/property.ts`): a
+ * malformed shape fails loudly with a 502-class error at the seam instead of being cast
+ * to the domain type. Extra fields are ignored; a missing collection is empty, never a
+ * crash — a family page must never white-screen because a demo record changed.
+ */
+function readFamilyWorkspace(): FamilyWorkspace {
+  const raw = workspaceFile as unknown;
+  if (typeof raw !== "object" || raw === null || !("lot" in (raw as object))) {
+    throw new ApiError("family workspace fixture is malformed", 500);
+  }
+  const workspace = raw as unknown as FamilyWorkspace;
+  return {
+    tenant_id: workspace.tenant_id,
+    requests: Array.isArray(workspace.requests) ? workspace.requests : [],
+    appointments: Array.isArray(workspace.appointments) ? workspace.appointments : [],
+    ask_for: Array.isArray(workspace.ask_for) ? workspace.ask_for : [],
+    lot: workspace.lot,
+  };
+}
+
+/** The family's own requests, in the order the office wrote them down. */
+export async function listFamilyRequests(): Promise<FamilyRequest[]> {
+  return readFamilyWorkspace().requests.map((request) => ({ ...request }));
+}
+
+/** The family's appointments: what is coming, what waits for the office, what happened. */
+export async function listFamilyAppointments(): Promise<FamilyAppointment[]> {
+  return readFamilyWorkspace().appointments.map((appointment) => ({
+    ...appointment,
+    bring: Array.isArray(appointment.bring) ? [...appointment.bring] : [],
+  }));
+}
+
+/** The kinds of request the office accepts, in the family's own words. */
+export async function listFamilyAskFor(): Promise<FamilyAskFor[]> {
+  return readFamilyWorkspace().ask_for.map((item) => ({ ...item }));
+}
+
+/** The family's lot record — what the office holds and what this page cannot show yet. */
+export async function getFamilyLotRecord(): Promise<FamilyLotRecord> {
+  const lot = readFamilyWorkspace().lot;
+  return { ...lot, with_office: Array.isArray(lot.with_office) ? [...lot.with_office] : [] };
 }
 
 export async function getFamilySnapshot(): Promise<FamilySnapshot> {
