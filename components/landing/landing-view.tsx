@@ -121,16 +121,23 @@ export function RailPanel({
   return (
     <div className={`rail-panel ${phoneFirst ? "rail-panel--phone" : ""}`.trim()}>
       {phoneFirst ? (
-        <a className="rail-call" href={contact.phoneHref}>
-          <span className="rail-call__top">
-            <span className="rail-call__pulse" aria-hidden="true" />
-            <span className="rail-call__label">{contact.phoneLabel}</span>
-          </span>
-          <span className="rail-call__number">{contact.phoneDisplay}</span>
-          <span className="rail-call__hint">
-            {contact.location} · every hour, every day
-          </span>
-        </a>
+        <div className="rail-call">
+          <a className="rail-call__line" href={contact.phoneHref}>
+            <span className="rail-call__top">
+              <span className="rail-call__pulse" aria-hidden="true" />
+              <span className="rail-call__label">{contact.phoneLabel}</span>
+            </span>
+            <span className="rail-call__number">{contact.phoneDisplay}</span>
+            <span className="rail-call__hint">
+              {contact.location} · every hour, every day
+            </span>
+          </a>
+          {/* The home assistance card's one door to the Immediate Assistance
+              screen (F-01): the number above stays the one-tap call. */}
+          <a className="rail-call__assist" href="/immediate-assistance">
+            What to do right now →
+          </a>
+        </div>
       ) : null}
       <h2 className="rail-heading">{config.heading}</h2>
       {config.items.length === 0 ? (

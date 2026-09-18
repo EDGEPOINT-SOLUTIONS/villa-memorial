@@ -24,7 +24,7 @@
  * matching link gets aria-current; the home renders the same bar unhighlighted.
  */
 /* eslint-disable @next/next/no-html-link-for-pages -- shared framework-free public bar (see landing-view.tsx rationale) */
-import { ChevronDown, Clock, MapPin, Phone, ShoppingCart } from "lucide-react";
+import { ChevronDown, Clock, LifeBuoy, MapPin, Phone, ShoppingCart } from "lucide-react";
 import type { ContactInfo, LogoConfig } from "@/lib/api-client/landing";
 import { BrandMark } from "@/components/landing/brand-mark";
 import { HeaderBehavior } from "@/components/landing/header-behavior";
@@ -97,13 +97,22 @@ export function SiteHeaderBar({
               <Clock size={14} aria-hidden="true" />
               <span>{UTILITY_HOURS}</span>
             </p>
-            <a className="anchored-header__call" href={contact.phoneHref}>
-              <Phone size={17} aria-hidden="true" />
-              <span className="anchored-header__call-text">
-                <span className="anchored-header__call-label">{contact.phoneLabel}</span>
-                <span className="anchored-header__call-number">{contact.phoneDisplay}</span>
-              </span>
-            </a>
+            <div className="anchored-header__utility-actions">
+              {/* The way into the Immediate Assistance screen (F-01). Desktop
+                  only — on phones the same target lives in the bottom phone
+                  bar, never twice on one screen. */}
+              <a className="anchored-header__assist" href="/immediate-assistance">
+                <LifeBuoy size={15} aria-hidden="true" />
+                <span>Immediate assistance</span>
+              </a>
+              <a className="anchored-header__call" href={contact.phoneHref}>
+                <Phone size={17} aria-hidden="true" />
+                <span className="anchored-header__call-text">
+                  <span className="anchored-header__call-label">{contact.phoneLabel}</span>
+                  <span className="anchored-header__call-number">{contact.phoneDisplay}</span>
+                </span>
+              </a>
+            </div>
           </div>
         </div>
 

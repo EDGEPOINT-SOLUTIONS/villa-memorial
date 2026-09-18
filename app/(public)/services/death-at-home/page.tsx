@@ -23,7 +23,7 @@ export default function Page() {
             </p>
             <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>Speak with a coordinator any time, day or night.</p>
             <div className="row" style={{ gap: "var(--space-3)", marginTop: "var(--space-5)" }}>
-              <Link href="/contact" className="btn btn--accent">Immediate assistance</Link>
+              <Link href="/immediate-assistance" className="btn btn--accent">Immediate assistance</Link>
               <Link href="/plans" className="btn btn--secondary">Memorial plans</Link>
             </div>
             <nav aria-label="Back to Funeraria Memorial Services" style={{ marginTop: "var(--space-4)" }}>

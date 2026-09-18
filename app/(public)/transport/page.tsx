@@ -28,7 +28,7 @@ export default function Page() {
               Villa Memorial Plan.
             </p>
             <div className="row" style={{ gap: "var(--space-3)", marginTop: "var(--space-5)" }}>
-              <Link href="/contact" className="btn btn--accent">
+              <Link href="/immediate-assistance" className="btn btn--accent">
                 Immediate assistance
               </Link>
               <Link href="/plans/villa-memorial-plan" className="btn btn--secondary">

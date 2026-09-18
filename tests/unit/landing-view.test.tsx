@@ -114,6 +114,21 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
   });
 
+  it("the home's assistance card keeps the one-tap call and opens Immediate assistance (F-01)", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    // The rail's 24/7 card: the number stays a one-tap `tel:` link...
+    expect(html).toContain('class="rail-call"');
+    expect(html).toContain(
+      `class="rail-call__line" href="${content.contact.phoneHref}"`,
+    );
+    // ...and the card's quieter second intent opens the assistance screen.
+    expect(html).toContain('class="rail-call__assist" href="/immediate-assistance"');
+    expect(html).toContain("What to do right now");
+  });
+
   it("middle sections render in order: about, service cards, plan board, live map, then blog feed", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(

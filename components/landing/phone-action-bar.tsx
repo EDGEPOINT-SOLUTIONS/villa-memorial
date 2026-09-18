@@ -1,16 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, Phone, X } from "lucide-react";
+import { ArrowRight, LifeBuoy, Phone, X } from "lucide-react";
 import type { ContactInfo } from "@/lib/api-client/landing";
 import { PLAN_AHEAD_LINKS } from "@/components/landing/site-header";
 
 /**
  * Phone action bar (D3) — the permanent bottom bar below 75rem with the two
  * targets that matter at the worst moment: **Call 24/7** (a real `tel:` link)
- * and **Plan ahead** (the grouped client names in a dialog-style sheet). The
- * bar never scrolls away; the existing full menu (MobileQuickMenu) keeps the
- * complete link list and sits just above it.
+ * and **Plan ahead** (the grouped client names in a dialog-style sheet), plus
+ * **Get help** — the one-tap door to /immediate-assistance added for checklist
+ * F-01 (captain, 2026-09-18). The bar never scrolls away; the existing full
+ * menu (MobileQuickMenu) keeps the complete link list and sits just above it.
  *
  * Desktop renders it too (it is in the DOM, CSS hides it ≥ 75rem), so the
  * markup is identical on every public page. The sheet is a real dialog:
@@ -50,6 +51,10 @@ export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
         <a className="anchored-phonebar__btn anchored-phonebar__btn--call" href={contact.phoneHref}>
           <Phone size={18} aria-hidden="true" />
           Call 24/7
+        </a>
+        <a className="anchored-phonebar__btn anchored-phonebar__btn--help" href="/immediate-assistance">
+          <LifeBuoy size={18} aria-hidden="true" />
+          Get help
         </a>
         <button
           ref={openerRef}
