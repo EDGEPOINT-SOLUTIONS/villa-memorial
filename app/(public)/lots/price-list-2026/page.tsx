@@ -4,12 +4,7 @@ import { PriceList2026Tables } from "@/components/villa/price-list-2026";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { VMP_NOTES } from "@/lib/villa-pricing";
 import { pageMetadata } from "@/lib/seo";
-import {
-  LOT_GARDEN_NICHES,
-  LOT_MAUSOLEUM,
-  LOT_PREMIUM,
-  LOT_PRIMARY,
-} from "@/lib/media";
+import { PARK_PLACE_PHOTOS } from "@/lib/media";
 
 export const metadata: Metadata = pageMetadata({
   title: "2026 Price list — Lots & mausoleum",
@@ -36,14 +31,19 @@ export default async function PriceList2026Page() {
       </section>
 
       <div className="landing__grid">
+        {/* The photograph-only derivatives, not the marketing tiles: the tiles
+            carry their own logo lock-up and title band ("MAUSOLEUM", "PRIMARY
+            LOT") which would print beside the caption that already names the
+            type — the call the composition pass made on /lots (craft pass,
+            2026-09-18). */}
         {[
-          { img: LOT_MAUSOLEUM, label: "Mausoleum" },
-          { img: LOT_GARDEN_NICHES, label: "Garden Niches" },
-          { img: LOT_PREMIUM, label: "Premium Lot" },
-          { img: LOT_PRIMARY, label: "Primary Lot" },
+          { img: PARK_PLACE_PHOTOS.mausoleum, label: "Mausoleum" },
+          { img: PARK_PLACE_PHOTOS.niches, label: "Garden Niches" },
+          { img: PARK_PLACE_PHOTOS.premium, label: "Premium Lot" },
+          { img: PARK_PLACE_PHOTOS.prime, label: "Primary Lot" },
         ].map((x) => (
           <figure key={x.label} className="card landing__card">
-            <div className="media-block card-media media-block--natural">
+            <div className="media-block card-media media-block--photo">
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded imagery */}
               <img src={x.img} alt={x.label} loading="lazy" />
             </div>

@@ -85,7 +85,11 @@ export default async function PublicLotDetailPage({
       </div>
 
       <div className="landing__grid landing__grid--pair" >
-        <div className="media-block product-layout__media">
+        {/* media-block--natural: the photo sets the box height instead of
+            being cropped by a fixed 16:10 frame — the raw 1254px tile used to
+            overflow a 746px / 342px box and showed only its top-left corner
+            (craft pass, 2026-09-18). */}
+        <div className="media-block product-layout__media media-block--natural">
           {/* eslint-disable-next-line @next/next/no-img-element -- legend-attached lot photos */}
           <img
             src={VILLA_SECTION_PHOTOS[lot.section] ?? SAMPLE_PARK_IMAGE}
