@@ -3253,6 +3253,18 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-muted);
 }
 
+/* --- Schedule: day board (staff /staff/schedule) ------------------------------ */
+/* The page leads with the selected day; the overlap strip above it lists every
+   booking the service flagged, wherever it sits on the calendar. Layout only —
+   colours and spacing come from tokens (public site and other portals untouched). */
+.sched-overlaps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+}
+
 /* --- Schedule: week-at-a-glance matrix (villa grammar) ------------------------ */
 .week-matrix {
   display: grid;
@@ -3318,15 +3330,17 @@ because the shared `.ag-appt` rule comes later in this file. */
 /* --- Chapel administration: availability month grid (staff Schedule) ---------- */
 /* Free / held / booked / closed days, plus the clash flag an operator needs when
    a closure and a booking share a date. Staff surfaces keep the navy+gold
-   direction (see AGENTS.md), so the status tints come from the semantic tokens. */
-.chapel-grid {
+   direction (see AGENTS.md), so the status tints come from the semantic tokens.
+   The class is `chapel-month` (never `chapel-grid` — that name belongs to the
+   public services stylesheet further down and would reflow this grid to 2 cols). */
+.chapel-month {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: var(--space-1);
   max-width: 44rem;
 }
 
-.chapel-grid__head {
+.chapel-month__head {
   font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: 0.06em;

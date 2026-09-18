@@ -75,7 +75,7 @@
 
 ## Module H/D scheduling — conflict handling
 - ⚠️ **Overlapping bookings are flagged, never blocked** (cut line #3, deliberate). `Booking.conflicting` warns on both sides of a clash; the calendar shows it. Auto-conflict blocking needs resolution UX that CP-1 does not ship, and a wrong block in a funeral operation is worse than a visible warning.
-- ❌ **No schedule screen.** `/staff/schedule` is still a gated placeholder — the bookings API exists with no UI in front of it.
+- ✅ **The schedule screen is real.** `/staff/schedule` (scope `scheduling:read`) leads with the **day board** — the selected day's bookings across every resource (`?date=`, default today: time · resource · booking · case · state) — then a strip naming every booking the service flagged as overlapping, then the week at a glance and the chapel surfaces. Booking window/conflict rules are pure (`lib/schedule-board.ts`); the screen reads the bookings/resources API live when `SCHEDULING_BASE_URL` is set, fixtures otherwise, and shows the honest empty/error/loading state either way. Chapel-admin writes answer 503 live (no resource-write contract).
 
 ## Cross-Cutting Limitations
 - **Partial live backend integration:** `AUTH_BASE_URL`, `COMMERCE_BASE_URL`, `PROPERTY_BASE_URL`, `OPERATIONS_BASE_URL` and `BILLING_BASE_URL` switch their screens to live services; the dashboard follows automatically because it aggregates those clients. HR and documents remain fixture-only — those services are unbuilt.

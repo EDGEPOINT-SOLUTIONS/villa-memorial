@@ -38,7 +38,7 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 | `/staff/customers`, `/[id]`, `/staff/inquiries` | ✅ fixture-backed records (no crm-families contract yet); `new` forms ⚠ (crm-families) |
 | `/staff/pipeline` | ⚠ sales pipeline (crm-families) |
 | `/staff/cases`, `/[id]`, `/new`, `/[id]/service-contract` | ✅ frozen case contract + capture/export |
-| `/staff/schedule` | ✅ chapel administration (settings/availability/bookings) over the scheduling store |
+| `/staff/schedule` | ✅ day board over the bookings API (fixtures; live with `SCHEDULING_BASE_URL`) + chapel administration (settings/availability/bookings) over the scheduling store |
 | `/staff/dispatch` | ⚠ vehicle dispatch (vehicles as scheduling resources; scheduling delivery) |
 | `/staff/work-orders` | ⚠ lot maintenance (deferred property workflow) |
 | `/staff/property`, `/[id]`, `/[id]/apply`, `/[id]/document` | ✅ shared park map; lot reserve; purchase application is PROVISIONAL (503 live) |

@@ -352,6 +352,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `.data/scheduling-chapel-admin.json`, gitignored — atomic writer like the orders store).
   Closing a range or deactivating a chapel changes what a customer can book on the NEXT
   read; nothing caches it.
+- **The screen leads with the day board** (`?date=`, default today): the selected day's
+  bookings across every resource — time, resource, booking, case, state — through
+  `lib/schedule-board.ts` (pure: UTC day keys, instants printed in Asia/Manila, a multi-day
+  stay appears on every day it covers). The service's own `conflicting` flag is shown,
+  never recomputed: an `Overlap` badge on the row plus a page-top strip naming every flagged
+  booking and linking it to its day. Chapel settings/availability/bookings follow the board.
+  The availability month grid is `.chapel-month` — never `.chapel-grid`, which the public
+  services stylesheet owns (a later same-specificity rule reflows it to two columns).
 - **Rules**: `lib/chapel-admin.ts` (pure — chapel records/validation, closed ranges,
   operator status `hold → confirmed / cancelled`, the free·held·booked·closed month grid);
   server orchestration `lib/api-client/chapel-admin.ts`; BFF routes
@@ -381,7 +389,9 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   inventing a contract; the chapel slice of the schedule still reads.
 - Evidence: `tests/unit/chapel-admin.test.ts` (closure → refusal, cancel frees + records the
   reason, add/rename/deactivate, claim), `tests/unit/chapel-admin-rbac.test.tsx` (401/403,
-  page gating, same-store effects), `tests/fixture-contract/chapel-admin.test.ts` (seed pinned
+  page gating, same-store effects), `tests/unit/schedule-board.test.ts` +
+  `tests/unit/schedule-page.test.tsx` (day board, overlap strip, empty-day pointer, reading
+  budget, month-grid class), `tests/fixture-contract/chapel-admin.test.ts` (seed pinned
   to the scheduling resources fixture + the fallback rules).
 
 ## 2026 price list — where every client figure surfaces
