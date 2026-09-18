@@ -11,6 +11,7 @@ import {
   CasketSampleFigure,
 } from "@/components/villa/casket-detail";
 import { getCatalogItem } from "@/lib/api-client/commerce";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { casketDetailHref, coffinModelForSku, coffinSku } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
 import { COFFIN_SAMPLE_PHOTOS, casketSamplePhoto } from "@/lib/media";
@@ -30,6 +31,10 @@ import { pageMetadata } from "@/lib/seo";
  */
 
 type CasketDetailParams = { params: Promise<{ sku: string }> };
+
+// Reads the landing contact document per request — the advisor card's number is
+// the same staff-editable one the header prints, never a typed placeholder.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: CasketDetailParams): Promise<Metadata> {
   const { sku } = await params;
@@ -86,6 +91,8 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
   }
 
   const siblings = CASKET_MODELS.filter((m) => m.collection === model.collection && m.model !== model.model);
+
+  const { contact } = await listLandingContent();
 
   return (
     <div className="plan-page">
@@ -205,9 +212,13 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
               Talk to our memorial care advisor
             </div>
             <p className="plan-advisor__line">
-              <strong className="plan-advisor__phone">0917 123 4567</strong>
+              <a className="plan-advisor__phone" href={contact.phoneHref}>
+                Call {contact.phoneDisplay}
+              </a>
               <br />
-              <span className="text-sm text-muted">24/7 · Isabela City, Basilan</span>
+              <span className="text-sm text-muted">
+                {contact.phoneLabel} · {contact.location}
+              </span>
             </p>
             <p className="plan-note">
               Not sure which cover or model suits the family? Send a request with this model — the

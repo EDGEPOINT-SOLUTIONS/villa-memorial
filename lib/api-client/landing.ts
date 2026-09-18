@@ -51,11 +51,23 @@ export type RailConfig = {
 
 export type Cta = { label: string; href: string };
 export type LogoConfig = { wordmark: string; markImage: string | null };
+
 export type ContactInfo = {
   phoneLabel: string;
   phoneDisplay: string;
   phoneHref: string;
   location: string;
+  /**
+   * The client's second published line, from their own letterhead
+   * ("Tel No. 09176178489 / 09171839262", 2026 Purchase Application Form).
+   * An empty display or href means the office removed the row in the editor —
+   * the public contact surface then omits it rather than showing a dead link.
+   */
+  secondPhoneDisplay: string;
+  secondPhoneHref: string;
+  /** The client's own letterhead addresses (same paper). Empty = not shown. */
+  officeAddress: string;
+  parkAddress: string;
 };
 
 export type HeroSection = {
@@ -361,6 +373,13 @@ export function readLandingContent(raw: unknown): LandingContent {
   const readStr = (obj: Record<string, unknown>, key: string): string => str(obj[key]);
   const readNullable = (obj: Record<string, unknown>, key: string): string | null =>
     nullableStr(obj[key]);
+  // Contact facts: a MISSING field falls back to the client's own letterhead
+  // facts; a field the staff deliberately cleared ("") stays cleared, so the
+  // editor can remove a row. Same rule for both halves of the second line.
+  const readContactStr = (key: string, fallback: string): string => {
+    const value = (contactRaw as Record<string, unknown>)[key];
+    return typeof value === "string" ? value : fallback;
+  };
 
   return {
     version: 1,
@@ -376,6 +395,18 @@ export function readLandingContent(raw: unknown): LandingContent {
       phoneDisplay: readStr(contactRaw as Record<string, unknown>, "phoneDisplay") || "0917 617 8489",
       phoneHref: readStr(contactRaw as Record<string, unknown>, "phoneHref") || "tel:+639176178489",
       location: readStr(contactRaw as Record<string, unknown>, "location"),
+      // The client's own letterhead facts (2026 Purchase Application Form):
+      // "Tel No. 09176178489 / 09171839262" and the office/park addresses.
+      secondPhoneDisplay: readContactStr("secondPhoneDisplay", "0917 183 9262"),
+      secondPhoneHref: readContactStr("secondPhoneHref", "tel:+639171839262"),
+      officeAddress: readContactStr(
+        "officeAddress",
+        "Capilla de San Jose Bldg., Sunrise, Isabela City, Basilan",
+      ),
+      parkAddress: readContactStr(
+        "parkAddress",
+        "Sanctuario de Mercedes y Gloria, Purok 3, Begang, Isabela City, Basilan",
+      ),
     },
     hero: {
       eyebrow: readStr(heroRaw as Record<string, unknown>, "eyebrow"),
@@ -495,6 +526,16 @@ export function validateLandingContent(
   if (!content.logo.wordmark.trim()) return { ok: false, error: "The wordmark can't be empty." };
   if (!content.contact.phoneDisplay.trim() || !content.contact.phoneHref.trim()) {
     return { ok: false, error: "The 24/7 line needs a number to display and a call link." };
+  }
+  // The second published line is optional — but it is a call target, so it goes
+  // in as a pair or not at all (a number without a tel: link is a dead action).
+  const secondDisplaySet = content.contact.secondPhoneDisplay.trim().length > 0;
+  const secondHrefSet = content.contact.secondPhoneHref.trim().length > 0;
+  if (secondDisplaySet !== secondHrefSet) {
+    return {
+      ok: false,
+      error: "The second phone line needs both a number to show and a call link — or leave both empty.",
+    };
   }
   for (const side of ["left", "right"] as const) {
     const rail = content.rails[side];

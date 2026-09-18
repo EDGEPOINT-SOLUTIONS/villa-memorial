@@ -22,6 +22,7 @@ import type {
   ServiceCard,
 } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
+import { NextSteps } from "@/components/landing/next-steps";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
@@ -408,21 +409,37 @@ export function LandingFooter({ content }: { content: LandingContent }) {
             <div className="anchored-footer__contact-line">
               <span className="anchored-footer__contact-label">{contact.phoneLabel}</span>
               <a className="anchored-footer__phone" href={contact.phoneHref}>
-                {contact.phoneDisplay}
+                Call {contact.phoneDisplay}
               </a>
             </div>
+            {contact.secondPhoneDisplay.trim() && contact.secondPhoneHref.trim() ? (
+              <div className="anchored-footer__contact-line">
+                <span className="anchored-footer__contact-label">Second line</span>
+                <a className="anchored-footer__phone" href={contact.secondPhoneHref}>
+                  Call {contact.secondPhoneDisplay}
+                </a>
+              </div>
+            ) : null}
             <div className="anchored-footer__contact-line">
               <span className="anchored-footer__contact-label">Open</span>
               <span className="anchored-footer__contact-value">Every hour, every day</span>
             </div>
-            <div className="anchored-footer__contact-line">
-              <span className="anchored-footer__contact-label">Visit the park</span>
-              <span className="anchored-footer__contact-value">
-                {contact.location}
-                <br />
-                <a href="/map">Map &amp; directions →</a>
-              </span>
-            </div>
+            {contact.officeAddress.trim() ? (
+              <div className="anchored-footer__contact-line">
+                <span className="anchored-footer__contact-label">Main office</span>
+                <span className="anchored-footer__contact-value">{contact.officeAddress}</span>
+              </div>
+            ) : null}
+            {contact.parkAddress.trim() ? (
+              <div className="anchored-footer__contact-line">
+                <span className="anchored-footer__contact-label">Visit the park</span>
+                <span className="anchored-footer__contact-value">
+                  {contact.parkAddress}
+                  <br />
+                  <a href="/map">Map &amp; directions →</a>
+                </span>
+              </div>
+            ) : null}
             <div className="anchored-footer__contact-line">
               <span className="anchored-footer__contact-label">Help</span>
               <span className="anchored-footer__contact-value">
@@ -683,6 +700,9 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
           <RailPanel config={content.rails.right} side="right" contact={content.contact} />
         </aside>
       </div>
+      {/* The home ends on the same three options every public page ends on
+          (F-17) — the band the interior pages get from PublicShell. */}
+      <NextSteps contact={content.contact} />
       <PhoneActionBar contact={content.contact} />
       <LandingFooter content={content} />
     </div>

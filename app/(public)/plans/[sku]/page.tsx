@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
 import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import {
   CASH_ASSISTANCE,
@@ -150,7 +151,8 @@ export default async function PlanDetailPage({
   const typeLabel = TYPE_LABEL[item.item_type] ?? item.item_type.replace("_", "-");
   const isPackage = item.item_type === "package";
   const tierItems = isPackage ? await packageTierItems() : [];
-  const pricing = await loadPricingDocument();
+  const [pricing, content] = await Promise.all([loadPricingDocument(), listLandingContent()]);
+  const { contact } = content;
 
   const cartItem = {
     sku: item.sku,
@@ -346,9 +348,13 @@ export default async function PlanDetailPage({
                 Talk to our memorial care advisor
               </div>
               <p className="plan-advisor__line">
-                <strong className="plan-advisor__phone">0917 123 4567</strong>
+                <a className="plan-advisor__phone" href={contact.phoneHref}>
+                  Call {contact.phoneDisplay}
+                </a>
                 <br />
-                <span className="text-sm text-muted">24/7 · Isabela City, Basilan</span>
+                <span className="text-sm text-muted">
+                  {contact.phoneLabel} · {contact.location}
+                </span>
               </p>
               <div className="logo-row">
                 {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
