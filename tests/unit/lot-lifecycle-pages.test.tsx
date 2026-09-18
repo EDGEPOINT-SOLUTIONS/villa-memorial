@@ -27,6 +27,9 @@ vi.mock("next/navigation", () => ({
 const { default: OwnershipPage } = await import(
   "@/app/(staff)/staff/property/[id]/ownership/page"
 );
+const { default: TransfersPage } = await import(
+  "@/app/(staff)/staff/property/[id]/transfers/page"
+);
 const { default: LotDetailPage } = await import("@/app/(staff)/staff/property/[id]/page");
 
 const USER_ID = "00000000-0000-4000-8000-000000000012";
@@ -127,6 +130,78 @@ describe("the Ownership screen", () => {
     signInAs(["property:read"]);
     const html = await render(OwnershipPage, "00000000-0000-4000-8000-00000000dead");
     expect(html).toContain("We couldn&#x27;t find that lot record.");
+  });
+});
+
+describe("the Transfers screen", () => {
+  it("answers with the request's state, the people and the next step", async () => {
+    signInAs(["property:read"]);
+    const html = await render(TransfersPage, A003);
+
+    expect(html).toContain("<h1>Transfers</h1>");
+    expect(html).toContain("The request in progress");
+    expect(html).toContain("Verified");
+    expect(html).toContain("Roberto Santos");
+    expect(html).toContain("Luz Santos");
+    expect(html).toContain("Spouse — named on the purchase application");
+    expect(html).toContain("2 of 4 steps recorded.");
+    // The next move is named, not left to the reader.
+    expect(html).toContain("Next step");
+    expect(html).toContain("Approved");
+    expect(html).toContain("Waits on the office&#x27;s written consent");
+    // The one-line gap notice names the deferred workflow and the status-only freeze.
+    expect(html).toContain("No transfer workflow exists yet");
+    expect(html).toContain("for_transfer as a status only");
+  });
+
+  it("records the request's history with dates, not a bare badge", async () => {
+    signInAs(["property:read"]);
+    const html = await render(TransfersPage, A003);
+
+    // All four clerk words, in order, with the days the office wrote down.
+    for (const word of ["Submitted", "Verified", "Approved", "Completed"]) {
+      expect(html).toContain(word);
+    }
+    expect(html).toContain("Sep 2, 2026");
+    expect(html).toContain("Sep 5, 2026");
+    expect(html).toContain("No date recorded");
+    // What verification still needs, and the office's own fee / requirement notes.
+    expect(html).toContain("What verification still needs");
+    expect(html).toContain("The office&#x27;s written consent (purchase agreement, transfer clause)");
+    expect(html).toContain("The office’s fee / requirement notes");
+    expect(html).toContain("The transfer fee follows the office&#x27;s schedule; no amount is recorded on this screen.");
+  });
+
+  it("shows a just-submitted request as submitted, with its missing papers", async () => {
+    signInAs(["property:read"]);
+    const html = await render(TransfersPage, A002);
+    expect(html).toContain("Submitted");
+    expect(html).toContain("Alyanna Santos");
+    expect(html).toContain("A photocopy of Alyanna Santos&#x27;s ID");
+    expect(html).toContain("Payment standing — the lot is reserved, not yet fully paid");
+  });
+
+  it("keeps the tab row, the way back and the reading budget", async () => {
+    signInAs(["property:read"]);
+    const html = await render(TransfersPage, A003);
+    expect(html).toContain(`aria-current="page" href="/staff/property/${A003}/transfers"`);
+    expect(html).toContain("Back to lot");
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
+    expectNoProseWall(html, "transfers");
+  });
+
+  it("is honest when no request has ever been made", async () => {
+    signInAs(["property:read"]);
+    const html = await render(TransfersPage, A001);
+    expect(html).toContain("No transfer request is recorded for this lot");
+    expect(html).toContain("written request from the present owner");
+  });
+
+  it("keeps the property area's gate", async () => {
+    signInAs(["cases:read"]);
+    const html = await render(TransfersPage, A003);
+    expect(html).toContain("You don’t have access to this area");
+    expect(html).toContain("property:read");
   });
 });
 
