@@ -1225,6 +1225,15 @@ web/
 └── styles/               # tokens.css is the single source of truth for visuals
 ```
 
+Documentation lives in `docs/` — read [`docs/README.md`](docs/README.md) before editing anything
+there: it is a **platform snapshot plus villa-only records**, so it says which files are read-only
+(the frozen contracts, the client papers), which are villa-local and edited with their work, and
+what triggers a refresh. The live state pages are
+`docs/08-delivery/notes/demo-web-route-coverage.md` (every route's state),
+[`docs/08-delivery/frontend-complete.md`](docs/08-delivery/frontend-complete.md) (the completion
+record) and [`docs/08-delivery/open-items.md`](docs/08-delivery/open-items.md) (what is open with
+the platform and the client).
+
 ## Accessibility & craft — the rule contract (F-16; read before touching focus, dialogs, headings, badges)
 
 - **One focus ring, every surface.** `styles/base.css` owns the only global `:focus-visible`

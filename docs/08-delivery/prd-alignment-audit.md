@@ -7,6 +7,22 @@
 
 ---
 
+> **Post-audit note — 2026-09-19. This audit is evidence of the 2026-09-17 state; its findings
+> are kept exactly as written and are annotated, never rewritten.** Since the audit the front end
+> completed: 16 of the 20 screens §1–§4 list as “not built” were built (F-01 · F-02 · F-03 · F-04 ·
+> F-05 · F-09 · F-10 · F-11 · F-12, the operations board and the staff lead record), the §8
+> defects were fixed in PR [#43](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/43),
+> the completeness gaps G4/G5/G7 were closed in PR
+> [#47](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/47), and the stale docs (G2/G3)
+> were refreshed in the same PR as G1. The four screens that remain are the three platform-administration screens (the
+> platform track) and AI Copilot (deferred by the CP plan). Read §3's counts and §4's statuses as
+> the audit date, not today. The current state — what was delivered and by which PRs, and what
+> remains with the platform's contract list and Villa's five answers — is the
+> [front-end completion record](./frontend-complete.md) and [open items](./open-items.md); the
+> per-route index is [`notes/demo-web-route-coverage.md`](./notes/demo-web-route-coverage.md).
+
+---
+
 ## 1. Verdict (plain language)
 
 **Yes — the build is still on the PRD's path, and it is honest about where it is not.** The core architecture the PRD froze is followed (Next.js BFF per ADR-003/004, frozen `Lot`/`Case`/order/booking/document contracts, scope-gated RBAC, tokens-only styling), the client's real 2026 prices and papers drive the storefront, and every screen without a live service says so in designed wording instead of faking data.
@@ -353,6 +369,7 @@ These are small, low-risk edits. They are not PRD deviations; they are defects i
 | open | Lavish session | (pending) | — |
 | 2026-09-17 ~11:00Z | captain message | "can you save this lavish plan and PR it, so that i can go back into this using my personal computer, because right now im using a different computer." | Delivered as this PR: the audit document plus the portable artifact under `docs/08-delivery/prd-alignment-audit/`. |
 | 2026-09-18 | captain decision (open item 1) | Option B — the extension layer, not a backport. | Recorded in [`villa-extensions.md`](./villa-extensions.md); the upstream PRD is not modified; open item 1 is closed. |
+| 2026-09-19 | post-audit record | The front end completed (PRs #43–#73); the audit's findings unchanged. | Note above §1; [front-end completion record](./frontend-complete.md); [open items](./open-items.md). |
 
 **Follow-up for the captain (not part of this PR):** the defects in §8 (the malformed scope tokens and the stale docs) are proposed fixes only; they should ship as their own small PR with a scope-vocabulary test.
 

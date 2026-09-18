@@ -18,7 +18,7 @@ re-copying that app in — never by hand-editing feature-by-feature.
 ## What the sync protects (never overwritten/removed)
 | Path | Why |
 |---|---|
-| `docs/` | This repo's docs snapshot + any repo-local notes |
+| `docs/` | The platform snapshot + the villa-local records — the edit and refresh rules live in [`docs/README.md`](docs/README.md) |
 | `legacy-mockup/` | The archived blue/gold prototype (design reference) |
 | `PORT_PLAN.md`, `SYNC.md`, `FORMS_PLAN.md` | Repo-local plans/decisions |
 | `scripts/` | Repo-local tooling (this script) |
