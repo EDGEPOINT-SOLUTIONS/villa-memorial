@@ -128,6 +128,11 @@
   --color-accent-soft: var(--brass-300);
   --color-focus-ring: var(--brass-400);
 
+  /* Text inks (type-voice decision, 2026-09-18): four roles on light
+     surfaces. Decorative gold (gold-300/400/500/600) is for rules, washes
+     and icons ONLY — it never carries text (gold-300 on white is 1.55:1). */
+  --color-text-accent: var(--gold-800);
+
   --color-status-success: var(--sage-500);
   --color-status-success-bg: var(--sage-100);
   --color-status-danger: var(--clay-500);
@@ -148,20 +153,26 @@
   --color-status-info-ink: #42566b;
 
   /* --- Type --------------------------------------------------------------- */
-  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+  --font-serif: "Alegreya", Georgia, serif;
+  --font-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
     sans-serif;
+  /* Monospace is functional (code, ids, slugs), not a third brand voice. */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
+    monospace;
 
-  --text-xs: 0.75rem;    /* 12px */
-  --text-sm: 0.8125rem;  /* 13px */
-  --text-md: 0.9375rem;  /* 15px */
-  --text-base: 1rem;     /* 16px */
-  --text-lg: 1.125rem;   /* 18px */
-  --text-xl: 1.375rem;   /* 22px */
-  --text-2xl: 1.75rem;   /* 28px */
-  --text-3xl: 2.25rem;   /* 36px */
-  --text-4xl: 2.75rem;   /* 44px — hero display */
-  --text-5xl: 3.25rem;   /* 52px — hero display (large) */
+  /* The seven-step ladder (type-voice decision, 2026-09-18).
+     12px is the hard floor for anything a person reads; 16px is the base
+     for body/UI (and the phone body minimum); the public hero is the single
+     fluid display size. Every font-size in the app is one of these values —
+     9.92/11.52/13.6px nudges are not allowed. */
+  --text-xs: 0.75rem;    /* 12px — micro-label, badge, table header (floor) */
+  --text-sm: 0.875rem;   /* 14px — dense UI, caption, helper text */
+  --text-md: 1rem;       /* 16px — body & UI base, tables, buttons, forms */
+  --text-lg: 1.125rem;   /* 18px — reading body, leads, family portal scale */
+  --text-xl: 1.375rem;   /* 22px — card / section heading */
+  --text-2xl: 1.75rem;   /* 28px — page heading, stat figure */
+  --text-3xl: 2.25rem;   /* 36px — display heading */
+  --text-display: clamp(2.25rem, 2rem + 1.6vw, 3.25rem); /* 36→52px, public hero only */
 
   --leading-tight: 1.25;
   --leading-normal: 1.55;
@@ -251,10 +262,6 @@
 
   /* Display figure colour for the staff portal (titles, headline numerals). */
   --color-figure: var(--navy-900);
-
-  /* Display type for the staff portal (page titles, headline figures). */
-  --text-title-page: clamp(1.85rem, 1.35rem + 1.4vw, 2.25rem);
-  --text-stat: 1.875rem;
 
   /* Motion ------------------------------------------------------------- */
   --motion-fast: 120ms ease-out;
