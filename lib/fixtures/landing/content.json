@@ -15,7 +15,13 @@
     "content (lib/villa-pricing.ts) — plan/rail price strings equal php() of the regular",
     "selling prices and the Villa Memorial Plan monthly rate; nothing invented. Fixture-",
     "contract tests recompute the prices from villa-pricing and pin this file to them.",
-    "Blog media photos are the real uploaded park/product assets in /public/media."
+    "Blog media photos are the real uploaded park/product assets in /public/media.",
+    "",
+    "CONTACT: the 24/7 line below is the client's own — Tel No. 0917 617 8489 / 0917 183 9262",
+    "on the 2026 purchase application form ('purchase application form 2026 (1).docx',",
+    "VILLA MEMORIAL PROJECT 2026). 0917 617 8489 is the primary line; the second is the",
+    "family/agent surfaces' secondPhone (lib/family/contact.ts). Seeded 2026-09-18 (the",
+    "template's 0917 000 1234 is gone); still staff-editable like every contact field."
   ],
   "content": {
     "version": 1,
@@ -26,8 +32,8 @@
     },
     "contact": {
       "phoneLabel": "24/7 Assistance Line",
-      "phoneDisplay": "0917 000 1234",
-      "phoneHref": "tel:+639170001234",
+      "phoneDisplay": "0917 617 8489",
+      "phoneHref": "tel:+639176178489",
       "location": "Isabela City, Basilan"
     },
     "hero": {

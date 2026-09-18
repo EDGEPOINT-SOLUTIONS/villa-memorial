@@ -139,7 +139,10 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - Public lot browse (/lots) filters plots by park, status and legend type; the
   type-filter + live chip counts live in `lib/lots-legend.ts` (pure + unit-
   tested at tests/unit/lots-legend.test.ts) and read types from
-  `lib/park-types.ts` — never inline that filter logic in the page.
+  `lib/park-types.ts` — never inline that filter logic in the page. The demo
+  lots' areas/prices are the 2026 lot sheet's family figures for their section
+  (`lib/catalog-sources.ts`, pinned by `tests/fixture-contract/catalog-sources.test.ts`)
+  — never a per-plot price.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by
@@ -165,8 +168,9 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   canonical + OpenGraph + Twitter card; `PUBLIC_PAGES` is the `app/sitemap.ts`
   table; `localBusinessJsonLd()` builds the `FuneralHome` + `WebSite` structured
   data from the landing content document's own wordmark / 24-7 line / location
-  (never a typed contact detail — the seeded public number is still the template
-  placeholder, so the editor field is the place to fix it); `siteUrl()` reads
+  (never a typed contact detail — since 2026-09-18 the seed is the client's own
+  line from the 2026 purchase application form, and the editor field remains the
+  place to change it); `siteUrl()` reads
   `SITE_URL` (documented in `.env.example`), defaulting to the documented
   deployment host `https://in-memoriam.edgepoint-ai.com`.
 - `app/sitemap.ts` publishes `PUBLIC_PAGES` plus the real coffin / package /
@@ -412,10 +416,17 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   fees, the embalming 3–9 day table plus the `>9` extra day, the two chapel per-day
   products and the three plan packages (monthly amortization). `lib/catalogue-skus.ts`
   is the only sheet-label → SKU map; `tests/fixture-contract/commerce.test.ts` pins each
-  entry to `lib/villa-pricing.ts`. The four upstream items no 2026 sheet prices
-  (`SRV-LIGHTS`, `ADD-COFFIN-LIZO-SR`, `ADD-FLOWERS`, `ADD-URN`) keep their seed
-  amounts by design — never invent a figure for them. **This diverges from the upstream
+  entry to `lib/villa-pricing.ts`. **One item → client document → figure map:
+  `lib/catalog-sources.ts`** — `tests/fixture-contract/catalog-sources.test.ts` walks every
+  recorded entry (and every property lot) and fails, naming the item, when a published
+  price has no client source or drifts from the sheet's. **This diverges from the upstream
   platform seed** (still placeholder-priced); upstream parity is a captain decision.
+  The four upstream items no 2026 sheet prices (`SRV-LIGHTS`, `ADD-COFFIN-LIZO-SR`,
+  `ADD-FLOWERS`, `ADD-URN`) were WITHDRAWN 2026-09-18, not re-priced (the 2025 service
+  contract names Lights and Lizo JR/SR with a blank amount column; nothing prices them) —
+  `WITHDRAWN_CATALOG_ITEMS` in that module records each SKU, its upstream placeholder and
+  the office-arranged state; where one is really sold the public answer is "ask the
+  office" (the cart's line fallback says so), never an invented figure.
 - Every sellable line pairs the same two actions: `components/villa/catalogue-actions.tsx`
   (Add to cart with the row's exact catalogue SKU/price + the prefilled Request order).
   Lots are never cart items — `components/villa/price-list-2026.tsx` gives each row
@@ -428,8 +439,8 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   its own footnote says ₱1,800/₱4,200 per day; (2) no sheet maps the Bronze/Silver/Gold
   tier photography to the named Lumina/White Rose/Crown/Dynasty models. `2026 price FV
   website A.pdf` is byte-identical to `PRICE LIST FOR 2026 II.pdf` (one source, two names).
-  Both, plus the lot A-001 fixture-vs-sheet disagreement, are carried as read-only client
-  `questions` in the pricing fixture — see the next section.
+  Both, plus the office's per-plot lot quotation vs the lot sheet's families, are carried
+  as read-only client `questions` in the pricing fixture — see the next section.
 
 ## Plan rates & lot prices — the pricing store (read before touching `/staff/plans`, `/staff/pricing`)
 
@@ -455,7 +466,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (`COMMERCE_BASE_URL`) keeps the seed for display and refuses writes with 503
   (`PRICING_ADMIN_NOT_WIRED`) — no catalog-pricing read/write contract has frozen; the PR
   carries that ask. The client questions are read-only fixture metadata, outside the
-  editable document: a save can never drop or silently resolve one.
+  editable document: a save can never drop or silently resolve one. The static demo
+  records that quote a lot price are NOT this editable document — `lib/catalog-sources.ts`
+  maps each park section to a lot sheet family and
+  `tests/fixture-contract/catalog-sources.test.ts` pins the property lots to it; the
+  office's per-plot quotation stays an open question, never folded into a family.
 - Evidence: `tests/unit/pricing-model.test.ts`, `tests/unit/pricing-store.test.ts`,
   `tests/unit/pricing-admin-render.test.tsx` (an edit reaches the public pages),
   `tests/unit/pricing-admin-rbac.test.tsx`, `tests/fixture-contract/pricing.test.ts`.
@@ -623,6 +638,12 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   per-control errors, `parseMajorToMinorUnits` — the form edits pesos, the wire is integer
   centavos). Form, BFF route and store all run the same rule; the store throws `ApiError` with
   `fieldErrors` (422) and the route forwards them.
+- Provenance is a hard rule: `lib/catalog-sources.ts` is the one item → client document →
+  figure map and `tests/fixture-contract/catalog-sources.test.ts` fails any seeded entry
+  whose price has no source (naming the item) or drifts from it, and any withdrawn SKU that
+  comes back. An item the office creates through the admin is app-authored by definition
+  and outside that seed contract — extend the map when a new item transcribes a client
+  document, never with an amount typed from memory.
 - RBAC (frozen `rbac-scopes-v1`): `catalog:read` lists (read-only without `catalog:write`, with
   the reason on screen); `catalog:write` gates create/edit/toggle. Routes
   `GET/POST /api/catalog/items` + `GET/PATCH /api/catalog/items/[idOrSku]`, gate

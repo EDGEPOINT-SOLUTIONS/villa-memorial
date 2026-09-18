@@ -24,6 +24,7 @@ import {
   embalmingDaySku,
   planTierPackageSku,
 } from "@/lib/catalogue-skus";
+import { WITHDRAWN_CATALOG_SKUS } from "@/lib/catalog-sources";
 import {
   ALACARTE_SERVICE_FEES,
   CASKET_MODELS,
@@ -47,6 +48,12 @@ import {
  * storefront can actually sell them. SKUs are unchanged; four names now match
  * the client's own price-list labels. Upstream parity is the captain's call
  * (called out in the PR).
+ *
+ * WITHDRAWN (2026-09-18): four upstream SKUs no 2026 sheet prices were REMOVED
+ * rather than published at an invented figure.
+ * tests/fixture-contract/catalog-sources.test.ts walks every recorded entry against
+ * lib/catalog-sources.ts and fails, naming the item, when a published price has no
+ * client source.
  */
 
 // Fixture-mode checkout persists through the durable order store
@@ -57,7 +64,10 @@ const STORE_DIR = mkdtempSync(path.join(os.tmpdir(), "vm-orders-contract-"));
 process.env.ORDERS_STORE_PATH = path.join(STORE_DIR, "orders.json");
 process.env.CATALOG_STORE_PATH = path.join(STORE_DIR, "catalog.json");
 
-/** The 11 upstream SKUs — identity must never change, whatever the price. */
+/** The SKUs the storefront sells, with their contract types. The four upstream
+ * items no 2026 sheet prices (SRV-LIGHTS, ADD-COFFIN-LIZO-SR, ADD-FLOWERS,
+ * ADD-URN) are WITHDRAWN — see lib/catalog-sources.ts (WITHDRAWN_CATALOG_ITEMS)
+ * and tests/fixture-contract/catalog-sources.test.ts. */
 const UPSTREAM_SKUS: Array<[string, string]> = [
   // [sku, item_type]
   ["PKG-BASIC", "package"],
@@ -66,26 +76,7 @@ const UPSTREAM_SKUS: Array<[string, string]> = [
   ["SRV-EMBALM-D", "service"],
   ["SRV-INTERMENT", "service"],
   ["SRV-DELIVERY", "service"],
-  ["SRV-LIGHTS", "service"],
   ["SRV-VIEWING", "service"],
-  ["ADD-COFFIN-LIZO-SR", "add_on"],
-  ["ADD-FLOWERS", "add_on"],
-  ["ADD-URN", "add_on"],
-];
-
-/**
- * The four upstream items the client's 2026 sheets do NOT price (they are not
- * on any sheet: "Lights & Sound Setup", the Lizo SR upgrade, a flower set and a
- * keepsake urn). They keep their upstream seed prices untouched — inventing a
- * 2026 figure for them would break the "prices stay the client's real figures"
- * rule. Flagged in the PR.
- */
-const UNPRICED_BY_SHEETS: Array<[string, number]> = [
-  // [sku, upstream placeholder cents]
-  ["SRV-LIGHTS", 60000],
-  ["ADD-COFFIN-LIZO-SR", 85000],
-  ["ADD-FLOWERS", 25000],
-  ["ADD-URN", 18000],
 ];
 
 async function priceOf(sku: string): Promise<number> {
@@ -112,9 +103,9 @@ describe("catalog fixtures mirror the frozen API shape", () => {
     const packages = await listCatalogItems("package");
     expect(packages.map((i) => i.sku)).toEqual(["PKG-BASIC", "PKG-STANDARD", "PKG-PREMIUM"]);
     const services = await listCatalogItems("service");
-    expect(services.length).toBe(16);
+    expect(services.length).toBe(15);
     const addOns = await listCatalogItems("add_on");
-    expect(addOns.length).toBe(27);
+    expect(addOns.length).toBe(24);
   });
 
   it("resolves by SKU or numeric id interchangeably; unknown → not_found/404", async () => {
@@ -174,11 +165,13 @@ describe("the catalogue sells the client's real 2026 price list", () => {
     }
   });
 
-  it("leaves only the four items no 2026 sheet prices with their upstream amounts", async () => {
-    // A guard against silent invention: these four are on NO 2026 sheet, so
-    // their upstream seed amounts stay put until the client prices them.
-    for (const [sku, cents] of UNPRICED_BY_SHEETS) {
-      expect(await priceOf(sku), `${sku} (not on any 2026 sheet)`).toBe(cents);
+  it("sells nothing the client's sheets do not price (the four withdrawals stay out)", async () => {
+    // SRV-LIGHTS, ADD-COFFIN-LIZO-SR, ADD-FLOWERS and ADD-URN were removed for having no
+    // 2026 client source (lib/catalog-sources.ts records which and why). The full
+    // source walk lives in tests/fixture-contract/catalog-sources.test.ts.
+    const skus = (await listCatalogItems()).map((item) => item.sku);
+    for (const withdrawn of WITHDRAWN_CATALOG_SKUS) {
+      expect(skus, `${withdrawn} is not on any 2026 sheet`).not.toContain(withdrawn);
     }
   });
 });
@@ -189,27 +182,27 @@ describe("checkout follows order-payment-api-v1", () => {
   it("returns the frozen 201 envelope; total is server-priced from the catalogue", async () => {
     const order = await createOrder({
       customer,
-      items: [{ sku: "PKG-BASIC", quantity: 1 }, { sku: "ADD-FLOWERS", quantity: 2 }],
+      items: [{ sku: "PKG-BASIC", quantity: 1 }, { sku: "SRV-DELIVERY", quantity: 2 }],
     });
     expect(Object.keys(order)).toEqual(
       expect.arrayContaining(["number", "status", "customer_name", "total_cents", "currency", "items"]),
     );
     expect(order.number).toMatch(/^ORD-\d{4}-\d{5}$/);
     expect(order.status).toBe("paid"); // M0 sandbox succeeds synchronously
-    expect(order.total_cents).toBe(60000 + 25000 * 2); // server-side pricing
+    expect(order.total_cents).toBe(60000 + 250000 * 2); // server-side pricing
     expect(order.event_uuid).toBeTruthy();
   });
 
   it("merges duplicate SKUs and rejects invalid quantities", async () => {
     const dupes = await createOrder({
       customer,
-      items: [{ sku: "ADD-URN", quantity: 1 }, { sku: "ADD-URN", quantity: 2 }],
+      items: [{ sku: "SRV-DELIVERY", quantity: 1 }, { sku: "SRV-DELIVERY", quantity: 2 }],
     });
     expect(dupes.items).toHaveLength(1);
     expect(dupes.items[0].quantity).toBe(3);
 
     await expect(
-      fixtureCreateOrder({ customer, items: [{ sku: "ADD-URN", quantity: 0 }] }),
+      fixtureCreateOrder({ customer, items: [{ sku: "SRV-DELIVERY", quantity: 0 }] }),
     ).rejects.toThrowError(/positive whole numbers/);
     await expect(fixtureCreateOrder({ customer, items: [] })).rejects.toThrowError(
       /at least one item/,
@@ -223,7 +216,7 @@ describe("checkout follows order-payment-api-v1", () => {
     await expect(
       createOrder({
         customer: { name: "", email: "nope", phone: "" },
-        items: [{ sku: "ADD-URN", quantity: 1 }],
+        items: [{ sku: "SRV-DELIVERY", quantity: 1 }],
       }),
     ).rejects.toMatchObject({ status: 422 });
   });

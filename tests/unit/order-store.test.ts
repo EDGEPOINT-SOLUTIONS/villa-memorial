@@ -76,7 +76,7 @@ describe("durable store round trip", () => {
   it("allocates distinct numbers under concurrent creates (serialized writer)", async () => {
     const created = await Promise.all(
       Array.from({ length: 4 }, () =>
-        createOrder({ customer, items: [{ sku: "ADD-URN", quantity: 1 }] }),
+        createOrder({ customer, items: [{ sku: "SRV-DELIVERY", quantity: 1 }] }),
       ),
     );
     const numbers = new Set(created.map((order) => order.number));
@@ -91,12 +91,12 @@ describe("durable store round trip", () => {
       createOrder({ customer, items: [{ sku: "GHOST", quantity: 1 }] }),
     ).rejects.toMatchObject({ status: 404, message: "not_found" });
     await expect(
-      createOrder({ customer, items: [{ sku: "ADD-URN", quantity: 0 }] }),
+      createOrder({ customer, items: [{ sku: "SRV-DELIVERY", quantity: 0 }] }),
     ).rejects.toMatchObject({ status: 422 });
     await expect(
       createOrder({
         customer: { name: "", email: "nope", phone: "" },
-        items: [{ sku: "ADD-URN", quantity: 1 }],
+        items: [{ sku: "SRV-DELIVERY", quantity: 1 }],
       }),
     ).rejects.toMatchObject({ status: 422 });
   });

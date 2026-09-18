@@ -371,8 +371,10 @@ export function readLandingContent(raw: unknown): LandingContent {
     },
     contact: {
       phoneLabel: readStr(contactRaw as Record<string, unknown>, "phoneLabel") || "24/7 Assistance Line",
-      phoneDisplay: readStr(contactRaw as Record<string, unknown>, "phoneDisplay") || "0917 000 1234",
-      phoneHref: readStr(contactRaw as Record<string, unknown>, "phoneHref") || "tel:+639170001234",
+      // The client's own line (2026 purchase application form), mirroring the seeded
+      // content document — the fallback is only reached by a document missing the field.
+      phoneDisplay: readStr(contactRaw as Record<string, unknown>, "phoneDisplay") || "0917 617 8489",
+      phoneHref: readStr(contactRaw as Record<string, unknown>, "phoneHref") || "tel:+639176178489",
       location: readStr(contactRaw as Record<string, unknown>, "location"),
     },
     hero: {

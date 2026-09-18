@@ -339,7 +339,8 @@ describe("the plan payment tables render on every plan surface", () => {
     const html = renderToStaticMarkup(createElement(CartProvider, null, ui));
     const bySku = requestLinksBySku(html);
     for (const item of items) {
-      // React escapes the sheet's ampersand in "Lights & Sound Setup".
+      // React escapes any ampersand in a catalogue name (none of the sheet's own labels
+      // has one since the four un-sourced upstream items were withdrawn).
       const name = item.name.replace(/&/g, "&amp;");
       expect(html, `${item.sku} add button`).toContain(
         `aria-label="Add ${name} to cart"`,

@@ -44,7 +44,7 @@ export function CartLineRow({
     detail?.description ??
     (detail
       ? `No description is published for this ${typeLabel.toLowerCase()} yet — the store confirms inclusions and pricing at checkout.`
-      : "Catalogue details are no longer published for this line — the store confirms inclusions and pricing at checkout.");
+      : "This item is no longer published in the online catalogue — the office can still arrange it; call us and we will confirm what it costs.");
   const typeTone = line.itemType === "package" ? "accent" : "info";
 
   return (

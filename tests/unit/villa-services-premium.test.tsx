@@ -200,9 +200,10 @@ describe("/services reads as the approved senior-first service page", () => {
     }
     expect(html).toContain('href="#top"');
     expect(html).toContain("Back to top");
-    // The 24/7 call stays one thumb away and leads the page.
+    // The 24/7 call stays one thumb away and leads the page — the client's own line
+    // (2026 purchase application form), read from the seeded content document.
     expect(html).toContain('class="sv-call"');
-    expect(html).toMatch(/href="tel:\+639170001234"/);
+    expect(html).toMatch(/href="tel:\+639176178489"/);
     expect(html).toContain('class="sv-callbar"');
   });
 

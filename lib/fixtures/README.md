@@ -21,16 +21,22 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      response shape (docs/08-delivery/contracts/order-payment-api-v1.md) with
      the client's real 2026 price-list figures: SKUs unchanged, prices and four
      names aligned to the sheets transcribed in `lib/villa-pricing.ts` and
-     pinned by `tests/fixture-contract/commerce.test.ts`. This DIVERGES from the
-     upstream platform seed (still placeholder-priced — see the file's comment);
-     the four items no 2026 sheet prices keep their seed amounts.
+     pinned by `tests/fixture-contract/commerce.test.ts`. The ONE item → client
+     document → figure map is `lib/catalog-sources.ts`, enforced by
+     `tests/fixture-contract/catalog-sources.test.ts` — a published entry whose
+     price has no recorded client source fails that test, naming the item. This
+     DIVERGES from the upstream platform seed (still placeholder-priced — see
+     the file's comment); the four items no 2026 sheet prices (`SRV-LIGHTS`,
+     `ADD-COFFIN-LIZO-SR`, `ADD-FLOWERS`, `ADD-URN`) were WITHDRAWN 2026-09-18
+     rather than published at an invented figure (`WITHDRAWN_CATALOG_ITEMS`).
    - `commerce/orders.json` ← recorded demo orders for the staff Orders admin.
      Each row WRAPS the FROZEN order-payment-api-v1 envelope with app-authored
      admin fields (checkout contact, fulfilment lifecycle, timeline) — NO
      contract names an order-admin record yet, so the wrapper is a fixture/demo
      shape and live mode answers 503. Seed orders mirror the billing fixture's
      invoice numbers/customers/totals; SKUs, prices and totals are pinned to
-     `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`.
+     `commerce/catalog-items.json` by `tests/fixture-contract/orders.test.ts`
+     (the withdrawn SKUs no longer appear in the demo orders either).
      Fixture-mode checkout APPENDS to `ORDERS_STORE_PATH` (default
      `.data/commerce-orders.json`, gitignored) — see
      `lib/api-client/order-store.ts` for the storage rationale.
@@ -42,11 +48,15 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      PRICE LIST FOR 2026.jpg) and pinned by `tests/unit/villa-pricing.test.ts` +
      `tests/fixture-contract/pricing.test.ts` (plan monthly figures must equal
      the plan SKUs in `commerce/catalog-items.json`). It also carries the
-     read-only `questions` (the senior-rate sheet conflict and the lot A-001
-     fixture-vs-sheet disagreement), deliberately OUTSIDE the editable document.
+     read-only `questions` (the senior-rate sheet conflict and the office's
+     per-plot lot quotation vs the lot sheet's families), deliberately OUTSIDE
+     the editable document.
      Fixture-mode edits from `/staff/plans` and `/staff/pricing` APPEND to
      `PRICING_STORE_PATH` (default `.data/commerce-pricing.json`, gitignored) —
-     see `lib/api-client/pricing-store.ts`.
+     see `lib/api-client/pricing-store.ts`. The property lots' own areas/prices
+     are STATIC demo records, not this document: `lib/catalog-sources.ts`
+     (`LOT_FAMILY_BY_SECTION`) maps each park section to a lot sheet family and
+     `tests/fixture-contract/catalog-sources.test.ts` pins them to it.
    - `scheduling/chapel-admin.json` ← the park's OWN chapel administration
      records (staff Schedule → chapels/availability/bookings): the editable
      PLACEHOLDER chapel list (class · capacity · active · notes) keyed to the
