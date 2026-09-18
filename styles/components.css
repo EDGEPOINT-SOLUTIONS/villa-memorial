@@ -6862,6 +6862,64 @@ a.card:hover {
   color: var(--color-text-muted);
 }
 
+/* --- Commission (F-12): the honest blank ------------------------------------
+   The staff Commission screen shows the engine's shape with every rate-derived
+   figure blank. These classes keep "blank amount + Not configured" one visual
+   unit, visually distinct from a real figure, and let the shape tables and
+   reference lists stack cleanly at 390 px. Tokens only. */
+.commission-blank {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.commission-blank__amount {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.commission-today {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+}
+
+.commission-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.commission-list > li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.commission-list > li:first-child {
+  padding-top: 0;
+}
+
+.commission-list > li:last-child {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.commission-list__label {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.commission-list__detail {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
 /* Print: only the paper artifact leaves the printer. */
 @media print {
   body * {

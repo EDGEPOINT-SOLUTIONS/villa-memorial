@@ -813,6 +813,30 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   repository), `billing-live-write.test.ts` (the app-authored body + the honest null receipt),
   `official-receipt.test.ts` (both copies carry the same figures), `record-payment-screen.test.tsx`.
 
+## Commission — staff engine screen + agent statement (read before touching commission figures)
+
+- **F-12 (captain 2026-09-18): `/staff/commission` is the commission-engine admin screen; the
+  agent portal's approved page 08 (`/agent/sales`) is unchanged and stays the agent's view.**
+  The client has never given rates or targets (`docs/07-client-villa/open-questions.md` —
+  "Commission rules and rates") and the engine is deferred platform scope
+  (`docs/04-modules/finance-billing.md` §Commissions), so **every rate-derived amount on both
+  surfaces is blank + marked “Not configured” (`₱—`), never a zero and never a percentage.**
+  Adding a rate constant, a default or a computed commission breaks the fixture contract below
+  and misrepresents the client — don't.
+- Data: `lib/fixtures/finance/commission.json` records the unconfigured engine state (period and
+  target null, nothing issued) with provenance; `lib/api-client/commission.ts` is the tolerant
+  reader and composes the real half from the durable order store (`listOrders()`) — the sales
+  that happened, no rate applied. The engine's vocabulary (seven bases, four states + reversal,
+  the PRD capability list) has ONE home in `lib/commission.ts`;
+  `tests/fixture-contract/commission.test.ts` pins it to the agent workspace fixture so the two
+  surfaces cannot describe different rules, and walks the fixture to fail on any numeric leaf or
+  rate-like key. `tests/unit/commission-page.test.tsx` pins the screen (one h1, real sales,
+  blanks, the office next step); `tests/unit/commission-view.test.ts` pins the pool split.
+- The page leads with the state (alert + KPI tiles), then the calculation shape, then the real
+  orders with a blank Commission column, then one next step — the office's own line from
+  `lib/family/contact.ts`, never typed. It gates on `billing:read` provisionally (no commission
+  scope exists in `rbac-scopes-v1`); evidence shots + record: `docs/08-delivery/commission-design/`.
+
 ## Catalog admin — durable fixture store (read before touching `/staff/catalog`, `/api/catalog`)
 
 - `/staff/catalog` is the real catalogue administration: list (search + type/published filters)

@@ -1,0 +1,36 @@
+{
+  "comment": [
+    "Staff Commission admin — the recorded state of the engine, not a service response.",
+    "",
+    "NO COMMISSION CONTRACT EXISTS: the PRD's commission engine is deferred platform",
+    "scope (docs/04-modules/finance-billing.md §Commissions, blueprint §34) and the",
+    "client has not fixed the rules or rates (docs/07-client-villa/open-questions.md —",
+    "'Commission rules and rates'). This file records only what is true today: the",
+    "engine is not configured, no statement period and no target are set, and nothing",
+    "has been issued.",
+    "",
+    "THE HARD RULE — never add a rate, a percentage, a target amount or a statement",
+    "amount to this file. Every amount the screen shows stays blank",
+    "(COMMISSION_BLANK_AMOUNT) and is marked 'Not configured' until the office answers;",
+    "a zero would read like a real figure. tests/fixture-contract/commission.test.ts",
+    "walks this file and fails on any key that would publish one.",
+    "",
+    "THE ENGINE'S VOCABULARY (bases, states, capabilities) does not live here — its one",
+    "home is lib/commission.ts, pinned to the agent workspace fixture",
+    "(lib/fixtures/agent/workspace.json) by tests/fixture-contract/commission.test.ts",
+    "so the staff engine and the agent statement cannot describe different rules.",
+    "",
+    "SALES ARE NOT STORED HERE: what actually sold is read from the durable order store",
+    "(lib/api-client/order-store.ts) — real recorded orders, shown without a rate applied."
+  ],
+  "configured": false,
+  "placeholder_note": "Commission rates and targets are pending from Villa. The office will configure the rule sheet; until then this screen shows the shape and the sales on record, and no commission amount anywhere.",
+  "statement_period": {
+    "label": null,
+    "detail": "The office's statement cycle has not been set. Until it is, no statement can cover a period."
+  },
+  "target": {
+    "amount_cents": null,
+    "detail": "No target has been set for any agent or period yet. When one is, progress will be measured against the recorded sales."
+  }
+}
