@@ -79,13 +79,17 @@ export const CHAPEL_COMMON_IMAGE = "/media/chapel-common.jpg";
 export const CHAPEL_PRIVATE_IMAGE = "/media/chapel-private.jpg";
 export const SERVICE_CARRIAGE_IMAGE = "/media/service-carriage.jpg";
 
-/** The sheet's own label for its sample imagery — chapels, wake set-ups. */
-export const CHAPEL_SAMPLE_NOTE =
-  "Illustration purposes only — a sample wake set-up from the client's own photographs, not a fixed view of any one room.";
+/**
+ * The sheet's own label for its sample imagery — chapels, wake set-ups.
+ * Compressed to the reading budget (captain 2026-09-18): the provenance
+ * (cropped from the client's sheet) lives in the repo docs; the customer page
+ * keeps only the promise the label exists to make.
+ */
+export const CHAPEL_SAMPLE_NOTE = "Illustration purposes only — sample set-up.";
 
 /** The same label for the sample service photographs (carriage, set-ups). */
 export const SERVICE_SAMPLE_NOTE =
-  "Illustration purposes only — a sample service from the client's own photographs; the carriage and set-up vary with each service.";
+  "Illustration purposes only — sample service; the carriage and set-up vary.";
 
 /**
  * The five sample coffins on the sheet, in the sheet's order. `label` is the

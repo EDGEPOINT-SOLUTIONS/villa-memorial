@@ -127,6 +127,7 @@ targets are measured from `getBoundingClientRect()`.
 | Construction | 2026-09-16 | Plan written; five sample pages built from the live page, the client's sheets and the park's chapel records; render-verified at 1440 / 390 / 320 px (no overflow, no console errors); price guard green. |
 | Round 1 | 2026-09-16 | Session served to the captain (plan + 5 pages + Q1–Q9). |
 | Decision | 2026-09-16 | **Approved verbatim**: "im good with all the plan please implement them" — Q1 call-first hero, Q2 per-stay chapel rows, Q3 in-cart state, Q4 embalming day picker, Q5 remove the plans card, Q6 sticky phone call bar, Q7 18 px body on this page, Q8 keep the senior-sheet conflict printed as-is, Q9 build as drawn. The captain's additional brand rule: sky blue, not dark blue. |
+| Revision | 2026-09-18 | **Copy compressed to the reading budget** (client review via the captain: *"too wordy — understandable at a glance"*). The structure, order and every figure stay exactly as approved; the sheet footnotes and section copy are shorter (both senior figures still print, the placeholder and provenance notes still say what is missing). Enforced by `tests/unit/reading-budget.test.tsx` — see AGENTS.md "Public page copy — the reading budget". The 24/7 number is now read from the landing content document (zone 01) instead of being typed here. |
 
 **Held questions (open client decisions, published as-is, not resolved by this design):**
 

@@ -87,28 +87,20 @@ export default async function PlansPage({
           <div>
             <p className="eyebrow-label">Memorial plans</p>
             <h1 className="hero-premium__title">Villa Memorial Plan</h1>
+            {/* The page's one-line answer + one primary action (reading budget,
+                captain 2026-09-18). */}
             <p className="hero-premium__lead">
-              Choose what your family needs, spread the cost over time, and have the comfort
-              of knowing everything is arranged.
+              The park&rsquo;s memorial plan — five tiers, four ways to pay.
             </p>
-            <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
-              {counts["package"] ?? 0} bundled packages · {counts["service"] ?? 0} services ·{" "}
-              {counts["add_on"] ?? 0} add-ons — real catalogue prices, no surprises.
-            </p>
-            <nav className="seg-filter" aria-label="Filter catalog">
-              <Link href="/plans" className={`pill-toggle${!filter ? " pill-toggle--active" : ""}`}>
-                All
+            <div className="hero-premium__actions">
+              <Link href="#plan-payments" className="btn btn--primary">
+                See the 2026 rates
               </Link>
-              {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                <Link
-                  key={value}
-                  href={`/plans?type=${value}`}
-                  className={`pill-toggle${filter === value ? " pill-toggle--active" : ""}`}
-                >
-                  {label}
-                </Link>
-              ))}
-            </nav>
+            </div>
+            <p className="text-sm text-muted" style={{ margin: "var(--space-3) 0 0" }}>
+              {counts["package"] ?? 0} packages · {counts["service"] ?? 0} services ·{" "}
+              {counts["add_on"] ?? 0} add-ons — 2026 catalogue prices.
+            </p>
             <nav className="hero-chips" aria-label="Related plan pages">
               <Link href="/plans?type=package">View packages</Link>
               <Link href="#plan-payments">2026 plan payments</Link>
@@ -126,70 +118,89 @@ export default async function PlansPage({
         </div>
       </section>
 
-      {items.length === 0 ? (
-        <EmptyState
-          title="Nothing in this category yet"
-          hint="Check back soon — the catalog is being set up."
-        />
-      ) : (
-        <div className="catalog-grid">
-          {items.map((item) => (
-            <article key={item.sku} className="item-card">
-              <div className="item-card__media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- local sample imagery */}
-                <img
-                  src={item.image ?? PLAN_PACKAGES_IMAGE}
-                  alt=""
-                  loading="lazy"
-                />
-              </div>
-              <div className="item-card__body">
-                <span className="badge badge--accent" style={{ alignSelf: "flex-start" }}>
-                  {TYPE_LABELS[item.item_type] ?? item.item_type}
-                </span>
-                <h3 className="item-card__title">
-                  <Link href={`/plans/${item.sku}`}>{item.name}</Link>
-                </h3>
-                {item.description ? (
-                  <p className="item-card__meta">{item.description}</p>
-                ) : null}
-                <div className="item-card__price">{item.display_price}</div>
-                <div className="item-card__actions stack-2">
-                  <Link href={`/plans/${item.sku}`} className="btn btn--secondary btn--sm btn--block">
-                    View this item
-                  </Link>
-                  <CatalogueActions
-                    item={{
-                      sku: item.sku,
-                      name: item.name,
-                      itemType: item.item_type,
-                      unitPriceCents: item.unit_price_cents,
-                      currency: item.currency,
-                    }}
-                    displayPrice={item.display_price}
-                    prefill={{
-                      note: `${TYPE_LABELS[item.item_type] ?? item.item_type} from the 2026 catalogue.`,
-                    }}
-                  />
-                </div>
-              </div>
-            </article>
+      <section id="catalogue" className="stack-3" aria-labelledby="catalogue-title">
+        <h2 className="section-title" id="catalogue-title">
+          2026 catalogue — packages, services &amp; add-ons
+        </h2>
+        <nav className="seg-filter" aria-label="Filter catalog">
+          <Link href="/plans" className={`pill-toggle${!filter ? " pill-toggle--active" : ""}`}>
+            All
+          </Link>
+          {Object.entries(TYPE_LABELS).map(([value, label]) => (
+            <Link
+              key={value}
+              href={`/plans?type=${value}`}
+              className={`pill-toggle${filter === value ? " pill-toggle--active" : ""}`}
+            >
+              {label}
+            </Link>
           ))}
-        </div>
-      )}
+        </nav>
+
+        {items.length === 0 ? (
+          <EmptyState
+            title="Nothing in this category yet"
+            hint="Check back soon — the catalog is being set up."
+          />
+        ) : (
+          <div className="catalog-grid">
+            {items.map((item) => (
+              <article key={item.sku} className="item-card">
+                <div className="item-card__media">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local sample imagery */}
+                  <img src={item.image ?? PLAN_PACKAGES_IMAGE} alt="" loading="lazy" />
+                </div>
+                <div className="item-card__body">
+                  <span className="badge badge--accent" style={{ alignSelf: "flex-start" }}>
+                    {TYPE_LABELS[item.item_type] ?? item.item_type}
+                  </span>
+                  <h3 className="item-card__title">
+                    <Link href={`/plans/${item.sku}`}>{item.name}</Link>
+                  </h3>
+                  {/* The catalogue's recorded description lives on the item's
+                      own detail page (app/(public)/plans/[sku]/page.tsx): on the
+                      index the card is the answer — name, type, price, actions. */}
+                  <div className="item-card__price">{item.display_price}</div>
+                  <div className="item-card__actions stack-2">
+                    <Link
+                      href={`/plans/${item.sku}`}
+                      className="btn btn--secondary btn--sm btn--block"
+                    >
+                      View this item
+                    </Link>
+                    <CatalogueActions
+                      item={{
+                        sku: item.sku,
+                        name: item.name,
+                        itemType: item.item_type,
+                        unitPriceCents: item.unit_price_cents,
+                        currency: item.currency,
+                      }}
+                      displayPrice={item.display_price}
+                      prefill={{
+                        note: `${TYPE_LABELS[item.item_type] ?? item.item_type} from the 2026 catalogue.`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* The plan's own 2026 price list — the client's two payment-mode
           schedules. Every amount comes through lib/villa-pricing.ts. */}
       <section id="plan-payments" className="stack-3" aria-labelledby="plan-payments-title">
         <h2 className="section-title" id="plan-payments-title">
-          2026 payment schedules — five tiers, four terms
+          2026 rates — five tiers, four payment terms
         </h2>
-        <p className="text-sm text-muted">
-          Five plan tiers on four payment terms. The regular table applies to ages 1–60; the
-          senior-citizen table (61–100, no insurance benefit) is the senior plan rate. Annual
-          × 1 = semi-annual × 2 = quarterly × 4 = monthly × 12, and amortization can be
-          adjusted to 8 and 10 years.
-        </p>
+        <ul className="rate-facts">
+          <li>Regular rate — ages 1–60</li>
+          <li>Senior rate — ages 61–100, no insurance benefit</li>
+          <li>Annual = 2 × semi-annual = 4 × quarterly = 12 × monthly</li>
+          <li>Amortization adjustable to 8 or 10 years</li>
+        </ul>
         <div className="split-grid">
           <Card header={<h3>Regular rate</h3>}>
             <PlanPaymentTable
@@ -208,7 +219,7 @@ export default async function PlansPage({
 
         <div className="split-grid">
           <Card header={<h3>Eligibility &amp; plan notes</h3>}>
-            <ul className="stack-3">
+            <ul className="rate-facts">
               {VMP_ELIGIBILITY.map((e) => (
                 <li key={e}>{e}</li>
               ))}
@@ -244,10 +255,15 @@ export default async function PlansPage({
               During the paying period only.
             </p>
             <p className="text-sm" style={{ marginTop: "var(--space-3)" }}>
-              Complete memorial package:{" "}
-              {VMP_INCLUSIONS.map((i) => i.service).join(" · ")} — see the{" "}
-              <Link href="/plans/villa-memorial-plan">full plan page</Link> for each
-              inclusion&rsquo;s detail.
+              Complete memorial package includes:
+            </p>
+            <ul className="rate-facts" style={{ marginTop: "var(--space-2)" }}>
+              {VMP_INCLUSIONS.map((i) => (
+                <li key={i.service}>{i.service}</li>
+              ))}
+            </ul>
+            <p className="text-sm" style={{ marginTop: "var(--space-2)" }}>
+              <Link href="/plans/villa-memorial-plan">Each inclusion in detail</Link>
             </p>
           </Card>
         </div>

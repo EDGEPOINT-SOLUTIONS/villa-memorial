@@ -330,7 +330,7 @@ describe("the plan payment tables render on every plan surface", () => {
     for (const e of VMP_ELIGIBILITY) expect(html).toContain(e);
     expect(html).toContain(VMP_NOTES.contestability);
     expect(html).toContain(VMP_NOTES.assign);
-    expect(html).toContain("2026 payment schedules");
+    expect(html).toContain("2026 rates — five tiers, four payment terms");
   });
 
   it("/plans cards every catalogue item with Add to cart AND Request order", async () => {

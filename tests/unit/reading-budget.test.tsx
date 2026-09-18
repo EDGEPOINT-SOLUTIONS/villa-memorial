@@ -1,0 +1,145 @@
+import { describe, expect, it, vi } from "vitest";
+import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { CartProvider } from "@/lib/cart/cart-context";
+import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
+
+/**
+ * The reading budget (captain, 2026-09-18 — client review: "too wordy; it
+ * should be understandable at a glance").
+ *
+ * The rule these pages must keep:
+ *  · a page opens with one plain sentence (≤ 12 words) + one primary action;
+ *  · no paragraph over 30 words;
+ *  · paragraph prose under 300 words per page — everything else is a number,
+ *    a label, a table cell, a chip or a short list item;
+ *  · list items stay short too, so prose cannot move into a list.
+ *
+ * Scope: the two public content pages this pass rebuilt — /services and /plans
+ * — executed as the real page components (the same render harness the other
+ * page tests use). The home page's copy lives in the staff-editable LandingPage
+ * document (content, not code), so it is measured in the PR record, not gated
+ * here; a future page adds itself to PAGES in the same PR that compresses it.
+ *
+ * The failure message names the offending page and its count on purpose: the
+ * check is the guardrail that stops the wordiness creeping back.
+ */
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: { href?: string; children?: ReactNode } & AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+vi.mock("next/navigation", () => ({
+  notFound: () => {
+    throw new Error("NEXT_NOT_FOUND");
+  },
+  usePathname: () => "/",
+}));
+
+const { default: ServicesPage } = await import("@/app/(public)/services/page");
+const { default: PlansPage } = await import("@/app/(public)/plans/page");
+
+const BUDGET = {
+  /** Paragraph prose per page (words inside <p> elements). */
+  paragraphWords: 300,
+  /** Longest single paragraph. */
+  longestParagraph: 30,
+  /** Longest single <li> — a "short list item", never a paragraph in disguise. */
+  longestListItem: 30,
+  /** The page's opening sentence (the "answer at a glance" line). */
+  openingSentence: 12,
+} as const;
+
+type BudgetPage = {
+  name: string;
+  /** The real page component, wrapped in the cart context its buttons need. */
+  render: () => Promise<string>;
+  /** The page's opening lead paragraph (the one-line answer). */
+  openingLead: RegExp;
+};
+
+const PAGES: ReadonlyArray<BudgetPage> = [
+  {
+    name: "/services",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
+    openingLead: /<p class="sv-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/plans",
+    render: async () =>
+      renderToStaticMarkup(
+        createElement(
+          CartProvider,
+          null,
+          await PlansPage({ searchParams: Promise.resolve({}) }),
+        ),
+      ),
+    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+  },
+];
+
+function budgetFailures(name: string, stats: ReturnType<typeof measureProse>): string[] {
+  const failures: string[] = [];
+  if (stats.paragraphWords > BUDGET.paragraphWords) {
+    failures.push(
+      `${name}: paragraph prose is ${stats.paragraphWords} words (budget ${BUDGET.paragraphWords}). ` +
+        "Move facts into a table, a price block, a numbered step or a labelled list item.",
+    );
+  }
+  if (stats.longest.words > BUDGET.longestParagraph) {
+    failures.push(
+      `${name}: longest paragraph is ${stats.longest.words} words (limit ${BUDGET.longestParagraph}): ` +
+        `"${stats.longest.text}"`,
+    );
+  }
+  if (stats.listItems.longestWords > BUDGET.longestListItem) {
+    failures.push(
+      `${name}: longest list item is ${stats.listItems.longestWords} words (limit ${BUDGET.longestListItem}): ` +
+        `"${stats.listItems.text}"`,
+    );
+  }
+  return failures;
+}
+
+describe("the public pages keep the reading budget", () => {
+  for (const page of PAGES) {
+    describe(page.name, () => {
+      let html = "";
+      let stats: ReturnType<typeof measureProse>;
+
+      it("renders within the budget (paragraph words, longest paragraph, list items)", async () => {
+        html = await page.render();
+        stats = measureProse(html);
+        const failures = budgetFailures(page.name, stats);
+        expect(failures.join("\n"), failures.join("\n")).toEqual("");
+      });
+
+      it("opens with one plain sentence (≤ 12 words)", () => {
+        const match = html.match(page.openingLead);
+        expect(match, `${page.name}: no opening lead paragraph (${page.openingLead})`).toBeTruthy();
+        const sentence = textOf(match![1]);
+        expect(
+          wordsOf(sentence),
+          `${page.name}: the opening sentence is ${wordsOf(sentence)} words (limit ${BUDGET.openingSentence}): "${sentence}"`,
+        ).toBeLessThanOrEqual(BUDGET.openingSentence);
+      });
+
+      it("keeps an action beside the opening sentence", () => {
+        // The lead sits in the hero; the primary action is the hero's first link.
+        const hero = html.slice(0, html.indexOf("</section>"));
+        expect(hero, `${page.name}: no button anchor in the hero`).toMatch(
+          /<a\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
+        );
+      });
+    });
+  }
+});

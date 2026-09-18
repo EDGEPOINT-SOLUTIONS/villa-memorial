@@ -7,6 +7,7 @@ import { ServiceIcons, IconChapel, IconEmbalming } from "@/components/villa/serv
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import type { ChapelClass } from "@/lib/chapel-booking";
 import type { CatalogItem } from "@/lib/api-client/commerce";
+import type { ContactInfo } from "@/lib/api-client/landing";
 import {
   ALACARTE_LINES,
   CHAPEL_PER_DAY,
@@ -122,16 +123,11 @@ const ALACARTE_REQUEST_NOTE =
  * without inventing anything the sheet does not say.
  */
 const ALACARTE_NOTES: Readonly<Record<string, string>> = {
-  Retrieval:
-    "We bring your loved one into our care. Good for the first 25 km.",
-  Delivery:
-    "We bring your loved one in the casket from our care to the wake or the chapel.",
-  "Viewing equipment":
-    "Lights, curtains and carpets for the viewing area, set up before the family arrives.",
-  "ORD coffin":
-    "A simple plain coffin, priced on its own. Every other model has its own price in the casket catalogue.",
-  Interment:
-    "The family cars and the trip to the graveside, with our staff attending the burial.",
+  Retrieval: "Into our care, first 25 km.",
+  Delivery: "Delivery to the wake or chapel.",
+  "Viewing equipment": "Lights, curtains and carpets, set up.",
+  "ORD coffin": "A simple plain coffin. Other models: catalogue.",
+  Interment: "Family cars and the graveside trip, staff included.",
 };
 
 /** One legend per priced section: what the two storefront actions mean. */
@@ -139,10 +135,10 @@ function ActionsLegend() {
   return (
     <div className="sv-howto">
       <span>
-        <b>Add to cart</b> — reserve this line now, pay nothing here.
+        <b>Add to cart</b> — reserves now; pay nothing here.
       </span>
       <span>
-        <b>Request order</b> — send the office a message; nothing is reserved.
+        <b>Request order</b> — a message; nothing reserved.
       </span>
     </div>
   );
@@ -154,14 +150,10 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
 
   return (
     <section className="sv-section" id="services" aria-labelledby="services-rates-title">
-      <p className="sv-section__kicker">2026 price list · {ALACARTE_SCOPE}</p>
+      <p className="sv-section__kicker">{ALACARTE_SCOPE}</p>
       <h2 className="sv-section__title" id="services-rates-title">
         Services and prices
       </h2>
-      <p className="sv-section__intro">
-        These five services are what a family pays when they do not take a complete package.
-        Take only what you need — the office confirms everything with you before the service.
-      </p>
       <ActionsLegend />
 
       <div className="sv-prices">
@@ -176,9 +168,10 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
                 </span>
                 <h3>{fee.service}</h3>
               </div>
-              <p className="sv-price-card__amount">
+              {/* A price block, not prose (structure over sentences). */}
+              <div className="sv-price-card__amount">
                 {money(fee.amount)} <span className="sv-price-card__unit">per service</span>
-              </p>
+              </div>
               <p className="sv-price-card__plain">{ALACARTE_NOTES[fee.service]}</p>
               <div className="sv-price-card__actions">
                 <LineActions item={item} prefill={{ note: ALACARTE_REQUEST_NOTE }} />
@@ -190,11 +183,10 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
       </div>
 
       <div className="sv-total">
-        <span className="sv-total__label">All five services together</span>
+        <span className="sv-total__label">All five services — the sheet&rsquo;s own total</span>
         <span className="sv-total__amount">{money(ALACARTE_SERVICE_TOTAL)}</span>
         <p>
-          The sheet&rsquo;s own bottom line for the five services above. Add each one in the
-          cart, or{" "}
+          Add each in the cart, or{" "}
           <Link
             href={buildRequestHref({
               item: "At-need services — all five",
@@ -204,27 +196,33 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
           >
             send the whole set as one request
           </Link>
-          . A family taking a complete Villa Memorial Plan package does not pay these amounts.
+          .
         </p>
       </div>
     </section>
   );
 }
 
-/** Embalming per day: the day picker, then the sheet's full day counts. */
-export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
+/**
+ * Embalming per day: the day picker, then the sheet's full day counts.
+ * `contact` is the staff-editable 24/7 line from the landing content document —
+ * the helper text below must show what the editor's document says.
+ */
+export function EmbalmingRates({
+  items,
+  contact,
+}: {
+  items: CatalogItem[];
+  contact: ContactInfo;
+}) {
   const lookup = catalogueLookup(items);
 
   return (
     <section className="sv-section" id="embalming" aria-labelledby="embalming-title">
-      <p className="sv-section__kicker">2026 price list · {ALACARTE_SCOPE}</p>
+      <p className="sv-section__kicker">{ALACARTE_SCOPE}</p>
       <h2 className="sv-section__title" id="embalming-title">
         Embalming — priced by the day
       </h2>
-      <p className="sv-section__intro">
-        Preparation, make-up and dressing, priced by the number of days the viewing stays
-        open. Choose the number of days to see the price.
-      </p>
       <ActionsLegend />
 
       <div className="sv-split">
@@ -273,7 +271,6 @@ export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
                   </span>
                 </li>
               </ul>
-              <p className="sv-note">{ALACARTE_SCOPE}</p>
             </div>
           </details>
         </div>
@@ -286,23 +283,17 @@ export function EmbalmingRates({ items }: { items: CatalogItem[] }) {
               alt="A sample wake set-up with the casket, floral arrangements and viewing area prepared"
               loading="lazy"
             />
-            <figcaption>
-              A sample viewing set-up from the client&rsquo;s own photographs — the wake stays
-              open for as many days as the family keeps the vigil.
-            </figcaption>
+            <figcaption>Sample wake set-up — illustration purposes only.</figcaption>
           </figure>
           <div className="sv-helper">
             <p>
-              <strong>Not sure how many days?</strong> Many families choose 3 days. Call{" "}
-              <a href="tel:+639170001234">0917 000 1234</a> and we will help you decide.
+              <strong>Not sure how many days?</strong> Most families choose 3 days — call{" "}
+              <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
             </p>
           </div>
           <div className="sv-fact">
             <IconEmbalming />
-            <p>
-              Includes make-up and dressing, so the family sees their loved one at peace. The
-              office confirms the day count with you before the service.
-            </p>
+            <p>Includes make-up and dressing. The office confirms the day count.</p>
           </div>
         </div>
       </div>
@@ -355,7 +346,7 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       resource: "Chapel A",
       capacity: 120,
       item: common,
-      what: "A shared chapel where several families keep their vigils at the same time.",
+      what: "Shared chapel; several families at once.",
     },
     {
       key: "private",
@@ -367,21 +358,17 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       resource: "Chapel B",
       capacity: 60,
       item: privateChapel,
-      what: "A room for your family alone, with the casket on its stand and space for visitors.",
+      what: "A room for your family alone.",
     },
   ] as const;
 
   return (
     <section className="sv-section" id="chapel" aria-labelledby="chapel-title">
-      <p className="sv-section__kicker">PRICE LIST FOR 2026 III · {CHAPEL_NOTES.scope}</p>
+      <p className="sv-section__kicker">{CHAPEL_NOTES.scope}</p>
       <h2 className="sv-section__title" id="chapel-title">
         Chapel — check the dates and book online
       </h2>
-      <p className="sv-section__intro">
-        A chapel stay runs from 3 to 9 days and is priced per day. Pick the chapel and the
-        dates; the page checks the park&rsquo;s own schedule and shows the exact price before
-        anything is added to the cart.
-      </p>
+      <p className="sv-section__intro">3–9 day stays, priced per day.</p>
       <ActionsLegend />
 
       <div className="sv-chapels">
@@ -393,9 +380,9 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
             </figure>
             <div className="sv-chapel__body">
               <h3 className="sv-chapel__name">{chapel.name}</h3>
-              <p className="sv-chapel__rate">
+              <div className="sv-chapel__rate">
                 {money(chapel.perDay)} <span className="sv-chapel__unit">per day</span>
-              </p>
+              </div>
               <p className="sv-chapel__what">{chapel.what}</p>
               <dl className="sv-chapel__facts">
                 <div>
@@ -440,9 +427,8 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       <div className="sv-placeholder">
         <span aria-hidden="true"><HeartMark /></span>
         <p>
-          <strong>The park&rsquo;s chapel names are still placeholders</strong>: the client has
-          not confirmed the real chapel list yet. What is real on this page is the price, the
-          class and the schedule the booking step reads.
+          <strong>Chapel names are placeholders</strong> — the client has not confirmed the
+          real list yet. Prices and dates are real.
         </p>
       </div>
 
@@ -451,10 +437,7 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
           See every stay, 3 to 9 days — regular and senior prices
         </summary>
         <div className="sv-disclosure__body">
-          <p className="sv-note">
-            The sheet&rsquo;s own totals for both chapels, regular and senior-citizen columns.
-            The senior rate is applied by the office — use Request order for a senior booking.
-          </p>
+          <p className="sv-note">The sheet&rsquo;s own totals. Senior bookings: use Request.</p>
           {chapels.map((chapel) => (
             <div key={chapel.key}>
               <h4 className="sv-stay__heading">
@@ -507,11 +490,28 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
 
       <div className="sv-senior">
         <span aria-hidden="true"><HeartMark /></span>
-        <p>
-          <strong>Senior citizens:</strong> the sheet prints a senior-citizen column for every
-          stay, and its own footnote adds: {CHAPEL_NOTES.seniorPerDay} The columns above are
-          what the table prints; the office applies the rate and confirms it with you.
-        </p>
+        <div className="sv-senior__body">
+          {/* The sheet disagrees with itself (captain Q8): both figures stay,
+              neither is resolved. The per-day figures are derived from the
+              published table, never typed. */}
+          <p>
+            <strong>Senior rate:</strong> the table&rsquo;s column and the sheet&rsquo;s
+            footnote disagree — the office applies the rate.
+          </p>
+          <dl className="sv-chapel__facts">
+            <div>
+              <dt>Table column (per day)</dt>
+              <dd>
+                {money(CHAPEL_RATES[0].common.senior / CHAPEL_RATES[0].days)} common ·{" "}
+                {money(CHAPEL_RATES[0].private.senior / CHAPEL_RATES[0].days)} private
+              </dd>
+            </div>
+            <div>
+              <dt>Sheet footnote</dt>
+              <dd>{CHAPEL_NOTES.seniorPerDay}</dd>
+            </div>
+          </dl>
+        </div>
       </div>
       <p className="sv-note sv-section__note">
         {CHAPEL_NOTES.miscFee} {CHAPEL_NOTES.privateChapelOnly}
@@ -530,11 +530,18 @@ function HeartMark() {
 }
 
 /** All three service blocks, in the order /services lays them out. */
-export function ServiceRates2026({ items }: { items: CatalogItem[] }) {
+export function ServiceRates2026({
+  items,
+  contact,
+}: {
+  items: CatalogItem[];
+  /** The staff-editable 24/7 line (landing content) — never a typed number. */
+  contact: ContactInfo;
+}) {
   return (
     <>
       <AlacarteServiceRates items={items} />
-      <EmbalmingRates items={items} />
+      <EmbalmingRates items={items} contact={contact} />
       <ChapelRates items={items} />
     </>
   );
