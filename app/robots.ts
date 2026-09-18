@@ -6,7 +6,10 @@ import { absoluteUrl, siteUrl } from "@/lib/seo";
  * session or in the middle of a purchase.
  *
  * Disallowed: the staff/family/agent portals, the BFF (`/api`), the sign-in and
- * registration doors, the cart/checkout/order pages (transactional, and
+ * registration doors, the PLATFORM OPERATOR SURFACE (`/platform/` — tenant
+ * management, the platform sign-in and tenant sign-up: operator-only screens a
+ * crawler must never index; the platform's own head rule sets noindex too), the
+ * cart/checkout/order pages (transactional, and
  * meaningless to a crawler), and the digital-memorial SEARCH RESULT state
  * (`/memorials?…` — a query-keyed page must never become an indexed directory
  * of names). Memorial detail pages stay crawlable because a published memorial
@@ -34,6 +37,7 @@ export default function robots(): MetadataRoute.Robots {
           "/signin",
           "/login",
           "/register",
+          "/platform/",
           "/memorials?",
         ],
       },

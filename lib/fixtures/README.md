@@ -135,6 +135,18 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      stored: it is derived from the case's recorded contract date
      (`lib/guarantee-instruments.ts`, paper clause 2) and pinned by
      `tests/fixture-contract/guarantee-instruments.test.ts`.
+   - `platform/tenants.json` ← the platform operator surface (PRD screen
+     inventory "Platform Dashboard/Tenant Management · Platform Login · Tenant
+     Sign-Up"; classification `02-architecture/platform-administration.md`).
+     APP-AUTHORED SAMPLE RECORDS: the platform surface is not tenant-scoped,
+     platform admins are a separate identity type and sign-up creates a tenant
+     + its owner in one transaction — but NO tenancy service, platform identity
+     service or sign-up endpoint exists in this build, so the screens are a
+     designed reference and read-only. The samples rule is hard: every row is
+     `sample: true`, named "Sample"/"Example", on the reserved `.example` TLD,
+     and `lib/api-client/platform.ts` REFUSES an unmarked row; the state/plan
+     vocabulary (active_trial / trial_expired / cancelled, free_trial) and the
+     14-day trial are pinned by `tests/fixture-contract/platform.test.ts`.
 2. **Never hand-edit a fixture to make a failing test pass.** If the contract
    changed, update the fixture AND its contract test together.
 3. Fixture tokens are structurally shaped but UNSIGNED — they exist only so

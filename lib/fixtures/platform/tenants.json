@@ -1,0 +1,73 @@
+{
+  "_provenance": {
+    "status": "PROVISIONAL — no tenancy service or contract exists (see lib/api-client/platform.ts)",
+    "recorded": "2026-09-19",
+    "note": [
+      "The platform operator surface (PRD screen inventory 'Platform Dashboard/Tenant Management · Platform Login · Tenant Sign-Up'; classification docs/02-architecture/platform-administration.md): the tenant list and one detail screen, the operator sign-in door and the tenant sign-up flow.",
+      "",
+      "WHAT THIS IS: APP-AUTHORED SAMPLE RECORDS, not a service response and not real customers. The classification document says the platform surface is not tenant-scoped, platform admins are a separate identity type and sign-up creates a tenant + its owner in one transaction — but NO tenancy service, platform identity service or sign-up endpoint exists in this build, and this repository cannot provision a tenant. Every screen that reads this file says so and is read-only.",
+      "",
+      "THE SAMPLES RULE — never let a row be mistaken for a real business. Every record carries sample: true, every name contains 'Sample' or 'Example', every address ends in the reserved .example TLD and every administrator is a .example mailbox. Do not replace these with a real-looking business, plan or hostname: tests/fixture-contract/platform.test.ts fails on any row that is not marked and named as a sample, and the pages render PLATFORM_SAMPLE_NOTE above the table.",
+      "",
+      "VOCABULARY (lib/platform-admin.ts is the one home): state is the trial vocabulary platform-administration.md decision 9 records — active_trial / trial_expired / cancelled with days remaining; plan is free_trial, the only plan that exists while subscription billing is deferred (a paid plan name or figure would be invented). trial_days_remaining is RECORDED state, never recomputed here, and trial_ends_on is exactly provisioned_on + 14 days (the trial length the classification fixes). The fixture-contract test pins both.",
+      "",
+      "WHAT IS NOT HERE: no provisioning endpoint, no operator account, no audit trail and no tenant data — the detail screen shows only what the tenancy service would report and names the platform's deferred work (suspend/delete, custom domains, usage metrics, platform-action audit). The app's cosmetic staff tenant switcher (lib/demo-tenants.ts) is a different, unrelated demo control."
+    ]
+  },
+  "service_state": "not_wired",
+  "sample_records": true,
+  "tenants": [
+    {
+      "id": "ten-sample-memorial",
+      "name": "Sample Memorial Homes",
+      "subdomain": "sample-memorial",
+      "hostname": "sample-memorial.example",
+      "state": "active_trial",
+      "plan": "free_trial",
+      "trial_days_remaining": 9,
+      "trial_ends_on": "2026-09-27",
+      "provisioned_on": "2026-09-13",
+      "administrator": { "name": "Ana Sample", "email": "owner@sample-memorial.example" },
+      "sample": true
+    },
+    {
+      "id": "ten-example-chapel",
+      "name": "Example Funeral Chapel",
+      "subdomain": "example-chapel",
+      "hostname": "example-chapel.example",
+      "state": "active_trial",
+      "plan": "free_trial",
+      "trial_days_remaining": 2,
+      "trial_ends_on": "2026-09-25",
+      "provisioned_on": "2026-09-11",
+      "administrator": { "name": "Miguel Example", "email": "owner@example-chapel.example" },
+      "sample": true
+    },
+    {
+      "id": "ten-sample-riverside",
+      "name": "Sample Riverside Funerals",
+      "subdomain": "sample-riverside",
+      "hostname": "sample-riverside.example",
+      "state": "trial_expired",
+      "plan": "free_trial",
+      "trial_days_remaining": 0,
+      "trial_ends_on": "2026-08-28",
+      "provisioned_on": "2026-08-14",
+      "administrator": { "name": "Rosa Sample", "email": "owner@sample-riverside.example" },
+      "sample": true
+    },
+    {
+      "id": "ten-sample-hillside",
+      "name": "Sample Hillside Memorial",
+      "subdomain": "sample-hillside",
+      "hostname": "sample-hillside.example",
+      "state": "cancelled",
+      "plan": "free_trial",
+      "trial_days_remaining": null,
+      "trial_ends_on": "2026-08-13",
+      "provisioned_on": "2026-07-30",
+      "administrator": { "name": "Tomas Sample", "email": "owner@sample-hillside.example" },
+      "sample": true
+    }
+  ]
+}

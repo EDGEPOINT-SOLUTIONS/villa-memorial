@@ -1238,11 +1238,34 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   display prices). `tests/setup.ts` (vitest `setupFiles`) points every suite's store paths at a
   throwaway temp dir so a dev `.data/` store can never leak into a test.
 
+## Platform operator surface — `/platform/*` (read before touching the platform screens)
+
+- Three designed screens for the platform's own team, NOT the funeral product: tenant
+  management (`/platform/tenants`, `/platform/tenants/[id]` — state · plan · address, one
+  tenant's record, read-only), the operator door (`/platform/sign-in`, the documented entry
+  point, reached by URL) and tenant sign-up (`/platform/sign-up` — a two-step flow that
+  creates nothing). No tenancy/identity service or contract exists
+  (`docs/02-architecture/platform-administration.md` classifies the surface), so every screen
+  states what the platform must provide, and `app/(platform)/layout.tsx` carries the
+  operator-surface marker wording. Never link the surface from a public/staff/family/agent
+  menu (`tests/unit/platform-screens.test.tsx` fails one), and `/platform/` stays disallowed
+  in `app/robots.ts` plus `noindex` in its own head.
+- ONE vocabulary home: `lib/platform-admin.ts` (states active_trial / trial_expired /
+  cancelled, the single free_trial plan — paid plans deferred — the requirement/deferred
+  lists, the onboarding sequence, and `validateTenantSignUpDraft`, the gate the flow runs).
+  The fixture is APP-AUTHORED SAMPLES: `lib/fixtures/platform/tenants.json` (every row
+  `sample: true`, "Sample"/"Example" named, `.example` addresses) read by
+  `lib/api-client/platform.ts`, which REFUSES an unmarked row and has no live mode. Never add
+  a real business, plan or hostname — `tests/fixture-contract/platform.test.ts` fails one.
+  The accessibility + reading-budget harnesses render these pages (one `h1`, labelled fields,
+  short leads and list items).
+
 ## Structure conventions
 ```
 web/
 ├── app/                  # Next.js App Router: routes per portal
 │   ├── (staff)/staff/    # RBAC-gated portal frame + sections
+│   ├── (platform)/platform/ # platform operator surface (operator-only, /platform/*)
 │   ├── login/            # public sign-in (fixtures-first)
 │   └── api/auth/         # BFF route handlers ONLY — session mgmt, proxying
 ├── lib/api-client/       # typed clients (generated from OpenAPI specs once published)

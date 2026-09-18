@@ -17972,3 +17972,430 @@ a.plan-advisor__phone:hover {
     width: 100%;
   }
 }
+/* ===========================================================================
+ * Platform operator surface — /platform/* (tenant management · platform
+ * sign-in · tenant sign-up).
+ *
+ * The platform's own chrome, deliberately NOT the product's. The `platform-*`
+ * classes share no rule with .anchored-header (public), .app-shell (staff),
+ * the agent and family portal frame classes, or .signin-card, so no product
+ * surface can render a link into this area and a visitor cannot mistake the
+ * two — the marker itself is wording (the bar's eyebrow + note from
+ * lib/platform-admin.ts), not decoration. The navy bar with a gold hairline is
+ * the console's one visual signal, built from the staff premium primitives
+ * already in tokens.css.
+ *
+ * Keep base rules BEFORE the media queries at the end of this block (the
+ * class-order trap recorded for .chapel-month and .ops-board).
+ * ========================================================================== */
+.platform-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+}
+
+.platform-bar {
+  background: var(--navy-900);
+  color: var(--color-text-inverse);
+  border-bottom: 2px solid var(--gold-400);
+}
+
+.platform-bar__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.platform-bar__eyebrow {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--marble-100);
+}
+
+.platform-bar__note {
+  margin: var(--space-1) 0 0;
+  max-width: 46rem;
+  font-size: var(--text-sm);
+  color: var(--navy-200);
+}
+
+.platform-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.platform-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-inverse);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--marble-100);
+  text-decoration: none;
+}
+
+.platform-nav__link:hover {
+  background: var(--color-rule-inverse);
+  color: var(--marble-50);
+}
+
+.platform-main {
+  flex: 1;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-8);
+}
+
+.platform-hero {
+  margin-bottom: var(--space-5);
+}
+
+.platform-hero__eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.platform-hero h1 {
+  margin: 0;
+}
+
+.platform-hero__lead {
+  margin: var(--space-2) 0 0;
+  max-width: 46rem;
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.platform-stack {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.platform-crumb {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+}
+
+/* The standing line: what the platform owns that this build does not. */
+.platform-service-note {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--gold-400);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.platform-card-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.platform-form-note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Requirement rows — a title and one short line, inside the list item so a
+   detail can never smuggle in a paragraph. */
+.platform-reqs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.platform-reqs li {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  font-size: var(--text-sm);
+}
+
+.platform-reqs strong {
+  color: var(--color-text-primary);
+}
+
+.platform-reqs span {
+  color: var(--color-text-secondary);
+}
+
+.platform-reqs--plain li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.platform-reqs--plain li::before {
+  content: "—";
+  color: var(--color-text-muted);
+}
+
+.platform-reqs + .platform-card-note {
+  margin-top: var(--space-3);
+}
+
+/* The onboarding sequence (Configure → Import data → Train users → Go live). */
+.platform-sequence {
+  counter-reset: platform-seq;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.platform-sequence li {
+  counter-increment: platform-seq;
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.platform-sequence li::before {
+  content: counter(platform-seq);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--navy-100);
+  color: var(--navy-900);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.platform-sequence__title {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-md);
+}
+
+.platform-sequence__detail {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.platform-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.platform-links li {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.platform-links a {
+  font-weight: 600;
+}
+
+.platform-links span {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* Tenant table — five columns stay legible; .table-wrapper scrolls on phones. */
+.platform-table {
+  min-width: 46rem;
+}
+
+.platform-table__name {
+  display: block;
+  font-weight: 600;
+}
+
+.platform-table__sub {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.platform-table__mono {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.platform-table__link {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Tenant facts — the kv grammar with room for the longer operator labels. */
+.platform-kv > div {
+  grid-template-columns: 11rem minmax(0, 1fr);
+}
+
+.platform-kv__mono {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.platform-kv__note {
+  display: block;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.platform-input--mono {
+  font-family: var(--font-mono);
+}
+
+/* The sign-up flow: step chips, action rows. */
+.platform-flow__steps {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+}
+
+.platform-flow__steps li {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.platform-flow__steps li[aria-current="step"] {
+  border-color: var(--navy-700);
+  background: var(--navy-50);
+  color: var(--navy-900);
+  font-weight: 700;
+}
+
+.platform-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.platform-foot {
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-surface);
+}
+
+.platform-foot__inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-4) var(--space-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.platform-foot__line {
+  margin: 0;
+}
+
+.platform-foot__link {
+  font-weight: 600;
+}
+
+/* The console's primary control is the platform's own navy/gold, not the
+   product's public sky — the operator surface must not read as the storefront. */
+.platform-shell .btn--primary {
+  background: var(--navy-800);
+  color: var(--marble-100);
+}
+
+.platform-shell .btn--primary:hover:not(:disabled) {
+  background: var(--navy-700);
+}
+
+@media (max-width: 60rem) {
+  .platform-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 48rem) {
+  .platform-bar__inner {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 40rem) {
+  .platform-bar__inner {
+    padding: var(--space-4);
+  }
+
+  .platform-nav {
+    width: 100%;
+  }
+
+  .platform-nav__link {
+    min-height: 2.75rem;
+  }
+
+  .platform-main {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+
+  .platform-foot__inner {
+    padding: var(--space-4);
+  }
+
+  .platform-kv > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+
+  .platform-kv dt {
+    font-size: var(--text-xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+}

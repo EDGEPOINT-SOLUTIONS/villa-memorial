@@ -227,7 +227,15 @@ describe("/sitemap.xml and /robots.txt", () => {
     expect(policy.sitemap).toBe(absoluteUrl("/sitemap.xml"));
     expect(policy.host).toBe(siteUrl());
     const disallow = (rule as { disallow?: string[] }).disallow ?? [];
-    for (const closed of ["/api/", "/staff/", "/client/", "/agent/", "/cart", "/checkout"]) {
+    for (const closed of [
+      "/api/",
+      "/staff/",
+      "/client/",
+      "/agent/",
+      "/cart",
+      "/checkout",
+      "/platform/",
+    ]) {
       expect(disallow).toContain(closed);
     }
   });
