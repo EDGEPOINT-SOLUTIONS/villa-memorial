@@ -34,6 +34,9 @@ import { HeaderBehavior } from "@/components/landing/header-behavior";
 export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Home", href: "/" },
   { label: "Services", href: "/services" },
+  // The Smart Service Builder (F-05) — the configurator, beside the price pages
+  // it draws its figures from.
+  { label: "Builder", href: "/builder" },
   { label: "Plans", href: "/plans" },
   { label: "Lots", href: "/lots" },
   { label: "Park", href: "/map" },
@@ -56,6 +59,7 @@ export const PLAN_AHEAD_LINKS: ReadonlyArray<{ title: string; note: string; href
   { title: "Villa Memorial Plan", note: "Instalment plans, tiers and terms", href: "/plans" },
   { title: "Senior benefits", note: "Senior-citizen rates and requirements", href: "/plans/senior-benefits" },
   { title: "Funeraria Memorial Services", note: "At-need care, chapels and 2026 prices", href: "/services" },
+  { title: "Smart Service Builder", note: "Build the arrangement and see the 2026 total", href: "/builder" },
   { title: "Villa Memorial Park", note: "Sections, lots and the park map", href: "/map" },
 ];
 

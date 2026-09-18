@@ -55,6 +55,7 @@ vi.mock("@/lib/auth/portal-guard", () => ({
 }));
 
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
+const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: ImmediateAssistancePage } = await import(
   "@/app/(public)/immediate-assistance/page"
@@ -91,6 +92,11 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     render: async () =>
       renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
     openingLead: /<p class="sv-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/builder",
+    render: async () => renderToStaticMarkup(await BuilderPage()),
+    openingLead: /<p class="sb-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/plans",
