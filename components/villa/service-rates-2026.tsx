@@ -368,7 +368,9 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       <h2 className="sv-section__title" id="chapel-title">
         Chapel — check the dates and book online
       </h2>
-      <p className="sv-section__intro">3–9 day stays, priced per day.</p>
+      <p className="sv-section__intro">
+        3–9 day stays, priced per day. <Link href="/facilities#rooms">See both rooms</Link>.
+      </p>
       <ActionsLegend />
 
       <div className="sv-chapels">

@@ -45,6 +45,7 @@ describe("the two-layer public bar", () => {
       ["/plans", "Plans"],
       ["/lots", "Lots"],
       ["/map", "Park"],
+      ["/facilities", "Facilities"],
       ["/contact", "Contact"],
     ] as const) {
       const aria = href === "/plans" ? ' aria-current="page"' : "";

@@ -6,8 +6,9 @@
  *   utility row   location · hours on the left, the 24/7 number as a real
  *                 call button on the right — the trust facts, always visible;
  *   main row      brand · short page links (Home · Services · Plans · Lots ·
- *                 Park · Contact) · the grouped "Plan ahead" menu carrying
- *                 the client's full names · quiet Sign in · cart icon + count.
+ *                 Park · Facilities · Contact) · the grouped "Plan ahead" menu
+ *                 carrying the client's full names · quiet Sign in · cart icon
+ *                 + count.
  *
  * Rendered by BOTH the premium home (LandingView, framework-free under the
  * repo's node tests) and every other public page (PublicShell). One component
@@ -36,6 +37,9 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Plans", href: "/plans" },
   { label: "Lots", href: "/lots" },
   { label: "Park", href: "/map" },
+  // The park's rooms (chapels + grounds) — its own page beside the map, so a
+  // family choosing where to hold a wake does not have to read /services.
+  { label: "Facilities", href: "/facilities" },
   { label: "Contact", href: "/contact" },
 ];
 
