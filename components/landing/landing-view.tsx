@@ -324,6 +324,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
             links={[
               { label: "Home", href: "/" },
               { label: "Funeraria Memorial Services", href: "/services" },
+              { label: "Smart Service Builder", href: "/builder" },
               { label: "Villa Memorial Plan", href: "/plans" },
               { label: "Browse the lots", href: "/lots" },
               { label: "Products & caskets", href: "/products" },

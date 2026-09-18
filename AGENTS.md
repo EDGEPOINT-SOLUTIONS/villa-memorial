@@ -583,6 +583,38 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `tests/unit/pricing-admin-render.test.tsx` (an edit reaches the public pages),
   `tests/unit/pricing-admin-rbac.test.tsx`, `tests/fixture-contract/pricing.test.ts`.
 
+## Smart Service Builder — `/builder` (F-05; read before touching the configurator or its prices)
+
+- **It is an ESTIMATE over the client's published figures, never a computed quotation.** The
+  PRD's live pricing/availability rule engine does not exist, so nothing is priced by a service:
+  `lib/service-builder-catalog.ts` joins `lib/villa-pricing.ts` (casket catalogue + both senior
+  columns · the a-la-carte fees · the embalming ladder · the chapel schedule) with the CURRENT
+  pricing store document (plan tables) into the plain catalog the client component renders. No
+  amount is ever typed into the view, and an office edit on `/staff/plans` is what a visitor sees.
+- **One rules home, pure: `lib/service-builder.ts`** — the selection/answers, the estimate
+  (priced lines · covered lines · owned items · pending steps · office-quoted items · the plan's
+  separate monthly amount) and the request prefill. It adds up what it is handed and holds no
+  figure. The plan is an instalment product: its amount is NEVER part of the one-time total, and
+  a held or chosen plan reduces that total by OMISSION (its lines list as covered, no amount) —
+  never by a fake zero.
+- **The senior choice applies only where the sheet prints a senior column** (casket · chapel ·
+  plan) — never to an a-la-carte fee. Casket rows publish BOTH sheet columns, as the sheet's own
+  table does; the picked model repeats the other column as a comparison.
+- **Honest states are the deliverable**: the four withdrawn catalogue lines appear only as
+  "ask the office" labels (`WITHDRAWN_CATALOG_ITEMS`), the burial lot stays an office per-plot
+  quotation (the lot sheet's families are never published here), under three preparation days and
+  any unanswered step print words with no figure, and an arrangement already with the office
+  stops the pricing entirely. The panel says outright it is an estimate the office confirms; the
+  screen ends on the office — the staff-editable 24/7 number plus the existing `/contact`
+  request path (`buildRequestHref`, with the arrangement written into the note).
+- **Nav/SEO**: one short `Builder` chip in `SITE_NAV_LINKS`, the full name in the "Plan ahead"
+  menu and the footer's Care & planning column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
+  (indexable — a selling surface, unlike the memorial pages).
+- Evidence: `tests/unit/service-builder.test.ts` (sheet figures, store-read rates, the senior
+  rules, the covered total, the request note), `tests/unit/service-builder-page.test.tsx`
+  (rendered screen + honest states), `tests/unit/reading-budget.test.tsx`,
+  `tests/unit/seo.test.ts`; record + shots `docs/08-delivery/service-builder-design/`.
+
 ## Villa Memorial Plan membership applications — `/staff/plans/membership` (F-18 / FORMS_PLAN gap 4)
 
 - **The enrolment folio is a CAPTURE, never a certificate.** `/staff/plans/membership` is the

@@ -143,6 +143,7 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/immediate-assistance", changeFrequency: "monthly", priority: 0.9 },
   { path: "/services", changeFrequency: "weekly", priority: 0.9 },
+  { path: "/builder", changeFrequency: "monthly", priority: 0.8 },
   { path: "/services/death-at-home", changeFrequency: "monthly", priority: 0.7 },
   { path: "/services/death-at-hospital", changeFrequency: "monthly", priority: 0.7 },
   { path: "/plans", changeFrequency: "weekly", priority: 0.9 },
