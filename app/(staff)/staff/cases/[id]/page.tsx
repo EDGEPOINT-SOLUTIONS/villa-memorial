@@ -254,6 +254,24 @@ export default async function CaseDetailPage({
       </PageSection>
 
       <PageSection>
+        <Card header={<h3>Embalming &amp; preparation</h3>}>
+          <p className="text-sm text-muted">
+            Who prepared the deceased, when, and the four steps the office works
+            through — embalming, dressing, cosmetics, casketing — with the record&rsquo;s
+            own notes.
+          </p>
+          <div style={{ marginTop: "1rem" }}>
+            <Link
+              href={`/staff/cases/${item.id}/preparation`}
+              className="btn btn--secondary btn--sm"
+            >
+              Open the preparation record
+            </Link>
+          </div>
+        </Card>
+      </PageSection>
+
+      <PageSection>
         <Card header={<h3>Service contract (paper form)</h3>}>
           <p className="text-sm text-muted">
             The capture screen mirrors the paper <strong>Service Contract Form</strong>{" "}

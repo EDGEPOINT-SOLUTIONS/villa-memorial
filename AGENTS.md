@@ -694,6 +694,32 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   is in `tests/unit/reading-budget.test.tsx`. Evidence shots:
   `docs/08-delivery/agent-portal-design/shots/`.
 
+## Embalming & preparation record — staff case screen (read before touching `/staff/cases/[id]/preparation`)
+
+- The record a family's question about the preparation is answered from: embalmer + assistant,
+  the work window, the four steps in work order (embalming · dressing · cosmetics · casketing,
+  blueprint crm-cases.md §12) each with its own state (scheduled / in progress / completed /
+  cancelled) and its notes, plus the case's own death/identity facts. Reached from the case
+  detail's "Embalming & preparation" card; `cases:read` gates it; there is NO write.
+- **One home per half:** `lib/fixtures/operations/preparation-records.json` — PROVISIONAL,
+  app-authored demo records (no preparation contract exists; funeral-cases is unbuilt and
+  `case-events-v1` names no prep endpoint) — read through `lib/api-client/preparation.ts`
+  (tolerant reader; live `OPERATIONS_BASE_URL` answers 503 `PREPARATION_NOT_WIRED`, never a
+  fake endpoint). Step order, state words, Asia/Manila instants and UTC calendar dates are
+  pure `lib/preparation-record.ts`; case stage/task words come from the shared
+  `lib/operations/case-board.ts`, never a third copy.
+- **Honest states are the deliverable:** a case without a record shows one line and the case's
+  own task list (what the office records today); a case without intake says so instead of
+  inventing an identity/date/location; a `completed` step or record must carry the instant it
+  was recorded (the reader 502s otherwise); the screen states outright that nothing can be
+  changed. Embalmer/assistant names are HR employees, never invented staff.
+- Pinned by `tests/fixture-contract/preparation-records.test.ts` (case at `preparation`+ stage,
+  four steps in order, work window inside the case's lifetime, agreement with the case's own
+  embalming task), `tests/unit/preparation-page.test.tsx` (at-a-glance states, RBAC, one `h1`)
+  and `tests/unit/preparation-record.test.ts` (pure labels/times/refusals). When a preparation
+  contract freezes: replace the fixture, add the live branch, update
+  `docs/08-delivery/notes/demo-web-route-coverage.md` (which lists the route).
+
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
 - Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed
