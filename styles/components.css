@@ -17727,3 +17727,248 @@ a.plan-advisor__phone:hover {
     gap: var(--space-1);
   }
 }
+
+/* ===========================================================================
+ * AI Copilot — the designed surface, with its boundary on it (/staff/copilot)
+ * ---------------------------------------------------------------------------
+ * The screen's whole visual job: four questions that look like questions, an
+ * answer that reads as a record statement rather than a paragraph, and one
+ * governance block that a reader meets BEFORE the answers (it is the reason the
+ * surface is a lookup, not a footnote). Everything comes from tokens.css — the
+ * left rule is the only status colour, and no amount, figure or shade is typed here.
+ * ========================================================================= */
+.copilot-lead {
+  margin: calc(-1 * var(--space-3)) 0 var(--space-5);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+}
+
+/* --- the governance block: read before the answers ------------------------ */
+.copilot-governance__intro {
+  margin-top: 0;
+  color: var(--color-text-secondary);
+}
+
+.copilot-governance {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.copilot-governance > li {
+  display: grid;
+  gap: var(--space-1);
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-rule-strong);
+}
+
+.copilot-governance__title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.copilot-governance__detail {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.copilot-governance__owner {
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-rule);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.copilot-governance__owner-line {
+  margin: 0;
+}
+
+.copilot-governance__owner-line + .copilot-governance__owner-line {
+  margin-top: var(--space-2);
+}
+
+/* --- the four questions --------------------------------------------------- */
+.copilot-prompts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.copilot-prompt {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  transition: border-color var(--motion-fast);
+}
+
+.copilot-prompt:hover {
+  border-color: var(--color-border-strong);
+}
+
+/* The chosen question keeps a real, non-colour-only cue: the rule and the
+   aria-current on the link both carry it. */
+.copilot-prompt--active {
+  border-color: var(--sky-500);
+  box-shadow: inset 0 0 0 1px var(--sky-500);
+}
+
+.copilot-prompt__question {
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.copilot-prompt__reads {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* --- the answer: a headline, then ruled record rows ----------------------- */
+.copilot-answer {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+}
+
+.copilot-answer__headline {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  line-height: var(--leading-tight);
+  color: var(--color-figure);
+}
+
+.copilot-answer__headline[data-state="nothing_recorded"] {
+  color: var(--color-text-secondary);
+}
+
+.copilot-findings {
+  display: grid;
+  gap: var(--space-3);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* One rule per row carries the tone; no fill, no shadow, and every readable
+   label stays on an ink role. */
+.copilot-finding {
+  display: grid;
+  gap: var(--space-1);
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-rule);
+}
+
+.copilot-finding--info {
+  border-left-color: var(--color-status-info);
+}
+
+.copilot-finding--warning {
+  border-left-color: var(--color-status-warning);
+}
+
+.copilot-finding--danger {
+  border-left-color: var(--color-status-danger);
+}
+
+.copilot-finding__statement {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+}
+
+.copilot-finding__subject {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+
+.copilot-finding__sep {
+  color: var(--color-text-muted);
+}
+
+.copilot-finding__records {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.copilot-finding__records-label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.copilot-answer__limit,
+.copilot-answer__gap,
+.copilot-answer__basis {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.copilot-answer__limit-label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* A caveat is a statement about the ANSWER, so it is ruled like one — never a
+   silently quiet footnote. */
+.copilot-answer__gap {
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--color-rule-strong);
+}
+
+.copilot-answer__basis {
+  color: var(--color-text-muted);
+}
+
+.copilot-answer__jump {
+  margin: 0;
+}
+
+/* --- the case chooser: a choice among records, never a text field --------- */
+.copilot-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.copilot-picker__label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.copilot-picker__select {
+  flex: 1 1 14rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 48rem) {
+  .copilot-answer {
+    padding: var(--space-4);
+  }
+
+  .copilot-picker__select {
+    flex: 1 1 100%;
+  }
+
+  .copilot-picker .btn {
+    width: 100%;
+  }
+}

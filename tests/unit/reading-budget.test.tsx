@@ -54,6 +54,22 @@ vi.mock("@/lib/auth/portal-guard", () => ({
   requirePortalSessionOrRedirect: async () => ({ email: "agent@vm.demo", scopes: [] }),
 }));
 
+// The staff Copilot page joined this guard in the PR that built it (a copilot answer must
+// be read at a glance too). Its session is server-side, so the gate is stubbed here the
+// way the staff page tests stub it — the framing is what this suite measures.
+const staffSession = {
+  userId: "00000000-0000-4000-8000-000000000012",
+  tenantId: "00000000-0000-4000-8000-000000000001",
+  scopes: ["cases:read", "scheduling:read"],
+  email: "sam.staff@vm.demo",
+  displayName: "Sam Staff",
+  expiresAt: new Date(Date.now() + 900_000).toISOString(),
+};
+vi.mock("@/lib/auth/guard", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/auth/guard")>();
+  return { ...actual, requireSessionOrRedirect: async () => staffSession };
+});
+
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
@@ -66,6 +82,7 @@ const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/p
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
 const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
+const { default: CopilotPage } = await import("@/app/(staff)/staff/copilot/page");
 
 const BUDGET = {
   /** Paragraph prose per page (words inside <p> elements). */
@@ -154,6 +171,12 @@ const PAGES: ReadonlyArray<BudgetPage> = [
         await LeadDetailPage({ params: Promise.resolve({ id: "prospect-cecilia" }) }),
       ),
     openingLead: /<p class="ag-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/staff/copilot (AI Copilot)",
+    render: async () =>
+      renderToStaticMarkup(await CopilotPage({ searchParams: Promise.resolve({}) })),
+    openingLead: /<p class="copilot-lead">([\s\S]*?)<\/p>/,
   },
 ];
 

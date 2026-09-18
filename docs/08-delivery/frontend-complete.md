@@ -16,11 +16,11 @@ designed honest state that names the contract it waits on. **Nothing fakes data*
 states are the deliverable (`AGENTS.md` rule 5). The per-route proof is
 [`notes/demo-web-route-coverage.md`](./notes/demo-web-route-coverage.md).
 
-Of the audit's **20 “not built” screens, 16 are built**. The four that remain are:
+Of the audit's **20 “not built” screens, 17 are built**. The three that remain are the
+platform's own surface:
 
 | Audit item | State |
 |---|---|
-| S29 AI Copilot | Deliberately deferred by the CP plan; waits on the platform's AI capabilities + governance wiring (audit §7.2). |
 | Platform administration (all 3: tenant management, platform login, sign-up) | The platform's own surface — not a screen this repo hosts. |
 
 ## What was delivered
@@ -39,6 +39,7 @@ Of the audit's **20 “not built” screens, 16 are built**. The four that remai
 | S11 Embalming/Preparation | `/staff/cases/[id]/preparation` (the mortuary record) | [#57](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/57) | 2026-09-18 |
 | S16–S19 Ownership · Transfers · Interments · Exhumations | `/staff/property/[id]/ownership` · `…/transfers` · `…/interments` · `…/exhumations` | [#59](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/59) | 2026-09-18 |
 | S25 Commission | `/staff/commission` (the engine's shape; every rate-derived figure blank) | [#58](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/58) | 2026-09-18 |
+| S29 AI Copilot | `/staff/copilot` — the DESIGNED surface, which is the deliverable: four recorded questions answered by lookup over the case store, the tracker and the calendar, every finding carrying its record trail, and the governance boundary + not-connected state printed on the page. **No model is attached**; it waits on the platform's AI capabilities + governance wiring (audit §7.2) and the client's answer. | [#75](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/75) | 2026-09-19 |
 
 ### The rest of the completion push (PRs #43–#73)
 

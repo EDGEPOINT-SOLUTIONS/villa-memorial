@@ -32,6 +32,14 @@ export const STAFF_NAV: NavSection[] = [
       // Reports gate on finance scopes provisionally until reporting-analytics
       // freezes its own scope (page says as much).
       { href: "/staff/reports", label: "Reports", scopes: ["accounting:read", "billing:read"] },
+      // AI Copilot (PRD S29) — the DESIGNED surface only: no model provider is
+      // configured and the governance contract that would attach one is an open client
+      // question (lib/copilot.ts carries the boundary; the screen prints it). Provisional
+      // scope: rbac-scopes-v1 names no ai:* code and the capability belongs to the
+      // platform's ai-orchestration service, so this reuses cases:read — every answer the
+      // page gives is a statement about case records. The chapel calendar inside it needs
+      // scheduling:read on top, and the page says so when a reader lacks it.
+      { href: "/staff/copilot", label: "AI Copilot", scopes: ["cases:read"] },
     ],
   },
   {
