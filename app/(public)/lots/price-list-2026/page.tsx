@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PriceList2026Tables } from "@/components/villa/price-list-2026";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { VMP_NOTES } from "@/lib/villa-pricing";
+import { pageMetadata } from "@/lib/seo";
 import {
   LOT_GARDEN_NICHES,
   LOT_MAUSOLEUM,
@@ -9,7 +11,12 @@ import {
   LOT_PRIMARY,
 } from "@/lib/media";
 
-export const metadata = { title: "2026 Price list — Lots & mausoleum" };
+export const metadata: Metadata = pageMetadata({
+  title: "2026 Price list — Lots & mausoleum",
+  description:
+    "The client's 2026 lot, mausoleum and garden-niche price list — regular and senior-citizen prices with the six-year amortization amounts.",
+  path: "/lots/price-list-2026",
+});
 
 // Reads the pricing store per request — an office edit must be visible here.
 export const dynamic = "force-dynamic";

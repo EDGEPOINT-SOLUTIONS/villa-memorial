@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import { Card } from "@/components/ui/card";
@@ -7,6 +8,7 @@ import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { pageMetadata } from "@/lib/seo";
 import {
   CASH_ASSISTANCE,
   php,
@@ -15,7 +17,12 @@ import {
   VMP_NOTES,
 } from "@/lib/villa-pricing";
 
-export const metadata = { title: "Villa Memorial Plan — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Villa Memorial Plan — Villa Memorial",
+  description:
+    "Villa Memorial Plan tiers and terms with the client's 2026 payment-mode tables — regular and senior rates, six-year amortization, and what each plan includes.",
+  path: "/plans",
+});
 
 // Reads the pricing store per request — a staff edit must be what the NEXT
 // visitor sees, never a build-time snapshot.

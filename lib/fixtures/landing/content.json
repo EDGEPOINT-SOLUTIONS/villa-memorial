@@ -1,8 +1,9 @@
 {
   "comment": [
     "Fixture store for the Landing Page content model — the public home (localhost:4000 /)",
-    "renders ONLY from this document (plus the real lots/catalogue reads for the live map),",
-    "and the staff 'Landing Page' editor persists into the same store.",
+    "AND the public FAQ page (/faq) render ONLY from this document (plus the real lots/catalogue",
+    "reads for the live map), and the staff content editor at /staff/landing persists into the",
+    "same store.",
     "",
     "PROVENANCE: no upstream CMS/content contract exists yet (front-end CMS seam, approved in",
     "the Lavish villa-landing-plan — three-column anchored catalogue home). Shape is owned by",
@@ -262,6 +263,33 @@
     "map": {
       "heading": "Browse the grounds, live",
       "intro": "Zoom, pan and click every plot — walk the park before you visit, or share any plot deep link with your family."
+    },
+    "faq": {
+      "eyebrow": "Help",
+      "heading": "Frequently asked questions",
+      "lead": "Straight answers about our services, plans and the memorial park.",
+      "items": [
+        {
+          "id": "faq-when-i-call",
+          "question": "What happens when I call?",
+          "answer": "A coordinator answers day or night, takes the details, and starts the arrangement with you."
+        },
+        {
+          "id": "faq-plan-ahead",
+          "question": "Can I plan ahead?",
+          "answer": "Yes — browse memorial plans and park lots online, and speak with a coordinator to formalise them."
+        },
+        {
+          "id": "faq-see-lots",
+          "question": "Where can I see available lots?",
+          "answer": "The park map shows sections and availability. Staff can assist with reservations."
+        }
+      ],
+      "links": [
+        { "label": "Villa Memorial Plan", "href": "/plans" },
+        { "label": "Villa Memorial Park", "href": "/map" },
+        { "label": "Contact us", "href": "/contact" }
+      ]
     }
   }
 }

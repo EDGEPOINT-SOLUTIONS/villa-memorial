@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Contact us — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Contact us — Villa Memorial",
+  description:
+    "Reach Villa Memorial Park day or night — the 24/7 assistance line, the park office, and a message a coordinator answers.",
+  path: "/contact",
+});
 
 /**
  * Public contact capture (forms-UI report row 4 · D2 short measure). The form

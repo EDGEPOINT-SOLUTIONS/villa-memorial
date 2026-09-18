@@ -55,11 +55,12 @@ export const STAFF_NAV: NavSection[] = [
       // catalog:read — the customer persona holds catalog:read for the storefront.
       { href: "/staff/inventory", label: "Inventory", scopes: ["catalog:write"] },
       { href: "/staff/pricing", label: "Pricing rules", scopes: ["catalog:write"] },
-      { href: "/staff/store", label: "Store & content", scopes: ["catalog:write"] },
-      // Landing page editor — front-end CMS seam (approved villa-landing-plan); gates on
-      // catalog:write provisionally (same precedent as Store & content) until the content
-      // contract freezes its own scope. See app/staff/landing + lib/api-client/landing.ts.
-      { href: "/staff/landing", label: "Landing page", scopes: ["catalog:write"] },
+      // ONE content editor (captain, 2026-09-18): the old "Store & content" stub
+      // was merged into the real editor, which now holds the landing page AND the
+      // FAQ page. /staff/store redirects here. Gates on catalog:write provisionally
+      // (front-end CMS seam) until the content contract freezes its own scope.
+      // See app/(staff)/staff/landing + lib/api-client/landing.ts.
+      { href: "/staff/landing", label: "Pages & content", scopes: ["catalog:write"] },
       { href: "/staff/orders", label: "Orders", scopes: ["orders:read"] },
     ],
   },

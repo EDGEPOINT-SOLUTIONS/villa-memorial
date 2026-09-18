@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP, PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
@@ -12,7 +13,14 @@ import {
   VMP_PACKAGE,
 } from "@/lib/villa-pricing";
 
-export const metadata = { title: "Villa Memorial Plan — Products & Price List 2026" };
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  title: "Villa Memorial Plan — Products & Price List 2026",
+  description:
+    "The complete Villa Memorial Plan: five tiers, four payment modes, senior-citizen rates, eligibility and the client's official 2026 price list.",
+  path: "/plans/villa-memorial-plan",
+});
 
 // Reads the pricing store per request — an office edit must be visible here.
 export const dynamic = "force-dynamic";

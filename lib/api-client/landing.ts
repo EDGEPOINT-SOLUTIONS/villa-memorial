@@ -1,9 +1,9 @@
 /**
- * Landing Page content seam — the public home (localhost:4000 /) renders ONLY
- * from this document, and the staff "Landing Page" editor persists into the
- * same store. Lives under api-client because it follows the module pattern
- * exactly: typed tolerant reader over a recorded fixture seed + a save path
- * with the service owning validation.
+ * Landing Page content seam — the public home at / AND the public FAQ page at
+ * /faq render ONLY from this document, and the staff content editor at
+ * /staff/landing persists into the same store. Lives under api-client because it
+ * follows the module pattern exactly: typed tolerant reader over a recorded
+ * fixture seed + a save path with the service owning validation.
  *
  * ⚠ CONTRACT STATUS (stated loudly, per AGENTS.md): there is NO frozen content
  * contract and NO upstream CMS service yet — this is an app-authored front-end
@@ -165,6 +165,32 @@ export type BlogSection = { heading: string; intro: string; posts: BlogPost[] };
 
 export type MapSection = { heading: string; intro: string };
 
+/**
+ * One question/answer pair on the public FAQ page (/faq). Staff-editable like
+ * every other region of this document — the page renders exactly what is saved
+ * here, so a typo no longer needs a developer (audit §7.1 G7).
+ */
+export type FaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+/**
+ * The FAQ page at /faq — the Help hero copy, the question cards and the
+ * next-step links under them. The page that renders this lives at
+ * app/(public)/faq/page.tsx and keeps its shipped layout; only the words come
+ * from here.
+ */
+export type FaqSection = {
+  eyebrow: string;
+  heading: string;
+  lead: string;
+  items: FaqItem[];
+  /** The "Next steps" link row closing the page. */
+  links: Cta[];
+};
+
 export type LandingContent = {
   version: 1;
   updated_at: string | null;
@@ -177,6 +203,7 @@ export type LandingContent = {
   plans: PlansSection;
   blog: BlogSection;
   map: MapSection;
+  faq: FaqSection;
 };
 
 type ContentStore = { content: LandingContent };
@@ -284,6 +311,40 @@ function readBlogPost(raw: unknown): BlogPost | null {
   };
 }
 
+function readFaqItem(raw: unknown): FaqItem | null {
+  const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  const question = str(r.question);
+  const answer = str(r.answer);
+  // Drop only rows with no words at all; a whitespace-only field is kept so the
+  // validator can name it instead of the row vanishing on save (same rule as
+  // the service cards).
+  if (!question && !answer) return null;
+  return {
+    id: str(r.id) || `faq-${Math.random().toString(36).slice(2, 8)}`,
+    question,
+    answer,
+  };
+}
+
+function readFaqLink(raw: unknown): Cta | null {
+  const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  const label = str(r.label);
+  const href = str(r.href);
+  if (!label && !href) return null;
+  return { label, href };
+}
+
+function readFaqSection(raw: unknown): FaqSection {
+  const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+  return {
+    eyebrow: str(r.eyebrow, "Help"),
+    heading: str(r.heading, "Frequently asked questions"),
+    lead: str(r.lead),
+    items: arr(r.items).map(readFaqItem).filter((x): x is FaqItem => x !== null),
+    links: arr(r.links).map(readFaqLink).filter((x): x is Cta => x !== null),
+  };
+}
+
 /** Full tolerant read of a content document (used by the page + editor + BFF). */
 export function readLandingContent(raw: unknown): LandingContent {
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
@@ -374,6 +435,7 @@ export function readLandingContent(raw: unknown): LandingContent {
       heading: readStr(mapRaw as Record<string, unknown>, "heading") || "Browse the grounds, live",
       intro: readStr(mapRaw as Record<string, unknown>, "intro"),
     },
+    faq: readFaqSection(r.faq ?? {}),
   };
 }
 
@@ -393,6 +455,10 @@ export function readLandingContent(raw: unknown): LandingContent {
  *  - a blog post MAY carry an optional link — the route its photo/caption opens
  *    (empty means the post is not clickable);
  *  - media entries must be photo|video with a usable src;
+ *  - the FAQ page's heading can't be empty, every question/answer pair needs
+ *    both halves, and every next-step link needs a label and a destination
+ *    (the reader drops rows with no words at all, so an emptied editor row
+ *    leaves the document instead of publishing a blank card);
  *  - the hero's optional background colour must be a valid CSS colour literal
  *    (lib/landing/hero-background.ts owns the check) and its transparency a
  *    number from 0 to 100.
@@ -459,6 +525,19 @@ export function validateLandingContent(
       if (!MEDIA_KINDS.includes(m.kind) || !m.src.trim()) {
         return { ok: false, error: "Every attached photo/video needs a working media source." };
       }
+    }
+  }
+  if (!content.faq.heading.trim()) {
+    return { ok: false, error: "The FAQ heading can't be empty." };
+  }
+  for (const item of content.faq.items) {
+    if (!item.question.trim() || !item.answer.trim()) {
+      return { ok: false, error: "Every FAQ entry needs both a question and an answer." };
+    }
+  }
+  for (const link of content.faq.links) {
+    if (!link.label.trim() || !link.href.trim()) {
+      return { ok: false, error: "Every FAQ next-step link needs a label and a destination." };
     }
   }
   return { ok: true };

@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Compare packages — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Compare packages — Villa Memorial",
+  description:
+    "Compare the Villa Memorial Plan packages side by side — what each tier includes and the published amounts the client's 2026 sheets carry.",
+  path: "/plans/compare",
+});
 
 /**
  * Compare — REAL catalog data. The frozen catalog contract carries what it

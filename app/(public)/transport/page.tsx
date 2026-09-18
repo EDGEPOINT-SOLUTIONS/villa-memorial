@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { TRANSPORT_IMAGE } from "@/lib/media";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Transport — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Transport — Villa Memorial",
+  description:
+    "Dignified transport coordinated by our team — retrieval and delivery within the first 25 km of every Villa Memorial Plan.",
+  path: "/transport",
+});
 
 export default function Page() {
   return (

@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueAddButton } from "@/components/catalogue-add-button";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Packages — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Packages — Villa Memorial",
+  description:
+    "Complete memorial packages — everything a family needs in one arrangement, with the client's published 2026 amounts and what each package carries.",
+  path: "/packages",
+});
 
 /** Public packages — REAL catalog data (item_type=package), villa card grammar.
  * Cards carry a "View package" detail link plus an "Add to cart" button fed by

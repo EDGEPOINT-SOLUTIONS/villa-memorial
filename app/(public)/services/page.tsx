@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { pageMetadata } from "@/lib/seo";
 import {
   CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
@@ -11,7 +13,12 @@ import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { CHAPEL_NOTES } from "@/lib/villa-pricing";
 
-export const metadata = { title: "Funeraria Memorial Services — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Funeraria Memorial Services — Villa Memorial",
+  description:
+    "At-need funeral care day or night: the 24/7 call steps, a-la-carte service rates, embalming by the day and chapel bookings at Villa Memorial Park.",
+  path: "/services",
+});
 
 /** The page's own sections, in order — the sticky bar and the anchors share one list. */
 const SECTIONS: ReadonlyArray<SubnavItem> = [

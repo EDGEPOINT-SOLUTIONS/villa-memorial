@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { QuoteForm } from "@/components/public-forms/quote-form";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Request a quote — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Request a quote — Villa Memorial",
+  description:
+    "Tell us what you have in mind and the park office prepares a written quotation — a request for the office, never a reservation.",
+  path: "/quote",
+});
 
 /**
  * Public quote request (forms-UI report row 5 · D2 short measure). The form is

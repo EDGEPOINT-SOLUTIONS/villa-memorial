@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -6,8 +7,34 @@ import { getLot } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
 import { SAMPLE_PARK_IMAGE, VILLA_SECTION_PHOTOS } from "@/lib/media";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Lot details — Villa Memorial" };
+type LotDetailParams = { params: Promise<{ id: string }> };
+
+/**
+ * Per-lot metadata: the lot number, section, status and — when the record
+ * carries one — the published price, all read from the same frozen Lot contract
+ * the page renders. A lot the office removed from public listings 404s; its
+ * head points at the browse page rather than inventing one.
+ */
+export async function generateMetadata({ params }: LotDetailParams): Promise<Metadata> {
+  const { id } = await params;
+  const lot = await getLot(decodeURIComponent(id)).catch(() => null);
+  if (!lot) {
+    return pageMetadata({
+      title: "Memorial lots — Villa Memorial",
+      description:
+        "Browse the park's plots by park, status and legend type — see availability and the published lot prices, then reserve with the park office.",
+      path: "/lots",
+    });
+  }
+  const price = lot.price_cents > 0 ? formatMinorUnits(lot.price_cents, lot.currency) : null;
+  return pageMetadata({
+    title: `Lot ${lot.lot_number} — ${lot.section} — Villa Memorial`,
+    description: `Lot ${lot.lot_number} in ${lot.section} at Villa Memorial Park — ${lotStatusLabel(lot.status)}${price ? `, ${price}` : ""}. See the plot on the park map and ask the office about reserving it.`,
+    path: `/lots/${encodeURIComponent(lot.id)}`,
+  });
+}
 
 const TYPE_LABEL: Record<string, string> = {
   individual: "Individual lot",

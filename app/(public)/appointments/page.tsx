@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AppointmentForm } from "@/components/public-forms/appointment-form";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = { title: "Book an appointment — Villa Memorial" };
+export const metadata: Metadata = pageMetadata({
+  title: "Book an appointment — Villa Memorial",
+  description:
+    "Book a time to sit down with a coordinator at the park office — at a time that suits your family.",
+  path: "/appointments",
+});
 
 /**
  * Public appointment request (forms-UI report row 6 · D2 short measure). The
