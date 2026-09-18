@@ -6779,6 +6779,89 @@ a.card:hover {
   color: var(--color-figure);
 }
 
+/* --- Lot records (F-11): one tab row across the four lot-record screens -------
+   Ownership · Transfers · Interments · Exhumations share one subject (the lot)
+   and one navigation grammar. Chips are 2.5rem tall so a keyboard focus ring
+   is unmistakable and the row wraps at 390 px. Tokens only. */
+.lot-rec-tabs {
+  margin-bottom: var(--space-5);
+}
+
+.lot-rec-tabs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lot-rec-tabs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: var(--color-bg-surface-raised);
+  color: var(--navy-800);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.lot-rec-tabs a:hover {
+  border-color: var(--navy-300);
+  color: var(--navy-950);
+}
+
+.lot-rec-tabs a[aria-current="page"] {
+  background: var(--navy-800);
+  border-color: var(--navy-900);
+  color: var(--marble-100);
+}
+
+/* The one-line honest state under a page header ("what waits on the service"). */
+.lot-rec-gap {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Lot-record kv rows carry long office labels ("First interment / bundle",
+   "Interments recorded here") — a wider label column than the 6rem default,
+   tightened again below 40rem so values keep their room on a phone. */
+.lot-rec-kv > div {
+  grid-template-columns: 10rem 1fr;
+}
+
+@media (max-width: 40rem) {
+  .lot-rec-kv > div {
+    grid-template-columns: 7rem 1fr;
+  }
+}
+
+/* Entry rows on the lot detail page: a record, its one-line state, and the
+   way in — three columns that stack cleanly at 390 px. */
+.lot-rec-entry__state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.lot-rec-entry__state strong {
+  color: var(--color-text-primary);
+}
+
+.lot-rec-entry__state span {
+  color: var(--color-text-muted);
+}
+
 /* --- Commission (F-12): the honest blank ------------------------------------
    The staff Commission screen shows the engine's shape with every rate-derived
    figure blank. These classes keep "blank amount + Not configured" one visual
