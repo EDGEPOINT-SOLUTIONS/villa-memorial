@@ -241,7 +241,7 @@ export default async function StaffDashboardPage() {
                 </div>
               }
             >
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <tbody>
                     {upcoming.map((b) => (

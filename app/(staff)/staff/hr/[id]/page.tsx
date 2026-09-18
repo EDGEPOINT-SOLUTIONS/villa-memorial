@@ -95,7 +95,7 @@ export default async function EmployeeDetailPage({
 
       <PageSection>
         <Card header={<h3>Employment details</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <tbody>
                 <tr>
@@ -141,7 +141,7 @@ export default async function EmployeeDetailPage({
           {employee.attendance.length === 0 ? (
             <p className="text-sm text-muted">No attendance records.</p>
           ) : (
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <thead>
                   <tr>
@@ -172,7 +172,7 @@ export default async function EmployeeDetailPage({
           {employee.leave.length === 0 ? (
             <p className="text-sm text-muted">No leave requests on file.</p>
           ) : (
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <thead>
                   <tr>

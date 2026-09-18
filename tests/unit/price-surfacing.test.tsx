@@ -113,7 +113,7 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
       const sku = coffinSku(m.model);
       // Add to cart — the button announces the exact catalogue item.
       expect(html, `${m.model} add button`).toContain(
-        `aria-label="Add ${m.model} casket to cart"`,
+        `aria-label="Add to cart: ${m.model} casket"`,
       );
       // Request order — prefilled with the exact SKU and the sheet's SRP.
       const request = bySku.get(sku);
@@ -204,16 +204,16 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
     // Embalming per day: one catalogue entry per 3–9 day stay + the extra day.
     for (const r of EMBALMING_RATES) {
       const sku = embalmingDaySku(r.days);
-      expect(html, `embalming ${r.days} add`).toContain(`aria-label="Add Embalming — ${r.days} days to cart"`);
+      expect(html, `embalming ${r.days} add`).toContain(`aria-label="Add ${r.days} days: Embalming — ${r.days} days"`);
       expect(bySku.get(sku)?.get("price"), `embalming ${r.days} request`).toContain(php(r.amount));
       expect(html).toContain(`${r.days} days`);
     }
-    expect(html).toContain(`aria-label="Add Additional embalming day to cart"`);
+    expect(html).toContain(`aria-label="Add to cart: Additional embalming day"`);
     expect(bySku.get(EMBALMING_EXTRA_DAY_SKU)).toBeTruthy();
     // The five a-la-carte fees.
     for (const f of ALACARTE_SERVICE_FEES) {
       const sku = ALACARTE_SKUS[f.service];
-      expect(html, `${f.service} add`).toContain(`aria-label="Add ${f.service} to cart"`);
+      expect(html, `${f.service} add`).toContain(`aria-label="Add to cart: ${f.service}"`);
       expect(bySku.get(sku)?.get("price"), `${f.service} request`).toContain(php(f.amount));
     }
     expect(html).toContain("per service");
@@ -238,8 +238,8 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
       2 + CHAPEL_RATES.length * 2,
     );
     // None of them is the old straight Add-to-cart control.
-    expect(html).not.toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
-    expect(html).not.toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
+    expect(html).not.toContain('aria-label="Add to cart: Chapel use — common chapel, per day"');
+    expect(html).not.toContain('aria-label="Add to cart: Chapel use — private chapel, per day"');
     expect(html).toContain("Request order");
     expect(html).toContain(">Request</a>");
     // The two per-day products' card requests carry the sheet's own per-day rate.
@@ -343,7 +343,7 @@ describe("the plan payment tables render on every plan surface", () => {
       // has one since the four un-sourced upstream items were withdrawn).
       const name = item.name.replace(/&/g, "&amp;");
       expect(html, `${item.sku} add button`).toContain(
-        `aria-label="Add ${name} to cart"`,
+        `aria-label="Add to cart: ${name}"`,
       );
       const request = bySku.get(item.sku);
       expect(request, `${item.sku} request link`).toBeTruthy();

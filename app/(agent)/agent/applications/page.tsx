@@ -73,19 +73,19 @@ export default async function AgentApplicationsPage() {
                 <StageChip stage={STAGE_TONE[a.stage] ?? "contacted"} label={a.stage_label} />
               </div>
               <div className="ag-card__body">
-                <div className="ag-kv">
+                <dl className="ag-kv">
                   <dt>What it waits on</dt>
                   <dd>{a.waits_on}</dd>
-                </div>
-                <div className="ag-kv">
+                </dl>
+                <dl className="ag-kv">
                   <dt>Who owns it</dt>
                   <dd>{a.owner}</dd>
-                </div>
+                </dl>
                 {a.promised_by ? (
-                  <div className="ag-kv">
+                  <dl className="ag-kv">
                     <dt>Promised by</dt>
                     <dd>{a.promised_by}</dd>
-                  </div>
+                  </dl>
                 ) : null}
                 <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
                   <button className="btn btn--primary btn--sm" type="button" disabled title="Application writes wait on the crm/property contracts">

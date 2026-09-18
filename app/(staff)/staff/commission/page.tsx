@@ -222,7 +222,7 @@ export default async function CommissionPage() {
           from anyone typing a rate here.
         </p>
 
-        <div className="table-wrapper">
+        <div className="table-wrapper" tabIndex={0}>
           <table className="table">
             <caption>
               The shape of the eventual calculation — every rate-derived figure stays blank until
@@ -332,7 +332,7 @@ export default async function CommissionPage() {
             </p>
           </Card>
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <caption>
                 Real order records. The Commission column stays blank until the office configures

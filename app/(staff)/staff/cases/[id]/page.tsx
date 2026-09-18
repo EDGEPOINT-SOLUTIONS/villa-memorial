@@ -116,7 +116,7 @@ export default async function CaseDetailPage({
 
       <PageSection>
         <Card header={<h3>Case details</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <tbody>
                 <tr>
@@ -173,7 +173,7 @@ export default async function CaseDetailPage({
           }
         >
           {item.intake ? (
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <tbody>
                   <tr>
@@ -355,7 +355,7 @@ export default async function CaseDetailPage({
                 No documents filed against this case yet.
               </p>
             ) : (
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <thead>
                     <tr>

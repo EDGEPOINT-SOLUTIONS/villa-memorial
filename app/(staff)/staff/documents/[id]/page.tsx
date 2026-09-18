@@ -81,7 +81,7 @@ export default async function DocumentDetailPage({
       />
 
       <PageSection>
-        <Card header={<h3>Details</h3>}>
+        <Card header={<h2>Details</h2>}>
           <div className="stack-3">
             <div className="row row--space">
               <span className="text-sm text-muted">Title</span>
@@ -121,7 +121,7 @@ export default async function DocumentDetailPage({
 
       {hasBody ? (
         <PageSection>
-          <Card header={<h3>Rendered artifact</h3>}>
+          <Card header={<h2>Rendered artifact</h2>}>
             <p className="text-sm text-muted">
               Open the rendered document in a new tab (browser print → PDF).
             </p>

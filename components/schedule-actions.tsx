@@ -102,7 +102,7 @@ export function NewBookingForm({ resources }: { resources: Resource[] }) {
               01
             </span>
             <div>
-              <h3 className="capture-section__title">Booking</h3>
+              <h2 className="capture-section__title">Booking</h2>
               <p className="capture-section__blurb">
                 What is being reserved and against whose case.
               </p>
@@ -160,7 +160,7 @@ export function NewBookingForm({ resources }: { resources: Resource[] }) {
               02
             </span>
             <div>
-              <h3 className="capture-section__title">When</h3>
+              <h2 className="capture-section__title">When</h2>
               <p className="capture-section__blurb">
                 Overlapping bookings are flagged, never blocked — the service marks
                 conflicting on both sides and staff decide.

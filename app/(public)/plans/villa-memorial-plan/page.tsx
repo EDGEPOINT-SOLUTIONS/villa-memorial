@@ -156,7 +156,7 @@ export default async function VillaMemorialPlanPage() {
         <div className="card">
           <div className="card__body stack-3">
             <h3>Complete memorial package</h3>
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <tbody>
                   {VMP_PACKAGE.map((p) => (
@@ -188,7 +188,7 @@ export default async function VillaMemorialPlanPage() {
           <div className="card">
             <div className="card__body stack-3">
               <h3>Cash assistance with hospital benefit</h3>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <thead>
                     <tr>
@@ -240,7 +240,7 @@ export default async function VillaMemorialPlanPage() {
           <div className="card" key={cat.title}>
             <div className="card__body stack-3">
               <h3>{cat.title} — 6 years amortization</h3>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table price-table">
                   <thead>
                     <tr>

@@ -363,7 +363,7 @@ function InstrumentRow({
       {instrument.note ? <p className="text-sm text-muted">{instrument.note}</p> : null}
 
       <div className="gi-docs">
-        <h4 className="capture-subhead">What it waits on</h4>
+        <h3 className="capture-subhead">What it waits on</h3>
         {instrument.documents.length === 0 ? (
           <p className="text-sm text-muted">No documents listed for this instrument.</p>
         ) : (

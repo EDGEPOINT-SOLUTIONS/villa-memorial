@@ -130,7 +130,7 @@ export default function CheckoutPage() {
                   01
                 </span>
                 <div>
-                  <h3 className="capture-section__title">Your details</h3>
+                  <h2 className="capture-section__title">Your details</h2>
                   <p className="capture-section__blurb">
                     The store matches this order to your account by email if you already
                     have one.

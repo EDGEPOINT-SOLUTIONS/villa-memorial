@@ -19,9 +19,9 @@ function CaseCard({ kase }: { kase: Case }) {
     <Link href={`/staff/cases/${kase.id}`} className="card case-card">
       <div className="case-card__main">
         <div className="case-card__topline">
-          <h3 className="case-card__name">
+          <h2 className="case-card__name">
             {pendingIntake ? "Awaiting intake" : kase.deceased_name}
-          </h3>
+          </h2>
           <Badge tone={STAGE_TONE[kase.stage] ?? "neutral"}>
             {STAGE_LABEL[kase.stage] ?? kase.stage}
           </Badge>

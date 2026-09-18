@@ -83,7 +83,7 @@ export function SignInCard({
   }
 
   return (
-    <div className="signin-shell">
+    <main className="signin-shell" id="main">
       <div className="signin-card">
         <div className="signin-card__head">
           <p className="signin-card__eyebrow">{SIGN_IN_BLURBS[door].eyebrow}</p>
@@ -157,6 +157,6 @@ export function SignInCard({
           <PortalSwitch current={door} />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

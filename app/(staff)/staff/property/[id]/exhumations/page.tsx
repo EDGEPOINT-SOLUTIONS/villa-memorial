@@ -112,7 +112,7 @@ export default async function LotExhumationsPage({
 
       {exhumations.length === 0 ? (
         <PageSection>
-          <Card header={<h3>The request</h3>}>
+          <Card header={<h2>The request</h2>}>
             <EmptyState
               title="No exhumation has been recorded for this lot"
               hint="An exhumation is not a move: the office records a request, the lot holder's consent, the permit and the destination before anything is opened."
@@ -194,8 +194,8 @@ export default async function LotExhumationsPage({
             </PageSection>
 
             <PageSection>
-              <Card header={<h3>Every requirement, in order</h3>}>
-                <div className="table-wrapper">
+              <Card header={<h2>Every requirement, in order</h2>}>
+                <div className="table-wrapper" tabIndex={0}>
                   <table className="table">
                     <caption className="visually-hidden">
                       The requirements recorded for moving {exhumation.deceased_name}
@@ -231,7 +231,7 @@ export default async function LotExhumationsPage({
 
             <PageSection>
               <Card
-                header={<h3>The record of what was done</h3>}
+                header={<h2>The record of what was done</h2>}
                 footer={
                   exhumation.state === "open"
                     ? "Recorded only when the work is complete"

@@ -189,8 +189,8 @@ describe("/services reads as the approved senior-first service page", () => {
       2 + CHAPEL_RATES.length * 2,
     );
     // No plain chapel add-to-cart survived the senior-first redesign.
-    expect(html).not.toContain('aria-label="Add Chapel use — common chapel, per day to cart"');
-    expect(html).not.toContain('aria-label="Add Chapel use — private chapel, per day to cart"');
+    expect(html).not.toContain('aria-label="Add to cart: Chapel use — common chapel, per day"');
+    expect(html).not.toContain('aria-label="Add to cart: Chapel use — private chapel, per day"');
   });
 
   it("makes the 12,000 px page navigable: anchors, back-to-top and a call bar", () => {
@@ -301,7 +301,7 @@ describe("the casket detail view renders the model's own data", () => {
   });
 
   it("keeps both real actions and the illustrative sample photograph", () => {
-    expect(html).toContain('aria-label="Add White Rose Full casket to cart"');
+    expect(html).toContain('aria-label="Add to cart: White Rose Full casket"');
     expect(html).toContain("Request order");
     const sample = casketSamplePhoto({ collection: "The White Rose Collection", model: "White Rose Full" });
     expect(html).toContain(sample.src);

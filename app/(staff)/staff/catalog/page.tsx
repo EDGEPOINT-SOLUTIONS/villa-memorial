@@ -205,7 +205,7 @@ export default async function CatalogPage({
             }
           />
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>

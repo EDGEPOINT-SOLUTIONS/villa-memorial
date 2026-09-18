@@ -149,26 +149,26 @@ export default async function AgentSalesPage() {
               </p>
             </div>
             <hr style={{ border: "none", borderTop: "1px solid var(--sky-100)", margin: "var(--space-4) 0" }} />
-            <div className="ag-kv">
+            <dl className="ag-kv">
               <dt>People contacted this month</dt>
               <dd>{commission.conversion.contacted}</dd>
-            </div>
-            <div className="ag-kv">
+            </dl>
+            <dl className="ag-kv">
               <dt>Presentations made</dt>
               <dd>{commission.conversion.presentations}</dd>
-            </div>
-            <div className="ag-kv">
+            </dl>
+            <dl className="ag-kv">
               <dt>Sales closed</dt>
               <dd>{commission.conversion.sales}</dd>
-            </div>
-            <div className="ag-kv">
+            </dl>
+            <dl className="ag-kv">
               <dt>Conversion, contacted → sold</dt>
               <dd>
                 {commission.conversion.contacted > 0
                   ? `${Math.round((commission.conversion.sales / commission.conversion.contacted) * 100)}%`
                   : "—"}
               </dd>
-            </div>
+            </dl>
             <p className="ag-note">
               Conversion will be calculated from the office&apos;s record, not from a self-reported list.{" "}
               {commission.conversion.example ? <span className="ag-pill">example figures</span> : null}

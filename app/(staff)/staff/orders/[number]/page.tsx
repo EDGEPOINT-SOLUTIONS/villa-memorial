@@ -147,7 +147,7 @@ export default async function OrderDetailPage({
 
       <PageSection>
         <Card header={<h3>Items</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>
@@ -192,7 +192,7 @@ export default async function OrderDetailPage({
 
       <PageSection>
         <Card header={<h3>Customer</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <tbody>
                 <tr>
@@ -215,7 +215,7 @@ export default async function OrderDetailPage({
 
       <PageSection>
         <Card header={<h3>Status timeline</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>

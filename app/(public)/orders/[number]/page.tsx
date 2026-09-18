@@ -70,14 +70,14 @@ export default function OrderStatusPage({
             </div>
 
             <Card
-              header={<h3>Summary</h3>}
+              header={<h2 className="text-lg">Summary</h2>}
               footer={
                 order.placed_at
                   ? `Placed ${new Date(order.placed_at).toLocaleString()}`
                   : null
               }
             >
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <thead>
                     <tr>

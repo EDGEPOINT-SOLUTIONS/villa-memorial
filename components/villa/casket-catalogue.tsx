@@ -178,7 +178,7 @@ export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
 export function CasketInclusionTable() {
   return (
     <>
-      <div className="table-wrapper">
+      <div className="table-wrapper" tabIndex={0}>
         <table className="table price-table">
           <caption>
             What comes with each casket family, and the package&rsquo;s chapel day rates.

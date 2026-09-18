@@ -144,10 +144,10 @@ export default async function AgentClientPage({
         <div className="ag-card">
           <div className="ag-card__body">
             {client.next_events.map((e) => (
-              <div className="ag-kv" key={e.label}>
+              <dl className="ag-kv" key={e.label}>
                 <dt>{e.label}</dt>
                 <dd>{e.value}</dd>
-              </div>
+              </dl>
             ))}
           </div>
         </div>

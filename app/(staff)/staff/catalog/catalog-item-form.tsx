@@ -173,7 +173,7 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
   return (
     <form className="card" onSubmit={submit} noValidate>
       <div className="card__header">
-        <h3>{editing ? `Edit ${record!.item.sku}` : "New catalog item"}</h3>
+        <h2>{editing ? `Edit ${record!.item.sku}` : "New catalog item"}</h2>
         <p className="text-sm text-muted">
           {editing
             ? "Changes reach the storefront, cart and checkout on their next request."

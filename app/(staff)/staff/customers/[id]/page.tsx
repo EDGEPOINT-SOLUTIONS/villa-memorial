@@ -83,7 +83,7 @@ export default async function CustomerDetailPage({
 
       <PageSection>
         <Card header={<h3>Contact details</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <tbody>
                 <tr>
@@ -122,7 +122,7 @@ export default async function CustomerDetailPage({
           ) : (
             <>
               <p className="text-sm text-muted mb-4">{family.name}</p>
-              <div className="table-wrapper">
+              <div className="table-wrapper" tabIndex={0}>
                 <table className="table">
                   <thead>
                     <tr>

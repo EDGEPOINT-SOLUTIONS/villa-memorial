@@ -90,7 +90,7 @@ export function TaskChecklist({ kase, canWrite }: { kase: Case; canWrite: boolea
       {kase.tasks.length === 0 ? (
         <p className="text-sm text-muted">No tasks recorded.</p>
       ) : (
-        <div className="table-wrapper">
+        <div className="table-wrapper" tabIndex={0}>
           <table className="table ops-tasks">
             <thead>
               <tr>

@@ -1173,6 +1173,39 @@ web/
 └── styles/               # tokens.css is the single source of truth for visuals
 ```
 
+## Accessibility & craft — the rule contract (F-16; read before touching focus, dialogs, headings, badges)
+
+- **One focus ring, every surface.** `styles/base.css` owns the only global `:focus-visible`
+  rule: `--color-focus-ring` (`sky-800`, ≥3:1 on light) + `--color-focus-ring-halo`
+  (`marble-50`, visible on navy), outline-offset 2px, no `border-radius` mutation. Never
+  re-add a per-surface `outline: none` / brass-only ring — `tests/unit/accessibility-craft.test.tsx`
+  fails stray `--sky-500/600` focus overrides, and the old `input:focus { outline: none }`
+  in `styles/components.css` was exactly what hid keyboard focus on every field.
+- **One modal focus contract**: `components/ui/use-modal-focus.ts` (focus in, Tab trapped,
+  Escape closes, body scroll locked, focus returns to the opener). Use it for every new
+  dialog/drawer; chapel booking + stage move keep their pre-existing equivalent traps.
+  The mobile menu FAB, the phone action bar's Plan-ahead sheet and the portal drawer all
+  use the hook — don't re-implement Escape/scroll locally.
+- **Badges and statuses carry the `-ink` tokens** (`--color-status-*-ink`), never the banner
+  hues at 12 px (3.0–4.2:1 on their own wash). White-ink danger fills use
+  `--color-status-danger-strong`; disabled controls are exempt from 1.4.3 and stay dimmed.
+- **Headings**: exactly one `h1` per route, no skipped levels. Where a card/section is the
+  next level, promote the tag and keep the ladder size (`class="text-lg"` or the
+  `.card__header h2` / `.capture-section__title` rules) instead of inserting hidden headings.
+  `.capture-section__title` is `h2`; `.capture-subhead` is `h3`.
+- **Scrollable tables** (`div.table-wrapper`, `.pl-scroll`, `.plan-scroll`) carry
+  `tabIndex={0}` so keyboard users can reach the scroll area; visually-hidden inputs need
+  `base.css`'s `!important` box values or the `width:100%` form rule stretches them to the
+  viewport (this broke `/staff/property`'s horizontal scroll).
+- Public pages keyboard-first: `.anchored-skip` (/`components/ui/skip-link.tsx` for portals)
+  is the first focusable and targets `#main`; the phone bar is a `<nav aria-label="Quick actions">`
+  (axe `region`). Touch controls get 44 px min-height ≤40 rem (see the `@media (max-width: 40rem)`
+  block); dense link lists rely on WCAG 2.5.8 spacing instead.
+- The regression gate is `tests/unit/accessibility-craft.test.tsx` (renders the real pages:
+  one h1, sequential levels, labelled fields, named buttons, name⊇visible-text, alt).
+  Re-run an axe pass over the route set when touching shared chrome: the F-16 PR records
+  35 public × 2 viewports + 58 staff + 14 family + 11 agent routes at zero violations.
+
 ## Maintaining this file
 
 Keep this file for knowledge useful to almost every future agent session in this project.

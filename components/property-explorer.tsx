@@ -100,7 +100,7 @@ export function PropertyExplorer({
             ))}
           </select>
         </form>
-        <div className="btn-group" role="tablist" aria-label="View">
+        <div className="btn-group" role="group" aria-label="View">
           <Button
             variant={view === "map" ? "primary" : "secondary"}
             size="sm"
@@ -203,7 +203,7 @@ export function PropertyExplorer({
           hint="Try a different search or clear the filter."
         />
       ) : (
-        <div className="table-wrapper">
+        <div className="table-wrapper" tabIndex={0}>
           <table className="table">
             <thead>
               <tr>

@@ -137,7 +137,7 @@ export default async function LotIntermentsPage({
 
       {interments.length > 0 ? (
         <PageSection>
-          <Card header={<h3>The ground here</h3>}>
+          <Card header={<h2>The ground here</h2>}>
             <dl className="kv lot-rec-kv">
               <div>
                 <dt>Records</dt>
@@ -177,7 +177,7 @@ export default async function LotIntermentsPage({
 
       {interments.length === 0 ? (
         <PageSection>
-          <Card header={<h3>The ground here</h3>}>
+          <Card header={<h2>The ground here</h2>}>
             <EmptyState
               title="No interment is recorded for this lot"
               hint="The ground has not been opened here, as far as the office's file goes. An interment is recorded only against the lot it happens in."
@@ -217,7 +217,7 @@ export default async function LotIntermentsPage({
                   </Alert>
                 ) : null}
 
-                <div className="table-wrapper">
+                <div className="table-wrapper" tabIndex={0}>
                   <table className="table">
                     <caption className="visually-hidden">
                       {interment.deceased_name}: the interment record
@@ -279,7 +279,7 @@ export default async function LotIntermentsPage({
                   </table>
                 </div>
 
-                <div className="table-wrapper">
+                <div className="table-wrapper" tabIndex={0}>
                   <table className="table">
                     <caption className="visually-hidden">
                       The checks the office runs before the ground is opened

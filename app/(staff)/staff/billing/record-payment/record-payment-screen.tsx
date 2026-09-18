@@ -226,14 +226,14 @@ function InvoiceChooser({
         </Alert>
       ) : null}
 
-      <Card header={<h3>Choose the invoice the payment settles</h3>}>
+      <Card header={<h2>Choose the invoice the payment settles</h2>}>
         {choices.length === 0 ? (
           <EmptyState
             title="Every invoice is paid in full"
             hint="There is nothing outstanding to record a payment against."
           />
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>
@@ -449,7 +449,7 @@ function InvoiceWorkbench({
       ) : null}
 
       {owed > 0 ? (
-        <Card header={<h3>Record what the family handed over</h3>}>
+        <Card header={<h2>Record what the family handed over</h2>}>
           <form className="stack" onSubmit={submit} noValidate>
             <div className="field-grid field-grid--3">
               <Field
@@ -574,7 +574,7 @@ function InvoiceWorkbench({
 
       {shown ? <ReceiptPanel payment={shown} invoice={invoice} /> : null}
 
-      <Card header={<h3>Payments recorded</h3>}>
+      <Card header={<h2>Payments recorded</h2>}>
         {!paymentsListed ? (
           <p className="text-sm text-muted">
             The live billing service does not list an invoice&apos;s payments — every receipt it
@@ -587,7 +587,7 @@ function InvoiceWorkbench({
               : `Nothing has been recorded against ${invoice.invoice_number} yet.`}
           </p>
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>
@@ -669,7 +669,7 @@ function ReceiptPanel({ payment, invoice }: { payment: RecordedPayment; invoice:
       recorded_at: payment.recorded_at,
     });
     return (
-      <Card header={<h3>No official receipt for this payment</h3>}>
+      <Card header={<h2>No official receipt for this payment</h2>}>
         <div className="stack">
           <Alert tone="warning" title="Nothing has been printed or guessed at">
             {NO_RECEIPT_NOTE}
@@ -690,7 +690,7 @@ function ReceiptPanel({ payment, invoice }: { payment: RecordedPayment; invoice:
 
   const paper = buildOfficialReceiptPaper(figures, "office");
   return (
-    <Card header={<h3>Official receipt {figures.number}</h3>}>
+    <Card header={<h2>Official receipt {figures.number}</h2>}>
       <div className="stack">
         <PaperExportActions
           blocks={paper.blocks}

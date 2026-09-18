@@ -329,7 +329,7 @@ export function ChapelAvailability({
                   No closure is on the books for {selected.name}.
                 </p>
               ) : (
-                <div className="table-wrapper">
+                <div className="table-wrapper" tabIndex={0}>
                   <table className="table">
                     <thead>
                       <tr>

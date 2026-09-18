@@ -153,7 +153,7 @@ export function ServiceContractScreen({
             01
           </span>
           <div>
-            <h3 className="capture-section__title">Header — from the case intake</h3>
+            <h2 className="capture-section__title">Header — from the case intake</h2>
             <p className="capture-section__blurb">
               Saved through the intake form on the case page — the contract prints these.
             </p>
@@ -161,7 +161,7 @@ export function ServiceContractScreen({
         </div>
         <div className="capture-section__body">
           {intake ? (
-            <div className="table-wrapper">
+            <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <tbody>
                 <tr>
@@ -242,7 +242,7 @@ export function ServiceContractScreen({
             02
           </span>
           <div>
-            <h3 className="capture-section__title">Services rendered vs packaged deals</h3>
+            <h2 className="capture-section__title">Services rendered vs packaged deals</h2>
             <p className="capture-section__blurb">
               Tick the rows the paper covers and fill the paper&rsquo;s number/text blanks
               (Embalming days, Others). Amount cells stay empty on purpose — see the note
@@ -258,7 +258,7 @@ export function ServiceContractScreen({
         ) : (
           <div className="contract-rows">
             <div className="contract-rows__col">
-              <h4>Services rendered</h4>
+              <h3 className="text-md">Services rendered</h3>
               {SERVICE_ROWS.map((row) => (
                 <ServiceRowEditor
                   key={row.key}
@@ -270,7 +270,7 @@ export function ServiceContractScreen({
               ))}
             </div>
             <div className="contract-rows__col">
-              <h4>Packaged deals</h4>
+              <h3 className="text-md">Packaged deals</h3>
               {DEAL_ROWS.map((row) => (
                 <ServiceRowEditor
                   key={row.key}
@@ -298,9 +298,9 @@ export function ServiceContractScreen({
             03
           </span>
           <div>
-            <h3 className="capture-section__title">
+            <h2 className="capture-section__title">
               Less: life plans / insurances / burial assistance / guarantees
-            </h3>
+            </h2>
             <p className="capture-section__blurb">
               Record which guarantee instruments the family is submitting. Their amounts
               and the three-day instrument deadline belong to the dev-owned guarantee
@@ -460,6 +460,7 @@ function ServiceRowEditor({
         <input
           type="text"
           className="service-row__blank"
+          aria-label={`${row.label} — what services`}
           placeholder="what services — the paper's Others blank"
           value={detail.detail}
           onChange={(e) => onBlank("detail", e.target.value)}
@@ -470,6 +471,7 @@ function ServiceRowEditor({
           <input
             type="text"
             inputMode="numeric"
+            aria-label={`${row.label} — days`}
             className="service-row__blank service-row__blank--days"
             value={days.days}
             onChange={(e) => onBlank("days", e.target.value)}

@@ -72,6 +72,11 @@ export default async function PurchaseDocumentPage({
           </Link>
         </div>
 
+        <PageHeader
+          eyebrow="Operations · Purchase document"
+          title={`Purchase document — lot ${lot.lot_number}`}
+        />
+
         {application === "unavailable" ? (
           <PageSection>
             <ErrorState message="Purchase applications are unavailable in live mode — no contract is frozen yet (waits on dev). Run the app in fixture mode to see the paper document." />

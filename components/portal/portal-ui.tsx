@@ -118,7 +118,7 @@ export function PortalCard({
       {title ? (
         <div className="ag-card__head">
           <div>
-            <h3 className="ag-card__title">{title}</h3>
+            <h2 className="ag-card__title">{title}</h2>
             {sub ? <p className="ag-card__sub">{sub}</p> : null}
           </div>
         </div>

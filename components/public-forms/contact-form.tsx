@@ -162,7 +162,7 @@ export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | nul
             01
           </span>
           <div>
-            <h3 className="capture-section__title">Your details</h3>
+            <h2 className="capture-section__title">Your details</h2>
             <p className="capture-section__blurb">How the care team reaches you back.</p>
           </div>
         </div>
@@ -217,7 +217,7 @@ export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | nul
             02
           </span>
           <div>
-            <h3 className="capture-section__title">Your message</h3>
+            <h2 className="capture-section__title">Your message</h2>
             <p className="capture-section__blurb">
               A few lines are enough — the coordinator will ask for the rest.
             </p>

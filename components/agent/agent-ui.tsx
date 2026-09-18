@@ -234,14 +234,14 @@ function weekTimePrefix(note: string): string {
 
 export function WeekRow({ appointment }: { appointment: Appointment }) {
   return (
-    <div className="ag-kv">
+    <dl className="ag-kv">
       <dt>{appointment.time_label}</dt>
       <dd>
         {weekTimePrefix(appointment.time_note)}
         {appointment.title}
         {appointment.status === "waiting" ? " — awaiting office confirmation" : ""}
       </dd>
-    </div>
+    </dl>
   );
 }
 

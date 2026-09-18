@@ -108,7 +108,7 @@ export default async function AuditPage({
             hint="Actions that change records are written here as they happen."
           />
         ) : (
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table">
               <thead>
                 <tr>

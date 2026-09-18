@@ -51,7 +51,7 @@ describe("catalogue card add-to-cart button", () => {
       ),
     );
     expect(html).toContain("Add to cart");
-    expect(html).toContain('aria-label="Add Premium Package to cart"');
+    expect(html).toContain('aria-label="Add to cart: Premium Package"');
   });
 
   it("keeps the card's View link untouched (button is the extra action)", () => {

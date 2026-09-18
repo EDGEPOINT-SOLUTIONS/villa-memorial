@@ -36,7 +36,7 @@ export function PriceList2026Tables({ categories }: { categories: ReadonlyArray<
     <>
       {categories.map((cat) => (
         <Card key={cat.title} header={<h3>{cat.title} — 6 years amortization</h3>}>
-          <div className="table-wrapper">
+          <div className="table-wrapper" tabIndex={0}>
             <table className="table price-table">
               <thead>
                 <tr>

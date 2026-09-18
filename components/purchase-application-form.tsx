@@ -377,7 +377,7 @@ export function PurchaseApplicationForm({
               01
             </span>
             <div>
-              <h3 className="capture-section__title">The buyer</h3>
+              <h2 className="capture-section__title">The buyer</h2>
               <p className="capture-section__blurb">
                 Exactly as the paper asks — the application reserves the lot in this name.
               </p>
@@ -423,7 +423,7 @@ export function PurchaseApplicationForm({
                 <>{text("citizenship", "Citizenship", "The 2025 standalone agreement's buyer table asks this; the 2026 merged form does not.")}</>
               )}
             </div>
-            <h4 className="capture-subhead">Contact</h4>
+            <h3 className="capture-subhead">Contact</h3>
             <div className="field-grid field-grid--3">
               {text("contact_number", "Contact no.")}
               {text("alternative_contact_number", "Alternative contact no.")}
@@ -432,7 +432,7 @@ export function PurchaseApplicationForm({
               {text("tin", "TIN")}
               {text("gsis_sss_number", "GSIS / SSS no.")}
             </div>
-            <h4 className="capture-subhead">Address &amp; work</h4>
+            <h3 className="capture-subhead">Address &amp; work</h3>
             <div className="field-grid field-grid--1">
               {text("address", "Address")}
             </div>
@@ -454,7 +454,7 @@ export function PurchaseApplicationForm({
               02
             </span>
             <div>
-              <h3 className="capture-section__title">Beneficiaries</h3>
+              <h2 className="capture-section__title">Beneficiaries</h2>
               <p className="capture-section__blurb">
                 Who the buyer names on the form — each with age and relationship as written.
               </p>
@@ -538,7 +538,7 @@ export function PurchaseApplicationForm({
               03
             </span>
             <div>
-              <h3 className="capture-section__title">Lot, price &amp; financing</h3>
+              <h2 className="capture-section__title">Lot, price &amp; financing</h2>
               <p className="capture-section__blurb">
                 The written figures and financing terms — exactly as the counter writes them,
                 never computed here.
@@ -600,7 +600,7 @@ export function PurchaseApplicationForm({
               <div className="field" aria-hidden="true" />
             </div>
 
-            <h4 className="capture-subhead">Price rows — written, not derived</h4>
+            <h3 className="capture-subhead">Price rows — written, not derived</h3>
             <div className="field-grid field-grid--4">
               {money("basic_price_cents", "Basic price", "Prefilled from the lot record.")}
               {money("total_contract_price_cents", "Total contract price", "Written as on the paper.")}
@@ -613,7 +613,7 @@ export function PurchaseApplicationForm({
               what the counter writes.
             </p>
 
-            <h4 className="capture-subhead">Financing terms</h4>
+            <h3 className="capture-subhead">Financing terms</h3>
             <div className="field-grid field-grid--3">
               <Field
                 label="Mode of payment"
@@ -655,6 +655,7 @@ export function PurchaseApplicationForm({
                   <select
                     id="amortization_unit"
                     name="amortization_unit"
+                    aria-label="Amortization unit"
                     disabled={pending}
                     value={values.amortization_unit}
                     onChange={(e) => set("amortization_unit", e.target.value as "years" | "months" | "")}
@@ -699,7 +700,7 @@ export function PurchaseApplicationForm({
               04
             </span>
             <div>
-              <h3 className="capture-section__title">Consent &amp; signatures</h3>
+              <h2 className="capture-section__title">Consent &amp; signatures</h2>
               <p className="capture-section__blurb">
                 The data-privacy consent the 2026 paper requires and the co-signatory over
                 printed name.
@@ -754,7 +755,8 @@ export function PurchaseApplicationForm({
       </div>
 
       {/* Right rail: the document at a glance */}
-      <aside className="capture-rail">
+      {/* Right rail: the form's sections and readiness. */}
+      <aside className="capture-rail" aria-label="Application steps">
         <div className="card capture-rail__card">
           <div className="capture-rail__head">
             <p className="capture-rail__eyebrow">Paper document</p>
