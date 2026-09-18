@@ -70,6 +70,16 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      `CHAPEL_STORE_PATH` (default `.data/scheduling-chapel-admin.json`,
      gitignored) — see `lib/api-client/chapel-store.ts`. The customer booking
      dialog reads the same records through `/api/chapel/schedule`.
+   - `finance/commission.json` ← the recorded STATE of the commission engine for
+     the staff Commission screen (F-12): app-authored, because no commission
+     contract exists and the engine is deferred platform scope
+     (finance-billing.md §Commissions). The client has not fixed the rules or
+     rates (open-questions.md — “Commission rules and rates”), so every
+     rate-derived amount is deliberately absent and no rate may ever be added
+     here; `tests/fixture-contract/commission.test.ts` walks the file and fails
+     on one. The engine's vocabulary (seven bases, four states, capabilities)
+     lives in `lib/commission.ts`, pinned to the agent workspace fixture; what
+     actually sold is NOT here — the screen reads the durable order store.
 2. **Never hand-edit a fixture to make a failing test pass.** If the contract
    changed, update the fixture AND its contract test together.
 3. Fixture tokens are structurally shaped but UNSIGNED — they exist only so
