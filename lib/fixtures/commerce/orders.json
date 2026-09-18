@@ -22,9 +22,15 @@
     "unit_price_cents; totals are the sum of the lines. tests/fixture-contract/orders.test.ts",
     "pins SKUs, prices and totals against the catalogue.",
     "",
+    "WITHDRAWN SKUs (2026-09-18): the demo orders used to sell SRV-LIGHTS, ADD-COFFIN-LIZO-SR,",
+    "ADD-FLOWERS and ADD-URN — the four upstream items no 2026 client sheet prices. Those",
+    "lines were replaced with real client-sourced lines (see lib/catalog-sources.ts) so the",
+    "order admin never publishes an invented figure either; each affected order's total was",
+    "re-summed and its billing invoice (lib/fixtures/finance/invoices.json) follows.",
+    "",
     "BILLING COHERENCE: the order numbers, customers and totals line up with the billing",
     "fixture's invoices (lib/fixtures/finance/invoices.json) — e.g. ORD-2026-00001 /",
-    "INV-2026-00001 / Marites Santos / ₱2,800.00 — so a demo session can follow one order",
+    "INV-2026-00001 / Marites Santos / ₱63,520.00 — so a demo session can follow one order",
     "from the storefront into billing without meeting two different stories.",
     "",
     "DEMO DATA ONLY: names, emails and phone numbers are invented .test placeholders."
@@ -35,7 +41,7 @@
         "number": "ORD-2026-00001",
         "status": "paid",
         "customer_name": "Marites Santos",
-        "total_cents": 280000,
+        "total_cents": 6352000,
         "currency": "PHP",
         "items": [
           {
@@ -47,28 +53,12 @@
             "unit_price_cents": 152000
           },
           {
-            "catalog_item_id": 109,
+            "catalog_item_id": 124,
             "item_type": "add_on",
-            "sku": "ADD-COFFIN-LIZO-SR",
-            "name": "Casket Upgrade: Lizo SR",
+            "sku": "CSK-WHITE-ROSE-HALF",
+            "name": "White Rose Half casket",
             "quantity": 1,
-            "unit_price_cents": 85000
-          },
-          {
-            "catalog_item_id": 110,
-            "item_type": "add_on",
-            "sku": "ADD-FLOWERS",
-            "name": "Flower Arrangement Set",
-            "quantity": 1,
-            "unit_price_cents": 25000
-          },
-          {
-            "catalog_item_id": 111,
-            "item_type": "add_on",
-            "sku": "ADD-URN",
-            "name": "Keepsake Urn",
-            "quantity": 1,
-            "unit_price_cents": 18000
+            "unit_price_cents": 6200000
           }
         ],
         "placed_at": "2026-07-01T08:15:00.000Z",
@@ -93,7 +83,7 @@
         "number": "ORD-2026-00002",
         "status": "paid",
         "customer_name": "Roberto Santos",
-        "total_cents": 520000,
+        "total_cents": 460000,
         "currency": "PHP",
         "items": [
           {
@@ -119,14 +109,6 @@
             "name": "Delivery",
             "quantity": 1,
             "unit_price_cents": 250000
-          },
-          {
-            "catalog_item_id": 107,
-            "item_type": "service",
-            "sku": "SRV-LIGHTS",
-            "name": "Lights & Sound Setup",
-            "quantity": 1,
-            "unit_price_cents": 60000
           }
         ],
         "placed_at": "2026-06-15T09:40:00.000Z",
@@ -200,7 +182,7 @@
         "number": "ORD-2026-00006",
         "status": "paid",
         "customer_name": "Ana Gonzales",
-        "total_cents": 150000,
+        "total_cents": 100000,
         "currency": "PHP",
         "items": [
           {
@@ -210,14 +192,6 @@
             "name": "Standard Package",
             "quantity": 1,
             "unit_price_cents": 100000
-          },
-          {
-            "catalog_item_id": 110,
-            "item_type": "add_on",
-            "sku": "ADD-FLOWERS",
-            "name": "Flower Arrangement Set",
-            "quantity": 2,
-            "unit_price_cents": 25000
           }
         ],
         "placed_at": "2026-08-05T10:20:00.000Z",

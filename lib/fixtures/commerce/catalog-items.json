@@ -6,11 +6,14 @@
     "GET /api/v1/catalog_items entries. display_price is presentation-only.",
     "catalog_item_id values are deterministic stand-ins for seeded row ids.",
     "",
-    "PRICES: every price-list item below carries the client's real 2026 figure, transcribed in",
-    "lib/villa-pricing.ts (the single transcription home) and pinned by",
-    "tests/fixture-contract/commerce.test.ts against lib/villa-pricing.ts. Sources:",
-    " · sheet A = '2026 price FV website A' (= 'PRICE LIST FOR 2026 II') — a-la-carte fees,",
-    "   embalming per day, and the 'For package' casket catalogue (REGULAR SRP);",
+    "PRICES: every item below carries the client's real 2026 figure. The ONE item -> client",
+    "document -> figure map is lib/catalog-sources.ts, derived from lib/villa-pricing.ts (the",
+    "single transcription home) and enforced by tests/fixture-contract/catalog-sources.test.ts",
+    "(a published entry without a recorded source fails, naming the item) plus",
+    "tests/fixture-contract/commerce.test.ts (each figure equals the sheet's). Sources:",
+    " · sheet A = '2026 price FV website A' (= 'PRICE LIST FOR 2026 II') — the five a-la-carte",
+    "   fees, the embalming day table (3-9 days + '>9 +1500/day'), and the 'For package'",
+    "   casket catalogue (24 models, REGULAR SRP);",
     " · sheet III = 'PRICE LIST FOR 2026 III' — chapel use rates (common 1500/day, private",
     "   3500/day; senior columns are the sheet's 3–9 day totals, not cart lines);",
     " · 'COMPLETE MEMORIAL PACKAGE.jpg' — the plan payment schedules.",
@@ -26,9 +29,18 @@
     "The plan is sold at its monthly amortization because the package page's buy card is",
     "monthly-first; the other terms select a prefilled request instead.",
     "",
-    "Not padded with invented prices: SRV-LIGHTS, ADD-COFFIN-LIZO-SR, ADD-FLOWERS and",
-    "ADD-URN are not on any 2026 sheet, so they keep their upstream seed prices untouched",
-    "(flagged in the PR — no 2026 figure exists to align them to)."
+    "WITHDRAWN (2026-09-18, captain's 'only the client's data' pass): the four upstream line",
+    "items no 2026 client sheet prices were REMOVED rather than published at an invented",
+    "figure — SRV-LIGHTS (600.00), ADD-COFFIN-LIZO-SR (850.00), ADD-FLOWERS (250.00),",
+    "ADD-URN (180.00). None is priced by any client document: the 2025 service contract",
+    "names a Lights line and Lizo JR/SR with a blank amount column, and the 2026 sheets price",
+    "neither. The upstream platform seed still carries them; the reasons, their placeholder",
+    "amounts and the office-arranged public state are recorded in",
+    "lib/catalog-sources.ts (WITHDRAWN_CATALOG_ITEMS), and the contract test fails if one",
+    "returns without a client source. The ids 107/109/110/111 are retired with them: a stale",
+    "gitignored .data/ catalogue journal that edited one now fails the read (unknown item)",
+    "instead of resurrecting it — delete .data/commerce-catalog.json if your demo edited one.",
+    "The demo orders/billing fixtures no longer sell them either (commerce/orders.json)."
   ],
   "items": [
     {
@@ -92,16 +104,6 @@
       "display_price": "₱2,500.00"
     },
     {
-      "id": 107,
-      "sku": "SRV-LIGHTS",
-      "name": "Lights & Sound Setup",
-      "description": null,
-      "item_type": "service",
-      "unit_price_cents": 60000,
-      "currency": "PHP",
-      "display_price": "₱600.00"
-    },
-    {
       "id": 108,
       "sku": "SRV-VIEWING",
       "name": "Viewing equipment",
@@ -110,36 +112,6 @@
       "unit_price_cents": 450000,
       "currency": "PHP",
       "display_price": "₱4,500.00"
-    },
-    {
-      "id": 109,
-      "sku": "ADD-COFFIN-LIZO-SR",
-      "name": "Casket Upgrade: Lizo SR",
-      "description": null,
-      "item_type": "add_on",
-      "unit_price_cents": 85000,
-      "currency": "PHP",
-      "display_price": "₱850.00"
-    },
-    {
-      "id": 110,
-      "sku": "ADD-FLOWERS",
-      "name": "Flower Arrangement Set",
-      "description": null,
-      "item_type": "add_on",
-      "unit_price_cents": 25000,
-      "currency": "PHP",
-      "display_price": "₱250.00"
-    },
-    {
-      "id": 111,
-      "sku": "ADD-URN",
-      "name": "Keepsake Urn",
-      "description": null,
-      "item_type": "add_on",
-      "unit_price_cents": 18000,
-      "currency": "PHP",
-      "display_price": "₱180.00"
     },
     {
       "id": 112,

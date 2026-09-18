@@ -108,24 +108,6 @@ describe("cart line expand control shows the item's details again", () => {
     expect(html).toContain("View full details");
   });
 
-  it("open: a service line with no published description shows the honest fallback", () => {
-    // Lights & Sound Setup is one of the four upstream items no 2026 sheet
-    // prices, so it carries no description (and no invented inclusions).
-    const html = row(
-      cartLine({
-        sku: "SRV-LIGHTS",
-        name: "Lights & Sound Setup",
-        itemType: "service",
-        unitPriceCents: 60000,
-        currency: "PHP",
-        quantity: 1,
-      }),
-      true,
-    );
-    expect(html).toContain("No description is published for this service yet");
-    expect(html).toContain("600.00");
-  });
-
   it("open: a chapel booking line shows the chapel, the held range and fixed days", () => {
     const html = row(
       cartLine({
@@ -160,6 +142,11 @@ describe("cart line expand control shows the item's details again", () => {
   });
 
   it("open: a line the catalogue no longer knows falls back gracefully (no crash)", () => {
+    // A stale cart line can outlive its catalogue entry — e.g. one of the four
+    // upstream items WITHDRAWN for having no 2026 client sheet (SRV-LIGHTS,
+    // ADD-COFFIN-LIZO-SR, ADD-FLOWERS, ADD-URN; lib/catalog-sources.ts). The row
+    // keeps its own display snapshot but must not imply the catalogue still sells it:
+    // the honest state is the office confirming the price, never an invented figure.
     const html = row(
       cartLine({
         sku: "RETIRED-SKU",
@@ -171,7 +158,8 @@ describe("cart line expand control shows the item's details again", () => {
       }),
       true,
     );
-    expect(html).toContain("Catalogue details are no longer published for this line");
+    expect(html).toContain("no longer published in the online catalogue");
+    expect(html).toContain("the office can still arrange it");
     expect(html).toContain("Retired Add-on");
   });
 });

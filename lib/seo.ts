@@ -181,7 +181,7 @@ export function postalAddress(location: string): Record<string, unknown> {
   };
 }
 
-/** "tel:+639170001234" → "+639170001234" (schema.org wants the bare number). */
+/** "tel:+639176178489" → "+639176178489" (schema.org wants the bare number). */
 function telephone(href: string): string {
   return href.replace(/^tel:/i, "").trim();
 }

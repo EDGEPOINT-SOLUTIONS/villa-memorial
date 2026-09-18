@@ -442,9 +442,9 @@
     {
       "id": "lot-a001-fixture-vs-sheet",
       "scope": "lots",
-      "title": "Lot A-001's recorded price matches no 2026 price-list row",
-      "detail": "The property fixture records A-001 (individual, 3.5 sqm) at ₱85,000; the 2026 sheet's families start at ₱75,000 (Condo-type, 2.5 sqm) and ₱114,000 (Premium Lots, 2.5 sqm), and no sheet row is 3.5 sqm. The office's per-plot prices and the sheet have never been reconciled — do not fold A-001 into a family here or change either figure until the client answers.",
-      "source": "lib/fixtures/property/lots.json · PRICE LIST FOR 2026.jpg"
+      "title": "The office's per-plot lot prices match no 2026 price-list row",
+      "detail": "The 2026 lot sheet prices lots by FAMILY, each with its own area — Mausoleum ₱1,073,000 @ 24 sqm, Garden Niches ₱567,000 @ 12 sqm, Prime Lots ₱128,000 @ 2.5 sqm, Premium Lots ₱114,000 @ 2.5 sqm, Condo-type ₱75,000 @ 2.5 sqm (LOT ONLY block) — and no sheet row is 3.5 sqm. The office's per-plot quotation (Lot A-001 at ₱85,000 for 3.5 sqm in the original demo records) has never been reconciled with the sheet. Since 2026-09-18 the demo lots carry their SECTION's family figure (lib/catalog-sources.ts, LOT_FAMILY_BY_SECTION) so no invented per-plot price is published — but the question itself stays open: do not price a specific plot from the sheet, and do not fold the office's plot prices into a family, until the client answers.",
+      "source": "lib/fixtures/property/lots.json · PRICE LIST FOR 2026.pdf (LOT ONLY block)"
     }
   ]
 }
