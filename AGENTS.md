@@ -887,6 +887,30 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   call shape) and `tests/unit/ops-board-rbac.test.tsx` (401/403/422/404, store effects, page
   render for writer vs reader, live-mode endpoints).
 
+## Operations board screen — `/staff/ops` (read before touching the board)
+
+- The morning screen: one lane per frozen `case-events-v1` stage, cards per case, and the case
+  screen's same two writes on each card (a stage select + one confirm modal; a "Mark … done"
+  tick per open task). Owner: `app/(staff)/staff/ops/` (`page.tsx` + `ops-board-view.tsx`);
+  the pure model is `lib/operations/ops-board.ts` (lanes, wait ages, flags, summary), which the
+  server page builds and passes to the view. Nav "Operations board" under Operations gates on
+  `cases:read` like its siblings; the write controls appear only with `cases:write`. Never build
+  a second write path — both calls are `lib/operations/board-api.ts`.
+- **Urgency is recorded, never invented.** `Awaiting intake` is the service's own
+  `deceased_name === "Pending intake"` marker; `N guarantee papers overdue` is the service
+  contract's three-day term from the recorded contract date (`INSTRUMENT_FILING_DAYS` in
+  `lib/guarantee-instruments.ts`, read through the case's own tracker); `Waiting Nd` / lane
+  `oldest Nd` / longest-wait-first order come from the recorded `updated_at`. No client-agreed
+  stage-staleness threshold exists — the page prints that basis under the board and no card is
+  coloured overdue on an app SLA.
+- Lanes are a flex row ≥ 40 rem (`flex: 1 1 9.5rem`, min-width 9.5 rem) inside
+  `.ops-board { overflow-x: auto }` — the board scrolls, the page never does — and stack full
+  width below that. Keep the lane base block BEFORE its `@media (min-width: 40rem)` override
+  (class-order trap, as with `.chapel-month` vs `.chapel-grid`) and every card/list track
+  `minmax(0, 1fr)`.
+- Evidence: `tests/unit/ops-board-model.test.ts`, `tests/unit/ops-board-page.test.tsx`; design
+  record + 1440/390/moved/empty shots `docs/08-delivery/ops-board-design/`.
+
 ## Agent lead record — `/agent/prospects/[id]` (read before touching it or the agent fixture)
 
 - F-09 (captain 2026-09-18) grew the approved page-04 prospect record into the lead record the

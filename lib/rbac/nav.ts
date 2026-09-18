@@ -84,6 +84,10 @@ export const STAFF_NAV: NavSection[] = [
   {
     label: "Operations",
     items: [
+      // The morning screen (blueprint §36, facilities-scheduling.md): every case in the
+      // lane of the stage it is in, with the case screen's own two writes. Gates on
+      // cases:read like its siblings; the move/tick controls need cases:write.
+      { href: "/staff/ops", label: "Operations board", scopes: ["cases:read"] },
       { href: "/staff/cases", label: "Cases", scopes: ["cases:read"] },
       { href: "/staff/schedule", label: "Schedule", scopes: ["scheduling:read"] },
       // Dispatch reuses scheduling:read (vehicles are scheduling resources) until a
