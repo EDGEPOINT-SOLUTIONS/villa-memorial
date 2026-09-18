@@ -4,7 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ErrorState } from "@/components/ui/states";
 import { getLot } from "@/lib/api-client/property";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { formatMinorUnits } from "@/lib/money";
+import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { SAMPLE_PARK_IMAGE, VILLA_SECTION_PHOTOS } from "@/lib/media";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import { pageMetadata } from "@/lib/seo";
@@ -51,6 +53,8 @@ export default async function PublicLotDetailPage({
 }) {
   const { id } = await params;
 
+  const { contact } = await listLandingContent();
+
   let lot;
   try {
     lot = await getLot(id);
@@ -81,7 +85,11 @@ export default async function PublicLotDetailPage({
       </div>
 
       <div className="landing__grid landing__grid--pair" >
-        <div className="media-block product-layout__media">
+        {/* media-block--natural: the photo sets the box height instead of
+            being cropped by a fixed 16:10 frame — the raw 1254px tile used to
+            overflow a 746px / 342px box and showed only its top-left corner
+            (craft pass, 2026-09-18). */}
+        <div className="media-block product-layout__media media-block--natural">
           {/* eslint-disable-next-line @next/next/no-img-element -- legend-attached lot photos */}
           <img
             src={VILLA_SECTION_PHOTOS[lot.section] ?? SAMPLE_PARK_IMAGE}
@@ -123,15 +131,37 @@ export default async function PublicLotDetailPage({
       </div>
 
       {lot.status === "available" ? (
-        <p className="text-sm text-muted">
-          This lot is available. Reservations are handled by the memorial park office —
-          online reservation and checkout are not available yet.
-        </p>
+        <div className="stack-3">
+          <p className="text-sm text-muted">
+            This lot is available. Online reservation is not available yet — the park
+            office holds the lot for you and confirms the terms.
+          </p>
+          <div className="row row--wrap">
+            <a className="btn btn--primary" href={contact.phoneHref}>
+              Call {contact.phoneDisplay}
+            </a>
+            <Link
+              className="btn btn--secondary"
+              href={buildRequestHref({
+                item: `Lot ${lot.lot_number} (${lot.section}, block ${lot.block})`,
+                price: lot.price_cents > 0 ? formatMinorUnits(lot.price_cents, lot.currency) : undefined,
+                note: "Hold request — nothing is reserved by this message.",
+              })}
+            >
+              Ask the office to hold this lot
+            </Link>
+          </div>
+        </div>
       ) : (
-        <p className="text-sm text-muted">
-          This lot is {lotStatusLabel(lot.status).toLowerCase()}. Please contact the
-          memorial park office for more information.
-        </p>
+        <div className="stack-3">
+          <p className="text-sm text-muted">
+            This lot is {lotStatusLabel(lot.status).toLowerCase()} — the park office can
+            tell you what is possible.
+          </p>
+          <p>
+            <a href={contact.phoneHref}>Call {contact.phoneDisplay}</a>
+          </p>
+        </div>
       )}
     </div>
   );

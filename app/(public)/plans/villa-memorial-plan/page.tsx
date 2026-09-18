@@ -59,7 +59,7 @@ export default async function VillaMemorialPlanPage() {
               <a href="#payments">Payment schedules</a>
               <a href="#prices">2026 price list</a>
             </nav>
-            <div className="row" style={{ gap: "var(--space-3)", marginTop: "var(--space-5)" }}>
+            <div className="row row--wrap" style={{ gap: "var(--space-3)", marginTop: "var(--space-5)" }}>
               <a href="#prices" className="btn btn--accent btn--lg">
                 View the 2026 price list
               </a>

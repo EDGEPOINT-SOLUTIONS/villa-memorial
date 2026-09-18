@@ -117,8 +117,13 @@
   width: 100%;
 }
 
-/* --- Form controls: bordered, radius, cool focus ring (product-wide) --------- */
-input:not([type="checkbox"]):not([type="radio"]),
+/* --- Form controls: bordered, radius, cool focus ring (product-wide) ---------
+   The .visually-hidden escape is load-bearing (craft pass, 2026-09-18):
+   base.css hides a visually-hidden control at 1×1px, but this rule's
+   specificity beat it, so a hidden file input stretched to the full row and
+   pushed pages (the map + property editors, the landing uploader) 57–380px past
+   the viewport — the whole page could be panned sideways into blank space. */
+input:not([type="checkbox"]):not([type="radio"]):not(.visually-hidden),
 select,
 textarea {
   width: 100%;
@@ -133,13 +138,13 @@ textarea {
     box-shadow var(--motion-fast);
 }
 
-input:not([type="checkbox"]):not([type="radio"]):hover,
+input:not([type="checkbox"]):not([type="radio"]):not(.visually-hidden):hover,
 select:hover,
 textarea:hover {
   border-color: var(--navy-300);
 }
 
-input:not([type="checkbox"]):not([type="radio"]):focus,
+input:not([type="checkbox"]):not([type="radio"]):not(.visually-hidden):focus,
 select:focus,
 textarea:focus {
   /* The ONE focus ring is the global :focus-visible rule (base.css); the
@@ -650,6 +655,26 @@ input[type="checkbox"] {
   border-top: 1px solid var(--color-border-inverse);
 }
 
+/* Sidebar nav disclosure — desktop shows the nav and hides the toggle; below
+   48rem the toggle collapses the nav so the page leads (craft pass,
+   2026-09-18: the wrapped nav alone was ~900px tall, so phone users scrolled a
+   menu before ever seeing the screen). */
+.app-sidebar__nav-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-sidebar__nav-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.app-sidebar__nav-toggle {
+  display: none;
+}
+
 /* Footer ghost button recolored for inverse surface */
 .app-sidebar__footer .btn--ghost {
   color: var(--marble-300);
@@ -673,8 +698,30 @@ input[type="checkbox"] {
   }
 
   .app-sidebar {
-    position: static;
+    position: relative;
     height: auto;
+  }
+
+  .app-sidebar__nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    position: absolute;
+    top: var(--space-3);
+    right: var(--space-3);
+    min-height: 2.75rem;
+    padding: 0 var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background: rgb(255 255 255 / 0.55);
+    border: 1px solid color-mix(in srgb, var(--sky-600) 38%, transparent);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+
+  .app-sidebar__nav-wrap[data-open="false"] .app-sidebar__nav-panel {
+    display: none;
   }
 
   .app-sidebar__nav {
@@ -3220,6 +3267,20 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-muted);
 }
 
+/* Phone: the group (context label + tenant select + chip + bell + avatar) is
+   wider than a 390px bar, and flex-end pushed it off the LEFT edge — “Workspace”
+   was half-clipped on every staff screen (craft pass, 2026-09-18). The tenant
+   select keeps the same meaning without it. */
+@media (max-width: 48rem) {
+  .app-topbar {
+    padding-inline: var(--space-4);
+  }
+
+  .app-topbar__context {
+    display: none;
+  }
+}
+
 .topbar-select {
   width: auto;
   font-size: var(--text-sm);
@@ -4202,6 +4263,22 @@ because the shared `.ag-appt` rule comes later in this file. */
   object-fit: contain;
 }
 
+/* A photo CARD: one aspect for every card in the row, the picture cropped to
+   it. The composition derivatives have slightly different crops (1.03–1.16),
+   so a natural-height row left four cards on four baselines — which read as
+   sloppy beside the price index they head (craft pass, 2026-09-18). */
+.media-block--photo {
+  aspect-ratio: 4 / 3;
+}
+
+.media-block--photo img {
+  position: static;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 /* Item-card media: keep the photo whole (no fixed-height crop) */
 .item-card__media {
   height: auto;
@@ -4929,7 +5006,11 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 @media (max-width: 52rem) {
   .hero-premium__grid {
-    grid-template-columns: 1fr;
+    /* minmax(0, 1fr), not 1fr: an auto-minimum track let a wide non-wrapping
+       child (the plan page's two button row) expand the track to 560px inside a
+       342px hero — the h1, lead and promo image were clipped on phones (craft
+       pass, 2026-09-18). */
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -9342,11 +9423,15 @@ a.card:hover {
   position: absolute;
   inset: auto 0 0;
   padding: var(--space-5) var(--space-4) var(--space-4);
+  /* The scrim carries the contrast, not decoration: at 0.55/40% the white
+     title sat on bright marble at ~2:1 and the price was barely visible
+     (craft pass, 2026-09-18). Opaque from 56% down so every line clears AA. */
   background: linear-gradient(
     180deg,
     rgb(8 28 49 / 0) 0%,
-    rgb(8 28 49 / 0.55) 40%,
-    rgb(8 28 49 / 0.94) 100%
+    rgb(8 28 49 / 0.82) 24%,
+    rgb(8 28 49 / 0.96) 56%,
+    rgb(8 28 49 / 0.97) 100%
   );
 }
 
@@ -9356,7 +9441,10 @@ a.card:hover {
 }
 
 .rail-item--lead .rail-item__price {
-  color: var(--color-text-accent);
+  /* Gold on the navy scrim: --gold-200 is the inverse gold tokens.css reserves
+     for text on navy surfaces. The light-surface accent ink (gold-800) measured
+     ~1.6:1 here (craft pass, 2026-09-18). */
+  color: var(--gold-200);
   font-size: var(--text-md);
 }
 
@@ -10293,6 +10381,16 @@ a.card:hover {
 
 .mid-section--map .map-embed > * {
   max-width: 100%;
+}
+
+/* The home band gives the map a narrow column (~400px). The shared 540px canvas
+   height belongs to the full /map page: here it left the square masterplan at
+   296px with pale space above and below. The park frame is itself 100×75, so a
+   4:3 canvas makes the plan fill its box exactly at any width (craft pass,
+   2026-09-18). */
+.mid-section--map .map-embed .geo-map {
+  height: auto;
+  aspect-ratio: 4 / 3;
 }
 
 /* ---- professional footer below the anchored grid ----
@@ -17123,4 +17221,192 @@ a.ia-alt:hover {
     margin-left: 0;
     justify-items: start;
   }
+}
+
+/* ============================================================================
+   F-17 · Journey fixes — the closing action layer + the contact surface
+   ----------------------------------------------------------------------------
+   Every public page ends with the SAME three options — call the office, ask a
+   question, or start the arrangement — in one band; the office-assisted route
+   (the phone) leads, because that is how Villa actually sells. The band is
+   rendered by PublicShell (interior pages) and LandingView (the home) from the
+   same staff-editable contact document, so the closing grammar never varies
+   per page. Sky surface + navy ink + gold rule: the same folio as the chrome.
+   The contact page's facts panel reuses the palette and the same control
+   grammar, so the office's published numbers/addresses are stated once, in one
+   place, before the form.
+   ============================================================================ */
+
+.next-steps {
+  border-top: 2px solid var(--gold-500);
+  background:
+    radial-gradient(700px 240px at 100% -40px, rgb(241 204 94 / 0.16), transparent 60%),
+    linear-gradient(180deg, var(--sky-50), var(--sky-200));
+  color: var(--color-text-primary);
+}
+
+.next-steps__inner {
+  max-width: var(--layout-folio-w);
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+  align-items: center;
+}
+
+@media (min-width: 62.001rem) {
+  .next-steps__inner {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .next-steps__meta {
+    grid-column: 1 / -1;
+  }
+}
+
+.next-steps__kicker {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.next-steps__title {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.next-steps__line {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.next-steps__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* The phone rule: a real tap target (≥ 44 px) on the smallest screens. */
+.next-steps__actions .btn {
+  min-height: 44px;
+  padding-inline: var(--space-5);
+}
+
+.next-steps__meta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* --- the contact surface's published facts (/contact) ---------------------- */
+.contact-facts {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(600px 200px at 0% -60px, rgb(241 204 94 / 0.14), transparent 60%),
+    var(--color-bg-surface);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.contact-facts__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 700;
+}
+
+.contact-facts__grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+}
+
+.contact-fact {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.contact-fact__label {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.contact-fact__value {
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.contact-fact__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.contact-fact--call .btn {
+  justify-self: start;
+  min-height: 44px;
+}
+
+.contact-fact__number {
+  justify-self: start;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.contact-fact__number:hover {
+  color: var(--color-text-accent);
+}
+
+.contact-fact__link {
+  justify-self: start;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-accent);
+}
+
+.contact-facts__doors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--color-rule);
+  padding-top: var(--space-4);
+}
+
+.contact-facts__doors a {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.contact-facts__doors a:hover {
+  color: var(--color-text-accent);
+}
+
+/* The advisor cards on the package/casket detail pages carry the same
+   staff-editable call target — an anchor now, so it stays a real tel: link. */
+a.plan-advisor__phone {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+a.plan-advisor__phone:hover {
+  color: var(--color-text-accent);
 }

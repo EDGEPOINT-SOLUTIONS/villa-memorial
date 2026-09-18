@@ -12,7 +12,18 @@ export const TRANSPORT_IMAGE = "/media/transport.jpg";
 export const VILLA_PARK_AERIAL = "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg";
 /** Landing hero photo (uploaded). */
 export const HERO_IMAGE = "/media/hero-1.jpg";
-/** Plans/packages marketing image (uploaded). */
+/**
+ * Plans/packages marketing image (uploaded) — the client's plan poster.
+ *
+ * F-17 (2026-09-18): the poster's own advisor strip printed a prototype
+ * placeholder number ("0917 123 4567", the same fake line the advisor cards
+ * used to type) beneath the real 24/7 line the site publishes. The strip's
+ * left band was masked to plain navy — the poster art and the gold tagline
+ * panel are untouched; scripts/build-composition-images.mjs re-derives the
+ * committed thumbs from this file. If the poster is ever replaced with new
+ * client art, check its baked-in contact details against the landing contact
+ * document before publishing it.
+ */
 export const PLAN_PACKAGES_IMAGE = "/media/plan-packages.png";
 
 /* ---------------------------------------------------------------------------
@@ -76,11 +87,18 @@ export const LOT_PREMIUM = LOT_TYPE_PHOTOS["lt-premium"];
 export const LOT_PRIMARY = LOT_TYPE_PHOTOS["lt-primary"];
 
 /** PROVISIONAL demo mapping (Villa park sections → legend plot types) until the
- * dev's Lot/geometry contract ties real sections to products. */
+ * dev's Lot/geometry contract ties real sections to products.
+ *
+ * The VALUES are the photograph-only composition derivatives, never the
+ * marketing tiles: a lot detail page is a band image, and the tile's baked-in
+ * “PRIMARY LOT”/logo lock-up would print inside a page that already names the
+ * section (the composition pass made the same call on /lots — craft pass,
+ * 2026-09-18; section D kept falling back to the generic park photo before). */
 export const VILLA_SECTION_PHOTOS: Record<string, string> = {
-  A: LOT_TYPE_PHOTOS["lt-primary"],
-  B: LOT_TYPE_PHOTOS["lt-premium"],
-  C: LOT_TYPE_PHOTOS["lt-niches"],
+  A: PARK_PLACE_BY_TYPE["lt-primary"],
+  B: PARK_PLACE_BY_TYPE["lt-premium"],
+  C: PARK_PLACE_BY_TYPE["lt-niches"],
+  D: PARK_PLACE_BY_TYPE["lt-mausoleum"],
 };
 
 /** Client logo marks (uploaded): the park crest and the plan's two companies.

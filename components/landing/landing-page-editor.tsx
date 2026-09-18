@@ -1100,6 +1100,13 @@ export function LandingPageEditor({
 
   function clientIssues(): string[] {
     const issues: string[] = [];
+    // The second line is a call target: a number and its tel: link go together
+    // (the save validator enforces the same pair rule).
+    const secondDisplaySet = content.contact.secondPhoneDisplay.trim().length > 0;
+    const secondHrefSet = content.contact.secondPhoneHref.trim().length > 0;
+    if (secondDisplaySet !== secondHrefSet) {
+      issues.push("The second phone line needs both a number to show and a call link — or leave both empty.");
+    }
     if (content.hero.background !== null && !isValidCssColor(content.hero.background)) {
       issues.push(
         "The hero background colour must be a valid CSS colour — like #3f97d1, rgb(…), hsl(…) or a named colour.",
@@ -1312,6 +1319,15 @@ export function LandingPageEditor({
           <TextField label="Phone number shown" htmlFor="contact-display" value={contact.phoneDisplay} onChange={(v) => patch((d) => void (d.contact.phoneDisplay = v))} />
           <TextField label="Call link" htmlFor="contact-href" value={contact.phoneHref} onChange={(v) => patch((d) => void (d.contact.phoneHref = v))} hint="e.g. tel:+63917…" />
           <TextField label="Location line" htmlFor="contact-location" value={contact.location} onChange={(v) => patch((d) => void (d.contact.location = v))} />
+        </div>
+        {/* The contact surface (/contact) + the closing band read these too —
+            the client's own letterhead facts. Empty a second-line field (both
+            halves) to hide the row entirely. */}
+        <div className="field-grid field-grid--4">
+          <TextField label="Second line shown" htmlFor="contact-second-display" value={contact.secondPhoneDisplay} onChange={(v) => patch((d) => void (d.contact.secondPhoneDisplay = v))} hint="Optional — clear both second-line fields to hide it." />
+          <TextField label="Second call link" htmlFor="contact-second-href" value={contact.secondPhoneHref} onChange={(v) => patch((d) => void (d.contact.secondPhoneHref = v))} hint="e.g. tel:+63917…" />
+          <TextField label="Main office address" htmlFor="contact-office-address" value={contact.officeAddress} onChange={(v) => patch((d) => void (d.contact.officeAddress = v))} />
+          <TextField label="Park address" htmlFor="contact-park-address" value={contact.parkAddress} onChange={(v) => patch((d) => void (d.contact.parkAddress = v))} />
         </div>
       </EdSection>
 

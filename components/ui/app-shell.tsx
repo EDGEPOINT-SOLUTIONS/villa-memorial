@@ -1,4 +1,5 @@
 import type { NavSection } from "@/lib/rbac/nav";
+import { SidebarDisclosure } from "@/components/ui/sidebar-disclosure";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 
 /**
@@ -31,7 +32,9 @@ export function AppShell({
           <p className="app-sidebar__eyebrow">{brandEyebrow}</p>
           <p className="app-sidebar__title">{brandTitle}</p>
         </div>
-        <SidebarNav sections={sections} />
+        <SidebarDisclosure>
+          <SidebarNav sections={sections} />
+        </SidebarDisclosure>
         <div className="app-sidebar__footer">{footer}</div>
       </aside>
       <main className="app-main">

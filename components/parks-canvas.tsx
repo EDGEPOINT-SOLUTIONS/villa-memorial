@@ -187,6 +187,13 @@ export function ParksCanvas({
       minZoom: -4,
       maxZoom: 14,
       scrollWheelZoom: true,
+      // zoomSnap: 0 — an image map is not a tile map (craft pass, 2026-09-18).
+      // With Leaflet's default snap of 1, fitBounds FLOORS the fitted zoom
+      // (2.84 → 2), so the square masterplan rendered 300px wide inside a
+      // 1060×540 frame with every plot label piled into one smear. With no
+      // snap the fitted view is exact: the plan fills the frame's height and
+      // the labels have room to read. The ±/wheel controls still step by 1.
+      zoomSnap: 0,
     });
     map.fitBounds([
       [0, 0],
@@ -232,7 +239,26 @@ export function ParksCanvas({
     observer.observe(box);
     refit();
 
+    // The ResizeObserver only catches a box that changes AFTER it is attached.
+    // When the effect runs before the page's first full layout (the map band on
+    // the home page, or a page reached with the viewport already settled), the
+    // first fitBounds lands on a smaller measured box than the one the visitor
+    // sees and nothing fires later: the frame stayed 300px wide inside a
+    // 1062px panel with every plot label piled into one smear (craft pass,
+    // 2026-09-18). Two post-layout refits are idempotent — they are skipped the
+    // moment the visitor pans or zooms.
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      refit();
+      raf2 = requestAnimationFrame(refit);
+    });
+    const settleTimer = window.setTimeout(refit, 320);
+
     return () => {
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      window.clearTimeout(settleTimer);
       observer.disconnect();
       box.removeEventListener("wheel", noteUserIntent);
       box.removeEventListener("pointerdown", noteUserIntent);

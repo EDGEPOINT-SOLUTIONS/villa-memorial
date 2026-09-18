@@ -60,6 +60,11 @@ on backend services.
 - **Tolerant readers on the live path.** Upstream JSON is validated field by field
   (`toLot` / `toCase`), extra fields ignored, missing ones surfaced as a 502 — never cast a
   `fetch` result straight to the domain type.
+- **Letting a global form-control rule beat `.visually-hidden`.** The product-wide
+  `input:not([type="checkbox"]):not([type="radio"]) { width: 100% }` out-specified the
+  1×1px helper, so a hidden file input stretched to its row and pushed the map / property /
+  landing-editor pages 57–380px past the viewport (the whole page could be panned sideways).
+  Both rules now carry `:not(.visually-hidden)`; keep it that way in `styles/components.css`.
 
 ## Self-check commands (before every PR)
 ```bash
@@ -111,6 +116,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   coffins and binds none to a named model, so a per-model card could only reprint its collection's
   one picture; the catalogue now publishes it once, chipped, and lists the collection's models as
   priced rows. `/plans` carries 42 catalogue items and **no** item image — it is a price index.
+- **A tile is never a page's picture — not even in a card.** The craft pass (2026-09-18) found
+  the last two surfaces still printing the marketing tiles: `/lots/[id]` (cropped to the tile's
+  logo corner) and `/lots/price-list-2026` (tile title + logo above a caption that repeats it).
+  `VILLA_SECTION_PHOTOS` now maps sections to `PARK_PLACE_BY_TYPE` derivatives (section D
+  included), and a photograph card sets its own box with `.media-block--photo` (4:3,
+  `object-fit: cover`) so a row of photographs keeps one baseline. A detail page that shows the
+  whole picture uses `.media-block--natural` — an unsized `<img>` inside the plain 16:10
+  `.media-block` is the bug this records.
 
 ## Landing page — content-model home (read before touching "/" or its admin)
 
@@ -223,6 +236,37 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - `tests/unit/seo.test.ts` walks `app/(public)` and fails if a public page is
   missing from `PUBLIC_PAGES` (or a listed path has no page) — add the route in
   the same PR that adds the page.
+
+## Public action & contact layer — the closing band and the contact surface (F-17)
+
+- **Every public page ends on the SAME three options** through ONE band:
+  `components/landing/next-steps.tsx`, rendered by `PublicShell` (interior pages)
+  and `LandingView` (home) from the landing contact document — call the office
+  (primary, a real `tel:` link with a “Call …” label), ask a question (`/contact`),
+  start the arrangement (`/builder`). `/immediate-assistance` is the one documented
+  exemption: it IS the call-first screen (F-01) and renders no band. Never add a
+  second closing grammar or a per-page CTA list; a new public page inherits it
+  from the shell.
+- **The contact surface is `/contact`**: it leads with the office's published
+  facts — both hotlines, the main-office and park addresses, availability —
+  before the form, plus the quote/appointment paths. Those facts are the
+  staff-editable landing contact region (`secondPhoneDisplay/Href`,
+  `officeAddress`, `parkAddress`; editor zone 01 at `/staff/landing`), seeded from
+  the client's 2026 Purchase Application Form letterhead; the validator keeps the
+  second line a number + `tel:` pair or empty. Never type a number into a view and
+  never invent walk-in hours (the client material carries none).
+- **No public raster art may print a contact detail the landing document does not
+  carry.** The plan poster (`public/media/plan-packages.png`, served by `/plans`,
+  the package routes and `/packages`) printed the prototype placeholder
+  `0917 123 4567`; F-17 masked the advisor strip's left band to the poster's own
+  navy (art and gold tagline untouched) and re-derived the composition thumbs
+  (`scripts/build-composition-images.mjs`; only the two `plan-packages-*.webp`
+  files changed). Check a newly uploaded poster for baked-in numbers before
+  publishing it.
+- Evidence: `tests/unit/journey-actions.test.tsx` (band, exemption, contact facts,
+  placeholder-number source scan), `tests/fixture-contract/landing.test.ts`
+  (letterhead provenance); record + 1440/390 shots
+  `docs/08-delivery/journey-fixes-design/`.
 
 ## Public page copy — the reading budget (captain, 2026-09-18)
 
@@ -722,6 +766,14 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   action slot is `components/park-plot-details.tsx`'s `reserveSlot`. A reservation is the LOT's
   status, and `lib/park-live-lots.ts` overlays it onto the same plot records both modes draw —
   never write a lot's status into the plot store.
+- **The 2D canvas is an image map, so it must not snap zoom.** `ParksCanvas` sets
+  `zoomSnap: 0` (craft pass, 2026-09-18): Leaflet's default snap of 1 makes `fitBounds`
+  **floor** the fitted zoom (2.84 → 2), which left the square masterplan 300px wide inside a
+  1062×540 frame with every plot label piled into one smear. With no snap the plan fills the
+  frame; `refit` runs on the ResizeObserver plus two post-layout rAFs and a 320ms timer (all
+  skipped after the visitor pans/zooms). The home band renders the same canvas in a narrow
+  column, so `.mid-section--map .map-embed .geo-map` drops the shared 540px height for the
+  park frame's own 4:3 — keep both rules together.
 - **3D internals**: scene/blockout `components/park3d/scene.tsx`, real raycast plot picking +
   instanced slabs `components/park3d/plots-3d.tsx`, vegetation instancing
   `components/park3d/vegetation.tsx`, UI/store state `lib/park-3d/view-store.ts` (zustand),
@@ -729,6 +781,18 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   POIs `lib/park-3d/masterplan.ts`. The developer
   overlay (`components/park3d/debug-layer.tsx`) is dev-builds-only. Pure modules have unit tests
   in `tests/unit/park-3d-*`.
+
+## Staff shell on phones — one nav, disclosed (read before touching `components/ui/app-shell.tsx`)
+
+- `AppShell` (staff only) wraps `SidebarNav` in `components/ui/sidebar-disclosure.tsx`. Desktop
+  is unchanged (the toggle is `display: none` above 48rem). Below 48rem the nav is **collapsed by
+  default** behind a 44px Menu/Close button — the previous always-open wrapped nav was ~900px
+  tall, so a 390×844 phone opened on a menu and the screen itself began below the fold (craft
+  pass, 2026-09-18). `aria-expanded`/`aria-controls` sit on the button; the open state is a
+  full-width chip list with the section labels.
+- The same pass hid `.app-topbar__context` (“Workspace”) below 48rem: the topbar group
+  (context · tenant select · chip · bell · avatar) is wider than 390px and flex-end pushed it off
+  the left edge, half-clipping the label on every staff screen.
 
 ## Family portal — one house style with the agent portal (read before touching `(family)/client/*`)
 

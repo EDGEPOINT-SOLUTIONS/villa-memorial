@@ -55,6 +55,19 @@ describe("landing fixture follows the approved content model", () => {
     );
   });
 
+  it("seeds the client's own letterhead contact facts (2026 purchase application form)", async () => {
+    const content = await listLandingContent();
+    // "Tel No. 09176178489 / 09171839262" and the two addresses on the
+    // client's paper — the public contact surface may never carry a typed-in
+    // substitute for these.
+    expect(content.contact.phoneDisplay).toBe("0917 617 8489");
+    expect(content.contact.phoneHref).toBe("tel:+639176178489");
+    expect(content.contact.secondPhoneDisplay).toBe("0917 183 9262");
+    expect(content.contact.secondPhoneHref).toBe("tel:+639171839262");
+    expect(content.contact.officeAddress).toContain("Capilla de San Jose");
+    expect(content.contact.parkAddress).toContain("Sanctuario de Mercedes y Gloria");
+  });
+
   it("seed rails carry valid staff-picked items, each with a photo and a real page link", async () => {
     const content = await listLandingContent();
     for (const side of ["left", "right"] as const) {
