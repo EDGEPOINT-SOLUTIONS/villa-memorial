@@ -12,7 +12,18 @@ export const TRANSPORT_IMAGE = "/media/transport.jpg";
 export const VILLA_PARK_AERIAL = "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg";
 /** Landing hero photo (uploaded). */
 export const HERO_IMAGE = "/media/hero-1.jpg";
-/** Plans/packages marketing image (uploaded). */
+/**
+ * Plans/packages marketing image (uploaded) — the client's plan poster.
+ *
+ * F-17 (2026-09-18): the poster's own advisor strip printed a prototype
+ * placeholder number ("0917 123 4567", the same fake line the advisor cards
+ * used to type) beneath the real 24/7 line the site publishes. The strip's
+ * left band was masked to plain navy — the poster art and the gold tagline
+ * panel are untouched; scripts/build-composition-images.mjs re-derives the
+ * committed thumbs from this file. If the poster is ever replaced with new
+ * client art, check its baked-in contact details against the landing contact
+ * document before publishing it.
+ */
 export const PLAN_PACKAGES_IMAGE = "/media/plan-packages.png";
 
 /* ---------------------------------------------------------------------------

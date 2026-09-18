@@ -38,6 +38,16 @@ call-first order*.
   `/plans/[sku]` and `/products/[sku]` now print the document's own number as a
   `tel:` link with the label; a source scan test fails if the placeholder (or the
   older `0917 000 1234`) returns to `app/(public)` or the public components.
+- **The placeholder was also baked into the plan poster**
+  (`public/media/plan-packages.png`, served by `/plans`, `/plans/[sku]`,
+  `/plans/villa-memorial-plan` and `/packages`): its advisor strip printed
+  "0917 123 4567" under a banner. The strip's left band was masked to the poster's
+  own navy — artwork, wave silhouette and the gold tagline panel are untouched,
+  and no contact detail is now printed in raster art that the landing document
+  does not carry. The composition thumbs were re-derived (only the two
+  `plan-packages-*.webp` files changed; every other derivative is byte-identical)
+  and the poster fell from 1.9 MB to 616 KB. Provenance note added at
+  `lib/media.ts`.
 - The footer's phone entries now read `Call <number>` and carry **both** published
   lines.
 
@@ -85,9 +95,12 @@ are pinned by `tests/fixture-contract/landing.test.ts` to the paper letterhead.
 
 ## Evidence
 
-Verification on this branch: `npm run lint` ✓ · `npm run typecheck` ✓ · `npm test`
-(124 files, 1412 tests) ✓ · `npm run build` ✓. Render check with the production
-build on `:3000` (Chrome via `chrome-devtools-axi`):
+Verification on this branch (rebased onto `origin/main` after the composition
+pass #67, so both passes are in the tree): `npm run lint` ✓ · `npm run typecheck`
+✓ · `npm test` (125 files, 1428 tests) ✓ · `npm run build` ✓. Render check with the
+production build on `:3100` (Chrome via `chrome-devtools-axi`; `:3000` was held
+by another lane's server, so this lane used its own port and stopped it after),
+every shot taken on the rebased build:
 
 | Shot | What it shows |
 |---|---|
@@ -97,7 +110,9 @@ build on `:3000` (Chrome via `chrome-devtools-axi`):
 | `shots/contact-390-facts.png` | `/contact` at 390 — both numbers, both addresses, call-first |
 | `shots/plans-1440-band.png` | `/plans` at 1440 — the same band closing the catalogue |
 | `shots/package-1440-advisor.png` | `/plans/PKG-PREMIUM` — advisor `Call` link + band |
+| `shots/package-1440-promo.png` | the same page — the masked poster (no baked-in placeholder number) |
 | `shots/lot-detail-1440-hold.png` | `/lots/[id]` — call + "Ask the office to hold this lot" |
+| `shots/lot-detail-390-hold.png` | `/lots/[id]` at 390 — the lot's facts, with the sticky `Call 24/7` in the first screenful |
 | `shots/immediate-assistance-390.png` | F-01 exemption: call-first, no band |
 
 ## Files
@@ -109,9 +124,13 @@ build on `:3000` (Chrome via `chrome-devtools-axi`):
 | Contact surface | `app/(public)/contact/page.tsx` |
 | Click-to-call fixes | `app/(public)/plans/[sku]/page.tsx` · `app/(public)/products/[sku]/page.tsx` · `app/(public)/lots/[id]/page.tsx` |
 | Styles | `styles/components.css` (appended F-17 block; tokens only) |
+| Poster fix | `public/media/plan-packages.png` (masked strip) · `public/media/composition/thumbs/plan-packages-{320,640}.webp` (re-derived) · `lib/media.ts` (provenance) |
 | Tests | `tests/unit/journey-actions.test.tsx` (new) · `tests/fixture-contract/landing.test.ts` · `tests/unit/provisional-receipts.test.ts` |
 
-Shared-file note: the composition pass (#67) and the accessibility pass touch
-`styles/components.css` / `landing-view.tsx` as well; this branch's F-17 block is
-appended and its `landing-view.tsx` edits are confined to the footer and the
-`LandingView` closing slot, so a conflict resolution keeps both sides.
+Shared-file note: the composition pass (#67) landed while this branch was in
+flight; it was rebased onto `origin/main` with **both sides kept** — the
+auto-merge left the composition home intact and the F-17 band appended after the
+anchored grid, the F-17 CSS block after the composition block in
+`styles/components.css`, and every screenshot here regenerated on the combined
+build. The accessibility pass touches the same files; the same rule applies: keep
+both sides.

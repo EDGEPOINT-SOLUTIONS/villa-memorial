@@ -242,6 +242,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the client's 2026 Purchase Application Form letterhead; the validator keeps the
   second line a number + `tel:` pair or empty. Never type a number into a view and
   never invent walk-in hours (the client material carries none).
+- **No public raster art may print a contact detail the landing document does not
+  carry.** The plan poster (`public/media/plan-packages.png`, served by `/plans`,
+  the package routes and `/packages`) printed the prototype placeholder
+  `0917 123 4567`; F-17 masked the advisor strip's left band to the poster's own
+  navy (art and gold tagline untouched) and re-derived the composition thumbs
+  (`scripts/build-composition-images.mjs`; only the two `plan-packages-*.webp`
+  files changed). Check a newly uploaded poster for baked-in numbers before
+  publishing it.
 - Evidence: `tests/unit/journey-actions.test.tsx` (band, exemption, contact facts,
   placeholder-number source scan), `tests/fixture-contract/landing.test.ts`
   (letterhead provenance); record + 1440/390 shots
