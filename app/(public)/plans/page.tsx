@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet } from "@/lib/media";
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -48,6 +48,13 @@ const TYPE_LABELS: Record<string, string> = {
   service: "Services",
   add_on: "Add-ons",
 };
+
+/** The order the catalogue index presents the three groups in. */
+const CATALOGUE_GROUPS: ReadonlyArray<{ key: "package" | "service" | "add_on"; label: string }> = [
+  { key: "package", label: TYPE_LABELS.package },
+  { key: "service", label: TYPE_LABELS.service },
+  { key: "add_on", label: TYPE_LABELS.add_on },
+];
 
 export default async function PlansPage({
   searchParams,
@@ -112,7 +119,12 @@ export default async function PlansPage({
           </div>
           <figure className="hero-premium__media">
             {/* eslint-disable-next-line @next/next/no-img-element -- uploaded photo */}
-            <img src={PLAN_PACKAGES_IMAGE} alt="Comprehensive memorial packages for your peace of mind" />
+            <img
+              src={libraryThumb(PLAN_PACKAGES_IMAGE, 640)}
+              srcSet={libraryThumbSet(PLAN_PACKAGES_IMAGE)}
+              sizes="(max-width: 60rem) 90vw, 30rem"
+              alt="Comprehensive memorial packages for your peace of mind"
+            />
             <figcaption>Plan ahead — complete, caring arrangements.</figcaption>
           </figure>
         </div>
@@ -143,48 +155,95 @@ export default async function PlansPage({
             hint="Check back soon — the catalog is being set up."
           />
         ) : (
-          <div className="catalog-grid">
-            {items.map((item) => (
-              <article key={item.sku} className="item-card">
-                <div className="item-card__media">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- local sample imagery */}
-                  <img src={item.image ?? PLAN_PACKAGES_IMAGE} alt="" loading="lazy" />
-                </div>
-                <div className="item-card__body">
-                  <span className="badge badge--accent" style={{ alignSelf: "flex-start" }}>
-                    {TYPE_LABELS[item.item_type] ?? item.item_type}
-                  </span>
-                  <h3 className="item-card__title">
-                    <Link href={`/plans/${item.sku}`}>{item.name}</Link>
-                  </h3>
-                  {/* The catalogue's recorded description lives on the item's
-                      own detail page (app/(public)/plans/[sku]/page.tsx): on the
-                      index the card is the answer — name, type, price, actions. */}
-                  <div className="item-card__price">{item.display_price}</div>
-                  <div className="item-card__actions stack-2">
-                    <Link
-                      href={`/plans/${item.sku}`}
-                      className="btn btn--secondary btn--sm btn--block"
-                    >
-                      View this item
-                    </Link>
-                    <CatalogueActions
-                      item={{
-                        sku: item.sku,
-                        name: item.name,
-                        itemType: item.item_type,
-                        unitPriceCents: item.unit_price_cents,
-                        currency: item.currency,
-                      }}
-                      displayPrice={item.display_price}
-                      prefill={{
-                        note: `${TYPE_LABELS[item.item_type] ?? item.item_type} from the 2026 catalogue.`,
-                      }}
-                    />
-                  </div>
-                </div>
-              </article>
-            ))}
+          // Composition pass (captain 2026-09-18): this band used to be 42 equal
+          // shadowed cards, EVERY ONE of them showing the same "Plan Packages"
+          // promotional image (none of the 42 catalogue items carries a
+          // photograph of its own — lib/fixtures/commerce/catalog-items.json).
+          // Twenty-four of the product photographs on the page were therefore
+          // republished marketing art, which is what made the page read as a
+          // template. It is now a grouped PRICE INDEX: one group heading per
+          // item type with its real count, a dominant first entry, and the rest
+          // as hairline-separated rows whose figures are the point. No image is
+          // invented for an item that has none — the caskets' own sample
+          // photographs live on /products, where each collection's is shown once.
+          <div className="catalogue-index">
+            {CATALOGUE_GROUPS.map((group) => {
+              const inGroup = items.filter((i) => i.item_type === group.key);
+              const [lead, ...rest] = inGroup;
+              if (!lead) return null;
+              return (
+                <section key={group.key} className="cat-band" aria-label={group.label}>
+                  <header className="band-head">
+                    <h3 className="band-head__title">{group.label}</h3>
+                    <span className="band-head__count">
+                      {inGroup.length} item{inGroup.length === 1 ? "" : "s"} · 2026 catalogue prices
+                    </span>
+                  </header>
+
+                  <article className="cat-lead">
+                    <div className="cat-lead__body">
+                      <h4 className="ledger__title">
+                        <Link href={`/plans/${lead.sku}`}>{lead.name}</Link>
+                      </h4>
+                    </div>
+                    <p className="ledger__figure">{lead.display_price}</p>
+                    <div className="ledger__actions">
+                      <Link
+                        href={`/plans/${lead.sku}`}
+                        className="btn btn--secondary btn--sm"
+                      >
+                        View this item
+                      </Link>
+                      <CatalogueActions
+                        item={{
+                          sku: lead.sku,
+                          name: lead.name,
+                          itemType: lead.item_type,
+                          unitPriceCents: lead.unit_price_cents,
+                          currency: lead.currency,
+                        }}
+                        displayPrice={lead.display_price}
+                        prefill={{ note: `${group.label} from the 2026 catalogue.` }}
+                      />
+                    </div>
+                  </article>
+
+                  {rest.length > 0 ? (
+                    <ul className="ledger__list">
+                      {rest.map((item) => (
+                        <li className="ledger__entry" key={item.sku}>
+                          <div className="ledger__row">
+                            <h4 className="ledger__row-title">
+                              <Link href={`/plans/${item.sku}`}>{item.name}</Link>
+                            </h4>
+                            <span className="ledger__row-figure">{item.display_price}</span>
+                            <div className="ledger__row-actions">
+                              <Link
+                                href={`/plans/${item.sku}`}
+                                className="btn btn--secondary btn--sm"
+                              >
+                                View this item
+                              </Link>
+                              <CatalogueActions
+                                item={{
+                                  sku: item.sku,
+                                  name: item.name,
+                                  itemType: item.item_type,
+                                  unitPriceCents: item.unit_price_cents,
+                                  currency: item.currency,
+                                }}
+                                displayPrice={item.display_price}
+                                prefill={{ note: `${group.label} from the 2026 catalogue.` }}
+                              />
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </section>
+              );
+            })}
           </div>
         )}
       </section>

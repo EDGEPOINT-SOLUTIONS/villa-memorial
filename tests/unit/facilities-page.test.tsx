@@ -15,9 +15,9 @@ import {
   CHAPEL_COMMON_IMAGE,
   CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
-  LOT_GARDEN_NICHES,
-  LOT_MAUSOLEUM,
+  PARK_PLACE_PHOTOS,
   VILLA_PARK_AERIAL,
+  libraryThumb,
 } from "@/lib/media";
 
 /**
@@ -162,9 +162,23 @@ describe("/facilities shows the grounds without re-drawing the map", () => {
   it("uses the client's park imagery and links to the map, the 3D view and the lots", async () => {
     const html = await renderFacilities();
 
-    expect(html).toContain(VILLA_PARK_AERIAL);
-    expect(html).toContain(LOT_GARDEN_NICHES);
-    expect(html).toContain(LOT_MAUSOLEUM);
+    // Both park photographs are served from their sized derivatives, not the
+    // print-sized uploads (the pavilion composite is 185 KB for a 34rem figure).
+    expect(html).toContain(libraryThumb(VILLA_PARK_AERIAL, 640));
+    expect(html).not.toContain(`src="${VILLA_PARK_AERIAL}"`);
+    // The two ground types show the client's own photograph of the place — as
+    // PHOTOGRAPH-ONLY derivatives of the client's lot tiles, not the tiles
+    // themselves (composition pass, 2026-09-18: a tile carries the group logo and
+    // the family name set large, so publishing it inside a captioned figure
+    // printed a second title in baked-in marketing type). Same source asset,
+    // documented crop: scripts/build-composition-images.mjs.
+    expect(html).toContain(PARK_PLACE_PHOTOS.niches);
+    expect(html).toContain(PARK_PLACE_PHOTOS.mausoleum);
+    expect(html).not.toContain("/media/lot-garden-niches.png");
+    expect(html).not.toContain("/media/lot-mausoleum.png");
+    // The photograph is served at the layout's own 1×/2× widths.
+    expect(html).toContain(PARK_PLACE_PHOTOS.niches.replace("-720", "-480"));
+    expect(html).toContain("480w");
     expect(html).toContain("The pavilion and the grounds");
     // The map + 3D park stay on /map; the page links out instead of embedding
     // a second masterplan or plot list.

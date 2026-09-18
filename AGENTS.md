@@ -82,6 +82,36 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 `NEXT_PUBLIC_DEMO_PASSWORD` path is local-dev only). Docs: README "Demo logins (fixture mode)",
 `docs/08-delivery/notes/known-limitations-cp1.md`.
 
+## Composition grammar — the "ledger" band (read before rebuilding any public band)
+
+- **A band leads, it does not count.** No public band may be a grid of equal boxes. The one
+  grammar is declared in the "composition grammar" block of `styles/components.css`: `.ledger`
+  (band) · `.ledger__lead` (ONE dominant element — the client's photograph, the loudest figure) ·
+  `.ledger__list`/`.ledger__entry` (supporting entries separated by HAIRLINES, two columns) ·
+  `.ledger__row` (what it is · its figure · its actions) · `.band-head` (group name + real count +
+  one action, replacing a prose intro). Hierarchy comes from scale, position and a rule — not from
+  a border and a shadow applied to every tile. `.svc-band__lead`/`.svc-band__list` are the same
+  grammar for the home band under its own names because `landing-view.test.tsx` pins `a.svc-card`.
+  Evidence + measured before/after (gradients, shadows, page heights):
+  `docs/08-delivery/composition-pass-design/README.md`.
+- **One class, one declaration.** `.svc-grid`/`.svc-card*` were declared twice (a dead block in the
+  `/services` section and the live home block), and the dead declarations silently re-templated the
+  home band into a 13.5rem card grid. Before adding a rule, `grep "^\.<class> {"` the file — the
+  same trap AGENTS.md already records for `.chapel-month` vs `.chapel-grid`.
+- **Every generated image goes through `lib/media.ts`.** `scripts/build-composition-images.mjs`
+  publishes (a) `public/media/composition/*.webp` — the client's lot tiles with their logo lock-up
+  and title band cropped off, because a tile is a *marketing tile*, not a photograph — and
+  (b) `public/media/composition/thumbs/*.webp` at 320/640 px for every library asset a public view
+  can render. Use `libraryThumb(src, w)` / `libraryThumbSet(src)`; an asset they do not know (a
+  staff URL, a device upload) comes back unchanged. Never publish a multi-MB original at thumbnail
+  size (the home used to ask a phone for 12 MB to paint a rail), and never re-add a decorative
+  gradient or `--shadow-card-rest` to a public band or button —
+  `tests/unit/composition-pass.test.tsx` fails on both, naming the rule.
+- **A photograph printed many times is not many photographs.** The sheet photographs five sample
+  coffins and binds none to a named model, so a per-model card could only reprint its collection's
+  one picture; the catalogue now publishes it once, chipped, and lists the collection's models as
+  priced rows. `/plans` carries 42 catalogue items and **no** item image — it is a price index.
+
 ## Landing page — content-model home (read before touching "/" or its admin)
 
 - The public home (app/page.tsx) is NOT hand-written JSX sections: it renders
