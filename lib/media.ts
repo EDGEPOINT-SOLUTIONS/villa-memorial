@@ -87,11 +87,18 @@ export const LOT_PREMIUM = LOT_TYPE_PHOTOS["lt-premium"];
 export const LOT_PRIMARY = LOT_TYPE_PHOTOS["lt-primary"];
 
 /** PROVISIONAL demo mapping (Villa park sections → legend plot types) until the
- * dev's Lot/geometry contract ties real sections to products. */
+ * dev's Lot/geometry contract ties real sections to products.
+ *
+ * The VALUES are the photograph-only composition derivatives, never the
+ * marketing tiles: a lot detail page is a band image, and the tile's baked-in
+ * “PRIMARY LOT”/logo lock-up would print inside a page that already names the
+ * section (the composition pass made the same call on /lots — craft pass,
+ * 2026-09-18; section D kept falling back to the generic park photo before). */
 export const VILLA_SECTION_PHOTOS: Record<string, string> = {
-  A: LOT_TYPE_PHOTOS["lt-primary"],
-  B: LOT_TYPE_PHOTOS["lt-premium"],
-  C: LOT_TYPE_PHOTOS["lt-niches"],
+  A: PARK_PLACE_BY_TYPE["lt-primary"],
+  B: PARK_PLACE_BY_TYPE["lt-premium"],
+  C: PARK_PLACE_BY_TYPE["lt-niches"],
+  D: PARK_PLACE_BY_TYPE["lt-mausoleum"],
 };
 
 /** Client logo marks (uploaded): the park crest and the plan's two companies.

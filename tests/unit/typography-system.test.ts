@@ -197,13 +197,19 @@ describe("ink roles", () => {
 
   it("routes the previously-gold numerals through the accent ink", () => {
     const components = read("styles/components.css");
-    for (const selector of [
-      ".rail-item--lead .rail-item__price",
-      ".ed-nav__num",
-      ".ed-service__num",
-    ]) {
+    // Light surfaces → the dark accent ink (gold-800).
+    for (const selector of [".ed-nav__num", ".ed-service__num"]) {
       const block = components.slice(components.indexOf(`${selector} {`));
       expect(block.slice(0, 400), selector).toContain("color: var(--color-text-accent);");
     }
+    // The rail's lead card is a DARK surface (photo under a navy scrim): the
+    // accent ink measured ~1.6:1 there, so its price takes the inverse gold
+    // tokens.css reserves for text on navy (craft pass, 2026-09-18).
+    const lead = components.slice(
+      components.indexOf(".rail-item--lead .rail-item__price {"),
+    );
+    expect(lead.slice(0, 400), ".rail-item--lead .rail-item__price").toContain(
+      "color: var(--gold-200);",
+    );
   });
 });
