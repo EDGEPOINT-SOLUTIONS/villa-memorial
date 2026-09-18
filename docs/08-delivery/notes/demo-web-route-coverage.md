@@ -40,6 +40,7 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 | `/staff/customers`, `/[id]`, `/staff/inquiries` | ✅ fixture-backed records (no crm-families contract yet); `new` forms ⚠ (crm-families) |
 | `/staff/pipeline` | ⚠ sales pipeline (crm-families) |
 | `/staff/cases`, `/[id]`, `/new`, `/[id]/service-contract`, `/[id]/preparation` | ✅ frozen case contract + capture/export; the preparation record is a PROVISIONAL recorded fixture (no preparation contract — live answers 503, and a case without one shows its task lines) |
+| `/staff/ops` | ✅ operations board — the case fixture/store grouped into the frozen stage lanes, with the case screen's own two writes; ages are days since `updated_at` (no agreed staleness threshold), guarantee papers use the contract's 3-day term |
 | `/staff/schedule` | ✅ day board over the bookings API (fixtures; live with `SCHEDULING_BASE_URL`) + chapel administration (settings/availability/bookings) over the scheduling store |
 | `/staff/dispatch` | ⚠ vehicle dispatch (vehicles as scheduling resources; scheduling delivery) |
 | `/staff/work-orders` | ⚠ lot maintenance (deferred property workflow) |
