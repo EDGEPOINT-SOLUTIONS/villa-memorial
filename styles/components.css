@@ -6779,6 +6779,76 @@ a.card:hover {
   color: var(--color-figure);
 }
 
+/* --- Lot records (F-11): one tab row across the four lot-record screens -------
+   Ownership · Transfers · Interments · Exhumations share one subject (the lot)
+   and one navigation grammar. Chips are 2.5rem tall so a keyboard focus ring
+   is unmistakable and the row wraps at 390 px. Tokens only. */
+.lot-rec-tabs {
+  margin-bottom: var(--space-5);
+}
+
+.lot-rec-tabs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.lot-rec-tabs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  background: var(--color-bg-surface-raised);
+  color: var(--navy-800);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.lot-rec-tabs a:hover {
+  border-color: var(--navy-300);
+  color: var(--navy-950);
+}
+
+.lot-rec-tabs a[aria-current="page"] {
+  background: var(--navy-800);
+  border-color: var(--navy-900);
+  color: var(--marble-100);
+}
+
+/* The one-line honest state under a page header ("what waits on the service"). */
+.lot-rec-gap {
+  margin: 0 0 var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Entry rows on the lot detail page: a record, its one-line state, and the
+   way in — three columns that stack cleanly at 390 px. */
+.lot-rec-entry__state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.lot-rec-entry__state strong {
+  color: var(--color-text-primary);
+}
+
+.lot-rec-entry__state span {
+  color: var(--color-text-muted);
+}
+
 /* Print: only the paper artifact leaves the printer. */
 @media print {
   body * {

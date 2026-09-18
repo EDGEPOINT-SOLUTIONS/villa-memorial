@@ -1,0 +1,170 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderToStaticMarkup } from "react-dom/server";
+import type { Session } from "@/lib/auth/types";
+import { assertNoParagraphNesting } from "../helpers/paragraph-nesting";
+import { measureProse } from "../helpers/prose";
+
+/**
+ * The four lot-record screens (captain checklist F-11), rendered as the real page
+ * components over the office's recorded file. What this suite pins:
+ *  · the answer at a glance leads each screen (owner / state / next step first);
+ *  · every workflow's platform gap is named once, briefly;
+ *  · gating is the property area's own (`property:read`, graceful forbidden state);
+ *  · one h1 per route, a way back to the lot, the tab row with aria-current;
+ *  · no prose walls — every paragraph stays a single short sentence.
+ */
+
+const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
+vi.mock("@/lib/auth/guard", () => ({
+  requireSessionOrRedirect: async () => sessionHolder.current,
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined, replace: () => undefined }),
+  usePathname: () => "/staff/property",
+}));
+
+const { default: OwnershipPage } = await import(
+  "@/app/(staff)/staff/property/[id]/ownership/page"
+);
+const { default: LotDetailPage } = await import("@/app/(staff)/staff/property/[id]/page");
+
+const USER_ID = "00000000-0000-4000-8000-000000000012";
+const TENANT_ID = "00000000-0000-4000-8000-000000000001";
+
+const A001 = "00000000-0000-4000-8000-000000000D01"; // available, no records
+const A002 = "00000000-0000-4000-8000-000000000D02"; // reserved for Marites Santos
+const A003 = "00000000-0000-4000-8000-000000000D03"; // sold to Roberto Santos
+const C001 = "00000000-0000-4000-8000-000000000D09"; // sold to Juan Dela Cruz
+
+function signInAs(scopes: string[]) {
+  sessionHolder.current = {
+    userId: USER_ID,
+    tenantId: TENANT_ID,
+    scopes,
+    email: "sam.staff@vm.demo",
+    displayName: "Sam Staff",
+    expiresAt: new Date(Date.now() + 900_000).toISOString(),
+  };
+}
+
+function render(page: (props: { params: Promise<{ id: string }> }) => Promise<React.ReactNode>, id: string) {
+  return page({ params: Promise.resolve({ id }) }).then((node) => renderToStaticMarkup(node));
+}
+
+/** Short paragraphs, no walls (the "answer at a glance" rule, staff-side). */
+function expectNoProseWall(html: string, where: string) {
+  const prose = measureProse(html);
+  expect(prose.longest.words, `${where}: longest paragraph — “${prose.longest.text}”`).toBeLessThanOrEqual(30);
+  expect(prose.listItems.longestWords, `${where}: longest list item`).toBeLessThanOrEqual(30);
+  expect(prose.paragraphWords, `${where}: paragraph prose total`).toBeLessThanOrEqual(150);
+  assertNoParagraphNesting(html, where);
+}
+
+beforeEach(() => {
+  sessionHolder.current = null;
+});
+
+describe("the Ownership screen", () => {
+  it("answers with the owner, the people and the papers in the first card", async () => {
+    signInAs(["property:read"]);
+    const html = await render(OwnershipPage, A003);
+
+    expect(html).toContain("<h1>Ownership</h1>");
+    // The owner as the lot record names them, and the buyer as the application does.
+    expect(html).toContain("Roberto Santos");
+    expect(html).toContain("Roberto D. Santos");
+    expect(html).toContain("Sold · Apr 1, 2026");
+    // Co-owners are not invented; the gap is stated.
+    expect(html).toContain("None recorded — the platform holds one owner name per lot");
+    // Authorised family comes from the application's own beneficiaries.
+    expect(html).toContain("Luz Santos · Spouse · age 52");
+    // The right of interment prints the client's own clause and its revision.
+    expect(html).toContain("No interment shall be made unless the entire amount is fully paid.");
+    expect(html).toContain("lot-purchase-2026");
+    expect(html).toContain("Not included");
+    // Papers: the recorded application + the repository's deed row.
+    expect(html).toContain("Purchase application and agreement");
+    expect(html).toContain("Lot Purchase Agreement");
+    expect(html).toContain("DOC-2026-00006");
+    // The one-line gap notice.
+    expect(html).toContain("No ownership projection exists yet");
+    // The right-of-interment card quotes the operative rule, not the whole clause.
+    expect(html).not.toContain("exceptionally allowed");
+  });
+
+  it("leaves an ownerless lot ownerless and points at the reservation", async () => {
+    signInAs(["property:read"]);
+    const html = await render(OwnershipPage, A001);
+    expect(html).toContain("No owner is recorded");
+    expect(html).toContain("Not yet acquired");
+    expect(html).toContain("No papers are recorded for this lot");
+    expect(html).not.toContain("unavailable in live mode");
+  });
+
+  it("carries the tab row with aria-current and a way back to the lot", async () => {
+    signInAs(["property:read"]);
+    const html = await render(OwnershipPage, A003);
+    expect(html).toContain('aria-label="Lot records"');
+    expect(html).toContain('aria-current="page"');
+    expect(html).toContain(`href="/staff/property/${A003}/transfers"`);
+    expect(html).toContain(`href="/staff/property/${A003}/interments"`);
+    expect(html).toContain(`href="/staff/property/${A003}/exhumations"`);
+    expect(html).toContain(`href="/staff/property/${A003}"`);
+    expect(html).toContain("Back to lot");
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
+    expectNoProseWall(html, "ownership");
+  });
+
+  it("keeps the property area's gate, with the graceful forbidden state", async () => {
+    signInAs(["cases:read"]);
+    const html = await render(OwnershipPage, A003);
+    expect(html).toContain("You don’t have access to this area");
+    expect(html).toContain("property:read");
+  });
+
+  it("answers an unknown lot with the honest not-found state", async () => {
+    signInAs(["property:read"]);
+    const html = await render(OwnershipPage, "00000000-0000-4000-8000-00000000dead");
+    expect(html).toContain("We couldn&#x27;t find that lot record.");
+  });
+});
+
+describe("the lot detail page's entry points", () => {
+  it("lists all four lot records with their one-line states", async () => {
+    signInAs(["property:read"]);
+    const html = await render(LotDetailPage, A003);
+    expect(html).toContain("Lot records");
+    expect(html).toContain(`href="/staff/property/${A003}/ownership"`);
+    expect(html).toContain(`href="/staff/property/${A003}/transfers"`);
+    expect(html).toContain(`href="/staff/property/${A003}/interments"`);
+    expect(html).toContain(`href="/staff/property/${A003}/exhumations"`);
+    expect(html).toContain("1 request");
+    expect(html).toContain("1 record");
+    // The entry rows never claim a workflow ran.
+    expect(html).toContain("lot-events-v1 defers those workflows");
+  });
+
+  it("says so honestly when a lot has no records yet", async () => {
+    signInAs(["property:read"]);
+    const html = await render(LotDetailPage, A001);
+    expect(html).toContain("No owner recorded");
+    expect(html).toContain("No request recorded");
+    expect(html).toContain("No interment recorded");
+  });
+
+  it("links a reserved lot's application and the four record screens", async () => {
+    signInAs(["property:read"]);
+    const html = await render(LotDetailPage, A002);
+    expect(html).toContain("Marites Santos");
+    expect(html).toContain("1 request");
+    expect(html).toContain("Submitted");
+    expect(html).toContain(`href="/staff/property/${A002}/ownership"`);
+  });
+
+  it("keeps the lot detail page a single-h1 page", async () => {
+    signInAs(["property:read"]);
+    const html = await render(LotDetailPage, C001);
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
+  });
+});

@@ -6,6 +6,7 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getLot } from "@/lib/api-client/property";
+import { getLotRecordSummaries, type LotRecordSummaries } from "@/lib/api-client/lot-lifecycle";
 import { getPurchaseApplicationForLot } from "@/lib/api-client/purchase-applications";
 import { buyerFullName, purchaseApplicationMoneyRows } from "@/lib/contracts/purchase-application";
 import { ReserveLotForm } from "./reserve-lot";
@@ -65,6 +66,16 @@ export default async function LotDetailPage({
         </PageSection>
       </>
     );
+  }
+
+  // The four lot-record screens (captain checklist F-11) hang off this lot. Their
+  // one-line states come from the office's recorded file; a read failure leaves the
+  // entry rows out with an honest note rather than breaking the lot page itself.
+  let recordSummaries: LotRecordSummaries | null = null;
+  try {
+    recordSummaries = await getLotRecordSummaries(lot);
+  } catch {
+    recordSummaries = null;
   }
 
   // The purchase application (if any) names the buyer in full and carries the sale's
@@ -150,6 +161,65 @@ export default async function LotDetailPage({
               </tbody>
             </table>
           </div>
+        </Card>
+      </PageSection>
+
+      <PageSection>
+        <Card header={<h3>Lot records</h3>}>
+          {recordSummaries ? (
+            <>
+              <div className="table-wrapper">
+                <table className="table">
+                  <caption className="visually-hidden">
+                    The lot&rsquo;s paperwork records
+                  </caption>
+                  <thead>
+                    <tr>
+                      <th scope="col">Record</th>
+                      <th scope="col">As the office&rsquo;s file stands</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(
+                      [
+                        ["ownership", "Ownership", "Who the papers stand in"],
+                        ["transfers", "Transfers", "A change of hands in progress"],
+                        ["interments", "Interments", "Who is laid to rest here"],
+                        ["exhumations", "Exhumations", "Moving a remains, step by step"],
+                      ] as const
+                    ).map(([key, label, hint]) => {
+                      const summary = recordSummaries[key];
+                      return (
+                        <tr key={key}>
+                          <td>
+                            <strong>
+                              <Link
+                                href={`/staff/property/${encodeURIComponent(lot.id)}/${key}`}
+                              >
+                                {label}
+                              </Link>
+                            </strong>
+                            <div className="text-sm text-muted">{hint}</div>
+                          </td>
+                          <td className="lot-rec-entry__state">
+                            <strong>{summary.lead}</strong>
+                            <span>{summary.detail}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-sm text-muted mt-4 mb-0">
+                Ownership, transfers, interments and exhumations come from the office&rsquo;s
+                recorded file — lot-events-v1 defers those workflows, so each screen says what
+                waits on the service.
+              </p>
+            </>
+          ) : (
+            <ErrorState message="The lot's paperwork records could not be read." />
+          )}
         </Card>
       </PageSection>
 

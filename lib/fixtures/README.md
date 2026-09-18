@@ -70,6 +70,19 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      `CHAPEL_STORE_PATH` (default `.data/scheduling-chapel-admin.json`,
      gitignored) — see `lib/api-client/chapel-store.ts`. The customer booking
      dialog reads the same records through `/api/chapel/schedule`.
+   - `property/lot-lifecycle.json` ← the office's OWN recorded file for a lot's
+     paperwork (staff lot records F-11: Ownership · Transfers · Interments ·
+     Exhumations): transfer requests in the clerk's four states, interment
+     records with the checks before the ground is opened, exhumation requests
+     with their requirements, and the papers that back a lot. NO service owns
+     any of it — lot-events-v1 (KEB-D3-01, FROZEN) makes `occupied` and
+     `for_transfer` status-only and says interment/transfer workflows do not
+     exist — so this is APP-AUTHORED example data with provenance, the same
+     pattern as `family/workspace.json`. It cross-references the lots, cases,
+     documents, parks and customers fixtures (and the purchase application's
+     beneficiaries); nothing is invented and no amount appears anywhere —
+     `tests/fixture-contract/lot-lifecycle.test.ts` pins every cross-reference,
+     and `lib/api-client/lot-lifecycle.ts` is the only reader.
 2. **Never hand-edit a fixture to make a failing test pass.** If the contract
    changed, update the fixture AND its contract test together.
 3. Fixture tokens are structurally shaped but UNSIGNED — they exist only so
