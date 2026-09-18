@@ -155,6 +155,7 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/lots/price-list-2026", changeFrequency: "monthly", priority: 0.8 },
   { path: "/map", changeFrequency: "weekly", priority: 0.8 },
   { path: "/facilities", changeFrequency: "monthly", priority: 0.8 },
+  { path: "/gallery", changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq", changeFrequency: "monthly", priority: 0.6 },
   { path: "/transport", changeFrequency: "monthly", priority: 0.5 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.7 },

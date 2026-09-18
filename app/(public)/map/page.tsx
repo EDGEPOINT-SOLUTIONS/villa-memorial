@@ -104,6 +104,7 @@ export default async function PublicMapPage({
                 </Link>
               ))}
               <Link href="/lots">Browse all plots</Link>
+              <Link href="/gallery">Photos of the park</Link>
             </nav>
           </div>
         </div>

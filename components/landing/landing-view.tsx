@@ -330,6 +330,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
               { label: "Facilities", href: "/facilities" },
               { label: "Transport", href: "/transport" },
               { label: "Villa Memorial Park", href: "/map" },
+              { label: "Photo gallery & virtual tour", href: "/gallery" },
             ]}
           />
 
