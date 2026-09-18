@@ -407,6 +407,20 @@ input[type="checkbox"] {
   flex-shrink: 0;
 }
 
+/* Below the tablet breakpoint the header stacks: a long title (and its two actions)
+   wraps instead of forcing the page wider than the phone viewport. */
+@media (max-width: 48rem) {
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .page-header__actions {
+    flex-shrink: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+}
+
 .page-section {
   margin-bottom: var(--space-6);
 }
@@ -5730,7 +5744,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   color: var(--navy-700);
 }
 
@@ -5869,7 +5883,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .gal-hero__eyebrow {
   margin: 0 0 var(--space-2);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--gold-800);
@@ -5878,7 +5892,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-hero__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(2.1rem, 4.6vw, 3rem);
+  font-size: var(--text-display);
   line-height: 1.12;
   color: var(--navy-900);
 }
@@ -5910,7 +5924,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .gal-group__kicker {
   margin: 0 0 var(--space-1);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -5920,7 +5934,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-group__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-size: var(--text-3xl);
   line-height: 1.2;
   color: var(--navy-900);
 }
@@ -5934,7 +5948,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .gal-provenance {
   margin: 0;
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   line-height: 1.6;
   color: var(--navy-700);
 }
@@ -5965,7 +5979,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .gal-walk__kicker {
   margin: 0 0 var(--space-1);
-  font-size: var(--text-base);
+  font-size: var(--text-md);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -5975,7 +5989,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-walk__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(1.7rem, 3.2vw, 2.25rem);
+  font-size: var(--text-3xl);
   line-height: 1.2;
   color: var(--navy-900);
 }
@@ -6030,7 +6044,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-visit__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-size: var(--text-3xl);
   color: var(--navy-900);
 }
 

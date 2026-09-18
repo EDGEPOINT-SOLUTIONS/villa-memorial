@@ -890,6 +890,42 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `lib/family/contact.ts`, never typed. It gates on `billing:read` provisionally (no commission
   scope exists in `rbac-scopes-v1`); evidence shots + record: `docs/08-delivery/commission-design/`.
 
+## Provisional receipts — the counter's paper (read before touching `/staff/billing/provisional-receipts`)
+
+- **The provisional slip is the counter's fallback, not the product's receipt** (F-18 /
+  `FORMS_PLAN` gap 3). The client's signed Provisional Receipt paper is NOT archived in
+  `docs/07-client-villa/paper-forms/` and that folder's rule is "the paper wins", so
+  `lib/contracts/provisional-receipt.ts` does not claim to reproduce it: the sheet records the
+  same information and marks itself in ONE bold line directly under the title
+  (`PROVISIONAL_RECEIPT_MARK`), carries NO receipt number, and posts nothing. The client ask is in
+  `docs/07-client-villa/open-questions.md` (Track C).
+- **One rules home, shared with billing**: `lib/contracts/provisional-receipt-capture.ts`
+  (`validateProvisionalReceiptInput` / `...Draft`, plus the payer name this record adds) runs the
+  SHARED billing rules (`validatePaymentInput` in `lib/billing-payments.ts`) for amount ·
+  instrument · reference · date; the form, the BFF route (`app/api/billing/provisional-receipts`,
+  gate `app/api/billing/_guard.ts`, `billing:read` view / `billing:write` issue) and the store all
+  run it. Invoice, customer, order, balance and the case/contract link are READ from
+  `listInvoices()` / `getCase()` — never typed into a view.
+- **Store**: `lib/api-client/provisional-receipts-store.ts` — append-only journal
+  (`PROVISIONAL_RECEIPTS_STORE_PATH` or `.data/billing-provisional-receipts.json`, gitignored;
+  atomic writer + one in-process chain, `version: 1`, `provisional_receipt_issued` events). The id
+  is an opaque `prov-<uuid>` screen address, never a receipt number. No frozen contract names a
+  provisional-receipt record, so live mode answers the named 503
+  `PROVISIONAL_RECEIPTS_NOT_WIRED` for reads and writes (`lib/api-client/provisional-receipts.ts`)
+  — never dress local files up as a service.
+- **OR display state — one state or the other**: `officialReceiptForProvisional` matches the slip
+  to the real receipt (a recorded payment's `receipt_document` first — it can print the figures; a
+  documents repository receipt row naming the invoice/order/case second — it links to Documents).
+  The detail page prints the official receipt INSTEAD of the slip the moment one exists; matching
+  is display-only (no issuance, numbering or posting here).
+- **One paper, three outputs**: `buildProvisionalReceipt` → `PaperSheet` + `PaperExportActions`,
+  letterhead from the landing content doc (`provisionalReceiptOffice`), so print/Word/PDF cannot
+  drift. The staff page header (`.page-header__actions`) wraps below 48 rem in
+  `styles/components.css` — a long title plus two actions must never widen the 390 px viewport.
+- Evidence: `tests/unit/provisional-receipts{,-store,-rbac,-live}.test.*`;
+  `docs/08-delivery/provisional-receipt-design/` (render record + 1440/390 shots and sample
+  .docx/.pdf exports).
+
 ## Catalog admin — durable fixture store (read before touching `/staff/catalog`, `/api/catalog`)
 
 - `/staff/catalog` is the real catalogue administration: list (search + type/published filters)

@@ -137,20 +137,18 @@ describe("the receipt of a recorded payment", () => {
     expect(html).toContain(PROVISIONAL_RECEIPT_NOTE);
     expect(html).not.toContain("Receipt no.:");
     expect(html).toContain("No receipt issued");
+    // The slip carries the payer and the receiver the recorded data holds — no blank rows.
+    expect(html).toContain("Received from: Liwayway Cruz");
+    expect(html).toContain("Received by: Sam Staff");
+    expect(html).toContain("Against: INV-2026-00003 · ORD-2026-00003");
   });
 
   it("downloads the fallback slip as a provisional slip, never as an official receipt", () => {
     // The screen picks the filename; a slip that says "not an official receipt" on its face
     // must not leave the counter named like one.
     const stem = provisionalReceiptFileStem({
-      id: "PAY-2026-00001",
-      amount_cents: 80_000,
-      instrument: "gcash",
-      reference: "GC-88213",
-      received_on: "2026-09-18",
       against: "INV-2026-00003",
-      notes: "",
-      recorded_at: "2026-09-18T04:00:00.000Z",
+      received_on: "2026-09-18",
     });
     expect(stem).toBe("Provisional-Receipt-INV-2026-00003-2026-09-18");
     expect(stem).not.toContain("Official-Receipt");
