@@ -4360,6 +4360,14 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-secondary);
 }
 
+/* The hero's one primary action (reading budget, captain 2026-09-18). */
+.hero-premium__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
 .hero-premium__media {
   margin: 0;
   padding: clamp(0.5rem, 1vw, 0.75rem);
@@ -5110,6 +5118,26 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: rgb(255 255 255 / 0.16);
   border-color: transparent;
   color: #ffffff;
+}
+
+/* Labelled facts on the plan pages — chips, not paragraphs (reading budget,
+   captain 2026-09-18). Same treatment as .sv-factlist on /services. */
+.rate-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rate-facts li {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
 }
 
 /* Related-page quick chips */
@@ -12626,6 +12654,25 @@ a.card:hover {
   border-top: 1px solid var(--sky-200);
 }
 
+/* Labelled facts — structure, not prose (reading budget, captain 2026-09-18). */
+.sv-factlist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sv-factlist li {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--sky-200);
+  border-radius: 999px;
+  background: var(--sky-50);
+  color: var(--navy-800);
+  font-size: 1rem;
+}
+
 /* --- Price cards (at-need services) ---------------------------------------- */
 .sv-prices {
   display: grid;
@@ -13136,6 +13183,13 @@ a.card:hover {
 
 .sv-senior p {
   margin: 0;
+}
+
+/* The senior-rate conflict keeps both printed figures: one paragraph for the
+   table's column, one for the sheet's own footnote. */
+.sv-senior__body {
+  display: grid;
+  gap: var(--space-2);
 }
 
 /* --- States ----------------------------------------------------------------- */

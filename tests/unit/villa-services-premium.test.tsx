@@ -3,6 +3,11 @@ import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react"
 import { renderToStaticMarkup } from "react-dom/server";
 import { CartProvider } from "@/lib/cart/cart-context";
 import {
+  listLandingContent,
+  saveLandingContent,
+  type LandingContent,
+} from "@/lib/api-client/landing";
+import {
   ALACARTE_LINES,
   casketDetailHref,
   coffinModelForSku,
@@ -145,7 +150,9 @@ describe("/services reads as the approved senior-first service page", () => {
     expect(html).toContain(VIEWING_CARE_IMAGE);
     expect(html).toContain("/services/death-at-home");
     expect(html).toContain("/services/death-at-hospital");
-    expect(html).toMatch(/sample viewing set-up from the client/);
+    // The wake photo is labelled illustrative in its own caption (the reading
+    // budget moved the crop provenance to the repo docs).
+    expect(html).toMatch(/Sample wake set-up — illustration purposes only/);
   });
 
   it("keeps both chapel rates and their senior column on the schedule", () => {
@@ -311,5 +318,48 @@ describe("the casket detail view renders the model's own data", () => {
     const meta = await generateMetadata({ params: Promise.resolve({ sku: SKU }) });
     expect(meta.title).toContain("White Rose Full");
     expect(meta.title).toContain("2026 price");
+  });
+});
+
+/**
+ * The 24/7 phone number is STAFF-EDITABLE (landing content, zone 01 'Brand &
+ * 24/7 line': Phone label / Phone number shown / Call link). /services must
+ * read it from the same document the site header reads — a number typed into
+ * this page is the defect these tests exist to catch.
+ */
+describe("/services reads the 24/7 line from the landing content document", () => {
+  it("renders the document's display text and href in every call action", async () => {
+    const content = await listLandingContent();
+    const html = await renderWithCart(await ServicesPage());
+
+    const telLinks = [
+      ...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g),
+    ].filter((m) => m[1].startsWith("tel:"));
+    // Hero call panel, embalming helper, help band and the phone call bar.
+    expect(telLinks.length).toBeGreaterThanOrEqual(4);
+    for (const [, href] of telLinks) {
+      expect(href).toBe(content.contact.phoneHref);
+    }
+    for (const [, , inner] of telLinks) {
+      expect(unescaped(inner)).toContain(content.contact.phoneDisplay);
+    }
+  });
+
+  it("a staff edit to the number reaches the page, and the recorded seed returns", async () => {
+    const content = await listLandingContent();
+    const edited: LandingContent = JSON.parse(JSON.stringify(content));
+    edited.contact.phoneDisplay = "0999 111 2222";
+    edited.contact.phoneHref = "tel:+639991112222";
+    await saveLandingContent(edited);
+
+    const html = await renderWithCart(await ServicesPage());
+    expect(html).toContain("0999 111 2222");
+    expect(html).toContain('href="tel:+639991112222"');
+    // The replaced number is gone — the page is not a merge of old and new.
+    expect(html).not.toContain(content.contact.phoneDisplay);
+    expect(html).not.toContain(content.contact.phoneHref);
+
+    // Restore the recorded seed for any later test in this file.
+    await saveLandingContent(content);
   });
 });

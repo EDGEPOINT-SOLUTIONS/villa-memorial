@@ -50,13 +50,10 @@ export function EmbalmingDayPicker({ items }: { items: CatalogItem[] }) {
         <p className="sv-picker__summary">
           <span className="sv-picker__amount">{php(selected.amount)}</span>
           <span className="sv-picker__unit">
-            for <strong>{selected.days} days</strong> — {php(selected.amount)} per stay, not per day
+            for <strong>{selected.days} days</strong> · per stay, not per day
           </span>
         </p>
-        <p className="sv-note">
-          Embalming is included with no fixed day count in a complete Villa Memorial Plan
-          package. This is the a-la-carte rate.
-        </p>
+        <p className="sv-note">Package includes embalming — no fixed day count.</p>
         <div className="sv-picker__actions">
           {item ? (
             <CatalogueActions

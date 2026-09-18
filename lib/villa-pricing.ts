@@ -449,12 +449,15 @@ export const CHAPEL_RATES: ReadonlyArray<ChapelRateRow> = [
   { days: 9, common: { ratePerDay: 1500, regular: 13500, senior: 12960 }, private: { ratePerDay: 3500, regular: 31500, senior: 30240 } },
 ];
 
-/** Sheet III's chapel footnotes — published verbatim beside the table. */
+/**
+ * Sheet III's chapel footnotes. Every figure and condition the sheet prints is
+ * kept; the wording is compressed to the page's reading budget (captain
+ * 2026-09-18) — the full sheet sentences live in the repo docs, not on the
+ * customer page.
+ */
 export const CHAPEL_NOTES = {
-  scope: "If the service is not with us, chapel use only.",
-  miscFee:
-    "Note: PhP 1,000 is added as miscellaneous fee to cover for any incidental expense. Add this to the rates.",
-  seniorPerDay:
-    "Senior Citizen rate is ₱1,800/day for Common Chapel and ₱4,200/day for Private Chapel.",
-  privateChapelOnly: "If use of chapel only: ₱700 worth of groceries, minimum of 3 days.",
+  scope: "If the service is not with us: chapel use only.",
+  miscFee: "₱1,000 miscellaneous fee is added to every rate.",
+  seniorPerDay: "Sheet footnote: senior rate is ₱1,800/day common, ₱4,200/day private.",
+  privateChapelOnly: "Chapel only: ₱700 groceries, 3-day minimum.",
 };

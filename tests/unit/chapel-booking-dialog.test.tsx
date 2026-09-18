@@ -7,6 +7,7 @@ import {
   ChapelBookingDialog,
   type ChapelCatalogueItem,
 } from "@/components/chapel-booking-dialog";
+import { CHAPEL_NOTES } from "@/lib/villa-pricing";
 
 /**
  * The chapel booking step's render contract, executed through
@@ -81,8 +82,9 @@ describe("the booking dialog's steps", () => {
     expect(html).toContain("₱1,500");
     expect(html).toContain("₱4,500");
     expect(html).toContain("₱4,320");
-    // The sheet's own miscellaneous-fee note, and its senior-per-day scope.
-    expect(html).toContain("PhP 1,000");
+    // The sheet's own miscellaneous-fee note, and its senior-per-day scope
+    // (single source: lib/villa-pricing.ts, compressed to the reading budget).
+    expect(html).toContain(CHAPEL_NOTES.miscFee);
     expect(html).toContain("the office applies the senior rate");
     // Nothing can be added before the schedule confirms a free range.
     expect(html).toContain("Add to cart");

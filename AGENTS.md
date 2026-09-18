@@ -182,6 +182,26 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   missing from `PUBLIC_PAGES` (or a listed path has no page) — add the route in
   the same PR that adds the page.
 
+## Public page copy — the reading budget (captain, 2026-09-18)
+
+- The client read the site as "too wordy… understandable at a glance", so
+  `/services` and `/plans` answer first and explain behind: one ≤12-word opening
+  sentence + one primary action, every section heading states the answer, and a
+  comparison/price/process renders as a table, price block, numbered step or
+  labelled chip — not as prose.
+- Enforced, not advisory: `tests/unit/reading-budget.test.tsx` renders both pages
+  and fails when paragraph prose exceeds 300 words, any paragraph exceeds 30
+  words, any list item exceeds 30 words, or the opening sentence exceeds 12 words
+  (measure helper `tests/helpers/prose.ts`; the failure names the page and count).
+  A further page joins `PAGES` in the PR that compresses it — never re-hardcode
+  prose to satisfy it. The home's copy is staff-editable landing content, so it is
+  measured in the PR record, never gated.
+- Honest notes stay, compressed: the senior-rate conflict, the placeholder chapel
+  list and the sheet provenance keep their exact meaning. Sheet footnote constants
+  (`CHAPEL_NOTES`, `CHAPEL_SAMPLE_NOTE`) are compressed in place — the figures stay
+  pinned by `tests/unit/villa-pricing.test.ts`; the crop/provenance detail lives in
+  `lib/media.ts` comments, not on the customer page.
+
 ## Package page — `/plans/[sku]` (design target — read before touching it)
 
 - Package items render the CLIENT's approved layout, not a generic hero. Authority:
@@ -237,6 +257,9 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the chapel cards (`ChapelRates`) with one `.sv-stay` row per 3–9 day stay — the raw
   sheet table is never the phone experience. It all renders from
   `components/villa/service-rates-2026.tsx`; figures stay in `lib/villa-pricing.ts`.
+  The 24/7 number is staff-editable landing content (zone 01); the page reads it
+  from the same document the header reads — `tests/unit/villa-services-premium.test.tsx`
+  pins that an edit reaches every call action, so never type the number again.
   The a-la-carte and embalming lines keep the shared Add-to-cart + Request-order pair
   (`components/villa/catalogue-actions.tsx`); **chapel lines are the one documented
   exception — they open the booking step** (`ChapelBookingButton`, "Check dates & price"

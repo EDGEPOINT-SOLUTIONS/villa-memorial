@@ -11,7 +11,7 @@ import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
 import { ServicesSubnav, type SubnavItem } from "@/components/villa/services-subnav";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
-import { CHAPEL_NOTES } from "@/lib/villa-pricing";
+import { listLandingContent } from "@/lib/api-client/landing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Funeraria Memorial Services — Villa Memorial",
@@ -41,17 +41,24 @@ const SECTIONS: ReadonlyArray<SubnavItem> = [
  * the booking step instead of a straight add. Copy is content, not data.
  */
 export default async function ServicesPage() {
-  let items: Awaited<ReturnType<typeof listCatalogItems>>;
-  try {
-    items = await listCatalogItems();
-  } catch {
+  // The 24/7 line is STAFF-EDITABLE (landing content, zone 01) — every call
+  // action on this page reads the same document the site header reads, so an
+  // editor's phone change lands here too. No number is typed into this page.
+  const [items, content] = await Promise.all([
+    listCatalogItems().catch(() => null),
+    listLandingContent(),
+  ]);
+  if (!items) {
     return (
       <div className="stack-4">
         <h1>Funeraria Memorial Services</h1>
-        <ErrorState message="The service catalogue is unavailable right now, so the 2026 rates cannot be ordered online. Please try again shortly or call the 24/7 assistance line." />
+        <ErrorState
+          message={`The service catalogue is unavailable right now, so the 2026 rates cannot be ordered online. Please try again shortly or call ${content.contact.phoneDisplay}.`}
+        />
       </div>
     );
   }
+  const { contact } = content;
 
   return (
     <div className="sv-page">
@@ -71,11 +78,8 @@ export default async function ServicesPage() {
               <h1 className="sv-hero__title" id="services-title">
                 Funeral services, and what they cost in 2026
               </h1>
-              <p className="sv-hero__lead">
-                When someone dies, we take care of the arrangements — at home, in hospital,
-                here at the park, or in advance. Every price on this page is the client&rsquo;s
-                own 2026 price sheet, word for word.
-              </p>
+              {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
+              <p className="sv-hero__lead">At-need funeral care, any hour — with 2026 prices.</p>
             </div>
             <figure className="sv-hero__media">
               {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
@@ -83,24 +87,18 @@ export default async function ServicesPage() {
                 src={CHAPEL_PRIVATE_IMAGE}
                 alt="Illustrative sample set-up — a decorated viewing room with the casket on a draped stand, floral arch and candles"
               />
-              <figcaption>
-                A sample viewing set-up from the client&rsquo;s own photographs.{" "}
-                {CHAPEL_SAMPLE_NOTE}
-              </figcaption>
+              <figcaption>{CHAPEL_SAMPLE_NOTE}</figcaption>
             </figure>
           </div>
 
           <div className="sv-call">
             <div>
               <h2 className="sv-call__title">If someone has just died</h2>
-              <p className="sv-call__text">
-                Call us, any hour. A coordinator answers, tells you what to do next, and
-                brings your loved one into our care. There is no charge to ask.
-              </p>
+              <p className="sv-call__text">Call any hour — no charge to ask.</p>
             </div>
             <div className="sv-call__actions">
-              <a className="btn btn--primary" href="tel:+639170001234">
-                Call 0917 000 1234
+              <a className="btn btn--primary" href={contact.phoneHref}>
+                Call {contact.phoneDisplay}
               </a>
               <a className="btn btn--secondary" href="#first-steps">
                 What to do first
@@ -116,27 +114,19 @@ export default async function ServicesPage() {
           <h2 className="sv-section__title" id="first-steps-title">
             What happens after you call
           </h2>
-          <p className="sv-section__intro">
-            One coordinator stays with your family from the first call to the burial. You do
-            not need to decide anything before you call — we will walk you through it.
-          </p>
+          <p className="sv-section__intro">One coordinator, from first call to burial.</p>
           <ol className="sv-steps">
             <li>
               <h3>You call us</h3>
-              <p>
-                Any hour, any day. Tell us where your loved one is. If they are at home, we
-                come to them.
-              </p>
+              <p>Any hour. If they are at home, we come to you.</p>
             </li>
             <li>
               <h3>We bring them into our care</h3>
-              <p>We prepare and dress them, and open the viewing for family and friends.</p>
+              <p>We prepare and dress them; the viewing opens.</p>
             </li>
             <li>
               <h3>We stay with you</h3>
-              <p>
-                We arrange the chapel, the cars and the burial — and we are there on the day.
-              </p>
+              <p>We arrange the chapel, cars and burial.</p>
             </li>
           </ol>
 
@@ -149,10 +139,7 @@ export default async function ServicesPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element -- uploaded service photo */}
                 <img src={DEATH_AT_HOME_IMAGE} alt="" loading="lazy" />
               </div>
-              <p className="sv-price-card__plain">
-                When a loved one passes at home, we coordinate the transport, the preparation
-                and everything that follows.
-              </p>
+              <p className="sv-price-card__plain">Transport, preparation and paperwork — ours.</p>
               <div className="sv-price-card__actions">
                 <Link className="btn btn--secondary btn--block" href="/services/death-at-home">
                   Read the guide: death at home
@@ -167,10 +154,7 @@ export default async function ServicesPage() {
                 {/* eslint-disable-next-line @next/next/no-img-element -- uploaded service photo */}
                 <img src={DEATH_AT_HOSPITAL_IMAGE} alt="" loading="lazy" />
               </div>
-              <p className="sv-price-card__plain">
-                When a loved one passes in care, we speak with the hospital, collect the papers
-                and guide you through the next steps.
-              </p>
+              <p className="sv-price-card__plain">We speak with the hospital and handle the papers.</p>
               <div className="sv-price-card__actions">
                 <Link
                   className="btn btn--secondary btn--block"
@@ -186,41 +170,30 @@ export default async function ServicesPage() {
         {/* The client's 2026 service rates, grouped the way the sheets print them:
             the a-la-carte at-need services, embalming per day, then the chapel
             options with their sample photographs and the booking step. */}
-        <ServiceRates2026 items={items} />
+        <ServiceRates2026 items={items} contact={contact} />
 
         <section className="sv-section" id="sources" aria-labelledby="sources-title">
           <div className="sv-sources">
             <p className="sv-section__kicker">Where these figures come from</p>
             <h2 id="sources-title">The 2026 sheets, reproduced exactly</h2>
-            <p>
-              The service prices on this page come from the client&rsquo;s own 2026 sheets —
-              &ldquo;2026 price FV website A&rdquo; (identical to &ldquo;PRICE LIST FOR 2026
-              II&rdquo;) for the services and embalming rates, and &ldquo;PRICE LIST FOR 2026
-              III&rdquo; for the chapel rates. They are reproduced exactly, including the
-              {" "}₱1,000 miscellaneous fee and the senior-citizen columns.
-            </p>
-            <p>
-              The chapel photographs are the client&rsquo;s own sample services, cropped from
-              the TYPES OF COFFIN sheet, which marks them &ldquo;(Illustration purposes
-              only)&rdquo;. A family taking a complete Villa Memorial Plan package does not pay
-              these a-la-carte amounts — embalming is included in the package with no fixed day
-              count. {CHAPEL_NOTES.seniorPerDay}
-            </p>
+            {/* Facts as labels, not a paragraph (structure over sentences). */}
+            <ul className="sv-factlist">
+              <li>Services &amp; embalming — &ldquo;2026 price FV website A&rdquo; (= &ldquo;PRICE LIST FOR 2026 II&rdquo;)</li>
+              <li>Chapel — &ldquo;PRICE LIST FOR 2026 III&rdquo;</li>
+              <li>Reproduced exactly, ₱1,000 fee included</li>
+              <li>Packages: embalming included, no a-la-carte rates</li>
+            </ul>
           </div>
         </section>
 
         <section className="sv-help" aria-labelledby="help-title">
           <div>
             <h2 id="help-title">Talk to a person, any hour</h2>
-            <p>
-              A coordinator can answer a price question, check chapel dates for you, or take
-              the whole arrangement over the phone. There is no charge to ask, and nothing here
-              needs a sign-in.
-            </p>
+            <p>Price questions, chapel dates, or the whole arrangement — by phone.</p>
           </div>
           <div className="sv-help__actions">
-            <a className="btn btn--primary" href="tel:+639170001234">
-              Call 0917 000 1234
+            <a className="btn btn--primary" href={contact.phoneHref}>
+              Call {contact.phoneDisplay}
             </a>
             <Link className="btn btn--secondary" href="/contact">
               Message us
@@ -231,7 +204,7 @@ export default async function ServicesPage() {
 
       <div className="sv-callbar" role="region" aria-label="Call the park">
         <span>Someone has died?</span>
-        <a href="tel:+639170001234">Call 0917 000 1234</a>
+        <a href={contact.phoneHref}>Call {contact.phoneDisplay}</a>
       </div>
     </div>
   );
