@@ -50,6 +50,11 @@ export const STAFF_NAV: NavSection[] = [
       // Staff plan management — gates on catalog:write so the customer persona
       // (which legitimately holds catalog:read) never sees it.
       { href: "/staff/plans", label: "Plans", scopes: ["catalog:write"] },
+      // Membership application folio (F-18 / FORMS_PLAN gap 4). Provisional scope:
+      // rbac-scopes-v1 names no membership/plan-holder code, so this reuses the
+      // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes
+      // (the page says so). Never invent a token the guard cannot match.
+      { href: "/staff/plans/membership", label: "Memberships", scopes: ["catalog:write"] },
       { href: "/staff/catalog", label: "Catalog", scopes: ["catalog:read"] },
       // Inventory/pricing/store gate on catalog:write (admin-manage) rather than
       // catalog:read — the customer persona holds catalog:read for the storefront.
@@ -116,4 +121,19 @@ export function visibleNav(scopes: string[]): NavSection[] {
 export function hasAnyScope(scopes: string[], required: string[]): boolean {
   if (required.length === 0) return true;
   return required.some((s) => scopes.includes(s));
+}
+
+/**
+ * The ONE nav entry a pathname belongs to: the longest href that is the path itself or
+ * an ancestor of it. A nested route (`/staff/plans/membership`) lights only its own
+ * entry — never the parent it lives under — while a drill-down
+ * (`/staff/plans/membership/3`) keeps its section active. One helper so the sidebar,
+ * the portal rail and the phone tabs cannot disagree about the current page.
+ */
+export function activeNavHref(pathname: string, sections: NavSection[]): string | null {
+  const candidates = sections
+    .flatMap((section) => section.items)
+    .map((item) => item.href)
+    .filter((href) => pathname === href || pathname.startsWith(`${href}/`));
+  return candidates.sort((a, b) => b.length - a.length)[0] ?? null;
 }

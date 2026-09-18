@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasAnyScope, STAFF_NAV, visibleNav } from "@/lib/rbac/nav";
+import { activeNavHref, hasAnyScope, STAFF_NAV, visibleNav } from "@/lib/rbac/nav";
 
 const STAFF_SCOPES = [
   "tenancy:modules:read",
@@ -69,5 +69,30 @@ describe("hasAnyScope", () => {
     expect(hasAnyScope(["orders:read"], ["orders:read", "orders:write"])).toBe(true);
     expect(hasAnyScope([], ["orders:read"])).toBe(false);
     expect(hasAnyScope([], [])).toBe(true);
+  });
+});
+
+describe("activeNavHref — the one current entry", () => {
+  it("lights a nested page's own entry, not its parent", () => {
+    expect(activeNavHref("/staff/plans/membership", STAFF_NAV)).toBe(
+      "/staff/plans/membership",
+    );
+  });
+
+  it("keeps the nested section active through a drill-down", () => {
+    expect(activeNavHref("/staff/plans/membership/3", STAFF_NAV)).toBe(
+      "/staff/plans/membership",
+    );
+  });
+
+  it("keeps the parent entry active for its own sub-pages", () => {
+    expect(activeNavHref("/staff/plans", STAFF_NAV)).toBe("/staff/plans");
+    expect(activeNavHref("/staff/plans/new", STAFF_NAV)).toBe("/staff/plans");
+    expect(activeNavHref("/staff/cases/123", STAFF_NAV)).toBe("/staff/cases");
+  });
+
+  it("returns null when nothing owns the pathname", () => {
+    expect(activeNavHref("/", STAFF_NAV)).toBeNull();
+    expect(activeNavHref("/staff/not-a-page", STAFF_NAV)).toBeNull();
   });
 });

@@ -1,0 +1,79 @@
+{
+  "comment": [
+    "PROVISIONAL demo membership-application records for the Villa Memorial Plan",
+    "membership folio (FORMS_PLAN gap 4 / front-end F-18).",
+    "⚠️ No contract under docs/08-delivery/contracts/ names a membership / COC record: the",
+    "underwriter is a pre-need partner (Eternal Plans, Inc.) and the signed membership/COC",
+    "paper is NOT archived in this project (docs/07-client-villa/paper-forms/ holds only the",
+    "service contract and the two lot-purchase papers). These rows are demo data mirroring",
+    "the plan's own published shape (current-state-forms.md §5): holder · who the plan",
+    "protects from the client's own relationship list · branch · published tier × payment",
+    "mode · the declarations the paper carries. They carry NO COC number, no coverage",
+    "start/end dates and no clause wording — the app reproduces no document it has never",
+    "seen.",
+    "Each `rate_cents` is the published 2026 figure for that tier × term × rate class, read",
+    "from lib/fixtures/commerce/pricing.json (tests/fixture-contract/membership.test.ts pins",
+    "them to planRateOf); an office recording a new application reads the CURRENT pricing",
+    "document the same way. Rows persist through MEMBERSHIP_STORE_PATH (default",
+    "`.data/commerce-membership-applications.json`, gitignored) — never hand-edit this seed to",
+    "make a test pass.",
+    "Branch values are free text as the office writes them: the park's branch structure is an",
+    "open client question (docs/07-client-villa/open-questions.md), so no branch list is",
+    "invented here."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "applications": [
+    {
+      "id": 1,
+      "application_date": "2026-09-10",
+      "last_name": "Lim",
+      "first_name": "Rosa",
+      "middle_name": "Tan",
+      "date_of_birth": "1974-06-12",
+      "contact_number": "0917 555 0177",
+      "email": "rosa.lim@example.com",
+      "address": "Sunrise, Isabela City, Basilan",
+      "beneficiaries": [
+        { "name": "Antonio Lim", "relationship": "legal_spouse" },
+        { "name": "Bea Lim", "relationship": "child_of_legal_age" }
+      ],
+      "branch": "Isabela City",
+      "plan_tier": "silver2",
+      "plan_term": "monthly",
+      "senior": false,
+      "rate_cents": 112000,
+      "pricing_updated_at": null,
+      "health_declaration": true,
+      "dpa_consent": true,
+      "dpa_consented_at": "2026-09-10T03:20:00Z",
+      "recorded_by": "Sam Staff",
+      "created_at": "2026-09-10T03:20:00Z"
+    },
+    {
+      "id": 2,
+      "application_date": "2026-08-22",
+      "last_name": "Cruz",
+      "first_name": "Teodoro",
+      "middle_name": "M.",
+      "date_of_birth": "1958-01-20",
+      "contact_number": "0918 555 0190",
+      "email": null,
+      "address": "Aguada, Isabela City, Basilan",
+      "beneficiaries": [
+        { "name": "Liwayway Cruz", "relationship": "legal_spouse" },
+        { "name": "Danilo Cruz", "relationship": "sibling" }
+      ],
+      "branch": "Zamboanga City",
+      "plan_tier": "gold",
+      "plan_term": "monthly",
+      "senior": true,
+      "rate_cents": 150000,
+      "pricing_updated_at": null,
+      "health_declaration": true,
+      "dpa_consent": true,
+      "dpa_consented_at": "2026-08-22T05:40:00Z",
+      "recorded_by": "Sam Staff",
+      "created_at": "2026-08-22T05:40:00Z"
+    }
+  ]
+}

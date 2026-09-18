@@ -57,10 +57,18 @@ details.
    is not archived, so the sheet records the same information and marks itself as not an official
    receipt. The actual OR numbering/allocation is dev/finance; live mode 503s
    (`PROVISIONAL_RECEIPTS_NOT_WIRED`) until a record contract freezes.
-4. **Villa Memorial Plan membership / COC — Eternal Plans (P2).** Holder +
-   beneficiary, branch, coverage type, plan value, COC no., start/end
-   (1-year term, 12:01 noon), the 70%-of-plan-value unrendered-service note,
-   transfer rules, insurance health declarations + DPA consent.
+4. **Villa Memorial Plan membership / COC — Eternal Plans (P2 — capture folio implemented,
+   issue fields deliberately wait).** The enrolment folio is live at
+   `/staff/plans/membership` (+ `/new`, `/[id]`): plan holder, the client's own beneficiary
+   relationship list, branch, published tier × payment mode read from the pricing store, and
+   the insurance health declaration + DPA consent, printed/exported through the shared paper
+   kit as an **application** — flagging plainly that the office issues the certificate of
+   coverage. The plan's published terms render as a display module beside it. The COC no.,
+   coverage start/end (1-year term, 12:01 noon), the 70%-of-plan-value note and the paper's
+   clause wording are NOT reproduced: the signed membership/COC paper is not archived in this
+   project and no membership-record contract is frozen (pre-need partner domain), so live mode
+   answers 503 and the scope reuses `catalog:write` provisionally. See
+   `docs/08-delivery/membership-folio-design/README.md`.
 5. **Guarantee-instrument capture (P1/P2, partly blocked).** LGU/DSWD/SSS/GSIS/
    life-plan instruments with submission deadlines. Underlying sub-ledger +
    math are dev-owned (issue #54) → build the capture UI; persistence math is

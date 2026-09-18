@@ -556,6 +556,40 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `tests/unit/pricing-admin-render.test.tsx` (an edit reaches the public pages),
   `tests/unit/pricing-admin-rbac.test.tsx`, `tests/fixture-contract/pricing.test.ts`.
 
+## Villa Memorial Plan membership applications — `/staff/plans/membership` (F-18 / FORMS_PLAN gap 4)
+
+- **The enrolment folio is a CAPTURE, never a certificate.** `/staff/plans/membership` is the
+  register + the plan's published-terms display, `/new` is the folio (holder · who the plan
+  protects · branch · tier × payment mode · declarations), `/[id]` is one recorded application
+  plus its **application paper** (shared `PaperSheet` + `PaperExportActions` → print/Word/PDF).
+  `APPLICATION_NOT_A_COC_NOTE` prints on every screen and on the paper's face: the office issues
+  the real membership document — never imply the app issued a COC. No COC number, coverage
+  dates or clause text exist anywhere: the signed membership/COC paper is not archived in this
+  project (`docs/07-client-villa/paper-forms/` has only the service contract + lot papers; the
+  paper wins), and no membership-record contract is frozen (pre-need partner, Eternal Plans).
+- **One rules home: `lib/contracts/membership-application.ts`** (relationship vocabulary from
+  the client's own list; normalisation; `membershipApplicationIssues` — the SAME structural
+  validation the store and the folio's readiness gate run; the honest-state copy). Paper:
+  `lib/contracts/membership-paper.ts`. The rate is READ, never typed: the page passes
+  `loadPricingDocument()` down and every figure comes through `planRateOf`; the record stores
+  the amount as read, so a later rate-card edit never rewrites a recorded folio.
+- **Durable fixture store**: `lib/api-client/membership-store.ts` (seed
+  `lib/fixtures/commerce/membership-applications.json` + append-only journal,
+  `MEMBERSHIP_STORE_PATH` or `.data/commerce-membership-applications.json`, gitignored).
+  `POST /api/memberships/applications` only (handler rules-free); live mode (`COMMERCE_BASE_URL`)
+  answers 503 `MEMBERSHIP_ADMIN_NOT_WIRED`. Scope is `catalog:write` PROVISIONALLY —
+  `rbac-scopes-v1` names no membership code; the screen and the PR carry the ask, and no token
+  outside the frozen vocabulary is invented (`staff-scope-vocabulary` stays green).
+- **Nav active state is the longest match**: `activeNavHref()` in `lib/rbac/nav.ts` (used by
+  `components/ui/sidebar-nav.tsx`) so the nested `/staff/plans/membership` lights only its own
+  entry, while a drill-down keeps its section current. Extend that helper, not per-item prefix
+  checks.
+- **Do not widen**: COC issuance, underwriting, plan-value/coverage dates and any pre-need
+  partner integration are platform/client matters — live mode stays a refusal until a contract
+  freezes. Evidence: `tests/unit/membership-application.test.ts`,
+  `tests/unit/membership-admin-rbac.test.tsx`, `tests/fixture-contract/membership.test.ts`;
+  design record + shots `docs/08-delivery/membership-folio-design/`.
+
 ## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
 
 - The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
