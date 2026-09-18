@@ -7,6 +7,8 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listInvoices, type Invoice } from "@/lib/api-client/finance";
+import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE } from "@/lib/api-client/billing-derive";
+import { outstandingCents } from "@/lib/billing-payments";
 import { formatMinorUnits } from "@/lib/money";
 
 export const metadata = { title: "Billing & collections — Staff Portal" };
@@ -22,14 +24,6 @@ function agingTone(bucket: string): "success" | "warning" | "danger" {
 function agingLabel(bucket: string): string {
   return bucket === "current" ? "Current" : bucket + " days";
 }
-
-
-const STATUS_TONE: Record<string, "success" | "warning" | "danger" | "info" | "neutral"> = {
-  paid: "success",
-  pending: "info",
-  partial: "warning",
-  overdue: "danger",
-};
 
 export default async function BillingPage({
   searchParams,
@@ -78,7 +72,7 @@ export default async function BillingPage({
   // zero rather than a negative balance, which formatMinorUnits rejects by the
   // money-discipline rule. Totals are grouped by the invoice's own currency —
   // summing across currencies would produce a meaningless figure.
-  const balanceOf = (i: Invoice) => Math.max(0, i.total_cents - i.paid_cents);
+  const balanceOf = (i: Invoice) => outstandingCents(i);
 
   const unpaid = invoices.filter((i) => i.status !== "paid");
 
@@ -235,6 +229,7 @@ export default async function BillingPage({
                   <th scope="col">Order</th>
                   <th scope="col">Total</th>
                   <th scope="col">Paid</th>
+                  <th scope="col">Outstanding</th>
                   <th scope="col">Status</th>
                   <th scope="col">Due</th>
                   <th scope="col">Aging</th>
@@ -260,8 +255,13 @@ export default async function BillingPage({
                     <td className="text-sm">{inv.order_number ?? "—"}</td>
                     <td className="text-sm">{formatMinorUnits(inv.total_cents, inv.currency)}</td>
                     <td className="text-sm">{formatMinorUnits(inv.paid_cents, inv.currency)}</td>
+                    <td className="text-sm">
+                      {formatMinorUnits(balanceOf(inv), inv.currency)}
+                    </td>
                     <td>
-                      <Badge tone={STATUS_TONE[inv.status] ?? "neutral"}>{inv.status}</Badge>
+                      <Badge tone={INVOICE_STATUS_TONE[inv.status]}>
+                        {INVOICE_STATUS_LABEL[inv.status]}
+                      </Badge>
                     </td>
                     <td className="text-sm">{new Date(inv.due_at).toLocaleDateString()}</td>
                     <td className="text-sm">{inv.aging_bucket}</td>

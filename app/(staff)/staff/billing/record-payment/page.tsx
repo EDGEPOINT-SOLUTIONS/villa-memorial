@@ -1,31 +1,42 @@
 import Link from "next/link";
 import { PageHeader, PageSection } from "@/components/ui/page";
-import { ForbiddenState } from "@/components/ui/states";
+import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
-import { listInvoices } from "@/lib/api-client/finance";
-import { listCases } from "@/lib/api-client/operations";
-import { RecordPaymentScreen, type PaymentTarget } from "./record-payment-screen";
+import {
+  listInvoices,
+  listPaymentsForInvoice,
+  type Invoice,
+} from "@/lib/api-client/finance";
+import { getCase } from "@/lib/api-client/operations";
+import {
+  businessToday,
+  findInvoiceByReference,
+  normaliseReference,
+} from "@/lib/billing-payments";
+import { RecordPaymentScreen } from "./record-payment-screen";
 
 export const metadata = { title: "Record payment — Staff Portal" };
 
 /**
- * Record payment — the entry point for the provisional-receipt capture (FORMS_PLAN gap 3).
+ * Record payment — the counter's money screen, anchored on ONE invoice.
  *
- * RBAC uses the FROZEN scopes, not a borrowed read scope: viewing needs `billing:read`
- * (the same gate the billing list uses) and recording needs `billing:write` — the frozen
- * scope the payments endpoint itself names (`docs/08-delivery/contracts/billing-list-api-v1.md`:
- * `POST /api/v1/invoices/:number/payments` → `billing:write`; `rbac-scopes-v1.md`: "Invoices,
- * installments, payments"). No new scope is invented, and the graceful 403 below is the
- * same one the billing page renders. Authorization still lives at the service boundary.
+ * WHY ANCHORED (and why the free-text "case or invoice" box is gone)
+ * The frozen `billing-list-api-v1` contract records payments against an INVOICE
+ * (`POST /invoices/:number/payments`), and a payment is only meaningful against the balance
+ * it settles. So the screen resolves the link that opened it — `?invoice=`, `?order=` (the
+ * Orders admin's link) or `?case=` — to the invoice it names, shows what that invoice still
+ * owes, and records against it. A reference that names no invoice is said plainly, with the
+ * unpaid invoices to choose from, rather than typed into a box nobody validates.
  *
- * The `Case or invoice` picker is built from the records this session may already read —
- * invoices always (billing:read), cases only when `cases:read` is held, so the screen
- * never asks a service for something the session could not open itself. A records list
- * that fails costs the picker, not the capture: the slip can be typed from paper.
+ * RBAC uses the FROZEN scopes: viewing needs `billing:read` (the billing list's gate) and
+ * recording needs `billing:write` — the scope the payments endpoint itself names. No new
+ * scope is invented, and the graceful 403 below is the same one the billing page renders.
+ * Authorization still lives at the service boundary; this gate is UX.
  *
- * The staff Orders admin links here with `?order=ORD-…`; an order number is a reference the
- * counter captures against (the same free-text field), so it prefills like a case/invoice.
+ * Everything the screen shows about money comes from the server's own read: the invoice and
+ * the recorded payments are loaded here, per request, and the balance after a recording comes
+ * back from the write's response — never from the browser's arithmetic.
  */
 export default async function RecordPaymentPage({
   searchParams,
@@ -55,45 +66,46 @@ export default async function RecordPaymentPage({
   }
 
   const params = await searchParams;
-  const prefill = (params.case ?? params.invoice ?? params.order ?? "").trim();
+  const reference = normaliseReference(params.invoice ?? params.order ?? params.case);
 
-  const targets: PaymentTarget[] = [];
-  let recordsUnavailable = false;
-
+  let invoices: Invoice[];
   try {
-    const invoices = await listInvoices();
-    targets.push(
-      ...invoices.map((invoice) => ({
-        reference: invoice.invoice_number,
-        label: `${invoice.invoice_number} — ${invoice.customer_name}`,
-        kind: "invoice" as const,
-      })),
-    );
+    invoices = await listInvoices();
   } catch {
-    recordsUnavailable = true;
+    return (
+      <>
+        <PageHeader eyebrow="Finance" title="Record payment" />
+        <PageSection>
+          <ErrorState message="Unable to load billing records." />
+        </PageSection>
+      </>
+    );
   }
 
-  if (hasAnyScope(session.scopes, ["cases:read"])) {
+  let invoice = findInvoiceByReference(invoices, reference);
+
+  // A case reference reaches its invoice through the order the case is linked to — the same
+  // two hops the case screen shows. A case whose order has no invoice yet is a real state:
+  // there is nothing on the books to settle, and the screen says so.
+  if (!invoice && reference.startsWith("CASE-") && hasAnyScope(session.scopes, ["cases:read"])) {
     try {
-      const cases = await listCases();
-      targets.push(
-        ...cases.map((kase) => ({
-          reference: kase.case_number,
-          label: `${kase.case_number} — ${
-            kase.deceased_name === "Pending intake" ? "intake pending" : kase.deceased_name
-          }`,
-          kind: "case" as const,
-        })),
-      );
+      const kase = await getCase(reference);
+      if (kase.linked_order_number) {
+        invoice = findInvoiceByReference(invoices, normaliseReference(kase.linked_order_number));
+      }
     } catch {
-      recordsUnavailable = true;
+      // An unreadable case costs the resolution, not the screen: the picker below stands in.
     }
   }
+
+  const { payments, listed } = invoice
+    ? await listPaymentsForInvoice(invoice.invoice_number)
+    : { payments: [], listed: true };
 
   return (
     <>
       <PageHeader
-        eyebrow="Finance"
+        eyebrow="Finance · Billing"
         title="Record payment"
         actions={
           <Link href="/staff/billing" className="btn btn--secondary btn--sm">
@@ -103,9 +115,12 @@ export default async function RecordPaymentPage({
       />
       <PageSection>
         <RecordPaymentScreen
-          targets={targets}
-          prefill={prefill}
-          recordsUnavailable={recordsUnavailable}
+          invoice={invoice}
+          reference={reference}
+          choices={invoices.filter((i) => i.status !== "paid")}
+          payments={payments}
+          paymentsListed={listed}
+          today={businessToday()}
         />
       </PageSection>
     </>

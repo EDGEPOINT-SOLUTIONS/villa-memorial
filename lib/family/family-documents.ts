@@ -14,20 +14,22 @@
  *   number, the date received and the amount. A half-record gets the honest
  *   "being prepared" state — this module never assembles a plausible-looking
  *   receipt from missing fields, and never numbers, totals or derives a figure.
- * - All copy here is display copy for the family; the paper content uses the
- *   shared PaperBlock grammar (lib/export/types.ts), so the on-screen sheet,
- *   the .docx and the .pdf are the same document (see components/paper/*).
+ * - All copy here is display copy for the family; the paper content is the SHARED official
+ *   receipt sheet (`lib/contracts/official-receipt.ts`), so the copy the family opens and the
+ *   copy the counter prints are the same document — the same number, the same cells and the
+ *   same paper blocks the .docx and .pdf exports carry (see components/paper/*).
  */
 import type { FamilyDocument } from "@/lib/api-client/family";
 import {
-  line,
-  paperFileStem,
-  paperValue,
-  space,
-  table,
-  type PaperBlock,
-  type PaperCell,
-} from "@/lib/export/types";
+  FAMILY_RECEIPT_COPY_NOTE,
+  buildOfficialReceiptPaper,
+  officialReceiptFileStem,
+  receiptDateWords,
+} from "@/lib/contracts/official-receipt";
+import type { PaperBlock } from "@/lib/export/types";
+
+/** The family's copy line for the shared receipt sheet (one wording, one module). */
+export { FAMILY_RECEIPT_COPY_NOTE };
 
 /* ------------------------------------------------------------------ */
 /* Ownership                                                           */
@@ -64,21 +66,12 @@ export function familyPapers(documents: readonly FamilyDocument[]): FamilyPapers
 /* ------------------------------------------------------------------ */
 
 /**
- * A date on the paper, in the family's reading words (“12 September 2026”). Reads the
- * recorded date as a plain day in UTC; when it is not a calendar date the record's own
- * words are shown instead of a guess.
+ * A date on the paper, in the family's reading words (“12 September 2026”). The words come
+ * from the one receipt module (`receiptDateWords`), so the family's copy and the counter's
+ * copy cannot print the same recorded day two different ways.
  */
 export function familyDate(iso: string): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso.trim());
-  if (!match) return iso;
-  const date = new Date(`${match[0]}T00:00:00Z`);
-  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== match[0]) return iso;
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: "UTC",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  return receiptDateWords(iso);
 }
 
 /**
@@ -136,15 +129,11 @@ export function ownedPaperNote(paper: FamilyDocument): string {
 /* The receipt copy, from the shared paper grammar                     */
 /* ------------------------------------------------------------------ */
 
-export const FAMILY_RECEIPT_COPY_NOTE =
-  "This is your family's copy of the official receipt recorded on your account. " +
-  "The office keeps the signed original — call us at any time and we will send you " +
-  "another copy, free of charge.";
-
 /**
- * Assemble the family's copy of one official receipt through the shared PaperBlock
- * grammar (so Print / .docx / .pdf are the same sheet). Only the three recorded fields
- * are printed; a record without them throws rather than printing an invented receipt.
+ * Assemble the family's copy of one official receipt through the shared receipt sheet (so
+ * the counter's copy, the repository row, the on-screen page, the .docx and the .pdf are the
+ * same document). Only the recorded fields are printed; a record without them throws rather
+ * than printing an invented receipt.
  */
 export function buildFamilyReceiptPaper(receipt: FamilyDocument): {
   title: string;
@@ -153,30 +142,18 @@ export function buildFamilyReceiptPaper(receipt: FamilyDocument): {
   if (!familyReceiptHasCopy(receipt) || !receipt.reference || !receipt.issued_on || !receipt.amount) {
     throw new Error("this receipt record has no copy to render");
   }
-  const rows: PaperCell[][] = [
-    [
-      { label: "Receipt no.", value: receipt.reference },
-      { label: "Date", value: familyDate(receipt.issued_on) },
-    ],
-    [{ label: "Amount received", value: receipt.amount, span: 2 }],
-    [{ label: "For", value: paperValue(receipt.covers), span: 2 }],
-  ];
-
-  return {
-    title: "Official Receipt",
-    blocks: [
-      line("VILLA MEMORIAL", { align: "center", bold: true, size: 13 }),
-      line("OFFICIAL RECEIPT", { align: "center", bold: true, size: 11, caps: true }),
-      line("Your family's copy", { align: "center", size: 9 }),
-      space(8),
-      table(2, rows),
-      space(6),
-      line(FAMILY_RECEIPT_COPY_NOTE, { size: 9.5 }),
-    ],
-  };
+  return buildOfficialReceiptPaper(
+    {
+      number: receipt.reference,
+      received_on: receipt.issued_on,
+      amount: receipt.amount,
+      covers: receipt.covers ?? null,
+    },
+    "family",
+  );
 }
 
 /** Export filename stem for a receipt copy. */
 export function familyReceiptFileStem(receipt: FamilyDocument): string {
-  return paperFileStem(["Official-Receipt", receipt.reference, receipt.issued_on]);
+  return officialReceiptFileStem(receipt.reference ?? "", receipt.issued_on ?? "");
 }

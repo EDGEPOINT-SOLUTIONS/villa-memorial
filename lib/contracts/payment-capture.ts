@@ -1,27 +1,25 @@
 /**
- * Provisional-receipt capture — the counter's record of money received (FORMS_PLAN.md
- * gap 3, forms-report inventory row 23).
+ * The counter's slip vocabulary — what a payment IS, in the words the client's forms use.
  *
- * WHAT THIS IS
- * The six fields the counter writes on the paper slip — amount received; instrument;
- * reference no.; date received; case or invoice; notes — as a typed, validated draft,
- * plus the record a capture produces and the honesty line every provisional receipt
- * carries. The rendered reference is the shared capture shell
- * (`.capture-section` / `.field-grid` / `.peso-input` / `.capture-actions`), the same
- * grammar the other staff capture screens use.
+ * WHAT THIS MODULE IS NOW (and what it used to be)
+ * It began as the whole of "gap 3" in `FORMS_PLAN.md`: a provisional-receipt capture that
+ * lived in the browser tab because no payment endpoint existed. The frozen
+ * `billing-list-api-v1` contract has since named that endpoint
+ * (`POST /invoices/:number/payments`, scope `billing:write`), and the counter now records real
+ * payments through `lib/billing-payments.ts` — which owns the draft, the rules and the record.
  *
- * WHAT THIS IS NOT (the finance boundary, per FORMS_PLAN.md non-negotiables)
- * - NO official-receipt numbering, allocation or posting rules. Nothing here numbers a
- *   receipt, decides which invoice line a payment applies to, moves a balance or posts
- *   to the sub-ledger — all finance/dev-owned. The record carries exactly the six
- *   captured fields plus the moment of capture; it computes no figure and derives none.
- * - NO persistence shape: no service contract names a payment or a provisional receipt
- *   (finance-billing arrives via events only — `tests/fixture-contract/finance.test.ts`),
- *   so captures live on the screen that made them for the session and the confirmation
- *   says so plainly. Compare the inquiries board's demo captures (`inquiry-board.tsx`).
- * - Money is captured AS ENTERED: the amount is parsed to integer minor units (the repo's
- *   money discipline) and printed back verbatim; a partial payment is a full capture, not
- *   a remainder computed anywhere.
+ * What survives here is the vocabulary and the honest fallback, both still needed:
+ *  - the instruments the slip offers and the one rule about them (a non-cash payment carries
+ *    the reference printed on the slip);
+ *  - the shared date/amount helpers the rules are built from (one parser, one calendar rule,
+ *    one business time zone);
+ *  - the provisional slip's record (`PaymentCapture`) and its validity note, used for the ONE
+ *    case the rules still allow: a recorded payment for which finance issued no official
+ *    receipt. It states on its face that it is not an official receipt and carries no receipt
+ *    number — see `lib/contracts/provisional-receipt.ts`.
+ *
+ * An official receipt is numbered by finance, never here: nothing in this module mints a
+ * receipt number, allocates a payment or posts anything.
  */
 import { pesosInputToCents } from "@/lib/contracts/purchase-application";
 
@@ -29,8 +27,9 @@ import { pesosInputToCents } from "@/lib/contracts/purchase-application";
 /* Instruments                                                         */
 /* ------------------------------------------------------------------ */
 
-/** The instruments the slip offers, in the rendered prototype's order (report row 23; the
- * prototype adds GCash, which the frozen payment event also names — payment-completed-v1). */
+/** The instruments the slip offers, in the client's own form order. (The blueprint also
+ * names card and Maya; the counter slip does not, and adding one is a client-vocabulary
+ * decision rather than an app invention — `lib/billing-payments.ts` flags the same point.) */
 export const PAYMENT_INSTRUMENTS = [
   { value: "cash", label: "Cash" },
   { value: "check", label: "Check" },
@@ -56,38 +55,7 @@ export function instrumentNeedsReference(instrument: PaymentInstrument): boolean
 }
 
 /* ------------------------------------------------------------------ */
-/* The draft the counter fills in                                      */
-/* ------------------------------------------------------------------ */
-
-export type PaymentCaptureDraft = {
-  /** Pesos as typed ("12,500.00") — never a computed figure. */
-  amount_text: string;
-  instrument: PaymentInstrument | "";
-  reference: string;
-  /** yyyy-mm-dd, as the date input supplies it. */
-  received_on: string;
-  /** The case or invoice this payment is captured against, as written on the slip. */
-  against: string;
-  notes: string;
-};
-
-export function emptyPaymentCaptureDraft(): PaymentCaptureDraft {
-  return {
-    amount_text: "",
-    instrument: "",
-    reference: "",
-    received_on: "",
-    against: "",
-    notes: "",
-  };
-}
-
-export type PaymentCaptureField = keyof PaymentCaptureDraft;
-
-export type PaymentCaptureErrors = Partial<Record<PaymentCaptureField, string>>;
-
-/* ------------------------------------------------------------------ */
-/* Validation                                                          */
+/* Dates and amounts — the helpers the money rules are built from      */
 /* ------------------------------------------------------------------ */
 
 /** The park's calendar/time zone — the day counters actually write on slips. */
@@ -119,113 +87,6 @@ export function paymentAmountCents(amount: string): number | null {
   }
 }
 
-/**
- * Field-level capture validation. It checks that the slip was filled in — a written
- * amount, an instrument, a date that exists, the record it pays against, and the
- * reference for instruments that carry one. It validates nothing about the money's
- * meaning: whether the amount is right, how it is allocated, and what it does to a
- * balance are finance's.
- */
-export function validatePaymentCapture(
-  draft: PaymentCaptureDraft,
-  now: Date = new Date(),
-): PaymentCaptureErrors {
-  const errors: PaymentCaptureErrors = {};
-
-  const cents = paymentAmountCents(draft.amount_text);
-  if (cents === null) {
-    errors.amount_text =
-      draft.amount_text.trim() === ""
-        ? "Enter the amount received."
-        : "Enter pesos and centavos only, e.g. 12,500.00.";
-  } else if (cents <= 0) {
-    errors.amount_text = "The amount received must be more than zero.";
-  }
-
-  if (draft.instrument === "") {
-    errors.instrument = "Choose how the payment arrived.";
-  } else if (instrumentNeedsReference(draft.instrument) && draft.reference.trim() === "") {
-    errors.reference = `A ${INSTRUMENT_LABEL[
-      draft.instrument
-    ].toLowerCase()} payment needs the reference printed on the slip.`;
-  }
-
-  const receivedOn = draft.received_on.trim();
-  if (receivedOn === "") {
-    errors.received_on = "Enter the date the payment was received.";
-  } else if (!isCalendarDate(receivedOn)) {
-    errors.received_on = "Enter a real date.";
-  } else if (receivedOn > businessToday(now)) {
-    errors.received_on = "The date received cannot be in the future.";
-  }
-
-  if (draft.against.trim() === "") {
-    errors.against = "Name the case or invoice this payment is captured against.";
-  }
-
-  return errors;
-}
-
-/* ------------------------------------------------------------------ */
-/* The record a capture produces                                       */
-/* ------------------------------------------------------------------ */
-
-/**
- * What was captured — the six fields plus the moment of capture. Deliberately nothing
- * else: no receipt number (finance numbers official receipts), no running balance, no
- * allocation. The receipt view and the printed slip render THIS record.
- */
-export type PaymentCapture = {
-  id: string;
-  amount_cents: number;
-  instrument: PaymentInstrument;
-  reference: string;
-  received_on: string;
-  against: string;
-  notes: string;
-  /** ISO timestamp the counter recorded it — an app stamp, not a document number. */
-  recorded_at: string;
-};
-
-/**
- * Draft → record. The screen validates first, so the throws here are the defensive
- * contract: a capture can never carry a blank instrument, a junk amount or a future
- * date past a bypassed form.
- */
-export function paymentCaptureFromDraft(
-  draft: PaymentCaptureDraft,
-  id: string,
-  recordedAt: string,
-): PaymentCapture {
-  const cents = paymentAmountCents(draft.amount_text);
-  if (cents === null || cents <= 0) {
-    throw new Error("payment amount is not a positive peso amount");
-  }
-  if (draft.instrument === "") {
-    throw new Error("payment instrument is required");
-  }
-  if (instrumentNeedsReference(draft.instrument) && draft.reference.trim() === "") {
-    throw new Error("a reference is required for this instrument");
-  }
-  if (draft.against.trim() === "") {
-    throw new Error("a case or invoice reference is required");
-  }
-  const receivedOn = draft.received_on.trim();
-  if (!isCalendarDate(receivedOn)) {
-    throw new Error("date received is not a calendar date");
-  }
-  return {
-    id,
-    amount_cents: cents,
-    instrument: draft.instrument,
-    reference: draft.reference.trim(),
-    received_on: receivedOn,
-    against: draft.against.trim(),
-    notes: draft.notes.trim(),
-    recorded_at: recordedAt,
-  };
-}
-
 /** The capture's app stamp, shown at the park's local time. */
 export function formatRecordedAt(iso: string): string {
   const at = new Date(iso);
@@ -238,15 +99,32 @@ export function formatRecordedAt(iso: string): string {
 }
 
 /* ------------------------------------------------------------------ */
-/* The honesty line                                                    */
+/* The provisional slip                                                */
 /* ------------------------------------------------------------------ */
 
 /**
- * The validity note every provisional receipt carries — the capture screen's warning,
- * the printed slip's footer, and the receipt view all print THIS constant, so the three
- * cannot drift. App-authored copy, not a legal clause: the official receipt, its number,
- * the allocation and the posting rules are finance-owned, and the slip says so plainly
- * rather than looking like an official receipt.
+ * What the counter wrote on the slip — the six fields of the client's form. This is the
+ * FALLBACK record, printed only when a recorded payment has no official receipt: the money
+ * was taken and must be accounted for, and the slip says plainly what it is not.
+ */
+export type PaymentCapture = {
+  id: string;
+  amount_cents: number;
+  instrument: PaymentInstrument;
+  reference: string;
+  received_on: string;
+  /** The invoice (or case) the payment was captured against. */
+  against: string;
+  notes: string;
+  /** ISO timestamp the counter recorded it — an app stamp, not a document number. */
+  recorded_at: string;
+};
+
+/**
+ * The validity note every provisional slip carries — the screen's warning and the printed
+ * slip's footer both print THIS constant, so the two cannot drift. App-authored copy, not a
+ * legal clause: the official receipt, its number, the allocation and the posting rules are
+ * finance-owned, and the slip says so plainly rather than looking like an official receipt.
  */
 export const PROVISIONAL_RECEIPT_NOTE =
   "This provisional receipt is valid only when confirmed by an official receipt. " +

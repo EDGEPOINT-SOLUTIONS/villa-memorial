@@ -1,16 +1,17 @@
 /**
- * Provisional receipt — paper content assembly for a captured payment.
+ * Provisional slip — paper content assembly for a recorded payment that has NO official
+ * receipt (finance issued none). It is the counter's fallback, not the product's receipt:
+ * the ordinary path prints the official receipt (`lib/contracts/official-receipt.ts`).
  *
- * Produces the shared PaperBlock grammar (lib/export/types.ts) so the receipt renders
+ * Produces the shared PaperBlock grammar (lib/export/types.ts) so the slip renders
  * three ways from ONE description: the on-screen sheet (components/paper/paper-sheet.tsx),
  * a real .docx and a real .pdf (components/paper/paper-export-actions.tsx) — the repo's
- * existing print/paper pattern, which is why the receipt is not a bespoke screen.
+ * existing print/paper pattern, which is why the slip is not a bespoke screen.
  *
- * The receipt is a presentational record of what was captured: the six fields of
+ * The slip is a presentational record of what was recorded: the six fields of
  * `lib/contracts/payment-capture.ts` and the moment of capture. It carries the validity
  * note verbatim and NO official-receipt number, no allocation and no balance — those are
- * finance-owned (FORMS_PLAN.md non-negotiables). Unfilled blanks print the honest em dash
- * (`paperValue`), never a guess.
+ * finance-owned. Unfilled blanks print the honest em dash (`paperValue`), never a guess.
  */
 import {
   INSTRUMENT_LABEL,
