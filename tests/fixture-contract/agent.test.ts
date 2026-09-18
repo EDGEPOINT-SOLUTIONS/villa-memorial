@@ -16,7 +16,22 @@ import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa
  */
 const ws = workspace as unknown as typeof workspace & {
   agent: { id: string; display_name: string; email: string };
-  prospects: Array<{ id: string; stage: string; possible_value_cents: number }>;
+  prospects: Array<{
+    id: string;
+    stage: string;
+    possible_value_cents: number;
+    first_contact_at: string;
+    last_contact_at: string;
+    stage_history: Array<{ stage: string; at: string; by: string; note: string }>;
+  }>;
+  prospect_activity: Record<
+    string,
+    Array<{ id: string; kind: string; at: string; title: string; detail: string }>
+  >;
+  prospect_shares: Record<
+    string,
+    Array<{ id: string; title: string; sent_at: string; opens: number; last_open: string }>
+  >;
   clients: Array<{ id: string; customer_id: string | null; holdings: Array<{ lot_id?: string }> }>;
   work_items?: unknown;
   today: {
@@ -73,7 +88,68 @@ describe("agent workspace fixture", () => {
       "reserved",
       "sold",
     ]);
-    for (const p of ws.prospects) expect(stages.has(p.stage)).toBe(true);
+    for (const p of ws.prospects) {
+      expect(stages.has(p.stage)).toBe(true);
+      for (const move of p.stage_history) expect(stages.has(move.stage)).toBe(true);
+    }
+  });
+
+  it("gives every lead a recorded origin and a stage history that ends where they stand", () => {
+    const order = [
+      "new",
+      "contacted",
+      "qualified",
+      "presentation",
+      "proposal",
+      "reserved",
+      "sold",
+    ];
+    for (const p of ws.prospects) {
+      const history = p.stage_history;
+      expect(history.length, `${p.id} has no recorded movement`).toBeGreaterThan(0);
+      // First move is the enquiry itself; last move is where the lead stands.
+      expect(history[0].stage).toBe("new");
+      expect(history[0].at).toBe(p.first_contact_at);
+      expect(history[history.length - 1].stage).toBe(p.stage);
+      expect(history[history.length - 1].at).toBe(p.last_contact_at);
+      let previousTime = -Infinity;
+      let previousStage = -1;
+      for (const move of history) {
+        const at = new Date(move.at).getTime();
+        expect(Number.isNaN(at), `${p.id}: ${move.at} is not a date`).toBe(false);
+        expect(at, `${p.id}: movement is out of order`).toBeGreaterThanOrEqual(previousTime);
+        const stage = order.indexOf(move.stage);
+        expect(stage, `${p.id}: stage moves backwards`).toBeGreaterThan(previousStage);
+        previousTime = at;
+        previousStage = stage;
+        expect(move.by.length, `${p.id}: a move has no author`).toBeGreaterThan(0);
+        expect(move.note.length, `${p.id}: a move has no note`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it("keeps every recorded contact inside the lead's recorded window", () => {
+    const ids = new Set(ws.prospects.map((p) => p.id));
+    for (const [id, entries] of Object.entries(ws.prospect_activity)) {
+      const prospect = ws.prospects.find((p) => p.id === id);
+      expect(ids.has(id), `activity for unknown prospect ${id}`).toBe(true);
+      expect(prospect).toBeTruthy();
+      for (const entry of entries) {
+        const at = new Date(entry.at).getTime();
+        expect(Number.isNaN(at), `${id}: ${entry.at} is not a date`).toBe(false);
+        expect(at).toBeGreaterThanOrEqual(new Date(prospect!.first_contact_at).getTime());
+        expect(at).toBeLessThanOrEqual(new Date(prospect!.last_contact_at).getTime());
+        expect(["call", "visit", "link", "message", "note"]).toContain(entry.kind);
+      }
+    }
+    for (const [id, entries] of Object.entries(ws.prospect_shares)) {
+      expect(ids.has(id), `shares for unknown prospect ${id}`).toBe(true);
+      for (const share of entries) {
+        expect(Number.isNaN(new Date(share.sent_at).getTime())).toBe(false);
+        expect(Number.isNaN(new Date(share.last_open).getTime())).toBe(false);
+        expect(Number.isInteger(share.opens)).toBe(true);
+      }
+    }
   });
 
   it("keeps every work item pointed at a real prospect and honest state", () => {

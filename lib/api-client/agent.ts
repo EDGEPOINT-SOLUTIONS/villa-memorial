@@ -18,6 +18,11 @@
  * When the agent contract freezes, this file gains the live branch and the fixture's
  * provenance header is replaced by the contract reference. Until then, a screen that
  * needs something this fixture does not carry says so instead of faking it.
+ *
+ * The lead record (app/(agent)/agent/prospects/[id]) reads each prospect's recorded
+ * movement — `first_contact_at` and `stage_history` — through this client and never
+ * invents a move at render time; the enquiry-persistence / customer-sync / lead-assignment
+ * limits are stated on the screen in one line.
  */
 import workspaceFile from "@/lib/fixtures/agent/workspace.json";
 import { ApiError } from "@/lib/api-client/api-error";
@@ -55,11 +60,26 @@ export type Prospect = {
   stage: string;
   owner: string;
   possible_value_cents: number;
+  /** When the enquiry came in — the day the lead first reached us. */
+  first_contact_at: string;
   last_contact_at: string;
+  /** The recorded pipeline movement, oldest move first; the last move is `stage`. */
+  stage_history: ProspectStageEvent[];
   next_action: string;
   urgency: string;
   best_time: string;
   notes: string;
+};
+
+/**
+ * One recorded move of a lead through the PRD pipeline (commerce-catalog §33).
+ * `at` is a true instant; `by` is who made the move, in the record's own words.
+ */
+export type ProspectStageEvent = {
+  stage: string;
+  at: string;
+  by: string;
+  note: string;
 };
 
 export type ProspectActivity = {
@@ -221,6 +241,34 @@ export function agentLiveModeEnabled(): boolean {
   return false; // no agent-workspace API contract yet — fixture only until the dev freeze
 }
 
+/**
+ * The lead's recorded movement. The fixture writes it oldest-first; a malformed
+ * entry is dropped rather than rendered as a blank move. The record itself (its
+ * dates, order and reach) is pinned by tests/fixture-contract/agent.test.ts, not
+ * silently repaired here.
+ */
+function toStageHistory(raw: unknown): ProspectStageEvent[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((entry) => {
+    if (typeof entry !== "object" || entry === null) return [];
+    const row = entry as Record<string, unknown>;
+    if (
+      typeof row.stage !== "string" ||
+      typeof row.at !== "string" ||
+      typeof row.by !== "string" ||
+      typeof row.note !== "string"
+    ) {
+      return [];
+    }
+    return [{ stage: row.stage, at: row.at, by: row.by, note: row.note }];
+  });
+}
+
+/** One lead as the surfaces read it; stage history never spreads a raw shape. */
+function toProspect(raw: Prospect): Prospect {
+  return { ...raw, stage_history: toStageHistory(raw.stage_history) };
+}
+
 /** Tolerant reader in the staff-client style: shape drift fails loudly, never silently. */
 function readWorkspace(): AgentWorkspace {
   const raw = workspaceFile as unknown;
@@ -245,7 +293,7 @@ export async function getAgentToday(): Promise<AgentWorkspace["today"] & { agent
 }
 
 export async function listAgentProspects(): Promise<Prospect[]> {
-  return readWorkspace().prospects.map((p) => ({ ...p }));
+  return readWorkspace().prospects.map(toProspect);
 }
 
 export async function getAgentProspect(
@@ -259,7 +307,7 @@ export async function getAgentProspect(
   const prospect = ws.prospects.find((p) => p.id === id);
   if (!prospect) return null;
   return {
-    prospect: { ...prospect },
+    prospect: toProspect(prospect),
     activity: (ws.prospect_activity[id] ?? []).map((a) => ({ ...a })),
     shares: (ws.prospect_shares[id] ?? []).map((s) => ({ ...s })),
   };

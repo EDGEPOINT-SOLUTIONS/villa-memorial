@@ -1,11 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AgentHero, Chip, money } from "@/components/agent/agent-ui";
+import { AgentHero, Chip, StageChip, money } from "@/components/agent/agent-ui";
 import { getAgentProspect } from "@/lib/api-client/agent";
-import { interestLabel, manilaDay, manilaTime, stageMeta } from "@/lib/agent/agent-view";
+import {
+  activityKindLabel,
+  interestLabel,
+  leadSourceLabel,
+  manilaDay,
+  manilaTime,
+  stageMeta,
+  stageTrail,
+} from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
-export const metadata = { title: "Prospect — Villa Memorial agent portal" };
+export const metadata = { title: "Lead — Villa Memorial agent portal" };
 
 const TIMELINE_CLASS: Record<string, string> = {
   call: "ag-tl--appt",
@@ -15,13 +24,28 @@ const TIMELINE_CLASS: Record<string, string> = {
   note: "ag-tl--note",
 };
 
+/** The designed stage moves; the write itself waits on the customer-records service. */
+const MOVE_OPTIONS = [
+  { label: "Send to the office for a quote", hint: "Presentation done → quote" },
+  { label: "Ready to file", hint: "Application + documents" },
+  { label: "Not now", hint: "Keep the record, stop the nudges" },
+];
+
 /**
- * Prospect record — the doorstep view (approved design page 04). Everything the
- * agent needs at the door: who they are, what they want, what was said, and the
- * next action. Stage movement is shown in its final shape; the write itself
- * waits on the crm-families contract and says so.
+ * The lead record (F-09, captain 2026-09-18) — the approved agent design's
+ * doorstep view, grown into a record the office can follow:
+ *
+ *   who they are · where they are (the recorded stage movement, not a badge) ·
+ *   what was said (calls, visits, links — as recorded) · what happens next.
+ *
+ * Everything on the page is read from lib/fixtures/agent/workspace.json through
+ * lib/api-client/agent.ts: the stage history, the activity and the next action
+ * are records, never invented at render time. The move-forward controls are the
+ * design's final shape and disabled; the one honest line at the foot says what
+ * still waits on the unbuilt customer-records service, and the office number is
+ * read from lib/family/contact.ts rather than typed.
  */
-export default async function AgentProspectPage({
+export default async function AgentLeadPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -34,20 +58,20 @@ export default async function AgentProspectPage({
   const { prospect, activity, shares } = result;
   const tel = `tel:${prospect.phone.replace(/\s/g, "")}`;
   const sms = `sms:${prospect.phone.replace(/\s/g, "")}`;
-  const stage = stageMeta(prospect.stage);
+  const trail = stageTrail(prospect.stage);
+  const history = prospect.stage_history;
 
   return (
     <div className="ag-page">
       <AgentHero
-        eyebrow={`Prospect · ${interestLabel(prospect.interest)} enquiry`}
+        eyebrow={`Lead · ${interestLabel(prospect.interest)} enquiry`}
         title={prospect.name}
-        lead={`${interestLabel(prospect.interest)} interest · source ${prospect.source.replace("_", " ")} · ${prospect.notes}`}
+        lead={`${leadSourceLabel(prospect.source)} · came in ${manilaDay(prospect.first_contact_at)} · handled by ${prospect.owner}`}
         chips={
           <>
             <Chip>{prospect.phone}</Chip>
             <Chip>{prospect.email}</Chip>
-            <Chip>Stage: {stage.label}</Chip>
-            <Chip>Source: {prospect.source.replace("_", " ")}</Chip>
+            <StageChip stage={prospect.stage} />
           </>
         }
       >
@@ -55,8 +79,8 @@ export default async function AgentProspectPage({
           <div className="ag-action__body">
             <p className="ag-action__title">{prospect.next_action}</p>
             <p className="ag-action__detail">
-              Best time: {prospect.best_time} · Possible value {money(prospect.possible_value_cents)} ·
-              Last contact {manilaDay(prospect.last_contact_at)}
+              Best time: {prospect.best_time} · Last contact: {manilaDay(prospect.last_contact_at)} ·
+              Possible value {money(prospect.possible_value_cents)}
             </p>
           </div>
           <div className="ag-action__buttons">
@@ -66,23 +90,58 @@ export default async function AgentProspectPage({
             <a className="btn btn--secondary ag-btn-xl" href={sms}>
               Text
             </a>
-            <button
-              className="btn btn--ghost"
-              type="button"
-              disabled
-              title="Waits on the crm-families write contract"
-            >
-              Mark done
-            </button>
           </div>
         </div>
       </AgentHero>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(20rem, 100%), 1fr))", gap: "var(--space-5)", alignItems: "start" }}>
+      <section className="ag-sec">
+        <div className="ag-sec__head">
+          <div>
+            <h2 className="ag-h2">Where they are</h2>
+            <p className="ag-sub">The pipeline, and every recorded move that got them here.</p>
+          </div>
+          <StageChip stage={prospect.stage} />
+        </div>
+        <div className="ag-card">
+          <div className="ag-card__body">
+            <ol className="ag-trail" aria-label="Pipeline progress">
+              {trail.map((step) => (
+                <li
+                  key={step.stage}
+                  className={`ag-trail__step${step.reached ? " ag-trail__step--reached" : ""}${
+                    step.current ? " ag-trail__step--current" : ""
+                  }`}
+                >
+                  <span className="ag-trail__dot" aria-hidden="true" />
+                  {step.label}
+                </li>
+              ))}
+            </ol>
+            {history.length === 0 ? (
+              <p className="ag-note">No movement recorded yet — this is where the record starts.</p>
+            ) : (
+              <ol className="ag-timeline" aria-label="Stage history">
+                {history.map((event) => (
+                  <li className="ag-tl" key={`${event.stage}-${event.at}`}>
+                    <span className="ag-tl__dot" />
+                    <p className="ag-tl__when">
+                      {manilaDay(event.at)} · {event.by}
+                    </p>
+                    <p className="ag-tl__title">Moved to {stageMeta(event.stage).label}</p>
+                    <p className="ag-tl__detail">{event.note}</p>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <div className="ag-grid-2">
         <div className="ag-card">
           <div className="ag-card__head">
             <div>
-              <h2 className="ag-card__title">What they want</h2>
+              <h3 className="ag-card__title">What they want</h3>
               <p className="ag-card__sub">In their words, not ours.</p>
             </div>
           </div>
@@ -97,25 +156,18 @@ export default async function AgentProspectPage({
                 <dd>{prospect.want}</dd>
               </div>
               <div className="ag-kv">
-                <dt>Best time</dt>
-                <dd>{prospect.best_time}</dd>
-              </div>
-              <div className="ag-kv">
                 <dt>Notes</dt>
                 <dd>{prospect.notes}</dd>
               </div>
             </dl>
-            <p className="ag-note">
-              Amounts shown are the client&apos;s own 2026 sheet, read live in the real app from
-              lib/villa-pricing.ts — never typed by hand.
-            </p>
+            <p className="ag-note">Possible value is the whole contract, not a monthly figure.</p>
           </div>
         </div>
 
         <div className="ag-card">
           <div className="ag-card__head">
             <div>
-              <h2 className="ag-card__title">What you&apos;ve shared</h2>
+              <h3 className="ag-card__title">What you&apos;ve shared</h3>
               <p className="ag-card__sub">Links you sent, and whether they were opened.</p>
             </div>
           </div>
@@ -142,7 +194,7 @@ export default async function AgentProspectPage({
               <Link className="btn btn--primary btn--sm" href="/agent/marketing">
                 Send something else
               </Link>
-              <button className="btn btn--ghost btn--sm" type="button" disabled title="Waits on the CRM write contract">
+              <button className="btn btn--ghost btn--sm" type="button" disabled title="Not switched on yet">
                 Log a visit or note
               </button>
             </div>
@@ -154,20 +206,20 @@ export default async function AgentProspectPage({
         <div className="ag-sec__head">
           <div>
             <h2 className="ag-h2">Every conversation</h2>
-            <p className="ag-sub">What was said, so the next call does not start from zero.</p>
+            <p className="ag-sub">Newest first — what was said, so the next call does not start from zero.</p>
           </div>
         </div>
         <div className="ag-card">
           <div className="ag-card__body">
             {activity.length === 0 ? (
-              <p className="ag-note">No contact yet. Introduce yourself and confirm the need — the script is in the design.</p>
+              <p className="ag-note">No contact yet — the first call is the next action above.</p>
             ) : (
               <ol className="ag-timeline">
                 {activity.map((a) => (
                   <li className={`ag-tl ${TIMELINE_CLASS[a.kind] ?? "ag-tl--note"}`} key={a.id}>
                     <span className="ag-tl__dot" />
                     <p className="ag-tl__when">
-                      {manilaDay(a.at)} · {manilaTime(a.at)}
+                      {activityKindLabel(a.kind)} · {manilaDay(a.at)} · {manilaTime(a.at)}
                     </p>
                     <p className="ag-tl__title">{a.title}</p>
                     <p className="ag-tl__detail">{a.detail}</p>
@@ -180,27 +232,33 @@ export default async function AgentProspectPage({
       </section>
 
       <section className="ag-sec">
-        <h2 className="ag-h2">Move them forward</h2>
-        <p className="ag-sub">One tap records the change with your name and the time — the office sees the same stage.</p>
-        <div className="ag-choice-row">
-          <button className="ag-choice" type="button" disabled title="Waits on the crm-families write contract">
-            Send to the office for a quote
-            <small>Presentation done → quote</small>
-          </button>
-          <button className="ag-choice" type="button" disabled title="Waits on the crm-families write contract">
-            Ready to file
-            <small>Application + documents</small>
-          </button>
-          <button className="ag-choice" type="button" disabled title="Waits on the crm-families write contract">
-            Not now
-            <small>Keep the record, stop the nudges</small>
-          </button>
+        <div className="ag-sec__head">
+          <div>
+            <h2 className="ag-h2">Move them forward</h2>
+            <p className="ag-sub">The office sees the same stage once the write lands.</p>
+          </div>
         </div>
-        <p className="ag-note">
-          The stage write waits on the crm-families contract — this is the designed final shape, not a
-          working button yet. Stage history will be kept: the office will see when a person moved and why.
-        </p>
+        <div className="ag-choice-row">
+          {MOVE_OPTIONS.map((option) => (
+            <button
+              className="ag-choice"
+              type="button"
+              disabled
+              title="Not switched on yet"
+              key={option.label}
+            >
+              {option.label}
+              <small>{option.hint}</small>
+            </button>
+          ))}
+        </div>
       </section>
+
+      <p className="ag-note">
+        Kept on the demo record — enquiry capture, customer sync and lead assignment wait on the
+        customer-records service; the office is on{" "}
+        <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a>.
+      </p>
     </div>
   );
 }

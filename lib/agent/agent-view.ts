@@ -76,6 +76,68 @@ export function stageMeta(stage: string): StageMeta {
   return STAGES[stage] ?? { label: stage, tone: "" };
 }
 
+/**
+ * The PRD pipeline in order (commerce-catalog §33). One home for the sequence:
+ * the lead record draws its trail and its movement from this, never from a
+ * second hard-coded list.
+ */
+export const PIPELINE_STAGES = [
+  "new",
+  "contacted",
+  "qualified",
+  "presentation",
+  "proposal",
+  "reserved",
+  "sold",
+] as const;
+
+export type StageStep = { stage: string; label: string; reached: boolean; current: boolean };
+
+/**
+ * The pipeline as a trail: every stage up to and including the current one is
+ * `reached`; the current stage is `current`. An unknown stage is not on the
+ * PRD line, so only the current step is shown rather than a wrong position.
+ */
+export function stageTrail(stage: string): StageStep[] {
+  const index = PIPELINE_STAGES.indexOf(stage as (typeof PIPELINE_STAGES)[number]);
+  if (index === -1) return [{ stage, label: stageMeta(stage).label, reached: true, current: true }];
+  return PIPELINE_STAGES.map((key, i) => ({
+    stage: key,
+    label: stageMeta(key).label,
+    reached: i <= index,
+    current: i === index,
+  }));
+}
+
+/**
+ * Where a lead came in, in the agent's words. The capture form's four source
+ * values are the whole vocabulary (lib/demo-agent-captures.ts); an unknown one
+ * stays as recorded rather than being dressed up as something it is not.
+ */
+const LEAD_SOURCE_LABELS: Record<string, string> = {
+  walk_in: "Walk-in",
+  referral: "Referral",
+  facebook: "Facebook enquiry",
+  event: "Community event",
+};
+
+export function leadSourceLabel(source: string): string {
+  return LEAD_SOURCE_LABELS[source] ?? source;
+}
+
+/** The recorded kind of one contact entry, in plain words. */
+const ACTIVITY_KINDS: Record<string, string> = {
+  call: "Call",
+  visit: "Visit",
+  link: "Link opened",
+  message: "Message",
+  note: "Note",
+};
+
+export function activityKindLabel(kind: string): string {
+  return ACTIVITY_KINDS[kind] ?? kind;
+}
+
 export function interestLabel(interest: Prospect["interest"]): string {
   if (interest === "plan") return "Plan";
   if (interest === "lot") return "Lot";

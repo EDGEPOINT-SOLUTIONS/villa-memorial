@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { Client, Prospect, WorkItem } from "@/lib/api-client/agent";
 import {
+  activityKindLabel,
   appointmentStateLabel,
   commissionConfigured,
   findClients,
   interestLabel,
+  leadSourceLabel,
   manilaDay,
   manilaTime,
   needsYou,
@@ -12,6 +14,7 @@ import {
   orderWorkItems,
   prospectValueTotal,
   stageMeta,
+  stageTrail,
   todayAppointments,
   workKindLabel,
   workState,
@@ -107,6 +110,46 @@ describe("agent pipeline", () => {
     expect(interestLabel("plan")).toBe("Plan");
     expect(interestLabel("lot")).toBe("Lot");
     expect(interestLabel("services")).toBe("Services");
+  });
+
+  it("draws the pipeline trail from the PRD order, marking reached and current", () => {
+    const trail = stageTrail("qualified");
+    expect(trail.map((s) => s.stage)).toEqual([
+      "new",
+      "contacted",
+      "qualified",
+      "presentation",
+      "proposal",
+      "reserved",
+      "sold",
+    ]);
+    expect(trail.filter((s) => s.reached).map((s) => s.stage)).toEqual([
+      "new",
+      "contacted",
+      "qualified",
+    ]);
+    expect(trail.filter((s) => s.current).map((s) => s.stage)).toEqual(["qualified"]);
+    expect(trail.find((s) => s.stage === "presentation")?.label).toBe("Meeting planned");
+  });
+
+  it("keeps an unknown stage on the record instead of guessing a position", () => {
+    const trail = stageTrail("nurture");
+    expect(trail).toHaveLength(1);
+    expect(trail[0]).toMatchObject({ stage: "nurture", reached: true, current: true });
+  });
+
+  it("labels how a lead came in and what kind of contact it was", () => {
+    expect(leadSourceLabel("walk_in")).toBe("Walk-in");
+    expect(leadSourceLabel("referral")).toBe("Referral");
+    expect(leadSourceLabel("facebook")).toBe("Facebook enquiry");
+    expect(leadSourceLabel("event")).toBe("Community event");
+    expect(leadSourceLabel("mystery")).toBe("mystery");
+    expect(activityKindLabel("call")).toBe("Call");
+    expect(activityKindLabel("visit")).toBe("Visit");
+    expect(activityKindLabel("link")).toBe("Link opened");
+    expect(activityKindLabel("message")).toBe("Message");
+    expect(activityKindLabel("note")).toBe("Note");
+    expect(activityKindLabel("other")).toBe("other");
   });
 });
 

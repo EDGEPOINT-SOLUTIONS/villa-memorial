@@ -15,10 +15,11 @@ import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
  *    a label, a table cell, a chip or a short list item;
  *  · list items stay short too, so prose cannot move into a list.
  *
- * Scope: the public content pages this pass rebuilt — /services and /plans —
- * plus /immediate-assistance and /facilities, each of which joined the guard in
- * the PR that added it (a room page is read at a glance: photograph, purpose,
- * rate, one next step). All are executed as the real page components (the same
+ * Scope: the public content pages that joined this guard — /services, /plans,
+ * /immediate-assistance and /facilities — plus the agent portal's lead record
+ * (F-09); each page joined in the PR that added it (a room page is read at a
+ * glance; the lead record must answer the person, the state and the next step in
+ * the first screenful). All are executed as the real page components (the same
  * render harness the other page tests use). The home page's copy lives in the
  * staff-editable LandingPage document (content, not code), so it is measured in
  * the PR record, not gated here; a future page adds itself to PAGES in the same
@@ -47,12 +48,17 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+vi.mock("@/lib/auth/portal-guard", () => ({
+  requirePortalSessionOrRedirect: async () => ({ email: "agent@vm.demo", scopes: [] }),
+}));
+
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: ImmediateAssistancePage } = await import(
   "@/app/(public)/immediate-assistance/page"
 );
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
+const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
 
 const BUDGET = {
   /** Paragraph prose per page (words inside <p> elements). */
@@ -103,6 +109,14 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     // renders without the cart context.
     render: async () => renderToStaticMarkup(await FacilitiesPage()),
     openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/agent/prospects/[id] (lead record)",
+    render: async () =>
+      renderToStaticMarkup(
+        await LeadDetailPage({ params: Promise.resolve({ id: "prospect-cecilia" }) }),
+      ),
+    openingLead: /<p class="ag-hero__lead">([\s\S]*?)<\/p>/,
   },
 ];
 
