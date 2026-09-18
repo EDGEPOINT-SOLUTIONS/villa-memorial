@@ -50,9 +50,13 @@ details.
    application; without one it prints an honest blank form). Capture shape is
    PROVISIONAL — no service contract freezes it yet (see
    `docs/07-client-villa/open-questions.md` Track B; live persistence 503s).
-3. **Provisional receipt → official receipt flow (P1 display).** Initial
-   payment capture + receipt view with the honest "valid only when confirmed by
-   official receipt" note; the actual OR numbering/allocation is dev/finance.
+3. **Provisional receipt → official receipt flow (P1 — implemented, 2026-09-18).** Initial
+   payment capture (`/staff/billing/record-payment`, F-08) plus the counter's provisional paper,
+   its list and the OR display state (`/staff/billing/provisional-receipts`, F-18; render record
+   `docs/08-delivery/provisional-receipt-design/`). The client's signed Provisional Receipt paper
+   is not archived, so the sheet records the same information and marks itself as not an official
+   receipt. The actual OR numbering/allocation is dev/finance; live mode 503s
+   (`PROVISIONAL_RECEIPTS_NOT_WIRED`) until a record contract freezes.
 4. **Villa Memorial Plan membership / COC — Eternal Plans (P2).** Holder +
    beneficiary, branch, coverage type, plan value, COC no., start/end
    (1-year term, 12:01 noon), the 70%-of-plan-value unrendered-service note,

@@ -407,6 +407,20 @@ input[type="checkbox"] {
   flex-shrink: 0;
 }
 
+/* Below the tablet breakpoint the header stacks: a long title (and its two actions)
+   wraps instead of forcing the page wider than the phone viewport. */
+@media (max-width: 48rem) {
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .page-header__actions {
+    flex-shrink: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+}
+
 .page-section {
   margin-bottom: var(--space-6);
 }

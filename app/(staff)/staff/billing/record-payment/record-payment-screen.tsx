@@ -53,7 +53,7 @@ import {
   INVOICE_STATUS_TONE,
 } from "@/lib/api-client/billing-derive";
 import type { Invoice } from "@/lib/api-client/finance";
-import { PROVISIONAL_RECEIPT_NOTE, formatRecordedAt, type PaymentCapture } from "@/lib/contracts/payment-capture";
+import { PROVISIONAL_RECEIPT_NOTE, formatRecordedAt } from "@/lib/contracts/payment-capture";
 import { buildProvisionalReceipt, provisionalReceiptFileStem } from "@/lib/contracts/provisional-receipt";
 import {
   buildOfficialReceiptPaper,
@@ -652,17 +652,22 @@ function ReceiptPanel({ payment, invoice }: { payment: RecordedPayment; invoice:
 
   if (!figures) {
     // No official receipt: say so, and hand the counter the clearly-labelled slip instead.
-    const capture: PaymentCapture = {
-      id: payment.id,
+    // The slip carries the payer and the receiving staff member the recorded data already
+    // holds — the same fields the counter's own capture writes — so the family never gets a
+    // paper with blanks the app could fill.
+    const slip = buildProvisionalReceipt({
+      payer: invoice.customer_name,
       amount_cents: payment.amount_cents,
       instrument: payment.method,
       reference: payment.reference,
       received_on: payment.received_on,
       against: payment.invoice_number,
+      order_number: invoice.order_number,
+      case_number: null,
       notes: payment.notes,
+      received_by: payment.recorded_by,
       recorded_at: payment.recorded_at,
-    };
-    const slip = buildProvisionalReceipt(capture);
+    });
     return (
       <Card header={<h3>No official receipt for this payment</h3>}>
         <div className="stack">
@@ -672,7 +677,10 @@ function ReceiptPanel({ payment, invoice }: { payment: RecordedPayment; invoice:
           <p className="text-sm text-muted">{PROVISIONAL_RECEIPT_NOTE}</p>
           <PaperExportActions
             blocks={slip.blocks}
-            filename={provisionalReceiptFileStem(capture)}
+            filename={provisionalReceiptFileStem({
+              against: payment.invoice_number,
+              received_on: payment.received_on,
+            })}
           />
           <PaperSheet blocks={slip.blocks} />
         </div>

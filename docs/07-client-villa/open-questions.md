@@ -28,6 +28,21 @@ From blueprint §72 + gaps found during corpus review:
       reconciling the platform lot type with Villa's actual park sections/price list is a
       dev/data question.
 
+## Track C (provisional receipt) — raised by the digitization build, FORMS_PLAN gap 3
+- [ ] **The client's signed Provisional Receipt paper.** It is not in
+      `docs/07-client-villa/paper-forms/`, and that folder's rule is "the paper wins", so the
+      digitized slip (`lib/contracts/provisional-receipt.ts`) records the same information
+      (payer · amount · instrument · invoice/order/case · received by · date) and prints a bold
+      "not an official receipt" line rather than reproducing a form nobody has seen. Send the
+      real paper and the sheet can match it.
+- [ ] **Provisional-receipt record/endpoint (dev freeze).** No contract under
+      `docs/08-delivery/contracts/` names a provisional-receipt record, so its POST body/response
+      are app-authored and live mode answers 503; fixture mode keeps the durable journal
+      (`lib/api-client/provisional-receipts-store.ts`).
+- [ ] **Official-receipt linkage.** The OR display state finds a repository receipt that names
+      the invoice/order/case; the frozen documents shape has no invoice field, so today only the
+      row title carries it. A generated receipt row should name the invoice it settles.
+
 ## Operations & governance
 - [ ] Notification channels and providers
 - [ ] Digital-signature provider and legally valid document types

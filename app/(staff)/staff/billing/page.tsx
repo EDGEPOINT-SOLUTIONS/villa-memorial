@@ -108,6 +108,12 @@ export default async function BillingPage({
             <span className="text-sm text-muted">
               {invoices.length} invoices
             </span>
+            <Link
+              href="/staff/billing/provisional-receipts"
+              className="btn btn--secondary btn--sm"
+            >
+              Provisional receipts
+            </Link>
             {canRecordPayments ? (
               <Link href="/staff/billing/record-payment" className="btn btn--primary btn--sm">
                 Record payment
