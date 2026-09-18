@@ -2,7 +2,8 @@
  * Test isolation for the durable fixture stores.
  *
  * `lib/api-client/order-store.ts`, `catalog-store.ts`, `chapel-store.ts`,
- * `pricing-store.ts`, `billing-store.ts` and `operations-store.ts` default their journals
+ * `pricing-store.ts`, `billing-store.ts`, `membership-store.ts` and `operations-store.ts`
+ * default their journals
  * to `.data/` under the app's cwd — which for a developer is the running demo store. A
  * suite that reads a store without pointing it at a throwaway path would then depend on
  * whatever the dev server wrote (an edited catalogue price, a created order, an edited
@@ -23,6 +24,7 @@ const STORE_PATH_ENV_VARS = [
   "CHAPEL_STORE_PATH",
   "PRICING_STORE_PATH",
   "PAYMENTS_STORE_PATH",
+  "MEMBERSHIP_STORE_PATH",
   "OPERATIONS_STORE_PATH",
   "PROVISIONAL_RECEIPTS_STORE_PATH",
 ] as const;
