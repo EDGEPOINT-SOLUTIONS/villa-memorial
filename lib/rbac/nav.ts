@@ -69,6 +69,11 @@ export const STAFF_NAV: NavSection[] = [
     items: [
       { href: "/staff/billing", label: "Billing & collections", scopes: ["billing:read"] },
       { href: "/staff/accounting", label: "Accounting", scopes: ["accounting:read"] },
+      // Commission (captain checklist F-12): no commission scope exists in
+      // rbac-scopes-v1 and the engine is deferred platform scope, so the screen
+      // reuses billing:read provisionally — commission statements/payouts are
+      // the finance module (finance-billing.md §Commissions).
+      { href: "/staff/commission", label: "Commission", scopes: ["billing:read"] },
     ],
   },
   {
