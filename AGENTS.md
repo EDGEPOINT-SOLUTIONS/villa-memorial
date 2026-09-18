@@ -747,6 +747,31 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   one `h1`, reading budget) and the implementation record + 1440/390 shots under
   `docs/08-delivery/lot-lifecycle-design/`.
 
+## Guarantee instruments — FSC deductions, tracked (read before touching `/staff/cases/[id]/instruments`)
+
+- The tracker follows what happens to the LGU / DSWD / SSS / GSIS / life-plan deductions a
+  case's Funeral Service Contract records: per instrument, the office's filing state, the
+  agency response, the paper's three-day filing deadline and the supporting-document
+  checklist. It is STATUS ONLY — no sub-ledger, no deduction arithmetic, no posting; the
+  detail screen says so once (FORMS_PLAN gap 5 / issue #54 dev boundary). It never creates an
+  instrument the contract did not record, and it never writes.
+- **One rules home: `lib/guarantee-instruments.ts`** (pure) — the five kinds, the five office
+  states (not yet filed · filed · awaiting agency · confirmed · rejected), the document
+  states, `INSTRUMENT_FILING_DAYS = 3` (villa-terms clause 2) and
+  `instrumentFilingDeadline()`: the deadline is DERIVED from the case's recorded contract
+  date, and a missing date is the honest `unknown`, never a countdown. Amounts print from the
+  record's own `amount_cents` (null → em dash); never compute, restate or invent a figure.
+- Recorded fixture `lib/fixtures/operations/guarantee-instruments.json` read through
+  `lib/api-client/guarantee-instruments.ts`: tolerant reader, `absent` for an untracked case,
+  `not_wired` in live mode (no contract names a guarantee-instrument record). Keys to
+  `operations/cases.json`; provenance in `lib/fixtures/README.md`.
+- Surfaces: the compact card on the case page (right after the service-contract card — it
+  must not push the case's own information down) and the folio route; both gate on
+  `cases:read`. Evidence: `tests/unit/guarantee-instruments.test.ts`,
+  `tests/fixture-contract/guarantee-instruments.test.ts`,
+  `tests/unit/guarantee-instruments-screen.test.tsx`; render record + shots:
+  `docs/08-delivery/guarantee-instruments-design/README.md`.
+
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
 - Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed

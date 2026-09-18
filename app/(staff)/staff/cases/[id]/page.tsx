@@ -6,6 +6,12 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getCase } from "@/lib/api-client/operations";
+import {
+  loadCaseInstruments,
+  type CaseInstrumentsRead,
+} from "@/lib/api-client/guarantee-instruments";
+import { businessToday } from "@/lib/contracts/payment-capture";
+import { GuaranteeInstrumentsCard } from "@/components/guarantee-instruments";
 import { PipelineDots } from "@/components/case-pipeline";
 import { STAGE_LABEL, STAGE_TONE } from "@/lib/operations/case-board";
 import { listDocuments, type Document } from "@/lib/api-client/documents";
@@ -64,6 +70,16 @@ export default async function CaseDetailPage({
     } catch {
       documentsUnavailable = true;
     }
+  }
+
+  // The guarantee-instrument tracker follows the service contract's deductions block. Its
+  // fixture read can only fail on malformed recorded data, which is a real error state on
+  // the screen rather than a reason to drop the whole case page.
+  let instrumentRead: CaseInstrumentsRead;
+  try {
+    instrumentRead = await loadCaseInstruments(item.case_number);
+  } catch {
+    instrumentRead = { state: "unavailable" };
   }
 
   return (
@@ -289,6 +305,16 @@ export default async function CaseDetailPage({
             </p>
           )}
         </Card>
+      </PageSection>
+
+      <PageSection>
+        <GuaranteeInstrumentsCard
+          caseId={item.id}
+          caseNumber={item.case_number}
+          contractDate={item.intake?.contract_date ?? null}
+          today={businessToday()}
+          read={instrumentRead}
+        />
       </PageSection>
 
       <PageSection>

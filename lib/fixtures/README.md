@@ -93,6 +93,20 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      on one. The engine's vocabulary (seven bases, four states, capabilities)
      lives in `lib/commission.ts`, pinned to the agent workspace fixture; what
      actually sold is NOT here — the screen reads the durable order store.
+   - `operations/guarantee-instruments.json` ← the guarantee-instrument tracker
+     (F-18 / FORMS_PLAN gap 5): per case, the LGU/DSWD/SSS/GSIS/life-plan
+     deductions its Funeral Service Contract records, with the office's filing
+     state, the agency's response, the contract's own ID/plan blank where the
+     paper has one, and the supporting-document checklist. APP-AUTHORED demo
+     records — no contract names a guarantee-instrument record (the sub-ledger,
+     the deduction math and posting are dev-owned), so live mode answers
+     `not_wired` through `lib/api-client/guarantee-instruments.ts` and only
+     fixture mode serves these. Amounts and references are EXAMPLE values (no
+     client document in the repo prices a family's guarantee); a row with
+     `amount_cents: null` renders an em dash. The three-day deadline is NOT
+     stored: it is derived from the case's recorded contract date
+     (`lib/guarantee-instruments.ts`, paper clause 2) and pinned by
+     `tests/fixture-contract/guarantee-instruments.test.ts`.
 2. **Never hand-edit a fixture to make a failing test pass.** If the contract
    changed, update the fixture AND its contract test together.
 3. Fixture tokens are structurally shaped but UNSIGNED — they exist only so
