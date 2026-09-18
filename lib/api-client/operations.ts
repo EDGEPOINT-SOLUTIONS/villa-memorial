@@ -17,6 +17,13 @@
 import casesFile from "@/lib/fixtures/operations/cases.json";
 import { ApiError } from "@/lib/api-client/api-error";
 import {
+  loadStoredCases,
+  setCaseStageRecord,
+  setCaseTaskStatusRecord,
+  type StoredCase,
+} from "@/lib/api-client/operations-store";
+import type { CaseStage, CaseTask, CaseTaskStatus } from "@/lib/operations/case-board";
+import {
   getAuthedJson,
   itemsOf,
   patchAuthedJson,
@@ -29,21 +36,9 @@ export function operationsLiveModeEnabled(): boolean {
   return BASE_URL.length > 0;
 }
 
-export type CaseStage =
-  | "inquiry"
-  | "retrieval"
-  | "preparation"
-  | "viewing"
-  | "ceremony"
-  | "interment"
-  | "completed";
-
-export type CaseTaskStatus = "pending" | "in_progress" | "done";
-
-export type CaseTask = {
-  title: string;
-  status: CaseTaskStatus;
-};
+/** The frozen enums live in the PURE board vocabulary (`lib/operations/case-board`) so
+ * client components can read them without touching this cookie-reading module. */
+export type { CaseStage, CaseTask, CaseTaskStatus } from "@/lib/operations/case-board";
 
 /**
  * The counter's intake block, as Villa's Service Contract prints it. Additive to the
@@ -95,7 +90,9 @@ type CaseStore = {
   cases: Case[];
 };
 
-/** Tolerant reader: extra upstream fields (e.g. tasks[].id) are ignored. */
+/** Tolerant reader: extra upstream fields are ignored; `tasks[].id` is the contract's
+ * task identity and is the key `PATCH …/tasks/:id` addresses. A row without one still
+ * renders, but the board shows it read-only rather than inventing an identifier. */
 function toCase(raw: unknown): Case {
   if (typeof raw !== "object" || raw === null) {
     throw new ApiError("malformed case", 502);
@@ -118,7 +115,11 @@ function toCase(raw: unknown): Case {
     updated_at: String(r.updated_at ?? ""),
     tasks: tasks.map((t) => {
       const task = (typeof t === "object" && t !== null ? t : {}) as Record<string, unknown>;
-      return { title: String(task.title ?? ""), status: task.status as CaseTaskStatus };
+      return {
+        id: typeof task.id === "string" ? task.id : "",
+        title: String(task.title ?? ""),
+        status: task.status as CaseTaskStatus,
+      };
     }),
     intake: toIntake(r.intake),
   };
@@ -151,6 +152,40 @@ function toIntake(raw: unknown): CaseIntake | null {
     contract_date: str("contract_date"),
     completed_at: str("completed_at"),
   };
+}
+
+/** A stored (fixture) record as the screens see it — same shape, defensive copies. */
+function toCaseRecord(stored: StoredCase): Case {
+  return {
+    id: stored.id,
+    case_number: stored.case_number,
+    deceased_name: stored.deceased_name,
+    stage: stored.stage,
+    assigned_coordinator: stored.assigned_coordinator,
+    linked_order_number: stored.linked_order_number,
+    services: [...stored.services],
+    created_at: stored.created_at,
+    updated_at: stored.updated_at,
+    tasks: stored.tasks.map((t) => ({ ...t })),
+    intake: toIntake(stored.intake),
+  };
+}
+
+/**
+ * The write endpoints answer the changed case. The contract pins their REQUEST shape and
+ * the event they emit, not a response body — so a payload that is not a whole case (an
+ * envelope, a 204-empty) is answered by re-reading the record instead of letting a
+ * guessed shape into the screen. `tasks` must be present for the payload to count.
+ */
+async function caseFromWrite(payload: unknown, caseNumber: string): Promise<Case> {
+  const r = (typeof payload === "object" && payload !== null ? payload : {}) as Record<
+    string,
+    unknown
+  >;
+  if (typeof r.case_number === "string" && Array.isArray(r.tasks)) {
+    return toCase(payload);
+  }
+  return getCase(caseNumber);
 }
 
 export type CaseIntakeInput = Partial<Omit<CaseIntake, "completed_at">> & {
@@ -186,20 +221,53 @@ export async function updateCaseIntake(
   );
 }
 
+/**
+ * Moves a case to another stage (`POST /cases/api/v1/cases/:number/stage`) and returns the
+ * case the server actually holds. The service appends that stage's task template and the
+ * move is audited as `case.stage_changed`; the board deliberately owns no legality rule —
+ * forward-to-any-later-stage and audited backward moves are funeral-cases' decisions.
+ */
+export async function setCaseStage(caseNumber: string, stage: CaseStage): Promise<Case> {
+  if (operationsLiveModeEnabled()) {
+    const payload = await postAuthedJson(
+      BASE_URL,
+      `/cases/api/v1/cases/${encodeURIComponent(caseNumber)}/stage`,
+      { stage },
+    );
+    return caseFromWrite(payload, caseNumber);
+  }
+  return toCaseRecord(await setCaseStageRecord(caseNumber, stage));
+}
+
+/**
+ * Sets one task's status (`PATCH /cases/api/v1/cases/:number/tasks/:id`) and returns the
+ * updated case. The id comes from the case the board rendered — never a title or a row
+ * index — so two tasks that share a title can never be confused for one another.
+ */
+export async function setCaseTaskStatus(
+  caseNumber: string,
+  taskId: string,
+  status: CaseTaskStatus,
+): Promise<Case> {
+  if (operationsLiveModeEnabled()) {
+    const payload = await patchAuthedJson(
+      BASE_URL,
+      `/cases/api/v1/cases/${encodeURIComponent(caseNumber)}/tasks/${encodeURIComponent(taskId)}`,
+      { status },
+    );
+    return caseFromWrite(payload, caseNumber);
+  }
+  return toCaseRecord(await setCaseTaskStatusRecord(caseNumber, taskId, status));
+}
+
 export async function listCases(): Promise<Case[]> {
   if (operationsLiveModeEnabled()) {
     const payload = await getAuthedJson(BASE_URL, "/cases/api/v1/cases");
     return itemsOf(payload).map(toCase);
   }
-  const store = casesFile as unknown as CaseStore;
-  return store.cases.map((c) => ({
-    ...c,
-    services: [...c.services],
-    tasks: c.tasks.map((t) => ({ ...t })),
-    // Fixture rows predate intake. Normalising to null keeps both modes answering
-    // "nobody has captured it" identically, rather than one answering undefined.
-    intake: c.intake ?? null,
-  }));
+  // Fixture mode reads the durable store, so a task tick or a stage move on the board
+  // is what the list, the detail screen and the dashboard show next.
+  return (await loadStoredCases()).map(toCaseRecord);
 }
 
 /**
@@ -217,14 +285,12 @@ export async function getCase(id: string): Promise<Case> {
     return found;
   }
   const store = casesFile as unknown as CaseStore;
-  const item = store.cases.find((c) => c.id === id);
-  if (!item) {
+  if (!store.cases.some((c) => c.id === id)) {
     throw new ApiError("not_found", 404);
   }
-  return {
-    ...item,
-    services: [...item.services],
-    tasks: item.tasks.map((t) => ({ ...t })),
-    intake: item.intake ?? null,
-  };
+  const stored = (await loadStoredCases()).find((c) => c.id === id);
+  if (!stored) {
+    throw new ApiError("not_found", 404);
+  }
+  return toCaseRecord(stored);
 }

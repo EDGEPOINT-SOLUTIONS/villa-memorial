@@ -627,6 +627,31 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   agent's disabled “ask the office to hold” intent. `tests/unit/agent-park-map.test.tsx` pins the
   parity — both pages must pass the shared map the same lot set/statuses.
 
+## Operations board — case tasks & stage moves (read before touching `/staff/cases`)
+
+- The case detail screen (`app/(staff)/staff/cases/[id]/page.tsx`) is the ops board's write
+  surface: `task-checklist.tsx` (one `<select>` per row, immediate) and `stage-move.tsx`
+  (target `<select>` + a confirm MODAL — a stage move is a real operational commitment, a task
+  tick is not). Both post to BFF routes under `app/api/cases/**` gated by `app/api/cases/_guard.ts`
+  on `cases:write`; the browser helper is `lib/operations/board-api.ts` (client-safe — no token).
+- **One vocabulary home: `lib/operations/case-board.ts`** (pure, client + server) — stage order,
+  the three task statuses, labels/tones, `nextStage`, and the contract's per-stage task template.
+  `lib/api-client/operations.ts` re-exports the types; never re-declare a stage label or tone in
+  a view. Legal moves are NOT re-derived here: forward-to-any-later-stage and audited backward
+  moves are `case-events-v1`'s call, so the select offers every stage but the current one.
+- Fixture-mode writes are DURABLE: `lib/api-client/operations-store.ts` folds
+  `lib/fixtures/operations/cases.json` with an append-only journal (`OPERATIONS_STORE_PATH` or
+  `.data/operations-cases.json`, gitignored, atomic + one writer per process), so the board is
+  demonstrable without the platform. Live mode calls the contract's endpoints
+  (`POST /cases/api/v1/cases/:number/stage`, `PATCH …/tasks/:id`) and never reads the store.
+- Tasks are addressed by the contract's `tasks[].id` (seeded `<case>-t<n>`), never a title or row
+  index; a task without one renders read-only with the reason. A refused write shows the
+  server's message verbatim and is REVERTED/left un-moved, then re-read — never an optimistic
+  success. Fixture journal corruption is a 500, not a guess.
+- Evidence: `tests/unit/ops-board.test.ts` (vocabulary, store round trips, refusals, the client
+  call shape) and `tests/unit/ops-board-rbac.test.tsx` (401/403/422/404, store effects, page
+  render for writer vs reader, live-mode endpoints).
+
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
 - Fixture-mode orders are DURABLE: `lib/api-client/order-store.ts` folds the recorded seed

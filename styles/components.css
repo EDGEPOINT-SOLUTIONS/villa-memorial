@@ -3222,6 +3222,140 @@ because the shared `.ag-appt` rule comes later in this file. */
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--brass-300) 45%, transparent);
 }
 
+/* --- Ops board: task rows, stage move and its confirm (case detail) ----------- */
+/* The board's two writes (app/(staff)/staff/cases/[id]/). The task select fills its
+   cell instead of stretching across the row, and the stage-move confirm is a small
+   modal in the same grammar as the chapel booking / editor modals (backdrop +
+   raised panel) rather than a fourth look. */
+.ops-task__name {
+  font-weight: 600;
+}
+
+.ops-task__select {
+  width: auto;
+  min-width: 9.5rem;
+}
+
+/* On a phone the task tick must not sit behind a sideways scroll, and the status
+   must stay readable: the table's own padding tightens and the select keeps the
+   width its longest option needs (measured to fit the 390 css-px viewport). */
+@media (max-width: 45rem) {
+  .ops-tasks th,
+  .ops-tasks td {
+    padding-inline: var(--space-2);
+  }
+
+  .ops-task__select {
+    min-width: 7rem;
+  }
+}
+
+.ops-task__saving {
+  margin-left: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.ops-task__reason,
+.ops-move__reason {
+  margin-top: var(--space-3);
+}
+
+.ops-move {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.ops-move__label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.ops-move__select {
+  width: auto;
+  min-width: 11rem;
+}
+
+.ops-move__result {
+  margin-top: var(--space-4);
+}
+
+.ops-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+
+.ops-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(8 28 49 / 0.55);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+
+.ops-modal__panel {
+  position: absolute;
+  inset-inline: 0;
+  margin-inline: auto;
+  top: 12vh;
+  width: min(92vw, 30rem);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-rule-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 30px 80px -20px rgb(10 30 52 / 0.5);
+  overflow: hidden;
+  outline: none;
+}
+
+.ops-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6) var(--space-3);
+  border-bottom: 1px solid var(--color-rule);
+  background: var(--color-bg-subtle);
+}
+
+.ops-modal__head h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.ops-modal__eyebrow {
+  margin: 0 0 var(--space-1);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-700);
+}
+
+.ops-modal__body {
+  padding: var(--space-5) var(--space-6) var(--space-6);
+}
+
+.ops-modal__copy {
+  margin: 0 0 var(--space-4);
+  color: var(--color-text-secondary);
+}
+
+.ops-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
 /* Small value variant for action tiles */
 .kpi-card__value--sm {
   font-size: var(--text-xl);

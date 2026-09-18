@@ -1,30 +1,17 @@
-import type { CaseStage } from "@/lib/api-client/operations";
+import { CASE_STAGES, STAGE_LABEL, stageIndex, type CaseStage } from "@/lib/operations/case-board";
 
 /**
  * Arrangement pipeline dots — shared by the cases list and detail screens.
  * Shows how far a case is through the arrangement (generic stages).
+ *
+ * The stage vocabulary and its order live in `lib/operations/case-board.ts` beside the
+ * rest of the ops board's frozen rules, so this row cannot drift from the stage select
+ * and the case record it is drawn from.
  */
-const PIPELINE: CaseStage[] = [
-  "inquiry",
-  "retrieval",
-  "preparation",
-  "viewing",
-  "ceremony",
-  "interment",
-];
-
-const STAGE_LABEL: Record<CaseStage, string> = {
-  inquiry: "Inquiry",
-  retrieval: "Retrieval",
-  preparation: "Preparation",
-  viewing: "Viewing",
-  ceremony: "Ceremony",
-  interment: "Interment",
-  completed: "Completed",
-};
+const PIPELINE = CASE_STAGES.filter((stage) => stage !== "completed");
 
 export function PipelineDots({ stage }: { stage: CaseStage }) {
-  const current = stage === "completed" ? PIPELINE.length : PIPELINE.indexOf(stage);
+  const current = stageIndex(stage);
   return (
     <span className="pipeline" aria-label={`Pipeline position: ${STAGE_LABEL[stage] ?? stage}`}>
       {PIPELINE.map((s, i) => {

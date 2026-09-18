@@ -1,11 +1,11 @@
 {
   "comment": [
     "Fixture records for Module H ops board / cases screens. Shapes follow docs/04-modules/",
-    "crm-cases.md (blueprint \u00a711 funeral case lifecycle + tasks). NO frozen API contract",
-    "exists yet \u2014 funeral-cases service is unbuilt; these records are UI demo data with",
-    "provenance, to be replaced by recorded contract fixtures once Keb freezes the",
-    "case.stage.changed contract family. IDs are deterministic UUIDs; tenant matches",
-    "identity seeds.",
+    "crm-cases.md (blueprint \u00a711 funeral case lifecycle + tasks) and the frozen",
+    "case-events-v1 contract (KEB-D3-02), which ratified this shape field for field.",
+    "Each task carries the contract's `tasks[].id` \u2014 the key that PATCH",
+    "/cases/:number/tasks/:id addresses \u2014 seeded deterministically as <case>-t<n>.",
+    "Rows and their ids are deterministic UUIDs / stable ids; tenant matches identity seeds.",
     "Order numbers use a 9xxxx band so demo data never collides with numbers commerce-ordering really issues (ORD-<year>-00001 upward).",
     "Intake seeds (Service Contract header): CASE-2026-0001 and CASE-2026-0007 carry a complete intake incl. the client-channel fields added additively to the case contract (client_gender/civil_status/facebook/email) so the header capture and the service-contract paper screen demo fully populated."
   ],
@@ -27,18 +27,22 @@
       "updated_at": "2026-08-27T14:00:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0001-t1",
           "title": "Confirm embalming completion",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0001-t2",
           "title": "Set up viewing room",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0001-t3",
           "title": "Coordinate family arrival",
           "status": "in_progress"
         },
         {
+          "id": "CASE-2026-0001-t4",
           "title": "Prepare ceremony program",
           "status": "pending"
         }
@@ -79,14 +83,17 @@
       "updated_at": "2026-08-27T06:30:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0002-t1",
           "title": "Dispatch retrieval team",
           "status": "in_progress"
         },
         {
+          "id": "CASE-2026-0002-t2",
           "title": "Confirm location details",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0002-t3",
           "title": "Prepare preparation room",
           "status": "pending"
         }
@@ -107,22 +114,27 @@
       "updated_at": "2026-08-18T16:00:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0003-t1",
           "title": "Embalming complete",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0003-t2",
           "title": "Viewing scheduled",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0003-t3",
           "title": "Ceremony conducted",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0003-t4",
           "title": "Interment completed",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0003-t5",
           "title": "Documents finalized",
           "status": "done"
         }
@@ -142,18 +154,22 @@
       "updated_at": "2026-08-27T09:00:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0004-t1",
           "title": "Receive remains",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0004-t2",
           "title": "Begin embalming",
           "status": "in_progress"
         },
         {
+          "id": "CASE-2026-0004-t3",
           "title": "Dressing and cosmetics",
           "status": "pending"
         },
         {
+          "id": "CASE-2026-0004-t4",
           "title": "Family consultation",
           "status": "pending"
         }
@@ -174,18 +190,22 @@
       "updated_at": "2026-08-28T07:00:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0005-t1",
           "title": "Embalming complete",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0005-t2",
           "title": "Viewing complete",
           "status": "done"
         },
         {
+          "id": "CASE-2026-0005-t3",
           "title": "Ceremony today 10:00 AM",
           "status": "in_progress"
         },
         {
+          "id": "CASE-2026-0005-t4",
           "title": "Interment scheduling",
           "status": "pending"
         }
@@ -203,10 +223,12 @@
       "updated_at": "2026-08-28T08:30:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0006-t1",
           "title": "Initial family consultation",
           "status": "pending"
         },
         {
+          "id": "CASE-2026-0006-t2",
           "title": "Service arrangement meeting",
           "status": "pending"
         }
@@ -224,10 +246,12 @@
       "updated_at": "2026-08-28T14:00:00Z",
       "tasks": [
         {
+          "id": "CASE-2026-0007-t1",
           "title": "Initial family consultation",
           "status": "pending"
         },
         {
+          "id": "CASE-2026-0007-t2",
           "title": "Service arrangement meeting",
           "status": "pending"
         }

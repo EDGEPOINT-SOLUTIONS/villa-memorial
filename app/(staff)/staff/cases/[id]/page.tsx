@@ -7,39 +7,14 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getCase } from "@/lib/api-client/operations";
 import { PipelineDots } from "@/components/case-pipeline";
+import { STAGE_LABEL, STAGE_TONE } from "@/lib/operations/case-board";
 import { listDocuments, type Document } from "@/lib/api-client/documents";
 import { GenerateContractForm } from "./generate-contract";
 import { EditIntakeForm } from "./edit-intake";
+import { StageMove } from "./stage-move";
+import { TaskChecklist } from "./task-checklist";
 
 export const metadata = { title: "Case detail — Staff Portal" };
-
-const STAGE_TONE: Record<string, "info" | "warning" | "success" | "neutral"> = {
-  inquiry: "info",
-  retrieval: "warning",
-  preparation: "warning",
-  viewing: "info",
-  ceremony: "info",
-  interment: "warning",
-  completed: "success",
-};
-
-const STAGE_LABEL: Record<string, string> = {
-  inquiry: "Inquiry",
-  retrieval: "Retrieval",
-  preparation: "Preparation",
-  viewing: "Viewing",
-  ceremony: "Ceremony",
-  interment: "Interment",
-  completed: "Completed",
-};
-
-const TASK_STATUS_TONE: Record<string, "success" | "warning" | "neutral"> = {
-  done: "success",
-  in_progress: "warning",
-  pending: "neutral",
-};
-
-const ALL_STAGES = ["inquiry", "retrieval", "preparation", "viewing", "ceremony", "interment", "completed"];
 
 export default async function CaseDetailPage({
   params,
@@ -74,11 +49,6 @@ export default async function CaseDetailPage({
     );
   }
 
-  const stageIndex = ALL_STAGES.indexOf(item.stage);
-  const doneTasks = item.tasks.filter((t) => t.status === "done").length;
-
-  // Documents are a separate service and a separate scope: a session that cannot read them
-  // still gets the case. A repository that is down costs this section, not the page.
   const canWriteCases = hasAnyScope(session.scopes, ["cases:write"]);
   // Recording a payment is a billing write: the card below links to the capture screen
   // only when this session holds the frozen payments scope (billing:write) — the same
@@ -396,49 +366,11 @@ export default async function CaseDetailPage({
       ) : null}
 
       <PageSection>
-        <Card header={<h3>Stage progression</h3>}>
-          <div className="row row--wrap">
-            {ALL_STAGES.map((s, idx) => (
-              <Badge
-                key={s}
-                tone={idx < stageIndex ? "success" : idx === stageIndex ? "info" : "neutral"}
-              >
-                {idx < stageIndex ? "✓ " : ""}{STAGE_LABEL[s]}
-              </Badge>
-            ))}
-          </div>
-        </Card>
+        <StageMove kase={item} canWrite={canWriteCases} />
       </PageSection>
 
       <PageSection>
-        <Card header={<h3>Tasks ({doneTasks}/{item.tasks.length} done)</h3>}>
-          {item.tasks.length === 0 ? (
-            <p className="text-sm text-muted">No tasks recorded.</p>
-          ) : (
-            <div className="table-wrapper">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Task</th>
-                    <th scope="col">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {item.tasks.map((t, idx) => (
-                    <tr key={idx}>
-                      <td>{t.title}</td>
-                      <td>
-                        <Badge tone={TASK_STATUS_TONE[t.status] ?? "neutral"}>
-                          {t.status.replace(/_/g, " ")}
-                        </Badge>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </Card>
+        <TaskChecklist kase={item} canWrite={canWriteCases} />
       </PageSection>
     </>
   );
