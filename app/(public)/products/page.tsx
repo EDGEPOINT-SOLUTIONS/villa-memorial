@@ -100,12 +100,12 @@ export default async function ProductsPage() {
               <ul className="ledger__list">
                 {higherTiers.map((coffin) => (
                   <li className="ledger__entry" key={coffin.tier}>
-                    <article className="tier-row">
-                      <figure className="tier-row__media">
+                    <article className="tier-ledger__row">
+                      <figure className="tier-ledger__media">
                         {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
                         <img src={coffin.photo} alt="" loading="lazy" />
                       </figure>
-                      <div className="tier-row__body">
+                      <div className="tier-ledger__body">
                         <h3 className="ledger__row-title">{coffin.tier}</h3>
                         <p className="ledger__row-meta">{coffin.description}</p>
                         <p className="ledger__row-meta">

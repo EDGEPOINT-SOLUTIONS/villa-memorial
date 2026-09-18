@@ -46,7 +46,10 @@ on backend services.
   fluid `--text-display`); text ink is one of the four `--color-text-*` roles, and decorative
   gold never carries text. `tests/unit/typography-system.test.ts` fails a raw/off-ladder size,
   a sub-12px value, a second typeface or a gold-as-text rule; `tests/unit/park-map-labels.test.ts`
-  pins the overview map label density rule.
+  pins the overview map label density rule. **The two faces carry no emoji**, so a published one
+  is not an emoji but a missing glyph — an empty box on the page, which the home's newsfeed lead
+  caption shipped (U+1F33F). `unrenderableGlyphs()` in `lib/api-client/landing.ts` is the one rule
+  and the content publish gate refuses them by name.
 - **Inventing a shape or a scope ahead of the contract, then not flagging it loudly enough.**
   Fixtures-first is the right pattern — screens must not wait on services — but a fixture
   invented before a freeze becomes the de facto contract by the time anyone reviews it. The
@@ -102,7 +105,18 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - **One class, one declaration.** `.svc-grid`/`.svc-card*` were declared twice (a dead block in the
   `/services` section and the live home block), and the dead declarations silently re-templated the
   home band into a 13.5rem card grid. Before adding a rule, `grep "^\.<class> {"` the file — the
-  same trap AGENTS.md already records for `.chapel-month` vs `.chapel-grid`.
+  same trap AGENTS.md already records for `.chapel-month` vs `.chapel-grid`, and the one that hit
+  `.tier-row` (the package page's tier × term segmented control is the older owner; `/products`'
+  tier ledger row had re-used the name and inherited `repeat(5, …)` plus its box chrome — it is
+  `.tier-ledger__*` now). Six classes are still declared twice at top level; `tests/unit/
+  broken-pages.test.ts` walks them and fails a collision that re-templates another component.
+- **A stated `aspect-ratio` on an `<img>` is not enough — reset `height: auto`.** A `width`/`height`
+  attribute is a presentational hint: it supplies a *definite* height, and a definite height makes
+  `aspect-ratio` a no-op, so the picture renders at the attribute's height. Every `img`-level ratio
+  in `styles/components.css` carries the reset (the picture's space stays reserved — that part is
+  correct); `tests/unit/broken-pages.test.ts` fails one that does not. An `aspect-ratio` on a
+  *wrapper* (`.media-block`, `.gal-figure__media`) is safe — the picture inside takes an author
+  `height: 100%`, which outranks the hint.
 - **Every generated image goes through `lib/media.ts`.** `scripts/build-composition-images.mjs`
   publishes (a) `public/media/composition/*.webp` — the client's lot tiles with their logo lock-up
   and title band cropped off, because a tile is a *marketing tile*, not a photograph — and
@@ -355,7 +369,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   add (`components/villa/in-cart-notice.tsx`). `tests/unit/price-surfacing.test.tsx` and
   `tests/unit/villa-services-premium.test.tsx` both pin that split — keep them when
   editing the layout. Senior-first is non-negotiable: 18 px body, nothing under 16 px in
-  page content, prices always with their unit, tap targets ≥ 44 px.
+  page content, prices always with their unit, tap targets ≥ 44 px. The two home/hospital
+  **guide cards reuse `.sv-price-card` and must not inherit its two-column ledger template** —
+  `.sv-prices--guides .sv-price-card` declares its own one-column stack, because the ledger's
+  `auto` track and `align-items: baseline` put the photograph in the right column and dropped
+  the heading to the picture's bottom, opening a 174 px hole in both cards.
 - **Sample imagery is client material and is always labelled illustrative.** The chapel
   photos, the carriage and the five sample coffins are cropped from the client's own
   TYPES OF COFFIN sheet (`scripts/crop-client-sheet-tiles.mjs`, sharp ships with Next;

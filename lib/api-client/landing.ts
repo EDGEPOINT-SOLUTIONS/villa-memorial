@@ -224,6 +224,99 @@ const SEED = (contentFile as unknown as ContentStore).content;
 const RAIL_KINDS: RailItemKind[] = ["product", "service", "plan", "link"];
 const MEDIA_KINDS: MediaKind[] = ["photo", "video"];
 
+/**
+ * The product owns exactly two faces — Alegreya and Source Sans 3, both
+ * self-hosted (styles/fonts.css). Neither carries an emoji, so an emoji typed
+ * into the content editor does not render as a picture or as a fallback face:
+ * the browser prints a "tofu" box on the public page. The seed caption shipped
+ * one (U+1F33F, the herb), and the landing page showed the empty box until the
+ * publish gate below learned to refuse it.
+ *
+ * The rule is deliberately narrow: it names the astral emoji/pictograph blocks
+ * plus the two invisible modifiers that only exist to dress them. Everything the
+ * product DOES publish stays legal — ₱ · — → ↑ ↓ ← ↔ ▸ ▾ ◆ ○ ● ⚠ ✓ ✕ are all
+ * BMP characters the two faces carry, and a rule written as "no symbols" would
+ * reject the arrows and marks this product uses as text.
+ *
+ * Returns the offending characters, empty when the text is publishable.
+ */
+export function unrenderableGlyphs(text: string): string[] {
+  const bad: string[] = [];
+  for (const ch of text) {
+    const cp = ch.codePointAt(0) as number;
+    const emoji =
+      (cp >= 0x1f000 && cp <= 0x1faff) || // pictographs, emoticons, transport, symbols
+      (cp >= 0x1f1e6 && cp <= 0x1f1ff) || // regional indicators (flags)
+      cp === 0xfe0f || // variation selector-16: turns a BMP mark into an emoji
+      cp === 0x20e3; // enclosing keycap
+    if (emoji) bad.push(ch);
+  }
+  return bad;
+}
+
+/**
+ * Every string a member of staff types into the content editor, in the order the
+ * validator reports them. Purely presentational paths (media srcs, hrefs, ids)
+ * are not text and are checked by their own rules.
+ */
+function authoredText(content: LandingContent): string[] {
+  const out: string[] = [];
+  const push = (v: string | null) => {
+    if (v) out.push(v);
+  };
+  push(content.hero.eyebrow);
+  push(content.hero.headline);
+  push(content.hero.subline);
+  push(content.hero.primaryCta.label);
+  push(content.hero.secondaryCta.label);
+  push(content.logo.wordmark);
+  push(content.contact.phoneLabel);
+  push(content.contact.location);
+  push(content.contact.officeAddress);
+  push(content.contact.parkAddress);
+  for (const side of ["left", "right"] as const) {
+    const rail = content.rails[side];
+    push(rail.heading);
+    for (const item of rail.items) {
+      push(item.title);
+      push(item.caption);
+      push(item.price);
+    }
+  }
+  push(content.about.heading);
+  push(content.about.story);
+  push(content.about.mission);
+  push(content.about.vision);
+  push(content.services.kicker);
+  push(content.services.heading);
+  push(content.services.intro);
+  for (const card of content.services.items) {
+    push(card.title);
+    push(card.text);
+  }
+  push(content.plans.kicker);
+  push(content.plans.heading);
+  push(content.plans.intro);
+  push(content.plans.note);
+  push(content.map.heading);
+  push(content.map.intro);
+  push(content.blog.heading);
+  push(content.blog.intro);
+  for (const post of content.blog.posts) {
+    push(post.caption);
+    for (const m of post.media) push(m.alt);
+  }
+  push(content.faq.eyebrow);
+  push(content.faq.heading);
+  push(content.faq.lead);
+  for (const item of content.faq.items) {
+    push(item.question);
+    push(item.answer);
+  }
+  for (const link of content.faq.links) push(link.label);
+  return out;
+}
+
 /* ------------------------- tolerant field readers ------------------------- */
 
 function str(v: unknown, fallback = ""): string {
@@ -581,6 +674,17 @@ export function validateLandingContent(
   for (const link of content.faq.links) {
     if (!link.label.trim() || !link.href.trim()) {
       return { ok: false, error: "Every FAQ next-step link needs a label and a destination." };
+    }
+  }
+  // The product owns two faces and neither carries an emoji, so one published
+  // here would render as an empty box on the page (see unrenderableGlyphs).
+  for (const text of authoredText(content)) {
+    const bad = unrenderableGlyphs(text);
+    if (bad.length > 0) {
+      return {
+        ok: false,
+        error: `“${bad.join("")}” can't be published: this product's typefaces (Alegreya and Source Sans 3) carry no emoji, so the page would show an empty box instead. Please write the thought in words.`,
+      };
     }
   }
   return { ok: true };

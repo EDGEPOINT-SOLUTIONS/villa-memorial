@@ -5,6 +5,7 @@ import {
   listLandingContent,
   readLandingContent,
   saveLandingContent,
+  unrenderableGlyphs,
   validateLandingContent,
   type LandingContent,
 } from "@/lib/api-client/landing";
@@ -429,5 +430,73 @@ describe("the hero background colour + transparency (staff colour changer)", () 
     const reread = await listLandingContent();
     expect(reread.hero.background).toBe("#c4e6f8");
     expect(reread.hero.backgroundTransparency).toBe(20);
+  });
+});
+
+/**
+ * The two faces this product owns (Alegreya, Source Sans 3 — styles/fonts.css,
+ * self-hosted) carry no emoji, so an emoji in published copy renders as an empty
+ * "tofu" box on the page. The seed shipped one (the herb, U+1F33F) in the
+ * newsfeed lead caption and the landing page showed the box; these pin the fix
+ * and the publish gate that keeps it from coming back.
+ */
+describe("landing copy stays inside the two typefaces", () => {
+  it("the seed document publishes no unrenderable glyph", async () => {
+    const content = await listLandingContent();
+    expect(unrenderableGlyphs(JSON.stringify(content))).toEqual([]);
+  });
+
+  it("names the astral emoji blocks and their modifiers, and nothing else", () => {
+    expect(unrenderableGlyphs("🌿")).toEqual(["🌿"]);
+    expect(unrenderableGlyphs("a 🕊 b")).toEqual(["🕊"]);
+    expect(unrenderableGlyphs("flags 🇵🇭")).toEqual(["🇵", "🇭"]);
+    expect(unrenderableGlyphs("marked ⚠️")).toEqual(["️"]);
+    // Everything the product really publishes stays legal.
+    expect(unrenderableGlyphs("₱75,000 · ₱1,125 / month, 6 yrs — → ↑ ↓ ← ↔ ▸ ▾ ◆ ○ ● ⚠ ✓ ✕")).toEqual(
+      [],
+    );
+  });
+
+  it("the save path refuses an emoji caption and keeps the last good document", async () => {
+    const content = await listLandingContent();
+    const good = cloneDoc(content);
+    good.blog.posts[0].caption = "A quiet morning at the park.";
+    await saveLandingContent(good);
+
+    const bad = cloneDoc(good);
+    bad.blog.posts[0].caption = "A quiet morning at the park. 🌿";
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/carry no emoji/);
+    await expect(saveLandingContent(bad)).rejects.toThrow(/carry no emoji/);
+    const reread = await listLandingContent();
+    expect(reread.blog.posts[0].caption).toBe("A quiet morning at the park.");
+  });
+
+  it("refuses an emoji in every staff-authored text field, not only captions", async () => {
+    const content = await listLandingContent();
+    const cases: Array<[string, (doc: LandingContent) => void]> = [
+      ["hero headline", (d) => void (d.hero.headline = "Hello 🌿")],
+      ["hero subline", (d) => void (d.hero.subline = "Hello 🌿")],
+      ["hero eyebrow", (d) => void (d.hero.eyebrow = "Hello 🌿")],
+      ["a CTA label", (d) => void (d.hero.primaryCta.label = "Hello 🌿")],
+      ["the wordmark", (d) => void (d.logo.wordmark = "Hello 🌿")],
+      ["a rail heading", (d) => void (d.rails.left.heading = "Hello 🌿")],
+      ["a rail item", (d) => void (d.rails.left.items[0].title = "Hello 🌿")],
+      ["the about story", (d) => void (d.about.story = "Hello 🌿")],
+      ["a service card", (d) => void (d.services.items[0].text = "Hello 🌿")],
+      ["the plan footnote", (d) => void (d.plans.note = "Hello 🌿")],
+      ["the map intro", (d) => void (d.map.intro = "Hello 🌿")],
+      ["the newsfeed intro", (d) => void (d.blog.intro = "Hello 🌿")],
+      ["an FAQ answer", (d) => void (d.faq.items[0].answer = "Hello 🌿")],
+      ["an FAQ next step", (d) => void (d.faq.links[0].label = "Hello 🌿")],
+      ["the office address", (d) => void (d.contact.officeAddress = "Hello 🌿")],
+    ];
+    for (const [what, mutate] of cases) {
+      const doc = cloneDoc(content);
+      mutate(doc);
+      const verdict = validateLandingContent(doc, LOT_PRICE_CATEGORIES);
+      expect(verdict.ok, `${what} should be refused`).toBe(false);
+    }
   });
 });

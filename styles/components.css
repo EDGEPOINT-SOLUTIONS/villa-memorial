@@ -984,6 +984,13 @@ input[type="checkbox"] {
 .ledger__media img {
   display: block;
   width: 100%;
+  /* A reserved `width`/`height` attribute (the CLS hint these pictures carry)
+     is a presentational hint: it supplies a DEFINITE height, and a definite
+     height makes the `aspect-ratio` below a no-op. Without this reset a picture
+     renders at the attribute's height instead of the ratio the box asked for —
+     the home service-band lead shipped exactly that way. Every `img`-level
+     ratio in this file resets it. */
+  height: auto;
   aspect-ratio: 3 / 2;
   object-fit: cover;
 }
@@ -1223,8 +1230,16 @@ a.ledger__row:hover .ledger__row-title {
    its photograph, the steps above it follow as hairline rows that keep their own
    thumbnail. Each tier is still photographed — a small swatch reads fine because
    the tiers differ by metal, not by shape — but the band no longer counts as
-   five boxes. */
-.tier-row {
+   five boxes.
+
+   Why this is `.tier-ledger`, not `.tier-row`: the package page's tier × term
+   selector already owns `.tier-row` (it is the older declaration, and
+   `PlanTermSelector` renders it). Two same-specificity class rules for two
+   different components means source order decides, and the segmented control's
+   `repeat(5, minmax(0, 1fr))` + box chrome was silently re-templating this ledger
+   row — the tier copy was crushed into a 131px ribbon with three empty columns
+   and every row drawn as a bordered box. One class, one declaration. */
+.tier-ledger__row {
   display: grid;
   grid-template-columns: 5.5rem minmax(0, 1fr);
   gap: var(--space-3);
@@ -1232,27 +1247,28 @@ a.ledger__row:hover .ledger__row-title {
   padding: var(--space-4) 0;
 }
 
-.tier-row__media {
+.tier-ledger__media {
   margin: 0;
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--marble-100);
 }
 
-.tier-row__media img {
+.tier-ledger__media img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
 
-.tier-row__body {
+.tier-ledger__body {
   display: grid;
   gap: var(--space-1);
   min-width: 0;
 }
 
-.tier-row__body .ledger__row-title {
+.tier-ledger__body .ledger__row-title {
   font-size: var(--text-lg);
 }
 
@@ -5737,6 +5753,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: var(--color-bg-surface);
 }
 
+/* Package page tier × term segmented control — the sole owner of `.tier-row`. */
 .tier-row button {
   border: 0;
   background: transparent;
@@ -6357,6 +6374,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .chapel-card__media img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
@@ -10140,6 +10158,7 @@ a.card:hover {
 .svc-card__media img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 3 / 2;
   object-fit: cover;
 }
@@ -11827,6 +11846,7 @@ a.card:hover {
 
 .ed-media-card img {
   width: 100%;
+  height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   display: block;
@@ -14833,6 +14853,7 @@ a.card:hover {
 .sv-chapel__media img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
@@ -15332,8 +15353,17 @@ a.card:hover {
   }
 }
 
-/* Guide cards on the services page reuse the price-card shell with a photo. */
+/* Guide cards on the services page reuse the price-card shell with a photo.
+   They must NOT inherit the shell's two-column ledger template: that template's
+   second track is `auto` (sized for a price), and `align-items: baseline` drops
+   the card's heading to the picture's own baseline — so the photograph took the
+   whole right column at the top while the heading fell to the image's bottom,
+   leaving a ~174px void in the top-left of both cards. The approved design
+   (docs/08-delivery/services-design/services-design.html, one-column shell) is a
+   stack: heading · photograph · words · action. */
 .sv-prices--guides .sv-price-card {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
   padding: var(--space-4);
 }
 
@@ -15880,6 +15910,7 @@ a.ia-alt:hover {
 .fac-room__media img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   object-fit: cover;
 }
@@ -16071,6 +16102,7 @@ a.ia-alt:hover {
 .fac-ground__media img {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 3 / 2;
   object-fit: cover;
 }
