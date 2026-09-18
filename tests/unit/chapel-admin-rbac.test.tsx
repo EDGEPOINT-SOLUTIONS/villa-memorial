@@ -315,7 +315,7 @@ describe("a scheduling:write session runs the park's chapels", () => {
 describe("the Schedule page renders the chapel surfaces under its scopes", () => {
   it("renders every chapel section, the placeholder notice and read-only controls", async () => {
     setSession(["scheduling:read"]);
-    const html = renderToStaticMarkup(await SchedulePage());
+    const html = renderToStaticMarkup(await SchedulePage({ searchParams: Promise.resolve({}) }));
 
     expect(html).toContain("Chapels on the books");
     expect(html).toContain("Placeholder chapel list");
@@ -330,14 +330,14 @@ describe("the Schedule page renders the chapel surfaces under its scopes", () =>
 
   it("offers the write controls to a scheduling:write session", async () => {
     setSession(["scheduling:read", "scheduling:write"]);
-    const html = renderToStaticMarkup(await SchedulePage());
+    const html = renderToStaticMarkup(await SchedulePage({ searchParams: Promise.resolve({}) }));
     expect(html).toContain("Add chapel");
     expect(html).toContain("Close these dates");
   });
 
   it("renders the graceful forbidden state without scheduling:read", async () => {
     setSession(["catalog:read"]);
-    const html = renderToStaticMarkup(await SchedulePage());
+    const html = renderToStaticMarkup(await SchedulePage({ searchParams: Promise.resolve({}) }));
     expect(html).toContain("permissions this screen needs");
     expect(html).not.toContain("Chapels on the books");
   });

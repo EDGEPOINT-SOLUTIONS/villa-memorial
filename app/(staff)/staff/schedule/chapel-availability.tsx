@@ -232,9 +232,9 @@ export function ChapelAvailability({
               />
             </div>
 
-            <div className="chapel-grid" aria-label={`${selected.name} availability`}>
+            <div className="chapel-month" aria-label={`${selected.name} availability`}>
               {CHAPEL_WEEKDAY_LABELS.map((label) => (
-                <div key={label} className="chapel-grid__head" aria-hidden="true">
+                <div key={label} className="chapel-month__head" aria-hidden="true">
                   {label}
                 </div>
               ))}
