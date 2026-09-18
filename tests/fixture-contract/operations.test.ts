@@ -34,9 +34,14 @@ describe("operations fixtures follow the documented domain shapes", () => {
       expect(() => new Date(c.updated_at).toISOString()).not.toThrow();
       expect(Array.isArray(c.tasks)).toBe(true);
       for (const t of c.tasks) {
+        // `tasks[].id` is the contract's additive field and the key
+        // PATCH /cases/:number/tasks/:id addresses — the board's write needs it.
+        expect(t.id).toMatch(/^CASE-\d{4}-\d{4}-t\d+$/);
         expect(t.title.length).toBeGreaterThan(0);
         expect(["pending", "in_progress", "done"]).toContain(t.status);
       }
+      // …and it is unique inside its case, so a write can never hit the wrong row.
+      expect(new Set(c.tasks.map((t) => t.id)).size).toBe(c.tasks.length);
     }
     expect(casesFile.tenant_id).toBe("00000000-0000-4000-8000-000000000001");
   });

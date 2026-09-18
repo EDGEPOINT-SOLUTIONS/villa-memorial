@@ -6,30 +6,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
-import { listCases, type Case, type CaseStage } from "@/lib/api-client/operations";
+import { listCases, type Case } from "@/lib/api-client/operations";
+import { CASE_STAGES, STAGE_LABEL, STAGE_TONE, isCaseStage } from "@/lib/operations/case-board";
 import { PipelineDots } from "@/components/case-pipeline";
 
 export const metadata = { title: "Cases — Staff Portal" };
-
-const STAGE_TONE: Record<string, "info" | "warning" | "success" | "neutral" | "danger"> = {
-  inquiry: "info",
-  retrieval: "warning",
-  preparation: "warning",
-  viewing: "info",
-  ceremony: "info",
-  interment: "warning",
-  completed: "success",
-};
-
-const STAGE_LABEL: Record<CaseStage, string> = {
-  inquiry: "Inquiry",
-  retrieval: "Retrieval",
-  preparation: "Preparation",
-  viewing: "Viewing",
-  ceremony: "Ceremony",
-  interment: "Interment",
-  completed: "Completed",
-};
 
 function CaseCard({ kase }: { kase: Case }) {
   const pendingIntake = kase.deceased_name === "Pending intake";
@@ -101,8 +82,8 @@ export default async function CasesPage({
   }
 
   const { stage } = await searchParams;
-  const stageFilter = (stage ?? "").trim() as CaseStage | "";
-  const validStage = stageFilter && stageFilter in STAGE_LABEL ? stageFilter : "";
+  const stageFilter = (stage ?? "").trim();
+  const validStage = isCaseStage(stageFilter) ? stageFilter : "";
 
   const active = cases.filter((c) => c.stage !== "completed").length;
   const completed = cases.length - active;
@@ -118,9 +99,7 @@ export default async function CasesPage({
     });
   }
 
-  const presentStages = (
-    Object.keys(STAGE_LABEL) as CaseStage[]
-  ).filter((s) => cases.some((c) => c.stage === s));
+  const presentStages = CASE_STAGES.filter((s) => cases.some((c) => c.stage === s));
 
   return (
     <>
