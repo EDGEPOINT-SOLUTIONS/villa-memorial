@@ -27,6 +27,11 @@ describe("the two-layer public bar", () => {
     expect(html).toContain(`href="${contact.phoneHref}"`);
     expect(html).toContain(contact.phoneDisplay);
     expect(html).toContain(contact.phoneLabel);
+    // The F-01 door to the Immediate Assistance screen (captain, 2026-09-18)
+    // rides the same utility row, quieter than the call button.
+    expect(html).toContain('class="anchored-header__assist"');
+    expect(html).toContain('href="/immediate-assistance"');
+    expect(html).toContain("Immediate assistance");
   });
 
   it("carries the short labels, marks only the current page and keeps full names in Plan ahead", async () => {
@@ -80,12 +85,15 @@ describe("the two-layer public bar", () => {
 });
 
 describe("the phone action bar", () => {
-  it("renders Call 24/7 and Plan ahead as its two big targets, dialog closed", async () => {
+  it("renders Call 24/7, Get help and Plan ahead as its three big targets, dialog closed", async () => {
     const { contact } = await chrome();
     const html = renderToStaticMarkup(createElement(PhoneActionBar, { contact }));
     expect(html).toContain('class="anchored-phonebar"');
     expect(html).toContain(`href="${contact.phoneHref}"`);
     expect(html).toContain("Call 24/7");
+    expect(html).toContain("Get help");
+    // F-01: the bottom bar is the phone's one-tap door to the assistance page.
+    expect(html).toContain('anchored-phonebar__btn--help" href="/immediate-assistance"');
     expect(html).toContain("Plan ahead");
     expect(html).toContain('aria-haspopup="dialog"');
     expect(html).toContain('aria-expanded="false"');

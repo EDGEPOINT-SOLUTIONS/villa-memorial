@@ -7470,6 +7470,36 @@ a.card:hover {
   white-space: nowrap;
 }
 
+/* The way into the Immediate Assistance screen (F-01): a quiet gold chip
+   beside the call button so the help page is one tap from every desktop
+   page — the call button itself stays the utility row's loudest target. */
+.anchored-header__utility-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.anchored-header__assist {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem; /* 44 px — the tap-target floor */
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  background: var(--gold-wash-soft);
+  color: var(--navy-900); /* 10.6:1 on the gold wash — AAA */
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.anchored-header__assist:hover {
+  border-color: var(--gold-700);
+  background: var(--gold-wash);
+}
+
 /* ---- main row: brand · page links · Plan ahead · actions ---- */
 .anchored-header__bar {
   max-width: var(--layout-folio-w);
@@ -7832,8 +7862,10 @@ a.card:hover {
 
 @media (max-width: 74.999rem) {
   /* Phones carry the call target in the bottom bar, so the utility row is
-     location + hours only — never two call buttons on one screen. */
-  .anchored-header__call {
+     location + hours only — never two call buttons on one screen. The
+     Immediate Assistance target moves to the bottom bar with it. */
+  .anchored-header__call,
+  .anchored-header__assist {
     display: none;
   }
 
@@ -7891,10 +7923,42 @@ a.card:hover {
     color: var(--navy-800);
   }
 
+  /* Get help (F-01, captain 2026-09-18): the one-tap door to the Immediate
+     Assistance screen, warm gold between the call and the planning targets. */
+  .anchored-phonebar__btn--help {
+    border: 1px solid var(--gold-500);
+    background: var(--gold-wash-soft);
+    color: var(--navy-950);
+  }
+
   /* Keep every page's content clear of the fixed bar (the public wrappers
      carry this class because they always render the bar). */
   .has-phonebar {
     padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* The three-target bar on phones (≤ 416 px, i.e. every common phone width):
+   tighten the targets so Call 24/7, Get help and Plan ahead all stay on one
+   row without wrapping. */
+@media (max-width: 26rem) {
+  .anchored-phonebar {
+    gap: 0.4rem;
+    padding-inline: var(--space-3);
+  }
+
+  .anchored-phonebar__btn {
+    gap: 0.3rem;
+    padding: 0.4rem 0.35rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* Very narrow phones (≤ 360 px): the help target keeps its word, drops its
+   icon, so Call 24/7 stays on one line too. */
+@media (max-width: 22.5rem) {
+  .anchored-phonebar__btn--help svg {
+    display: none;
   }
 }
 
@@ -8182,7 +8246,30 @@ a.card:hover {
   background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 }
 
-.rail-call:hover .rail-call__number {
+.rail-call__line {
+  display: grid;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* The card's one door to the Immediate Assistance screen (F-01): the number
+   above stays the one-tap call; this link is the quieter second intent. */
+.rail-call__assist {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid color-mix(in srgb, var(--navy-900) 18%, transparent);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--gold-800); /* 4.6:1 min on the sky gradient — AA */
+  text-decoration: none;
+}
+
+.rail-call__assist:hover {
+  text-decoration: underline;
+}
+
+.rail-call__line:hover .rail-call__number {
   color: var(--gold-800);
 }
 
@@ -13599,6 +13686,259 @@ a.card:hover {
 }
 
 /* ---- end services page (sv-*) ---------------------------------------- */
+
+/* ---- immediate assistance page (/immediate-assistance) --------------------
+   F-01 (captain, 2026-09-18): the hardest moment gets its own screen. The
+   order is the design — the 24/7 call first and enormous, then the four plain
+   steps, then the calm alternatives. Sky/navy/gold tokens only, no motion,
+   one h1, every tap target ≥ 44 px. The phone number itself lives in the
+   landing content document (zone 01); nothing here paints an amount or a
+   colour outside tokens. */
+.ia-page {
+  display: grid;
+  gap: var(--space-5);
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+/* --- the call hero --- */
+.ia-hero {
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(420px circle at 100% 0%, var(--gold-wash), transparent 62%),
+    linear-gradient(150deg, var(--sky-200), var(--sky-400));
+  color: var(--navy-950);
+  box-shadow: var(--shadow-card-hover);
+  text-align: center;
+}
+
+.ia-hero__eyebrow {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-800);
+}
+
+.ia-hero__title {
+  margin: 0;
+  font-size: clamp(1.9rem, 5.5vw, 2.6rem);
+  color: var(--navy-950);
+}
+
+.ia-hero__lead {
+  max-width: 32rem;
+  margin: var(--space-2) auto 0;
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+/* The enormous one-tap call: a 4.5rem-tall gold target carrying the staff's
+   own number at display size (navy-950 on the gold gradient is AAA). */
+.ia-call {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 32rem;
+  min-height: 4.5rem;
+  margin: var(--space-4) auto 0;
+  padding: var(--space-3) var(--space-5);
+  border: 2px solid var(--gold-600);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--gold-300) 0%, var(--gold-500) 100%);
+  color: var(--navy-950);
+  text-decoration: none;
+  box-shadow: var(--shadow-raised);
+}
+
+.ia-call:hover {
+  filter: brightness(1.04);
+}
+
+/* The call button is the page's one job: its keyboard ring is navy so it can
+   never melt into the gold surface the global brass ring sits between. */
+.ia-call:focus-visible {
+  outline: 3px solid var(--navy-900);
+  outline-offset: 3px;
+}
+
+.ia-call__text {
+  display: grid;
+  text-align: left;
+}
+
+.ia-call__kicker {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy-900);
+}
+
+.ia-call__number {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 6.5vw, 2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.ia-hero__note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-sm);
+  color: var(--navy-900);
+}
+
+/* --- what to do right now --- */
+.ia-steps {
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.ia-steps h2 {
+  margin: 0 0 var(--space-4);
+  font-size: 1.5rem;
+}
+
+.ia-steps__list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ia-step {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--sky-100);
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+}
+
+.ia-step__num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--sky-700);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: var(--text-sm);
+}
+
+.ia-step__body {
+  min-width: 0;
+}
+
+.ia-step h3 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-lg);
+  color: var(--navy-900);
+}
+
+.ia-step p {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+/* What to have ready — short labelled chips, never a paragraph. */
+.ia-ready {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ia-ready li {
+  padding: 0.2rem 0.65rem;
+  border: 1px solid var(--sky-300);
+  border-radius: 999px;
+  background: var(--color-bg-surface-raised);
+  color: var(--navy-800);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+/* --- reassurance: one line, calm surface --- */
+.ia-reassure {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-left: 4px solid var(--gold-500);
+  border-radius: var(--radius-md);
+  background: var(--gold-wash-soft);
+  color: var(--navy-900);
+  font-size: var(--text-lg);
+}
+
+.ia-reassure strong {
+  color: var(--navy-950);
+}
+
+/* --- the alternatives, clearly secondary --- */
+.ia-alts h2 {
+  margin: 0 0 var(--space-3);
+  font-size: 1.35rem;
+}
+
+.ia-alts__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.ia-alt {
+  display: grid;
+  gap: 0.2rem;
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.ia-alt:hover {
+  border-color: var(--gold-500);
+}
+
+.ia-alt svg {
+  color: var(--sky-600);
+}
+
+.ia-alt__label {
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.ia-alt__value {
+  font-size: var(--text-sm);
+  color: var(--navy-700);
+}
+
+@media (max-width: 50rem) {
+  .ia-steps__list,
+  .ia-alts__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- end immediate assistance page (ia-*) ----------------------------- */
 
 /* ---- pricing admin editors (/staff/plans, /staff/pricing) ----------------
    The two money-table screens from the admin-commerce plan: a state/action bar,

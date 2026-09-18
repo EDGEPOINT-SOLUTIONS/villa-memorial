@@ -294,6 +294,29 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the label and its pinned test strings (`price-surfacing`, `cart-catalogue`,
   `villa-services-premium`) in one sweep.
 
+## Immediate assistance — `/immediate-assistance` (read before touching it or its entry points)
+
+- The F-01 screen (captain 2026-09-18): the hardest moment gets its own page. Its content
+  order is the contract — the enormous `tel:` call first (read from the landing document's
+  contact region, zone 01; never typed), then four numbered steps, then one reassurance line,
+  then the secondary alternatives (location · `/contact` · `/client/login`). Full width
+  belongs to the call; nothing else asks for a decision. One `h1`, no motion, tokens only.
+  Honest states: the content document carries no street address and no office hours, so they
+  are omitted — never invent a second number or a schedule.
+- Entry points are exactly three render sites, one per surface: the header's
+  `anchored-header__assist` chip (desktop, hidden < 75rem), the phone bar's
+  `anchored-phonebar__btn--help` target (mobile; the approved D3 bar now carries three
+  targets — recorded in `docs/08-delivery/public-nav-design/README.md` §4), and the home
+  rail's `rail-call__assist` link under the 24/7 card (`RailPanel`, landing-view.tsx). The
+  rail card's number stays the one-tap call; the guide pages' "Immediate assistance"
+  buttons point at this route too. Never add a fourth nav menu entry.
+- It is a reading-budget page: `tests/unit/reading-budget.test.tsx` renders it (paragraphs
+  ≤ 30 words, opening sentence ≤ 12, list items ≤ 30) and the phone number + step 1 must
+  stay above the fold at 390 px (evidence + screenshots under
+  `docs/08-delivery/immediate-assistance-design/`). `tests/unit/immediate-assistance.test.tsx`
+  pins the call-first order, the doc-driven number, the steps and the honest omissions;
+  `lib/seo.ts` publishes the route in `PUBLIC_PAGES` and `sitemap.xml`.
+
 ## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
 
 - The three routes render `components/public-forms/*` on the shared apply-form shell

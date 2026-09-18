@@ -94,6 +94,23 @@ number `navy-950` on the sky-200→sky-400 gradient **13.12 → 8.18:1**; call l
 quick menu are untouched; the navigation is the only diff. On phones the call button moves from the
 header into the bottom bar — the number is never shown twice.
 
+### Addendum 2026-09-18 — the Immediate Assistance door (F-01)
+
+The captain's F-01 brief added one target to the approved bar: the public
+`/immediate-assistance` screen must be reachable from the header or the phone bar and from the
+home page's assistance card. Two render sites changed, both additions rather than a redesign:
+
+- the utility row gains a quiet `anchored-header__assist` chip ("Immediate assistance", gold
+  wash, beside the call button; hidden below 75 rem where the phone bar carries the target);
+- the phone bar gains a third target `Get help` → `/immediate-assistance`
+  (`.anchored-phonebar__btn--help`, gold wash, between Call 24/7 and Plan ahead). D3's two big
+  targets become three; at ≤ 416 px the targets tighten so all three stay on one row without
+  wrapping. The home rail's 24/7 card keeps its one-tap `tel:` number and gains a
+  `rail-call__assist` link below it.
+
+Everything else in this contract stands. Evidence: `tests/unit/public-nav.test.tsx`,
+`tests/unit/landing-view.test.tsx`, `docs/08-delivery/immediate-assistance-design/`.
+
 ## 5. Review record
 
 | Round | When | What happened |

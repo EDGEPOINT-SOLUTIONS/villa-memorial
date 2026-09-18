@@ -46,6 +46,9 @@ vi.mock("next/navigation", () => ({
 
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
+const { default: ImmediateAssistancePage } = await import(
+  "@/app/(public)/immediate-assistance/page"
+);
 
 const BUDGET = {
   /** Paragraph prose per page (words inside <p> elements). */
@@ -84,6 +87,11 @@ const PAGES: ReadonlyArray<BudgetPage> = [
         ),
       ),
     openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/immediate-assistance",
+    render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
+    openingLead: /<p class="ia-hero__lead">([\s\S]*?)<\/p>/,
   },
 ];
 
