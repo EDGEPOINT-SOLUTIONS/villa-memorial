@@ -33,6 +33,9 @@ const { default: TransfersPage } = await import(
 const { default: IntermentsPage } = await import(
   "@/app/(staff)/staff/property/[id]/interments/page"
 );
+const { default: ExhumationsPage } = await import(
+  "@/app/(staff)/staff/property/[id]/exhumations/page"
+);
 const { default: LotDetailPage } = await import("@/app/(staff)/staff/property/[id]/page");
 
 const USER_ID = "00000000-0000-4000-8000-000000000012";
@@ -274,6 +277,74 @@ describe("the Interments screen", () => {
   it("keeps the property area's gate", async () => {
     signInAs(["cases:read"]);
     const html = await render(IntermentsPage, C001);
+    expect(html).toContain("You don’t have access to this area");
+    expect(html).toContain("property:read");
+  });
+});
+
+describe("the Exhumations screen", () => {
+  it("answers with the request, its state and the next requirement", async () => {
+    signInAs(["property:read"]);
+    const html = await render(ExhumationsPage, C001);
+
+    expect(html).toContain("<h1>Exhumations</h1>");
+    expect(html).toContain("The request — Antonio Reyes");
+    expect(html).toContain("Requirements open");
+    expect(html).toContain("1 of 6 steps recorded");
+    expect(html).toContain("Danilo Reyes · Sep 5, 2026");
+    expect(html).toContain("moved to a place nearer their home");
+    expect(html).toContain("Loyola Gardens");
+    expect(html).toContain("Next requirement");
+    expect(html).toContain("The lot holder&#x27;s consent");
+    expect(html).toContain("his written consent is not yet on file");
+    // The gap is named once.
+    expect(html).toContain("No exhumation workflow exists yet");
+  });
+
+  it("communicates gravity: the ground is not opened while a step is missing", async () => {
+    signInAs(["property:read"]);
+    const html = await render(ExhumationsPage, C001);
+
+    expect(html).toContain("Nothing is moved while a requirement is open");
+    expect(html).toContain("A missing step stops the work.");
+    // Every requirement is listed, in order, with what it still needs.
+    for (const requirement of [
+      "The request and the reason",
+      "The lot holder&#x27;s consent",
+      "The permit to exhume",
+      "The receiving place says yes",
+      "The day and the team",
+      "The record of the work",
+    ]) {
+      expect(html).toContain(requirement);
+    }
+    expect(html).toContain("Every requirement, in order");
+    // The record of what was done is shown — and it says nothing has happened.
+    expect(html).toContain("The record of what was done");
+    expect(html).toContain("Nothing has been done — the grave has not been touched.");
+    expect(html).toContain("Recorded only when the work is complete");
+  });
+
+  it("keeps the tab row, the way back and the reading budget", async () => {
+    signInAs(["property:read"]);
+    const html = await render(ExhumationsPage, C001);
+    expect(html).toContain(`aria-current="page" href="/staff/property/${C001}/exhumations"`);
+    expect(html).toContain("Back to lot");
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
+    expectNoProseWall(html, "exhumations");
+  });
+
+  it("says so when this lot has never seen an exhumation", async () => {
+    signInAs(["property:read"]);
+    const html = await render(ExhumationsPage, A001);
+    expect(html).toContain("No exhumation has been recorded for this lot");
+    expect(html).toContain("An exhumation is not a move");
+    expect(html).toContain("Nothing is moved while a requirement is open");
+  });
+
+  it("keeps the property area's gate", async () => {
+    signInAs(["cases:read"]);
+    const html = await render(ExhumationsPage, C001);
     expect(html).toContain("You don’t have access to this area");
     expect(html).toContain("property:read");
   });
