@@ -41,6 +41,9 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   // family choosing where to hold a wake does not have to read /services.
   { label: "Facilities", href: "/facilities" },
   { label: "Gallery", href: "/gallery" },
+  // The memorial surface (F-04) — the one public destination for finding a
+  // person, kept to a single chip; its family path lives inside the page.
+  { label: "Memorials", href: "/memorials" },
   { label: "Contact", href: "/contact" },
 ];
 

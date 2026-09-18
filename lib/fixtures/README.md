@@ -93,6 +93,22 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      on one. The engine's vocabulary (seven bases, four states, capabilities)
      lives in `lib/commission.ts`, pinned to the agent workspace fixture; what
      actually sold is NOT here — the screen reads the durable order store.
+   - `memorials/memorials.json` ← the recorded state of the PUBLIC digital-memorial
+     surface (F-04 / 06-cultural-digital-memorial/digital-memorial.md, blueprint
+     §22–23). APP-AUTHORED because NO digital-memorial service or contract exists:
+     the file records `service_state: "not_wired"` and an EMPTY `memorials` list,
+     because the demo family's own record
+     (`lib/fixtures/family/snapshot.json#loved_one`) has chosen no visibility. This
+     is the privacy floor in data form — nothing is published by default and no
+     memorial may be fabricated to make the screens look alive. The three
+     visibility choices, the searchable/never-shown rules and the search matching
+     live in `lib/memorials.ts`; `lib/api-client/memorials.ts` is the tolerant
+     reader and DROPS every record whose visibility is not `published`, so a
+     private or undecided record can never reach a page shape. A published
+     record's shape (name · life dates · family words · optional photograph ·
+     resting place) is validated field by field there, and
+     `tests/unit/memorials-pages.test.tsx` renders it from a test-only record —
+     the fixture itself never carries a fabricated person.
    - `operations/guarantee-instruments.json` ← the guarantee-instrument tracker
      (F-18 / FORMS_PLAN gap 5): per case, the LGU/DSWD/SSS/GSIS/life-plan
      deductions its Funeral Service Contract records, with the office's filing

@@ -25,6 +25,8 @@
 | `/quote`, `/appointments` | ⚠ real capture, nothing sent/stored server-side (no quotation/scheduling write contract); confirmation says so |
 | `/contact` | ✅ request landing; captures to the browser-local demo store the staff inquiries board reads (no CRM service) |
 | `/faq` | ✅ static content |
+| `/memorials`, `/memorials/find` | ✅ rules-first digital-memorial search + the family's find path; the recorded store publishes NO memorial (no digital-memorial service exists — nothing is fabricated), so the empty state names the service and the privacy floor |
+| `/memorials/[id]` | ✅ published family records render the memorial profile (proven by tests); the fixture publishes no one, so an absent AND an unpublished id get the same not-available answer — `noindex` until a family publishes |
 | `/register` | ⚠ account provisioning is not frozen; submission ends in an explicit demo state |
 
 Sign-in doors: `/login` (staff) ✅ · `/client/login` (family) ✅ · `/agent/login` (agent) ✅ —

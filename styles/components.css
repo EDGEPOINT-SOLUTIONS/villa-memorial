@@ -15251,3 +15251,701 @@ a.ia-alt:hover {
   .ia-call__number { font-size: var(--text-2xl); }     /* 28 */
   .fac-section__title { font-size: var(--text-2xl); }  /* 28 */
 }
+
+/* ===========================================================================
+ * Digital memorial (F-04) — /memorials · /memorials/find · /memorials/[id]
+ *
+ * The most sensitive public surface in the product: a stranger may search for
+ * someone who died, and a family's grief becomes public. The privacy rules are
+ * therefore part of the layout — the search shows its rules BEFORE its results,
+ * the unseen is a card of its own, and the detail route has one uniform answer
+ * for "not published" and "no such person".
+ *
+ * Grammar follows the public catalogue: sky surfaces, navy ink, gold-800
+ * kickers, the shared .hero-premium / .btn / .empty-state kit. Every colour,
+ * size and space resolves to a token; nothing here is a new visual decision.
+ * ========================================================================= */
+
+.mem-page {
+  max-width: 76rem;
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-6);
+}
+
+/* Senior-first floor (the services-page rule on the most sensitive surface):
+   page buttons reach the 48px tap target, and the content labels stay at the
+   16px reading base — a bereaved visitor may be older or reading on a phone. */
+.mem-page .btn {
+  min-height: 3rem;
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+
+/* Breadcrumb — the gallery/services grammar on this page's own classes. */
+.mem-crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+  color: var(--navy-700);
+}
+
+.mem-crumbs li + li::before {
+  content: "/";
+  margin-right: var(--space-2);
+  color: var(--navy-500);
+}
+
+.mem-crumbs a {
+  color: var(--sky-800);
+  font-weight: 600;
+}
+
+.mem-crumbs [aria-current="page"] {
+  color: var(--navy-900);
+  font-weight: 700;
+}
+
+/* --- The hero's quiet companion card -------------------------------------- */
+.mem-hero__card {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+  color: var(--color-text-accent);
+}
+
+.mem-hero__card-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--color-text-primary);
+}
+
+.mem-hero__card-line {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* --- Shared section furniture --------------------------------------------- */
+.mem-kicker {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.mem-section-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--navy-900);
+}
+
+.mem-intro {
+  margin: 0;
+  max-width: 44rem;
+  font-size: var(--text-lg);
+  line-height: 1.55;
+  color: var(--navy-800);
+}
+
+.mem-service-note {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.mem-service-note a {
+  color: var(--sky-800);
+  font-weight: 600;
+}
+
+.mem-hint {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+/* --- The rules block (always before the form) ------------------------------ */
+.mem-rules,
+.mem-search,
+.mem-shape,
+.mem-section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mem-rules__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 62rem) {
+  .mem-rules__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-rule-card {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.mem-rule-card--never {
+  border-color: var(--granite-300);
+  background: var(--marble-100);
+}
+
+.mem-rule-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--sky-700);
+}
+
+.mem-rule-card--never .mem-rule-card__head {
+  color: var(--granite-600);
+}
+
+.mem-rule-card__head h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.mem-list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.mem-list li {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.mem-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--sky-400);
+}
+
+.mem-list--check li::before {
+  background: var(--sage-500);
+}
+
+.mem-list--never li::before {
+  background: var(--granite-400);
+}
+
+/* --- The three visibility choices, in a visitor's terms -------------------- */
+.mem-choices {
+  display: grid;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.mem-choices__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.mem-choices__list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (max-width: 62rem) {
+  .mem-choices__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-choice {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--sky-200);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+}
+
+.mem-choice--private {
+  border-left-color: var(--granite-400);
+}
+
+.mem-choice--family {
+  border-left-color: var(--sky-400);
+}
+
+.mem-choice--published {
+  border-left-color: var(--gold-500);
+}
+
+.mem-choice__label {
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.mem-choice__meaning {
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* --- The search form and its results --------------------------------------- */
+.mem-search__form {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.mem-search__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.mem-results {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.mem-results__count {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.mem-results__list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mem-result {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-3) var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+@media (max-width: 44rem) {
+  .mem-result {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-result__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--navy-900);
+}
+
+.mem-result__dates {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.mem-result__place {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.mem-result__line {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+/* --- What a published memorial shows (a labelled shape, never a person) ---- */
+.mem-shape__facts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+@media (max-width: 72rem) {
+  .mem-shape__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 34rem) {
+  .mem-shape__facts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-shape__facts > div {
+  display: grid;
+  gap: 2px;
+  align-content: start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+}
+
+.mem-shape__facts dt {
+  font-size: var(--text-md);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-accent);
+}
+
+.mem-shape__facts dd {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+}
+
+/* --- Closing "Talk to the office" band ------------------------------------- */
+.mem-find {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  box-shadow: var(--shadow-card-rest);
+}
+
+@media (max-width: 60rem) {
+  .mem-find {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-find__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--navy-900);
+}
+
+.mem-find__line {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+.mem-find__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* --- Find my loved one: the family's steps --------------------------------- */
+.mem-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: mem-step;
+}
+
+@media (max-width: 62rem) {
+  .mem-steps {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-step {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.mem-step__num {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: var(--sky-100);
+  border: 1px solid var(--sky-300);
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--sky-800);
+}
+
+.mem-step__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.mem-step__detail {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.mem-ask__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (max-width: 62rem) {
+  .mem-ask__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-ask {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+  color: var(--sky-700);
+}
+
+.mem-ask h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.mem-ask p {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+/* --- The memorial page: one uniform answer for absent AND unpublished ------ */
+.mem-unavailable {
+  display: grid;
+  gap: var(--space-5);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.18), transparent 55%),
+    linear-gradient(165deg, var(--sky-100), var(--color-bg-surface));
+  box-shadow: var(--shadow-card-rest);
+}
+
+.mem-unavailable__head {
+  display: flex;
+  gap: var(--space-5);
+  align-items: flex-start;
+}
+
+@media (max-width: 44rem) {
+  .mem-unavailable__head {
+    flex-direction: column;
+  }
+}
+
+.mem-unavailable__mark {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  border: 1px solid var(--sky-300);
+  background: var(--color-bg-surface-raised);
+  color: var(--sky-700);
+  box-shadow: var(--shadow-card-rest);
+}
+
+/* --- The published memorial profile ---------------------------------------- */
+.mem-profile {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.mem-profile__hero {
+  display: grid;
+  grid-template-columns: 20rem minmax(0, 1fr);
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  align-items: start;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(520px circle at 4% -6%, rgb(241 204 94 / 0.16), transparent 55%),
+    linear-gradient(165deg, var(--sky-50), var(--color-bg-surface));
+  box-shadow: var(--shadow-card-rest);
+}
+
+@media (max-width: 54rem) {
+  .mem-profile__hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.mem-profile__portrait {
+  margin: 0;
+  width: 100%;
+  max-width: 20rem;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--marble-50), var(--marble-200));
+  display: grid;
+  place-items: center;
+}
+
+.mem-profile__portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mem-profile__mark {
+  font-family: var(--font-serif);
+  font-size: var(--text-3xl);
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.mem-profile__intro {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  min-width: 0;
+}
+
+.mem-profile__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-display);
+  line-height: 1.12;
+  color: var(--navy-900);
+}
+
+.mem-profile__dates {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.mem-profile__lead {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  line-height: 1.45;
+  color: var(--navy-800);
+}
+
+.mem-profile__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.mem-profile__words,
+.mem-profile__place,
+.mem-profile__published {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.mem-profile__word {
+  margin: 0;
+  max-width: 46rem;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  line-height: 1.7;
+  color: var(--navy-800);
+}
+
+.mem-profile__place-line {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.mem-profile__published-line {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}

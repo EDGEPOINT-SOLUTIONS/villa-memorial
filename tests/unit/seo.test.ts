@@ -10,6 +10,7 @@ import {
   DEFAULT_SITE_URL,
   PUBLIC_PAGES,
   SITE_NAME,
+  UNPUBLISHED_MEMORIAL_ROBOTS,
   absoluteUrl,
   localBusinessJsonLd,
   pageMetadata,
@@ -64,6 +65,17 @@ describe("the sitemap table covers every public page", () => {
     expect(paths).toContain("/faq");
     expect(paths).not.toContain("/cart");
     expect(paths).not.toContain("/checkout");
+  });
+
+  it("publishes the memorial surface deliberately, and no detail route statically", () => {
+    const paths = PUBLIC_PAGES.map((page) => page.path);
+    // The search and the family's find path are public pages...
+    expect(paths).toContain("/memorials");
+    expect(paths).toContain("/memorials/find");
+    // ...but a MEMORIAL DETAIL page is never a static entry: it enters the
+    // sitemap only once its family has published it (app/sitemap.ts reads the
+    // store; the reader drops every non-published record).
+    expect(paths.filter((p) => p.startsWith("/memorials/"))).toEqual(["/memorials/find"]);
   });
 });
 
@@ -179,6 +191,32 @@ describe("/sitemap.xml and /robots.txt", () => {
     for (const secret of ["/cart", "/checkout", "/staff", "/client", "/agent", "/orders/", "/api/"]) {
       expect(urls.filter((url) => url.includes(secret))).toEqual([]);
     }
+  });
+
+  it("carries the memorial surface, but no unpublished memorial detail", async () => {
+    const { default: sitemap } = await import("@/app/sitemap");
+    const urls = (await sitemap()).map((entry) => entry.url);
+    expect(urls).toContain(absoluteUrl("/memorials"));
+    expect(urls).toContain(absoluteUrl("/memorials/find"));
+    // The fixture store publishes no memorial (nothing may be fabricated), so
+    // no /memorials/<id> URL may appear — the family's decision is the gate.
+    const details = urls.filter((url) => /\/memorials\/[^/]+$/.test(url) && !url.endsWith("/memorials/find"));
+    expect(details).toEqual([]);
+  });
+
+  it("keeps the query-keyed memorial search out of crawlers and lets the detail route self-declare", async () => {
+    const { default: robots } = await import("@/app/robots");
+    const policy = robots();
+    const rule = Array.isArray(policy.rules) ? policy.rules[0] : policy.rules;
+    const disallow = (rule as { disallow?: string[] }).disallow ?? [];
+    // A query-keyed result page must never become an indexed name directory...
+    expect(disallow).toContain("/memorials?");
+    // ...but /memorials itself and the detail shape stay crawlable: a published
+    // memorial is meant to be found, and the unpublished one answers noindex
+    // from its own head.
+    expect(disallow).not.toContain("/memorials");
+    expect(disallow).not.toContain("/memorials/");
+    expect(UNPUBLISHED_MEMORIAL_ROBOTS).toEqual({ index: false, follow: true });
   });
 
   it("robots allows the storefront, closes the session surfaces and points at the sitemap", async () => {
