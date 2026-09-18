@@ -14194,3 +14194,314 @@ a.ia-alt:hover {
   min-width: 0;
 
 }
+/* ===========================================================================
+ * Facilities page — the park's rooms and the grounds ("fac-*" block)
+ *
+ * One public page (app/(public)/facilities/page.tsx) answering "which room,
+ * how many people, what does it cost" from the client's own 2026 sheet, then
+ * pointing at the park map / 3D walk-through instead of redrawing them.
+ *
+ * Grammar: the shared public hero (.hero-premium) + buttons, then the
+ * senior-first section/card grammar the services block established — sky
+ * surfaces, navy ink, gold-800 kickers, prices always with their unit. Every
+ * colour, size and space here resolves to a token from styles/tokens.css; the
+ * page reads no amount of its own (lib/villa-pricing.ts owns the figures).
+ * =========================================================================== */
+.fac-page {
+  max-width: 80rem;
+  margin-inline: auto;
+  color: var(--navy-900);
+}
+
+/* Page reading scale: nothing under 16px in content, prices on their own line. */
+.fac-page p,
+.fac-page li,
+.fac-page dt,
+.fac-page dd,
+.fac-page figcaption {
+  font-size: var(--text-base);
+  line-height: 1.6;
+}
+
+.fac-page .btn {
+  min-height: 3rem; /* 48px — the senior-first tap-target floor */
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+/* --- Sections ------------------------------------------------------------- */
+.fac-section {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-7);
+}
+
+.fac-section__kicker {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gold-800); /* 9.9:1 on white — AAA at 16px */
+}
+
+.fac-section__title {
+  margin: 0;
+  font-size: clamp(1.7rem, 3.2vw, 2.25rem);
+}
+
+.fac-section__intro {
+  margin: 0;
+  max-width: 44rem;
+  font-size: var(--text-lg);
+  color: var(--navy-800);
+}
+
+/* --- Room cards: photograph, purpose, rate, one next step ----------------- */
+.fac-rooms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-2);
+}
+
+@media (max-width: 60rem) {
+  .fac-rooms {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.fac-room {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.fac-room__media {
+  margin: 0;
+  border-bottom: 1px solid var(--sky-200);
+  background: var(--marble-100);
+}
+
+.fac-room__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+/* The sheet's "Illustration purposes only" label stays attached to the photo. */
+.fac-room__media figcaption {
+  padding: var(--space-2) var(--space-5);
+  border-top: 1px solid var(--sky-200);
+  background: var(--sky-50);
+  color: var(--navy-700);
+}
+
+.fac-room__body {
+  display: grid;
+  gap: var(--space-3);
+  flex: 1;
+  align-content: start;
+  padding: var(--space-5);
+}
+
+.fac-room__name {
+  margin: 0;
+  font-size: var(--text-2xl);
+}
+
+.fac-room__rate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-4xl);
+  color: var(--navy-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.fac-room__unit {
+  font-family: var(--font-sans);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--navy-800);
+}
+
+.fac-room__facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.fac-room__facts > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+}
+
+.fac-room__facts dt {
+  color: var(--navy-700);
+}
+
+.fac-room__facts dd {
+  margin: 0;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.fac-room__action {
+  margin-top: var(--space-2);
+  text-align: center;
+}
+
+/* --- The sheet's own conditions, as facts (never a paragraph) ------------- */
+.fac-facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--navy-800);
+}
+
+.fac-facts li {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.fac-facts li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--gold-500);
+}
+
+/* The honest state: the park's real room list is still a client question.
+   Dashed + amber so it never reads as a published figure. */
+.fac-placeholder {
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border: 1px dashed var(--amber-500);
+  border-radius: var(--radius-lg);
+  background: var(--amber-100);
+  color: var(--navy-900);
+}
+
+/* --- The grounds ---------------------------------------------------------- */
+.fac-grounds {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+@media (max-width: 62rem) {
+  .fac-grounds {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.fac-grounds__media {
+  margin: 0;
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.fac-grounds__media img {
+  display: block;
+  width: 100%;
+  height: clamp(14rem, 30vw, 24rem);
+  object-fit: cover;
+}
+
+.fac-grounds__media figcaption {
+  padding: var(--space-3) var(--space-4);
+  color: var(--navy-700);
+}
+
+.fac-areas {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-5);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.fac-areas__heading {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+
+.fac-areas__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fac-areas__list .fac-area {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--sky-200);
+  border-radius: var(--radius-md);
+  background: var(--sky-50);
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+/* --- Ask the office (the page's one closing action band) ------------------ */
+.fac-help {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-5);
+  align-items: center;
+  margin-top: var(--space-7);
+  padding: var(--space-5) var(--space-6);
+  border: 1px solid var(--sky-300);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  box-shadow: var(--shadow-card-rest);
+}
+
+@media (max-width: 60rem) {
+  .fac-help {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.fac-help h2 {
+  margin: 0 0 var(--space-2);
+}
+
+.fac-help p {
+  margin: 0;
+  color: var(--navy-800);
+}
+
+.fac-help__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

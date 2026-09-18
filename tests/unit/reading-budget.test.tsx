@@ -15,11 +15,14 @@ import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
  *    a label, a table cell, a chip or a short list item;
  *  · list items stay short too, so prose cannot move into a list.
  *
- * Scope: the two public content pages this pass rebuilt — /services and /plans
- * — executed as the real page components (the same render harness the other
- * page tests use). The home page's copy lives in the staff-editable LandingPage
- * document (content, not code), so it is measured in the PR record, not gated
- * here; a future page adds itself to PAGES in the same PR that compresses it.
+ * Scope: the public content pages this pass rebuilt — /services and /plans —
+ * plus /immediate-assistance and /facilities, each of which joined the guard in
+ * the PR that added it (a room page is read at a glance: photograph, purpose,
+ * rate, one next step). All are executed as the real page components (the same
+ * render harness the other page tests use). The home page's copy lives in the
+ * staff-editable LandingPage document (content, not code), so it is measured in
+ * the PR record, not gated here; a future page adds itself to PAGES in the same
+ * PR that compresses it.
  *
  * The failure message names the offending page and its count on purpose: the
  * check is the guardrail that stops the wordiness creeping back.
@@ -49,6 +52,7 @@ const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: ImmediateAssistancePage } = await import(
   "@/app/(public)/immediate-assistance/page"
 );
+const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
 
 const BUDGET = {
   /** Paragraph prose per page (words inside <p> elements). */
@@ -92,6 +96,13 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/immediate-assistance",
     render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
     openingLead: /<p class="ia-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/facilities",
+    // The rooms page has no cart action (its next step is the 24/7 call), so it
+    // renders without the cart context.
+    render: async () => renderToStaticMarkup(await FacilitiesPage()),
+    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
   },
 ];
 

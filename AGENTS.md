@@ -321,6 +321,25 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   pins the call-first order, the doc-driven number, the steps and the honest omissions;
   `lib/seo.ts` publishes the route in `PUBLIC_PAGES` and `sitemap.xml`.
 
+## Facilities page — `/facilities` (the rooms a family is choosing between)
+
+- F-02's screen: `app/(public)/facilities/page.tsx` (`.fac-*` block in
+  `styles/components.css`) shows the two chapel classes with the client's own sample
+  photographs, what each suits, and the sheet's per-day rate read from `CHAPEL_RATES` in
+  `lib/villa-pricing.ts` — `tests/unit/facilities-page.test.tsx` renders `/services` too
+  and fails if the two pages' amounts ever differ. The 24/7 number is the staff-editable
+  landing content, never typed. The grounds list is the client masterplan's own labels
+  (`lib/park-3d/masterplan.ts`), and the map / 3D walk-through are linked, never redrawn.
+- **Its honest state deliberately differs from `/services`**: the park's real chapel
+  names, count and capacities are an open client question
+  (`docs/07-client-villa/open-questions.md`), so this page publishes no room name, no
+  capacity and no count and says so in one line (`.fac-placeholder`). Do not "fix" it by
+  copying `/services`' app-authored `Chapel A`/`120 people` placeholders onto it.
+- It is a reading-budget page (`tests/unit/reading-budget.test.tsx`) and a public-nav
+  page: one `SITE_NAV_LINKS` chip beside Park, the phone quick menu, the footer's
+  "Explore" column and `PUBLIC_PAGES`. Render record + shots:
+  `docs/08-delivery/facilities-design/README.md`.
+
 ## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
 
 - The three routes render `components/public-forms/*` on the shared apply-form shell
@@ -434,7 +453,8 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   discounted price, grouped by collection) + per-family inclusions
   (`CASKET_INCLUSIONS`) via `components/villa/casket-catalogue.tsx`;
   `/services` = embalming per day + the five a-la-carte fees (incl. the sheet's
-  unlabelled ₱19,500 total) + chapel use rates, via
+  unlabelled ₱19,500 total) + chapel use rates (the per-day rates and sample photos are
+  also the rooms page, `/facilities`), via
   `components/villa/service-rates-2026.tsx`;
   `/plans`, `/plans/villa-memorial-plan`, `/plans/senior-benefits` = the five tiers ×
   four terms, regular + senior, through ONE renderer

@@ -108,6 +108,9 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
               <a href="/map" onClick={() => setOpen(false)}>
                 Villa Memorial Park
               </a>
+              <a href="/facilities" onClick={() => setOpen(false)}>
+                Facilities
+              </a>
               <a href="/contact" onClick={() => setOpen(false)}>
                 Contact
               </a>
