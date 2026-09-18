@@ -64,6 +64,12 @@ const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/f
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { default: PriceList2026Page } = await import("@/app/(public)/lots/price-list-2026/page");
 const { SignInCard } = await import("@/components/sign-in-card");
+const { default: PlatformSignInPage } = await import("@/app/(platform)/platform/sign-in/page");
+const { default: PlatformTenantsPage } = await import("@/app/(platform)/platform/tenants/page");
+const { default: PlatformTenantDetailPage } = await import(
+  "@/app/(platform)/platform/tenants/[id]/page"
+);
+const { default: PlatformSignUpPage } = await import("@/app/(platform)/platform/sign-up/page");
 
 const ROOT = path.resolve(__dirname, "../..");
 
@@ -127,6 +133,25 @@ const PAGES: ReadonlyArray<PageCase> = [
           personas: [{ email: "admin@vm.demo", display_name: "Ada Admin" }],
         }),
       ),
+  },
+  {
+    name: "/platform/sign-in",
+    render: async () => renderToStaticMarkup(await PlatformSignInPage()),
+  },
+  {
+    name: "/platform/tenants",
+    render: async () => renderToStaticMarkup(await PlatformTenantsPage()),
+  },
+  {
+    name: "/platform/tenants/[id]",
+    render: async () =>
+      renderToStaticMarkup(
+        await PlatformTenantDetailPage({ params: Promise.resolve({ id: "ten-sample-memorial" }) }),
+      ),
+  },
+  {
+    name: "/platform/sign-up",
+    render: async () => renderToStaticMarkup(await PlatformSignUpPage()),
   },
 ];
 

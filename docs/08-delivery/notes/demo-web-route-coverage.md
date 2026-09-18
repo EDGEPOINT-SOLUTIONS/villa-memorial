@@ -87,6 +87,27 @@ the deliverable, not a leftover.
 | `/client/support` | ✅ the client's real numbers/places with the office call as the action |
 | `/client/profile` | ⚠ partial; device-local reading preferences are real |
 
+## Platform operator surface — `app/(platform)/platform`
+
+Belongs to the **platform**, not to any tenant (classification:
+`docs/02-architecture/platform-administration.md`). The operator entry point is
+`/platform/sign-in`, reached by URL: no product menu links here (the guard is
+`tests/unit/platform-screens.test.tsx`), `/platform/` is disallowed in `app/robots.ts` and the
+surface sets its own `noindex`. Every screen is marked with the operator-surface wording
+("not the funeral product") and says what the platform must provide.
+
+| Route | What it serves |
+|---|---|
+| `/platform/sign-in` | ⚠ the operator door — a distinct design (not the shared SignInCard): platform admins are a separate identity type outside the tenant hierarchy; the form checks its entry and then says nothing was sent (no platform identity service exists) |
+| `/platform/tenants`, `/platform/tenants/[id]` | ⚠ tenant management — the recorded sample list (state · plan · address) and one tenant's record (administrator · subdomain · provisioned date), read-only; names the provisioning requirements and the deferred work (suspend/delete, custom domains, usage metrics, platform audit) |
+| `/platform/sign-up` | ⚠ tenant sign-up — a designed two-step flow (business + subdomain, then first administrator) that creates nothing; shows the Configure → Import → Train → Go live sequence |
+
+Data is `lib/fixtures/platform/tenants.json` (APP-AUTHORED SAMPLE records with provenance —
+every row `sample: true`, named as a sample, on `.example` addresses; `lib/api-client/platform.ts`
+refuses an unmarked row and offers no live mode), pinned by
+`tests/fixture-contract/platform.test.ts`. The app's cosmetic staff tenant switcher
+(`lib/demo-tenants.ts`) is unrelated.
+
 ## Agent portal — `app/(agent)/agent`
 
 11 routes (`dashboard`, `prospects`, `prospects/[id]`, `clients`, `clients/[id]`, `sales`,
@@ -97,8 +118,9 @@ agent-workspace fixture — no agent/commission contract exists, so commission a
 
 ## Absent (not routes yet) — needs a contract or a decision
 
-Platform-admin screens (tenant management, platform login, sign-up). See the audit's §7.2/§7.3
-for what each one is blocked on, and
+The platform-admin screens (tenant management, platform login, sign-up) are designed screens
+now — see the platform section above — but still wait on the platform's own tenancy/identity
+services. See the audit's §7.2/§7.3 for what each one is blocked on, and
 [front-end complete](../frontend-complete.md) for the current platform-contract list.
 
 Screens exist but their services do not: the commission engine (the screen is real, the
