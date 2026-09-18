@@ -1,15 +1,17 @@
 # Open items — what is waiting on whom
 
-**Last updated:** 2026-09-17 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
+**Last updated:** 2026-09-18 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
 ([readable artifact](./prd-alignment-audit/prd-alignment-audit.html)).
 
-This is the standing short list after the audit: four open items. Each one says what it is, why
-it matters, the options, the recommendation and the reason, and who can act. It is a signpost,
-not a report — every claim links to the document that owns it.
+This is the standing short list after the audit: four items. Item 1 is **decided** — the captain
+chose the extension layer on 2026-09-18 — and is kept as the record of that decision; items 2–4
+are still open. Each item says what it is, why it matters, the options (or the decision), the
+reason and who can act. It is a signpost, not a report — every claim links to the document that
+owns it.
 
 **Contents**
 
-1. [PRD drift policy](#1-prd-drift-policy)
+1. [PRD drift policy — decided](#1-prd-drift-policy)
 2. [Which gap to build next](#2-which-gap-to-build-next)
 3. [Client questions for Villa](#3-client-questions-for-villa)
 4. [The queued final commerce phase](#4-the-queued-final-commerce-phase)
@@ -17,6 +19,10 @@ not a report — every claim links to the document that owns it.
 ---
 
 ## 1. PRD drift policy
+
+**Status: decided — 2026-09-18 (option B).** The record is
+[`villa-extensions.md`](./villa-extensions.md); the upstream PRD is deliberately not modified.
+The text below is kept as the record of the decision.
 
 **What it is.** The build carries things the IN MEMORIAM PRD does not name. The audit tracks 13
 of them in its [“beyond the PRD” table](./prd-alignment-audit.md#5-beyond-the-prd--the-villa-extensions-13):
@@ -40,14 +46,25 @@ the PRD as complete and either rebuilds or contradicts work that was approved de
   layer, never contaminating core” — and the `configuration-engine.md` guardrail says to “push
   true outliers to the extension layer.”
 
-**Recommendation: B — the extension layer.** It needs no upstream change and leaves the PRD
+**The decision: B — the extension layer.** It needs no upstream change and leaves the PRD
 untouched until the dev wants it. The list already exists, fully evidenced, as the audit's
-deviation table (13 rows with approval and conflict flags), so the work is a pointer, not a
+deviation table (13 rows with approval and conflict flags), so the work was a pointer, not a
 rewrite. If the dev later wants the PRD itself to name these surfaces, that same table is the
 backport draft.
 
-**Who can act.** Our track can write the extension-layer note now. Only the captain can grant
-permission for a PR inside `in-memoriam`.
+What the decision records:
+
+- [`villa-extensions.md`](./villa-extensions.md) is the tenant extension-layer record. It points
+  at the audit's [13-row table](./prd-alignment-audit.md#5-beyond-the-prd--the-villa-extensions-13)
+  as the authoritative list, and states the reading rule: a surface named there is deliberate,
+  captain-approved scope — check the table before treating the PRD as complete.
+- **The upstream PRD is deliberately not modified.** Nothing changes in the `in-memoriam`
+  repository.
+- A backport into the PRD stays available later if the platform's developer wants it. That needs
+  the captain's explicit permission for `in-memoriam` and is not part of this decision.
+
+**Who can act.** Nothing further on this item — it is closed. The only possible follow-up is the
+captain granting permission for a future `in-memoriam` backport.
 
 Relevant PRs: [#34 3D park](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/34) ·
 [#32 agent portal](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/32) ·

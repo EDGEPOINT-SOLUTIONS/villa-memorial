@@ -330,7 +330,7 @@ These are small, low-risk edits. They are not PRD deviations; they are defects i
 
 1. **Fix G1/G1b now** (one PR; three array values + one string), and add a unit test that every `gatedSectionPage` scope token is a member of the frozen vocabulary — the exact class of bug the frozen-scopes contract warns about (`rbac-scopes-v1.md:64-71`).
 2. **Refresh the stale docs** (G2/G3) in the same PR; they are the first thing an agent reads.
-3. **Decide the PRD/villa drift policy** (deviation 8/11): either backport the villa extensions into the PRD (a short section naming the 3D park, the portals, the admin stores, the sky/navy/gold palette) or record them as a tenant-specific extension layer the PRD explicitly permits. The current state — PRD silent, villa docs authoritative but stale — is how `hr:read` happened.
+3. **Decide the PRD/villa drift policy** (deviation 8/11): either backport the villa extensions into the PRD (a short section naming the 3D park, the portals, the admin stores, the sky/navy/gold palette) or record them as a tenant-specific extension layer the PRD explicitly permits. The current state — PRD silent, villa docs authoritative but stale — is how `hr:read` happened. **Decided 2026-09-18: option B** — recorded in [`villa-extensions.md`](./villa-extensions.md); the PRD is not modified.
 4. **Carry the client questions to the captain in one place** (chapel list, commission rates, senior-rate conflict, A-001, 2025/2026 divergence). The build publishes them honestly, but nothing in this audit shows the client has been asked.
 5. **Open the contract asks this audit surfaces** in the platform track: family/agent role claim; catalog/pricing/order-admin write contracts; crm-families; accounting screens; reporting-analytics; interment/ownership/transfer workflows; digital-memorial services. Each is already written into the codebase as a named blocker.
 6. **Do not reconcile the conflicting figures** (senior chapel rate, A-001, 2025/2026 rules) without the client's word — that is the discipline the build already enforces.
@@ -352,7 +352,8 @@ These are small, low-risk edits. They are not PRD deviations; they are defects i
 |---|---|---|---|
 | open | Lavish session | (pending) | — |
 | 2026-09-17 ~11:00Z | captain message | "can you save this lavish plan and PR it, so that i can go back into this using my personal computer, because right now im using a different computer." | Delivered as this PR: the audit document plus the portable artifact under `docs/08-delivery/prd-alignment-audit/`. |
+| 2026-09-18 | captain decision (open item 1) | Option B — the extension layer, not a backport. | Recorded in [`villa-extensions.md`](./villa-extensions.md); the upstream PRD is not modified; open item 1 is closed. |
 
 **Follow-up for the captain (not part of this PR):** the defects in §8 (the malformed scope tokens and the stale docs) are proposed fixes only; they should ship as their own small PR with a scope-vocabulary test.
 
-**Unanswered at open (queued as decisions in the artifact):** scope-defect fix yes/no · PRD-drift policy (backport / villa-only / per-extension) · next gap to prioritize · whether to compile the client questions into one ask.
+**Unanswered at open (queued as decisions in the artifact):** scope-defect fix yes/no · next gap to prioritize · whether to compile the client questions into one ask. (The PRD-drift policy was decided 2026-09-18 — option B, the extension layer; see the review record and [`villa-extensions.md`](./villa-extensions.md).)
