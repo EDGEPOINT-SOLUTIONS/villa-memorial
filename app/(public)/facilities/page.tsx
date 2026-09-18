@@ -6,9 +6,10 @@ import {
   CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
   HERO_IMAGE,
-  LOT_GARDEN_NICHES,
-  LOT_MAUSOLEUM,
+  PARK_PLACE_PHOTOS,
   VILLA_PARK_AERIAL,
+  libraryThumb,
+  libraryThumbSet,
 } from "@/lib/media";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
 import { CHAPEL_NOTES, CHAPEL_RATES, php } from "@/lib/villa-pricing";
@@ -101,10 +102,18 @@ const PARK_AREAS: ReadonlyArray<string> = POINTS_OF_INTEREST.filter(
   (area) => area.id !== "future-development",
 ).map((area) => area.label);
 
-/** The client's own product imagery for the two areas a family asks about. */
+/**
+ * The client's own product imagery for the two areas a family asks about.
+ *
+ * Composition pass (2026-09-18): these are the PHOTOGRAPH-ONLY derivatives of the
+ * client's lot tiles (scripts/build-composition-images.mjs) rather than the tiles
+ * themselves. A tile carries the group's logo lock-up and its family name set
+ * large, so publishing it inside a figure that already has a caption printed a
+ * second title in baked-in marketing type.
+ */
 const GROUND_AREAS = [
-  { src: LOT_GARDEN_NICHES, label: "Garden niches" },
-  { src: LOT_MAUSOLEUM, label: "Mausoleum" },
+  { src: PARK_PLACE_PHOTOS.niches, label: "Garden niches" },
+  { src: PARK_PLACE_PHOTOS.mausoleum, label: "Mausoleum" },
 ] as const;
 
 export default async function FacilitiesPage() {
@@ -134,7 +143,12 @@ export default async function FacilitiesPage() {
           </div>
           <figure className="hero-premium__media">
             {/* eslint-disable-next-line @next/next/no-img-element -- uploaded park photo */}
-            <img src={HERO_IMAGE} alt="The park's gated entrance and roadside sign, seen from the road" />
+            <img
+              src={libraryThumb(HERO_IMAGE, 640)}
+              srcSet={libraryThumbSet(HERO_IMAGE)}
+              sizes="(max-width: 60rem) 90vw, 30rem"
+              alt="The park's gated entrance and roadside sign, seen from the road"
+            />
             <figcaption>The park&rsquo;s front gate on the road in.</figcaption>
           </figure>
         </div>
@@ -210,7 +224,9 @@ export default async function FacilitiesPage() {
           <figure className="fac-grounds__media">
             {/* eslint-disable-next-line @next/next/no-img-element -- client park photo */}
             <img
-              src={VILLA_PARK_AERIAL}
+              src={libraryThumb(VILLA_PARK_AERIAL, 640)}
+              srcSet={libraryThumbSet(VILLA_PARK_AERIAL)}
+              sizes="(max-width: 60rem) 90vw, 34rem"
               alt="The park's pavilion and grounds, with the client's own banner text over the picture"
               loading="lazy"
             />
@@ -228,14 +244,20 @@ export default async function FacilitiesPage() {
           </div>
         </div>
 
-        <div className="landing__grid">
+        <div className="fac-grounds__grid">
           {GROUND_AREAS.map((area) => (
-            <figure className="card" key={area.label}>
-              <div className="media-block card-media media-block--natural">
-                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded lot-category imagery */}
-                <img src={area.src} alt={area.label} loading="lazy" />
+            <figure className="fac-ground" key={area.label}>
+              <div className="fac-ground__media">
+                {/* eslint-disable-next-line @next/next/no-img-element -- client lot photograph */}
+                <img
+                  src={area.src.replace("-720", "-480")}
+                  srcSet={`${area.src.replace("-720", "-480")} 480w, ${area.src} 720w`}
+                  sizes="(max-width: 46rem) 90vw, 22rem"
+                  alt={area.label}
+                  loading="lazy"
+                />
               </div>
-              <figcaption className="card__body">
+              <figcaption className="fac-ground__body">
                 <h3>{area.label}</h3>
               </figcaption>
             </figure>

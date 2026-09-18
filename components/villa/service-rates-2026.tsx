@@ -162,12 +162,12 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
           const IconShape = ServiceIcons[fee.service] ?? IconChapel;
           return (
             <article className="sv-price-card" key={fee.service}>
-              <div className="sv-price-card__head">
+              <h3 className="sv-price-card__head">
                 <span className="sv-price-card__icon" aria-hidden="true">
                   <IconShape />
                 </span>
-                <h3>{fee.service}</h3>
-              </div>
+                {fee.service}
+              </h3>
               {/* A price block, not prose (structure over sentences). */}
               <div className="sv-price-card__amount">
                 {money(fee.amount)} <span className="sv-price-card__unit">per service</span>

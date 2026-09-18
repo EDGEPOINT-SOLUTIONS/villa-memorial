@@ -26,7 +26,7 @@ import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
 import { heroBackgroundLayer } from "@/lib/landing/hero-background";
-import { PLAN_PACKAGES_IMAGE } from "@/lib/media";
+import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet, serviceCardPhoto } from "@/lib/media";
 import {
   lotCategoryFromPriceOf,
   type LotCategory,
@@ -61,14 +61,27 @@ export { BrandMark };
 
 export function RailThumb({ item }: { item: RailItem }) {
   const glyph = (item.title.trim().charAt(0) || "•").toUpperCase();
-  return item.image ? (
+  if (!item.image) {
+    return (
+      <span className="rail-thumb rail-thumb--fallback" aria-hidden="true">
+        {glyph}
+      </span>
+    );
+  }
+  // A rail thumbnail paints at ~3.2rem; the library asset behind it can be
+  // 2.6 MB. `libraryThumb` serves the published 320/640 px WebP instead and
+  // returns the original untouched for anything the thumbnail pass does not
+  // know (a staff URL, a device upload) — see lib/media.ts.
+  return (
     <span className="rail-thumb">
       {/* eslint-disable-next-line @next/next/no-img-element -- catalogue photo */}
-      <img src={item.image} alt="" loading="lazy" />
-    </span>
-  ) : (
-    <span className="rail-thumb rail-thumb--fallback" aria-hidden="true">
-      {glyph}
+      <img
+        src={libraryThumb(item.image)}
+        srcSet={libraryThumbSet(item.image)}
+        sizes="(max-width: 75rem) 3.2rem, 3.2rem"
+        alt=""
+        loading="lazy"
+      />
     </span>
   );
 }
@@ -175,8 +188,21 @@ function PostMedia({ media, href }: { media: MediaItem; href?: string | null }) 
       </video>
     );
   }
-  // eslint-disable-next-line @next/next/no-img-element -- staff-attached photo
-  const img = <img src={media.src} alt={media.alt ?? ""} loading="lazy" />;
+  // The staff-attached photo is served through `libraryThumb` for the same
+  // reason the rail thumbnails are: the library holds print-sized uploads (the
+  // lot tiles are 2.2–2.6 MB) and a newsfeed cell paints at ≤ 40rem, so four
+  // posts used to ask a phone for ~12 MB of picture. An asset the thumbnail pass
+  // does not know (a staff URL, a device upload) comes back unchanged.
+  const img = (
+    // eslint-disable-next-line @next/next/no-img-element -- staff-attached photo
+    <img
+      src={libraryThumb(media.src, 640)}
+      srcSet={libraryThumbSet(media.src)}
+      sizes="(max-width: 52rem) 92vw, 40rem"
+      alt={media.alt ?? ""}
+      loading="lazy"
+    />
+  );
   if (!href) return img;
   return (
     <a className="post-media__link" href={href} aria-label="Open linked story">
@@ -207,7 +233,7 @@ function PostMediaGrid({ media, href }: { media: MediaItem[]; href?: string | nu
   );
 }
 
-function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
+function BlogPostCard({ post, brand, lead = false }: { post: BlogPost; brand: string; lead?: boolean }) {
   const author = post.author || brand;
   // A post may carry the route/link staff configured in the "/" editor — when
   // set, the photo AND the caption become the door to that page; without one
@@ -223,7 +249,7 @@ function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
     )
   ) : null;
   return (
-    <article className="post-card">
+    <article className={lead ? "post-card post-card--lead" : "post-card"}>
       <header className="post-card__head">
         <span className="post-card__avatar" aria-hidden="true">
           {(author.trim().charAt(0) || "V").toUpperCase()}
@@ -233,24 +259,52 @@ function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
           {post.date ? <span className="post-card__date">{formatPostDate(post.date)}</span> : null}
         </div>
       </header>
-      {captionBody ? <p className="post-card__caption">{captionBody}</p> : null}
-      <PostMediaGrid media={post.media} href={linked} />
+      <div className="post-card__body">
+        {captionBody ? <p className="post-card__caption">{captionBody}</p> : null}
+        <PostMediaGrid media={post.media} href={linked} />
+      </div>
     </article>
   );
 }
 
-function ServiceCardLink({ card, lotCategories }: { card: ServiceCard; lotCategories: LotCategory[] }) {
+function ServiceCardLink({
+  card,
+  lotCategories,
+  lead = false,
+}: {
+  card: ServiceCard;
+  lotCategories: LotCategory[];
+  /** The band's dominant card — the one that carries the photograph. */
+  lead?: boolean;
+}) {
   // The prototype's meta line ("from ₱75,000 · ₱1,125 / month, 6 yrs") is
   // DERIVED from the card's 2026 lot family — no amount is ever authored in
   // content (lib/pricing-model.ts is the one derivation home).
   const from = lotCategoryFromPriceOf(lotCategories, card.category);
+  // …and so is the lead's photograph: the card stores a lot family + an icon
+  // key, and those two name a REAL place in the park, so the lead shows the
+  // client's own picture of it rather than an icon standing in for it
+  // (lib/media.ts serviceCardPhoto — the same discipline as the price above).
+  // Only the lead carries it: a picture repeated four times does not become four
+  // pictures, it becomes wallpaper.
+  const photo = lead ? serviceCardPhoto(card.icon) : null;
   return (
     <a className="svc-card" href={card.href}>
-      <span className="svc-card__icon" aria-hidden="true">
-        {serviceCardIcon(card.icon)}
-      </span>
-      <span>
-        <span className="svc-card__title">{card.title}</span>{" "}
+      {photo ? (
+        // Decorative: the card's title already names the thing, so an alt text
+        // here would only repeat the link's own words to a screen reader.
+        <span className="svc-card__media" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element -- client park photo */}
+          <img src={photo} alt="" loading="lazy" width={720} height={480} />
+        </span>
+      ) : null}
+      <span className="svc-card__body">
+        <span className="svc-card__title">
+          <span className="svc-card__icon" aria-hidden="true">
+            {serviceCardIcon(card.icon)}
+          </span>
+          {card.title}
+        </span>
         <span className="svc-card__text">{card.text}</span>
         {from ? (
           <span className="svc-card__meta">
@@ -462,7 +516,13 @@ function AboutSection({ content }: { content: LandingContent }) {
         {about.image ? (
           <figure className="about-media">
             {/* eslint-disable-next-line @next/next/no-img-element -- park photo */}
-            <img src={about.image} alt="Villa Memorial Park grounds" loading="lazy" />
+            <img
+              src={libraryThumb(about.image, 640)}
+              srcSet={libraryThumbSet(about.image)}
+              sizes="(max-width: 75rem) 90vw, 24rem"
+              alt="Villa Memorial Park grounds"
+              loading="lazy"
+            />
           </figure>
         ) : null}
       </div>
@@ -472,18 +532,32 @@ function AboutSection({ content }: { content: LandingContent }) {
 
 function ServicesSection({ content, lotCategories }: { content: LandingContent; lotCategories: LotCategory[] }) {
   const { services } = content;
+  // The band's composition (captain 2026-09-18): the first card leads with the
+  // client's photograph of the place it sells, the rest follow as
+  // hairline-separated entries. Four equal boxes became one dominant element and
+  // three supporting ones — the eye can no longer count the band as a grid.
+  const [lead, ...rest] = services.items;
   return (
     <section className="mid-section" aria-labelledby="services-title">
       <p className="mid-kicker">{services.kicker}</p>
       <h2 id="services-title">{services.heading}</h2>
       <p className="mid-sub">{services.intro}</p>
-      {services.items.length === 0 ? (
+      {services.items.length === 0 || !lead ? (
         <p className="mid-empty">Service cards will appear here once staff publishes them.</p>
       ) : (
         <div className="svc-grid">
-          {services.items.map((card) => (
-            <ServiceCardLink key={card.id} card={card} lotCategories={lotCategories} />
-          ))}
+          <div className="svc-band__lead">
+            <ServiceCardLink card={lead} lotCategories={lotCategories} lead />
+          </div>
+          {rest.length > 0 ? (
+            <ul className="svc-band__list">
+              {rest.map((card) => (
+                <li className="svc-band__entry" key={card.id}>
+                  <ServiceCardLink card={card} lotCategories={lotCategories} />
+                </li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       )}
     </section>
@@ -504,7 +578,9 @@ function PlansSection({ content, planPricing }: { content: LandingContent; planP
         <figure className="promo-figure">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded promo art */}
           <img
-            src={PLAN_PACKAGES_IMAGE}
+            src={libraryThumb(PLAN_PACKAGES_IMAGE, 640)}
+            srcSet={libraryThumbSet(PLAN_PACKAGES_IMAGE)}
+            sizes="(max-width: 88rem) 90vw, 30rem"
             alt="Villa Memorial Plan — comprehensive packages for your peace of mind"
           />
         </figure>
@@ -516,16 +592,21 @@ function PlansSection({ content, planPricing }: { content: LandingContent; planP
 
 function BlogSection({ content }: { content: LandingContent }) {
   const { blog, logo } = content;
+  // Newsfeed composition: the newest story leads the band at full width, the
+  // rest sit two-up beneath it. Four identical stacked cards became a feed with
+  // a clear first item — the same "one dominant element" rule as the bands.
+  const [lead, ...rest] = blog.posts;
   return (
     <section className="mid-section" aria-labelledby="blog-title">
       <p className="mid-kicker">Newsfeed</p>
       <h2 id="blog-title">{blog.heading}</h2>
       <p className="mid-intro">{blog.intro}</p>
-      {blog.posts.length === 0 ? (
+      {blog.posts.length === 0 || !lead ? (
         <p className="mid-empty">Stories will appear here once staff publishes the first post.</p>
       ) : (
         <div className="blog-feed">
-          {blog.posts.map((post) => (
+          <BlogPostCard post={lead} brand={logo.wordmark} lead />
+          {rest.map((post) => (
             <BlogPostCard key={post.id} post={post} brand={logo.wordmark} />
           ))}
         </div>

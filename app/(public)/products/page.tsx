@@ -75,23 +75,50 @@ export default async function ProductsPage() {
         <h2 className="section-title" id="coffin-tiers-title">
           The five coffin tiers on the 2026 sheet
         </h2>
-        <div className="landing__grid">
-          {COFFINS.map((c) => (
-            <article key={c.tier} className="card landing__card">
-              <div className="media-block card-media media-block--natural">
-                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photos */}
-                <img src={c.photo} alt={c.tier + " casket"} loading="lazy" />
-              </div>
-              <div className="card__body">
-                <h3>{c.tier}</h3>
-                <p className="text-sm text-muted">{c.description}</p>
-                <p className="text-sm">
-                  <strong>Lid:</strong> {c.lid}
-                </p>
-              </div>
-            </article>
-          ))}
-        </div>
+        {/* Composition pass (captain 2026-09-18): five equal photo cards became a
+            ledged band — the entry tier leads at full size, the four steps above
+            it follow as hairline rows, each still carrying its own photograph,
+            lid line and description. */}
+        {(() => {
+          const [leadTier, ...higherTiers] = COFFINS;
+          return (
+            <div className="ledger">
+              <article className="ledger__lead">
+                <figure className="ledger__media">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
+                  <img src={leadTier.photo} alt={`${leadTier.tier} casket`} loading="lazy" />
+                </figure>
+                <div className="ledger__body">
+                  <p className="ledger__eyebrow">The entry tier</p>
+                  <h3 className="ledger__title">{leadTier.tier}</h3>
+                  <p className="ledger__note">{leadTier.description}</p>
+                  <p className="ledger__note">
+                    <strong>Lid:</strong> {leadTier.lid}
+                  </p>
+                </div>
+              </article>
+              <ul className="ledger__list">
+                {higherTiers.map((coffin) => (
+                  <li className="ledger__entry" key={coffin.tier}>
+                    <article className="tier-row">
+                      <figure className="tier-row__media">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
+                        <img src={coffin.photo} alt="" loading="lazy" />
+                      </figure>
+                      <div className="tier-row__body">
+                        <h3 className="ledger__row-title">{coffin.tier}</h3>
+                        <p className="ledger__row-meta">{coffin.description}</p>
+                        <p className="ledger__row-meta">
+                          <strong>Lid:</strong> {coffin.lid}
+                        </p>
+                      </div>
+                    </article>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        })()}
         <p className="text-sm text-muted">{COFFIN_TIER_NOTE}</p>
       </section>
 

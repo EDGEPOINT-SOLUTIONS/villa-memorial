@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
+import { PLAN_PACKAGES_IMAGE, libraryThumb } from "@/lib/media";
 import {
   LOT_PRICE_CATEGORIES,
   PLAN_TERMS,
@@ -196,7 +197,9 @@ describe("the home renders the anchored catalogue shell", () => {
     // The prototype's heading, kicker and promo figure.
     expect(html).toContain("Plan ahead");
     expect(html).toContain("Villa Memorial Plan");
-    expect(html).toContain("plan-packages.png");
+    // The promo figure is served from its sized derivative (the library
+    // original is a 1.9 MB PNG; `libraryThumb` in lib/media.ts is the one rule).
+    expect(html).toContain(libraryThumb(PLAN_PACKAGES_IMAGE, 640));
     expect(html).toContain('class="promo-figure"');
 
     // The term switch: the prototype's four modes, Monthly pressed on first paint.
@@ -243,7 +246,13 @@ describe("the rails carry one oversized lead image each", () => {
     for (const side of ["left", "right"] as const) {
       const featured = content.rails[side].items.filter((i) => i.featured);
       expect(featured).toHaveLength(1);
-      expect(html).toContain(featured[0].image ?? "/media/");
+      const src = featured[0].image ?? "/media/";
+      // The featured item's OWN picture reaches the markup — but as the sized
+      // WebP derivative, not as the print-sized library original (composition
+      // pass, 2026-09-18: a rail paints at ~3.2rem and the library holds 2.2–2.6
+      // MB PNGs, so a rail of six thumbnails used to ask a phone for ~12 MB).
+      expect(html, `derivative for ${src}`).toContain(libraryThumb(src));
+      expect(html, `original for ${src}`).not.toContain(`src="${src}"`);
       expect(html).toContain(escaped(featured[0].title));
     }
     expect(html).toContain("rail-lead-flag");

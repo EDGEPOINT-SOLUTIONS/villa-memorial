@@ -14,6 +14,50 @@ export const VILLA_PARK_AERIAL = "/media/the%20very%20first%20memorial%20park%20
 export const HERO_IMAGE = "/media/hero-1.jpg";
 /** Plans/packages marketing image (uploaded). */
 export const PLAN_PACKAGES_IMAGE = "/media/plan-packages.png";
+
+/* ---------------------------------------------------------------------------
+ * Composition-pass derivatives (captain 2026-09-18: "looks so generic… built by
+ * AI" — the composition half of that review).
+ *
+ * The client's own lot tiles (public/media/lot-*.png) are MARKETING TILES: a
+ * 1254×1254 PNG carrying the group's logo lock-up in one corner and the family
+ * name set large across the bottom, over a photograph of the actual place. A
+ * tile is right as a legend swatch and wrong as a band image — repeating it
+ * tiles baked-in marketing type across a composition.
+ *
+ * scripts/build-composition-images.mjs therefore extracts each tile's
+ * PHOTOGRAPH only (its own documented rectangle, past the logo and above the
+ * title band) into public/media/composition/*.webp, the same move
+ * scripts/build-gallery-images.mjs makes for the client's promo composite. The
+ * originals stay committed and untouched; nothing here is re-coloured, and no
+ * crop invents a place that is not in the client's own tile.
+ * ------------------------------------------------------------------------- */
+
+/** The park's own places, photograph-only, at 1×/2× card widths. */
+export const PARK_PLACE_PHOTOS = {
+  prime: "/media/composition/prime-lot-720.webp",
+  premium: "/media/composition/premium-lot-720.webp",
+  niches: "/media/composition/garden-niches-720.webp",
+  mausoleum: "/media/composition/mausoleum-720.webp",
+  grounds: "/media/gallery/park-pavilion-940.webp",
+  gate: "/media/gallery/park-gate-1024.webp",
+} as const;
+
+/**
+ * The same photographs keyed by the park's seeded LEGEND type id
+ * (lib/park-types.ts), so a surface that knows a plot's legend type can show the
+ * place without reaching for the marketing tile. Types the client never
+ * photographed the place for (main road, walking path, landscape, standard) are
+ * absent on purpose — the caller falls back to the generic park photo, which is
+ * honest, rather than to a picture of a different kind of place.
+ */
+export const PARK_PLACE_BY_TYPE: Readonly<Record<string, string>> = {
+  "lt-primary": PARK_PLACE_PHOTOS.prime,
+  "lt-premium": PARK_PLACE_PHOTOS.premium,
+  "lt-garden": PARK_PLACE_PHOTOS.niches,
+  "lt-niches": PARK_PLACE_PHOTOS.niches,
+  "lt-mausoleum": PARK_PLACE_PHOTOS.mausoleum,
+};
 /** Lot category photos (uploaded) — canonical map: park Legend type id → the
  * photo attached to that plot type. Public lot surfaces read THIS map so the
  * photo shown on the landing/lots pages is always the one attached in the park
@@ -176,4 +220,110 @@ export const MEDIA_LIBRARY: ReadonlyArray<{ src: string; label: string }> = [
 
 export function mediaLabel(src: string): string {
   return MEDIA_LIBRARY.find((m) => m.src === src)?.label ?? "Uploaded media";
+}
+
+/**
+ * The "Services we offer" band's photograph per card (the home's zone-05 cards).
+ *
+ * The card stores a lot family plus an icon key, both staff-edited; neither is a
+ * picture. Rather than leave four identical glyph tiles on the busiest band of
+ * the site, each card shows the client's OWN photograph of the thing it sells —
+ * derived from the card's icon key through this one map, never typed into a view
+ * or into the content document (exactly how the card's "from ₱X" line is derived
+ * from its lot family through lib/pricing-model.ts).
+ *
+ * `alt` is empty on purpose: the photograph repeats the card's own title, so the
+ * link's accessible name stays the words a customer reads.
+ */
+export const SERVICE_CARD_PHOTOS: Readonly<Record<string, string>> = {
+  lot: PARK_PLACE_PHOTOS.prime,
+  interment: "/media/at_need_services.jpg",
+  plan: "/media/gallery/wake-viewing-840.webp",
+  mausoleum: PARK_PLACE_PHOTOS.mausoleum,
+};
+
+/** The card's photograph, or null when the staff chose a key with no photo yet. */
+export function serviceCardPhoto(icon: string): string | null {
+  return SERVICE_CARD_PHOTOS[icon] ?? null;
+}
+
+/* ---------------------------------------------------------------------------
+ * Library thumbnails — the sized WebP for a staff-picked media-library image.
+ *
+ * The library holds print-sized uploads (the lot tiles are 2.2–2.6 MB PNGs, the
+ * plan artwork 1.9 MB) while the surfaces that pick from it render 3.2–24rem:
+ * the home's rails, its About figure and the staff editor's picker. Asking a
+ * phone for 12 MB to paint 300 px of image was the landing page's remaining
+ * weight defect, so scripts/build-composition-images.mjs publishes a 320/640 px
+ * WebP for every library entry and these two helpers turn a library path into it.
+ *
+ * `libraryThumb` is total: an asset the script does not know (a staff URL, a
+ * device upload's data URL, a newly added file) comes back unchanged, so a view
+ * can always call it.
+ * ------------------------------------------------------------------------- */
+
+/** The published thumbnail widths (1× mobile rail / 2× and the About figure). */
+export const LIBRARY_THUMB_WIDTHS = [320, 640] as const;
+
+/**
+ * `/media/Some%20File.png` → `some-file`. The source is percent-decoded first
+ * (the library stores the uploaded aerial with its spaces encoded), then MUST
+ * stay identical to `mediaSlug()` in scripts/build-composition-images.mjs —
+ * tests/unit/composition-pass.test.tsx fails on a library entry whose
+ * derivative this rule cannot find.
+ */
+export function mediaSlug(src: string): string {
+  const decoded = safeDecode(src);
+  const file = decoded.split("/").pop() ?? decoded;
+  return file
+    .replace(/\.[a-z0-9]+$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/** decodeURIComponent that never throws — a stray `%` must not break a view. */
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+/** Every library path the thumbnail pass publishes (the script's own list). */
+const LIBRARY_THUMB_SOURCES: ReadonlyArray<string> = [
+  LOT_TYPE_PHOTOS["lt-primary"],
+  LOT_TYPE_PHOTOS["lt-premium"],
+  LOT_TYPE_PHOTOS["lt-niches"],
+  LOT_TYPE_PHOTOS["lt-mausoleum"],
+  PLAN_PACKAGES_IMAGE,
+  VIEWING_CARE_IMAGE,
+  DEATH_AT_HOME_IMAGE,
+  DEATH_AT_HOSPITAL_IMAGE,
+  COFFIN_GOLD,
+  COFFIN_BRONZE,
+  COFFIN_SILVER,
+  TRANSPORT_IMAGE,
+  "/media/at_need_services.jpg",
+  HERO_IMAGE,
+  VILLA_PARK_AERIAL,
+];
+
+/** The thumbnail WebP for a library image at `width`, or the source unchanged. */
+export function libraryThumb(src: string, width: 320 | 640 = 320): string {
+  if (!hasLibraryThumb(src)) return src;
+  return `/media/composition/thumbs/${mediaSlug(src)}-${width}.webp`;
+}
+
+/** The 1×/2× srcset for a library image (undefined when there is no derivative). */
+export function libraryThumbSet(src: string): string | undefined {
+  if (!hasLibraryThumb(src)) return undefined;
+  return LIBRARY_THUMB_WIDTHS.map((w) => `${libraryThumb(src, w)} ${w}w`).join(", ");
+}
+
+/** Matched on the DECODED path, because the library stores the aerial encoded. */
+function hasLibraryThumb(src: string): boolean {
+  const decoded = safeDecode(src);
+  return LIBRARY_THUMB_SOURCES.some((s) => safeDecode(s) === decoded);
 }
