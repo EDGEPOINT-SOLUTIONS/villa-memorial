@@ -7064,7 +7064,10 @@ a.card:hover {
   pointer-events: none;
 }
 
-.peso-input input {
+/* The :not() pair matches the base control rule's specificity (which sets the
+   `padding` shorthand and would otherwise win) so the symbol never sits on the
+   first digits — a four-figure amount is the common case on the counter screens. */
+.peso-input input:not([type="checkbox"]):not([type="radio"]) {
   padding-left: calc(var(--space-3) * 2 + 0.5rem);
 }
 

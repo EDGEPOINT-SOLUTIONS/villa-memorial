@@ -600,6 +600,51 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   Checkout PRICES from the durable catalogue store (below), not the recorded seed: an admin's
   price edit is what checkout charges and a deactivated item answers the contract's 404.
 
+## Billing — recording a payment & printing its receipt (read before touching `/staff/billing`, `/api/billing`)
+
+- **The write is real, not a stub.** `billing-list-api-v1` names `POST /billing/api/v1/invoices/:number/payments`
+  under `billing:write`, so live mode is a genuine BFF proxy (`app/api/billing/invoices/[number]/payments/route.ts`,
+  gate `app/api/billing/_guard.ts`) and fixture mode writes the durable store. The route stays
+  RULES-FREE: the one rule set is `lib/billing-payments.ts` (`validatePaymentInput` /
+  `validatePaymentDraft`), run by the form, the client and the store. A payment must be a positive
+  whole-centavo amount the invoice can still absorb (an overpayment or an already-paid invoice is
+  REFUSED with the exact outstanding figure — the app has no credit representation), an instrument
+  from the counter slip, the reference that instrument needs, and a real past calendar day.
+- **The screen is invoice-anchored.** `/staff/billing/record-payment` resolves `?invoice=` / `?order=`
+  (the Orders admin's link) / `?case=` (via the case's linked order) to ONE invoice and shows its
+  state + what is owed + the form in the first screenful — there is no free-text "case or invoice"
+  box anymore (a payment is only meaningful against a balance). The BFF response carries the invoice
+  AS THE SERVER REPORTED IT and the recorded payment; a failed write changes nothing on screen (no
+  optimistic balance) and shows the field-level refusal verbatim.
+- **Store**: `lib/api-client/billing-store.ts` — recorded seed `lib/fixtures/finance/invoices.json`
+  + append-only journal (`PAYMENTS_STORE_PATH` or `.data/finance-payments.json`, gitignored; atomic
+  writer + one in-process write chain, `version: 1`, one `payment_recorded` event carrying the
+  payment AND its receipt). An invoice no payment touches is returned EXACTLY as recorded; a touched
+  one is re-derived through the frozen `billing-derive.ts` rules. Balance/status must be read from
+  `listFixtureInvoices()` / the write response, never re-added in a view.
+- **One official-receipt paper, two copies**: `lib/contracts/official-receipt.ts`
+  (`buildOfficialReceiptPaper(figures, "office" | "family")`) — the counter's sheet and the family's
+  copy are the same document, so `lib/family/family-documents.ts` now delegates to it (its exports and
+  output are unchanged). A cell prints only when the record carries it; `receiptHasFigures` is the
+  gate, and a record without number + date + amount prints NOTHING (`NO_RECEIPT_NOTE` says so and the
+  counter still gets the clearly-labelled provisional slip).
+- The receipt's printed number IS the documents row's `document_number` (`DOC-YYYY-NNNNN`, allocated
+  above the documents seed), and `lib/api-client/documents.ts` lists issued receipts beside the seed —
+  so the counter's print, the family's copy and `/staff/documents` can never name different receipts.
+  `file_size_bytes` is 0: fixture mode stores no rendered artifact.
+- **Open contract asks (do not quietly widen)**: the POST body is APP-AUTHORED (`{amount_cents,
+  method, reference, received_on, notes}`) and the POST response is undefined — a live payment
+  therefore carries `receipt_document: null` unless the service actually named one, and
+  `listPaymentsForInvoice` reports `listed: false` in live mode (no payments-list endpoint exists;
+  a live receipt is a documents-repository row). The counter instrument vocabulary is
+  `PAYMENT_INSTRUMENTS` (cash · check · bank transfer · GCash) — the frozen `payment.completed`
+  enum is a subset plus `card`, and adding one is a client-vocabulary decision.
+- Evidence: `tests/unit/billing-payments.test.ts` (rules · refusal copy · fold), `billing-payment-store.test.ts`
+  (durability · allocation · a refusal writes nothing · repository consistency),
+  `billing-payments-rbac.test.tsx` (401/403, page gating, a session's payment steps the list and the
+  repository), `billing-live-write.test.ts` (the app-authored body + the honest null receipt),
+  `official-receipt.test.ts` (both copies carry the same figures), `record-payment-screen.test.tsx`.
+
 ## Catalog admin — durable fixture store (read before touching `/staff/catalog`, `/api/catalog`)
 
 - `/staff/catalog` is the real catalogue administration: list (search + type/published filters)

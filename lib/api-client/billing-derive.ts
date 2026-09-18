@@ -53,3 +53,25 @@ export function agingBucket(
   if (days <= 120) return "91-120";
   return "120+";
 }
+
+/**
+ * The words a screen prints for a displayed status. One map, so the billing list and the
+ * payment screen cannot call the same state two different things.
+ */
+export const INVOICE_STATUS_LABEL: Record<InvoiceStatus, string> = {
+  paid: "Paid",
+  pending: "Pending",
+  partial: "Part paid",
+  overdue: "Overdue",
+};
+
+/** The badge tone per displayed status — the screen's one colour decision, made here. */
+export const INVOICE_STATUS_TONE: Record<
+  InvoiceStatus,
+  "success" | "info" | "warning" | "danger"
+> = {
+  paid: "success",
+  pending: "info",
+  partial: "warning",
+  overdue: "danger",
+};

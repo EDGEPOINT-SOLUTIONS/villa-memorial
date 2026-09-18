@@ -12,9 +12,17 @@
  * repository of UPLOADED documents (permits, certificates), which v1 of the service cannot
  * store — it has no object store. Live mode shows what the service can genuinely produce:
  * its seeded rows plus every receipt generated from a real payment.
+ *
+ * THE RECEIPTS RECORDED AT THE COUNTER
+ * A payment recorded on the billing screen issues an official receipt
+ * (`lib/api-client/billing-store.ts`), and that row is listed here beside the recorded seed —
+ * the repository, the printed sheet and the family's copy all name the SAME `document_number`,
+ * which is what keeps them from drifting. Fixture mode is the only mode that forges the row:
+ * live receipts are the documents service's own, and both modes read them the same way.
  */
 import documentsFile from "@/lib/fixtures/documents/documents.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { listIssuedReceiptDocuments } from "@/lib/api-client/billing-store";
 import {
   getAuthedJson,
   getAuthedText,
@@ -107,8 +115,12 @@ export async function listDocuments(filter?: {
     const payload = await getAuthedJson(BASE_URL, `/documents/api/v1/documents${suffix}`);
     return itemsOf(payload).map(toDocument);
   }
-  const store = documentsFile as unknown as DocumentStore;
-  return store.documents
+  // Receipts the counter issued are newest, so they lead the repository listing.
+  const rows: Document[] = [
+    ...(await listIssuedReceiptDocuments()),
+    ...(documentsFile as unknown as DocumentStore).documents,
+  ];
+  return rows
     .filter(
       (d) =>
         (!filter?.case_number || d.related_case_number === filter.case_number) &&
@@ -124,6 +136,8 @@ export async function getDocument(id: string): Promise<Document> {
       await getAuthedJson(BASE_URL, `/documents/api/v1/documents/${encodeURIComponent(id)}`),
     );
   }
+  const issued = (await listIssuedReceiptDocuments()).find((d) => d.id === id);
+  if (issued) return { ...issued };
   const store = documentsFile as unknown as DocumentStore;
   const doc = store.documents.find((d) => d.id === id);
   if (!doc) {

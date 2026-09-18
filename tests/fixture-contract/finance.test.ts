@@ -3,10 +3,10 @@ import { getInvoice, listInvoices } from "@/lib/api-client/finance";
 import invoicesFile from "@/lib/fixtures/finance/invoices.json";
 
 /**
- * Module E fixture-contract tests. NO frozen API exists yet for billing list
- * endpoints (finance-billing seeds arrive via events only), so these pin the
- * UI demo data to the documented domain shapes (docs/04-modules/finance-billing.md)
- * so screens can't drift silently from the spec vocabulary.
+ * Module E fixture-contract tests. The recorded invoice seed must stay in the documented
+ * domain shapes (docs/04-modules/finance-billing.md), and the store's fold over it must keep
+ * them: an invoice no payment touches is returned exactly as recorded, so these pins are
+ * about the seed rather than about the derivation (which `billing-derive.test.ts` owns).
  */
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
