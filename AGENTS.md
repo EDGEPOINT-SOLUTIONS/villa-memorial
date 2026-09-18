@@ -1129,6 +1129,33 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `lib/family/contact.ts`, never typed. It gates on `billing:read` provisionally (no commission
   scope exists in `rbac-scopes-v1`); evidence shots + record: `docs/08-delivery/commission-design/`.
 
+## AI Copilot — `/staff/copilot` (PRD S29; read before touching it or `lib/copilot.ts`)
+
+- **It is the DESIGNED surface, not the wired one, and that is the deliverable.** No model
+  provider is configured and none may be added here: an assistant that suggests things about a
+  bereaved family's funeral needs an AI governance contract first (what it may read, that it
+  never speaks to a family, that a human always confirms, how it is audited) and the client has
+  not answered (`docs/07-client-villa/open-questions.md` §Operations & governance;
+  `docs/05-ai/ai-governance.md`). Adding a provider, a key path or a model call is exactly what
+  that contract has to gate — `tests/unit/copilot-model.test.ts` scans the module source for
+  every one of them.
+- **One rules home: `lib/copilot.ts`** (pure). The four prompts, the governance block
+  (`COPILOT_GOVERNANCE`), the owner lines and every answer builder. It derives through the SAME
+  `buildOpsBoard` the Operations board uses — never a second reading of ages, stages or tasks —
+  and takes `cases` + `instrumentsByCase` + a three-state `calendar` (`read` / `no_scope` /
+  `unavailable`); `"nothing on today"` and `"not read"` must never be the same answer.
+- **Safety is structural, so keep it that way:** every finding carries ≥1 record ref pointing at
+  a real `/staff/` route (the type has no orphan state), statements are checked against an
+  advice/second-person word list, a `?case=` that resolves to nothing is answered without being
+  echoed, there is NO free-text control (the case chooser is a native `GET` form over the
+  recorded cases), and no amount is printed anywhere. The page writes nothing — its one action
+  link goes to `/staff/ops`, where the work actually happens.
+- **Scope**: `cases:read` PROVISIONALLY (no `ai:*` token exists; the capability is the platform's
+  `ai-orchestration` service). A reader without `scheduling:read` gets the chapel calendar named
+  as missing, never as an empty day. Nav entry is in *Overview* after Reports.
+- The page is in `tests/unit/reading-budget.test.tsx` (a copilot answer is read at a glance too).
+  Evidence, Lighthouse numbers and the shot list: `docs/08-delivery/ai-copilot-design/`.
+
 ## Provisional receipts — the counter's paper (read before touching `/staff/billing/provisional-receipts`)
 
 - **The provisional slip is the counter's fallback, not the product's receipt** (F-18 /

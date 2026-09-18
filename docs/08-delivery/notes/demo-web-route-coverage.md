@@ -58,6 +58,7 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 | `/staff/accounting` | ⚠ no staff-facing ledger API |
 | `/staff/notifications` | ⚠ no notification rule/event contract |
 | `/staff/reports` | ⚠ reporting-analytics unbuilt; the dashboard aggregates today |
+| `/staff/copilot` | ⚠ the PRD's AI Copilot (S29) as the DESIGNED surface: four recorded questions answered by lookup over the case store, the guarantee-instrument tracker and (with `scheduling:read`) the chapel calendar, each finding carrying its record trail; the governance boundary and the not-connected state are printed on the screen. No model provider and no model call — attaching one is exactly what a frozen AI-governance contract has to gate |
 | `/staff/landing` | ✅ real content editor for the home document (and the FAQ region) — the ONE content surface (audit G5) |
 | `/staff/store` | ✅ redirect to `/staff/landing`; the old separate store stub and its duplicate nav entry are gone (captain, 2026-09-18) |
 | `/staff/documents`, `/[id]` | ✅ repository + generation/export; upload disabled (no object store); `/new` ⚠ |
@@ -96,8 +97,8 @@ agent-workspace fixture — no agent/commission contract exists, so commission a
 
 ## Absent (not routes yet) — needs a contract or a decision
 
-Platform-admin screens (tenant management, platform login, sign-up) and the AI Copilot
-(deferred by the CP plan). See the audit's §7.2/§7.3 for what each one is blocked on, and
+Platform-admin screens (tenant management, platform login, sign-up). See the audit's §7.2/§7.3
+for what each one is blocked on, and
 [front-end complete](../frontend-complete.md) for the current platform-contract list.
 
 Screens exist but their services do not: the commission engine (the screen is real, the
@@ -106,6 +107,12 @@ figures are blank by design), the Smart Service Builder's live pricing/availabil
 states), the lot-lifecycle records (recorded fixture) and the app-authored admin stores
 (catalogue, pricing, orders, chapel admin, provisional receipts, membership, preparation,
 guarantee instruments — all answer the named 503 in live mode).
+
+The AI Copilot's MODEL is the one absence the screen itself states. `/staff/copilot` is a real
+route — four recorded questions answered by lookup, every finding carrying its record trail,
+the governance boundary and the not-connected state printed on the page — and nothing is
+generated there, because attaching a model waits on an AI-governance contract the client has
+not answered (`docs/07-client-villa/open-questions.md` §Operations & governance).
 
 ## Standing rules
 
