@@ -37,6 +37,7 @@ import {
   purchasePaperFromForm,
 } from "@/lib/contracts/purchase-paper";
 import { paperFileStem, type PaperBlock } from "@/lib/export/types";
+import type { PaperProfile } from "@/lib/export/paper-profile";
 
 // The editable-values type lives in a server-safe module (lib/contracts/
 // purchase-application-values.ts) so the server apply page and this client form share it
@@ -107,7 +108,11 @@ export function PurchaseApplicationForm({
   const [values, setValues] = useState<PurchaseApplicationFormValues>(initial);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const [paper, setPaper] = useState<{ blocks: PaperBlock[]; title: string } | null>(null);
+  const [paper, setPaper] = useState<{
+    blocks: PaperBlock[];
+    title: string;
+    profile: PaperProfile;
+  } | null>(null);
   const [gateMessage, setGateMessage] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
@@ -214,7 +219,7 @@ export function PurchaseApplicationForm({
         values.application_date || new Date().toISOString().slice(0, 10),
       );
       const built = buildPurchasePaper(data);
-      setPaper({ blocks: built.blocks, title: built.title });
+      setPaper({ blocks: built.blocks, title: built.title, profile: built.profile });
     } catch (err) {
       setGateMessage(err instanceof Error ? err.message : "Could not assemble the paper document.");
     }
@@ -315,7 +320,7 @@ export function PurchaseApplicationForm({
                 export as Word and PDF.
               </p>
             </div>
-            <PaperExportActions blocks={paper.blocks} filename={fileStem}>
+            <PaperExportActions blocks={paper.blocks} profile={paper.profile} filename={fileStem}>
               <Button
                 type="button"
                 variant="secondary"
@@ -329,7 +334,7 @@ export function PurchaseApplicationForm({
             </PaperExportActions>
           </div>
         </div>
-        <PaperSheet blocks={paper.blocks} />
+        <PaperSheet blocks={paper.blocks} profile={paper.profile} />
       </div>
     );
   }

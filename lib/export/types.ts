@@ -44,6 +44,13 @@ export type PaperLine = {
   size?: number;
   /** Leading/section spacing in points after this line. */
   spaceAfter?: number;
+  /**
+   * Which face of the document's paper this line carries: the body face by default, or
+   * the letterhead/heading face (Bookman Old Style on the 2026 Villa forms). Declared
+   * per block so all three renderers — screen, .docx, .pdf — pick the same one; the
+   * faces themselves live in `lib/export/paper-profile.ts`, never here.
+   */
+  typeface?: "body" | "heading";
 };
 
 export type PaperSpace = {

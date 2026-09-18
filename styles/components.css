@@ -7007,160 +7007,6 @@ a.card:hover {
   width: 4.5rem;
 }
 
-/* --- Paper artifact (print preview of the Service Contract) --------------- */
-
-.paper-artifact {
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-6);
-}
-
-.paper-artifact__doc {
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-border-strong);
-  padding: var(--space-6);
-}
-
-.paper-artifact__ref {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  margin: 0 0 var(--space-3);
-}
-
-.paper-artifact__ref-date {
-  float: right;
-}
-
-.paper-artifact__title {
-  font-size: var(--text-xl);
-  text-align: center;
-  letter-spacing: 0.08em;
-  margin: 0 0 var(--space-5);
-}
-
-.paper-artifact__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--text-sm);
-  margin-bottom: var(--space-4);
-}
-
-.paper-artifact__table th,
-.paper-artifact__table td {
-  border: 1px solid var(--color-border-strong);
-  padding: var(--space-2);
-  text-align: left;
-  vertical-align: top;
-  background: var(--color-bg-surface-raised);
-}
-
-.paper-artifact__table th[scope="row"] {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.paper-artifact__ticks {
-  white-space: nowrap;
-}
-
-.paper-artifact__tick {
-  margin-right: var(--space-2);
-  color: var(--color-text-muted);
-}
-
-.paper-artifact__tick--on {
-  color: var(--color-text-primary);
-  font-weight: 600;
-}
-
-.paper-artifact__colhead {
-  background: var(--color-bg-subtle) !important;
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-
-.paper-artifact__amount {
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.paper-artifact__amount--total {
-  font-weight: 700;
-}
-
-.paper-artifact__total {
-  text-transform: uppercase;
-}
-
-.paper-artifact__heading {
-  font-family: var(--font-serif);
-  font-size: var(--text-md);
-  font-weight: 600;
-  margin: var(--space-5) 0 var(--space-2);
-  text-transform: uppercase;
-}
-
-.paper-artifact__body {
-  font-size: var(--text-sm);
-  text-align: justify;
-}
-
-.paper-artifact__clauses {
-  font-size: var(--text-sm);
-  text-align: justify;
-  padding-left: var(--space-5);
-}
-
-.paper-artifact__clauses li {
-  margin-bottom: var(--space-2);
-}
-
-.paper-artifact__deductions {
-  font-size: var(--text-sm);
-  margin: 0 0 var(--space-3);
-}
-
-.paper-artifact__note {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-4);
-}
-
-.paper-artifact__muted {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.paper-artifact__signatures {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-6);
-  margin: var(--space-6) 0;
-  text-align: center;
-}
-
-.paper-artifact__signline {
-  min-width: 10rem;
-  border-bottom: 1px solid var(--color-border-strong);
-  padding: 0 var(--space-3) var(--space-1);
-  min-height: 1.6em;
-  font-weight: 600;
-}
-
-.paper-artifact__signrole {
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  margin-top: var(--space-1);
-}
-
-.paper-artifact__notarial {
-  font-size: var(--text-sm);
-  border-top: 1px solid var(--color-border);
-  padding-top: var(--space-3);
-  white-space: pre-line;
-}
 
 /* ---------------------------------------------------------------------------
  * STAFF PORTAL PREMIUM — "Radiant Compassion" blue/gold for admin
@@ -7677,34 +7523,14 @@ a.card:hover {
   font-size: var(--text-sm);
 }
 
-/* Print: only the paper artifact leaves the printer. */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  .paper-artifact,
-  .paper-artifact * {
-    visibility: visible;
-  }
-  .paper-artifact {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: none;
-    border-radius: 0;
-    padding: 0;
-  }
-  .paper-artifact__doc {
-    border: none;
-    padding: 0;
-  }
-}
-
 /* ---------------------------------------------------------------------------
- * PaperSheet — document sheet on screen (Times, bordered grids, page breaks)
- * Rendered from the SAME PaperBlock content as the .docx/.pdf exports, so what
- * you review on screen is what downloads. Prints to Letter as the paper doc.
+ * PaperSheet — the document sheet on screen, on the client's own paper
+ * Geometry, margins and faces come from the document's PaperProfile
+ * (lib/export/paper-profile.ts): Legal 8.5 × 14 for the contract, the 8.5 × 13
+ * folio for the 2026 purchase form, each in the client's own type. The same
+ * profile drives the .docx/.pdf exports, and the sheet injects its own @page
+ * rule so Print yields the same page. Rendered from the SAME PaperBlock
+ * content, so what you review on screen is what downloads.
  * ------------------------------------------------------------------------- */
 .paper-sheet {
   display: flex;
@@ -7714,20 +7540,38 @@ a.card:hover {
 }
 
 .paper-sheet__sheet {
-  width: min(100%, 8.5in);
+  width: min(100%, var(--paper-width, 8.5in));
   background: #ffffff;
   color: #1a1a1a;
-  font-family: "Times New Roman", Times, Georgia, serif;
-  padding: clamp(2rem, 4vw, 3.25rem) clamp(1.75rem, 5vw, 3rem);
+  font-family: var(--paper-font-body, "Times New Roman", Times, Georgia, serif);
+  font-size: var(--paper-body-pt, 10.5pt);
+  padding: var(--paper-pad-top, 1in) var(--paper-pad-right, 1in) var(--paper-pad-bottom, 1in)
+    var(--paper-pad-left, 1in);
   border: 1px solid #d8d2c4;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card-hover);
+}
+
+/* A 390px phone cannot show an 8.5 in page at its true margins without shrinking the
+   page itself out of legibility; the sheet keeps the page width it can show and eases
+   its margins, while Print and both files keep the paper's exact box (see @page below). */
+@media (max-width: 60rem) {
+  .paper-sheet__sheet {
+    padding: min(var(--paper-pad-top, 1in), 1rem) min(var(--paper-pad-right, 1in), 1rem)
+      min(var(--paper-pad-bottom, 1in), 1rem) min(var(--paper-pad-left, 1in), 1rem);
+  }
 }
 
 .paper-sheet .paper-line {
   margin: 0;
   line-height: 1.5;
   font-family: inherit;
+}
+
+/* Letterhead/heading lines carry the document's heading face (Bookman Old Style on the
+   2026 Villa forms); everything else carries its body face. */
+.paper-sheet .paper-line--head {
+  font-family: var(--paper-font-heading, inherit);
 }
 
 .paper-line--center { text-align: center; }
@@ -7748,7 +7592,7 @@ a.card:hover {
 .paper-sheet .paper-table td {
   border: 1px solid #111111;
   padding: 0.22rem 0.5rem;
-  font-size: 10.5pt;
+  font-size: var(--paper-body-pt, 10.5pt);
   text-align: left;
   vertical-align: top;
   font-weight: 400;
@@ -7758,7 +7602,7 @@ a.card:hover {
 .paper-sheet .paper-table th {
   background: #e9e9e9;
   font-weight: 700;
-  font-size: 10pt;
+  font-size: calc(var(--paper-body-pt, 10.5pt) - 0.5pt);
 }
 
 .paper-sheet .paper-cell__text {
@@ -7809,10 +7653,9 @@ a.card:hover {
     page-break-after: always;
     break-after: page;
   }
-  @page {
-    size: Letter;
-    margin: 0.7in;
-  }
+  /* No global @page here: each PaperSheet injects its own profile's page box
+     (lib/export/paper-profile.ts → paperPrintPageCss), so Print prints the paper the
+     document is, not a browser default. */
 }
 
 /* ---------------------------------------------------------------------------

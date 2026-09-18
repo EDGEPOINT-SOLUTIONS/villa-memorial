@@ -451,8 +451,8 @@ describe("the application paper (the shared paper/export kit)", () => {
 
   it("exports a valid .docx carrying the enrolment values and the honest line", async () => {
     const recorded = await recordMembershipApplication(validBody(), "Sam Staff");
-    const { blocks } = buildMembershipApplicationPaper(recorded);
-    const buffer = await paperToDocxBuffer(blocks);
+    const { blocks, profile } = buildMembershipApplicationPaper(recorded);
+    const buffer = await paperToDocxBuffer(blocks, profile);
     const zip = await JSZip.loadAsync(buffer);
     const documentXml = zip.file("word/document.xml");
     expect(documentXml).toBeTruthy();
@@ -465,8 +465,8 @@ describe("the application paper (the shared paper/export kit)", () => {
 
   it("exports a structurally valid .pdf", async () => {
     const recorded = await recordMembershipApplication(validBody(), "Sam Staff");
-    const { blocks } = buildMembershipApplicationPaper(recorded);
-    const buffer = await paperToPdfBuffer(blocks);
+    const { blocks, profile } = buildMembershipApplicationPaper(recorded);
+    const buffer = await paperToPdfBuffer(blocks, profile);
     expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     const text = buffer.toString("latin1");
     expect(text).toContain("/Type /Catalog");

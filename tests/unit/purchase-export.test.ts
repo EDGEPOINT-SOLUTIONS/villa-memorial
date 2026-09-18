@@ -85,8 +85,8 @@ describe("purchase paper model (2026 combined form)", () => {
 describe("docx export", () => {
   it("produces a valid OOXML zip whose document.xml carries the filled fields", async () => {
     const data = purchasePaperFromForm(FORM_VALUES, LOT, "2026-03-14");
-    const { blocks } = buildPurchasePaper(data);
-    const buffer = await paperToDocxBuffer(blocks);
+    const { blocks, profile } = buildPurchasePaper(data);
+    const buffer = await paperToDocxBuffer(blocks, profile);
 
     // Real consumer check: it opens as a zip and the document part parses as XML.
     const zip = await JSZip.loadAsync(buffer);
@@ -107,8 +107,8 @@ describe("docx export", () => {
 describe("pdf export", () => {
   it("produces a structurally valid PDF", async () => {
     const data = purchasePaperFromForm(FORM_VALUES, LOT, "2026-03-14");
-    const { blocks } = buildPurchasePaper(data);
-    const buffer = await paperToPdfBuffer(blocks);
+    const { blocks, profile } = buildPurchasePaper(data);
+    const buffer = await paperToPdfBuffer(blocks, profile);
 
     expect(buffer.subarray(0, 5).toString("latin1")).toBe("%PDF-");
     const text = buffer.toString("latin1");

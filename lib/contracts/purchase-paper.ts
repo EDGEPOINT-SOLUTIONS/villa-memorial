@@ -38,6 +38,7 @@ import {
   type PaperBlock,
   type PaperCell,
 } from "@/lib/export/types";
+import { PAPER_PROFILES, type PaperProfile } from "@/lib/export/paper-profile";
 
 /* ------------------------------- label maps ------------------------------- */
 
@@ -279,15 +280,29 @@ function termsFor(data: PurchasePaperData): TermsRevision {
  */
 export function buildPurchasePaper(
   data: PurchasePaperData,
-): { blocks: PaperBlock[]; terms: TermsRevision; title: string } {
+): { blocks: PaperBlock[]; terms: TermsRevision; title: string; profile: PaperProfile } {
   const terms = termsFor(data);
   const blocks: PaperBlock[] = [];
   const is2026 = terms.version === "lot-purchase-2026";
+  // The revision governs the paper as well as the wording: the 2026 combined form is a
+  // Times/Bookman folio, the 2025 standalone deed an Arial legal sheet.
+  const profile = is2026
+    ? PAPER_PROFILES["purchase-application"]
+    : PAPER_PROFILES["purchase-agreement-2025"];
 
-  // ---- Letterhead (the 2026 combined form carries the park letterhead) ----
+  // ---- Letterhead (the 2026 combined form carries the park letterhead, in Bookman) ----
   if (is2026) {
     for (const head of PARK_LETTERHEAD) {
-      blocks.push(line(head.text, { align: "center", bold: head.bold, caps: true, size: head.size ?? 10, spaceAfter: 1 }));
+      blocks.push(
+        line(head.text, {
+          align: "center",
+          bold: head.bold,
+          caps: true,
+          size: head.size ?? 10,
+          spaceAfter: 1,
+          typeface: "heading",
+        }),
+      );
     }
     blocks.push(space(6));
     blocks.push(
@@ -326,7 +341,7 @@ export function buildPurchasePaper(
     blocks.push(...dpaBlock(data));
   }
 
-  return { blocks, terms, title: terms.title };
+  return { blocks, terms, title: terms.title, profile };
 }
 
 /* ------------------------------- buyer block ------------------------------ */

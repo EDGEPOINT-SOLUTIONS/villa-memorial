@@ -27,6 +27,7 @@ import {
   receiptDateWords,
 } from "@/lib/contracts/official-receipt";
 import type { PaperBlock } from "@/lib/export/types";
+import type { PaperProfile } from "@/lib/export/paper-profile";
 
 /** The family's copy line for the shared receipt sheet (one wording, one module). */
 export { FAMILY_RECEIPT_COPY_NOTE };
@@ -138,6 +139,7 @@ export function ownedPaperNote(paper: FamilyDocument): string {
 export function buildFamilyReceiptPaper(receipt: FamilyDocument): {
   title: string;
   blocks: PaperBlock[];
+  profile: PaperProfile;
 } {
   if (!familyReceiptHasCopy(receipt) || !receipt.reference || !receipt.issued_on || !receipt.amount) {
     throw new Error("this receipt record has no copy to render");
