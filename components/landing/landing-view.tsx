@@ -331,6 +331,8 @@ export function LandingFooter({ content }: { content: LandingContent }) {
               { label: "Transport", href: "/transport" },
               { label: "Villa Memorial Park", href: "/map" },
               { label: "Photo gallery & virtual tour", href: "/gallery" },
+              { label: "Digital memorial search", href: "/memorials" },
+              { label: "Find my loved one", href: "/memorials/find" },
             ]}
           />
 

@@ -156,6 +156,12 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/map", changeFrequency: "weekly", priority: 0.8 },
   { path: "/facilities", changeFrequency: "monthly", priority: 0.8 },
   { path: "/gallery", changeFrequency: "monthly", priority: 0.7 },
+  // The digital-memorial surface (F-04): the search and the family's find path
+  // are public pages; a MEMORIAL DETAIL page is never in this table — it enters
+  // the sitemap only once its family has published it, and answers noindex
+  // otherwise (app/sitemap.ts + the detail route's generateMetadata).
+  { path: "/memorials", changeFrequency: "weekly", priority: 0.8 },
+  { path: "/memorials/find", changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq", changeFrequency: "monthly", priority: 0.6 },
   { path: "/transport", changeFrequency: "monthly", priority: 0.5 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
@@ -229,6 +235,21 @@ export function localBusinessJsonLd(content: LandingContent): Record<string, unk
     ],
   };
 }
+
+/**
+ * The head an ABSENT or UNPUBLISHED memorial answers with.
+ *
+ * `app/robots.ts` cannot express "noindex only while unpublished": the same URL
+ * shape (/memorials/[id]) serves a published memorial and one whose family kept
+ * it private, and disallowing the shape would also hide every published
+ * memorial from crawlers. So the rule lives on the page itself — published
+ * memorials build normal indexable metadata through `pageMetadata()`, everything
+ * else carries this.
+ */
+export const UNPUBLISHED_MEMORIAL_ROBOTS: Metadata["robots"] = {
+  index: false,
+  follow: true,
+};
 
 /**
  * The JSON-LD payload as a string, ready for the browser block

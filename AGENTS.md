@@ -368,6 +368,33 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   source photo changes — the page loads ~287 KB at 1440/DIP1 and ~510 KB at 390/DIP3 from
   ~3 MB of source originals, so never republish a multi-MB original.
 
+## Digital memorial — `/memorials`, `/memorials/[id]`, `/memorials/find` (F-04; read before touching them)
+
+- The three public memorial screens: the search shows its **privacy rules before its results**,
+the memorial page is one person's family-published record, and `/memorials/find` is the family's
+gentler path (how the office looks, what to bring, how a memorial is created or changed).
+- **NOTHING IS PUBLISHED BY DEFAULT and no fabricated person may ship.** The rules live in
+`lib/memorials.ts` (visibility vocabulary — `familyLabel` pinned by reading the family portal
+page — searchable/never-shown lists, the empty-query-is-nobody matcher). `lib/api-client/memorials.ts`
+is the tolerant reader and **drops every record whose visibility is not `published`**; the fixture
+`lib/fixtures/memorials/memorials.json` records `service_state: "not_wired"` and an EMPTY
+`memorials` list (the demo family's consent is `null` — “Not decided yet”). `memorialsLiveModeEnabled()`
+is always false: no service or contract exists, and no flag may pretend one does. The published
+profile is proven by tests with a test-only record (`tests/helpers/memorial-record.ts`), never by
+fixture data.
+- **One uniform answer for absent AND unpublished ids** (both → `UnavailableMemorial`): the page
+never confirms that a private person exists, never echoes the id, and its head is noindex
+(`UNPUBLISHED_MEMORIAL_ROBOTS` in `lib/seo.ts`). A published record gets normal `pageMetadata` and
+enters `app/sitemap.ts`; `/memorials?…` is `noindex` + `Disallow: /memorials?` in `app/robots.ts`
+(a robots blanket ban on `/memorials/` would hide published memorials too). `/memorials` and
+`/memorials/find` are in `PUBLIC_PAGES`; the detail shape never is.
+- The two static routes are in the reading budget (`tests/unit/reading-budget.test.tsx`) with the
+not-available detail state; `tests/unit/memorials.test.ts`, `memorials-pages.test.tsx`,
+`memorials-published-page.test.tsx` and `tests/fixture-contract/memorials.test.ts` pin the rules.
+Evidence: `docs/08-delivery/memorials-design/`.
+- Honest gaps that must stay honest: the client's own public search/privacy rules are still an
+open question (`docs/07-client-villa/open-questions.md`) and are named on `/memorials/find`.
+
 ## Public "Reach us" forms — `/contact`, `/quote`, `/appointments`
 
 - The three routes render `components/public-forms/*` on the shared apply-form shell

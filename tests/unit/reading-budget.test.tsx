@@ -16,7 +16,8 @@ import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
  *  · list items stay short too, so prose cannot move into a list.
  *
  * Scope: the public content pages that joined this guard — /services, /plans,
- * /immediate-assistance, /facilities and /gallery — plus the agent portal's
+ * /immediate-assistance, /facilities, /gallery and the digital-memorial
+ * search/find/detail screens (F-04) — plus the agent portal's
  * lead record (F-09); each page joined in the PR that added it (a room page is
  * read at a glance; the lead record must answer the person, the state and the
  * next step in the first screenful). All are executed as the real page
@@ -60,6 +61,9 @@ const { default: ImmediateAssistancePage } = await import(
 );
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
+const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
+const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
+const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
 const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
 
 const BUDGET = {
@@ -117,6 +121,25 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     render: async () =>
       renderToStaticMarkup(createElement(CartProvider, null, await GalleryPage())),
     openingLead: /<p class="gal-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/memorials (search)",
+    render: async () =>
+      renderToStaticMarkup(
+        await MemorialSearchPage({ searchParams: Promise.resolve({}) }),
+      ),
+    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/memorials/find (find my loved one)",
+    render: async () => renderToStaticMarkup(await FindMyLovedOnePage()),
+    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/memorials/[id] (not available)",
+    render: async () =>
+      renderToStaticMarkup(await MemorialPage({ params: Promise.resolve({ id: "not-published" }) })),
+    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/agent/prospects/[id] (lead record)",
