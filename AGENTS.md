@@ -909,6 +909,34 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   is in `tests/unit/reading-budget.test.tsx`. Evidence shots:
   `docs/08-delivery/agent-portal-design/shots/`.
 
+## Staff lead record — `/staff/pipeline/[id]` (read before touching the CRM lead surfaces)
+
+- The office's own view of one lead (PRD S4 Lead Detail), reached from the CRM area: the entry
+  panel `components/crm/lead-records-panel.tsx` is rendered on `/staff/pipeline` (its list; the
+  page keeps its "crm-families is unbuilt" note) and as the Customers screen's final
+  "Lead records" section — one way in, one grammar. Gating is the CRM area's own `cases:read`
+  (inline array, for `tests/unit/staff-scope-vocabulary.test.ts`); the page is read-only and
+  carries one `h1`.
+- **One vocabulary home, no second copy**: `lib/crm/lead-view.ts` re-exports the agent record's
+  `lib/agent/agent-view.ts` stage words/tone (`stageMeta`/`stageTrail`/`leadSourceLabel`/
+  `activityKindLabel`) and adds only the office policy (`stageBadgeTone`, `leadFollowOns` —
+  plan → `/staff/plans/membership/new`, lot → `/staff/property`, services → `/staff/cases/new` —
+  and `LEAD_RECORD_SERVICE_NOTE`). Never restate a stage label or source word in a view.
+- Data is `lib/fixtures/crm/lead-records.json` read through `lib/api-client/crm-leads.ts`
+  (strict reader, fixture-only: `crmLeadsLiveModeEnabled() === false` — no lead/customer-records
+  contract exists, so setting `CRM_BASE_URL` cannot make it live). The fixture is APP-AUTHORED
+  with provenance and `tests/fixture-contract/crm-leads.test.ts` pins: movement invariants
+  (first move `new` at `first_contact_at`, last move the current stage at `last_contact_at`),
+  enquiry fields equal to the matching `crm/inquiries.json` row, and — for a person the agent
+  portal also carries — owner/stage/movement/contact/next step IDENTICAL to
+  `lib/fixtures/agent/workspace.json`. Never invent a call, a move or a value; a lead with no
+  activity renders the empty state. No amount appears anywhere (the test fails one).
+- The office number is read from `lib/family/contact.ts`, never typed, and the one honest line
+  names enquiry persistence/customer sync/lead assignment as the customer-records service's job.
+- Evidence: `tests/unit/crm-lead-record.test.tsx` (the four questions, the shared words, the
+  empty-activity lead, 404/403, entry points, reading budget) + `tests/unit/crm-lead-view.test.ts`;
+  record and 1440/390 shots `docs/08-delivery/lead-record-design/`.
+
 ## Embalming & preparation record — staff case screen (read before touching `/staff/cases/[id]/preparation`)
 
 - The record a family's question about the preparation is answered from: embalmer + assistant,

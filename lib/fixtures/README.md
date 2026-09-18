@@ -83,6 +83,18 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      beneficiaries); nothing is invented and no amount appears anywhere —
      `tests/fixture-contract/lot-lifecycle.test.ts` pins every cross-reference,
      and `lib/api-client/lot-lifecycle.ts` is the only reader.
+   - `crm/lead-records.json` ← the office's OWN lead file for the CRM area
+     (PRD S4 Lead Detail + the Sales pipeline screen): per lead, the person and
+     the enquiry, the recorded pipeline movement, the recorded contact history,
+     the recorded next step and who is handling them. crm-families is unbuilt
+     (docs/02-architecture/microservices.md:49), so this is APP-AUTHORED example
+     data with provenance and `lib/api-client/crm-leads.ts` offers no live mode.
+     Its enquiry fields are the matching `crm/inquiries.json` row, and for a
+     person the agent portal also carries, the owner/stage/movement/contact/
+     next step MIRROR `agent/workspace.json` exactly —
+     `tests/fixture-contract/crm-leads.test.ts` fails on any drift and on any
+     amount-like leaf. The pipeline vocabulary itself is not repeated here:
+     `lib/crm/lead-view.ts` re-exports the agent record's own stage words.
    - `finance/commission.json` ← the recorded STATE of the commission engine for
      the staff Commission screen (F-12): app-authored, because no commission
      contract exists and the engine is deferred platform scope
