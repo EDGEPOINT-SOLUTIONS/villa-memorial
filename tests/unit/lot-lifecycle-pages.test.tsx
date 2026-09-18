@@ -30,6 +30,9 @@ const { default: OwnershipPage } = await import(
 const { default: TransfersPage } = await import(
   "@/app/(staff)/staff/property/[id]/transfers/page"
 );
+const { default: IntermentsPage } = await import(
+  "@/app/(staff)/staff/property/[id]/interments/page"
+);
 const { default: LotDetailPage } = await import("@/app/(staff)/staff/property/[id]/page");
 
 const USER_ID = "00000000-0000-4000-8000-000000000012";
@@ -39,6 +42,7 @@ const A001 = "00000000-0000-4000-8000-000000000D01"; // available, no records
 const A002 = "00000000-0000-4000-8000-000000000D02"; // reserved for Marites Santos
 const A003 = "00000000-0000-4000-8000-000000000D03"; // sold to Roberto Santos
 const C001 = "00000000-0000-4000-8000-000000000D09"; // sold to Juan Dela Cruz
+const C004 = "00000000-0000-4000-8000-000000000D0C"; // reserved for Ana Gonzales
 
 function signInAs(scopes: string[]) {
   sessionHolder.current = {
@@ -200,6 +204,76 @@ describe("the Transfers screen", () => {
   it("keeps the property area's gate", async () => {
     signInAs(["cases:read"]);
     const html = await render(TransfersPage, A003);
+    expect(html).toContain("You don’t have access to this area");
+    expect(html).toContain("property:read");
+  });
+});
+
+describe("the Interments screen", () => {
+  it("records who, when, the lot and the service for an opened ground", async () => {
+    signInAs(["property:read", "cases:read", "documents:read"]);
+    const html = await render(IntermentsPage, C001);
+
+    expect(html).toContain("<h1>Interments</h1>");
+    expect(html).toContain("Antonio Reyes");
+    expect(html).toContain("Ground opened");
+    expect(html).toContain("Aug 18, 2026");
+    expect(html).toContain("C-001 · Section C");
+    expect(html).toContain("CASE-2026-0003");
+    expect(html).toContain("Interment Service");
+    expect(html).toContain("Burial permit");
+    expect(html).toContain("DOC-2026-00003");
+    expect(html).toContain(`href="/staff/cases/00000000-0000-4000-8000-000000000C03"`);
+    expect(html).toContain("Every check is recorded: 4 of 4");
+    // The deferred workflow is named once.
+    expect(html).toContain("Interment workflows are deferred in lot-events-v1");
+  });
+
+  it("runs the checks before the ground is opened, and stops when one fails", async () => {
+    signInAs(["property:read", "cases:read", "documents:read"]);
+    const html = await render(IntermentsPage, C004);
+
+    expect(html).toContain("Rosario Gonzales");
+    expect(html).toContain("Not opened");
+    expect(html).toContain("reserved for Ana Gonzales, not sold");
+    expect(html).toContain("Deceased identity");
+    expect(html).toContain("Ownership");
+    expect(html).toContain("Payment standing");
+    expect(html).toContain("Permits");
+    expect(html).toContain("Needs attention");
+    expect(html).toContain("The ground stays closed: Ownership");
+    expect(html).toContain("Interment authorization");
+    expect(html).toContain("Open checks");
+    expect(html).not.toContain("Every check is recorded");
+  });
+
+  it("reads across the lot's other records — the open transfer shows up in a check", async () => {
+    signInAs(["property:read", "cases:read"]);
+    const html = await render(IntermentsPage, A003);
+    expect(html).toContain("Pedro Santos");
+    expect(html).toContain("Not opened");
+    expect(html).toContain("A transfer request to Luz Santos is being verified");
+    expect(html).toContain("No day set — the checks below come first");
+  });
+
+  it("keeps the tab row, the way back and the reading budget", async () => {
+    signInAs(["property:read", "cases:read", "documents:read"]);
+    const html = await render(IntermentsPage, C001);
+    expect(html).toContain(`aria-current="page" href="/staff/property/${C001}/interments"`);
+    expect(html).toContain("Back to lot");
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
+    expectNoProseWall(html, "interments");
+  });
+
+  it("is honest when the ground has never been opened here", async () => {
+    signInAs(["property:read"]);
+    const html = await render(IntermentsPage, A001);
+    expect(html).toContain("No interment is recorded for this lot");
+  });
+
+  it("keeps the property area's gate", async () => {
+    signInAs(["cases:read"]);
+    const html = await render(IntermentsPage, C001);
     expect(html).toContain("You don’t have access to this area");
     expect(html).toContain("property:read");
   });
