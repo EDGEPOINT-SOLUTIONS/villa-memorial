@@ -141,7 +141,7 @@ export default async function LotOwnershipPage({
       {/* The answer at a glance: who the papers name, where the lot stands. */}
       <PageSection>
         <Card header={<h3>The owner on the papers</h3>}>
-          <dl className="kv">
+          <dl className="kv lot-rec-kv">
             <div>
               <dt>Owner</dt>
               <dd>
@@ -198,7 +198,7 @@ export default async function LotOwnershipPage({
 
       <PageSection>
         <Card header={<h3>Right of interment</h3>}>
-          <dl className="kv">
+          <dl className="kv lot-rec-kv">
             <div>
               <dt>Recorded with</dt>
               <dd>
@@ -217,7 +217,7 @@ export default async function LotOwnershipPage({
               </dd>
             </div>
             <div>
-              <dt>First interment / funeral bundle</dt>
+              <dt>First interment / bundle</dt>
               <dd>
                 {ownership.right_of_interment.first_interment === "included"
                   ? "Included"
@@ -233,7 +233,8 @@ export default async function LotOwnershipPage({
                   "None"
                 ) : (
                   <>
-                    {intermentState.lead} · {intermentState.detail}{" "}
+                    {intermentState.lead} · {intermentState.detail}
+                    <br />
                     <Link href={`/staff/property/${encodeURIComponent(lot.id)}/interments`}>
                       Open the interment records
                     </Link>
@@ -260,38 +261,38 @@ export default async function LotOwnershipPage({
                       <th scope="col">What it backs</th>
                       <th scope="col">State</th>
                       <th scope="col">Recorded</th>
-                      {canOpenDocuments || applicationPaper ? (
-                        <th scope="col">
-                          <span className="visually-hidden">Open</span>
-                        </th>
-                      ) : null}
                     </tr>
                   </thead>
                   <tbody>
                     {applicationPaper ? (
                       <tr>
                         <td>
-                          <strong>{applicationPaper.title}</strong>
+                          <strong>
+                            <Link href={applicationPaper.href}>{applicationPaper.title}</Link>
+                          </strong>
+                          <div className="text-sm text-muted">Recorded at the counter</div>
                         </td>
                         <td>{applicationPaper.backs}</td>
                         <td>
                           <Badge tone="info">{applicationPaper.state}</Badge>
                         </td>
                         <td className="text-sm">{formatRecordDay(applicationPaper.on)}</td>
-                        <td>
-                          <Link
-                            href={applicationPaper.href}
-                            className="btn btn--secondary btn--sm"
-                          >
-                            Open
-                          </Link>
-                        </td>
                       </tr>
                     ) : null}
                     {ownership.papers.map((paper) => (
                       <tr key={paper.document_number}>
                         <td>
-                          <strong>{paper.title ?? "Not in the repository"}</strong>
+                          <strong>
+                            {canOpenDocuments && paper.document_id ? (
+                              <Link
+                                href={`/staff/documents/${encodeURIComponent(paper.document_id)}`}
+                              >
+                                {paper.title ?? "Not in the repository"}
+                              </Link>
+                            ) : (
+                              (paper.title ?? "Not in the repository")
+                            )}
+                          </strong>
                           <div className="text-sm text-muted">{paper.document_number}</div>
                         </td>
                         <td>{paper.backs}</td>
@@ -305,16 +306,6 @@ export default async function LotOwnershipPage({
                           )}
                         </td>
                         <td className="text-sm">{formatRecordDay(paper.uploaded_on)}</td>
-                        <td>
-                          {canOpenDocuments && paper.document_id ? (
-                            <Link
-                              href={`/staff/documents/${encodeURIComponent(paper.document_id)}`}
-                              className="btn btn--secondary btn--sm"
-                            >
-                              Open
-                            </Link>
-                          ) : null}
-                        </td>
                       </tr>
                     ))}
                   </tbody>

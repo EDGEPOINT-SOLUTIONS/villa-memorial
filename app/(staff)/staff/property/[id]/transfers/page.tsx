@@ -106,7 +106,7 @@ export default async function LotTransfersPage({
       {current ? (
         <PageSection>
           <Card header={<h3>The request in progress</h3>}>
-            <dl className="kv">
+            <dl className="kv lot-rec-kv">
               <div>
                 <dt>State</dt>
                 <dd>

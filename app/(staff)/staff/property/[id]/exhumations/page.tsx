@@ -145,7 +145,7 @@ export default async function LotExhumationsPage({
                 }
                 footer={`${progress.done} of ${progress.total} steps recorded`}
               >
-                <dl className="kv">
+                <dl className="kv lot-rec-kv">
                   <div>
                     <dt>Who</dt>
                     <dd>

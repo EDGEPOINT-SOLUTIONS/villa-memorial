@@ -6832,6 +6832,19 @@ a.card:hover {
   color: var(--color-text-secondary);
 }
 
+/* Lot-record kv rows carry long office labels ("First interment / bundle",
+   "Interments recorded here") — a wider label column than the 6rem default,
+   tightened again below 40rem so values keep their room on a phone. */
+.lot-rec-kv > div {
+  grid-template-columns: 10rem 1fr;
+}
+
+@media (max-width: 40rem) {
+  .lot-rec-kv > div {
+    grid-template-columns: 7rem 1fr;
+  }
+}
+
 /* Entry rows on the lot detail page: a record, its one-line state, and the
    way in — three columns that stack cleanly at 390 px. */
 .lot-rec-entry__state {

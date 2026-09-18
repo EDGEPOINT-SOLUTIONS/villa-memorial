@@ -138,7 +138,7 @@ export default async function LotIntermentsPage({
       {interments.length > 0 ? (
         <PageSection>
           <Card header={<h3>The ground here</h3>}>
-            <dl className="kv">
+            <dl className="kv lot-rec-kv">
               <div>
                 <dt>Records</dt>
                 <dd>

@@ -719,6 +719,33 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   and `tests/unit/preparation-record.test.ts` (pure labels/times/refusals). When a preparation
   contract freezes: replace the fixture, add the live branch, update
   `docs/08-delivery/notes/demo-web-route-coverage.md` (which lists the route).
+## Lot records — Ownership · Transfers · Interments · Exhumations (F-11; read before touching them)
+
+- The four routes hang off the lot (`/staff/property/[id]/{ownership,transfers,interments,exhumations}`),
+  gate on `property:read` like the rest of the property area, share the `lot-record-tabs` row
+  (`app/(staff)/staff/property/[id]/lot-record-tabs.tsx`, `aria-current`, wraps at 390 px), and
+  are entered from the lot detail page's “Lot records” table (one row per record with its
+  one-line state). Staff house style only: Card/table/kv/Badge/states, one `h1`, tokens only.
+- **The data is the office's recorded file, and each screen names its gap once.** lot-events-v1
+  (FROZEN) makes `occupied`/`for_transfer` status-only and defers the interment + transfer
+  workflows; no ownership projection exists. Records live in
+  `lib/fixtures/property/lot-lifecycle.json` (APP-AUTHORED example data with provenance; no
+  amount/fee figure anywhere; every lot/case/document/park/customer cross-reference pinned by
+  `tests/fixture-contract/lot-lifecycle.test.ts`). Reader + ownership composition:
+  `lib/api-client/lot-lifecycle.ts`; pure vocabulary/summaries: `lib/lot-lifecycle.ts`. NEVER
+  invent an owner, date, approval or fee — a missing datum prints as a missing state.
+- Ownership is composed from records that exist (frozen Lot + captured purchase application +
+  documents repository); the right-of-interment card quotes the operative rule from
+  `lib/contracts/villa-terms.ts` (first sentence of the interment clause, from the revision
+  governing the acquisition), never a paraphrase. Transfers use the clerk's four words
+  submitted/verified/approved/completed with dated steps; interments carry the identity /
+  ownership / payment / permits checks and only claim “Ground opened” where a completed case +
+  verified burial permit back it; exhumations list every requirement with the next open one and
+  always show the “record of what was done” (today: nothing has been done).
+- Evidence: `tests/unit/lot-lifecycle.test.ts` (vocabulary + summaries),
+  `tests/unit/lot-lifecycle-pages.test.tsx` (the four pages: glance order, gap lines, gating,
+  one `h1`, reading budget) and the implementation record + 1440/390 shots under
+  `docs/08-delivery/lot-lifecycle-design/`.
 
 ## Orders admin — durable fixture store (read before touching `/staff/orders`, `/api/orders`)
 
