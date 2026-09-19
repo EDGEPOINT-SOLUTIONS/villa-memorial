@@ -32,7 +32,7 @@ export function PlanPaymentTable({
 }) {
   return (
     <div className="table-wrapper" tabIndex={0}>
-      <table className="table price-table">
+      <table className="table price-table price-table--plan">
         {label ? <caption>{label}</caption> : null}
         <thead>
           <tr>
@@ -51,7 +51,10 @@ export function PlanPaymentTable({
               <tr key={r.mode}>
                 <th scope="row">{r.mode}</th>
                 {PLAN_TIERS.map((t) => (
-                  <td key={t.id} className="table__numeric">
+                  /* data-tier is the phone layout's column label: below 40rem
+                     the five tier columns stack and each amount must carry the
+                     header it lost (see .price-table--plan in components.css). */
+                  <td key={t.id} className="table__numeric" data-tier={t.name}>
                     <Link
                       className="price-request-link"
                       href={buildRequestHref({

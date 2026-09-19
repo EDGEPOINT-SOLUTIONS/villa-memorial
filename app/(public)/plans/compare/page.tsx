@@ -49,7 +49,7 @@ export default async function ComparePage() {
         <EmptyState title="No packages to compare yet" hint="Check back soon." />
       ) : (
         <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
+          <table className="table compare-table">
             <thead>
               <tr>
                 <th scope="col">Package</th>

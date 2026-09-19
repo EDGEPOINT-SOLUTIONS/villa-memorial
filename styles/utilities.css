@@ -11,6 +11,9 @@
 
 .stack-3 > * + * { margin-top: var(--space-3); }
 .stack-4 > * + * { margin-top: var(--space-4); }
+/* .stack-3/.stack-4 shipped, .stack-2 was referenced without a rule (same
+   "referenced but never defined" trap as .stack below). */
+.stack-2 > * + * { margin-top: var(--space-2); }
 
 .row {
   display: flex;
@@ -23,11 +26,16 @@
 }
 
 .text-muted { color: var(--color-text-muted); }
+/* The full ladder as classes: xs was referenced by two shipped forms but had no
+   rule, so those notes printed at body size instead of the 12px step. */
+.text-xs { font-size: var(--text-xs); }
 .text-sm { font-size: var(--text-sm); }
 .text-md { font-size: var(--text-md); }
 /* Keeps a promoted heading (h2 carrying sub-section weight) on its old ladder
    step — semantics move, the approved type scale does not. */
 .text-lg { font-size: var(--text-lg); }
+
+.nowrap { white-space: nowrap; }
 
 /* Stack + row spacing helpers (stack used by shipped client forms; was referenced but
    never defined — demo provenance has it as flex column with --space-4 gap). */

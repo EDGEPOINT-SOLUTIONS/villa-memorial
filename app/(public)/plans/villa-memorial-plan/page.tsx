@@ -46,7 +46,12 @@ export default async function VillaMemorialPlanPage() {
               Served by Funeraria Villa &amp; ZC-Arcega Funeral Homes, underwritten by
               Villa Agency Insurance Services.
             </p>
-            <p className="plan-logo-row">
+            {/* The class was .plan-logo-row, whose rule left the stylesheet with
+                the package-page pass; the page kept the name, so the two logos
+                rendered at their natural 560/460px and the hero's overflow:hidden
+                sliced them. .logo-row is the live shared logo row (home board,
+                package page) and sizes them at 2.6rem. */}
+            <p className="logo-row" style={{ marginTop: "var(--space-4)" }}>
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
               <img src={LOGO_VILLA_AGENCY} alt="Villa Agency Insurance Services — Insure. Invest. Prosper." />
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}

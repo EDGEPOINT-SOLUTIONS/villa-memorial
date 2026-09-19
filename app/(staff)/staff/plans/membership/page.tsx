@@ -99,7 +99,7 @@ export default async function MembershipsPage() {
         ) : (
           <div className="table-wrapper" tabIndex={0}>
             <table className="table">
-              <caption className="sr-only">Recorded membership applications</caption>
+              <caption className="visually-hidden">Recorded membership applications</caption>
               <thead>
                 <tr>
                   <th scope="col">Plan holder</th>
@@ -109,7 +109,7 @@ export default async function MembershipsPage() {
                   <th scope="col">Applied</th>
                   <th scope="col">Recorded by</th>
                   <th scope="col">
-                    <span className="sr-only">Open</span>
+                    <span className="visually-hidden">Open</span>
                   </th>
                 </tr>
               </thead>

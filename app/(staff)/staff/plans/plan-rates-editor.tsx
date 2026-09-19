@@ -216,7 +216,7 @@ export function PlanRatesEditor({
               </p>
               <div className="table-wrapper" tabIndex={0}>
                 <table className="table pricing-editor__table">
-                  <caption className="sr-only">{label} — five tiers, four payment modes</caption>
+                  <caption className="visually-hidden">{label} — five tiers, four payment modes</caption>
                   <thead>
                     <tr>
                       <th scope="col">Payment mode</th>
