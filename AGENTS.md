@@ -68,6 +68,17 @@ on backend services.
   1×1px helper, so a hidden file input stretched to its row and pushed the map / property /
   landing-editor pages 57–380px past the viewport (the whole page could be panned sideways).
   Both rules now carry `:not(.visually-hidden)`; keep it that way in `styles/components.css`.
+- **A phone width is a rendering contract, not a smaller desktop.** At 390 the `/plans` rate card
+  sliced its caption and its third tier to the viewport edge inside a pan frame (it now stacks
+  below 40rem — `.price-table--plan` + the cells' `data-tier` labels), the `/lots` type filter's
+  999px capsule turned into an ellipse through its own chips (every wrapping capsule needs a
+  ≤40rem radius cap), and the `/plans/villa-memorial-plan` hero printed 560px logos because
+  `.plan-logo-row`'s rule had been deleted while the page kept the class (`.text-xs`, `.stack-2`,
+  `.sr-only`, `nowrap`, `.table__name/__sub` were the same "referenced, never defined" bug).
+  Read `docs/08-delivery/visual-regression-2/README.md` before touching a public phone layout;
+  `tests/unit/phone-layout.test.tsx` gates the class (phone re-layout for the rate table, capsule
+  caps, pan containers' `overflow-x`, and the closed utility vocabulary — add the rule in the
+  same commit as the class, and `grep "^\\.<class> {"` first).
 
 ## Self-check commands (before every PR)
 ```bash
