@@ -377,7 +377,7 @@ export function LotPricesEditor({
 
             <div className="table-wrapper pricing-editor__scroll" tabIndex={0}>
               <table className="table pricing-editor__table">
-                <caption className="sr-only">
+                <caption className="visually-hidden">
                   {category.title || `Family ${ci + 1}`} — regular and senior amounts by product
                 </caption>
                 <thead>
@@ -395,7 +395,7 @@ export function LotPricesEditor({
                       Senior citizen
                     </th>
                     <th scope="col" rowSpan={2}>
-                      <span className="sr-only">Row actions</span>
+                      <span className="visually-hidden">Row actions</span>
                     </th>
                   </tr>
                   <tr>

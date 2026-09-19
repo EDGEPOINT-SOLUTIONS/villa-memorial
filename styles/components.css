@@ -325,6 +325,18 @@ input[type="checkbox"] {
   font-variant-numeric: tabular-nums;
 }
 
+/* Two-line identity cell (name over its sub-label) — used by the staff
+   dashboard's bookings table, whose both classes had no rule. */
+.table__name {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.table__sub {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
 /* Table caption (used by the 2026 casket tables — reads as the sheet's own
    note above the columns, matching .pl-table caption's grammar). */
 .table caption {
@@ -344,6 +356,85 @@ input[type="checkbox"] {
   text-transform: uppercase;
   color: var(--color-text-secondary);
   background: var(--color-bg-surface);
+}
+
+/* The Villa Memorial Plan rate card on a phone (captain's /plans report,
+   2026-09-19). The client's sheet is a five-tier × four-term table — 515px of
+   columns — and inside a 390px viewport's 292px pan frame it sliced its caption
+   and column headers mid-word and showed two and a half tiers at a time. Below
+   40rem the table stacks: each payment mode is its own block, and every amount
+   carries the tier name the hidden column header used to hold (data-tier). All
+   five tiers are then readable without panning; above 40rem the sheet's table
+   and its pan frame are unchanged, and the amounts stay request links. */
+@media (max-width: 40rem) {
+  .price-table--plan,
+  .price-table--plan tbody,
+  .price-table--plan tr,
+  .price-table--plan th {
+    display: block;
+  }
+
+  .price-table--plan thead {
+    display: none;
+  }
+
+  .price-table--plan caption {
+    display: block;
+    width: auto;
+    padding: 0 0 var(--space-2);
+  }
+
+  .price-table--plan th,
+  .price-table--plan td {
+    border-bottom: 0;
+  }
+
+  .price-table--plan tr {
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .price-table--plan tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .price-table--plan th[scope="row"] {
+    padding: 0 0 var(--space-1);
+    font-size: var(--text-md);
+    font-weight: 700;
+  }
+
+  .price-table--plan td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-1) 0;
+  }
+
+  .price-table--plan td::before {
+    content: attr(data-tier);
+    color: var(--color-text-secondary);
+    font-size: var(--text-sm);
+  }
+}
+
+/* The compare table (/plans/compare) is a label column plus one column per
+   package. At 390 its four columns need 71px more than the 342px card, with the
+   package names and price strings driving the min-content, so the Premium
+   column sliced mid-word. Tighter cell padding plus breaking the long
+   description cells anywhere brings all four columns inside the card; above
+   40rem the table is untouched. */
+@media (max-width: 40rem) {
+  .compare-table th,
+  .compare-table td {
+    padding: var(--space-2);
+  }
+
+  .compare-table td.text-sm {
+    overflow-wrap: anywhere;
+    hyphens: auto;
+  }
 }
 
 /* Plan payment cells are request links: the amount stays the sheet's own text,
@@ -5779,6 +5870,16 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-2);
 }
 
+/* On a phone the buy card is ~290px wide and four term columns leave every
+   button narrower than its own label, so the control ellipsised its terms
+   (MONT…, QUART…, SEMI-A… — the captain's /plans report, 2026-09-19). Two rows
+   of two give each label its width back; the prices ride beneath as before. */
+@media (max-width: 40rem) {
+  .term-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .term-btn {
   position: relative;
   border: 1px solid var(--sky-200);
@@ -5916,6 +6017,16 @@ because the shared `.ag-appt` rule comes later in this file. */
 .term-switch button[aria-pressed="true"] {
   background: var(--sky-700);
   color: #fff;
+}
+
+/* The term switch wraps to two rows on a phone; a 999px radius then resolves to
+   half its height and the switch reads as a stadium around the rows rather than
+   a control. Below 40rem the wrapped capsule keeps a normal corner (the same
+   rule the /lots filter capsules follow). */
+@media (max-width: 40rem) {
+  .term-switch {
+    border-radius: var(--radius-lg);
+  }
 }
 
 .pl-scroll {
@@ -6141,6 +6252,18 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: rgb(255 255 255 / 0.16);
   border-color: transparent;
   color: #ffffff;
+}
+
+/* A 999px radius is a capsule only while the group is one row. On a phone the
+   legend group wraps to five rows and the radius resolves to half the group's
+   height, so the border becomes an ellipse whose curve cuts through the first
+   and last chips (captain's /lots report, 2026-09-19). Below 40rem — where any
+   of the three groups can wrap past two rows — a normal corner holds its shape;
+   the active pill still reads as the capsule. */
+@media (max-width: 40rem) {
+  .seg-filter {
+    border-radius: var(--radius-lg);
+  }
 }
 
 /* Labelled facts on the plan pages — chips, not paragraphs (reading budget,
@@ -10375,6 +10498,22 @@ a.card:hover {
   gap: var(--space-2);
   font-weight: 600;
   color: var(--color-text-primary);
+}
+
+/* Below 40rem the middle column leaves the board 308px while the four term
+   columns need 348px, so the pan frame sliced the last column's header and
+   amounts mid-glyph. Tighter cell padding plus the header's letter-spacing
+   (only at phone widths) brings the sheet inside its frame; the frame and the
+   four columns above 40rem are untouched. */
+@media (max-width: 40rem) {
+  .plan-table th,
+  .plan-table td {
+    padding: 0.4rem 0.2rem;
+  }
+
+  .plan-table thead th {
+    letter-spacing: 0;
+  }
 }
 
 /* The underwriters' chip beside the two client logos (.logo-row itself is
