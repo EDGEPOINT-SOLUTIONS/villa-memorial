@@ -12,11 +12,11 @@ import { LandingFooter } from "@/components/landing/landing-view";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
 import { CHAPEL_NOTES, CHAPEL_RATES, php } from "@/lib/villa-pricing";
 import {
-  CHAPEL_COMMON_IMAGE,
-  CHAPEL_PRIVATE_IMAGE,
+  CHAPEL_HALL_PEDESTALS_IMAGE,
   CHAPEL_SAMPLE_NOTE,
   PARK_PLACE_PHOTOS,
   VILLA_PARK_AERIAL,
+  WAKESETUP_ALCOVE_IMAGE,
   libraryThumb,
 } from "@/lib/media";
 
@@ -69,12 +69,14 @@ describe("/facilities shows the rooms a family is choosing between", () => {
     expect((html.match(/class="fac-room"/g) ?? []).length).toBe(2);
     expect(html).toContain("Common chapel");
     expect(html).toContain("Private chapel");
-    expect(html).toContain(CHAPEL_COMMON_IMAGE);
-    expect(html).toContain(CHAPEL_PRIVATE_IMAGE);
-    // The sheet photographs a sample set-up, so both photos carry its own
-    // illustration label and an alt that says so.
+    // 2026-09-19: the two classes show the client's OWN 2026 photographs — the
+    // chapel hall for the common class, a decorated viewing room for the private
+    // one. Both keep the sheet's illustration label (the office confirms the
+    // room), and both alts name whose photograph it is.
+    expect(html).toContain(CHAPEL_HALL_PEDESTALS_IMAGE);
+    expect(html).toContain(WAKESETUP_ALCOVE_IMAGE);
     expect((html.match(new RegExp(escapeRe(CHAPEL_SAMPLE_NOTE), "g")) ?? []).length).toBe(2);
-    expect((html.match(/alt="Illustrative sample/g) ?? []).length).toBe(2);
+    expect((html.match(/alt="(The chapel hall in the client|A decorated private viewing room in the client)/g) ?? []).length).toBe(2);
   });
 
   it("publishes the sheet's per-day rate for each room, with its unit", async () => {

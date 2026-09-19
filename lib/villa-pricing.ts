@@ -30,6 +30,7 @@
  * the ones now in the fixture), so a future transcription slip cannot ship.
  */
 import pricingSeedFile from "@/lib/fixtures/commerce/pricing.json";
+import { clientPhotoCard, type ClientPhotoId } from "@/lib/client-photos";
 import {
   assertPricingDocument,
   lotCategoryFromPriceOf,
@@ -96,18 +97,38 @@ export const SENIOR_PAYMENTS: PaymentRow[] = SEED_PRICING.plans.senior;
 export const LOT_PRICE_CATEGORIES: LotCategory[] = SEED_PRICING.lotCategories;
 
 /**
- * The client's TYPES OF COFFIN sheet — the five tiers with their photography.
- * The `lid` line is the sheet's own sentence for that tier (Bronze 2, Silver 2
- * and Gold come with a FULL glass lid; only Bronze 1 and Silver 1 are
- * half-glass), pinned by tests/unit/villa-pricing.test.ts because an earlier
- * transcription had Bronze 2 published as half-glass.
+ * The client's TYPES OF COFFIN sheet — the five tiers. The `lid` line is the
+ * sheet's own sentence for that tier (Bronze 2, Silver 2 and Gold come with a
+ * FULL glass lid; only Bronze 1 and Silver 1 are half-glass), pinned by
+ * tests/unit/villa-pricing.test.ts because an earlier transcription had Bronze 2
+ * published as half-glass.
+ *
+ * `photo` (2026-09-19 imagery pass): the tier rows used to reprint the sheet's
+ * own 300–550 px catalogue crops, which went soft the moment a ledger printed
+ * them at 600 px. They now show the client's OWN 2026 photographs
+ * (lib/client-photos.ts), matched to the lid the tier line states: a closed lid
+ * for the half-glass tiers and a raised full-glass lid for the glass ones. The
+ * sheet's crops keep their strip on /products/[sku], where they are small and
+ * the sheet's own lid lines sit beside them.
  */
+export const COFFIN_TIER_PHOTO_IDS: Readonly<Record<string, ClientPhotoId>> = {
+  "Bronze 1": "casket-white-closed",
+  "Bronze 2": "casket-white-open-lid",
+  "Silver 1": "casket-white-gold-closed",
+  "Silver 2": "casket-white-gold-glass-lid",
+  Gold: "casket-white-gold-wreath-lid",
+};
+
+const TIER_PHOTOS: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(COFFIN_TIER_PHOTO_IDS).map(([tier, id]) => [tier, clientPhotoCard(id).src]),
+);
+
 export const COFFINS = [
-  { tier: "Bronze 1", photo: "/media/bronze-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
-  { tier: "Bronze 2", photo: "/media/bronze-casket.jpg", lid: "Full glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
-  { tier: "Silver 1", photo: "/media/silver-casket.jpg", lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant." },
-  { tier: "Silver 2", photo: "/media/silver-casket.jpg", lid: "Full glass lid (cover convertible to full-glass or half-glass)", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant; cover convertible to full-glass or half-glass." },
-  { tier: "Gold", photo: "/media/gold-casket.jpg", lid: "Full-glass lid (cover can be full-glass or half-glass)", description: "Special metal coffin with smooth finish, classy handles and beautiful interiors. More stylish and sophisticated; cover can be full-glass or half-glass." },
+  { tier: "Bronze 1", photo: TIER_PHOTOS["Bronze 1"], lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
+  { tier: "Bronze 2", photo: TIER_PHOTOS["Bronze 2"], lid: "Full glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors." },
+  { tier: "Silver 1", photo: TIER_PHOTOS["Silver 1"], lid: "Half-glass lid", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant." },
+  { tier: "Silver 2", photo: TIER_PHOTOS["Silver 2"], lid: "Full glass lid (cover convertible to full-glass or half-glass)", description: "Wooden/metal coffin with smooth finish, elegant handles and beautiful interiors. Slightly bigger than Bronze and more elegant; cover convertible to full-glass or half-glass." },
+  { tier: "Gold", photo: TIER_PHOTOS["Gold"], lid: "Full-glass lid (cover can be full-glass or half-glass)", description: "Special metal coffin with smooth finish, classy handles and beautiful interiors. More stylish and sophisticated; cover can be full-glass or half-glass." },
 ] as const;
 
 /**

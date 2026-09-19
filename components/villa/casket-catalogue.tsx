@@ -22,26 +22,28 @@ import {
  * reference table below it.
  *
  *  - CasketModelCards: one LEDGER per collection (the composition grammar in
- *    styles/components.css). The collection's sample photograph leads ONCE, at
- *    full size, beside the first model's complete facts; that collection's other
- *    models follow as hairline-separated rows carrying their own figures, their
- *    own detail link and their own two actions. Every model therefore keeps
+ *    styles/components.css). The collection's first model leads at full size,
+ *    beside its complete facts; that collection's other models follow as
+ *    hairline-separated rows, EACH CARRYING ITS OWN PHOTOGRAPH, its own figures,
+ *    its own detail link and its own two actions. Every model therefore keeps
  *    everything it had — name, SRP, senior SRP, discount and discounted price,
  *    the catalogue SKU, "View details", "Add to cart" (the exact catalogue
  *    SKU/price through the shared CatalogueActions pair) and "Request order"
- *    (the prefilled contact capture — an enquiry, never a reservation) — while
- *    the twenty-four identical shadowed boxes are gone.
+ *    (the prefilled contact capture — an enquiry, never a reservation).
  *
- *    Why the photograph leads once per collection and not per model: the sheet
- *    photographs five SAMPLE coffins (Bronze 1/2, Silver 1/2, Gold) and binds
- *    none of them to a named model, so a card per model could only ever reprint
- *    its collection's one sample — twenty-four cards showing four pictures, which
- *    is precisely what read as a template rather than as a catalogue. Publishing
- *    it once, chipped "Sample photograph" and captioned from the sheet's own
- *    label, is both the honest presentation and the designed one. The provisional
- *    collection → sample binding is still lib/media.ts, and the open client
- *    question (which sample belongs to Lumina / White Rose / Crown / Dynasty) is
- *    unchanged.
+ *    On the photographs: the client supplied 14 usable 2026 photographs and none
+ *    of them is named after a 2026 sheet model (open client question — see
+ *    lib/client-photos.ts). Each model therefore shows the closest photograph BY
+ *    THE COVER ITS OWN NAME STATES AND ITS COLLECTION'S PRICE BAND (the rule and
+ *    its reasons: `CASKET_MODEL_PHOTO_RULES` in lib/media.ts), and every
+ *    published photograph — the lead's and the rows' — is chipped and captioned
+ *    as a sample with the sheet's own substitution note (COFFIN_TIER_NOTE). A
+ *    family never reads a picture as a promise: it reads exactly what the
+ *    photograph is.
+ *
+ *    The sheet's own five sample coffins (Bronze 1/2, Silver 1/2, Gold) keep
+ *    their strip on the model detail page, where the sheet's lid lines are
+ *    published beside them.
  *  - CasketInclusionTable reads "PRICE LIST FOR 2026 III": the per-family row of
  *    flowers / tarp / lapida / family car / 1 doz roses / thank-you card and the
  *    package's common & private chapel day rate, with the sheet's own footnotes.
@@ -97,13 +99,15 @@ export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
                 {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
                 <img
                   src={sample.src}
-                  alt={`Illustrative sample coffin — ${sample.label}. Not a photograph of the ${lead.model.model} model itself.`}
+                  srcSet={sample.srcSet}
+                  sizes="(max-width: 48rem) 92vw, 30rem"
+                  alt={`Illustrative sample coffin — ${sample.alt}`}
                   loading="lazy"
                 />
                 <span className="casket-sample__chip">Sample photograph</span>
                 <figcaption className="ledger__caption">
-                  <strong>{sample.label}</strong> — the closest sample on the client&rsquo;s TYPES OF
-                  COFFIN sheet for this collection. {COFFIN_TIER_NOTE}
+                  <strong>{sample.label}</strong> — a sample from the client&rsquo;s own 2026
+                  photographs, chosen for this collection&rsquo;s cover and finish. {COFFIN_TIER_NOTE}
                 </figcaption>
               </figure>
               <div className="ledger__body">
@@ -139,9 +143,23 @@ export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
               <ul className="ledger__list">
                 {rest.map(({ model, item }) => {
                   const href = casketDetailHref(model.model);
+                  const photo = casketSamplePhoto(model);
                   return (
                     <li className="ledger__entry" key={item.sku}>
-                      <div className="ledger__row">
+                      <div className="ledger__row ledger__row--model">
+                        <figure className="model-photo">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
+                          <img
+                            src={photo.src}
+                            srcSet={photo.srcSet}
+                            sizes="(max-width: 40rem) 6rem, 8rem"
+                            alt={`Illustrative sample coffin — ${photo.alt}`}
+                            loading="lazy"
+                          />
+                          <figcaption className="model-photo__label">
+                            <span className="model-photo__chip">Sample</span> {photo.label}
+                          </figcaption>
+                        </figure>
                         <h4 className="ledger__row-title">
                           <Link href={href}>{item.name}</Link>
                         </h4>

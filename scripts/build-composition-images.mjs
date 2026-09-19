@@ -72,8 +72,12 @@ const WIDTHS = [480, 720];
  * The output name is `mediaSlug(source)` — the SAME rule lib/media.ts
  * (`libraryThumb`) applies to build the URL at render time. Change one and the
  * `tests/unit/composition-pass.test.tsx` weight check fails on a missing file.
+ *
+ * 960 was added by the 2026-09-19 imagery pass: the park aerial on /facilities
+ * renders at 45rem (719 CSS px measured at 1440), wider than the 640 the two
+ * original widths topped out at — the figure was upscaling its own thumbnail.
  */
-const THUMB_WIDTHS = [320, 640];
+const THUMB_WIDTHS = [320, 640, 960];
 const THUMB_SOURCES = [
   { src: "lot-primary.png", crop: LOGO_TOP_LEFT_TILE },
   { src: "lot-premium.png", crop: LOGO_TOP_LEFT_TILE_PREMIUM },

@@ -15,6 +15,7 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import { casketDetailHref, coffinModelForSku, coffinSku } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
 import { COFFIN_SAMPLE_PHOTOS, casketSamplePhoto } from "@/lib/media";
+import { clientPhotoWide } from "@/lib/client-photos";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 
@@ -48,13 +49,16 @@ export async function generateMetadata({ params }: CasketDetailParams): Promise<
       path: "/products",
     });
   }
+  const sample = casketSamplePhoto(model);
   return pageMetadata({
     title: `${model.model} casket — 2026 price — Villa Memorial`,
     description: `${model.model} (${model.collection}) — the client's 2026 SRP of ${php(model.srp)} and the senior-citizen price of ${php(model.seniorPrice)}, with the inclusions this model carries.`,
     // Canonicalise every case/spelling variant to the sheet's own SKU URL.
     path: `/products/${coffinSku(model.model)}`,
-    image: casketSamplePhoto(model).src,
-    imageAlt: `Illustrative sample coffin — ${casketSamplePhoto(model).label}`,
+    // The share card takes the feature crop (3:2, the largest published width),
+    // not the 4:3 catalogue thumbnail.
+    image: clientPhotoWide(sample.id).src,
+    imageAlt: `Illustrative sample coffin — ${sample.alt}`,
   });
 }
 

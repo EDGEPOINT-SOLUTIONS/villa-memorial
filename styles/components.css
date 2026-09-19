@@ -1363,6 +1363,88 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-lg);
 }
 
+/* --- Casket catalogue rows ---------------------------------------------------
+   The captain's 2026-09-19 brief: every one of the 24 models carries its own
+   photograph. The row keeps the ledger grammar (a rule, not a box) and gains one
+   thumbnail column; the picture is captioned with what it actually is — a sample
+   from the client's own photographs — because the client's photo set is not yet
+   reconciled with the price sheet's model names (lib/client-photos.ts).
+
+   Placement is explicit (grid-column/grid-row), not grid-template-areas: the
+   base `.ledger__row-meta`/`__actions` rules span `1 / -1`, and an explicit
+   span beats an area name — the photo column would be swallowed by the meta
+   line. Same-specificity class, declared after `.ledger__row`, so it wins. */
+.ledger__row--model {
+  grid-template-columns: 8rem minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--space-4);
+}
+
+.ledger__row--model .model-photo {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+}
+
+.ledger__row--model .ledger__row-title {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.ledger__row--model .ledger__row-figure {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.ledger__row--model .ledger__row-meta {
+  grid-column: 2 / -1;
+  grid-row: 2;
+}
+
+.ledger__row--model .ledger__row-actions {
+  grid-column: 2 / -1;
+  grid-row: 3;
+}
+
+.model-photo {
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* A stated `aspect-ratio` needs the height reset: the reserved width/height
+   attributes are a presentational hint and would otherwise win (the rule the
+   ledger block documents). The picture's space stays reserved. */
+.model-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--marble-100);
+}
+
+.model-photo__label {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.model-photo__chip {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+@media (max-width: 40rem) {
+  .ledger__row--model {
+    grid-template-columns: 6rem minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+  }
+}
+
 /* --- Public catalog pages (villa item-card grammar, DOC palette) ------------- */
 .page-hero {
   text-align: center;
@@ -4741,6 +4823,20 @@ because the shared `.ag-appt` rule comes later in this file. */
   object-fit: contain;
 }
 
+/* The package card's photograph caption (2026-09-19 imagery pass): the gallery's
+   caption grammar — the picture named, then the client's own note — at the
+   catalogue's type size. The figure carries no margin of its own. */
+.item-card__figure {
+  margin: 0;
+}
+
+.item-card__caption {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 /* Legend chips (type colours + status counts) */
 .legend {
   display: flex;
@@ -6954,7 +7050,13 @@ because the shared `.ag-appt` rule comes later in this file. */
 .casket-sample__media img {
   display: block;
   width: 100%;
+  /* The height reset the ledger block documents: a reserved width/height
+     attribute would otherwise make this ratio a no-op. 3:2 is the same ratio as
+     the published `wide` crop, so nothing is cropped — the picture keeps the
+     client's own framing. */
   height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
 }
 
 .casket-sample__chip {
@@ -14745,6 +14847,96 @@ a.card:hover {
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
+}
+
+/* --- The client's own photograph on each a-la-carte line (2026-09-19) --------
+   The five fees were five hairline rows of words. Each row now leads with the
+   client's own photograph of the work — the casket in their care, the karwahe,
+   the alcove they build, a sample plain coffin, the park — placed exactly like
+   the catalogue rows so a reader moving between /products and /services sees one
+   grammar. Explicit placement wins over the base card's `grid-column` rules. */
+.sv-price-card--photo {
+  grid-template-columns: 7.5rem minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--space-4);
+}
+
+.sv-price-card__media {
+  margin: 0;
+  min-width: 0;
+}
+
+/* The height reset every `img`-level ratio in this file carries: the reserved
+   width/height attributes are a presentational hint and would make the ratio a
+   no-op. Space stays reserved. */
+.sv-price-card__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--marble-100);
+}
+
+.sv-price-card--photo .sv-price-card__media {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+}
+
+.sv-price-card--photo .sv-price-card__head {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.sv-price-card--photo .sv-price-card__plain {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.sv-price-card--photo .sv-price-card__amount {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+}
+
+.sv-price-card--photo .sv-price-card__actions {
+  grid-column: 2 / -1;
+  grid-row: 3;
+}
+
+/* Below the two-column sheet the price column squeezes the note into one word
+   per line (measured at 390 px: 6rem photo + a nowrap ₱ figure left the note
+   60 px wide). The photograph and name share the top row, the figure drops
+   under the name, and the actions close the row. */
+@media (max-width: 48rem) {
+  .sv-price-card--photo {
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+  }
+
+  .sv-price-card--photo .sv-price-card__media {
+    grid-row: 1 / span 2;
+  }
+
+  .sv-price-card--photo .sv-price-card__plain {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .sv-price-card--photo .sv-price-card__amount {
+    grid-column: 2;
+    grid-row: 2;
+    justify-content: flex-start;
+    align-self: start;
+  }
+
+  .sv-price-card--photo .sv-price-card__unit {
+    text-align: left;
+  }
+
+  .sv-price-card--photo .sv-price-card__actions {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
 }
 
 /* Explicit "these two buttons" legend — repeated once per section, not per

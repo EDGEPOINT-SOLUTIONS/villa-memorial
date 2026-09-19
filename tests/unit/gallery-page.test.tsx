@@ -73,10 +73,18 @@ function candidatesOf(photo: GalleryPhoto): Array<{ file: string; width: number 
 }
 
 describe("the gallery shows the client's own photographs", () => {
-  it("publishes only generated derivatives from public/media/gallery", () => {
+  it("publishes only generated derivatives from public/media", () => {
     expect(PHOTOS.length).toBeGreaterThanOrEqual(6);
     for (const photo of PHOTOS) {
-      expect(photo.src.startsWith("/media/gallery/")).toBe(true);
+      // Two derivative homes: the park shots the gallery script generates, and
+      // the client's own 2026 photographs (public/media/client/, written by
+      // scripts/build-client-photos.mjs). Both are committed WebP derivatives —
+      // an original JPEG may never be the file a page serves.
+      expect(
+        photo.src.startsWith("/media/gallery/") || photo.src.startsWith("/media/client/"),
+        photo.src,
+      ).toBe(true);
+      expect(photo.src.endsWith(".webp"), photo.src).toBe(true);
       for (const candidate of candidatesOf(photo)) {
         const file = path.join(REPO_ROOT, "public", candidate.file.replace(/^\//, ""));
         expect(existsSync(file), `${candidate.file} is published but missing`).toBe(true);
@@ -122,19 +130,21 @@ describe("the gallery shows the client's own photographs", () => {
 });
 
 describe("the gallery labels client sample imagery exactly as the services page does", () => {
-  it("keeps the sheet's illustration-purposes-only label on every sample", async () => {
+  it("keeps the illustration-purposes-only label on every sample", async () => {
     const html = await renderGallery();
     const chapelSamples = PHOTOS.filter((photo) => photo.note === CHAPEL_SAMPLE_NOTE);
     const serviceSamples = PHOTOS.filter((photo) => photo.note === SERVICE_SAMPLE_NOTE);
+    // Every card the record marks as a sample carries one of the two labels.
+    const samples = PHOTOS.filter((photo) => photo.note?.includes("Illustration purposes only"));
 
     expect(chapelSamples.length).toBeGreaterThan(0);
     expect(serviceSamples.length).toBeGreaterThan(0);
-    for (const photo of [...chapelSamples, ...serviceSamples]) {
+    for (const photo of samples) {
       expect(html).toContain(photo.note as string);
     }
     // The label appears once per sample and nowhere else.
     const labels = (html.match(/Illustration purposes only/g) ?? []).length;
-    expect(labels).toBe(chapelSamples.length + serviceSamples.length);
+    expect(labels).toBe(samples.length);
     // It is the same vocabulary the client sheet prints and /services publishes.
     expect(CHAPEL_SAMPLE_NOTE).toContain("Illustration purposes only");
     expect(SERVICE_SAMPLE_NOTE).toContain("Illustration purposes only");

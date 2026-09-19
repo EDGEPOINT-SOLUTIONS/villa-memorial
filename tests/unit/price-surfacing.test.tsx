@@ -11,6 +11,7 @@ import {
   CASKET_MODELS,
   CHAPEL_NOTES,
   CHAPEL_RATES,
+  COFFINS,
   EMBALMING_RATES,
   php,
 } from "@/lib/villa-pricing";
@@ -128,9 +129,11 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
     for (const lid of ["Half-glass lid", "Full glass lid"]) {
       expect(html).toContain(lid);
     }
-    expect(html).toMatch(/bronze-casket\.jpg/);
-    expect(html).toMatch(/silver-casket\.jpg/);
-    expect(html).toMatch(/gold-casket\.jpg/);
+    // 2026-09-19: the tier ledger shows the client's OWN 2026 photographs
+    // (lib/villa-pricing.ts TIER_PHOTOS), not the sheet's 300-550 px crops.
+    for (const tier of COFFINS) {
+      expect(html, `${tier.tier} photograph`).toContain(tier.photo);
+    }
   });
 
   it("publishes sheet III's inclusion row and chapel day rates for every family", () => {
