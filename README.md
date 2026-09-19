@@ -61,6 +61,29 @@ frozen flip to real services with no code changes, while app-authored admin stor
 (catalog/plans/pricing/orders, chapel admin) answer an honest 503 until their own contract
 freezes — the named blocker travels with the page.
 
+**Fixture-mode sign-in is not access control.** With `AUTH_BASE_URL` unset the fixture auth
+client accepts the demo personas listed above; the production profile disables the demo
+*conveniences* (quick-fill, published password, persona chips) but the credentials themselves
+only stop working once `AUTH_BASE_URL` points at identity-access. See
+[`deploying-web.md`](docs/08-delivery/deploying-web.md) §4.
+
+## Deploy it
+
+Two compose stacks, one application image — never mix them:
+
+| Stack | File | Use |
+|---|---|---|
+| **Demo / development** | `docker-compose.yml` | fixtures + `stub-gateway` + demo quick-fill and persona hints on, non-Secure cookies. Carries its own NOT FOR PRODUCTION banner. |
+| **Production** | `docker-compose.production.yml` + `.env.production` (copy `.env.production.example`) | quick-fill and password off (pinned), Secure cookies, `NEXT_PUBLIC_DEMO_HINTS=0`, real gateway URLs from the environment; a URL left empty keeps that surface on its recorded fixtures. |
+
+```bash
+cp .env.production.example .env.production     # fill in SITE_URL (+ the service URLs that exist)
+docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
+```
+
+Full recipe — what to set, the healthy-deploy checks, what can and cannot go live, the
+host-specific notes and the platform asks: [`docs/08-delivery/deploying-web.md`](docs/08-delivery/deploying-web.md).
+
 ## "Not wired yet" labels are honest, not decoration
 
 Screens marked "not wired yet"/"coming soon" exist so the IA, design and RBAC are

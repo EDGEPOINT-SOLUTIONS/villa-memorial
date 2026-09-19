@@ -18,6 +18,9 @@ acceptance criteria, QA strategy, KPIs and risks.
 - `requirements-engineering.md` — artifact list A–T, 8-phase output, spec-driven method, agent behavior rules
 - `risks.md` — risk register with mitigations
 - `deploying-staging.md` — staging v0.1 deploy runbook (Kamal, secrets, first-boot steps)
+- `deploying-web.md` — the **front end's** production profile: what to build, what to set,
+  how to check a deploy is healthy, which surfaces can go live, and what the platform owes.
+  The demo/development stack stays `docker-compose.yml`; this is the deployable one.
 - `contracts/` — frozen cross-track contracts: `order-fulfilled-event.md`,
   `order-payment-api-v1.md`, `jwt-claims-v1.md`, `tenant-context-header-v1.md`,
   `audit-event-types-v1.md`

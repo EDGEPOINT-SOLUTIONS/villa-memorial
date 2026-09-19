@@ -82,6 +82,13 @@ docker compose up --build                            # SSR on :3000 against stub
 | Fixtures (default) | no `AUTH_BASE_URL` | In-process recorded persona responses; unsigned structural tokens |
 | Stub compose | `docker compose up --build` | Same fixtures served by `stub-gateway/` mirroring edge-gateway paths |
 | Live | `AUTH_BASE_URL=<gateway>` | BFF proxies `${AUTH_BASE_URL}/identity/api/v1/auth/*` |
+| Deployed (production profile) | `docker compose --env-file .env.production -f docker-compose.production.yml up -d --build` | Same image, demo conveniences pinned OFF (no quick-fill, no published password, secure cookies, no persona chips), gateway URLs from the env — empty keeps that surface on fixtures. Recipe + proof: `docs/08-delivery/deploying-web.md`; env: `.env.production.example` |
+
+The demo stack is **never** the deployment: `docker-compose.yml` publishes a demo password,
+runs non-Secure cookies and starts the stub gateway. It keeps its NOT FOR PRODUCTION banner
+and stays usable for development. A production build passes `NEXT_PUBLIC_DEMO_HINTS=0` and the
+Dockerfile refuses `NEXT_PUBLIC_DEMO_PASSWORD` outright (Next inlines it into public JS);
+fixture-mode sign-in is NOT access control, so an audience-facing box sets `AUTH_BASE_URL`.
 
 Demo one-click persona fill is a **server-side opt-in**: `DEMO_QUICK_FILL=1` (plus
 `DEMO_QUICK_FILL_PASSWORD` whenever `AUTH_BASE_URL` is set — the repo seed is never handed to a

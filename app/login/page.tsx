@@ -1,5 +1,6 @@
 import { SignInCard } from "@/components/sign-in-card";
 import { demoQuickFillPassword } from "@/lib/demo-quick-fill";
+import { demoHintsEnabled } from "@/lib/sign-in";
 
 export const metadata = { title: "Sign in — Villa Memorial" };
 
@@ -13,10 +14,14 @@ export default function LoginPage() {
       door="staff"
       fallbackDestination="/staff/dashboard"
       quickFillPassword={demoQuickFillPassword()}
-      personas={[
-        { email: "admin@vm.demo", display_name: "Ada Admin" },
-        { email: "staff@vm.demo", display_name: "Sam Staff" },
-      ]}
+      personas={
+        demoHintsEnabled()
+          ? [
+              { email: "admin@vm.demo", display_name: "Ada Admin" },
+              { email: "staff@vm.demo", display_name: "Sam Staff" },
+            ]
+          : []
+      }
     />
   );
 }

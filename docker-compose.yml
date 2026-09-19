@@ -1,16 +1,33 @@
-# Standalone demo stack: SSR web + stub gateway serving recorded fixtures.
-# Template DoD: `docker compose up --build` → app demos with zero backend.
+# ============================================================================
+# DEMO / DEVELOPMENT STACK — NOT FOR PRODUCTION. Do not deploy this file.
+#
+# Runs SSR web against stub-gateway with recorded fixtures and the demo
+# conveniences deliberately enabled:
+#   · DEMO_QUICK_FILL=1 + a committed demo password → anyone can sign in as
+#     any persona;
+#   · SECURE_COOKIES=0 → session cookies travel over plain HTTP;
+#   · NEXT_PUBLIC_DEMO_HINTS=1 → persona chips visible on the sign-in screens.
+#
+# For a real deployment use the production profile instead, which carries none
+# of these:
+#   cp .env.production.example .env.production   # fill in SITE_URL / service URLs
+#   docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
+# Recipe: docs/08-delivery/deploying-web.md · env reference: .env.production.example
+# ============================================================================
 services:
   web:
-    build: .
+    build:
+      context: .
+      args:
+        # Inlined into client JS at build time; the Dockerfile default is 0
+        # (production-safe), so the demo stack must opt in here.
+        NEXT_PUBLIC_DEMO_HINTS: "1"
     environment:
       AUTH_BASE_URL: http://stub-gateway:8080
       SECURE_COOKIES: "0"
-      NEXT_PUBLIC_DEMO_HINTS: "1"
       # Runtime server-side one-click persona fill (never inlined into public JS). The web
       # tier talks to the stub gateway (AUTH_BASE_URL above), so the password must be
-      # explicit; this is the repo's dev-only seed and this stack is a demo — never a
-      # production deploy.
+      # explicit; this is the repo's dev-only seed and this stack is a demo.
       DEMO_QUICK_FILL: "1"
       DEMO_QUICK_FILL_PASSWORD: "Demo-Passw0rd!"
       NEXT_TELEMETRY_DISABLED: "1"

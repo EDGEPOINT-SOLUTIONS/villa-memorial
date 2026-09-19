@@ -27,6 +27,7 @@ const ENV_KEYS = [
   "DEMO_QUICK_FILL_PASSWORD",
   "AUTH_BASE_URL",
   "NEXT_PUBLIC_DEMO_PASSWORD",
+  "NEXT_PUBLIC_DEMO_HINTS",
 ] as const;
 
 const original = new Map(ENV_KEYS.map((key) => [key, process.env[key]]));
@@ -131,5 +132,38 @@ describe("the card itself", () => {
       />,
     );
     expect(html).toContain("Demo account (fill email):");
+  });
+});
+
+/**
+ * The production profile builds with NEXT_PUBLIC_DEMO_HINTS=0 (docker-compose
+ * .production.yml pins it; the Dockerfile's default is 0). The chips already stop
+ * rendering then — but the doors hand the card a persona list as a PROP, and a
+ * server component's props travel in the response's RSC payload whether or not
+ * the card draws them. So a hints-off build must pass NO list at all, which is
+ * what keeps every `vm.demo` address out of a production response.
+ */
+describe("persona hints are build-time gated (production ships no demo addresses)", () => {
+  const doors = [
+    ["staff", LoginPage],
+    ["family", FamilyLoginPage],
+    ["agent", AgentLoginPage],
+  ] as const;
+
+  it("passes personas while demo hints are on (the unset local-dev default)", () => {
+    setEnv({ NEXT_PUBLIC_DEMO_HINTS: undefined });
+    for (const [door, Page] of doors) {
+      const element = Page() as ReactElement<{ personas: unknown[] }>;
+      expect(element.props.personas.length, door).toBeGreaterThan(0);
+    }
+  });
+
+  it("passes an EMPTY list when NEXT_PUBLIC_DEMO_HINTS=0, so no address reaches the payload", () => {
+    setEnv({ NEXT_PUBLIC_DEMO_HINTS: "0", DEMO_QUICK_FILL: undefined });
+    for (const [door, Page] of doors) {
+      const element = Page() as ReactElement<{ personas: unknown[] }>;
+      expect(element.props.personas, door).toEqual([]);
+      expect(renderToStaticMarkup(Page()), door).not.toContain("vm.demo");
+    }
   });
 });
