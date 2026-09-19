@@ -16,14 +16,14 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { PortalSwitch } from "@/components/portal-switch";
-import { SIGN_IN_BLURBS, type SignInDoor } from "@/lib/sign-in";
+import { SIGN_IN_BLURBS, demoHintsEnabled, type SignInDoor } from "@/lib/sign-in";
 
 // LOCAL-DEV-ONLY fallback: NEXT_PUBLIC_* is inlined into public JS at build time,
 // so deployed builds never set this. Deployments enable one-click fill through the
 // server-side DEMO_QUICK_FILL flag, resolved per request and passed in as the
 // `quickFillPassword` prop (see lib/demo-quick-fill.ts) — never inlined here.
 const INLINED_DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? "";
-const HINTS_ENABLED = process.env.NEXT_PUBLIC_DEMO_HINTS !== "0";
+const HINTS_ENABLED = demoHintsEnabled();
 
 type PersonaHint = { email: string; display_name: string };
 

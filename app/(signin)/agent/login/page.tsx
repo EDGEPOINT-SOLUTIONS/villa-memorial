@@ -1,5 +1,6 @@
 import { SignInCard } from "@/components/sign-in-card";
 import { demoQuickFillPassword } from "@/lib/demo-quick-fill";
+import { demoHintsEnabled } from "@/lib/sign-in";
 
 export const metadata = { title: "Agent sign-in — Villa Memorial" };
 
@@ -12,7 +13,9 @@ export default function AgentLoginPage() {
       door="agent"
       fallbackDestination="/agent/dashboard"
       quickFillPassword={demoQuickFillPassword()}
-      personas={[{ email: "agent@vm.demo", display_name: "Alex Agent" }]}
+      personas={
+        demoHintsEnabled() ? [{ email: "agent@vm.demo", display_name: "Alex Agent" }] : []
+      }
     />
   );
 }

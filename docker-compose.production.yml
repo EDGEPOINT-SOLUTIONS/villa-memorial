@@ -1,0 +1,68 @@
+# ============================================================================
+# PRODUCTION PROFILE — the real deployment, not the demo.
+#
+# Same application image as the demo stack, with production settings:
+#   · no demo quick-fill, no demo/published password, no public demo hints;
+#   · Secure session cookies (SECURE_COOKIES=1 — the app must be reached over
+#     HTTPS; terminate TLS in a reverse proxy in front of this container);
+#   · service base URLs come from .env.production, and ANY service URL left
+#     empty keeps that surface on its recorded fixtures (the honest default);
+#   · no stub gateway — this stack never starts one.
+#
+# Usage (from the repo root):
+#   cp .env.production.example .env.production   # then fill it in
+#   docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
+#
+# Full recipe, health checks and the platform asks: docs/08-delivery/deploying-web.md
+# Demo/development stack (fixtures + stub gateway + quick-fill): docker-compose.yml
+# ============================================================================
+name: villa-web-production
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        # Public demo hints are compile-time inlined. Hard-pinned to 0: a production
+        # image must not be able to show the demo persona chips. Also keep
+        # NEXT_PUBLIC_DEMO_PASSWORD out of any build — the Dockerfile refuses it.
+        NEXT_PUBLIC_DEMO_HINTS: "0"
+    image: villa-web:production
+    init: true
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+      # HTTPS-only session cookies. A deploy served over plain HTTP cannot log in —
+      # that is intentional. Put a TLS-terminating proxy in front (see the recipe).
+      SECURE_COOKIES: "1"
+      # Pinned off at the container level: no env file value can re-enable the demo
+      # one-click persona fill in this profile.
+      DEMO_QUICK_FILL: "0"
+      DEMO_QUICK_FILL_PASSWORD: ""
+      # Canonical public origin for metadata, sitemap, robots and structured data.
+      SITE_URL: ${SITE_URL:?SITE_URL must be set in .env.production (e.g. https://staging.example.ph)}
+
+      # --- Service base URLs (the edge gateway; empty = recorded fixtures) -----
+      # One gateway base URL serves every service; the client adds the gateway's
+      # route prefix (ADR-004). Leave a URL empty until that service exists —
+      # empty is the honest fixture default, not an error.
+      AUTH_BASE_URL: ${AUTH_BASE_URL:-}
+      COMMERCE_BASE_URL: ${COMMERCE_BASE_URL:-}
+      PROPERTY_BASE_URL: ${PROPERTY_BASE_URL:-}
+      OPERATIONS_BASE_URL: ${OPERATIONS_BASE_URL:-}
+      BILLING_BASE_URL: ${BILLING_BASE_URL:-}
+      SCHEDULING_BASE_URL: ${SCHEDULING_BASE_URL:-}
+      DOCUMENTS_BASE_URL: ${DOCUMENTS_BASE_URL:-}
+      AUDIT_BASE_URL: ${AUDIT_BASE_URL:-}
+      # NOTE: HR_BASE_URL and CRM_BASE_URL are deliberately NOT set. Their live
+      # branches are unbuilt 501s; setting them turns those screens into errors.
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    volumes:
+      # Fixture-mode durable stores (lib/api-client/*-store.ts) — staff edits made
+      # while a surface still runs on recorded data survive a container restart.
+      - villa-web-data:/app/.data
+
+volumes:
+  villa-web-data:

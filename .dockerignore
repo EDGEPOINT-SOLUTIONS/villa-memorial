@@ -1,0 +1,33 @@
+# Build context hygiene for the web image (Dockerfile) and the demo stub gateway
+# (stub-gateway/Dockerfile). Keep this file in step with what `next build` needs:
+# app/ components/ lib/ styles/ public/ scripts/, next.config.mjs, tsconfig.json,
+# package.json + package-lock.json. lib/fixtures/ MUST stay in (the stub gateway
+# image copies it) — do not exclude lib/.
+
+# Never let a host build or env file into the image. `.env*` files are read by
+# Next.js at build time and NEXT_PUBLIC_* values are inlined into public JS; an
+# `.env` carrying NEXT_PUBLIC_DEMO_PASSWORD would publish a credential.
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# Rewritten by `npm ci` / `next build` inside the image; copying the host's would
+# mix host binaries (wrong libc/arch) into the layers and bloat the context.
+node_modules
+.next
+out
+coverage
+*.tsbuildinfo
+next-env.d.ts
+
+# Not needed to build or run the image.
+.git
+.github
+.data
+.premium-review
+docs
+legacy-mockup
+tests
+.agents
+.claude
