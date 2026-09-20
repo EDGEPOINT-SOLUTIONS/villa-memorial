@@ -1,8 +1,13 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import {
+  DataTable,
+  StatCard,
+  StatusChip,
+  type DataTableColumn,
+} from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
-import { loadTenantSettingsView } from "@/lib/api-client/tenant-settings";
+import { loadTenantSettingsView, type IdentityRow } from "@/lib/api-client/tenant-settings";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import {
@@ -11,7 +16,10 @@ import {
   SETTINGS_NOT_WIRED,
   SETTINGS_NOT_WIRED_NOTE,
   SETTINGS_NOT_WIRED_TITLE,
+  type BusinessRule,
+  type ConfigurationRow,
   type ConfigurationState,
+  type PlatformOnlyItem,
 } from "@/lib/tenant-settings";
 
 export const metadata = { title: "Tenant settings — Admin Portal" };
@@ -25,10 +33,39 @@ export const metadata = { title: "Tenant settings — Admin Portal" };
  * publish, the business rules its modules enforce, what is configured versus
  * still waiting — and names in one line what only the platform can change. It
  * provisions nothing.
+ *
+ * Layout renders through the component kit (`components/kit`) — the four tables
+ * are `DataTable`, the tiles `StatCard`, the state chips `StatusChip`.
  */
 
+const IDENTITY_COLUMNS: ReadonlyArray<DataTableColumn<IdentityRow>> = [
+  { key: "setting", header: "Setting" },
+  { key: "value", header: "Value" },
+];
+
+const RULE_COLUMNS: ReadonlyArray<DataTableColumn<BusinessRule>> = [
+  { key: "rule", header: "Rule" },
+  { key: "value", header: "What the product applies" },
+  { key: "source", header: "Comes from", className: "text-sm text-muted" },
+];
+
+const CONFIGURATION_COLUMNS: ReadonlyArray<DataTableColumn<ConfigurationRow>> = [
+  { key: "setting", header: "Setting" },
+  { key: "state", header: "State" },
+  { key: "basis", header: "Basis", className: "text-sm" },
+];
+
+const PLATFORM_COLUMNS: ReadonlyArray<DataTableColumn<PlatformOnlyItem>> = [
+  { key: "item", header: "Item" },
+  { key: "owner", header: "Owner", className: "text-sm" },
+];
+
 function stateBadge(state: ConfigurationState) {
-  return <Badge tone={CONFIGURATION_STATE_TONE[state]}>{CONFIGURATION_STATE_LABEL[state]}</Badge>;
+  return (
+    <StatusChip tone={CONFIGURATION_STATE_TONE[state]}>
+      {CONFIGURATION_STATE_LABEL[state]}
+    </StatusChip>
+  );
 }
 
 export default async function SettingsPage() {
@@ -67,7 +104,7 @@ export default async function SettingsPage() {
       <PageHeader
         eyebrow="Administration"
         title="Tenant settings"
-        actions={<Badge tone="neutral">Read-only</Badge>}
+        actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 
       <PageSection>
@@ -93,36 +130,26 @@ export default async function SettingsPage() {
 
       <PageSection>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Identity</span>
-              <span className="kpi-card__value">{CONFIGURATION_STATE_LABEL[stateOf("identity")]}</span>
-              <span className="kpi-card__sub">park name · lines · addresses</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Rates</span>
-              <span className="kpi-card__value">{CONFIGURATION_STATE_LABEL[stateOf("rates")]}</span>
-              <span className="kpi-card__sub">from the client&rsquo;s 2026 sheets</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Chapels</span>
-              <span className="kpi-card__value">
-                {CONFIGURATION_STATE_LABEL[stateOf("chapels")]}
-              </span>
-              <span className="kpi-card__sub">open client question</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Platform-only</span>
-              <span className="kpi-card__value">{view.platformOnly.length}</span>
-              <span className="kpi-card__sub">account · subscription · modules</span>
-            </span>
-          </span>
+          <StatCard
+            label="Identity"
+            value={CONFIGURATION_STATE_LABEL[stateOf("identity")]}
+            sub="park name · lines · addresses"
+          />
+          <StatCard
+            label="Rates"
+            value={CONFIGURATION_STATE_LABEL[stateOf("rates")]}
+            sub={"from the client’s 2026 sheets"}
+          />
+          <StatCard
+            label="Chapels"
+            value={CONFIGURATION_STATE_LABEL[stateOf("chapels")]}
+            sub="open client question"
+          />
+          <StatCard
+            label="Platform-only"
+            value={view.platformOnly.length}
+            sub="account · subscription · modules"
+          />
         </div>
       </PageSection>
 
@@ -131,35 +158,27 @@ export default async function SettingsPage() {
         <p className="text-sm text-muted">
           Read from the landing content document; edited in Pages &amp; content.
         </p>
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <caption>What the public chrome and the contact surface currently show.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Setting</th>
-                <th scope="col">Value</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.identity.map((row) => (
-                <tr key={row.key}>
-                  <th scope="row">{row.label}</th>
-                  <td>
-                    {row.value ? (
-                      row.href ? (
-                        <a href={row.href}>{row.value}</a>
-                      ) : (
-                        row.value
-                      )
-                    ) : (
-                      <span className="text-muted">Not set</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<IdentityRow>
+          columns={IDENTITY_COLUMNS}
+          rows={view.identity}
+          rowKey={(row) => row.key}
+          rowHeader
+          renderCell={(row, column) => {
+            if (column.key !== "value") return row.label;
+            return row.value ? (
+              row.href ? (
+                <a href={row.href}>{row.value}</a>
+              ) : (
+                row.value
+              )
+            ) : (
+              <span className="text-muted">Not set</span>
+            );
+          }}
+          caption={<>What the public chrome and the contact surface currently show.</>}
+          emptyTitle="No identity recorded"
+          emptyHint="Identity values appear here once the content document carries them."
+        />
       </PageSection>
 
       <PageSection>
@@ -167,27 +186,27 @@ export default async function SettingsPage() {
         <p className="text-sm text-muted">
           Every figure comes from the module that applies it — no rule is typed into this screen.
         </p>
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <caption>The rules in force today, with the sheet or contract they come from.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Rule</th>
-                <th scope="col">What the product applies</th>
-                <th scope="col">Comes from</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.rules.map((rule) => (
-                <tr key={rule.key}>
-                  <th scope="row">{rule.rule}</th>
-                  <td>{rule.value}</td>
-                  <td className="text-sm text-muted">{rule.source}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<BusinessRule>
+          columns={RULE_COLUMNS}
+          rows={view.rules}
+          rowKey={(rule) => rule.key}
+          rowHeader
+          renderCell={(rule, column) => {
+            switch (column.key) {
+              case "rule":
+                return rule.rule;
+              case "value":
+                return rule.value;
+              case "source":
+                return rule.source;
+              default:
+                return null;
+            }
+          }}
+          caption={<>The rules in force today, with the sheet or contract they come from.</>}
+          emptyTitle="No rules recorded"
+          emptyHint="Rules appear here as the modules that enforce them are built."
+        />
       </PageSection>
 
       <PageSection>
@@ -195,27 +214,27 @@ export default async function SettingsPage() {
         <p className="text-sm text-muted">
           What the office edits, what is still a placeholder, and what waits on a service.
         </p>
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <caption>Every setting this screen can see, its state, and the recorded reason.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Setting</th>
-                <th scope="col">State</th>
-                <th scope="col">Basis</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.configuration.map((row) => (
-                <tr key={row.key}>
-                  <th scope="row">{row.setting}</th>
-                  <td>{stateBadge(row.state)}</td>
-                  <td className="text-sm">{row.basis}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<ConfigurationRow>
+          columns={CONFIGURATION_COLUMNS}
+          rows={view.configuration}
+          rowKey={(row) => row.key}
+          rowHeader
+          renderCell={(row, column) => {
+            switch (column.key) {
+              case "setting":
+                return row.setting;
+              case "state":
+                return stateBadge(row.state);
+              case "basis":
+                return row.basis;
+              default:
+                return null;
+            }
+          }}
+          caption={<>Every setting this screen can see, its state, and the recorded reason.</>}
+          emptyTitle="Nothing to configure"
+          emptyHint="Configuration rows appear here once the product holds them."
+        />
       </PageSection>
 
       <PageSection>
@@ -223,24 +242,17 @@ export default async function SettingsPage() {
         <p className="text-sm text-muted">
           These belong to the platform operator, not to this portal.
         </p>
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <thead>
-              <tr>
-                <th scope="col">Item</th>
-                <th scope="col">Owner</th>
-              </tr>
-            </thead>
-            <tbody>
-              {view.platformOnly.map((entry) => (
-                <tr key={entry.key}>
-                  <th scope="row">{entry.item}</th>
-                  <td className="text-sm">{entry.owner}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<PlatformOnlyItem>
+          columns={PLATFORM_COLUMNS}
+          rows={view.platformOnly}
+          rowKey={(entry) => entry.key}
+          rowHeader
+          renderCell={(entry, column) =>
+            column.key === "item" ? entry.item : entry.owner
+          }
+          emptyTitle="No platform-only items"
+          emptyHint="Items the platform owns appear here."
+        />
       </PageSection>
     </>
   );

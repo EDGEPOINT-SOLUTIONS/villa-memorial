@@ -1,6 +1,11 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/ui/empty-state";
+import {
+  DataTable,
+  EmptyState,
+  StatCard,
+  StatusChip,
+  type DataTableColumn,
+} from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { loadWorkflowsView, type InFlightRecord } from "@/lib/api-client/workflows";
@@ -27,34 +32,27 @@ export const metadata = { title: "Workflows — Admin Portal" };
  * capture and the chapel booking flow — and the in-flight rows are read live
  * from those modules (`lib/api-client/workflows.ts`), so the screen is work,
  * not a diagram. The engine's missing half is named in one line above them.
+ *
+ * Layout renders through the component kit (`components/kit`) — the in-flight
+ * tables are `DataTable`, the tiles `StatCard`, the step words `StatusChip`.
  */
 
-const stepBadge = (index: number, label: string) => (
-  <Badge key={label} tone="neutral">
-    {index + 1}. {label}
-  </Badge>
-);
+const RECORD_COLUMNS: ReadonlyArray<DataTableColumn<InFlightRecord>> = [
+  { key: "record", header: "Record" },
+  { key: "step", header: "At step" },
+  { key: "next", header: "Next step", className: "text-sm" },
+  {
+    key: "owner",
+    header: "Owner of the next step",
+    cellClassName: (record) => (record.owner ? "text-sm" : "text-sm text-muted"),
+  },
+];
 
-/** One record's row: where it is, what is next, and who carries it. */
-function RecordRow({ record }: { record: InFlightRecord }) {
-  return (
-    <tr>
-      <th scope="row">
-        <div className="table__name">
-          {record.href ? <Link href={record.href}>{record.label}</Link> : record.label}
-        </div>
-        {record.sublabel ? <div className="table__sub">{record.sublabel}</div> : null}
-      </th>
-      <td>
-        <Badge tone="info">{record.step_label}</Badge>
-      </td>
-      <td className="text-sm">{record.next_step_label ?? "—"}</td>
-      <td className={record.owner ? "text-sm" : "text-sm text-muted"}>
-        {ownerLabel(record.owner)}
-      </td>
-    </tr>
-  );
-}
+const stepBadge = (index: number, label: string) => (
+  <StatusChip key={label} tone="neutral">
+    {index + 1}. {label}
+  </StatusChip>
+);
 
 /** One process: its steps, its source, and the records inside it. */
 function WorkflowSection({
@@ -70,9 +68,9 @@ function WorkflowSection({
     <PageSection>
       <div className="row row--space">
         <h2 className="page-section-title">{workflow.name}</h2>
-        <Badge tone={records.length > 0 ? "info" : "neutral"}>
+        <StatusChip tone={records.length > 0 ? "info" : "neutral"}>
           {records.length} in flight
-        </Badge>
+        </StatusChip>
       </div>
       <p className="row row--wrap">
         <span className="text-sm text-muted">Steps:</span>
@@ -84,30 +82,39 @@ function WorkflowSection({
 
       {state === "unavailable" ? (
         <EmptyState title="This process cannot be read right now" hint={WORKFLOW_NOT_READABLE} />
-      ) : records.length === 0 ? (
-        <EmptyState
-          title="Nothing recorded in flight"
-          hint="No record is currently moving through this process."
-        />
       ) : (
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <caption>Recorded records in flight — each row is a real record at its recorded step.</caption>
-            <thead>
-              <tr>
-                <th scope="col">Record</th>
-                <th scope="col">At step</th>
-                <th scope="col">Next step</th>
-                <th scope="col">Owner of the next step</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((record) => (
-                <RecordRow key={record.id} record={record} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <DataTable<InFlightRecord>
+          columns={RECORD_COLUMNS}
+          rows={records}
+          rowKey={(record) => record.id}
+          rowHeader
+          renderCell={(record, column) => {
+            switch (column.key) {
+              case "record":
+                return (
+                  <>
+                    <div className="table__name">
+                      {record.href ? <Link href={record.href}>{record.label}</Link> : record.label}
+                    </div>
+                    {record.sublabel ? <div className="table__sub">{record.sublabel}</div> : null}
+                  </>
+                );
+              case "step":
+                return <StatusChip tone="info">{record.step_label}</StatusChip>;
+              case "next":
+                return record.next_step_label ?? "—";
+              case "owner":
+                return ownerLabel(record.owner);
+              default:
+                return null;
+            }
+          }}
+          caption={
+            <>Recorded records in flight — each row is a real record at its recorded step.</>
+          }
+          emptyTitle="Nothing recorded in flight"
+          emptyHint="No record is currently moving through this process."
+        />
       )}
     </PageSection>
   );
@@ -148,7 +155,7 @@ export default async function WorkflowsPage() {
       <PageHeader
         eyebrow="Administration"
         title="Workflows"
-        actions={<Badge tone="warning">Engine not built</Badge>}
+        actions={<StatusChip tone="warning">Engine not built</StatusChip>}
       />
 
       <PageSection>
@@ -174,36 +181,22 @@ export default async function WorkflowsPage() {
 
       <PageSection>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Processes</span>
-              <span className="kpi-card__value">{view.workflows.length}</span>
-              <span className="kpi-card__sub">recorded definitions</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">In flight</span>
-              <span className="kpi-card__value">{view.inFlight}</span>
-              <span className="kpi-card__sub">recorded records moving</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Owners recorded</span>
-              <span className="kpi-card__value">{view.withOwner}</span>
-              <span className="kpi-card__sub">named people on the next step</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Sources readable</span>
-              <span className="kpi-card__value">
-                {readable} of {view.workflows.length}
-              </span>
-              <span className="kpi-card__sub">modules that answered</span>
-            </span>
-          </span>
+          <StatCard
+            label="Processes"
+            value={view.workflows.length}
+            sub="recorded definitions"
+          />
+          <StatCard label="In flight" value={view.inFlight} sub="recorded records moving" />
+          <StatCard
+            label="Owners recorded"
+            value={view.withOwner}
+            sub="named people on the next step"
+          />
+          <StatCard
+            label="Sources readable"
+            value={`${readable} of ${view.workflows.length}`}
+            sub="modules that answered"
+          />
         </div>
       </PageSection>
 

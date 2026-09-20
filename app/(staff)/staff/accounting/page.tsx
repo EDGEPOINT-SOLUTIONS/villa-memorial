@@ -1,6 +1,10 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/ui/empty-state";
+import {
+  DataTable,
+  StatCard,
+  StatusChip,
+  type DataTableColumn,
+} from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { ACCOUNTING_NOT_WIRED, loadAccountingLedger } from "@/lib/api-client/accounting";
@@ -10,6 +14,8 @@ import {
   buildTrialBalance,
   entryTotalCents,
   filterEntriesByPeriod,
+  type JournalEntry,
+  type TrialBalanceRow,
 } from "@/lib/accounting";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { formatMinorUnits } from "@/lib/money";
@@ -32,12 +38,32 @@ export const metadata = { title: "Accounting — Admin Portal" };
  *
  * POSTING IS NOT HERE, and must not be added: the app displays accounting, the
  * accounting service keeps it. No write control exists on this route.
+ *
+ * Layout renders through the component kit (`components/kit`) — the two tables are
+ * `DataTable`, the tiles `StatCard`, the read-only chip `StatusChip` — with the
+ * same markup as before, now from one home.
  */
 
 type AccountingSearch = {
   from?: string;
   to?: string;
 };
+
+const TRIAL_BALANCE_COLUMNS: ReadonlyArray<DataTableColumn<TrialBalanceRow>> = [
+  { key: "account", header: "Account" },
+  { key: "type", header: "Type" },
+  { key: "debit", header: "Debit", numeric: true },
+  { key: "credit", header: "Credit", numeric: true },
+  { key: "balance", header: "Balance", numeric: true, className: "nowrap" },
+];
+
+const JOURNAL_COLUMNS: ReadonlyArray<DataTableColumn<JournalEntry>> = [
+  { key: "date", header: "Date", className: "nowrap" },
+  { key: "reference", header: "Reference" },
+  { key: "description", header: "Description" },
+  { key: "amount", header: "Amount", numeric: true },
+  { key: "against", header: "Against" },
+];
 
 function formatDay(date: string): string {
   const parsed = new Date(`${date}T00:00:00Z`);
@@ -95,12 +121,16 @@ export default async function AccountingPage({
   const canOpenCases = hasAnyScope(session.scopes, ["cases:read"]);
   const canOpenOrders = hasAnyScope(session.scopes, ["orders:read"]);
 
+  const journalEntries = [...entries].sort((a, b) =>
+    a.date === b.date ? a.id.localeCompare(b.id) : b.date.localeCompare(a.date),
+  );
+
   return (
     <>
       <PageHeader
         eyebrow="Finance"
         title="Accounting"
-        actions={<Badge tone="neutral">Read-only</Badge>}
+        actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 
       <PageSection>
@@ -111,44 +141,32 @@ export default async function AccountingPage({
 
       <PageSection>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Entries in period</span>
-              <span className="kpi-card__value">{entries.length}</span>
-              <span className="kpi-card__sub">of {ledger.entries.length} recorded</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Total debits</span>
-              <span className="kpi-card__value">
-                {formatMinorUnits(trialBalance.total_debit_cents)}
-              </span>
-              <span className="kpi-card__sub">over {trialBalance.rows.length} accounts</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Total credits</span>
-              <span className="kpi-card__value">
-                {formatMinorUnits(trialBalance.total_credit_cents)}
-              </span>
-              <span className="kpi-card__sub">must equal debits</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Books</span>
-              <span className="kpi-card__value">
-                {trialBalance.balanced ? (
-                  <Badge tone="success">Balanced</Badge>
-                ) : (
-                  <Badge tone="danger">Out of balance</Badge>
-                )}
-              </span>
-              <span className="kpi-card__sub">debits = credits, per entry</span>
-            </span>
-          </span>
+          <StatCard
+            label="Entries in period"
+            value={entries.length}
+            sub={`of ${ledger.entries.length} recorded`}
+          />
+          <StatCard
+            label="Total debits"
+            value={formatMinorUnits(trialBalance.total_debit_cents)}
+            sub={`over ${trialBalance.rows.length} accounts`}
+          />
+          <StatCard
+            label="Total credits"
+            value={formatMinorUnits(trialBalance.total_credit_cents)}
+            sub="must equal debits"
+          />
+          <StatCard
+            label="Books"
+            value={
+              trialBalance.balanced ? (
+                <StatusChip tone="success">Balanced</StatusChip>
+              ) : (
+                <StatusChip tone="danger">Out of balance</StatusChip>
+              )
+            }
+            sub="debits = credits, per entry"
+          />
         </div>
       </PageSection>
 
@@ -184,73 +202,59 @@ export default async function AccountingPage({
           entries shown.
         </p>
 
-        {entries.length === 0 ? (
-          <EmptyState
-            title="No entries in this period"
-            hint="Widen the dates or clear the period to see the recorded ledger."
-          />
-        ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <caption>
-                Trial balance derived from the journal below — debit, credit and the net
-                balance with its side.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Account</th>
-                  <th scope="col">Type</th>
-                  <th scope="col" className="table__numeric">
-                    Debit
-                  </th>
-                  <th scope="col" className="table__numeric">
-                    Credit
-                  </th>
-                  <th scope="col" className="table__numeric">
-                    Balance
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {trialBalance.rows.map((row) => (
-                  <tr key={row.code}>
-                    <td>
-                      <div className="table__name">{row.name}</div>
-                      <div className="table__sub">
-                        <code>{row.code}</code>
-                      </div>
-                    </td>
-                    <td>{row.type ? ACCOUNT_TYPE_LABEL[row.type] : "—"}</td>
-                    <td className="table__numeric">
-                      {row.debit_cents > 0 ? formatMinorUnits(row.debit_cents) : "—"}
-                    </td>
-                    <td className="table__numeric">
-                      {row.credit_cents > 0 ? formatMinorUnits(row.credit_cents) : "—"}
-                    </td>
-                    <td className="table__numeric nowrap">
-                      {row.balance_side === null
-                        ? "—"
-                        : `${formatMinorUnits(Math.abs(row.balance_cents))} ${
-                            row.balance_side === "debit" ? "Dr" : "Cr"
-                          }`}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <th scope="row">Total</th>
-                  <td />
-                  <td className="table__numeric">{formatMinorUnits(trialBalance.total_debit_cents)}</td>
-                  <td className="table__numeric">
-                    {formatMinorUnits(trialBalance.total_credit_cents)}
-                  </td>
-                  <td className="table__numeric">—</td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        )}
+        <DataTable<TrialBalanceRow>
+          columns={TRIAL_BALANCE_COLUMNS}
+          rows={trialBalance.rows}
+          rowKey={(row) => row.code}
+          renderCell={(row, column) => {
+            switch (column.key) {
+              case "account":
+                return (
+                  <>
+                    <div className="table__name">{row.name}</div>
+                    <div className="table__sub">
+                      <code>{row.code}</code>
+                    </div>
+                  </>
+                );
+              case "type":
+                return row.type ? ACCOUNT_TYPE_LABEL[row.type] : "—";
+              case "debit":
+                return row.debit_cents > 0 ? formatMinorUnits(row.debit_cents) : "—";
+              case "credit":
+                return row.credit_cents > 0 ? formatMinorUnits(row.credit_cents) : "—";
+              case "balance":
+                return row.balance_side === null
+                  ? "—"
+                  : `${formatMinorUnits(Math.abs(row.balance_cents))} ${
+                      row.balance_side === "debit" ? "Dr" : "Cr"
+                    }`;
+              default:
+                return null;
+            }
+          }}
+          caption={
+            <>
+              Trial balance derived from the journal below — debit, credit and the net
+              balance with its side.
+            </>
+          }
+          emptyTitle="No entries in this period"
+          emptyHint="Widen the dates or clear the period to see the recorded ledger."
+          footer={
+            <tr>
+              <th scope="row">Total</th>
+              <td />
+              <td className="table__numeric">
+                {formatMinorUnits(trialBalance.total_debit_cents)}
+              </td>
+              <td className="table__numeric">
+                {formatMinorUnits(trialBalance.total_credit_cents)}
+              </td>
+              <td className="table__numeric">—</td>
+            </tr>
+          }
+        />
       </PageSection>
 
       {entries.length > 0 ? (
@@ -260,65 +264,54 @@ export default async function AccountingPage({
             Every line the office recorded in the period, newest first, with what it was
             against.
           </p>
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <caption>
-                Read-only: this product displays accounting, it does not post to it.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Reference</th>
-                  <th scope="col">Description</th>
-                  <th scope="col" className="table__numeric">
-                    Amount
-                  </th>
-                  <th scope="col">Against</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[...entries]
-                  .sort((a, b) => (a.date === b.date ? a.id.localeCompare(b.id) : b.date.localeCompare(a.date)))
-                  .map((entry) => (
-                    <tr key={entry.id}>
-                      <td className="nowrap">{formatDay(entry.date)}</td>
-                      <td>
-                        <code>{entry.reference}</code>
-                      </td>
-                      <td>{entry.description}</td>
-                      <td className="table__numeric">{formatMinorUnits(entryTotalCents(entry))}</td>
-                      <td>
-                        {entry.case_number || entry.order_number ? (
-                          <span className="nowrap">
-                            {entry.case_number ? (
-                              canOpenCases ? (
-                                <Link href={`/staff/cases/${encodeURIComponent(entry.case_number)}`}>
-                                  <code>{entry.case_number}</code>
-                                </Link>
-                              ) : (
-                                <code>{entry.case_number}</code>
-                              )
-                            ) : null}
-                            {entry.case_number && entry.order_number ? " · " : null}
-                            {entry.order_number ? (
-                              canOpenOrders ? (
-                                <Link href={`/staff/orders/${encodeURIComponent(entry.order_number)}`}>
-                                  <code>{entry.order_number}</code>
-                                </Link>
-                              ) : (
-                                <code>{entry.order_number}</code>
-                              )
-                            ) : null}
-                          </span>
+          <DataTable<JournalEntry>
+            columns={JOURNAL_COLUMNS}
+            rows={journalEntries}
+            rowKey={(entry) => entry.id}
+            renderCell={(entry, column) => {
+              switch (column.key) {
+                case "date":
+                  return formatDay(entry.date);
+                case "reference":
+                  return <code>{entry.reference}</code>;
+                case "description":
+                  return entry.description;
+                case "amount":
+                  return formatMinorUnits(entryTotalCents(entry));
+                case "against":
+                  return entry.case_number || entry.order_number ? (
+                    <span className="nowrap">
+                      {entry.case_number ? (
+                        canOpenCases ? (
+                          <Link href={`/staff/cases/${encodeURIComponent(entry.case_number)}`}>
+                            <code>{entry.case_number}</code>
+                          </Link>
                         ) : (
-                          <span className="text-muted">—</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </table>
-          </div>
+                          <code>{entry.case_number}</code>
+                        )
+                      ) : null}
+                      {entry.case_number && entry.order_number ? " · " : null}
+                      {entry.order_number ? (
+                        canOpenOrders ? (
+                          <Link href={`/staff/orders/${encodeURIComponent(entry.order_number)}`}>
+                            <code>{entry.order_number}</code>
+                          </Link>
+                        ) : (
+                          <code>{entry.order_number}</code>
+                        )
+                      ) : null}
+                    </span>
+                  ) : (
+                    <span className="text-muted">—</span>
+                  );
+                default:
+                  return null;
+              }
+            }}
+            caption={<>Read-only: this product displays accounting, it does not post to it.</>}
+            emptyTitle="No entries in this period"
+            emptyHint="Widen the dates or clear the period to see the recorded ledger."
+          />
         </PageSection>
       ) : null}
     </>

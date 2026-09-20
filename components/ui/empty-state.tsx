@@ -1,14 +1,7 @@
-export function EmptyState({
-  title,
-  hint,
-}: {
-  title: string;
-  hint?: string;
-}) {
-  return (
-    <div className="empty-state">
-      <p className="empty-state__title">{title}</p>
-      {hint ? <p className="empty-state__hint">{hint}</p> : null}
-    </div>
-  );
-}
+/**
+ * Back-compat re-export. The canonical empty / no-match state now lives in the
+ * component kit (`components/kit/empty-state.tsx`) so its wording and its
+ * markup have ONE home; this module keeps the many existing
+ * `@/components/ui/empty-state` imports working unchanged.
+ */
+export { EmptyState } from "@/components/kit/empty-state";
