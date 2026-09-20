@@ -107,9 +107,12 @@
   --color-bg-inverse: var(--sky-900);
   --color-bg-subtle: var(--sky-100);
 
-  --color-text-primary: var(--navy-900);
-  --color-text-secondary: var(--navy-700);
-  --color-text-muted: var(--navy-500);
+  --color-text-primary: #000000;
+  /* Secondary/muted/figure are NEUTRAL greys, not navy tints (captain,
+     2026-09-21): the text ink is pure black and its supporting roles are
+     neutral, while --navy-* stays a surface/border/background ladder. */
+  --color-text-secondary: #333333;
+  --color-text-muted: #595959;
   --color-text-inverse: var(--marble-100);
   --color-text-inverse-muted: var(--navy-200);
 
@@ -160,11 +163,20 @@
   --color-status-danger-ink: #7f3f36;
   --color-status-info-ink: #42566b;
 
-  /* --- Type --------------------------------------------------------------- */
-  --font-serif: "Alegreya", Georgia, serif;
-  --font-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+  /* --- Type ---------------------------------------------------------------
+     ONE family, settled by the captain's consistency pass (2026-09-22):
+     Inter carries both the display and the interface voice, so headings and
+     body share one face. The two semantic tokens stay (they still describe a
+     ROLE — display copy vs interface copy — and let a surface opt into one),
+     but both resolve to Inter. Hierarchy comes from weight (600/700 headings)
+     and the role steps below, not from a second typeface.
+     The paper/legal print layer is untouched: its faces come from the client's
+     own .docx files (lib/export/paper-profile.ts), not from these tokens. */
+  --font-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
     sans-serif;
-  /* Monospace is functional (code, ids, slugs), not a third brand voice. */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+    sans-serif;
+  /* Monospace is functional (code, ids, slugs), not a second brand voice. */
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
     monospace;
 
@@ -181,6 +193,34 @@
   --text-2xl: 1.75rem;   /* 28px — page heading, stat figure */
   --text-3xl: 2.25rem;   /* 36px — display heading */
   --text-display: clamp(2.25rem, 2rem + 1.6vw, 3.25rem); /* 36→52px, public hero only */
+
+  /* Role → step map (consistency pass, 2026-09-22). ONE step per role, and no
+     role uses two steps across surfaces — the drift the captain reported was
+     never a raw size, it was the SAME role (a page title, a section head, a
+     card head) picking different rungs on different pages. Every role rule
+     below references these aliases; tests/unit/typography-system.test.ts pins
+     the map and the classes that consume it. The eight roles:
+
+       hero          the public headline (one fluid display size)
+       page-title    the route's h1
+       section-title an h2 band/section head
+       card-title    a card's own head (h3 / the ledger row title)
+       body          reading copy (also the 18px senior/family scale)
+       ui            controls, tables, forms, dense admin
+       caption       secondary/helper copy
+       micro         labels, badges, table headers (the 12px floor)
+
+     On phones the display roles step down one rung (a phone width is a
+     rendering contract, not a smaller desktop); body/caption/micro hold, 16px
+     is the phone body floor. */
+  --text-hero: var(--text-display);
+  --text-page-title: var(--text-3xl);
+  --text-section-title: var(--text-2xl);
+  --text-card-title: var(--text-xl);
+  --text-body: var(--text-md);
+  --text-ui: var(--text-md);
+  --text-caption: var(--text-sm);
+  --text-micro: var(--text-xs);
 
   --leading-tight: 1.25;
   --leading-normal: 1.55;
@@ -268,11 +308,23 @@
     0 2px 5px rgb(10 30 52 / 0.1),
     0 16px 32px -10px rgb(10 30 52 / 0.24);
 
-  /* Display figure colour for the staff portal (titles, headline numerals). */
-  --color-figure: var(--navy-900);
+  /* Display figure colour for the staff portal (titles, headline numerals) —
+     pure black, like every text ink, never the navy tint. */
+  --color-figure: #000000;
 
   /* Motion ------------------------------------------------------------- */
   --motion-fast: 120ms ease-out;
   --motion-base: 180ms ease-out;
   --motion-slow: 200ms ease-out;
+}
+
+/* Phone step-down for the role map. Because every role rule consumes the alias
+   (not a hard rung), lowering the alias here steps the whole product down in
+   one place — no per-class phone overrides to keep in sync. */
+@media (max-width: 48rem) {
+  :root {
+    --text-page-title: var(--text-2xl);
+    --text-section-title: var(--text-xl);
+    --text-card-title: var(--text-lg);
+  }
 }

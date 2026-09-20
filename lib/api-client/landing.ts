@@ -656,14 +656,14 @@ export function validateLandingContent(
       return { ok: false, error: "Every FAQ next-step link needs a label and a destination." };
     }
   }
-  // The product owns two faces and neither carries an emoji, so one published
-  // here would render as an empty box on the page (see unrenderableGlyphs).
+  // The product owns one face and it carries no emoji, so one published here
+  // would render as an empty box on the page (see unrenderableGlyphs).
   for (const text of authoredText(content)) {
     const bad = unrenderableGlyphs(text);
     if (bad.length > 0) {
       return {
         ok: false,
-        error: `“${bad.join("")}” can't be published: this product's typefaces (Alegreya and Source Sans 3) carry no emoji, so the page would show an empty box instead. Please write the thought in words.`,
+        error: `“${bad.join("")}” can't be published: this product's typeface (Inter) carries no emoji, so the page would show an empty box instead. Please write the thought in words.`,
       };
     }
   }

@@ -1220,7 +1220,7 @@ function glyphErrors(texts: readonly string[]): string[] {
     const bad = unrenderableGlyphs(text);
     if (bad.length > 0) {
       return [
-        `“${bad.join("")}” can't be published: this product's typefaces (Alegreya and Source Sans 3) carry no emoji, so the page would show an empty box instead. Please write the thought in words.`,
+        `“${bad.join("")}” can't be published: this product's typeface (Inter) carries no emoji, so the page would show an empty box instead. Please write the thought in words.`,
       ];
     }
   }

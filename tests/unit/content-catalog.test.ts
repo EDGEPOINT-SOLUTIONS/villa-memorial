@@ -129,7 +129,7 @@ describe("validatePageDocument", () => {
       CONTEXT,
     );
     expect(verdict.ok).toBe(false);
-    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("Alegreya");
+    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("Inter");
   });
 
   it("refuses a price block that names a SKU the catalogue does not carry", () => {
@@ -391,7 +391,7 @@ describe("validateCatalogueEntry", () => {
       CONTEXT,
     );
     expect(verdict.ok).toBe(false);
-    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("Alegreya");
+    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("Inter");
   });
 
   it("reads the new authored fields from a stored entry", () => {

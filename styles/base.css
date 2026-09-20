@@ -27,15 +27,19 @@ h2,
 h3,
 h4 {
   font-family: var(--font-serif);
-  font-weight: 600;
+  font-weight: 700;
   line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
   color: var(--color-text-primary);
   margin: 0 0 var(--space-3);
 }
 
-h1 { font-size: var(--text-2xl); }
-h2 { font-size: var(--text-xl); }
-h3 { font-size: var(--text-lg); }
+/* The role map (tokens.css): a route h1 is a page title, an h2 is a section
+   head, an h3 is a card head. Named classes that own a different role
+   override these; the phone step-down rides the aliases. */
+h1 { font-size: var(--text-page-title); }
+h2 { font-size: var(--text-section-title); }
+h3 { font-size: var(--text-card-title); }
 
 p {
   margin: 0 0 var(--space-3);

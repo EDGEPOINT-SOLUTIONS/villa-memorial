@@ -1,23 +1,33 @@
 /**
  * Typography system — the regression home for the type-voice decision
- * (2026-09-18): the product owns its two typefaces, every rendered size is one
- * of seven ladder steps (12px floor), and the four text inks stay accessible.
+ * (2026-09-18) and the captain's consistency pass (2026-09-22).
+ *
+ * The product owns ONE typeface, Inter (self-hosted, styles/fonts.css), and
+ * every rendered text size is one of seven ladder steps (12px floor) chosen
+ * through a single role→step map (styles/tokens.css). The paper/legal print
+ * layer keeps the client's own faces — that is a separate, deliberate scale.
  *
  * The reproduced defects this file pins:
  *   1. the product shipped no font files, so every visitor saw different
- *      fallback stacks (Iowan/Palatino/Georgia/system sans/Times/Lucida);
+ *      fallback stacks;
  *   2. 39 rendered text sizes, 21 of them fractional (9.92px, 11.52px,
  *      18.4px, 34.56px…) and 9 below 12px, because each view nudged its own
  *      rem value or clamp();
- *   3. decorative gold tints used as text (gold-300 on white = 1.55:1).
+ *   3. decorative gold tints used as text (gold-300 on white = 1.55:1);
+ *   4. the SAME role picking different rungs on different pages (a page title
+ *      at 28px here and 36px there, a section head at 36px here and 22px
+ *      there) — the drift the captain reported as "the consistent of the font
+ *      sizes", fixed by the role map below.
  *
  * If a future change introduces a raw `font-size`, a sub-12px value, a
- * fractional step, a second typeface or a gold-as-text rule, this file fails.
+ * fractional step, a second typeface, a gold-as-text rule, or moves one role
+ * class off its step, this file fails.
  */
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseCss, readStyle, type CssRule } from "../helpers/css-rules";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const read = (p: string) => readFileSync(path.join(ROOT, p), "utf8");
@@ -41,9 +51,23 @@ const LADDER_REM: Record<string, string> = {
   "2xl": "1.75rem",
   "3xl": "2.25rem",
 };
+/** The eight roles and the ladder rung each one uses. `hero` is the one fluid
+ *  display size; every other role is a plain ladder step. */
+const ROLE_STEPS: Record<string, string> = {
+  hero: "display",
+  "page-title": "3xl",
+  "section-title": "2xl",
+  "card-title": "xl",
+  body: "md",
+  ui: "md",
+  caption: "sm",
+  micro: "xs",
+};
+const ROLE_TOKENS = Object.keys(ROLE_STEPS).map((r) => `var(--text-${r})`);
 const LADDER_TOKENS = new Set([
   ...[...Object.keys(LADDER)].map((k) => `var(--text-${k})`),
   "var(--text-display)",
+  ...ROLE_TOKENS,
 ]);
 
 const STYLESHEETS = [
@@ -88,7 +112,7 @@ describe("type ladder", () => {
     }
   });
 
-  it("keeps every font-size in the stylesheets on a ladder token (no raw values, no clamps, nothing under 12px)", () => {
+  it("keeps every font-size in the stylesheets on a ladder or role token (no raw values, no clamps, nothing under 12px)", () => {
     const offenders: string[] = [];
     // The printed paper sheet is allowed its own print sizes in points, and only from
     // the ONE paper profile (lib/export/paper-profile.ts): the sheet's sizes are the
@@ -106,6 +130,20 @@ describe("type ladder", () => {
     expect(offenders).toEqual([]);
   });
 
+  it("declares the role→step map in tokens.css and nothing off-ladder", () => {
+    for (const [role, step] of Object.entries(ROLE_STEPS)) {
+      expect(tokens, role).toMatch(
+        new RegExp(`--text-${role}: *var\\(--text-${step}\\);`),
+      );
+    }
+    // A phone is a rendering contract, not a smaller desktop: the display roles
+    // step down in the ONE token map (styles/tokens.css), not per class.
+    const phone = tokens.slice(tokens.indexOf("@media (max-width: 48rem)"));
+    expect(phone).toMatch(/--text-page-title: *var\(--text-2xl\);/);
+    expect(phone).toMatch(/--text-section-title: *var\(--text-xl\);/);
+    expect(phone).toMatch(/--text-card-title: *var\(--text-lg\);/);
+  });
+
   it("keeps the family reading-scale overrides on ladder values", () => {
     const components = read("styles/components.css");
     const allowed = new Set(Object.values(LADDER_REM));
@@ -114,6 +152,144 @@ describe("type ladder", () => {
       if (!allowed.has(match[2].trim())) overrides.push(match[0]);
     }
     expect(overrides).toEqual([]);
+  });
+});
+
+/** The role classes the map owns. `files` names where each declaration lives so
+ *  the check reads the real stylesheet, not a copy. */
+const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>> = {
+  hero: [
+    {
+      file: "styles/components.css",
+      selectors: [
+        ".landing__title",
+        ".hero-home__title",
+        ".hero-premium__title",
+        ".pkg-title",
+        ".gal-hero__title",
+        ".sv-page h1",
+        ".mem-profile__name",
+      ],
+    },
+  ],
+  "page-title": [
+    {
+      file: "styles/components.css",
+      selectors: [
+        ".page-hero__title",
+        ".app-shell .app-main .page-header h1",
+        ".paper-hero__title",
+        ".ag-hero__title",
+        ".ia-hero__title",
+        ".pdp-buy__title",
+      ],
+    },
+    { file: "styles/base.css", selectors: ["h1"] },
+  ],
+  "section-title": [
+    {
+      file: "styles/components.css",
+      selectors: [
+        ".section-title",
+        ".mid-section > h2",
+        ".sv-page h2",
+        ".fac-section__title",
+        ".gal-group__title",
+        ".gal-walk__title",
+        ".gal-visit__title",
+        ".landing-showcase__title",
+        ".app-shell .app-main .page-section-title",
+        ".page-section-title",
+        ".plan-section-title",
+        ".rich-text h2",
+        ".rte__host h2",
+        ".ag-h2",
+        ".ia-steps h2",
+        ".ia-alts h2",
+        ".sv-sources h2",
+        ".ed-section__head h2",
+        ".sv-help h2",
+        ".mem-section-title",
+        ".next-steps__title",
+        ".mem-find__title",
+        ".price-module__title",
+        ".ledger__title",
+        ".band-head__title",
+        ".pdp-section__title",
+      ],
+    },
+    { file: "styles/base.css", selectors: ["h2"] },
+  ],
+  "card-title": [
+    {
+      file: "styles/components.css",
+      selectors: [
+        ".card__header h2",
+        ".item-card__title",
+        ".ledger__row-title",
+        ".empty-state__title",
+        ".ag-card__title",
+        ".capture-section__title",
+        ".rich-text h3",
+        ".rte__host h3",
+        ".shop-card__title",
+        ".svc-card__title",
+        ".casket-collection__title",
+        ".ag-state__title",
+        ".ag-work__title",
+        ".ag-action__title",
+        ".sv-page .booking-step__title",
+        ".mem-step__title",
+        ".mem-result__name",
+        ".mem-hero__card-title",
+        ".case-card__name",
+        ".ops-card__name",
+        ".fac-room__name",
+        ".pdp-feature-group__title",
+      ],
+    },
+    { file: "styles/base.css", selectors: ["h3"] },
+  ],
+};
+
+describe("role → step map", () => {
+  const cache = new Map<string, CssRule[]>();
+  const topLevel = (file: string) => {
+    if (!cache.has(file)) cache.set(file, parseCss(readStyle(file)).filter((r) => r.depth === 0));
+    return cache.get(file)!;
+  };
+  const fontSizeFor = (file: string, selector: string) => {
+    const rule = topLevel(file).find((r) => r.selector === selector);
+    return rule?.body.match(/(?<![-\w])font-size\s*:\s*([^;]+);/)?.[1].trim();
+  };
+
+  it("gives every mapped class in every role exactly that role's token", () => {
+    const offenders: string[] = [];
+    for (const [role, groups] of Object.entries(ROLE_CLASSES)) {
+      for (const { file, selectors } of groups) {
+        for (const selector of selectors) {
+          const size = fontSizeFor(file, selector);
+          const expected = `var(--text-${role})`;
+          if (size !== expected) {
+            offenders.push(`${file} ${selector}: ${size ?? "MISSING"} (want ${expected})`);
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it("never lets a page title ride a different rung than another page title", () => {
+    // The concrete drift the captain reported: route h1s were split 28/36 and
+    // the staff header was 36 while the public catalogue was 28.
+    const sizes = new Set(
+      (["styles/components.css", "styles/base.css"] as const).flatMap((file) =>
+        (ROLE_CLASSES["page-title"].find((g) => g.file === file)?.selectors ?? []).map(
+          (s) => fontSizeFor(file, s),
+        ),
+      ),
+    );
+    expect([...sizes]).toEqual(["var(--text-page-title)"]);
   });
 });
 
@@ -126,62 +302,88 @@ describe("typefaces", () => {
     expect(imports[0]).toBe("../styles/fonts.css");
   });
 
-  it("declares Alegreya + Source Sans 3 as the product's own faces", () => {
+  it("declares Inter as the product's one face (both semantic tokens)", () => {
     const tokens = read("styles/tokens.css");
-    expect(tokens).toMatch(/--font-serif: *"Alegreya", Georgia, serif;/);
-    expect(tokens).toMatch(/--font-sans: *"Source Sans 3", system-ui/);
+    expect(tokens).toMatch(/--font-serif: *"Inter", system-ui/);
+    expect(tokens).toMatch(/--font-sans: *"Inter", system-ui/);
+    // The retired faces stay retired.
+    expect(tokens).not.toMatch(/Alegreya|Source Sans 3/);
   });
 
-  it("ships the woff2 files and their OFL licence texts", () => {
+  it("ships the Inter woff2 files and the OFL licence text, and no retired files", () => {
     const files = [
-      "public/fonts/alegreya/alegreya-latin.woff2",
-      "public/fonts/alegreya/alegreya-latin-ext.woff2",
-      "public/fonts/alegreya/alegreya-latin-italic.woff2",
-      "public/fonts/alegreya/alegreya-latin-ext-italic.woff2",
-      "public/fonts/source-sans-3/source-sans-3-latin.woff2",
-      "public/fonts/source-sans-3/source-sans-3-latin-ext.woff2",
-      "public/fonts/source-sans-3/source-sans-3-latin-italic.woff2",
-      "public/fonts/source-sans-3/source-sans-3-latin-ext-italic.woff2",
-      "public/fonts/alegreya/OFL.txt",
-      "public/fonts/source-sans-3/OFL.txt",
+      "public/fonts/inter/inter-latin.woff2",
+      "public/fonts/inter/inter-latin-ext.woff2",
+      "public/fonts/inter/inter-latin-italic.woff2",
+      "public/fonts/inter/inter-latin-ext-italic.woff2",
+      "public/fonts/inter/OFL.txt",
     ];
     for (const file of files) {
       expect(existsSync(path.join(ROOT, file)), file).toBe(true);
       expect(read(file).length).toBeGreaterThan(0);
     }
+    for (const gone of [
+      "public/fonts/alegreya",
+      "public/fonts/source-sans-3",
+    ]) {
+      expect(existsSync(path.join(ROOT, gone)), gone).toBe(false);
+    }
+    // The paper/legal layer keeps its own faces (the client's papers win).
+    expect(existsSync(path.join(ROOT, "public/fonts/paper/texgyrebonum-regular.otf"))).toBe(true);
+  });
+
+  it("declares no @font-face for a retired family", () => {
+    const fonts = read("styles/fonts.css");
+    expect(fonts).not.toMatch(/Alegreya|Source Sans 3/);
+    expect(fonts).toContain('font-family: "Inter"');
+    expect(fonts).toContain('font-family: "TeX Gyre Bonum"');
   });
 
   it("keeps the peso sign (U+20B1) inside the shipped latin-ext ranges", () => {
     const fonts = read("styles/fonts.css");
-    // U+20B1 sits inside the latin-ext range U+20AD-20C0 of both families.
+    // U+20B1 sits inside the latin-ext range U+20AD-20C0 of Inter (normal + italic).
     const latinExtCount = fonts.split("U+20AD-20C0").length - 1;
-    expect(latinExtCount).toBeGreaterThanOrEqual(4); // alegreya + source sans, normal + italic
-    expect(fonts).toContain("Source Sans 3");
-    expect(fonts).toContain("Alegreya");
+    expect(latinExtCount).toBeGreaterThanOrEqual(2);
+    expect(fonts).toContain('font-family: "Inter"');
   });
 
-  it("preloads both latin subsets above the fold", () => {
+  it("preloads the latin subset above the fold", () => {
     const layout = read("app/layout.tsx");
-    expect(layout).toContain("/fonts/alegreya/alegreya-latin.woff2");
-    expect(layout).toContain("/fonts/source-sans-3/source-sans-3-latin.woff2");
+    expect(layout).toContain("/fonts/inter/inter-latin.woff2");
+    expect(layout).not.toContain("alegreya");
+    expect(layout).not.toContain("source-sans-3");
   });
 });
 
 describe("ink roles", () => {
-  it("defines the four light-surface inks and keeps them readable (AA at every size)", () => {
+  it("uses pure black text ink and neutral supporting greys (captain, 2026-09-21)", () => {
     const tokens = read("styles/tokens.css");
-    expect(tokens).toMatch(/--color-text-primary: *var\(--navy-900\);/);
-    expect(tokens).toMatch(/--color-text-secondary: *var\(--navy-700\);/);
-    expect(tokens).toMatch(/--color-text-muted: *var\(--navy-500\);/);
+    expect(tokens).toMatch(/--color-text-primary: *#000000;/);
+    expect(tokens).toMatch(/--color-text-secondary: *#333333;/);
+    expect(tokens).toMatch(/--color-text-muted: *#595959;/);
     expect(tokens).toMatch(/--color-text-accent: *var\(--gold-800\);/);
+    expect(tokens).toMatch(/--color-figure: *#000000;/);
 
-    const inks = ["#0d2942", "#1c4366", "#41709c", "#574300"];
+    // Every text ink that can land on a light surface passes AA at any size.
+    const inks = ["#000000", "#333333", "#595959", "#574300"];
     const surfaces = ["#f2f9fe", "#ffffff"];
     for (const ink of inks) {
       for (const surface of surfaces) {
         expect(contrast(ink, surface), `${ink} on ${surface}`).toBeGreaterThanOrEqual(4.5);
       }
     }
+  });
+
+  it("never carries the navy tint in a text colour (navy stays surface/border)", () => {
+    // Direct `color: var(--navy-*)` would re-tint body copy/headings on the
+    // surfaces that predate the ink tokens; the tokens own every text colour.
+    const offenders: string[] = [];
+    for (const file of STYLESHEETS) {
+      for (const match of read(file).matchAll(/(?<![-\w])color: *var\(--navy-[0-9]+\)/g)) {
+        offenders.push(`${file}: ${match[0]}`);
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 
   it("never paints text with a decorative gold tint (the 1.55:1 regression)", () => {
