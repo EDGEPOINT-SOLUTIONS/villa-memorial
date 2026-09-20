@@ -586,13 +586,15 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - `/services` is the **captain-approved 2026-09-16 senior-first design** — the contract
   is `docs/08-delivery/services-design/` (artifact + 5 sample pages + `services-pages.css`),
   the implementation block is the "Services page" `sv-*` section of `styles/components.css`.
-  The page leads with the 24/7 call panel, a sticky "On this page" bar
-  (`components/villa/services-subnav.tsx`, five anchors), the three "what happens after
-  you call" steps and the two guide cards; then one `.sv-section` per sheet block:
-  at-need cards (`AlacarteServiceRates`), the embalming day picker
+  The page is **one hero → straight to the services**: the hero, then `Services and prices`
+  (`AlacarteServiceRates`), `Embalming — priced by the day`
   (`components/villa/embalming-day-picker.tsx`, full day counts behind a disclosure) and
-  the chapel cards (`ChapelRates`) with one `.sv-stay` row per 3–9 day stay — the raw
-  sheet table is never the phone experience. It all renders from
+  `Chapel — check the dates and book online` (the park's own record → the Chapel A/B cards,
+  `ChapelRates`), then the `Talk to a person, any hour` band. The pre-migration sticky subnav,
+  the "what happens after you call" steps, the chapel placeholder disclaimer, the full 3–9 day
+  chapel stay schedule, the "Guides for what comes next" section and the "Where these figures
+  come from" provenance block are all RETIRED — the trim is recorded in
+  `docs/08-delivery/services-trim-design/`. It all renders from
   `components/villa/service-rates-2026.tsx`; figures stay in `lib/villa-pricing.ts`.
   The 24/7 number is staff-editable landing content (zone 01); the page reads it
   from the same document the header reads — `tests/unit/villa-services-premium.test.tsx`
@@ -600,17 +602,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   The a-la-carte and embalming lines keep the shared Add-to-cart + Request-order pair
   (`components/villa/catalogue-actions.tsx`); **chapel lines are the one documented
   exception — they open the booking step** (`ChapelBookingButton`, "Check dates & price"
-  on the cards and "Book N days" per stay row — whose accessible name carries the chapel,
-  `aria-label="Book N days — Common|Private chapel"` — per the chapel-booking contract
-  below), never a plain add-to-cart. Every line shows its "In your cart" chip after an
+  on the cards, whose accessible name carries the chapel), never a plain add-to-cart.
+  Every line shows its "In your cart" chip after an
   add (`components/villa/in-cart-notice.tsx`). `tests/unit/price-surfacing.test.tsx` and
   `tests/unit/villa-services-premium.test.tsx` both pin that split — keep them when
   editing the layout. Senior-first is non-negotiable: 18 px body, nothing under 16 px in
-  page content, prices always with their unit, tap targets ≥ 44 px. The two home/hospital
-  **guide cards reuse `.sv-price-card` and must not inherit its two-column ledger template** —
-  `.sv-prices--guides .sv-price-card` declares its own one-column stack, because the ledger's
-  `auto` track and `align-items: baseline` put the photograph in the right column and dropped
-  the heading to the picture's bottom, opening a 174 px hole in both cards.
+  page content, prices always with their unit, tap targets ≥ 44 px. The three guide ROUTES
+  (`/services/death-at-home`, `/services/death-at-hospital`, `/transport`) stay as editable
+  service entries listed from `/staff/landing/services`, but `/services` no longer links them.
 - **Sample imagery is client material and is always labelled illustrative.** The chapel
   photos, the carriage and the five sample coffins are cropped from the client's own
   TYPES OF COFFIN sheet (`scripts/crop-client-sheet-tiles.mjs`, sharp ships with Next;

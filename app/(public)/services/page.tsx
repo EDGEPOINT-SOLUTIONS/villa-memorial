@@ -4,13 +4,11 @@ import { pageMetadata } from "@/lib/seo";
 import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
 import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
-import { ServiceGuides } from "@/components/villa/service-guides";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
-import { listServiceEntries } from "@/lib/api-client/content-entries";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
 import {
   isServiceCopyBlockId,
@@ -42,21 +40,23 @@ export const dynamic = "force-dynamic";
  *  · the page document (Pages & content → Funeraria Memorial Services) holds the
  *    hero and the service descriptions (`lib/service-content.ts` is the ONE typed
  *    reading: the five a-la-carte notes and the two chapel-class copy lines);
- *  · the three guide pages are SERVICE ENTRIES (`lib/api-client/content-entries.ts`)
- *    listed here and read by their own routes;
  *  · the chapel NAMES and capacity are the park's own staff-editable record
  *    (`getChapelSchedule()`), so a rename on /staff/schedule reaches this card and
  *    the booking dialog together.
+ *
+ * TRIMMED (captain, 2026-09-21): the "Guides for what comes next" section and
+ * the "Where these figures come from" provenance block left the page. The three
+ * guide pages themselves remain at their routes (service entries, edited in
+ * Pages & content); they are simply no longer linked from here.
  *
  * MONEY: every figure comes through `lib/villa-pricing.ts` / `lib/catalogue-skus.ts`
  * in the shared rate components. No amount is authored here or in the document.
  */
 export default async function ServicesPage() {
-  const [items, content, page, serviceEntries, schedule] = await Promise.all([
+  const [items, content, page, schedule] = await Promise.all([
     listCatalogItems().catch(() => null),
     listLandingContent(),
     getPageDocument("services").catch(() => null),
-    listServiceEntries().catch(() => []),
     getChapelSchedule().catch(() => null),
   ]);
   if (!items) {
@@ -135,9 +135,6 @@ export default async function ServicesPage() {
           chapels={schedule?.chapels ?? []}
         />
 
-        {/* The three guide pages as service entries (captain 2026-09-21). */}
-        <ServiceGuides entries={serviceEntries} />
-
         {otherBlocks.length > 0 ? (
           <section className="sv-section" aria-labelledby="services-more-title">
             <h2 className="sv-section__title" id="services-more-title">
@@ -146,20 +143,6 @@ export default async function ServicesPage() {
             <ContentBlocks blocks={otherBlocks} priceOf={priceOf} />
           </section>
         ) : null}
-
-        <section className="sv-section" id="sources" aria-labelledby="sources-title">
-          <div className="sv-sources">
-            <p className="sv-section__kicker">Where these figures come from</p>
-            <h2 id="sources-title">The 2026 sheets, reproduced exactly</h2>
-            {/* Facts as labels, not a paragraph (structure over sentences). */}
-            <ul className="sv-factlist">
-              <li>Services &amp; embalming — &ldquo;2026 price FV website A&rdquo; (= &ldquo;PRICE LIST FOR 2026 II&rdquo;)</li>
-              <li>Chapel — &ldquo;PRICE LIST FOR 2026 III&rdquo;</li>
-              <li>Reproduced exactly, ₱1,000 fee included</li>
-              <li>Packages: embalming included, no a-la-carte rates</li>
-            </ul>
-          </div>
-        </section>
 
         <section className="sv-help" aria-labelledby="help-title">
           <div>

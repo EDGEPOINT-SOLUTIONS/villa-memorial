@@ -5,9 +5,10 @@ import { CartProvider } from "@/lib/cart/cart-context";
 import { saveServiceEntry, seedServiceEntries } from "@/lib/api-client/content-entries";
 
 /**
- * A service-entry edit reaches the guide page AND the /services card
- * (content-catalogue Phase 3): the three guide routes read the same entry the
- * Services catalogue edits, so one save lands on both surfaces.
+ * A service-entry edit reaches the guide page (content-catalogue Phase 3): the
+ * three guide routes read the entry the Pages & content editor saves. The
+ * "/services" card section that used to list them left the page (captain
+ * 2026-09-21), so an edit no longer lands there.
  */
 
 vi.mock("next/link", () => ({
@@ -63,14 +64,14 @@ describe("the service guide entries drive their routes and the /services cards",
     expect((before.match(/<h1\b/g) ?? []).length).toBe(1);
   });
 
-  it("lists the guide entries on /services", () => {
-    expect(servicesBefore).toContain("Death at home");
-    expect(servicesBefore).toContain("Death at hospital");
-    expect(servicesBefore).toContain("Transport");
-    expect(servicesBefore).toContain('id="guides"');
+  it("keeps the guide routes but no longer lists them on /services", () => {
+    // The section left /services (captain 2026-09-21); the routes remain.
+    expect(servicesBefore).not.toContain('id="guides"');
+    expect(servicesBefore).not.toContain("Guides for what comes next");
+    expect(servicesBefore).not.toContain("Death at home");
   });
 
-  it("lands an edit on both the guide page and the /services card", async () => {
+  it("lands an edit on the guide page and nowhere on /services", async () => {
     const seed = seedServiceEntries().find((entry) => entry.key === "death-at-home")!;
     await saveServiceEntry(
       "death-at-home",
@@ -88,7 +89,8 @@ describe("the service guide entries drive their routes and the /services cards",
     expect(page).not.toContain("you should not have to manage the next steps alone");
 
     const services = await renderServices();
-    expect(services).toContain("Death at home, revised");
+    // The guide section is gone, so the edited entry has no card to reach.
+    expect(services).not.toContain("Death at home, revised");
     expect(services).not.toContain("you should not have to manage the next steps alone");
 
     // The route's head reads the same entry.
