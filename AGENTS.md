@@ -47,8 +47,10 @@ on backend services.
   `--text-display`) chosen through the **role→step map** there (`--text-hero` · `--text-page-title`
   · `--text-section-title` · `--text-card-title` · `--text-body` · `--text-ui` · `--text-caption`
   · `--text-micro`; the display roles step down one rung below 48rem through the same aliases).
-  A role class must not ride a raw rung: consume the alias. Text ink is one of the four
-  `--color-text-*` roles, and decorative gold never carries text. The paper/legal print layer is
+  A role class must not ride a raw rung: consume the alias. Text ink is pure black (`--color-text-primary` /
+  `--color-figure`) with neutral-grey support roles (`--color-text-secondary` #333 / `--color-text-muted`
+  #595959) — no text colour carries the `--navy-*` tint, which stays a surface/border/background ladder
+  (captain, 2026-09-21) — and decorative gold never carries text. The paper/legal print layer is
   NOT Inter — it keeps the client's own faces (`lib/export/paper-profile.ts`).
   `tests/unit/typography-system.test.ts` fails a raw/off-ladder size, a sub-12px value, a second
   typeface, a gold-as-text rule, or a mapped role class moved off its step;
