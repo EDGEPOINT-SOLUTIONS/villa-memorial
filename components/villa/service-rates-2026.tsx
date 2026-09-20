@@ -25,11 +25,11 @@ import {
   php,
 } from "@/lib/villa-pricing";
 import {
-  CHAPEL_COMMON_IMAGE,
-  CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
-  VIEWING_CARE_IMAGE,
+  PARK_PLACE_PHOTOS,
+  WAKESETUP_ALCOVE_IMAGE,
 } from "@/lib/media";
+import { clientPhotoCard, clientPhotoWide, type ClientPhotoId } from "@/lib/client-photos";
 
 /**
  * Funeraria memorial services — the client's 2026 service prices, in the
@@ -130,6 +130,46 @@ const ALACARTE_NOTES: Readonly<Record<string, string>> = {
   Interment: "Family cars and the graveside trip, staff included.",
 };
 
+/**
+ * The photograph beside each a-la-carte line (2026-09-19 imagery pass).
+ *
+ * Every one is the client's OWN material: a casket in their care, the karwahe
+ * that delivers, the alcove lights/curtains/carpets they build, and the park the
+ * interment runs to. `alts` describes the picture; nothing here claims a
+ * specific model, a specific room or a fixed set-up. Retrieval deliberately
+ * shows a DIFFERENT photograph from the hero above it (the hero is the draped
+ * set-up; this is the office's own bier) so one page never prints one picture
+ * twice. Card sizing is the catalogue's 4:3 crop, with both published widths so
+ * a phone never loads the desktop file.
+ */
+function alacartePhoto(id: ClientPhotoId, alt: string) {
+  const card = clientPhotoCard(id);
+  return { src: card.src, srcSet: card.srcSet, alt };
+}
+
+const ALACARTE_PHOTOS: Readonly<Record<string, { src: string; srcSet?: string; alt: string }>> = {
+  Retrieval: alacartePhoto(
+    "casket-white-open-lid",
+    "A casket resting on a bier in the office's own hall, its lid raised — the office's care before a viewing",
+  ),
+  Delivery: alacartePhoto(
+    "hearse-carriage-gold-side",
+    "The office's funeral carriage (karwahe) with its gold casket compartment and white flowers",
+  ),
+  "Viewing equipment": alacartePhoto(
+    "wake-setup-lamp-alcove",
+    "A prepared viewing alcove — purple and white drapes, hanging flowers and lit lamp stands",
+  ),
+  "ORD coffin": alacartePhoto(
+    "casket-white-closed",
+    "A sample plain white casket with silver ornaments, closed on its bier",
+  ),
+  Interment: {
+    src: PARK_PLACE_PHOTOS.mausoleum,
+    alt: "The park's mausoleum and its lawn, where the graveside trip ends",
+  },
+};
+
 /** One legend per priced section: what the two storefront actions mean. */
 function ActionsLegend() {
   return (
@@ -156,12 +196,25 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
       </h2>
       <ActionsLegend />
 
-      <div className="sv-prices">
+      <div className="sv-prices sv-prices--photos">
         {ALACARTE_LINES.map((fee) => {
           const item = lookup(fee.sku);
           const IconShape = ServiceIcons[fee.service] ?? IconChapel;
+          const photo = ALACARTE_PHOTOS[fee.service];
           return (
-            <article className="sv-price-card" key={fee.service}>
+            <article className="sv-price-card sv-price-card--photo" key={fee.service}>
+              {photo ? (
+                <figure className="sv-price-card__media">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
+                  <img
+                    src={photo.src}
+                    srcSet={photo.srcSet}
+                    sizes="(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 22rem"
+                    alt={photo.alt}
+                    loading="lazy"
+                  />
+                </figure>
+              ) : null}
               <h3 className="sv-price-card__head">
                 <span className="sv-price-card__icon" aria-hidden="true">
                   <IconShape />
@@ -277,13 +330,15 @@ export function EmbalmingRates({
 
         <div className="sv-aside">
           <figure className="sv-figure">
-            {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client photo */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
             <img
-              src={VIEWING_CARE_IMAGE}
-              alt="A sample wake set-up with the casket, floral arrangements and viewing area prepared"
+              src={clientPhotoWide("wake-setup-flower-bank").src}
+              srcSet={clientPhotoWide("wake-setup-flower-bank").srcSet}
+              sizes="(max-width: 60rem) 92vw, 22rem"
+              alt="A finished wake set-up — a white casket banked in white flowers under purple drapes the office prepared"
               loading="lazy"
             />
-            <figcaption>Sample wake set-up — illustration purposes only.</figcaption>
+            <figcaption>A wake set-up the office prepared — illustration purposes only.</figcaption>
           </figure>
           <div className="sv-helper">
             <p>
@@ -339,8 +394,9 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
     {
       key: "common",
       name: "Common chapel",
-      image: CHAPEL_COMMON_IMAGE,
-      alt: "Illustrative sample wake set-up in the client's shared common chapel",
+      image: clientPhotoWide("chapel-hall-candle-pedestals").src,
+      srcSet: clientPhotoWide("chapel-hall-candle-pedestals").srcSet,
+      alt: "The chapel hall in the client's own photograph — a draped side table and tall candle pedestals on a green carpet",
       perDay: CHAPEL_PER_DAY.common,
       threeDay: CHAPEL_RATES[0].common,
       resource: "Chapel A",
@@ -351,8 +407,9 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
     {
       key: "private",
       name: "Private chapel",
-      image: CHAPEL_PRIVATE_IMAGE,
-      alt: "Illustrative sample decorated viewing room in the client's private chapel",
+      image: WAKESETUP_ALCOVE_IMAGE,
+      srcSet: clientPhotoWide("wake-setup-lamp-alcove").srcSet,
+      alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
       perDay: CHAPEL_PER_DAY.private,
       threeDay: CHAPEL_RATES[0].private,
       resource: "Chapel B",
@@ -378,7 +435,13 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
           <article className="sv-chapel" key={chapel.key}>
             <figure className="sv-chapel__media">
               {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-              <img src={chapel.image} alt={chapel.alt} loading="lazy" />
+              <img
+                src={chapel.image}
+                srcSet={chapel.srcSet}
+                sizes="(max-width: 60rem) 92vw, 38rem"
+                alt={chapel.alt}
+                loading="lazy"
+              />
             </figure>
             <div className="sv-chapel__body">
               <h3 className="sv-chapel__name">{chapel.name}</h3>

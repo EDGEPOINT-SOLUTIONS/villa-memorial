@@ -1319,9 +1319,10 @@ a.ledger__row:hover .ledger__row-title {
 
 /* The five coffin tiers as a ledged band (/products): the entry tier leads with
    its photograph, the steps above it follow as hairline rows that keep their own
-   thumbnail. Each tier is still photographed — a small swatch reads fine because
-   the tiers differ by metal, not by shape — but the band no longer counts as
-   five boxes.
+   photograph. The row image is a real figure (11rem on the desktop list, 9rem on
+   a phone), never the 88×66 speck the captain measured on 2026-09-19 — the tiers
+   differ by metal, which has to be visible for the picture to earn its place —
+   but the band still reads as rows, not as five equal boxes.
 
    Why this is `.tier-ledger`, not `.tier-row`: the package page's tier × term
    selector already owns `.tier-row` (it is the older declaration, and
@@ -1332,7 +1333,7 @@ a.ledger__row:hover .ledger__row-title {
    and every row drawn as a bordered box. One class, one declaration. */
 .tier-ledger__row {
   display: grid;
-  grid-template-columns: 5.5rem minmax(0, 1fr);
+  grid-template-columns: clamp(9rem, 14vw, 11rem) minmax(0, 1fr);
   gap: var(--space-3);
   align-items: start;
   padding: var(--space-4) 0;
@@ -1361,6 +1362,88 @@ a.ledger__row:hover .ledger__row-title {
 
 .tier-ledger__body .ledger__row-title {
   font-size: var(--text-lg);
+}
+
+/* --- Casket catalogue rows ---------------------------------------------------
+   The captain's 2026-09-19 brief: every one of the 24 models carries its own
+   photograph. The row keeps the ledger grammar (a rule, not a box) and gains one
+   thumbnail column; the picture is captioned with what it actually is — a sample
+   from the client's own photographs — because the client's photo set is not yet
+   reconciled with the price sheet's model names (lib/client-photos.ts).
+
+   Placement is explicit (grid-column/grid-row), not grid-template-areas: the
+   base `.ledger__row-meta`/`__actions` rules span `1 / -1`, and an explicit
+   span beats an area name — the photo column would be swallowed by the meta
+   line. Same-specificity class, declared after `.ledger__row`, so it wins. */
+.ledger__row--model {
+  grid-template-columns: 8rem minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: var(--space-4);
+}
+
+.ledger__row--model .model-photo {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+}
+
+.ledger__row--model .ledger__row-title {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.ledger__row--model .ledger__row-figure {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.ledger__row--model .ledger__row-meta {
+  grid-column: 2 / -1;
+  grid-row: 2;
+}
+
+.ledger__row--model .ledger__row-actions {
+  grid-column: 2 / -1;
+  grid-row: 3;
+}
+
+.model-photo {
+  margin: 0;
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+/* A stated `aspect-ratio` needs the height reset: the reserved width/height
+   attributes are a presentational hint and would otherwise win (the rule the
+   ledger block documents). The picture's space stays reserved. */
+.model-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--marble-100);
+}
+
+.model-photo__label {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
+.model-photo__chip {
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+@media (max-width: 40rem) {
+  .ledger__row--model {
+    grid-template-columns: 6rem minmax(0, 1fr) auto;
+    column-gap: var(--space-3);
+  }
 }
 
 /* --- Public catalog pages (villa item-card grammar, DOC palette) ------------- */
@@ -1398,6 +1481,235 @@ a.ledger__row:hover .ledger__row-title {
 @media (max-width: 40rem) {
   .catalog-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* --- The shop grid: ONE product-card grammar for every catalogue surface -----
+   The captain's 2026-09-19 brief, measured: product imagery was rendering in
+   88×66 boxes on /products and the note beside it out-weighed the picture. The
+   card below is the fix and the rule — the photograph LEADS at the column's
+   full width, the figures sit under it, and the actions close it. One grid, one
+   rhythm, shared by /products, /plans, /packages and /lots, so a reader moving
+   between them does not feel they changed products.
+
+   26rem columns give THREE across at 1440 (1392px of content, ~448px cards) and
+   ONE at 390 — the count the brief asks for, and the reason the grid is
+   `auto-fill minmax` rather than a fixed repeat(): it degrades to two columns on
+   a tablet without a second media query. `min(100%, 26rem)` is what keeps the
+   single column from overflowing a 390px phone. */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr));
+  gap: var(--space-6) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shop-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+.shop-card__figure {
+  margin: 0;
+}
+
+.shop-card__media {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  background: var(--marble-100);
+}
+
+/* The height reset every img-level ratio in this file carries: a reserved
+   width/height attribute is a presentational hint and would make the ratio a
+   no-op. The picture's space stays reserved. */
+.shop-card__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.shop-card__media:hover img,
+.shop-card__media:focus-visible img {
+  opacity: 0.94;
+}
+
+.shop-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+}
+
+.shop-card__eyebrow {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.shop-card__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  line-height: 1.25;
+  color: var(--color-text-primary);
+}
+
+.shop-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.shop-card__title a:hover {
+  color: var(--color-text-accent);
+}
+
+.shop-card__meta {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.shop-card__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.shop-card__unit {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.shop-card__senior {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.shop-card__caption {
+  display: block;
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.shop-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+/* The card's own chip sits on the photograph; the shared sample chip is
+   absolutely placed already, so only the card's stacking needs stating. */
+.shop-card__media .casket-sample__chip {
+  z-index: 1;
+}
+
+/* --- The day ladder: one service, one photograph, its priced rows ------------
+   The embalming service is sold at eight day counts (3–9 days plus the extra
+   day). Eight photo cards would print the same picture eight times, which is the
+   wall the captain objected to; one photograph beside a priced ladder reads as a
+   product with options and keeps every row's own Add to cart + Request order. */
+.day-ladder {
+  display: grid;
+  grid-template-columns: 22rem minmax(0, 1fr);
+  gap: var(--space-6);
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-rule);
+}
+
+@media (max-width: 60rem) {
+  .day-ladder {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+}
+
+.day-ladder__media {
+  margin: 0;
+}
+
+/* The height reset every img-level ratio in this file carries. */
+.day-ladder__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--marble-100);
+}
+
+.day-ladder__caption {
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.day-ladder__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.day-ladder__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-4);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-rule);
+}
+
+.day-ladder__row:first-child {
+  border-top: 0;
+}
+
+.day-ladder__name {
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+}
+
+.day-ladder__price {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+}
+
+@media (max-width: 40rem) {
+  .day-ladder__row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .day-ladder__row .catalogue-actions {
+    grid-column: 1 / -1;
   }
 }
 
@@ -4741,6 +5053,20 @@ because the shared `.ag-appt` rule comes later in this file. */
   object-fit: contain;
 }
 
+/* The package card's photograph caption (2026-09-19 imagery pass): the gallery's
+   caption grammar — the picture named, then the client's own note — at the
+   catalogue's type size. The figure carries no margin of its own. */
+.item-card__figure {
+  margin: 0;
+}
+
+.item-card__caption {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 /* Legend chips (type colours + status counts) */
 .legend {
   display: flex;
@@ -6954,7 +7280,13 @@ because the shared `.ag-appt` rule comes later in this file. */
 .casket-sample__media img {
   display: block;
   width: 100%;
+  /* The height reset the ledger block documents: a reserved width/height
+     attribute would otherwise make this ratio a no-op. 3:2 is the same ratio as
+     the published `wide` crop, so nothing is cropped — the picture keeps the
+     client's own framing. */
   height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
 }
 
 .casket-sample__chip {
@@ -7137,31 +7469,53 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .casket-sample-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
 }
 
+@media (max-width: 40rem) {
+  .casket-sample-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* The detail page's tier samples follow the shop card's grammar — a top hairline
+   and a photograph, never a box per tile — so a reader moving from /products to
+   a model page meets the same card rhythm. The old 11rem auto-fit grid rendered
+   four 126px boxes plus an orphan; two columns give each sample a real figure. */
 .tribute-figure {
   margin: 0;
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-surface-raised);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .tribute-figure img {
   display: block;
   width: 100%;
-  height: 9rem;
+  /* The site's one ratio family (4:3) so the detail page's tier samples
+     match the shop grid's cards. `height: auto` is the reset every img-level
+     ratio in this file carries — a definite height would make it a no-op. */
+  height: auto;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--marble-100);
 }
 
 .tribute-figure figcaption {
   display: grid;
   gap: 2px;
-  padding: var(--space-2) var(--space-3);
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
+}
+
+.tribute-figure figcaption strong {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
 }
 
 .casket-sample__mini {
@@ -9696,8 +10050,13 @@ a.card:hover {
 
 .rail-thumb {
   flex: none;
-  width: 3.2rem;
-  height: 2.6rem;
+  /* 4:3, not the 3.2×2.6rem speck: measured on the live page, the rail thumbs
+     rendered 49×40 — the smallest imagery on the storefront and the thing the
+     captain read as "no images". The rail is 17rem wide, so a 4.5rem tile still
+     leaves the title and price room beside it while making the picture legible. */
+  width: 4.5rem;
+  aspect-ratio: 4 / 3;
+  height: auto;
   border-radius: var(--radius-sm);
   overflow: hidden;
   border: 1px solid var(--color-rule);
@@ -14745,6 +15104,79 @@ a.card:hover {
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
+}
+
+/* --- The client's own photograph on each a-la-carte line (2026-09-19) --------
+   Measured, before this pass: every one of the five fees printed its photograph
+   in a 7.5rem column — 120×90 on the page — which is the "50px icon" state the
+   captain named. Each fee is now a SHOP CARD in the shared `.shop-grid`: the
+   client's own photograph leads at the column's full width (448×336 measured at
+   1440, 92vw at 390), the price block and the note sit under it, and the actions
+   close it. The `.sv-price-card` names stay — the section's own approved DOM
+   (docs/08-delivery/services-design/) and its tests still address them — but the
+   layout is the catalogue's one grammar, so /services and /products read alike. */
+.sv-prices--photos {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  align-items: stretch;
+  column-gap: var(--space-5);
+  row-gap: var(--space-6);
+  border-top: 0;
+}
+
+.sv-price-card--photo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-content: stretch;
+  align-items: stretch;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 0;
+}
+
+/* The photograph leads; the odd-tail rule that spanned a price-list row does not
+   apply to a card that now carries its own picture. */
+.sv-prices--photos .sv-price-card:last-child:nth-child(odd) {
+  grid-column: auto;
+}
+
+.sv-price-card__media {
+  order: -1;
+  margin: 0;
+  min-width: 0;
+}
+
+/* The height reset every `img`-level ratio in this file carries: the reserved
+   width/height attributes are a presentational hint and would make the ratio a
+   no-op. Space stays reserved. */
+.sv-price-card__media img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--marble-100);
+}
+
+.sv-price-card--photo .sv-price-card__head,
+.sv-price-card--photo .sv-price-card__plain,
+.sv-price-card--photo .sv-price-card__amount,
+.sv-price-card--photo .sv-price-card__actions {
+  grid-column: auto;
+  grid-row: auto;
+}
+
+.sv-price-card--photo .sv-price-card__amount {
+  justify-content: flex-start;
+}
+
+.sv-price-card--photo .sv-price-card__unit {
+  text-align: left;
+}
+
+.sv-price-card--photo .sv-price-card__actions {
+  margin-top: auto;
 }
 
 /* Explicit "these two buttons" legend — repeated once per section, not per

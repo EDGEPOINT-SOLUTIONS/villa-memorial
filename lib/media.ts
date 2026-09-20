@@ -1,3 +1,10 @@
+import {
+  clientPhoto,
+  clientPhotoCard,
+  clientPhotoWide,
+  type ClientPhotoId,
+} from "@/lib/client-photos";
+
 /**
  * Generic garden/park photo used as a fallback where no dedicated asset
  * exists. (memorial-park.jpg was retired from the media folder — this now
@@ -172,39 +179,143 @@ export const COFFIN_SAMPLE_PHOTOS: ReadonlyArray<{
 /** A catalogue model's own facts, as an image picker needs them. */
 type CasketSampleKey = { collection: string; model: string };
 
-/**
- * PROVISIONAL collection → sample-photograph binding for the casket detail
- * views. The client's sheet photographs five sample coffins (Bronze 1/2,
- * Silver 1/2, Gold) but never maps them to the 24 named models of the 2026
- * casket catalogue, so this binding is an editorial illustration — it is NOT a
- * published claim that a model ships as photographed. Views must caption the
- * result as an illustrative sample and repeat the sheet's substitution note
- * (COFFIN_TIER_NOTE); tests/unit/villa-services-premium.test.tsx pins that.
- * Open client question: which sample photograph belongs to Lumina / the White
- * Rose / Crown / Dynasty collections.
+/* ---------------------------------------------------------------------------
+ * The client's own 2026 photographs — the casket catalogue's imagery.
  *
- * Rule (documented, so an editor can see why): the entry collection shows the
- * Bronze sample; a White Rose model shows the Silver sample whose lid matches
- * the cover its name states ("Half" → Silver 1, "Full" → Silver 2); the Crown
- * and Dynasty collections show the Gold sample, whose cover the sheet itself
- * describes as convertible.
- */
-const CASKET_COLLECTION_SAMPLES: Record<string, string> = {
-  Lumina: "/media/coffin-bronze-1.jpg",
-  "The White Rose Collection": "/media/coffin-silver-1.jpg",
-  "The Crown Collection": "/media/coffin-gold.jpg",
-  "The Dynasty Collection": "/media/coffin-gold.jpg",
+ * The client supplied 14 usable photographs (six of caskets, two of the
+ * karwahe, two of the chapel hall, four of wake set-ups). Their record and the
+ * honesty rule live in lib/client-photos.ts; this is the MODEL → PHOTOGRAPH
+ * decision, written out as an explicit 24-row table so a reviewer can check it
+ * rather than trust it.
+ *
+ * WHY A TABLE AND NOT A NAME MATCH. The client's folder calls the coffins
+ * Tribute, Serenity, Everlasting, Divine Rest and Heaven's Gate. The 2026 price
+ * sheets sell White Rose, Angelica, Magnolia, Noble, Royal, Monarch, Majesty,
+ * Emperor, Imperial and Lumina. Nobody has reconciled the two lists (open client
+ * question, opened 2026-09-19 with this import), so NO photograph may be
+ * published as "the White Rose Full". Two rules fix every row instead:
+ *
+ *   · the COVER the model's own name states leads the choice — a "Half" model
+ *     is shown lid-down or on its half stay, a "Full" / "Full Split" / "Flexi"
+ *     model with the raised cover the sheet's convertible line describes;
+ *   · within one cover class the COLLECTION's own price band picks the finish —
+ *     the entry Lumina is the plain white coffin, the Dynasty band the
+ *     wood-and-gold shell — and the table is laid out so no two neighbouring
+ *     cards, and no two models of one family, print the same picture.
+ *
+ * The honest limit, stated where it belongs: six photographs cannot be
+ * twenty-four coffins. Every card therefore carries the sample chip and the
+ * sheet's substitution note, `tests/unit/catalogue-imagery.test.ts` walks this
+ * table and reports how often each photograph is used, and the PR names the
+ * models that still have no photograph of their own.
+ *
+ * Every surface publishing these repeats the record's own label and the sheet's
+ * substitution note (COFFIN_TIER_NOTE), so a family always reads what the
+ * picture is: a sample from the client's photographs, not this exact model.
+ * ------------------------------------------------------------------------- */
+export const CASKET_MODEL_PHOTOS: Readonly<Record<string, ClientPhotoId>> = {
+  // The entry collection is the plain white coffin, lid down.
+  Lumina: "casket-white-closed",
+  // White Rose — the client's white-and-gold coffin, half then full cover.
+  "White Rose Half": "casket-white-gold-closed",
+  "White Rose Full": "casket-white-gold-glass-lid",
+  // Angelica — plain white half, then the wreath-interior full lid.
+  "Angelica Half": "casket-white-closed",
+  "Angelica Full": "casket-white-gold-wreath-lid",
+  // Magnolia — white-and-gold half, then the open-lid chapel photograph.
+  "Magnolia Half": "casket-white-gold-closed",
+  "Magnolia Full": "casket-white-open-lid",
+  // Noble — plain white half; the fulls step up to the wood-and-gold shell.
+  "Noble Half": "casket-white-closed",
+  "Noble Full": "casket-wood-white-gold-bible-lid",
+  "Noble Full Split": "casket-white-gold-glass-lid",
+  // Royal — the Crown band's middle: gold half, wreath full, open split.
+  "Royal Half": "casket-white-gold-closed",
+  "Royal Full": "casket-white-gold-wreath-lid",
+  "Royal Full Split": "casket-white-open-lid",
+  // Monarch — the top of the Crown band.
+  "Monarch Half": "casket-white-closed",
+  "Monarch Full": "casket-wood-white-gold-bible-lid",
+  // Majesty — the Dynasty band opens on the full-glass white-and-gold lids.
+  "Majesty Full": "casket-white-gold-glass-lid",
+  "Majesty Full Split": "casket-white-gold-wreath-lid",
+  "Majesty Flexi": "casket-wood-white-gold-bible-lid",
+  // Emperor — the open lid, then the convertible pair.
+  "Emperor Full": "casket-white-open-lid",
+  "Emperor Full Split": "casket-white-gold-glass-lid",
+  "Emperor Flexi": "casket-white-gold-wreath-lid",
+  // Imperial — the richest finish closes the catalogue.
+  "Imperial Full": "casket-wood-white-gold-bible-lid",
+  "Imperial Full Split": "casket-white-open-lid",
+  "Imperial Flexi": "casket-white-gold-glass-lid",
 };
 
-/** The illustrative sample photograph for a catalogue model (see the note above). */
-export function casketSamplePhoto(model: CasketSampleKey): { src: string; label: string } {
-  const src =
-    model.collection === "The White Rose Collection" && model.model.endsWith("Full")
-      ? "/media/coffin-silver-2.jpg"
-      : (CASKET_COLLECTION_SAMPLES[model.collection] ?? "/media/coffin-bronze-1.jpg");
-  const photo = COFFIN_SAMPLE_PHOTOS.find((p) => p.src === src);
-  return { src, label: photo?.label ?? "Client sample coffin" };
+/**
+ * The one photograph a catalogue model shows, by the table above. The result is
+ * deterministic, which is what the pages and tests rely on; a model the table
+ * does not name falls back to the white-and-gold coffin rather than to nothing.
+ */
+export function casketModelPhotoId(model: CasketSampleKey): ClientPhotoId {
+  return CASKET_MODEL_PHOTOS[model.model] ?? "casket-white-gold-closed";
 }
+
+/**
+ * The illustrative photograph a catalogue model shows, its description and the
+ * labels a view must publish: `label` (what the picture is), `alt` (what a
+ * screen reader gets) and `note` (the sheet's illustration-only line).
+ */
+export type CasketPhotoChoice = {
+  id: ClientPhotoId;
+  src: string;
+  srcSet: string;
+  label: string;
+  what: string;
+  alt: string;
+  note: string;
+  /** The 3:2 feature crop — detail leads, hero figures. */
+  wide: { src: string; srcSet: string; width: number; height: number };
+  /** The 4:3 catalogue crop — shop cards, rows, rails. */
+  card: { src: string; srcSet: string; width: number; height: number };
+};
+
+export function casketSamplePhoto(model: CasketSampleKey): CasketPhotoChoice {
+  const id = casketModelPhotoId(model);
+  const photo = clientPhoto(id);
+  const card = clientPhotoCard(id);
+  const wide = clientPhotoWide(id);
+  return {
+    id,
+    src: card.src,
+    srcSet: card.srcSet,
+    card,
+    wide,
+    label: photo.label,
+    what: photo.what,
+    alt: photo.alt,
+    note: "Illustration purposes only — a sample from the client's own photographs, not this model.",
+  };
+}
+
+/* ---------------------------------------------------------------------------
+ * The same client photographs, where the subject IS the thing named: the
+ * karwahe, the chapel hall, the wake set-ups. These are `client-photo` entries
+ * (lib/client-photos.ts), so their caption says whose photograph it is and the
+ * set-up ones still say the office builds the real one with the family.
+ * ------------------------------------------------------------------------- */
+
+/** The office's own funeral carriage (karwahe), two angles. */
+export const HEARSE_CARRIAGE_SIDE_IMAGE = clientPhotoWide("hearse-carriage-gold-side").src;
+export const HEARSE_CARRIAGE_REAR_IMAGE = clientPhotoWide("hearse-carriage-gold-rear").src;
+
+/** The chapel hall the client photographed, and its second angle. */
+export const CHAPEL_HALL_PEDESTALS_IMAGE = clientPhotoWide("chapel-hall-candle-pedestals").src;
+export const CHAPEL_HALL_FLAGS_IMAGE = clientPhotoWide("chapel-hall-flags").src;
+
+/** The client's own wake set-ups, in the order a service page walks them. */
+export const WAKESETUP_DRESSING_IMAGE = clientPhotoWide("wake-setup-dressing").src;
+export const WAKESETUP_CASKET_IMAGE = clientPhotoWide("wake-setup-casket-draped").src;
+export const WAKESETUP_ALCOVE_IMAGE = clientPhotoWide("wake-setup-lamp-alcove").src;
+export const WAKESETUP_FLOWERS_IMAGE = clientPhotoWide("wake-setup-flower-bank").src;
 
 /** At-need service photos (uploaded). */
 export const DEATH_AT_HOME_IMAGE = "/media/death_at_home.jpg";
@@ -255,7 +366,9 @@ export function mediaLabel(src: string): string {
  */
 export const SERVICE_CARD_PHOTOS: Readonly<Record<string, string>> = {
   lot: PARK_PLACE_PHOTOS.prime,
-  interment: "/media/at_need_services.jpg",
+  // The interment card used a stock photograph (a rose on a casket) until the
+  // client's own 2026 set arrived; it now shows their carriage on the way out.
+  interment: HEARSE_CARRIAGE_REAR_IMAGE,
   plan: "/media/gallery/wake-viewing-840.webp",
   mausoleum: PARK_PLACE_PHOTOS.mausoleum,
 };
@@ -272,16 +385,18 @@ export function serviceCardPhoto(icon: string): string | null {
  * plan artwork 1.9 MB) while the surfaces that pick from it render 3.2–24rem:
  * the home's rails, its About figure and the staff editor's picker. Asking a
  * phone for 12 MB to paint 300 px of image was the landing page's remaining
- * weight defect, so scripts/build-composition-images.mjs publishes a 320/640 px
+ * weight defect, so scripts/build-composition-images.mjs publishes 320/640/960 px
  * WebP for every library entry and these two helpers turn a library path into it.
+ * 960 serves the one figure that renders wider than a thumb — the park aerial on
+ * /facilities (45rem), which was upscaling a 640 (imagery pass, 2026-09-19).
  *
  * `libraryThumb` is total: an asset the script does not know (a staff URL, a
  * device upload's data URL, a newly added file) comes back unchanged, so a view
  * can always call it.
  * ------------------------------------------------------------------------- */
 
-/** The published thumbnail widths (1× mobile rail / 2× and the About figure). */
-export const LIBRARY_THUMB_WIDTHS = [320, 640] as const;
+/** The published thumbnail widths (1× mobile rail / 2× and the wide figures). */
+export const LIBRARY_THUMB_WIDTHS = [320, 640, 960] as const;
 
 /**
  * `/media/Some%20File.png` → `some-file`. The source is percent-decoded first
@@ -329,7 +444,7 @@ const LIBRARY_THUMB_SOURCES: ReadonlyArray<string> = [
 ];
 
 /** The thumbnail WebP for a library image at `width`, or the source unchanged. */
-export function libraryThumb(src: string, width: 320 | 640 = 320): string {
+export function libraryThumb(src: string, width: 320 | 640 | 960 = 320): string {
   if (!hasLibraryThumb(src)) return src;
   return `/media/composition/thumbs/${mediaSlug(src)}-${width}.webp`;
 }

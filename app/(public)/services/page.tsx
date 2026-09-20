@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
 import {
-  CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
-  DEATH_AT_HOME_IMAGE,
   DEATH_AT_HOSPITAL_IMAGE,
+  WAKESETUP_DRESSING_IMAGE,
 } from "@/lib/media";
+import { clientPhotoWide } from "@/lib/client-photos";
 import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
 import { ServicesSubnav, type SubnavItem } from "@/components/villa/services-subnav";
 import { ErrorState } from "@/components/ui/states";
@@ -82,12 +82,16 @@ export default async function ServicesPage() {
               <p className="sv-hero__lead">At-need funeral care, any hour — with 2026 prices.</p>
             </div>
             <figure className="sv-hero__media">
-              {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
+              {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
               <img
-                src={CHAPEL_PRIVATE_IMAGE}
-                alt="Illustrative sample set-up — a decorated viewing room with the casket on a draped stand, floral arch and candles"
+                src={clientPhotoWide("wake-setup-casket-draped").src}
+                srcSet={clientPhotoWide("wake-setup-casket-draped").srcSet}
+                alt="A white casket with gold handles in a purple-draped viewing room the office prepared, under garlands of white flowers"
               />
-              <figcaption>{CHAPEL_SAMPLE_NOTE}</figcaption>
+              <figcaption>
+                A wake set-up the office prepared — shown larger on the{" "}
+                <Link href="/gallery">photo gallery</Link>. {CHAPEL_SAMPLE_NOTE}
+              </figcaption>
             </figure>
           </div>
 
@@ -136,8 +140,13 @@ export default async function ServicesPage() {
                 <h3>Death at home</h3>
               </div>
               <div className="sv-card-media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded service photo */}
-                <img src={DEATH_AT_HOME_IMAGE} alt="" loading="lazy" />
+                {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
+                <img
+                  src={WAKESETUP_DRESSING_IMAGE}
+                  srcSet={clientPhotoWide("wake-setup-dressing").srcSet}
+                  alt=""
+                  loading="lazy"
+                />
               </div>
               <p className="sv-price-card__plain">Transport, preparation and paperwork — ours.</p>
               <div className="sv-price-card__actions">
@@ -151,6 +160,9 @@ export default async function ServicesPage() {
                 <h3>Death in hospital</h3>
               </div>
               <div className="sv-card-media">
+                {/* The client's 2026 set has no hospital photograph; this stays the
+                    existing generic care image (no claim about any hospital) until
+                    the client supplies one. */}
                 {/* eslint-disable-next-line @next/next/no-img-element -- uploaded service photo */}
                 <img src={DEATH_AT_HOSPITAL_IMAGE} alt="" loading="lazy" />
               </div>

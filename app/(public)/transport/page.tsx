@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { TRANSPORT_IMAGE } from "@/lib/media";
+import { clientPhotoWide } from "@/lib/client-photos";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -42,9 +42,14 @@ export default function Page() {
             </nav>
           </div>
           <figure className="hero-premium__media">
-            {/* eslint-disable-next-line @next/next/no-img-element -- uploaded transport photo */}
-            <img src={TRANSPORT_IMAGE} alt="Villa transport service" />
-            <figcaption>Dignified transport, day or night.</figcaption>
+            {/* The client's OWN carriage, not a stock hearse: 2026-09-19 imagery pass. */}
+            {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
+            <img
+              src={clientPhotoWide("hearse-carriage-gold-side").src}
+              srcSet={clientPhotoWide("hearse-carriage-gold-side").srcSet}
+              alt="The office's funeral carriage (karwahe) with its gold casket compartment, black canopy and white flower decorations"
+            />
+            <figcaption>The office&rsquo;s carriage, the karwahe.</figcaption>
           </figure>
         </div>
       </section>

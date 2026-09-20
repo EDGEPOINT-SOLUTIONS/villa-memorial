@@ -146,7 +146,7 @@ describe("defect 4 — one class, one declaration", () => {
   it("no rule anywhere hands the ledger row the segmented control's template", () => {
     const ledger = declarationRules.find((r) => r.selector === ".tier-ledger__row");
     expect(ledger).toBeDefined();
-    expect(ledger?.body).toMatch(/grid-template-columns\s*:\s*5\.5rem\s+minmax\(0,\s*1fr\)/);
+    expect(ledger?.body).toMatch(/grid-template-columns\s*:\s*clamp\(9rem,\s*14vw,\s*11rem\)\s+minmax\(0,\s*1fr\)/);
     expect(ledger?.body).not.toMatch(/repeat\(5,/);
     // The box chrome belongs to the segmented control alone.
     expect(ledger?.body).not.toMatch(/border\s*:\s*1px/);

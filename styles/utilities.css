@@ -11,8 +11,10 @@
 
 .stack-3 > * + * { margin-top: var(--space-3); }
 .stack-4 > * + * { margin-top: var(--space-4); }
+.stack-5 > * + * { margin-top: var(--space-6); }
 /* .stack-3/.stack-4 shipped, .stack-2 was referenced without a rule (same
-   "referenced but never defined" trap as .stack below). */
+   "referenced but never defined" trap as .stack below). .stack-5 is the shop's
+   band step: a product band needs more air than a card stack. */
 .stack-2 > * + * { margin-top: var(--space-2); }
 
 .row {

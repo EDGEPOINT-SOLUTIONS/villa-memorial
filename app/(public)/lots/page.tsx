@@ -196,6 +196,87 @@ export default async function LotsPage({
         </div>
       </section>
 
+      {/* The gallery the captain asked for (2026-09-19): the lot page printed
+          three photographs above a long list of priced rows. Each KIND of place
+          now leads with the client's own photograph of that place at the shop
+          card's own size (448×336 at 1440), with its real plot counts and the
+          lowest available price of anything of that kind. The photographs are
+          the tiles' photographs alone (scripts/build-composition-images.mjs) —
+          never the marketing tile with its baked-in title band and logo. */}
+      <section className="stack-3" aria-labelledby="lot-kinds-title">
+        <header className="band-head">
+          <h2 className="band-head__title" id="lot-kinds-title">
+            The kinds of place you can choose
+          </h2>
+          <span className="band-head__count">
+            {legendChips.length} types · {rows.filter((r) => r.plot.status === "available").length}{" "}
+            of {totalPlots} plots available
+          </span>
+        </header>
+        <ul className="shop-grid">
+          {legendChips.map((t) => {
+            const ofType = rows.filter((r) => r.plot.typeId === t.id);
+            const availableOfType = ofType.filter((r) => r.plot.status === "available");
+            const prices = ofType
+              .map((r) => r.lot)
+              .filter((lot): lot is Lot => lot !== null)
+              .map((lot) => lot.price_cents);
+            const href = q({ type: t.id });
+            const photo = PARK_PLACE_BY_TYPE[t.id] ?? PARK_PLACE_PHOTOS.grounds;
+            return (
+              <li className="shop-card" key={t.id}>
+                <figure className="shop-card__figure">
+                  <Link href={href} className="shop-card__media" tabIndex={-1} aria-hidden="true">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- the client's lot photograph */}
+                    <img
+                      src={photo.replace("-720", "-480")}
+                      srcSet={`${photo.replace("-720", "-480")} 480w, ${photo} 720w`}
+                      width={720}
+                      height={540}
+                      sizes="(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 26rem"
+                      alt=""
+                      loading="lazy"
+                    />
+                  </Link>
+                  <figcaption className="shop-card__caption">
+                    {t.name.charAt(0) + t.name.slice(1).toLowerCase()} — the client&rsquo;s own
+                    photograph of the park.
+                  </figcaption>
+                </figure>
+                <div className="shop-card__body">
+                  <h3 className="shop-card__title">
+                    <Link href={href}>{t.name}</Link>
+                  </h3>
+                  <div className="shop-card__meta">
+                    {ofType.length} plot{ofType.length === 1 ? "" : "s"} · {availableOfType.length}{" "}
+                    available now
+                  </div>
+                  {prices.length > 0 ? (
+                    <div className="shop-card__price">
+                      {formatMinorUnits(Math.min(...prices), lots[0]?.currency ?? "PHP")}
+                      <span className="shop-card__unit">published asking price, from</span>
+                    </div>
+                  ) : (
+                    <div className="shop-card__price">
+                      Price on request
+                      <span className="shop-card__unit">the office quotes per plot</span>
+                    </div>
+                  )}
+                  <div className="shop-card__actions">
+                    <Link href={href} className="btn btn--secondary btn--sm">
+                      See {ofType.length} plot{ofType.length === 1 ? "" : "s"}
+                    </Link>
+                    <Link href="/map" className="btn btn--ghost btn--sm">
+                      Walk the map
+                    </Link>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
       {filtered.length !== rows.length ? (
         <p className="text-sm text-muted" style={{ margin: "var(--space-3) 0 var(--space-2)" }}>
           Showing {filtered.length} of {rows.length} plots —{" "}
@@ -302,7 +383,10 @@ function LotLead({ row }: { row: PlotRow }) {
         <img
           src={sizeable ? photo.replace("-720", "-480") : photo}
           srcSet={sizeable ? `${photo.replace("-720", "-480")} 480w, ${photo} 720w` : undefined}
-          sizes="(max-width: 60rem) 90vw, 26rem"
+          /* The lead's media column is ~44% of the folio at desktop (measured
+             625px at 1440), so the size hint must say that — 26rem made the
+             browser fetch the 480 file for a 625px slot and upscale it. */
+          sizes="(max-width: 60rem) 90vw, 44vw"
           alt={`${type.name} — Villa Memorial Park`}
           loading="lazy"
         />

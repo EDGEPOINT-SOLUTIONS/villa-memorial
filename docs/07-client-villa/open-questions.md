@@ -7,6 +7,14 @@ From blueprint §72 + gaps found during corpus review:
 - [ ] Actual chapel names, capacities, rates
 - [ ] Actual park sections/blocks/lot dimensions and legal property model (needed for GIS)
 - [ ] Lot ownership/rights terminology and legal documentation ("interment rights only" vs ownership)
+- [ ] **Photograph ↔ price-sheet model reconciliation (opened by the 2026-09-19 imagery pass).**
+      The 21 photographs the client supplied are named Tribute, Serenity, Everlasting, Divine Rest
+      and Heaven's Gate — none of which is a 2026 sheet model name (White Rose, Angelica, Magnolia,
+      Noble, Royal, Monarch, Majesty, Emperor, Imperial, Lumina). Every catalogue card therefore
+      publishes its photograph as a LABELLED SAMPLE (`lib/client-photos.ts`, `lib/media.ts`'s
+      `CASKET_MODEL_PHOTOS`), never as "the White Rose Full"; six casket photographs cover the 24
+      models. Confirm which photograph is which model — and whether the seven Tribute-series wake
+      photographs that show identifiable mourners (held back from publication) may be published.
 
 ## Contracts & finance
 - [ ] Pre-need plan terms, transferability, assignability

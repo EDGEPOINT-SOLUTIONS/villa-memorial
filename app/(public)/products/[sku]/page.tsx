@@ -14,7 +14,8 @@ import { getCatalogItem } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { casketDetailHref, coffinModelForSku, coffinSku } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
-import { COFFIN_SAMPLE_PHOTOS, casketSamplePhoto } from "@/lib/media";
+import { casketSamplePhoto } from "@/lib/media";
+import { clientPhotoWide } from "@/lib/client-photos";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 
@@ -48,13 +49,16 @@ export async function generateMetadata({ params }: CasketDetailParams): Promise<
       path: "/products",
     });
   }
+  const sample = casketSamplePhoto(model);
   return pageMetadata({
     title: `${model.model} casket — 2026 price — Villa Memorial`,
     description: `${model.model} (${model.collection}) — the client's 2026 SRP of ${php(model.srp)} and the senior-citizen price of ${php(model.seniorPrice)}, with the inclusions this model carries.`,
     // Canonicalise every case/spelling variant to the sheet's own SKU URL.
     path: `/products/${coffinSku(model.model)}`,
-    image: casketSamplePhoto(model).src,
-    imageAlt: `Illustrative sample coffin — ${casketSamplePhoto(model).label}`,
+    // The share card takes the feature crop (3:2, the largest published width),
+    // not the 4:3 catalogue thumbnail.
+    image: clientPhotoWide(sample.id).src,
+    imageAlt: `Illustrative sample coffin — ${sample.alt}`,
   });
 }
 
@@ -147,26 +151,29 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
           </section>
 
           <section className="mid-section" aria-labelledby="casket-samples">
-            <p className="mid-kicker">The client&rsquo;s own sample coffins</p>
-            <h2 id="casket-samples">The five coffins on the 2026 sheet</h2>
+            <p className="mid-kicker">The client&rsquo;s own photographs</p>
+            <h2 id="casket-samples">How the five tiers are shown</h2>
             <p className="mid-intro">
-              The sheet photographs Bronze, Silver and Gold coffins with their lid lines. {COFFIN_TIER_NOTE}
+              Each tier below carries one sample from the client&rsquo;s own 2026 photographs, chosen
+              for the lid line its sheet name states — the office confirms the cover before
+              anything is reserved. {COFFIN_TIER_NOTE}
             </p>
             <div className="casket-sample-strip">
-              {COFFIN_SAMPLE_PHOTOS.map((photo) => {
-                const tier = COFFINS.find((c) => c.tier === photo.tier);
-                return (
-                  <figure key={photo.tier} className="tribute-figure">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-                    <img src={photo.src} alt={`Illustrative sample coffin — ${photo.label}`} loading="lazy" />
-                    <figcaption>
-                      <strong>{photo.tier}</strong>
-                      {tier ? ` · ${tier.lid}` : null}
-                      <span className="casket-sample__mini">Sample photograph</span>
-                    </figcaption>
-                  </figure>
-                );
-              })}
+              {COFFINS.map((coffin) => (
+                <figure key={coffin.tier} className="tribute-figure">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
+                  <img
+                    src={coffin.photo}
+                    alt={`Illustrative sample coffin — ${coffin.tier}, ${coffin.lid}`}
+                    loading="lazy"
+                  />
+                  <figcaption>
+                    <strong>{coffin.tier}</strong>
+                    <span>{coffin.lid}</span>
+                    <span className="casket-sample__mini">Sample photograph</span>
+                  </figcaption>
+                </figure>
+              ))}
             </div>
           </section>
         </div>

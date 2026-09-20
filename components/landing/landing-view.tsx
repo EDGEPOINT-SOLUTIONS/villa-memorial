@@ -69,17 +69,17 @@ export function RailThumb({ item }: { item: RailItem }) {
       </span>
     );
   }
-  // A rail thumbnail paints at ~3.2rem; the library asset behind it can be
-  // 2.6 MB. `libraryThumb` serves the published 320/640 px WebP instead and
-  // returns the original untouched for anything the thumbnail pass does not
-  // know (a staff URL, a device upload) — see lib/media.ts.
+  // A rail thumbnail paints at 4.5rem (the size this pass fixed); the library
+  // asset behind it can be 2.6 MB. `libraryThumb` serves the published 320/640
+  // px WebP instead and returns the original untouched for anything the
+  // thumbnail pass does not know (a staff URL, a device upload) — lib/media.ts.
   return (
     <span className="rail-thumb">
       {/* eslint-disable-next-line @next/next/no-img-element -- catalogue photo */}
       <img
         src={libraryThumb(item.image)}
         srcSet={libraryThumbSet(item.image)}
-        sizes="(max-width: 75rem) 3.2rem, 3.2rem"
+        sizes="4.5rem"
         alt=""
         loading="lazy"
       />

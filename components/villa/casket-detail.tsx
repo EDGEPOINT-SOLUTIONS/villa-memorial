@@ -18,15 +18,15 @@ import type { CatalogItem } from "@/lib/api-client/commerce";
  * lib/villa-pricing.ts (SRP, senior discount, discounted price, the sheet III
  * inclusion row, the cover line). Nothing is typed into the view.
  *
- * Imagery is the client's own sample photograph cropped from the TYPES OF COFFIN
- * sheet by scripts/crop-client-sheet-tiles.mjs. The sheet says the sample photos
- * are "(Illustration purposes only)" and the sheet never maps its five samples to
- * the 24 named models, so this view captions the photo as the CLOSEST SAMPLE and
- * repeats the sheet's substitution note — it never claims a model ships as
- * photographed (the collection binding is provisional: lib/media.ts).
+ * Imagery is the client's own 2026 photograph chosen by lib/media.ts's rule for
+ * this model (cover variant + collection band). The client's photograph set is
+ * not reconciled with the sheet's model names — an open client question
+ * (lib/client-photos.ts) — so this view captions the photograph with the record's
+ * own description, chips it "Sample photograph" and repeats the sheet's
+ * substitution note. It never claims the model ships as photographed.
  */
 
-/** The model's illustrative photograph, its caption and the sheet's note. */
+/** The model's illustrative photograph, what it shows, and the sheet's note. */
 export function CasketSampleFigure({ model }: { model: CasketModel }) {
   const sample = casketSamplePhoto(model);
   return (
@@ -34,14 +34,17 @@ export function CasketSampleFigure({ model }: { model: CasketModel }) {
       <div className="casket-sample__media">
         {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
         <img
-          src={sample.src}
-          alt={`Illustrative sample coffin — ${sample.label}. Not a photograph of the ${model.model} model itself.`}
+          src={sample.wide.src}
+          srcSet={sample.wide.srcSet}
+          width={sample.wide.width}
+          height={sample.wide.height}
+          sizes="(max-width: 64rem) 92vw, 57rem"
+          alt={`Illustrative sample coffin — ${sample.alt}`}
         />
         <span className="casket-sample__chip">Sample photograph</span>
       </div>
       <figcaption className="casket-sample__caption">
-        <strong>{sample.label}</strong> — the closest sample photograph on the client&rsquo;s
-        TYPES OF COFFIN sheet for {model.model}. {COFFIN_TIER_NOTE}
+        <strong>{sample.label}.</strong> {sample.what} {sample.note} {COFFIN_TIER_NOTE}
       </figcaption>
     </figure>
   );

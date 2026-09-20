@@ -14,26 +14,23 @@ import {
   coffinSku,
 } from "@/lib/catalogue-skus";
 import {
-  CASKET_COLLECTIONS,
   CASKET_INCLUSIONS,
   CASKET_MODELS,
   CHAPEL_RATES,
   COFFIN_COVER_UNSTATED,
   COFFIN_TIER_NOTE,
+  COFFINS,
   EMBALMING_RATES,
   coffinCover,
   php,
 } from "@/lib/villa-pricing";
 import {
-  CHAPEL_COMMON_IMAGE,
-  CHAPEL_PRIVATE_IMAGE,
   CHAPEL_SAMPLE_NOTE,
-  COFFIN_SAMPLE_PHOTOS,
-  DEATH_AT_HOME_IMAGE,
   DEATH_AT_HOSPITAL_IMAGE,
-  VIEWING_CARE_IMAGE,
+  WAKESETUP_DRESSING_IMAGE,
   casketSamplePhoto,
 } from "@/lib/media";
+import { clientPhotoCard, clientPhotoWide } from "@/lib/client-photos";
 
 /**
  * The premium pass over the two client-facing surfaces this work rebuilt:
@@ -132,28 +129,34 @@ describe("/services reads as the approved senior-first service page", () => {
   });
 
   it("gives the common and private chapel their own sample photograph", () => {
-    expect(html).toContain(CHAPEL_COMMON_IMAGE);
-    expect(html).toContain(CHAPEL_PRIVATE_IMAGE);
+    // 2026-09-19: each class shows the client's own 2026 photograph — the hall
+    // for the common chapel, a decorated viewing room for the private one.
+    expect(html).toContain(clientPhotoWide("chapel-hall-candle-pedestals").src);
+    expect(html).toContain(clientPhotoWide("wake-setup-lamp-alcove").src);
     expect((html.match(/class="sv-chapel"/g) ?? []).length).toBe(2);
     expect(html).toContain("Common chapel");
     expect(html).toContain("Private chapel");
     // The photographs carry descriptive alt text…
-    expect(html).toContain("alt=\"Illustrative sample wake set-up in the client");
-    expect(html).toContain("alt=\"Illustrative sample decorated viewing room in the client");
+    expect(html).toContain("alt=\"The chapel hall in the client");
+    expect(html).toContain("alt=\"A decorated private viewing room in the client");
     // …and the sheet's illustration-only label, twice (one per room).
     expect((unescaped(html).match(new RegExp(escapeRe(CHAPEL_SAMPLE_NOTE), "g")) ?? []).length)
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("labelled the two first-steps guide photographs as samples", () => {
-    expect(html).toContain(DEATH_AT_HOME_IMAGE);
+  it("labelled the first-steps and embalming photographs as samples", () => {
+    // The death-at-home guide shows the client's own photograph of the set-up
+    // being built; the hospital guide keeps the generic care image (the
+    // client's 2026 set has no hospital photograph — recorded in the PR); the
+    // embalming aside shows their finished set-up in flowers, which replaced a
+    // 297 KB stock JPEG rendered at 350 px (imagery pass, 2026-09-19).
+    expect(html).toContain(WAKESETUP_DRESSING_IMAGE);
     expect(html).toContain(DEATH_AT_HOSPITAL_IMAGE);
-    expect(html).toContain(VIEWING_CARE_IMAGE);
+    expect(html).toContain(clientPhotoWide("wake-setup-flower-bank").src);
     expect(html).toContain("/services/death-at-home");
     expect(html).toContain("/services/death-at-hospital");
-    // The wake photo is labelled illustrative in its own caption (the reading
-    // budget moved the crop provenance to the repo docs).
-    expect(html).toMatch(/Sample wake set-up — illustration purposes only/);
+    // Both prepared set-ups say what they are.
+    expect(html).toContain("A wake set-up the office prepared — illustration purposes only.");
   });
 
   it("keeps both chapel rates and their senior column on the schedule", () => {
@@ -233,21 +236,24 @@ describe("/products cards offer a real detail view", () => {
       expect(html, `${model.model} details link`).toContain(casketDetailHref(model.model));
     }
     expect(html).toContain("View details");
-    // The sheet photographs FIVE sample coffins and binds none of them to a
-    // named model, so a per-model card could only ever reprint its collection's
-    // one picture — 24 cards showing 4 images, which is what read as a template.
-    // The composition pass (2026-09-18) publishes each collection's sample ONCE,
-    // chipped and captioned as illustrative, and lists that collection's models
-    // as priced lines. This pins the stricter form of the old guarantee: no
-    // published sample photograph without its illustration chip and the sheet's
-    // substitution note, and every one of the 24 models still reachable and
-    // priced (`CasketCollectionLedger` / lib/media.ts casketSamplePhoto).
-    expect((html.match(/class="casket-sample__chip"/g) ?? []).length).toBe(
-      CASKET_COLLECTIONS.length,
-    );
-    expect((html.match(/Sample photograph/g) ?? []).length).toBe(CASKET_COLLECTIONS.length);
-    expect(html).toContain(COFFIN_TIER_NOTE);
-    expect(html).toContain('alt="Illustrative sample coffin');
+    // 2026-09-19: every model carries its OWN photograph (the client's own set),
+    // not one collection picture reprinted on twenty-four cards. The mapping is
+    // the recorded rule in lib/media.ts; this pins that the page really renders
+    // each model's chosen file.
+    for (const model of CASKET_MODELS) {
+      const photo = casketSamplePhoto(model);
+      expect(html, `${model.model} photograph`).toContain(clientPhotoCard(photo.id).src);
+    }
+    // The card's photograph is a sample and says so twice: the chip on the
+    // picture, and the caption under it carrying the record's own label. The
+    // picture's own link is aria-hidden (the titled link below is the one a
+    // screen reader uses), so the alt is empty BY DESIGN — the description a
+    // reader gets is the caption, which is real text on the page.
+    expect(html).toContain("Sample photograph");
+    for (const model of CASKET_MODELS) {
+      const chosen = casketSamplePhoto(model);
+      expect(html, `${model.model} caption`).toContain(chosen.label);
+    }
   });
 
   it("keeps every model's own 2026 figures on the catalogue it prints", () => {
@@ -304,14 +310,21 @@ describe("the casket detail view renders the model's own data", () => {
     expect(html).toContain('aria-label="Add to cart: White Rose Full casket"');
     expect(html).toContain("Request order");
     const sample = casketSamplePhoto({ collection: "The White Rose Collection", model: "White Rose Full" });
-    expect(html).toContain(sample.src);
+    // The detail figure takes the FEATURE (3:2) crop of the model's chosen
+    // photograph; the catalogue rows take the 4:3 card crop.
+    expect(html).toContain(clientPhotoWide(sample.id).src);
     expect(html).toContain(sample.label);
+    // The record's own description of what the photograph shows is published
+    // beside it — the reader is told what the picture is, not just that it is a
+    // sample.
+    expect(html).toContain(sample.what);
     expect(html).toContain(COFFIN_TIER_NOTE);
     expect(html).toContain("Sample photograph");
     expect(html).toMatch(/alt="Illustrative sample coffin/);
-    // The sheet's own sample strip keeps illustration-only wording too.
-    for (const photo of COFFIN_SAMPLE_PHOTOS) {
-      expect(html, photo.tier).toContain(photo.src);
+    // The tier samples take the SAME client photographs as the /products band,
+    // so one tier cannot look like two different coffins across the surfaces.
+    for (const coffin of COFFINS) {
+      expect(html, coffin.tier).toContain(coffin.photo);
     }
   });
 

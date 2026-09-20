@@ -2,15 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { listLandingContent } from "@/lib/api-client/landing";
 import {
-  CHAPEL_COMMON_IMAGE,
-  CHAPEL_PRIVATE_IMAGE,
+  CHAPEL_HALL_PEDESTALS_IMAGE,
   CHAPEL_SAMPLE_NOTE,
   HERO_IMAGE,
   PARK_PLACE_PHOTOS,
   VILLA_PARK_AERIAL,
+  WAKESETUP_ALCOVE_IMAGE,
   libraryThumb,
   libraryThumbSet,
 } from "@/lib/media";
+import { clientPhotoWide } from "@/lib/client-photos";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
 import { CHAPEL_NOTES, CHAPEL_RATES, php } from "@/lib/villa-pricing";
 import { pageMetadata } from "@/lib/seo";
@@ -45,9 +46,11 @@ export const dynamic = "force-dynamic";
  *    park map cannot name the park differently;
  *  · the 24/7 line is the staff-editable landing content (zone 01), like every
  *    other call action on the public site;
- *  · the chapel photographs are the client's SAMPLE set-ups cropped from the
- *    TYPES OF COFFIN sheet, which prints "(Illustration purposes only)" — both
- *    cards carry CHAPEL_SAMPLE_NOTE and never claim to photograph the room.
+ *  · the chapel photographs are the client's own 2026 photographs — the chapel
+ *    hall for the common class and a decorated viewing room for the private one
+ *    (lib/client-photos.ts). The client's material carries no room name or
+ *    capacity, and the sheet's "(Illustration purposes only)" discipline stays on
+ *    the cards: neither photograph claims to be the exact room a family gets.
  *
  * HONEST STATES (one short line each, never a placeholder that reads as fact):
  * the park's real chapel names and capacity are still a client question
@@ -76,8 +79,8 @@ const ROOMS = [
   {
     key: "common",
     name: "Common chapel",
-    image: CHAPEL_COMMON_IMAGE,
-    alt: "Illustrative sample wake set-up in the shared common chapel — a casket among white flowers, candles and a crucifix",
+    image: CHAPEL_HALL_PEDESTALS_IMAGE,
+    alt: "The chapel hall in the client's own photograph — a draped side table, tall candle pedestals on a green carpet, the hall's platform behind",
     suitedTo: "A large visitation",
     sharedWith: "Other families",
     perDay: CHAPEL_PER_DAY.common,
@@ -85,8 +88,8 @@ const ROOMS = [
   {
     key: "private",
     name: "Private chapel",
-    image: CHAPEL_PRIVATE_IMAGE,
-    alt: "Illustrative sample decorated viewing room in the private chapel — a casket under a canopy of flowers and drapes",
+    image: WAKESETUP_ALCOVE_IMAGE,
+    alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
     suitedTo: "An intimate gathering",
     sharedWith: "Your family only",
     perDay: CHAPEL_PER_DAY.private,
@@ -165,10 +168,18 @@ export default async function FacilitiesPage() {
           {ROOMS.map((room) => (
             <article className="fac-room" key={room.key}>
               <figure className="fac-room__media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-                <img src={room.image} alt={room.alt} loading="lazy" />
-                {/* The sheet's own "Illustration purposes only" label — the
-                    photograph is a sample set-up, never this room. */}
+                {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
+                <img
+                  src={room.image}
+                  srcSet={clientPhotoWide(
+                    room.key === "common" ? "chapel-hall-candle-pedestals" : "wake-setup-lamp-alcove",
+                  ).srcSet}
+                  sizes="(max-width: 60rem) 92vw, 40rem"
+                  alt={room.alt}
+                  loading="lazy"
+                />
+                {/* The client's own photograph of a room and of a set-up they
+                    built — the office confirms which room a family is given. */}
                 <figcaption>{CHAPEL_SAMPLE_NOTE}</figcaption>
               </figure>
               <div className="fac-room__body">
@@ -224,9 +235,9 @@ export default async function FacilitiesPage() {
           <figure className="fac-grounds__media">
             {/* eslint-disable-next-line @next/next/no-img-element -- client park photo */}
             <img
-              src={libraryThumb(VILLA_PARK_AERIAL, 640)}
+              src={libraryThumb(VILLA_PARK_AERIAL, 960)}
               srcSet={libraryThumbSet(VILLA_PARK_AERIAL)}
-              sizes="(max-width: 60rem) 90vw, 34rem"
+              sizes="(max-width: 60rem) 90vw, 45rem"
               alt="The park's pavilion and grounds, with the client's own banner text over the picture"
               loading="lazy"
             />
@@ -252,7 +263,10 @@ export default async function FacilitiesPage() {
                 <img
                   src={area.src.replace("-720", "-480")}
                   srcSet={`${area.src.replace("-720", "-480")} 480w, ${area.src} 720w`}
-                  sizes="(max-width: 46rem) 90vw, 22rem"
+                  /* Two columns inside the folio at desktop: each figure is ~48vw
+                     (measured 628px at 1440). The old 22rem hint made the browser
+                     fetch the 480 file for a 628px slot and upscale it. */
+                  sizes="(max-width: 46rem) 92vw, 48vw"
                   alt={area.label}
                   loading="lazy"
                 />
