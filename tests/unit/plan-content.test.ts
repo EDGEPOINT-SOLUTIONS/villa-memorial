@@ -24,7 +24,11 @@ describe("planContentFromDocument", () => {
     for (const tier of content.tiers) {
       expect(tier.items.length, tier.heading).toBeGreaterThan(0);
       expect(tier.items.every((item) => item.label.trim().length > 0)).toBe(true);
+      // The premium tier card's one-line description is read from the block.
+      expect(tier.summary.trim().length, tier.heading).toBeGreaterThan(0);
     }
+    // The seed ships text-only cards; a staff-attached photo is optional.
+    expect(content.tiers.every((tier) => tier.image === null)).toBe(true);
   });
 
   it("reads the package inclusions as label/detail pairs", () => {
@@ -61,5 +65,26 @@ describe("planContentFromDocument", () => {
     expect(content.eligibility).toEqual([]);
     expect(content.notes.contestability).toBe("");
     expect(planContentFromDocument(null).tiers).toEqual([]);
+  });
+
+  it("reads a tier's optional image when the document carries one", () => {
+    const withImage = readPageDocument({
+      key: "plans",
+      blocks: [
+        {
+          id: "plans-tier-gold",
+          type: "checklist",
+          heading: "Gold",
+          mode: "printed",
+          summary: "A special metal coffin.",
+          image: { id: "i1", src: "/media/client/x-card-440.webp", alt: "A white coffin", caption: null, sample: false },
+          items: [{ id: "c1", label: "Flowers", checked: true }],
+        },
+      ],
+    });
+    const content = planContentFromDocument(withImage);
+    expect(content.tiers).toHaveLength(1);
+    expect(content.tiers[0]?.image?.src).toBe("/media/client/x-card-440.webp");
+    expect(content.tiers[0]?.summary).toBe("A special metal coffin.");
   });
 });

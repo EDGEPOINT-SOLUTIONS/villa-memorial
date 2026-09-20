@@ -11,6 +11,7 @@
       "The Home document is NOT stored here: it is the landing content document (lib/fixtures/landing/content.json) and is listed in Pages & content with its own full editor.",
       "Tabs for the park: Park view (/map) + Lots (/map?tab=lots) — the captain's 2026-09-21 direction that the Lot page is a tab inside the park page.",
       "The plans document's blocks (Phase 2, captain's 2026-09-21 direction: five tiers + per-tier inclusion checklists, no services) record the CURRENT plan copy the page published from lib/villa-pricing.ts: the five tiers' inclusion checklists, the complete memorial package table, eligibility, senior terms and the five plan notes. Stable block ids set the typed reading in lib/plan-content.ts; every string is the client's own (COMPLETE MEMORIAL PACKAGE / TYPES OF COFFIN sheets).",
+      "The plans tier cards (captain's 2026-09-21 premium-tier direction) each carry an optional one-line `summary` and an optional `image`. The seeded summaries transcribe the TYPES OF COFFIN sheet's own tier descriptions + lid lines (lib/villa-pricing.ts COFFINS) — no new marketing claim. `image` is null in the seed: the card is premium text-only until staff attach a photograph.",
       "The services document's blocks (Phase 3) carry the service descriptions the page published in code: the five a-la-carte notes (services-alacarte-*) and the two chapel-class copy lines (services-chapel-*). Stable block ids set the typed reading in lib/service-content.ts; a missing block falls back to the same copy. The three guide service entries live in lib/fixtures/content/service-entries.json.",
       "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store. The cash-assistance table stays a sheet constant (lib/villa-pricing.ts CASH_ASSISTANCE), never a free-text block."
     ]
@@ -115,7 +116,9 @@
           "id": "plans-tier-bronze1",
           "type": "checklist",
           "heading": "Bronze 1",
-          "mode": "dropdown",
+          "mode": "printed",
+          "summary": "Wooden or metal coffin with a smooth finish, elegant handles and a half-glass lid.",
+          "image": null,
           "items": [
             { "id": "plans-bronze1-flowers", "label": "Flowers", "checked": true },
             { "id": "plans-bronze1-tarp", "label": "Tarp", "checked": true },
@@ -131,7 +134,9 @@
           "id": "plans-tier-bronze2",
           "type": "checklist",
           "heading": "Bronze 2",
-          "mode": "dropdown",
+          "mode": "printed",
+          "summary": "Wooden or metal coffin with a smooth finish, elegant handles and a full-glass lid.",
+          "image": null,
           "items": [
             { "id": "plans-bronze2-flowers", "label": "Flowers", "checked": true },
             { "id": "plans-bronze2-tarp", "label": "Tarp", "checked": true },
@@ -147,7 +152,9 @@
           "id": "plans-tier-silver1",
           "type": "checklist",
           "heading": "Silver 1",
-          "mode": "dropdown",
+          "mode": "printed",
+          "summary": "A slightly bigger, more elegant coffin, with a half-glass lid.",
+          "image": null,
           "items": [
             { "id": "plans-silver1-flowers", "label": "Flowers", "checked": true },
             { "id": "plans-silver1-tarp", "label": "Tarp", "checked": true },
@@ -163,7 +170,9 @@
           "id": "plans-tier-silver2",
           "type": "checklist",
           "heading": "Silver 2",
-          "mode": "dropdown",
+          "mode": "printed",
+          "summary": "A slightly bigger, more elegant coffin, with a cover convertible to full-glass or half-glass.",
+          "image": null,
           "items": [
             { "id": "plans-silver2-flowers", "label": "Flowers", "checked": true },
             { "id": "plans-silver2-tarp", "label": "Tarp", "checked": true },
@@ -179,7 +188,9 @@
           "id": "plans-tier-gold",
           "type": "checklist",
           "heading": "Gold",
-          "mode": "dropdown",
+          "mode": "printed",
+          "summary": "A special metal coffin, more stylish and sophisticated, with a cover convertible to full-glass or half-glass.",
+          "image": null,
           "items": [
             { "id": "plans-gold-flowers", "label": "Flowers", "checked": true },
             { "id": "plans-gold-tarp", "label": "Tarp", "checked": true },

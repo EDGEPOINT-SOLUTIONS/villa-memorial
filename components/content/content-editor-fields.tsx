@@ -163,16 +163,64 @@ export function BlockForm({
       return (
         <div className="stack-3">
           {heading}
+          <TextField
+            label="Description (optional)"
+            value={block.summary}
+            onChange={(value) => onChange({ ...block, summary: value })}
+            hint="One short line under the tier name, e.g. what the plan includes."
+          />
           <Field label="Checklist style" htmlFor={`mode-${block.id}`}>
             <select
               id={`mode-${block.id}`}
               value={block.mode}
               onChange={(event) => onChange({ ...block, mode: event.target.value === "printed" ? "printed" : "dropdown" })}
             >
+              <option value="printed">Printed open (the tier card)</option>
               <option value="dropdown">Dropdown on the page</option>
-              <option value="printed">Printed open</option>
             </select>
           </Field>
+          <div className="row row--wrap" style={{ gap: "var(--space-3)", alignItems: "flex-start" }}>
+            {block.image?.src ? (
+              // eslint-disable-next-line @next/next/no-img-element -- library/uploaded photo
+              <img className="cat-image__thumb" src={block.image.src} alt="" />
+            ) : (
+              <span className="cat-image__thumb cat-image__thumb--empty">No photo</span>
+            )}
+            <div className="stack-2" style={{ flex: "1 1 14rem" }}>
+              <Button variant="secondary" size="sm" onClick={() => onPickImage("__tier_image__")}>
+                {block.image?.src ? "Change photo" : "Attach photo (optional)"}
+              </Button>
+              {block.image ? (
+                <>
+                  <TextField
+                    label="Image alt text"
+                    value={block.image.alt}
+                    onChange={(value) => onChange({ ...block, image: { ...block.image!, alt: value } })}
+                  />
+                  <TextField
+                    label="Image caption (optional)"
+                    value={block.image.caption ?? ""}
+                    onChange={(value) =>
+                      onChange({ ...block, image: { ...block.image!, caption: value || null } })
+                    }
+                  />
+                  <label className="row text-sm" style={{ gap: "var(--space-2)" }}>
+                    <input
+                      type="checkbox"
+                      checked={block.image.sample}
+                      onChange={(event) =>
+                        onChange({ ...block, image: { ...block.image!, sample: event.target.checked } })
+                      }
+                    />
+                    Sample — illustration purposes only (caption required)
+                  </label>
+                  <Button variant="ghost" size="sm" onClick={() => onChange({ ...block, image: null })}>
+                    Remove photo
+                  </Button>
+                </>
+              ) : null}
+            </div>
+          </div>
           <ul className="stack-2" style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {block.items.map((item: ChecklistItem, index) => (
               <li key={item.id} className="row" style={{ gap: "var(--space-2)", alignItems: "center" }}>

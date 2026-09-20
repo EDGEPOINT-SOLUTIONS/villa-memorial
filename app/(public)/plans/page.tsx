@@ -4,14 +4,16 @@ import type { ReactNode } from "react";
 import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet } from "@/lib/media";
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
+import { PlanTierCard } from "@/components/villa/plan-tier-card";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
+import { planRequestAction } from "@/lib/plan-selection";
 import { planRateOf } from "@/lib/pricing-model";
 import { pageMetadata } from "@/lib/seo";
-import { CASH_ASSISTANCE, php, php2 } from "@/lib/villa-pricing";
+import { CASH_ASSISTANCE, php } from "@/lib/villa-pricing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Villa Memorial Plan — Villa Memorial",
@@ -127,10 +129,13 @@ export default async function PlansPage() {
         </div>
       </section>
 
-      {/* The five tiers — the page's content home. Each tier shows its inclusion
-          checklist (a dropdown, edited in Pages & content) and its own monthly
-          rate read live from the pricing store. */}
-      <section id="tiers" className="stack-3" aria-labelledby="tiers-title">
+      {/* The five tiers — the page's content home. ONE COLUMN of premium tier
+          cards (captain 2026-09-21): each is the client's pricing-page anatomy —
+          name · "Starting from" · the live monthly rate · a one-line description
+          · one enquiry action · the inclusion checklist printed under "Key
+          features:" (never a dropdown). An optional staff-attached photo leads
+          the card; without one it stays premium and text-only. */}
+      <section id="tiers" className="stack-4" aria-labelledby="tiers-title">
         <h2 className="section-title" id="tiers-title">
           The five tiers — what each one includes
         </h2>
@@ -139,46 +144,22 @@ export default async function PlansPage() {
             The tier details are being prepared — the 2026 rates below still apply.
           </p>
         ) : (
-          <div className="split-grid">
+          <div className="plan-tiers">
             {plan.tiers.map((tier) => {
               const monthly = planRateOf(pricing.plans, tier.tier, "monthly", false);
+              const request = planRequestAction({
+                pricing: pricing.plans,
+                tier: tier.tier,
+                term: "monthly",
+                senior: false,
+              });
               return (
-                <Card
+                <PlanTierCard
                   key={tier.tier}
-                  header={<h3>{tier.heading}</h3>}
-                >
-                  <p className="text-sm text-muted" style={{ marginTop: 0 }}>
-                    Regular rate from <strong>{php2(monthly)}</strong> / month
-                  </p>
-                  {tier.mode === "dropdown" ? (
-                    <details className="sv-disclosure">
-                      <summary>{tier.heading} inclusions</summary>
-                      <div className="sv-disclosure__body">
-                        <ul className="stack-2" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                          {tier.items.map((item) => (
-                            <li key={item.id}>
-                              <span aria-hidden="true" style={{ marginRight: "var(--space-2)" }}>
-                                {item.checked ? "✓" : "○"}
-                              </span>
-                              {item.label}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </details>
-                  ) : (
-                    <ul className="stack-2" style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                      {tier.items.map((item) => (
-                        <li key={item.id}>
-                          <span aria-hidden="true" style={{ marginRight: "var(--space-2)" }}>
-                            {item.checked ? "✓" : "○"}
-                          </span>
-                          {item.label}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </Card>
+                  tier={tier}
+                  monthly={monthly}
+                  requestHref={request.href}
+                />
               );
             })}
           </div>

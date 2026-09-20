@@ -105,6 +105,18 @@ describe("Pages & content", () => {
     expect(html).toContain("Park view");
   });
 
+  it("gives each plans tier the description + photo controls in the block canvas", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    const html = renderToStaticMarkup(await PageDocumentAdminPage(params("plans")));
+    expect(html).toContain("Villa Memorial Plan");
+    expect(html).toContain("Content blocks");
+    // The premium tier card's two optional fields are editable in the block form:
+    // a one-line description and an optional photograph (never a dropdown-only list).
+    expect(html).toContain("Description (optional)");
+    expect(html).toContain("Printed open (the tier card)");
+    expect((html.match(/Attach photo \(optional\)/g) ?? []).length).toBe(5);
+  });
+
   it("gives the service document its block canvas and the service-entry list", async () => {
     sessionHolder.current = session(["catalog:write"]);
     const html = renderToStaticMarkup(await PageDocumentAdminPage(params("services")));

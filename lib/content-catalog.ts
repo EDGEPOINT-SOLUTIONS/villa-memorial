@@ -183,8 +183,12 @@ export type ContentBlock =
       id: string;
       type: "checklist";
       heading: string;
-      /** `dropdown` renders a closed disclosure on the page; `printed` lists it open. */
+      /** `printed` lists the inclusions open on the page (the premium tier card). */
       mode: "dropdown" | "printed";
+      /** Optional one-line description a tier card prints under the name. */
+      summary: string;
+      /** Optional illustration; absent means the card renders text-only, no hole. */
+      image: ContentImage | null;
       items: ChecklistItem[];
     }
   | { id: string; type: "steps"; heading: string; steps: StepItem[] }
@@ -285,7 +289,15 @@ export function emptyBlock(type: ContentBlockType): ContentBlock {
     case "bullets":
       return { id, type, heading: "", items: [""] };
     case "checklist":
-      return { id, type, heading: "", mode: "dropdown", items: [{ id: contentId("check"), label: "", checked: true }] };
+      return {
+        id,
+        type,
+        heading: "",
+        mode: "printed",
+        summary: "",
+        image: null,
+        items: [{ id: contentId("check"), label: "", checked: true }],
+      };
     case "steps":
       return { id, type, heading: "", steps: [{ id: contentId("step"), title: "", text: "" }] };
     case "gallery":
@@ -454,7 +466,10 @@ export function readContentBlock(raw: unknown): ReadBlock {
       return { block: { id, type, heading, items: items.length > 0 ? items : [""] }, errors };
     }
     case "checklist": {
-      const mode = raw.mode === "printed" ? "printed" : "dropdown";
+      // `printed` is the default OLD records carried (a dropdown tier list); the
+      // captain's 2026-09-21 direction is that inclusions show in the card, so a
+      // missing/unknown mode reads as printed, never as a surprise disclosure.
+      const mode = raw.mode === "dropdown" ? "dropdown" : "printed";
       const items = readArray(raw.items)
         .map((item): ChecklistItem | null => {
           if (!isRecord(item)) return null;
@@ -466,7 +481,15 @@ export function readContentBlock(raw: unknown): ReadBlock {
         })
         .filter((item): item is ChecklistItem => item !== null);
       return {
-        block: { id, type, heading, mode, items: items.length > 0 ? items : [{ id: contentId("check"), label: "", checked: true }] },
+        block: {
+          id,
+          type,
+          heading,
+          mode,
+          summary: readTrimmed(raw.summary),
+          image: readContentImage(raw.image),
+          items: items.length > 0 ? items : [{ id: contentId("check"), label: "", checked: true }],
+        },
         errors,
       };
     }
@@ -553,6 +576,26 @@ function imageSrcError(src: string, what: string): string | null {
   return null;
 }
 
+/**
+ * The one image check every authored picture runs (gallery · checklist tier
+ * image · catalogue entry): a published source, real alt text, a bounded
+ * caption and — the standing sample rule — a caption says what a sample shows.
+ */
+function validateContentImage(image: ContentImage, what: string, errors: string[]): void {
+  const srcError = imageSrcError(image.src, what);
+  if (srcError) errors.push(srcError);
+  if (!image.alt.trim()) errors.push(`${what} needs alt text.`);
+  const alt = tooLong(image.alt, CONTENT_ALT_MAX, `${what} alt text`);
+  if (alt) errors.push(alt);
+  if (image.caption) {
+    const cap = tooLong(image.caption, CONTENT_CAPTION_MAX, `${what} caption`);
+    if (cap) errors.push(cap);
+  }
+  if (image.sample && !image.caption) {
+    errors.push(`${what} is marked a sample — samples need their caption saying what the picture shows.`);
+  }
+}
+
 function validateBlock(raw: unknown, index: number, context: ContentValidationContext): { block: ContentBlock | null; errors: string[] } {
   const { block, errors } = readContentBlock(raw);
   const at = `Block ${index + 1}`;
@@ -577,6 +620,9 @@ function validateBlock(raw: unknown, index: number, context: ContentValidationCo
       if (block.items.every((item) => item.trim().length === 0)) errors.push(`${at} needs at least one bullet.`);
       break;
     case "checklist": {
+      const summary = tooLong(block.summary, CONTENT_LINE_MAX, `${at} summary`);
+      if (summary) errors.push(summary);
+      if (block.image) validateContentImage(block.image, `${at} image`, errors);
       if (block.items.length > CONTENT_CHECKLIST_ITEMS_MAX) {
         errors.push(`${at} keeps at most ${CONTENT_CHECKLIST_ITEMS_MAX} checklist items.`);
       }
@@ -602,21 +648,7 @@ function validateBlock(raw: unknown, index: number, context: ContentValidationCo
       if (block.images.length > CONTENT_GALLERY_IMAGES_MAX) {
         errors.push(`${at} keeps at most ${CONTENT_GALLERY_IMAGES_MAX} images.`);
       }
-      block.images.forEach((image, i) => {
-        const srcError = imageSrcError(image.src, `${at} image ${i + 1}`);
-        if (srcError) errors.push(srcError);
-        if (!image.alt.trim()) errors.push(`${at} image ${i + 1} needs alt text.`);
-        const alt = tooLong(image.alt, CONTENT_ALT_MAX, `${at} image ${i + 1} alt`);
-        if (alt) errors.push(alt);
-        if (image.caption) {
-          const cap = tooLong(image.caption, CONTENT_CAPTION_MAX, `${at} image ${i + 1} caption`);
-          if (cap) errors.push(cap);
-        }
-        // The standing sample rule: an illustrative picture prints what it is.
-        if (image.sample && !image.caption) {
-          errors.push(`${at} image ${i + 1} is marked a sample — samples need their caption saying what the picture shows.`);
-        }
-      });
+      block.images.forEach((image, i) => validateContentImage(image, `${at} image ${i + 1}`, errors));
       break;
     }
     case "table": {
@@ -723,6 +755,11 @@ function authoredBlockTexts(blocks: readonly ContentBlock[]): string[] {
         block.items.forEach(push);
         break;
       case "checklist":
+        push(block.summary);
+        if (block.image) {
+          push(block.image.alt);
+          push(block.image.caption);
+        }
         block.items.forEach((item) => push(item.label));
         break;
       case "steps":
@@ -870,12 +907,7 @@ export function validateCatalogueEntry(
     const err = imageSrcError(entry.media.hero, "The hero image");
     if (err) errors.push(err);
   }
-  entry.media.gallery.forEach((image, i) => {
-    const srcError = imageSrcError(image.src, `Image ${i + 1}`);
-    if (srcError) errors.push(srcError);
-    if (!image.alt.trim()) errors.push(`Image ${i + 1} needs alt text.`);
-    if (image.sample && !image.caption) errors.push(`Image ${i + 1} is marked a sample — samples need a caption.`);
-  });
+  entry.media.gallery.forEach((image, i) => validateContentImage(image, `Image ${i + 1}`, errors));
   if (entry.blocks.length > CONTENT_BLOCKS_MAX) errors.push(`An entry keeps at most ${CONTENT_BLOCKS_MAX} content blocks.`);
   const rawBlocks = isRecord(raw) ? readArray(raw.blocks) : [];
   entry.blocks.forEach((_, i) => {
