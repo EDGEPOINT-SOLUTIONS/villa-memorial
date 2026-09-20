@@ -1,0 +1,53 @@
+{
+  "_provenance": {
+    "status": "APP-AUTHORED catalogue — the notification service has no contract and nothing has been sent (see lib/api-client/notifications.ts)",
+    "recorded": "2026-09-10",
+    "brief": [
+      "Captain checklist (2026-09-19): the Notifications screen (/staff/notifications) was a twelve-line stub; it is now the messages the product will send, to whom and through which channel, with the recorded sent log.",
+      "The catalogue follows the blueprint's own notification engine (docs/04-modules/documents-contracts.md §Notifications, blueprint §41): channels email · SMS · Messenger/approved messaging · push · in-app; events payment due · reservation expiry · viewing · interment · appointment · document status · operational alerts; template management + event-driven rules, configurable per tenant."
+    ],
+    "note": [
+      "WHAT THIS IS: the four notification types the product is designed to send (booking confirmation · payment reminder · document-ready note · service reminder), each with its trigger, audience and channel — described, not configured. The platform's notification service is P4 (docs/02-architecture/microservices.md:39) and does not exist in this build: `service_state` is `not_wired` and the service exposes no outward API, so live mode is not a thing that can be switched on here.",
+      "THE LOG IS EMPTY ON PURPOSE: nothing has been sent, and no placeholder message may be fabricated to make the screen look alive — the family notifications page takes the same line (`app/(family)/client/notifications/page.tsx`). A real entry arrives only when the notification service records one.",
+      "WHAT THE SCREEN ADDS: the four things the service must settle before this page can list a delivery — template management, event rules, per-tenant configuration and consent (`docs/02-architecture/microservices.md:98`, blueprint §41 'lawful marketing only with consent').",
+      "No template body, no send schedule and no recipient detail appears anywhere in this file; the vocabulary (audiences, channels, log states) lives in lib/notifications.ts and is pinned by tests/fixture-contract/notifications.test.ts."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "service_state": "not_wired",
+  "templates": [
+    {
+      "id": "notif-booking-confirmation",
+      "message": "Booking confirmation",
+      "event": "A chapel booking is recorded",
+      "when": "At booking",
+      "audiences": ["family"],
+      "channels": ["sms", "email"]
+    },
+    {
+      "id": "notif-payment-reminder",
+      "message": "Payment reminder",
+      "event": "An instalment is coming due",
+      "when": "Before the due date",
+      "audiences": ["family"],
+      "channels": ["sms"]
+    },
+    {
+      "id": "notif-document-ready",
+      "message": "Document-ready note",
+      "event": "A paper is ready or something is needed",
+      "when": "On the document's state change",
+      "audiences": ["family", "agent"],
+      "channels": ["email", "in_app"]
+    },
+    {
+      "id": "notif-service-reminder",
+      "message": "Service reminder",
+      "event": "A viewing or service is next",
+      "when": "Before the recorded service time",
+      "audiences": ["family", "staff"],
+      "channels": ["sms", "in_app"]
+    }
+  ],
+  "log": []
+}

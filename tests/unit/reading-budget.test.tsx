@@ -63,6 +63,7 @@ const staffSession = {
   scopes: [
     "cases:read",
     "scheduling:read",
+    "property:read",
     "identity:users:manage",
     "tenancy:tenants:manage",
     "catalog:write",
@@ -92,6 +93,11 @@ const { default: CopilotPage } = await import("@/app/(staff)/staff/copilot/page"
 const { default: UsersPage } = await import("@/app/(staff)/staff/users/page");
 const { default: WorkflowsPage } = await import("@/app/(staff)/staff/workflows/page");
 const { default: SettingsPage } = await import("@/app/(staff)/staff/settings/page");
+const { default: DispatchPage } = await import("@/app/(staff)/staff/dispatch/page");
+const { default: WorkOrdersPage } = await import("@/app/(staff)/staff/work-orders/page");
+const { default: NotificationsPage } = await import(
+  "@/app/(staff)/staff/notifications/page"
+);
 
 const BUDGET = {
   /** Paragraph prose per page (words inside <p> elements). */
@@ -201,6 +207,26 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/staff/settings (Tenant settings)",
     render: async () => renderToStaticMarkup(await SettingsPage()),
     openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
+  },
+  // The three designed Operations screens joined the same PR that built them: an
+  // operations answer is read at a glance too (tables and lists lead; the one lead
+  // sentence is on the page).
+  {
+    name: "/staff/dispatch (vehicle dispatch)",
+    render: async () =>
+      renderToStaticMarkup(await DispatchPage({ searchParams: Promise.resolve({}) })),
+    openingLead: /<p class="ops-lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/staff/work-orders",
+    render: async () =>
+      renderToStaticMarkup(await WorkOrdersPage({ searchParams: Promise.resolve({}) })),
+    openingLead: /<p class="ops-lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/staff/notifications",
+    render: async () => renderToStaticMarkup(await NotificationsPage()),
+    openingLead: /<p class="ops-lead">([\s\S]*?)<\/p>/,
   },
 ];
 
