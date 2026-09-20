@@ -10009,7 +10009,7 @@ a.card:hover {
 
 /* ---- shared header (sticky, TWO layers — captain-approved 2026-09-17) ----
    Utility row: location · hours + the 24/7 number as a real call button.
-   Main row: brand · short page links · grouped "Plan ahead" · Sign in · cart
+   Main row: brand · top-level page links · grouped "Explore more" · Sign in · cart
    icon. Sticky and it NEVER auto-hides: the phone is always one tap away.
    The full bar height (utility + main row) is for sticky surfaces that must
    sit under it (the home rails, the services page's in-page nav). Sticky
@@ -10191,7 +10191,7 @@ a.card:hover {
   background: var(--gold-wash);
 }
 
-/* ---- main row: brand · page links · Plan ahead · actions ---- */
+/* ---- main row: brand · page links · Explore more · actions ---- */
 .anchored-header__bar {
   max-width: var(--layout-folio-w);
   margin-inline: auto;
@@ -10269,19 +10269,29 @@ a.card:hover {
   justify-content: center;
   gap: var(--space-1);
   min-width: 0;
-  /* The captain's full page names can exceed a narrow desktop's middle track;
-     scroll the chips instead of overlapping the brand or the actions. Wide
-     desktops fit every chip, so no scrollbar shows there. */
+}
+
+/* The chips live in their own scroll track. Only the track scrolls, so the
+   Explore more trigger (and its absolutely-positioned menu) stays outside the
+   overflow and the panel is never clipped; wide desktops fit every chip, so no
+   scrollbar shows there. */
+.anchored-header__nav-track {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 0 1 auto;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.anchored-header__nav::-webkit-scrollbar {
+.anchored-header__nav-track::-webkit-scrollbar {
   display: none;
 }
 
-.anchored-header__nav > a,
-.anchored-header__plan-trigger {
+.anchored-header__nav-track > a,
+.anchored-header__explore-trigger {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -10300,20 +10310,20 @@ a.card:hover {
   transition: color var(--motion-fast), background-color var(--motion-fast);
 }
 
-.anchored-header__nav > a:hover,
-.anchored-header__plan-trigger:hover,
-.anchored-header__plan-trigger[aria-expanded="true"] {
+.anchored-header__nav-track > a:hover,
+.anchored-header__explore-trigger:hover,
+.anchored-header__explore-trigger[aria-expanded="true"] {
   color: var(--color-text-accent);
   background: var(--color-bg-subtle);
 }
 
 /* Active page: a gold underline + a weight change (never colour alone). */
-.anchored-header__nav > a[aria-current="page"] {
+.anchored-header__nav-track > a[aria-current="page"] {
   color: var(--color-text-primary);
   font-weight: 700;
 }
 
-.anchored-header__nav > a[aria-current="page"]::after {
+.anchored-header__nav-track > a[aria-current="page"]::after {
   content: "";
   position: absolute;
   left: 0.75rem;
@@ -10324,24 +10334,48 @@ a.card:hover {
   background: var(--gold-400);
 }
 
-/* ---- grouped "Plan ahead" (D1): the client's full page names one tap away ---- */
-.anchored-header__plan {
+/* A page inside the Explore more menu keeps the same cue: the trigger is
+   underlined while a grouped page is open, and the open item is ruled. */
+.anchored-header__explore-trigger[aria-current] {
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.anchored-header__explore-trigger[aria-current]::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.3rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--gold-400);
+}
+
+.anchored-header__explore-item[aria-current="page"] {
+  background: var(--sky-50);
+  box-shadow: inset 0.2rem 0 0 var(--gold-400);
+}
+
+/* ---- grouped "Explore more" (D1): the secondary pages one tap away ---- */
+.anchored-header__explore {
   position: relative;
 }
 
-.anchored-header__plan-trigger svg {
+.anchored-header__explore-trigger svg {
   transition: transform var(--motion-fast);
 }
 
-.anchored-header__plan-trigger[aria-expanded="true"] svg {
+.anchored-header__explore-trigger[aria-expanded="true"] svg {
   transform: rotate(180deg);
 }
 
-.anchored-header__plan-menu {
+.anchored-header__explore-menu {
   position: absolute;
   top: calc(100% + 0.6rem);
-  left: 50%;
-  transform: translateX(-50%);
+  /* Right-align under the trigger: the five full-name chips push the trigger
+     far enough right that a centred panel would run past the viewport. */
+  right: 0;
   width: min(24rem, 92vw);
   padding: 0.5rem;
   background: var(--color-bg-surface-raised);
@@ -10351,11 +10385,11 @@ a.card:hover {
   z-index: 60;
 }
 
-.anchored-header__plan-menu[hidden] {
+.anchored-header__explore-menu[hidden] {
   display: none;
 }
 
-.anchored-header__plan-heading {
+.anchored-header__explore-heading {
   margin: 0;
   padding: 0.55rem 0.75rem 0.35rem;
   font-size: var(--text-xs);
@@ -10365,7 +10399,7 @@ a.card:hover {
   color: var(--color-text-accent);
 }
 
-.anchored-header__plan-item {
+.anchored-header__explore-item {
   display: block;
   min-height: 2.75rem;
   padding: 0.6rem 0.75rem;
@@ -10373,18 +10407,18 @@ a.card:hover {
   text-decoration: none;
 }
 
-.anchored-header__plan-item:hover {
+.anchored-header__explore-item:hover {
   background: var(--sky-50);
 }
 
-.anchored-header__plan-item strong {
+.anchored-header__explore-item strong {
   display: block;
   font-size: var(--text-md);
   font-weight: 650;
   color: var(--color-text-primary);
 }
 
-.anchored-header__plan-item span {
+.anchored-header__explore-item span {
   display: block;
   margin-top: 0.1rem;
   font-size: var(--text-sm);
@@ -10457,32 +10491,32 @@ a.card:hover {
    intended sizes. Wide screens keep the same look with slightly tighter
    padding — the labels, order and tap targets are unchanged. */
 @media (max-width: 109.999rem) {
-  .anchored-header__nav {
+  .anchored-header__nav-track {
     gap: 0;
   }
 
-  .anchored-header__nav > a,
-  .anchored-header__plan-trigger {
+  .anchored-header__nav-track > a,
+  .anchored-header__explore-trigger {
     padding-inline: var(--space-2);
   }
 }
 
 /* ---- phone action bar (D3) — permanent, two big targets ------------------
-   Call 24/7 and Plan ahead stay reachable at every scroll position, above
+   Call 24/7 and Explore more stay reachable at every scroll position, above
    nothing and below nothing: the bar never hides and no target moves under a
    thumb. Desktop keeps it in the DOM and hides it. */
 .anchored-phonebar {
   display: none;
 }
 
-/* ---- the phone "Plan ahead" sheet — a real dialog with the full names ---- */
-.anchored-plan-sheet {
+/* ---- the phone "Explore more" sheet — a real dialog with the pages ---- */
+.anchored-explore-sheet {
   position: fixed;
   inset: 0;
   z-index: 80;
 }
 
-.anchored-plan-sheet__backdrop {
+.anchored-explore-sheet__backdrop {
   position: absolute;
   inset: 0;
   border: 0;
@@ -10493,7 +10527,7 @@ a.card:hover {
   cursor: pointer;
 }
 
-.anchored-plan-sheet__panel {
+.anchored-explore-sheet__panel {
   position: absolute;
   inset-inline: 0;
   bottom: 0;
@@ -10508,7 +10542,7 @@ a.card:hover {
   align-content: start;
 }
 
-.anchored-plan-sheet__head {
+.anchored-explore-sheet__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10517,14 +10551,14 @@ a.card:hover {
   border-bottom: 1px solid var(--sky-100);
 }
 
-.anchored-plan-sheet__title {
+.anchored-explore-sheet__title {
   margin: 0;
   font-family: var(--font-serif);
   font-size: var(--text-lg);
   color: var(--color-text-primary);
 }
 
-.anchored-plan-sheet__close {
+.anchored-explore-sheet__close {
   display: inline-grid;
   place-items: center;
   width: 2.75rem;
@@ -10536,7 +10570,7 @@ a.card:hover {
   cursor: pointer;
 }
 
-.anchored-plan-sheet__item {
+.anchored-explore-sheet__item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -10547,23 +10581,23 @@ a.card:hover {
   text-decoration: none;
 }
 
-.anchored-plan-sheet__item:hover {
+.anchored-explore-sheet__item:hover {
   background: var(--sky-50);
 }
 
-.anchored-plan-sheet__item strong {
+.anchored-explore-sheet__item strong {
   display: block;
   font-size: var(--text-md);
   color: var(--color-text-primary);
 }
 
-.anchored-plan-sheet__item span {
+.anchored-explore-sheet__item span {
   display: block;
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
-.anchored-plan-sheet__item svg {
+.anchored-explore-sheet__item svg {
   flex: none;
   color: var(--color-text-secondary);
 }
@@ -10625,7 +10659,7 @@ a.card:hover {
     color: var(--color-text-primary);
   }
 
-  .anchored-phonebar__btn--plan {
+  .anchored-phonebar__btn--explore {
     border: 1px solid var(--sky-300);
     background: var(--color-bg-surface-raised);
     color: var(--color-text-primary);
@@ -10647,7 +10681,7 @@ a.card:hover {
 }
 
 /* The three-target bar on phones (≤ 416 px, i.e. every common phone width):
-   tighten the targets so Call 24/7, Get help and Plan ahead all stay on one
+   tighten the targets so Call 24/7, Get help and Explore more all stay on one
    row without wrapping. */
 @media (max-width: 26rem) {
   .anchored-phonebar {
