@@ -348,6 +348,15 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `docs/08-delivery/content-plans-page-design/`; tests
   `tests/unit/plans-page-content.test.tsx` + `plan-content.test.ts` +
   `pricing-admin-render.test.tsx`.
+  **The five tiers are ONE COLUMN of premium cards** (captain 2026-09-21):
+  `components/villa/plan-tier-card.tsx` renders name · a fixed "Starting from"
+  subtitle · the live monthly rate · the editable one-line `summary` · one
+  prefilled-request action (`planRequestAction`) · the inclusion checklist
+  PRINTED under "Key features:" (never a `<details>`) · an optional photograph.
+  The optional fields live on the checklist block (`summary: string`,
+  `image: ContentImage | null`); a fresh checklist reads/opens `printed`, and a
+  sample image still needs its caption. Design record + 1440/390 shots:
+  `docs/08-delivery/plans-tiers-premium-design/`.
 - **Phase 3 has LANDED — the Services page is one hero → straight to the services.**
   The hero and the service descriptions are the `services` page document (stable
   block ids `services-alacarte-*` / `services-chapel-*`, read by the ONE typed

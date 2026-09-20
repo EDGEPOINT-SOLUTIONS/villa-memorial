@@ -7125,6 +7125,196 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-size: var(--text-sm);
 }
 
+/* --- Plan tiers: one column of premium tier cards ----------------------------
+   Captain 2026-09-21: "make the 5 tier in one column… the dropdown inclusion is
+   displayed already in the card, not a dropdown, it's the best practice." Each
+   card is the client's approved pricing-page anatomy: tier name · a "Starting
+   from" subtitle · the LIVE monthly rate · a one-line description · one enquiry
+   action · the inclusion checklist printed under "Key features:".
+
+   Layout: the card holds two text columns (intro, features) separated by a
+   hairline; a staff-attached photograph adds a fixed 20rem media column, and
+   without one the two text columns share the full width — no placeholder hole.
+   Below 56rem the card stacks: media (16:9) → intro → features. The feature list
+   flows to two columns when the card has the room. */
+.plan-tiers {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.plan-tier {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card);
+}
+
+/* One gold hairline marks the card's spine — decorative, carries no text. */
+.plan-tier::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gold-300);
+}
+
+.plan-tier__intro,
+.plan-tier__features {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  min-width: 0;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+}
+
+.plan-tier__features {
+  border-top: 1px solid var(--color-rule);
+}
+
+.plan-tier__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  line-height: 1.1;
+  color: var(--color-text-primary);
+}
+
+.plan-tier__subtitle {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.plan-tier__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-3xl);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.plan-tier__unit {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.plan-tier__summary {
+  margin: 0;
+  max-width: 42ch;
+  color: var(--color-text-secondary);
+}
+
+.plan-tier__actions {
+  margin-top: var(--space-3);
+}
+
+.plan-tier__actions .btn {
+  width: 100%;
+}
+
+.plan-tier__features-title {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.plan-tier__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-tier__list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: baseline;
+  color: var(--color-text-primary);
+}
+
+.plan-tier__mark {
+  color: var(--color-text-accent);
+  font-weight: 700;
+}
+
+/* The optional photograph. Base gets a 16:9 reserve (a wrapper ratio, safe);
+   the picture fills it. On the ≥56rem row the panel stretches to the card's
+   height and the picture covers it. */
+.plan-tier__media {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: var(--marble-100);
+}
+
+.plan-tier__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.plan-tier__caption {
+  position: absolute;
+  inset: auto 0 0 0;
+  padding: var(--space-2) var(--space-3);
+  background: rgb(13 44 66 / 0.82);
+  color: var(--color-text-inverse);
+  font-size: var(--text-xs);
+}
+
+@media (min-width: 56rem) {
+  .plan-tier {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+
+  .plan-tier--media {
+    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr) minmax(0, 1.2fr);
+  }
+
+  .plan-tier__features {
+    border-top: 0;
+    border-left: 1px solid var(--color-rule);
+  }
+
+  .plan-tier__media {
+    aspect-ratio: auto;
+  }
+
+  .plan-tier__actions .btn {
+    width: auto;
+  }
+
+  .plan-tier__list {
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+}
+
 /* Related-page quick chips */
 .hero-chips {
   display: flex;

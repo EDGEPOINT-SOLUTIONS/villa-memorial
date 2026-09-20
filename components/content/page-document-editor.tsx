@@ -383,11 +383,29 @@ export function PageDocumentEditor({
           setDoc((current) => ({
             ...current,
             blocks: current.blocks.map((block) => {
-              if (block.id !== target.blockId || block.type !== "gallery") return block;
-              return {
-                ...block,
-                images: block.images.map((image) => (image.id === target.imageId ? { ...image, src } : image)),
-              };
+              if (block.id !== target.blockId) return block;
+              if (block.type === "gallery") {
+                return {
+                  ...block,
+                  images: block.images.map((image) => (image.id === target.imageId ? { ...image, src } : image)),
+                };
+              }
+              if (block.type === "checklist") {
+                // The optional tier image: keep any alt/caption/sample the staff
+                // already wrote, only swap the picture.
+                const prior = block.image;
+                return {
+                  ...block,
+                  image: {
+                    id: prior?.id ?? `img-${Date.now().toString(36)}`,
+                    src,
+                    alt: prior?.alt ?? "",
+                    caption: prior?.caption ?? null,
+                    sample: prior?.sample ?? false,
+                  },
+                };
+              }
+              return block;
             }),
           }));
         }}

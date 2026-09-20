@@ -27,13 +27,16 @@
  * than inventing plan copy. The money is never here — the rate tables and cash
  * assistance stay bound to the pricing store / the sheet constant.
  */
-import type { ChecklistItem, ContentBlock, PageDocument } from "@/lib/content-catalog";
+import type { ChecklistItem, ContentBlock, ContentImage, PageDocument } from "@/lib/content-catalog";
 import { PLAN_TIERS, type PlanTier } from "@/lib/villa-pricing";
 
 export type PlanTierContent = {
   tier: PlanTier;
   heading: string;
-  mode: "dropdown" | "printed";
+  /** Optional one-line description the premium tier card prints under the name. */
+  summary: string;
+  /** Optional tier illustration; null keeps the card premium and text-only. */
+  image: ContentImage | null;
   items: ChecklistItem[];
 };
 
@@ -94,7 +97,8 @@ function tierContent(document: PageDocument | null): PlanTierContent[] {
       {
         tier: id,
         heading: block.heading || PLAN_TIERS.find((t) => t.id === id)?.name || id,
-        mode: block.mode,
+        summary: block.summary,
+        image: block.image,
         items: block.items,
       },
     ];

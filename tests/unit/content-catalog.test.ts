@@ -198,10 +198,76 @@ describe("the shared block vocabulary", () => {
     const block = emptyBlock("checklist");
     expect(block.type).toBe("checklist");
     if (block.type === "checklist") {
-      expect(block.mode).toBe("dropdown");
+      // The captain's 2026-09-21 direction: inclusions print in the card, never
+      // behind a dropdown — a fresh checklist opens printed.
+      expect(block.mode).toBe("printed");
+      expect(block.summary).toBe("");
+      expect(block.image).toBeNull();
       expect(block.items).toHaveLength(1);
       expect(block.items[0]?.checked).toBe(true);
     }
+  });
+
+  it("reads a checklist's optional summary and image, defaulting both honestly", () => {
+    const doc = readPageDocument({
+      key: "plans",
+      blocks: [
+        { id: "tier", type: "checklist", heading: "Bronze 1", mode: "printed", items: [] },
+        {
+          id: "tier2",
+          type: "checklist",
+          heading: "Gold",
+          mode: "printed",
+          summary: "A special metal coffin.",
+          image: { id: "i1", src: "/media/x.webp", alt: "A coffin", caption: null, sample: false },
+          items: [{ id: "c1", label: "Flowers", checked: true }],
+        },
+      ],
+    });
+    const [bare, full] = doc.blocks;
+    if (bare?.type !== "checklist" || full?.type !== "checklist") throw new Error("expected checklists");
+    expect(bare.summary).toBe("");
+    expect(bare.image).toBeNull();
+    expect(full.summary).toBe("A special metal coffin.");
+    expect(full.image?.src).toBe("/media/x.webp");
+  });
+
+  it("refuses a tier checklist image without alt text and a sample without its caption", () => {
+    const noAlt = validatePageDocument(
+      parkDocument({
+        blocks: [
+          {
+            id: "tier",
+            type: "checklist",
+            heading: "Gold",
+            mode: "printed",
+            items: [{ id: "c1", label: "Flowers", checked: true }],
+            image: { id: "i1", src: "/media/x.webp", alt: "", caption: null, sample: false },
+          },
+        ],
+      }),
+      CONTEXT,
+    );
+    expect(noAlt.ok).toBe(false);
+    if (!noAlt.ok) expect(noAlt.errors.join(" ")).toContain("alt text");
+
+    const sampleNoCaption = validatePageDocument(
+      parkDocument({
+        blocks: [
+          {
+            id: "tier",
+            type: "checklist",
+            heading: "Gold",
+            mode: "printed",
+            items: [{ id: "c1", label: "Flowers", checked: true }],
+            image: { id: "i1", src: "/media/x.webp", alt: "A coffin", caption: null, sample: true },
+          },
+        ],
+      }),
+      CONTEXT,
+    );
+    expect(sampleNoCaption.ok).toBe(false);
+    if (!sampleNoCaption.ok) expect(sampleNoCaption.errors.join(" ")).toContain("sample");
   });
 
   it("gives every block type a distinct ready shape", () => {
