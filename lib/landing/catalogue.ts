@@ -70,7 +70,7 @@ function coffinEntries(): CatalogueEntry[] {
     caption: c.lid,
     price: null,
     image: c.photo,
-    href: "/plans/villa-memorial-plan#coffins",
+    href: "/price-list#coffins",
   }));
 }
 
@@ -130,7 +130,7 @@ export function buildRailCatalogue(options?: {
           caption: "Bundled at one clear price",
           price: null,
           image: PLAN_PACKAGES_IMAGE,
-          href: "/packages",
+          href: "/plans/PKG-BASIC",
         },
       ],
     },
@@ -162,7 +162,7 @@ export function buildRailCatalogue(options?: {
           // never hand-authored, so the picker can't contradict the price list.
           price: `from ${php(monthlyFrom)}/month`,
           image: PLAN_PACKAGES_IMAGE,
-          href: "/plans/villa-memorial-plan",
+          href: "/plans",
         },
       ],
     },
@@ -187,7 +187,7 @@ export function buildRailCatalogue(options?: {
           caption: "Side by side",
           price: null,
           image: PLAN_PACKAGES_IMAGE,
-          href: "/plans/compare",
+          href: "/price-list",
         },
         {
           kind: "link",
@@ -195,7 +195,7 @@ export function buildRailCatalogue(options?: {
           caption: "61–100 years old",
           price: null,
           image: COFFIN_BRONZE,
-          href: "/plans/senior-benefits",
+          href: "/price-list#senior",
         },
         {
           kind: "link",

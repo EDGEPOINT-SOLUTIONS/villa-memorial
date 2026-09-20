@@ -102,6 +102,6 @@ describe("the service guide entries drive their routes and the /services cards",
     const html = await renderGuide(TransportPage);
     expect(html).toContain("Transport");
     expect(html).toContain("Dignified transport for your loved one");
-    expect(html).toContain('href="/plans/villa-memorial-plan"');
+    expect(html).toContain('href="/price-list"');
   });
 });

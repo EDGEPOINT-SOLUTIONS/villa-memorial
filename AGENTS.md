@@ -72,7 +72,7 @@ on backend services.
   sliced its caption and its third tier to the viewport edge inside a pan frame (it now stacks
   below 40rem — `.price-table--plan` + the cells' `data-tier` labels), the `/lots` type filter's
   999px capsule turned into an ellipse through its own chips (every wrapping capsule needs a
-  ≤40rem radius cap), and the `/plans/villa-memorial-plan` hero printed 560px logos because
+  ≤40rem radius cap), and the `/price-list` hero printed 560px logos because
   `.plan-logo-row`'s rule had been deleted while the page kept the class (`.text-xs`, `.stack-2`,
   `.sr-only`, `nowrap`, `.table__name/__sub` were the same "referenced, never defined" bug).
   Read `docs/08-delivery/visual-regression-2/README.md` before touching a public phone layout;
@@ -99,7 +99,7 @@ on backend services.
   `.kpi-card`, `.shop-card`/`.shop-grid`); a migration that changes how a page looks is a bug.
   Migrated: `/staff/inventory`, `/staff/accounting`, `/staff/notifications`, `/staff/workflows`,
   `/staff/settings`, `/staff/users`, and the public storefront card grids `/lots`, `/plans`,
-  `/packages`, `/products` (2026-09-21). The `components/villa/shop-card.tsx` duplicate is gone —
+  `/price-list`, `/products` (2026-09-21). The `components/villa/shop-card.tsx` duplicate is gone —
   kit `ProductCard` owns that grammar exactly (status under the figure, plus the casket `senior`
   line); `ResultsGrid.label` is optional so a grid inside a labelled band adds no `aria-label`.
   `FilterRail` is deliberately NOT on `/lots`: the captain-approved Amazon rail there is a
@@ -328,32 +328,43 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   is captain-fixed (2026-09-21): five top-level chips — Home · Funeraria
   Memorial Services · Villa Memorial Plan · Villa Memorial Park · Contact —
   plus the grouped "Explore more" menu carrying exactly Builder · Facilities ·
-  Gallery · Memorials.** The standalone Lots chip is deliberately gone (lots
+  Gallery · Memorials · Price list.** The standalone Lots chip is deliberately gone (lots
   live inside Villa Memorial Park); the phone bar's third target and its sheet
   are "Explore more" too. `SITE_NAV_LINKS`/`EXPLORE_MORE_LINKS` in
   `components/landing/site-header.tsx` are the authority. Pinned by
   `tests/unit/public-nav.test.tsx` + `tests/unit/landing-view.test.tsx`.
-- **Phase 2 — the Plans page (`/plans`) is the second WIRED surface.** Its five
-  tiers, per-tier inclusion checklists, the complete memorial package table,
-  eligibility, senior terms and the five plan notes are the "Villa Memorial Plan"
-  page document (`lib/fixtures/content/pages.json`, `blocks: true` in
-  `lib/content-catalog.ts`), edited at `/staff/landing/plans`. **`lib/plan-content.ts`
-  is the ONE typed reading** of those blocks (stable ids `plans-tier-<id>`,
-  `plans-package`, `plans-eligibility`, `plans-senior-terms`, `plans-note-<key>`,
-  edited blocks keep their ids) and every plan surface reads it — `/plans`,
-  `/plans/villa-memorial-plan`, `/plans/senior-benefits`, `/plans/[sku]`,
-  `/lots/price-list-2026`, `/builder` and `components/villa/plan-terms-display.tsx`
-  (the staff membership screens) — so one edit lands together. The presentational
-  constants `VMP_PACKAGE`/`VMP_ELIGIBILITY`/`VMP_NOTES`/`VMP_INCLUSIONS`/`SENIOR_TERMS`
+- **Phase 2 — the Plans page (`/plans`) and the consolidated Price list
+  (`/price-list`) are the WIRED plan surfaces (trimmed by the captain
+  2026-09-21).** The "Villa Memorial Plan" page document
+  (`lib/fixtures/content/pages.json`, `blocks: true` in
+  `lib/content-catalog.ts`), edited at `/staff/landing/plans`, still owns the
+  five tiers, per-tier inclusion checklists, the package table, eligibility,
+  senior terms and the five plan notes. **`lib/plan-content.ts` is the ONE typed
+  reading** (stable ids `plans-tier-<id>`, `plans-package`,
+  `plans-eligibility`, `plans-senior-terms`, `plans-note-<key>`, edited blocks
+  keep their ids) and every plan surface reads it — `/plans`, `/price-list`,
+  `/plans/[sku]`, `/lots/price-list-2026`, `/builder` and
+  `components/villa/plan-terms-display.tsx` (the staff membership screens) — so
+  one edit lands together. The presentational constants
+  `VMP_PACKAGE`/`VMP_ELIGIBILITY`/`VMP_NOTES`/`VMP_INCLUSIONS`/`SENIOR_TERMS`
   are RETIRED; the sheet figures stay pinned by `tests/unit/villa-pricing.test.ts`
-  through the document. **Rates stay a live read** (pricing store + `planRateOf`;
-  each tier card prints its own monthly from the store) and **no amount is authored
-  into a block** — `CASH_ASSISTANCE` stays the sheet constant and price blocks keep
-  their SKU/rate-table binding. The mixed 42-item catalogue LEFT `/plans` (services
-  → `/services`, caskets → `/products`; the three packages keep `/packages` +
-  `/plans/[sku]`). Evidence + before/after shots:
-  `docs/08-delivery/content-plans-page-design/`; tests
-  `tests/unit/plans-page-content.test.tsx` + `plan-content.test.ts` +
+  through the document. **NET `/plans` = the hero + the five tier cards + the
+  View packages and Coffins & caskets chips**: the captain moved the four chips
+  (2026 plan payments · Compare · Products & price list · Senior citizen rates),
+  the package/eligibility/notes blocks and the 2026 payment-mode tables onto ONE
+  new page, **`/price-list` (named "Price list")**, whose only entry point is
+  the grouped "Explore more" menu. `/plans/villa-memorial-plan`,
+  `/plans/senior-benefits` and `/plans/compare` redirect to `/price-list`
+  (next.config.ts) and the `/packages` listing redirects to `/plans/PKG-BASIC`;
+  the package detail routes stay. **Rates stay a live read** (pricing store +
+  `planRateOf`; each tier card prints its own monthly from the store) and **no
+  amount is authored into a block** — `CASH_ASSISTANCE` stays the sheet constant
+  and price blocks keep their SKU/rate-table binding. The mixed 42-item
+  catalogue LEFT `/plans` (services → `/services`, caskets → `/products`).
+  Evidence + before/after shots: `docs/08-delivery/content-plans-page-design/`
+  plus `docs/08-delivery/price-list-nav-design/`; tests
+  `tests/unit/plans-page-content.test.tsx` + `price-list-page.test.tsx` +
+  `retired-routes.test.ts` + `plan-content.test.ts` +
   `pricing-admin-render.test.tsx`.
   **The five tiers are ONE ROW of premium cards on desktop** (captain
   2026-09-21: the premium card pass, then "the five tier plan make it 5 plan
@@ -462,7 +473,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   never invent walk-in hours (the client material carries none).
 - **No public raster art may print a contact detail the landing document does not
   carry.** The plan poster (`public/media/plan-packages.png`, served by `/plans`,
-  the package routes and `/packages`) printed the prototype placeholder
+  the package routes and `/price-list`) printed the prototype placeholder
   `0917 123 4567`; F-17 masked the advisor strip's left band to the poster's own
   navy (art and gold tagline untouched) and re-derived the composition thumbs
   (`scripts/build-composition-images.mjs`; only the two `plan-packages-*.webp`
@@ -558,7 +569,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   figures under it and the actions last. `/products` (24 model cards, then the sheet's
   five-tier reference band and the inclusions table), `/plans` (every catalogue item, with the
   eight embalming day counts as ONE `.day-ladder` — a photograph and a priced ladder, never
-  eight cards printing one picture), `/packages` and `/lots` (one card per legend type, above
+  eight cards printing one picture), and `/lots` (one card per legend type, above
   the per-park plot bands). Never re-add a per-surface card: the captain's 2026-09-19
   complaint was measured at 88×66 product images and three images on the whole of `/plans`.
 - **The tier rows are a figure, not a swatch.** `/products`' five-tier band is the ledger
@@ -839,8 +850,8 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   unlabelled ₱19,500 total) + chapel use rates (the per-day rates and sample photos are
   also the rooms page, `/facilities`), via
   `components/villa/service-rates-2026.tsx`;
-  `/plans`, `/plans/villa-memorial-plan`, `/plans/senior-benefits` = the five tiers ×
-  four terms, regular + senior, through ONE renderer
+  `/price-list` = the five tiers ×
+  four terms, regular + senior (moved off /plans), through ONE renderer
   (`components/villa/plan-payment-table.tsx`), fed the current pricing store document;
   `/lots/price-list-2026` = the store's lot families (regular + senior).
 - The a-la-carte/embalming table and the chapel-use table are scoped by the sheets
@@ -886,8 +897,8 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `PRICING_STORE_PATH` or `.data/commerce-pricing.json`, gitignored), read through
   `lib/api-client/pricing.ts`. `lib/villa-pricing.ts` now only re-exports the validated
   seed (`SEED_PRICING`, `VMP_PAYMENTS`, `SENIOR_PAYMENTS`, `LOT_PRICE_CATEGORIES`) for
-  static consumers/tests — never render those on a public page. Public pages (`/plans*`,
-  `/lots/price-list-2026`, the home board, the package page, the agent lot list) read
+  static consumers/tests — never render those on a public page. Public pages (`/plans`,
+  `/price-list`, `/plans/[sku]`, `/lots/price-list-2026`, the home board, the package page, the agent lot list) read
   `loadPricingDocument()` per request (`force-dynamic`) and derive every figure through
   `planRateOf` / `lotCategoryFromPriceOf` / `lib/plan-selection.ts`; client components
   receive the document as props.

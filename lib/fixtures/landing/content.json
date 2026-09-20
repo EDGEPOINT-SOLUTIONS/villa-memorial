@@ -91,7 +91,7 @@
             "caption": "Bundled at one clear price",
             "price": null,
             "image": "/media/plan-packages.png",
-            "href": "/packages"
+            "href": "/plans/PKG-BASIC"
           },
           {
             "id": "rl-caskets",
@@ -160,7 +160,7 @@
             "caption": "Complete memorial service",
             "price": "from ₱600/month",
             "image": "/media/plan-packages.png",
-            "href": "/plans/villa-memorial-plan"
+            "href": "/price-list"
           }
         ]
       }
@@ -198,7 +198,7 @@
           "icon": "plan",
           "title": "Lot + interment + VMP",
           "text": "A complete memorial plan with assistance through the Villa Memorial Plan.",
-          "href": "/plans/villa-memorial-plan",
+          "href": "/price-list",
           "category": "3. Lot + Interment + VMP"
         },
         {
@@ -247,7 +247,7 @@
               "poster": "/media/hero-1.jpg"
             }
           ],
-          "link": "/plans/villa-memorial-plan"
+          "link": "/price-list"
         },
         {
           "id": "post-new-niches",

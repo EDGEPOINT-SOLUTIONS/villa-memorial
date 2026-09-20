@@ -398,9 +398,9 @@ export function LandingFooter({ content }: { content: LandingContent }) {
             links={[
               { label: "Death at home", href: "/services/death-at-home" },
               { label: "Death at hospital", href: "/services/death-at-hospital" },
-              { label: "Villa Memorial Plan", href: "/plans/villa-memorial-plan" },
-              { label: "Compare plans", href: "/plans/compare" },
-              { label: "2026 price list", href: "/lots/price-list-2026" },
+              { label: "Villa Memorial Plan", href: "/plans" },
+              { label: "Price list", href: "/price-list" },
+              { label: "2026 lot price list", href: "/lots/price-list-2026" },
             ]}
           />
 

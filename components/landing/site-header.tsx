@@ -48,15 +48,17 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
 ];
 
 /**
- * The grouped "Explore more" menu (captain, 2026-09-21): the four secondary
- * public pages, one tap away. Titles are the captain's own short names; the
- * notes are each page's own plain-language summary, not new claims.
+ * The grouped "Explore more" menu (captain, 2026-09-21): the secondary public
+ * pages — now including the consolidated Price list — one tap away. Titles are
+ * the captain's own short names; the notes are each page's own plain-language
+ * summary, not new claims.
  */
 export const EXPLORE_MORE_LINKS: ReadonlyArray<{ title: string; note: string; href: string }> = [
   { title: "Builder", note: "Build the arrangement and see the 2026 total", href: "/builder" },
   { title: "Facilities", note: "Chapels, viewing rooms and the grounds", href: "/facilities" },
   { title: "Gallery", note: "Photographs of the park and a walk-through", href: "/gallery" },
   { title: "Memorials", note: "Find a memorial families have published", href: "/memorials" },
+  { title: "Price list", note: "Every published 2026 amount in one place", href: "/price-list" },
 ];
 
 /**

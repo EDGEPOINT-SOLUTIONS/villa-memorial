@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState } from "@/components/ui/states";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP, PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
+import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
@@ -10,45 +13,62 @@ import { CASH_ASSISTANCE, COFFINS, php } from "@/lib/villa-pricing";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Villa Memorial Plan — Products & Price List 2026",
+  title: "Price list — Villa Memorial",
   description:
-    "The complete Villa Memorial Plan: five tiers, four payment modes, senior-citizen rates, eligibility and the client's official 2026 price list.",
-  path: "/plans/villa-memorial-plan",
+    "The complete Villa Memorial price list: package comparison, coffins, senior-citizen rates, the five plan tiers' 2026 payment tables and the lot &amp; mausoleum list.",
+  path: "/price-list",
 });
 
 // Reads the pricing store per request — an office edit must be visible here.
 export const dynamic = "force-dynamic";
 
-export default async function VillaMemorialPlanPage() {
-  const [pricing, page] = await Promise.all([
+/**
+ * PRICE LIST (captain, 2026-09-21).
+ *
+ * ONE page for what four retired surfaces carried:
+ *   · the 2026 plan payment tables (formerly `#plan-payments` on /plans),
+ *   · the package comparison (formerly /plans/compare),
+ *   · the products & price list view (formerly /plans/villa-memorial-plan),
+ *   · the senior-citizen plan (formerly /plans/senior-benefits).
+ *
+ * Its ONLY public entry point is the grouped "Explore more" menu
+ * (`EXPLORE_MORE_LINKS` in components/landing/site-header.tsx); the retired
+ * routes redirect here from next.config.mjs.
+ *
+ * NO AMOUNT IS AUTHORED HERE: plan rates and lot families come from the pricing
+ * store (`loadPricingDocument()` + `PlanPaymentTable`), the cash-assistance
+ * table and the casket tiers from `lib/villa-pricing.ts`, and every catalogue
+ * figure from the live catalogue read. The plan copy (package inclusions,
+ * eligibility, senior terms, notes) is the "Villa Memorial Plan" page document
+ * read through `lib/plan-content.ts`, so a staff edit on Pages & content
+ * reaches this page on the next request.
+ */
+export default async function PriceListPage() {
+  const [pricing, page, packages] = await Promise.all([
     loadPricingDocument(),
     getPageDocument("plans").catch(() => null),
+    listCatalogItems("package").catch(() => null),
   ]);
   const content = planContentFromDocument(page);
+
   return (
     <div className="stack-4">
       {/* Hero */}
       <section className="hero-premium">
         <div className="hero-premium__grid">
           <div>
-            <p className="eyebrow-label">Villa Memorial Plan</p>
-            <h1 className="hero-premium__title">
-              Products &amp; Price List 2026
-            </h1>
+            <p className="eyebrow-label">Price list</p>
+            <h1 className="hero-premium__title">Price list</h1>
             <p className="hero-premium__lead">
-              A life plan that assures complete memorial services — assignable,
-              transferable, with limited contestability and no forfeiture. Coffins,
-              senior rates, full benefits and the complete lot price list on one page.
+              Every published 2026 amount in one place — packages, coffins, the
+              senior plan, the five plan tiers&rsquo; payment tables and the lot list.
             </p>
             <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
               Served by Funeraria Villa &amp; ZC-Arcega Funeral Homes, underwritten by
               Villa Agency Insurance Services.
             </p>
             {/* The class was .plan-logo-row, whose rule left the stylesheet with
-                the package-page pass; the page kept the name, so the two logos
-                rendered at their natural 560/460px and the hero's overflow:hidden
-                sliced them. .logo-row is the live shared logo row (home board,
-                package page) and sizes them at 2.6rem. */}
+                the package-page pass; .logo-row is the live shared logo row. */}
             <p className="logo-row" style={{ marginTop: "var(--space-4)" }}>
               {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
               <img src={LOGO_VILLA_AGENCY} alt="Villa Agency Insurance Services — Insure. Invest. Prosper." />
@@ -56,6 +76,7 @@ export default async function VillaMemorialPlanPage() {
               <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
             </p>
             <nav className="hero-chips" aria-label="Jump to a section">
+              <a href="#packages">Compare packages</a>
               <a href="#coffins">Coffin options</a>
               <a href="#senior">Senior citizen plan</a>
               <a href="#vmp">Plan benefits</a>
@@ -63,8 +84,8 @@ export default async function VillaMemorialPlanPage() {
               <a href="#prices">2026 price list</a>
             </nav>
             <div className="row row--wrap" style={{ gap: "var(--space-3)", marginTop: "var(--space-5)" }}>
-              <a href="#prices" className="btn btn--accent btn--lg">
-                View the 2026 price list
+              <a href="#packages" className="btn btn--accent btn--lg">
+                Compare the packages
               </a>
               <Link href="/contact" className="btn btn--secondary btn--lg">
                 Ask the park office
@@ -77,6 +98,66 @@ export default async function VillaMemorialPlanPage() {
             <figcaption>Villa Memorial Plan · comprehensive packages</figcaption>
           </figure>
         </div>
+      </section>
+
+      {/* Package comparison — the retired /plans/compare table. REAL catalog
+          data: the frozen contract carries name, description, type and price,
+          and this compares exactly those fields and no invented ones. */}
+      <section id="packages" className="stack-3" aria-labelledby="packages-title">
+        <header className="band-head">
+          <h2 className="band-head__title" id="packages-title">
+            Compare the packages
+          </h2>
+          <Link href="/plans/PKG-BASIC" className="btn btn--secondary btn--sm">
+            View packages
+          </Link>
+        </header>
+        {packages === null ? (
+          <ErrorState message="Packages are unavailable right now. Please try again shortly." />
+        ) : packages.length === 0 ? (
+          <EmptyState title="No packages to compare yet" hint="Check back soon." />
+        ) : (
+          <div className="table-wrapper" tabIndex={0}>
+            <table className="table compare-table">
+              <thead>
+                <tr>
+                  <th scope="col">Package</th>
+                  {packages.map((item) => (
+                    <th key={item.sku} scope="col">
+                      <Link href={`/plans/${item.sku}`}>{item.name}</Link>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Price</th>
+                  {packages.map((item) => (
+                    <td key={item.sku}>
+                      <strong>{item.display_price}</strong>
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <th scope="row">Description</th>
+                  {packages.map((item) => (
+                    <td key={item.sku} className="text-sm">
+                      {item.description ?? "—"}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <th scope="row">Category</th>
+                  {packages.map((item) => (
+                    <td key={item.sku} className="text-sm">
+                      {item.item_type}
+                    </td>
+                  ))}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
 
       {/* Locations */}
@@ -127,9 +208,6 @@ export default async function VillaMemorialPlanPage() {
       <section id="senior" className="stack-3">
         <div className="row row--space">
           <h2 className="section-title">2 · Senior citizen plan</h2>
-          <Link href="/plans/senior-benefits" className="btn btn--secondary btn--sm">
-            Senior plan page
-          </Link>
         </div>
         <div className="card">
           <div className="card__body">
@@ -156,6 +234,12 @@ export default async function VillaMemorialPlanPage() {
       {/* 3. Villa Memorial Plan (regular) */}
       <section id="vmp" className="stack-3">
         <h2 className="section-title">3 · Villa Memorial Plan</h2>
+        <ul className="rate-facts">
+          <li>Regular rate — ages 1–60</li>
+          <li>Senior rate — ages 61–100, no insurance benefit</li>
+          <li>Annual = 2 × semi-annual = 4 × quarterly = 12 × monthly</li>
+          <li>Amortization adjustable to 8 or 10 years</li>
+        </ul>
         <div className="card">
           <div className="card__body stack-3">
             <h3>Complete memorial package</h3>
@@ -302,7 +386,7 @@ export default async function VillaMemorialPlanPage() {
       {/* Footer nav */}
       <section className="stack-3">
         <p className="text-sm text-muted">
-          Compare with <Link href="/plans/compare">package options</Link> ·{" "}
+          Compare with the <Link href="/plans">five plan tiers</Link> ·{" "}
           <Link href="/services">2026 service rates</Link> ·{" "}
           <Link href="/products">coffins with prices</Link> ·{" "}
           <Link href="/lots">browse plots on the map</Link>. Need a hand?{" "}

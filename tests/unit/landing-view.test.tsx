@@ -165,7 +165,7 @@ describe("the home renders the anchored catalogue shell", () => {
     for (const [href, title] of [
       ["/lots", "Lot only"],
       ["/plans", "Lot + interment"],
-      ["/plans/villa-memorial-plan", "Lot + interment + VMP"],
+      ["/price-list", "Lot + interment + VMP"],
       ["/lots/mausoleum", "Mausoleum + construction"],
     ] as const) {
       expect(html).toContain(`<a class="svc-card" href="${href}">`);
@@ -416,7 +416,7 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
       {
         ...linked.blog.posts[0],
         id: "post-linked",
-        link: "/plans/villa-memorial-plan",
+        link: "/price-list",
         caption: "Plan ahead — read the full Villa Memorial Plan.",
       },
     ];
@@ -425,11 +425,11 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
     );
     // Every one of that post's 4 photos is now a door to the post's route.
     // Media anchors carry an aria-label after the href, so match the opening tag.
-    const anchor = '<a class="post-media__link" href="/plans/villa-memorial-plan"';
+    const anchor = '<a class="post-media__link" href="/price-list"';
     expect(html.split(anchor).length - 1).toBe(4);
     expect(html.split('<a class="post-media__link"').length - 1).toBe(4);
     // The caption is a link too.
-    expect(html).toContain('<a class="post-card__caption-link" href="/plans/villa-memorial-plan">');
+    expect(html).toContain('<a class="post-card__caption-link" href="/price-list">');
   });
 
   it("a post WITHOUT a link stays fully non-interactive — no photo or caption anchors", async () => {

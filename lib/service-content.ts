@@ -75,7 +75,7 @@ export const SERVICE_ENTRY_DEFS: ReadonlyArray<ServiceEntryDef> = [
     fallbackTitle: "Transport",
     fallbackSummary:
       "Dignified transport for your loved one — from home or hospital to the service venue, and onward when the time comes. Coordinated by our team as part of your arrangement.",
-    secondaryHref: "/plans/villa-memorial-plan",
+    secondaryHref: "/price-list",
     secondaryLabel: "Villa Memorial Plan",
   },
 ] as const;

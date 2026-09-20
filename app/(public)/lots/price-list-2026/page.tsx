@@ -72,7 +72,7 @@ export default async function PriceList2026Page() {
 
       <p className="text-sm text-muted">
         See lots on the <Link href="/map">park map</Link>, explore the{" "}
-        <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>, or{" "}
+        <Link href="/price-list">Price list</Link>, or{" "}
         <Link href="/contact">ask the park office</Link> about 8- and 10-year terms.
       </p>
     </div>

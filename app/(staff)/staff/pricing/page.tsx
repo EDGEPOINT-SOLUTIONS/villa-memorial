@@ -80,7 +80,7 @@ export default async function PricingPage() {
             </h2>
             <p className="text-sm text-muted" style={{ margin: 0 }}>
               The five tiers × four payment modes, regular and senior — read by /plans,
-              /plans/villa-memorial-plan, /plans/senior-benefits, /plans/[sku] and the home board.
+              /price-list, /plans/[sku] and the home board.
             </p>
           </div>
           <PlanRatesEditor

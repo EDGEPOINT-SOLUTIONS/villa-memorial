@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import PlansPage from "@/app/(public)/plans/page";
+import PriceListPage from "@/app/(public)/price-list/page";
 import {
   getPageDocument,
   savePageDocument,
@@ -19,9 +20,11 @@ import type { ContentBlock } from "@/lib/content-catalog";
  *     "Starting from" · the live monthly rate · a one-line description · one
  *     enquiry action · the inclusion list PRINTED under "Key features:" (never
  *     a dropdown), with an optional staff-attached photo;
- *   · the package details, eligibility and notes come from the same document;
+ *   · the package details, eligibility, senior terms and the four plan notes
+ *     moved to the consolidated /price-list page (captain's 2026-09-21
+ *     addendum) — net /plans is the hero + the five tier cards + two chips;
  *   · the rates stay a LIVE read of the pricing store (that edit reaching the
- *     page is pinned by tests/unit/pricing-admin-render.test.tsx);
+ *     price list is pinned by tests/unit/pricing-admin-render.test.tsx);
  *   · the mixed 42-item catalogue left the page.
  */
 
@@ -80,13 +83,23 @@ describe("the Plans page content home", () => {
     expect(html).toContain('alt="Gold tier coffin"');
   });
 
-  it("prints the package details, eligibility and notes from the document", async () => {
-    const html = renderToStaticMarkup(await PlansPage());
-    expect(html).toContain("Complete memorial package includes");
-    expect(html).toContain("Retrieval &amp; delivery");
-    expect(html).toContain("Age 1–60 years old");
-    expect(html).toContain("Inception date is 30 days after payment.");
-    expect(html).toContain("Transfer/assignment fee is ₱1,000.");
+  it("moves the package details, eligibility, senior terms and notes to /price-list", async () => {
+    const plans = renderToStaticMarkup(await PlansPage());
+    // Net /plans: the hero and the five tier cards carry no plan-terms blocks.
+    expect(plans).not.toContain('id="package-details"');
+    expect(plans).not.toContain("Complete memorial package includes");
+    expect(plans).not.toContain("Eligibility for the regular rate");
+    expect(plans).not.toContain("Inception date is 30 days after payment.");
+
+    // The consolidated Price list carries the same document copy instead.
+    const priceList = renderToStaticMarkup(await PriceListPage());
+    expect(priceList).toContain("Retrieval &amp; delivery");
+    expect(priceList).toContain("Age 1–60 years old");
+    expect(priceList).toContain("Must be 61–100 years old");
+    expect(priceList).toContain("Inception date is 30 days after payment.");
+    expect(priceList).toContain("Transfer/assignment fee is ₱1,000.");
+    expect(priceList).toContain("All packages include FREE flowers and a tarpaulin.");
+    expect(priceList).toContain("Amortization can be adjusted to 8 years and 10 years.");
   });
 
   it("reads each tier's own monthly rate live from the pricing store", async () => {

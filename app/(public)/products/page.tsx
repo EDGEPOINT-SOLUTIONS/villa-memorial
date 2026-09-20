@@ -157,8 +157,8 @@ export default async function ProductsPage() {
 
       <p className="text-sm text-muted">
         Every casket model above is included in the{" "}
-        <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>; senior
-        citizens enjoy the <Link href="/plans/senior-benefits">senior plan</Link> with free
+        <Link href="/plans">Villa Memorial Plan</Link>; senior
+        citizens enjoy the <Link href="/price-list">senior plan</Link> with free
         flowers. See the <Link href="/services">memorial service rates</Link> (embalming per
         day, retrieval, delivery, viewing equipment, coffin and interment) or{" "}
         <Link href="/lots/price-list-2026">the 2026 lot price list</Link>.
