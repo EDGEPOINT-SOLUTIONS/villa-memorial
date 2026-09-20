@@ -56,7 +56,8 @@ services:
       DOCUMENTS_BASE_URL: ${DOCUMENTS_BASE_URL:-}
       AUDIT_BASE_URL: ${AUDIT_BASE_URL:-}
       # NOTE: HR_BASE_URL and CRM_BASE_URL are deliberately NOT set. Their live
-      # branches are unbuilt 501s; setting them turns those screens into errors.
+      # reads refuse with a named 503 until their contracts freeze; setting them
+      # turns those screens into errors.
     ports:
       - "${WEB_PORT:-3000}:3000"
     volumes:
