@@ -66,6 +66,8 @@ every heading to 600 and beat base's ladder) was removed — one owner.
 | `/products` (1440) | `h1.page-hero__title` | 36 px |
 | `/staff/pricing` (1440) | `.page-header h1` | 36 px |
 | `/staff/pricing` (1440) | `.table thead th` | 12 px |
+| `/products/CSK-LUMINA` (1440) | `h1.pdp-buy__title` | 36 px |
+| `/products/CSK-LUMINA` (1440) | `.pdp-section__title` | 28 px |
 | any (1440) | `body` | 16 px `rgb(0,0,0)` |
 | any (390) | `--text-page-title` / `--text-section-title` | 1.75 rem (28) / 1.375 rem (22) |
 
@@ -91,7 +93,12 @@ Contrast (AA, ≥ 4.5:1): #000000, #333333 and #595959 all pass on both
 
 `shots/{before,after}/` — 1440×900 and 390×844 for the public home, product PDP,
 plans, an admin screen, an admin table, the family portal and checkout (14 pairs).
-The admin table is the "a table" ink evidence; the home is the page.
+The admin table is the "a table" ink evidence; the home is the page. The PDP
+shots are captured against the rebased tree (the P3 Amazon PDP rebuild landed
+between this branch's base and its merge), and every other surface is unchanged
+by that rebuild. The PDP rebuild also introduced three headings
+(`.pdp-buy__title` 36, `.pdp-section__title` 28, `.pdp-feature-group__title` 18)
+that this branch routes through the same role aliases.
 
 ## Tests
 
