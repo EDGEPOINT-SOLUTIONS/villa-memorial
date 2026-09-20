@@ -15,30 +15,28 @@ import { monogram } from "@/lib/family/family-view";
 import {
   Answer,
   CallAction,
-  Note,
-  QuietLink,
   RecordCard,
   RecordFacts,
   Row,
   Rows,
   Section,
+  WhatThisShows,
 } from "@/components/family/family-ui";
 import { PortalChip, PortalKv } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Remembering — Villa Memorial" };
 
 /**
- * Remembering — the family's “My Memorials” screen (PRD screen-inventory;
- * 06-cultural-digital-memorial/digital-memorial.md » Villa eMemorial page), on
- * the shared portal kit.
+ * Remembering — the family's “My Memorials” screen (PRD screen-inventory),
+ * compressed to the family reading budget (2026-09-21): one-sentence hero, the
+ * record we hold, and the choices the family will make behind the ONE shared
+ * `WhatThisShows` disclosure.
  *
  * THE STATE IS THE FACT: no digital-memorial service exists, so nothing about
- * the loved one is published anywhere and no message can be posted. What the
- * page shows is the record the office actually holds (their name, life dates and
- * the place the plan names), then the decisions the family will make when the
- * service opens — all marked “not decided yet”, because no visibility default
- * exists or may be invented. No tribute, photo or date we do not hold appears
- * here.
+ * the loved one is published anywhere and no message can be posted. The name,
+ * the dates and the place come from the office's own record; the visibility
+ * choices stay “not decided yet” because no default exists or may be invented.
+ * No photograph is ever shown or proposed.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -52,30 +50,17 @@ export default async function Page() {
       <Answer
         kicker="Remembering"
         headline={`Nothing about ${firstName} is published anywhere.`}
-        sub={`The page your family keeps — the story, the photos and the messages friends write — is designed and not switched on yet. Here is the record we hold for ${firstName}, and what your family will decide when it opens.`}
+        sub="Your family decides what appears, when the page opens."
         chips={
           <>
-            <PortalChip>Not published anywhere</PortalChip>
             <PortalChip>{loved_one.life_dates}</PortalChip>
             <PortalChip>Your family decides first</PortalChip>
           </>
         }
-        actions={
-          <>
-            <CallAction label={`Call ${FAMILY_HELP.phone}`} />
-            <QuietLink
-              href="#choices"
-              label="What your family will decide"
-              icon={<MessageCircle size={20} aria-hidden="true" />}
-            />
-          </>
-        }
+        actions={<CallAction label={`Call ${FAMILY_HELP.phone}`} />}
       />
 
-      <Section
-        title="In loving memory"
-        sub="The record our office holds. A photograph is never required, and never posted without your family."
-      >
+      <Section title="In loving memory" sub="The record our office holds.">
         <RecordCard
           kicker="In loving memory"
           title={loved_one.name}
@@ -83,89 +68,71 @@ export default async function Page() {
           monogram={initials}
         >
           <p className="fv-record__sub">
-            {initials
-              ? `A photo is not required — “${initials}” stays here until your family is ready to choose one.`
-              : "A photograph is never required, and nothing is posted without your family."}
+            A photograph is never required, and nothing is posted without your family.
           </p>
           <RecordFacts>
-            <PortalKv
-              label="Their place"
-              value={`Lot ${lot.lot_number} · ${lot.park}`}
-            />
+            <PortalKv label="Their place" value={`Lot ${lot.lot_number} · ${lot.park}`} />
             <PortalKv label="The plan" value={plan_summary.plan_name} />
           </RecordFacts>
         </RecordCard>
       </Section>
 
-      <Section
-        id="choices"
-        title="Who will be able to see it"
-        sub="Nothing is decided yet, and we will not decide for you. When the page opens, your family chooses this — and can change it whenever you like."
+      <WhatThisShows
+        extra={
+          <>
+            <Rows>
+              <Row
+                icon={<Users size={22} aria-hidden="true" />}
+                title="Only your family"
+                meta="The people on this account, and nobody else."
+                state="Not decided yet"
+              />
+              <Row
+                icon={<Link2 size={22} aria-hidden="true" />}
+                title="Relatives with a private link"
+                meta="A link, never a search result."
+                state="Not decided yet"
+              />
+              <Row
+                icon={<Globe size={22} aria-hidden="true" />}
+                title="Anyone who looks for them"
+                meta="Off unless you say so."
+                state="Not decided yet"
+              />
+            </Rows>
+            <Rows>
+              <Row
+                icon={<BookOpen size={22} aria-hidden="true" />}
+                title="Their story"
+                meta="The words you use when you talk about them."
+              />
+              <Row
+                icon={<ImageIcon size={22} aria-hidden="true" />}
+                title="Photographs"
+                meta="As many as you like, and you can take any down again."
+              />
+              <Row
+                icon={<MessageCircle size={22} aria-hidden="true" />}
+                title="Messages from family and friends"
+                meta="They wait for your family to approve them."
+              />
+              <Row
+                icon={<CalendarHeart size={22} aria-hidden="true" />}
+                title="The dates you want to remember"
+                meta="Each one can be switched off at any time."
+              />
+              <Row
+                icon={<Hourglass size={22} aria-hidden="true" />}
+                title="The years to come"
+                meta="The page stays as long as your family keeps it."
+              />
+            </Rows>
+          </>
+        }
       >
-        <Rows>
-          <Row
-            icon={<Users size={22} aria-hidden="true" />}
-            title="Only your family"
-            meta="The people on this account, and nobody else."
-            state="Not decided yet"
-          />
-          <Row
-            icon={<Link2 size={22} aria-hidden="true" />}
-            title="Relatives with a private link"
-            meta="For family who are not on the account — they get a link, never a search result."
-            state="Not decided yet"
-          />
-          <Row
-            icon={<Globe size={22} aria-hidden="true" />}
-            title="Anyone who looks for them"
-            meta="The page would appear in a public search. This one is yours to allow, and off unless you say so."
-            state="Not decided yet"
-          />
-        </Rows>
-      </Section>
-
-      <Section
-        title="What your family will be able to add"
-        sub="Everything here waits for your yes. Nothing is added, and nothing is published, until someone in your family says so."
-      >
-        <Rows>
-          <Row
-            icon={<BookOpen size={22} aria-hidden="true" />}
-            title="Their story"
-            meta="The words you use when you talk about them — written whenever you are ready, not before."
-          />
-          <Row
-            icon={<ImageIcon size={22} aria-hidden="true" />}
-            title="Photographs"
-            meta="As many as you like, and you can take any of them down again."
-          />
-          <Row
-            icon={<MessageCircle size={22} aria-hidden="true" />}
-            title="Messages from family and friends"
-            meta="Tributes arrive and wait for your family to approve — nothing shows until you approve it."
-          />
-          <Row
-            icon={<CalendarHeart size={22} aria-hidden="true" />}
-            title="The dates you want to remember"
-            meta="Their birthday, the anniversary, All Souls’ — each one can be switched off at any time."
-          />
-          <Row
-            icon={<Hourglass size={22} aria-hidden="true" />}
-            title="The years to come"
-            meta="The page stays for as long as your family keeps it, and you can close it whenever you choose."
-          />
-        </Rows>
-      </Section>
-
-      <Note>
-        <p>
-          <strong>About this page.</strong> The memorial service is not switched on yet, so nothing
-          about {firstName} appears anywhere — not here, not in a search, and no message can be
-          posted by anyone. The name, the dates and the place come from our office’s own record.
-          When the page opens we will ask your family first, and until then call {FAMILY_HELP.phone}{" "}
-          — {FAMILY_HELP.hours} — and we will write down anything you would like on it.
-        </p>
-      </Note>
+        The memorial page isn’t open yet, so nothing can be posted. Call {FAMILY_HELP.phone} and we’ll
+        write down what you’d like.
+      </WhatThisShows>
     </>
   );
 }

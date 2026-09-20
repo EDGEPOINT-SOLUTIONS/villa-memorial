@@ -1,5 +1,6 @@
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
+import { FAMILY_HELP } from "@/lib/family/contact";
 import { familyPapers } from "@/lib/family/family-documents";
 import { PlannedAnswer, Rows, Section } from "@/components/family/family-ui";
 import { OwnedPaperRow } from "@/components/family/family-papers";
@@ -8,14 +9,12 @@ export const metadata = { title: "The funeral — Villa Memorial" };
 
 /**
  * The funeral — the approved redesign (docs/08-delivery/family-portal-design,
- * page 03). The family case service does not exist yet, so this is the honest
- * designed state: one answer (the office holds the plan, call and we will read
- * it), the moments that will live here, and one calm note. No invented times.
+ * page 03), compressed to the family reading budget (2026-09-21): one-sentence
+ * hero, the family's own contract in the open, and the preview of what will
+ * live here behind the ONE shared `WhatThisShows` disclosure.
  *
- * The funeral is also where the service contract belongs: it is the family's
- * own paper, so it is shown here as theirs — a real copy when the record can
- * produce one, the honest “getting it ready” state otherwise, and never a
- * request.
+ * The family case service does not exist yet, so this is the honest designed
+ * state: call and the office will read the plan. No invented times.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -26,17 +25,16 @@ export default async function Page() {
   return (
     <PlannedAnswer
       kicker="The funeral"
-      headline={`${firstName}’s funeral plan is kept by our office. Call us and we will read you the whole plan.`}
-      sub="The viewing hours, the funeral service and the burial are not shown here yet — the arrangement records are not connected to this page. Until they are, the office will tell you exactly what is arranged."
-      plannedTitle="What will be here"
+      headline={`${firstName}’s funeral plan is kept by our office.`}
+      sub="Call us and we will read you the whole plan."
       planned={[
         {
           label: "The viewing",
-          detail: "Where to go and the hours you can visit, every day",
+          detail: "Where to go and the hours you can visit",
         },
         {
           label: "The funeral service",
-          detail: "The church, the time, and who is leading the service",
+          detail: "The church, the time, and who is leading it",
         },
         {
           label: "The burial",
@@ -44,28 +42,19 @@ export default async function Page() {
         },
         {
           label: "What we are taking care of",
-          detail: "The permit, the cars and the flowers — so you do not have to follow any of it up",
-        },
-        {
-          label: "If anything changes",
-          detail: "One line at the top of this page, and a call to you",
+          detail: "The permit, the cars and the flowers",
         },
       ]}
-      note="The arrangement records service is not switched on yet. When it is, everything above will keep itself up to date on this page, and you will not have to call to ask what changed."
+      note={`The viewing, service and burial times aren’t connected yet. Call ${FAMILY_HELP.phone} and we’ll tell you.`}
     >
-      <Section
-        title="Your service contract"
-        sub="The contract for the funeral is your family's own copy — kept here for you, never something you have to request."
-      >
+      <Section title="Your service contract" sub="Your family’s own copy — always here.">
         {contract ? (
           <Rows>
             <OwnedPaperRow paper={contract} />
           </Rows>
         ) : (
           <p className="ag-sub">
-            No service contract is recorded here yet. When there is one, your copy stays on this
-            page and you will never need to ask for it. Call us any time and we will find it for
-            you.
+            No service contract is recorded here yet. Call us and we will find your copy.
           </p>
         )}
       </Section>

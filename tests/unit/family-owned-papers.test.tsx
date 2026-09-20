@@ -179,16 +179,13 @@ describe("the service contract on the funeral page", () => {
   });
 });
 
-describe("the dashboard summary treats the owned papers the same way", () => {
-  it("marks the contract and receipts as yours and points at the papers page", async () => {
+describe("the dashboard summary points at the family's own papers", () => {
+  it("shows the papers count and links to the papers page, with no request affordance", async () => {
     state.snapshot = snapshotWith([CONTRACT, RECEIPT, PERMIT]);
     const html = renderToStaticMarkup(await HomePage());
-    const contractRow = rowFor(html, "Service contract");
-    expect(contractRow).toContain("Yours");
-    expect(contractRow).toContain("See it in your papers");
-    expect(contractRow).not.toContain("Ask for a copy");
-    expect(rowFor(html, "Official receipt")).not.toContain("Ask for a copy");
-    expect(rowFor(html, "Burial permit")).toContain("Ask for a copy");
+    expect(html).toContain("Papers");
+    expect(html).toContain('href="/client/documents"');
+    expect(html).not.toContain("Ask for a copy");
   });
 });
 

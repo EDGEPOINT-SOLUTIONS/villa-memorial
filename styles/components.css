@@ -3586,6 +3586,40 @@ a.ledger__row:hover .ledger__row-title {
   min-height: 2.75rem;
 }
 
+/* --- the one honest gap disclosure (family reading budget, 2026-09-21) ------- */
+/* ONE closed note per screen replaces the old per-page “About this page.”
+   paragraph. No motion on open; the summary is a real control. */
+.fv-gap {
+  margin-top: var(--space-5);
+  border-top: 1px solid var(--sky-200);
+  padding-top: var(--space-3);
+}
+
+.fv-gap > summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--sky-800);
+  font-size: var(--text-md);
+}
+
+.fv-gap > summary:hover {
+  color: var(--sky-900);
+}
+
+.fv-gap__body {
+  margin-top: var(--space-3);
+}
+
+.fv-gap__body > p {
+  color: var(--color-text-secondary);
+  max-width: 46rem;
+  margin: 0;
+}
+
+.fv-gap__body .ag-list {
+  margin-top: var(--space-3);
+}
+
 /* --- money actions ------------------------------------------------------------ */
 /* The figure block's actions (Money): the same row as the hero action band. */
 .fv-money__actions {

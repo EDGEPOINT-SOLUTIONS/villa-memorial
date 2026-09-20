@@ -5,7 +5,6 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
 import {
   Answer,
-  Note,
   PaidSoFar,
   PrimaryAction,
   QuietAction,
@@ -13,16 +12,21 @@ import {
   Row,
   Rows,
   Section,
+  WhatThisShows,
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Your plan — Villa Memorial" };
 
 /**
- * Your plan — the family's “My Plans” screen (PRD screen-inventory), on the
- * shared portal kit. Real today: the plan summary and the balance, straight
- * from the family snapshot. The instalment schedule and the plan certificate
- * are not wired and are named in one calm note, never faked.
+ * Your plan — the family's “My Plans” screen (PRD screen-inventory), compressed
+ * to the family reading budget (2026-09-21): one-sentence hero, the paid share,
+ * the plan's own rows, and the schedule gap in the ONE shared `WhatThisShows`
+ * disclosure.
+ *
+ * Real today: the plan summary and the balance, straight from the family
+ * snapshot. The instalment schedule and the plan certificate are not wired and
+ * are named in one line, never faked.
  */
 export default async function ClientPlansPage() {
   await requirePortalSessionOrRedirect("family");
@@ -44,7 +48,7 @@ export default async function ClientPlansPage() {
             ? `${plan_summary.plan_name} is active. ${balance.remaining} is still open.`
             : `${plan_summary.plan_name} is active. It is fully paid.`
         }
-        sub={`Your family’s plan with Villa Memorial. The next date in your agreement is ${plan_summary.next_due}. If anything here looks wrong, call us and we will fix it.`}
+        sub={`The next date in your agreement is ${plan_summary.next_due}.`}
         chips={
           <>
             <PortalChip>{plan_summary.status}</PortalChip>
@@ -73,15 +77,12 @@ export default async function ClientPlansPage() {
         words={percent === null ? "in all" : percentWords(percent)}
       />
 
-      <Section
-        title="What your plan is for"
-        sub="A plan is a long-term promise to the people you leave behind."
-      >
+      <Section title="What your plan is for" sub="A long-term promise to the people you leave behind.">
         <Rows>
           <Row
             icon={<ScrollText size={22} aria-hidden="true" />}
             title="Your plan certificate"
-            meta="A copy will be here when the family records service is switched on"
+            meta="A copy will be here when the family records service is on"
           />
           <Row
             icon={<Users size={22} aria-hidden="true" />}
@@ -99,13 +100,10 @@ export default async function ClientPlansPage() {
         </Rows>
       </Section>
 
-      <Note>
-        <p>
-          <strong>The instalment schedule is not on this page yet.</strong> The list of payments,
-          with dates and receipts, arrives with the family records service. Until then, ask us and
-          we will read your schedule to you — {FAMILY_HELP.phone}, {FAMILY_HELP.hours}.
-        </p>
-      </Note>
+      <WhatThisShows>
+        The instalment schedule isn’t connected yet. Call {FAMILY_HELP.phone} and we’ll read it to
+        you.
+      </WhatThisShows>
     </>
   );
 }

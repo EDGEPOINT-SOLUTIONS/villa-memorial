@@ -68,7 +68,6 @@ describe("Requests — the family's requests and where each one stands", () => {
 
   it("answers “what can I ask for?” with the office's own service list", async () => {
     const html = await render(RequestsPage);
-    expect(html).toContain("What you can ask us for");
     expect(html).toContain("Something at the lot");
     expect(html).toContain("A paper or a copy");
     expect(html).toContain("A payment question");
@@ -79,8 +78,8 @@ describe("Requests — the family's requests and where each one stands", () => {
 
   it("says plainly that the log is kept by hand and reaches us by phone", async () => {
     const html = await render(RequestsPage);
-    expect(html).toContain("request service is switched on");
-    expect(html).toContain("About this page.");
+    expect(html).toContain("request service isn’t connected");
+    expect(html).toContain("What this page can’t show yet");
     expect(html).not.toMatch(/ticket|Ticket/);
     expect(html).not.toContain("₱");
     assertNoParagraphNesting(html, "Requests");
@@ -110,7 +109,8 @@ describe("Appointments — the times, and whether a person confirmed them", () =
 
   it("lays out the booking path as three plain steps, ending with a phone call", async () => {
     const html = await render(AppointmentsPage);
-    expect(html).toContain("How a time gets set");
+    expect(html).toContain("Call us");
+    expect(html).toContain("We agree the day with you");
     expect(html).toContain("Call to set a day");
     expect(html).toContain("Your home, the office in Sunrise, or the park at Begang");
     expect(html).toContain('href="/map"');
@@ -120,7 +120,7 @@ describe("Appointments — the times, and whether a person confirmed them", () =
     const html = await render(AppointmentsPage);
     expect(html).not.toMatch(/chapel/i);
     expect(html).not.toContain("₱");
-    expect(html).toContain("scheduling service is not connected");
+    expect(html).toContain("scheduling service isn’t connected");
     assertNoParagraphNesting(html, "Ask for a visit");
   });
 });
@@ -136,34 +136,20 @@ describe("My Lots — the lot record beside the family's own plan", () => {
     expect(html).toContain("Held in the name of");
   });
 
-  it("uses only the money already recorded on the family's plan", async () => {
+  it("keeps the money on the payments page, with no invented amount here", async () => {
     const html = await render(LotPage);
-    for (const figure of [
-      snapshot.balance.total,
-      snapshot.balance.paid,
-      snapshot.balance.remaining,
-    ]) {
-      expect(html).toContain(figure);
-    }
-    // Every amount on the page is one the snapshot already records — the balance and
-    // the amount inside the next date. Nothing is added, rounded or invented here.
-    const recorded = JSON.stringify({
-      balance: snapshot.balance,
-      next_due: snapshot.plan_summary.next_due,
-    });
+    // The lot page no longer reprints the balance (it duplicated Payments); it
+    // links there, and carries no amount of its own that could drift.
+    expect(html).toContain('href="/client/payments"');
     const amounts = html.match(/₱[\d,]+/g) ?? [];
-    expect(amounts.length).toBeGreaterThan(0);
-    for (const amount of amounts) {
-      expect(recorded, `invented amount ${amount}`).toContain(amount);
-    }
+    expect(amounts, `unexpected amount on the lot page: ${amounts.join(", ")}`).toHaveLength(0);
   });
 
   it("lists what the office still holds instead of guessing it", async () => {
     const html = await render(LotPage);
-    expect(html).toContain("What the office keeps for you");
     expect(html).toContain("the right of interment is on the ownership papers");
-    expect(html).toContain("Call and we will read them to you");
-    expect(html).toContain("lot and ownership record is not switched on yet");
+    expect(html).toContain("we’ll read them to you");
+    expect(html).toContain("stay with our property office");
     assertNoParagraphNesting(html, "Your lot");
   });
 });
@@ -189,12 +175,11 @@ describe("Remembering — the memorial's state, and nothing published", () => {
 
   it("says what the service will add, and that nothing can be posted today", async () => {
     const html = await render(MemorialsPage);
-    expect(html).toContain("What your family will be able to add");
     expect(html).toContain("Their story");
     expect(html).toContain("Photographs");
     expect(html).toContain("Messages from family and friends");
     expect(html).toContain("The dates you want to remember");
-    expect(html).toContain("no message can be posted");
+    expect(html).toContain("nothing can be posted");
     expect(html).not.toContain("₱");
     assertNoParagraphNesting(html, "Remembering");
   });
