@@ -322,7 +322,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   Services · Villa Memorial Plan · Villa Memorial Park) in the bar, the flyout
   and the footer. The bar's middle track is `minmax(0, 1fr)` and scrolls the
   chips on narrow desktops (never letting them paint under the brand); phone
-  rules keep the wordmark ellipsis and the 44 px targets. Pinned by
+  rules keep the wordmark ellipsis and the 44 px targets. **The bar's structure
+  is captain-fixed (2026-09-21): five top-level chips — Home · Funeraria
+  Memorial Services · Villa Memorial Plan · Villa Memorial Park · Contact —
+  plus the grouped "Explore more" menu carrying exactly Builder · Facilities ·
+  Gallery · Memorials.** The standalone Lots chip is deliberately gone (lots
+  live inside Villa Memorial Park); the phone bar's third target and its sheet
+  are "Explore more" too. `SITE_NAV_LINKS`/`EXPLORE_MORE_LINKS` in
+  `components/landing/site-header.tsx` are the authority. Pinned by
   `tests/unit/public-nav.test.tsx` + `tests/unit/landing-view.test.tsx`.
 - **Phase 2 — the Plans page (`/plans`) is the second WIRED surface.** Its five
   tiers, per-tier inclusion checklists, the complete memorial package table,
@@ -638,7 +645,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   capacity and no count and says so in one line (`.fac-placeholder`). Do not "fix" it by
   copying `/services`' app-authored `Chapel A`/`120 people` placeholders onto it.
 - It is a reading-budget page (`tests/unit/reading-budget.test.tsx`) and a public-nav
-  page: one `SITE_NAV_LINKS` chip beside Park, the phone quick menu, the footer's
+  page: the grouped "Explore more" menu, the phone quick menu, the footer's
   "Explore" column and `PUBLIC_PAGES`. Render record + shots:
   `docs/08-delivery/facilities-design/README.md`.
 
@@ -648,7 +655,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (gate · pavilion & grounds · chapels/viewing/carriage) plus the ONE entry to the existing
   `/map` (map + full-screen 3D) — the walk-through is linked, never rebuilt, and the line
   beside it says which view is which. The 24/7 number is read from the landing content's
-  `contact` (never typed). Nav: `SITE_NAV_LINKS` + footer/mobile flyout; `PUBLIC_PAGES` in
+  `contact` (never typed). Nav: the grouped "Explore more" menu + footer/mobile flyout; `PUBLIC_PAGES` in
   `lib/seo.ts` (its test fails a public page missing from it).
 - Content and honesty rules live in `lib/gallery.ts`: every photo is client material in
   `public/media`; the sheet's samples keep `CHAPEL_SAMPLE_NOTE` / `SERVICE_SAMPLE_NOTE`
@@ -901,8 +908,8 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   stops the pricing entirely. The panel says outright it is an estimate the office confirms; the
   screen ends on the office — the staff-editable 24/7 number plus the existing `/contact`
   request path (`buildRequestHref`, with the arrangement written into the note).
-- **Nav/SEO**: one short `Builder` chip in `SITE_NAV_LINKS`, the full name in the "Plan ahead"
-  menu and the footer's Care & planning column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
+- **Nav/SEO**: `Builder` in the grouped "Explore more" menu (`EXPLORE_MORE_LINKS`),
+  the footer's Care & planning column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
   (indexable — a selling surface, unlike the memorial pages).
 - Evidence: `tests/unit/service-builder.test.ts` (sheet figures, store-read rates, the senior
   rules, the covered total, the request note), `tests/unit/service-builder-page.test.tsx`

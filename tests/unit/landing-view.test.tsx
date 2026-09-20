@@ -82,30 +82,33 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Funeraria Memorial Services"));
   });
 
-  it("public chrome carries the captain's full page names in the bar and the Plan ahead menu", async () => {
+  it("public chrome keeps the top-level pages and groups the rest under Explore more", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     // Header bar (the ONE public nav — same component on every public page):
-    // the captain's full page names (2026-09-21 review).
+    // the captain's five top-level destinations (2026-09-21 direction).
     const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
     for (const [href, label] of [
       ["/", "Home"],
       ["/services", "Funeraria Memorial Services"],
       ["/plans", "Villa Memorial Plan"],
-      ["/lots", "Lots"],
       ["/map", "Villa Memorial Park"],
       ["/contact", "Contact"],
     ] as const) {
       expect(nav).toContain(`href="${href}">${label}</a>`);
     }
-    // The same full names stay verbatim inside the grouped Plan ahead menu.
-    const menu = nav.slice(nav.indexOf("anchored-header__plan-menu"));
-    expect(menu).toContain("Funeraria Memorial Services");
-    expect(menu).toContain("Villa Memorial Plan");
-    expect(menu).toContain("Villa Memorial Park");
-    // Footer "Explore" column links the same three destinations verbatim.
+    // Lots left the bar (it lives inside Villa Memorial Park) and the four
+    // secondary pages moved into the grouped Explore more menu.
+    const menu = nav.slice(nav.indexOf("anchored-header__explore-menu"));
+    expect(menu).toContain("Builder");
+    expect(menu).toContain("Facilities");
+    expect(menu).toContain("Gallery");
+    expect(menu).toContain("Memorials");
+    expect(nav).not.toContain('href="/lots"');
+    expect(nav.slice(0, nav.indexOf("anchored-header__explore"))).not.toContain('href="/builder"');
+    // Footer "Explore" column keeps the same destinations verbatim.
     expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
     expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');
     expect(html).toContain('<a href="/map">Villa Memorial Park</a>');

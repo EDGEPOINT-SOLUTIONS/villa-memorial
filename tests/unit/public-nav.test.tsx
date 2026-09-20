@@ -1,17 +1,17 @@
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { PLAN_AHEAD_LINKS, SiteHeaderBar } from "@/components/landing/site-header";
+import { EXPLORE_MORE_LINKS, SITE_NAV_LINKS, SiteHeaderBar } from "@/components/landing/site-header";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { listLandingContent } from "@/lib/api-client/landing";
 
 /**
  * The approved public-navigation contract (captain, 2026-09-17 — Lavish review
  * "Public navigation", reference under docs/08-delivery/public-nav-design;
- * updated by the captain's 2026-09-21 review: the bar carries the page's FULL
- * name — Funeraria Memorial Services · Villa Memorial Plan · Villa Memorial
- * Park — with the grouped "Plan ahead" menu keeping the same names and notes):
- * the two-layer bar, the cart icon + count, and the permanent phone action bar.
+ * updated by the captain's 2026-09-21 direction: the bar keeps the five
+ * top-level destinations and the grouped "Explore more" menu holds Builder ·
+ * Facilities · Gallery · Memorials): the two-layer bar, the cart icon + count,
+ * and the permanent phone action bar.
  * Executed through react-dom/server like the rest of the repo's UI tests; the
  * interactive behaviour (scroll compression, disclosure, dialog) is client-only
  * and pinned structurally here.
@@ -36,20 +36,25 @@ describe("the two-layer public bar", () => {
     expect(html).toContain("Immediate assistance");
   });
 
-  it("carries the captain's full page names, marks only the current page and keeps Plan ahead grouped", async () => {
+  it("carries the five top-level pages, marks only the current page and groups the rest under Explore more", async () => {
     const { logo, contact } = await chrome();
     const html = renderToStaticMarkup(
       createElement(SiteHeaderBar, { brand: logo, contact, currentPath: "/plans", cartCount: 2 }),
     );
+    // The captain's 2026-09-21 top-level bar: Home first, the full page names,
+    // plus Contact. Lots is gone (it lives inside Villa Memorial Park).
+    expect(SITE_NAV_LINKS.map((link) => [link.href, link.label])).toEqual([
+      ["/", "Home"],
+      ["/services", "Funeraria Memorial Services"],
+      ["/plans", "Villa Memorial Plan"],
+      ["/map", "Villa Memorial Park"],
+      ["/contact", "Contact"],
+    ]);
     for (const [href, label] of [
       ["/", "Home"],
       ["/services", "Funeraria Memorial Services"],
       ["/plans", "Villa Memorial Plan"],
-      ["/lots", "Lots"],
       ["/map", "Villa Memorial Park"],
-      ["/facilities", "Facilities"],
-      ["/gallery", "Gallery"],
-      ["/memorials", "Memorials"],
       ["/contact", "Contact"],
     ] as const) {
       const aria = href === "/plans" ? ' aria-current="page"' : "";
@@ -58,12 +63,31 @@ describe("the two-layer public bar", () => {
     // Active state stays on the current page only (one aria-current in the bar).
     expect(html).toContain('href="/plans" aria-current="page">Villa Memorial Plan</a>');
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
-    // The grouped menu: disclosure trigger, hidden menu, full names verbatim.
+    // The removed standalone links leave the top-level bar entirely: the bar's
+    // chips before the dropdown are only the five destinations, and the four
+    // secondary pages live inside the Explore more menu.
+    const nav = html.slice(html.indexOf('class="anchored-header__nav"'), html.indexOf("</nav>"));
+    const topLevel = nav.slice(0, nav.indexOf("anchored-header__explore"));
+    expect(topLevel).not.toContain('href="/lots"');
+    expect(topLevel).not.toContain('href="/builder"');
+    expect(topLevel).not.toContain('href="/facilities"');
+    expect(topLevel).not.toContain('href="/gallery"');
+    expect(topLevel).not.toContain('href="/memorials"');
+    // The grouped Explore more menu: disclosure trigger, hidden menu, exact items.
+    expect(EXPLORE_MORE_LINKS.map((item) => [item.href, item.title])).toEqual([
+      ["/builder", "Builder"],
+      ["/facilities", "Facilities"],
+      ["/gallery", "Gallery"],
+      ["/memorials", "Memorials"],
+    ]);
+    expect(html).toContain("Explore more");
+    expect(html).not.toContain("Plan ahead");
     expect(html).toContain('aria-haspopup="true"');
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain('role="menu"');
-    for (const item of PLAN_AHEAD_LINKS) {
+    for (const item of EXPLORE_MORE_LINKS) {
       expect(html).toContain(item.title);
+      expect(html).toContain(item.note);
     }
   });
 
@@ -90,7 +114,7 @@ describe("the two-layer public bar", () => {
 });
 
 describe("the phone action bar", () => {
-  it("renders Call 24/7, Get help and Plan ahead as its three big targets, dialog closed", async () => {
+  it("renders Call 24/7, Get help and Explore more as its three big targets, dialog closed", async () => {
     const { contact } = await chrome();
     const html = renderToStaticMarkup(createElement(PhoneActionBar, { contact }));
     expect(html).toContain('class="anchored-phonebar"');
@@ -99,7 +123,8 @@ describe("the phone action bar", () => {
     expect(html).toContain("Get help");
     // F-01: the bottom bar is the phone's one-tap door to the assistance page.
     expect(html).toContain('anchored-phonebar__btn--help" href="/immediate-assistance"');
-    expect(html).toContain("Plan ahead");
+    expect(html).toContain("Explore more");
+    expect(html).not.toContain("Plan ahead");
     expect(html).toContain('aria-haspopup="dialog"');
     expect(html).toContain('aria-expanded="false"');
     // The sheet is not in the DOM until the target is used.

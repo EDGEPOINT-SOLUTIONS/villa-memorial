@@ -126,7 +126,7 @@ describe("bands are separated by rules and space, not by a shadow on every box",
   it("keeps elevation only where something actually floats", () => {
     // The shared kit's card, the sticky rail panel, the header's dropdown and
     // the fixed phone bar are elevation; a band of content is not.
-    for (const keep of [".card {", ".rail-panel {", ".anchored-header__plan-menu {"]) {
+    for (const keep of [".card {", ".rail-panel {", ".anchored-header__explore-menu {"]) {
       expect(cssRules, keep).toContain(keep);
     }
     // Every rule that still paints --shadow-card-rest belongs to a floating

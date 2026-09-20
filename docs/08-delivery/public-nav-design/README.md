@@ -81,14 +81,14 @@ number `navy-950` on the sky-200→sky-400 gradient **13.12 → 8.18:1**; call l
 
 | File | What it does |
 |---|---|
-| `components/landing/site-header.tsx` | The one bar, two rows: utility row (location · hours + call button), main row (brand · short links · grouped `Plan ahead` · Sign in · cart icon + count), skip link. `SITE_NAV_LINKS` is the approved short list; `PLAN_AHEAD_LINKS` carries the full names. Stays framework-free (plain `<a>`/`<button>`, no router) for the node tests and the staff editor. |
-| `components/landing/header-behavior.tsx` | Client-only, renders nothing: scroll compression (after 24 px, never hides) + the Plan ahead disclosure (click, Escape, outside click). |
-| `components/landing/phone-action-bar.tsx` | Client-only: the permanent phone bar (`Call 24/7` + `Plan ahead`) and the `role="dialog"` sheet with the full names; Escape/backdrop close, focus returns to the trigger. |
+| `components/landing/site-header.tsx` | The one bar, two rows: utility row (location · hours + call button), main row (brand · top-level links · grouped `Explore more` · Sign in · cart icon + count), skip link. `SITE_NAV_LINKS` is the approved top-level list; `EXPLORE_MORE_LINKS` carries the four secondary pages. Stays framework-free (plain `<a>`/`<button>`, no router) for the node tests and the staff editor. |
+| `components/landing/header-behavior.tsx` | Client-only, renders nothing: scroll compression (after 24 px, never hides) + the Explore more disclosure (click, Escape, outside click). |
+| `components/landing/phone-action-bar.tsx` | Client-only: the permanent phone bar (`Call 24/7` + `Get help` + `Explore more`) and the `role="dialog"` sheet with the four pages; Escape/backdrop close, focus returns to the trigger. |
 | `components/ui/public-shell.tsx` | Mounts the phone bar on every `(public)` page, adds `id="main"` for the skip link, wraps the page as `has-phonebar` so the fixed bar never covers content. |
 | `components/landing/landing-view.tsx` | The home renders the same bar + phone bar, `id="main"` and `has-phonebar` — the nav is identical on the home and the interior pages. |
-| `styles/components.css` | The two-layer `anchored-header` block (utility row, call button, compressed state, grouped menu, cart badge, active underline), the `anchored-phonebar` + `anchored-plan-sheet`, the skip link, and `--anchored-header-h` — the one height every sticky surface under the bar reads (home rails, `/services` in-page nav, anchor offsets). |
-| `tests/unit/public-nav.test.tsx` | Pins the approved bar: utility row with the client's real number/location, short labels + `aria-current` on the current page only, full names inside Plan ahead, cart icon + count, skip link first, the phone bar's two targets. |
-| `tests/unit/landing-view.test.tsx` | The home's chrome test now asserts the approved short labels and the full names inside the Plan ahead menu (footer unchanged). |
+| `styles/components.css` | The two-layer `anchored-header` block (utility row, call button, compressed state, grouped menu, cart badge, active underline), the `anchored-phonebar` + `anchored-explore-sheet`, the skip link, and `--anchored-header-h` — the one height every sticky surface under the bar reads (home rails, `/services` in-page nav, anchor offsets). |
+| `tests/unit/public-nav.test.tsx` | Pins the approved bar: utility row with the client's real number/location, the five top-level labels + `aria-current` on the current page only, the exact Explore more items, cart icon + count, skip link first, the phone bar's three targets. |
+| `tests/unit/landing-view.test.tsx` | The home's chrome test now asserts the top-level labels and the grouped Explore more menu (footer unchanged). |
 
 **Nothing else moved:** page content, prices, products, the map (both modes), the cart and the
 quick menu are untouched; the navigation is the only diff. On phones the call button moves from the
@@ -110,6 +110,28 @@ home page's assistance card. Two render sites changed, both additions rather tha
 
 Everything else in this contract stands. Evidence: `tests/unit/public-nav.test.tsx`,
 `tests/unit/landing-view.test.tsx`, `docs/08-delivery/immediate-assistance-design/`.
+
+### Addendum 2026-09-21 — the bar becomes five chips + "Explore more"
+
+The captain's direction (verbatim): *"in the navigation bar, remove the lot because that
+is already in the Villa Memorial Park and also remove the plan ahead drop down instead put
+a new dropdown in navigation page called 'Explore more' the idea is put all of this pages:
+Builder, Facilities, Gallery, Memorials."* This changes D1's label sets, not the bar's
+grammar:
+
+- **Top-level chips are exactly five:** Home · Funeraria Memorial Services · Villa Memorial
+  Plan · Villa Memorial Park · Contact (`SITE_NAV_LINKS`). The standalone **Lots** chip is
+  removed (the park page owns lots), and Builder/Facilities/Gallery/Memorials leave the bar.
+- **The dropdown is "Explore more"** (`EXPLORE_MORE_LINKS`) carrying exactly **Builder ·
+  Facilities · Gallery · Memorials**. The old "Plan ahead" menu (which also carried Senior
+  benefits) is retired; `/plans` keeps its own Senior benefits link.
+- The phone bar's third target and its sheet become **Explore more** as well; the quick-menu
+  flyout drops its standalone Lots link too. The desktop chips, phone targets and layout are
+  otherwise untouched (one `anchored-*` class set, renamed `explore` for the dropdown and
+  sheet so the code does not lie about what it is).
+
+Everything else in this contract stands. Evidence: `tests/unit/public-nav.test.tsx`,
+`tests/unit/landing-view.test.tsx`, `tests/unit/facilities-page.test.tsx`.
 
 ## 5. Review record
 
@@ -135,5 +157,5 @@ docs/08-delivery/public-nav-design/
 ```
 
 The production implementation supersedes `nav.css`/`nav-core.js`: the live rules are the
-`anchored-header` / `anchored-phonebar` / `anchored-plan-sheet` blocks in `styles/components.css`,
+`anchored-header` / `anchored-phonebar` / `anchored-explore-sheet` blocks in `styles/components.css`,
 and the live components are the `components/landing/*` files in §4.

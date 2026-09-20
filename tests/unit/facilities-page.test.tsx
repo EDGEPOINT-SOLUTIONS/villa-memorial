@@ -238,8 +238,19 @@ describe("/facilities is reachable from the public chrome and stays one page", (
     for (const html of chrome) {
       expect(html).toContain('href="/facilities"');
     }
-    // The active chip is marked for screen readers, not by colour alone.
-    expect(chrome[0]).toContain('href="/facilities" aria-current="page">Facilities</a>');
+    // Facilities now lives in the grouped "Explore more" menu, so it is still
+    // linked from the public bar (the footer keeps its own entry); the
+    // top-level chips no longer carry it.
+    const nav = chrome[0].slice(
+      chrome[0].indexOf('class="anchored-header__nav"'),
+      chrome[0].indexOf("</nav>"),
+    );
+    const topLevel = nav.slice(0, nav.indexOf("anchored-header__explore"));
+    expect(topLevel).not.toContain('href="/facilities"');
+    expect(chrome[0]).toContain('class="anchored-header__explore-menu"');
+    expect(chrome[0]).toContain('href="/facilities" aria-current="page"><strong>Facilities</strong>');
+    // The trigger is marked current while a grouped page is open.
+    expect(chrome[0]).toContain('data-anchored-explore-trigger="true" aria-current="true"');
   });
 
   it("renders one h1 and keeps every visual decision in tokens", async () => {

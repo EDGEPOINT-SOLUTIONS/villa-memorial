@@ -8,7 +8,7 @@ import { useEffect } from "react";
  *  · scroll life (D5): after ~24 px the bar takes its compressed state
  *    (shorter main row, more opaque background, soft shadow). It never
  *    auto-hides, so the 24/7 number is always one tap away.
- *  · "Plan ahead" disclosure (D1): click toggles the grouped menu;
+ *  · "Explore more" disclosure (D1): click toggles the grouped menu;
  *    Escape and an outside click close it and focus returns to the trigger.
  *
  * The bar's markup must stay framework-free (the home renders it through
@@ -26,8 +26,8 @@ export function HeaderBehavior() {
     applyCompressed();
     window.addEventListener("scroll", applyCompressed, { passive: true });
 
-    const trigger = header.querySelector<HTMLButtonElement>("[data-anchored-plan-trigger]");
-    const menu = header.querySelector<HTMLElement>("[data-anchored-plan-menu]");
+    const trigger = header.querySelector<HTMLButtonElement>("[data-anchored-explore-trigger]");
+    const menu = header.querySelector<HTMLElement>("[data-anchored-explore-menu]");
     if (!trigger || !menu) {
       return () => window.removeEventListener("scroll", applyCompressed);
     }

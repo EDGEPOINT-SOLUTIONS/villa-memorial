@@ -19,7 +19,7 @@ provide. If the platform team builds their own, this is the reference they were 
 
 **Entry-point decision.** The operator entry point is `/platform/sign-in`; an operator
 bookmarks it. Nothing in the product links it: no public header/footer (`SITE_NAV_LINKS`,
-`PLAN_AHEAD_LINKS`), no staff sidebar (`STAFF_NAV`), no family/agent portal nav, no
+`EXPLORE_MORE_LINKS`), no staff sidebar (`STAFF_NAV`), no family/agent portal nav, no
 sitemap entry. `tests/unit/platform-screens.test.tsx` fails any product menu that grows a
 `/platform/` link, `app/robots.ts` disallows the prefix, and the surface sets `noindex`
 in its own head (`PLATFORM_SURFACE_ROBOTS`). Because no platform session exists in this
