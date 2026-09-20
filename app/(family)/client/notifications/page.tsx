@@ -1,13 +1,15 @@
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 import { PlannedAnswer } from "@/components/family/family-ui";
 
 export const metadata = { title: "What we tell you about — Villa Memorial" };
 
 /**
- * Notifications — the approved redesign (docs/08-delivery/family-portal-design).
- * The notification service is not switched on, so nothing is listed: the page
- * says plainly that nothing was sent, and describes what will reach the family.
- * No placeholder notices dressed up as real messages.
+ * Notifications — compressed to the family reading budget (2026-09-21). The
+ * honest state leads in one line; what will reach the family sits behind the
+ * ONE shared `WhatThisShows` disclosure. The notification service is not
+ * switched on, so nothing is listed — no placeholder notices dressed up as real
+ * messages.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -15,9 +17,8 @@ export default async function Page() {
   return (
     <PlannedAnswer
       kicker="What we tell you about"
-      headline="Nothing has been sent to your family yet. This page is not switched on."
-      sub="When it is, every message we send — a schedule change, a paper ready, a payment reminder — will be listed here, and you will choose which kinds reach you."
-      plannedTitle="What we will tell you about"
+      headline="Nothing has been sent to your family yet."
+      sub="When it is, every message will be listed here."
       planned={[
         {
           label: "Schedule changes and reminders",
@@ -37,10 +38,10 @@ export default async function Page() {
         },
         {
           label: "Remembrance dates",
-          detail: "Birthday, anniversary and All Souls’ — you can switch any of them off",
+          detail: "Birthday, anniversary and All Souls’ — you can switch any off",
         },
       ]}
-      note="The notification service is not switched on yet, so nothing on this page was really sent. We never send marketing or promotions to a family in an active arrangement — that is a promise, not a setting."
+      note={`The service isn’t switched on, so nothing was really sent. We never send marketing to a family in an arrangement. Call ${FAMILY_HELP.phone} with any question.`}
     />
   );
 }

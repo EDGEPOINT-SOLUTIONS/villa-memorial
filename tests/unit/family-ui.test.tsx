@@ -182,18 +182,17 @@ describe("a page whose service is not switched on", () => {
       kicker="The funeral"
       headline="Ernesto’s funeral plan is kept by our office."
       sub="The records are not connected to this page yet."
-      plannedTitle="What will be here"
       planned={[{ label: "The viewing", detail: "Where to go and the hours" }]}
       note="The arrangement records service is not switched on yet."
     />
   );
 
-  it("renders one answer, the planned rows and one calm note", () => {
+  it("renders one answer, the planned rows and the shared gap disclosure", () => {
     const html = render(page);
     expect(html.match(/<h1/g)).toHaveLength(1);
     expect(html).toContain("The viewing");
-    expect(html).toContain("What will be here");
-    expect(html).toContain("About this page.");
+    expect(html).toContain("What this page can’t show yet");
+    expect(html).not.toContain("About this page.");
     expect(html).toContain("0917 617 8489");
     assertNoParagraphNesting(html, "PlannedAnswer");
   });
@@ -202,8 +201,8 @@ describe("a page whose service is not switched on", () => {
     const html = render(page);
     expect(html).not.toContain("fp-");
     expect(html).toContain('class="ag-hero"');
-    expect(html).toContain('class="ag-sec"');
-    expect(html).toContain('class="ag-card"');
+    expect(html).toContain('class="fv-gap"');
+    assertNoParagraphNesting(html, "PlannedAnswer grammar");
   });
 });
 

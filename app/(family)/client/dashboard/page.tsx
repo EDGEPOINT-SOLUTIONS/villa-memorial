@@ -1,9 +1,9 @@
-import { CreditCard, FileText, MessageCircle, Phone, Sparkles } from "lucide-react";
+import { CreditCard, FileText, Phone, Sparkles } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyDocumentView, paidPercent, percentWords } from "@/lib/family/family-view";
-import { isOwnedPaper, ownedPaperNote } from "@/lib/family/family-documents";
+import { isOwnedPaper } from "@/lib/family/family-documents";
 import {
   Answer,
   Chain,
@@ -14,8 +14,9 @@ import {
   Row,
   Rows,
   Section,
+  WhatThisShows,
 } from "@/components/family/family-ui";
-import { PortalCard, PortalChip, PortalFigure, PortalFigures } from "@/components/portal/portal-ui";
+import { PortalChip, PortalFigure, PortalFigures } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Home — Villa Memorial" };
 
@@ -30,14 +31,14 @@ function today(): string {
 
 /**
  * Home — the customer dashboard (PRD screen-inventory “Customer Dashboard”),
- * on the shared portal kit (docs/08-delivery/agent-portal-design is the house
- * style; the family's own facts, words and honest states are unchanged).
+ * compressed to the family reading budget (2026-09-21): ONE sentence answers
+ * the page, the essentials are rows, and everything the records cannot show yet
+ * sits behind the ONE shared `WhatThisShows` disclosure.
  *
- * ONE dominant answer, one primary action, then the quiet detail: what needs
- * you now, where we are, money and papers. Real today: the loved one's name,
- * the plan, the balance and the papers the snapshot records. The funeral
- * schedule, the case progress and the memorial are not wired — each says so in
- * one calm line instead of inventing detail.
+ * Real today: the loved one's name, the plan, the balance and the papers the
+ * snapshot records. The funeral schedule, the case progress and the memorial
+ * are not wired — the disclosure says so in one line instead of inventing
+ * detail.
  */
 export default async function ClientDashboardPage() {
   await requirePortalSessionOrRedirect("family");
@@ -51,7 +52,7 @@ export default async function ClientDashboardPage() {
         <Answer
           kicker="Home"
           headline="We cannot open your family’s summary just now."
-          sub="Nothing is wrong with your account or your plan — this page could not read the record. Try again in a moment, or call us and we will read it to you."
+          sub="Nothing is wrong with your plan. Try again, or call us."
           actions={
             <QuietLink
               href={FAMILY_HELP.phoneHref}
@@ -61,10 +62,7 @@ export default async function ClientDashboardPage() {
           }
         />
         <Note>
-          <p>
-            <strong>What to do.</strong> Call {FAMILY_HELP.phone} — {FAMILY_HELP.hours}. You can
-            also pull the page down to try again.
-          </p>
+          <p>Call {FAMILY_HELP.phone} — {FAMILY_HELP.hours} — and we will read it to you.</p>
         </Note>
       </>
     );
@@ -97,19 +95,11 @@ export default async function ClientDashboardPage() {
             ? `${balance.remaining} is still to pay on ${firstName}’s plan.`
             : "Nothing needs you today."
         }
-        sub={
-          hasBalance
-            ? `That is what is left of ${balance.total}. The office’s next date for your family is ${plan_summary.next_due}. Nothing else needs you today.`
-            : `${firstName}’s plan is fully paid and every paper is with your family. We will only put something here when it truly needs you.`
-        }
+        sub={hasBalance ? `The next date is ${plan_summary.next_due}.` : `${firstName}’s plan is fully paid.`}
         chips={
           <>
             <PortalChip>{plan_summary.plan_name}</PortalChip>
-            <PortalChip>Next date: {plan_summary.next_due}</PortalChip>
-            <PortalChip>
-              {documents.length === 1 ? "One paper" : `${countWord(documents.length)} papers`} with
-              your family
-            </PortalChip>
+            <PortalChip>{hasBalance ? `Next date: ${plan_summary.next_due}` : "Paid in full"}</PortalChip>
           </>
         }
         actions={
@@ -135,15 +125,7 @@ export default async function ClientDashboardPage() {
         }
       />
 
-      <Section
-        title="What needs you now"
-        sub="One thing per row. Anything that is not here is ours to carry, not yours."
-        more={
-          <a className="ag-sec__more" href="#money">
-            Money and papers ↓
-          </a>
-        }
-      >
+      <Section title="What needs you now" sub="One thing per row.">
         <Rows>
           {hasBalance ? (
             <Row
@@ -176,27 +158,17 @@ export default async function ClientDashboardPage() {
             <Row
               icon={<Sparkles size={22} aria-hidden="true" />}
               title="Nothing needs you today"
-              meta="Your plan is paid and your papers are in order. We will put something here the moment it truly needs you."
+              meta="Your plan is paid and your papers are in order."
               state="All clear"
             />
           ) : null}
         </Rows>
       </Section>
 
-      <Section title="Where we are" sub="Five steps, start to finish. Nothing to work out.">
-        <PortalCard>
-          <Chain />
-          <p className="ag-note">
-            We will mark where your family is as soon as the arrangement records are connected
-            here. Until then, call us and we will tell you exactly where things stand.
-          </p>
-        </PortalCard>
-      </Section>
-
       <Section
         id="money"
         title="Money and papers"
-        sub="What is left to pay, and the papers your family already holds."
+        sub="Your plan and the papers your family holds."
         more={<a className="ag-sec__more" href="/client/documents">See all your papers →</a>}
       >
         <PortalFigures>
@@ -222,54 +194,12 @@ export default async function ClientDashboardPage() {
             note="With your family today"
           />
         </PortalFigures>
-
-        <Rows>
-          {documents.map(({ record, owned, view: doc }) => (
-            <Row
-              key={doc.title}
-              icon={<FileText size={22} aria-hidden="true" />}
-              title={doc.title}
-              meta={owned ? ownedPaperNote(record) : doc.note}
-              state={owned ? "Yours" : doc.status}
-              wait={!owned && (doc.tone === "warning" || doc.tone === "danger")}
-              action={
-                owned ? (
-                  <QuietAction href="/client/documents" label="See it in your papers" />
-                ) : (
-                  <QuietAction href={FAMILY_HELP.phoneHref} label="Ask for a copy" />
-                )
-              }
-            />
-          ))}
-        </Rows>
       </Section>
 
-      <Section
-        title="What happens next"
-        sub="The chapel times, the funeral and the burial — kept by our office."
-      >
-        <PortalCard>
-          <p className="ag-note">
-            They are not shown here yet. Call us and we will tell you exactly what is arranged for
-            your family, and this page will show it by itself once the records are switched on.
-          </p>
-          <p>
-            <QuietLink
-              href={FAMILY_HELP.phoneHref}
-              label={`Call ${FAMILY_HELP.phone}`}
-              icon={<MessageCircle size={20} aria-hidden="true" />}
-            />
-          </p>
-        </PortalCard>
-      </Section>
-
-      <Note>
-        <p>
-          <strong>About this page.</strong> Your plan, your balance and your papers come from our
-          office’s own records. The funeral times and the memorial are being connected — until
-          then, call us for anything at all.
-        </p>
-      </Note>
+      <WhatThisShows extra={<div style={{ marginTop: "var(--space-4)" }}><Chain /></div>}>
+        The funeral times and the memorial aren’t connected yet. Call {FAMILY_HELP.phone} and we’ll tell
+        you.
+      </WhatThisShows>
     </>
   );
 }

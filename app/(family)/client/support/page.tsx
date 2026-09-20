@@ -17,7 +17,7 @@ export const metadata = { title: "Help — Villa Memorial" };
  * Help — the family's “Support/Ticket” screen (PRD screen-inventory), on the
  * shared portal kit. This page is real today: the client's own numbers and
  * places, with the biggest button in the portal on the one action that always
- * works.
+ * works. Compressed to the family reading budget (2026-09-21).
  */
 export default async function ClientSupportPage() {
   await requirePortalSessionOrRedirect("family");
@@ -27,7 +27,7 @@ export default async function ClientSupportPage() {
       <Answer
         kicker="Help"
         headline="Call us. Someone is here every day from 7 in the morning to 9 at night."
-        sub="Arrangements, payments, papers, or just a question — the office line is answered every day. If nobody picks up, leave your name and number and we will call you back."
+        sub="Arrangements, payments, papers, or a question — answered every day."
         actions={
           <>
             <CallAction label={`Call ${FAMILY_HELP.phone}`} />
@@ -81,10 +81,7 @@ export default async function ClientSupportPage() {
         </p>
       </Section>
 
-      <Section
-        title="Something we did wrong?"
-        sub="Tell us. Call and ask for the manager — we would rather hear it from you than not at all."
-      >
+      <Section title="Something we did wrong?" sub="Call and ask for the manager.">
         <QuietLink
           href={FAMILY_HELP.phoneHref}
           label="Call the office"

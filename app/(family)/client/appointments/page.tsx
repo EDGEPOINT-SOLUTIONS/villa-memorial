@@ -7,13 +7,13 @@ import {
   Answer,
   AppointmentCard,
   CallAction,
-  Note,
   QuietAction,
   QuietLink,
   Row,
   Rows,
   Section,
   Steps,
+  WhatThisShows,
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
@@ -21,8 +21,9 @@ export const metadata = { title: "Ask for a visit — Villa Memorial" };
 
 /**
  * Ask for a visit — the family's “My Appointments” screen (PRD screen-inventory;
- * facilities-scheduling.md » Appointment & scheduling engine), on the shared
- * portal kit.
+ * facilities-scheduling.md » Appointment & scheduling engine), compressed to the
+ * family reading budget (2026-09-21): one-sentence hero, the family's own times,
+ * and “how a time gets set” behind the ONE shared `WhatThisShows` disclosure.
  *
  * Real today: the office's own record of the family's times — what is confirmed,
  * what still waits for a person to confirm it, and what has happened. Scheduling
@@ -46,8 +47,8 @@ export default async function Page() {
     <>
       <Answer
         kicker="Ask for a visit"
-        headline="We can come to you, or you can come to us. Call and we will set a time."
-        sub="This is the office’s own record of the times your family has with us. A time is only real when a person from our office has confirmed it, and each card says plainly whether that has happened. To set a new one, call us: we will agree a day and write it down."
+        headline="We can come to you. Call and we will set a day."
+        sub="A time is real only when our office confirms it."
         chips={
           <>
             {arranged.length > 0 ? (
@@ -68,16 +69,16 @@ export default async function Page() {
         actions={
           <>
             <CallAction label={`Call ${FAMILY_HELP.phone}`} />
-            <QuietLink href="#times" label="See your times" icon={<CalendarCheck size={20} aria-hidden="true" />} />
+            <QuietLink
+              href="#times"
+              label="See your times"
+              icon={<CalendarCheck size={20} aria-hidden="true" />}
+            />
           </>
         }
       />
 
-      <Section
-        id="times"
-        title="What is arranged"
-        sub="A time is real only once our office confirms it. Every confirmed time is here, with where to be."
-      >
+      <Section id="times" title="What is arranged" sub="A confirmed time, with where to be.">
         {arranged.length > 0 ? (
           <div className="ag-agenda">
             {arranged.map((appointment) => (
@@ -86,7 +87,7 @@ export default async function Page() {
           </div>
         ) : (
           <p className="ag-sub">
-            Nothing is confirmed at the moment. Call us and we will agree a day and write it down.
+            Nothing is confirmed at the moment. Call us and we will agree a day.
           </p>
         )}
       </Section>
@@ -94,7 +95,7 @@ export default async function Page() {
       {waiting.length > 0 ? (
         <Section
           title="Waiting for the office"
-          sub="These are not agreed yet, so please do not travel for them. One call settles the day."
+          sub="Not agreed yet — please do not travel for these."
         >
           <div className="ag-agenda">
             {waiting.map((appointment) => (
@@ -105,10 +106,7 @@ export default async function Page() {
       ) : null}
 
       {past.length > 0 ? (
-        <Section
-          title="What you asked about before"
-          sub="The times behind you, and what was discussed — so you keep the thread."
-        >
+        <Section title="What you asked about before" sub="The times behind you.">
           <div className="ag-agenda">
             {past.map((appointment) => (
               <AppointmentCard key={appointment.id} appointment={appointment} />
@@ -117,53 +115,45 @@ export default async function Page() {
         </Section>
       ) : null}
 
-      <Section
-        id="how"
-        title="How a time gets set"
-        sub="Three steps, and only the first one is yours."
+      <WhatThisShows
+        extra={
+          <>
+            <Steps
+              steps={[
+                {
+                  title: "Call us",
+                  detail: `Any day, ${FAMILY_HELP.hours} — tell us what you would like to talk about.`,
+                },
+                {
+                  title: "We agree the day with you",
+                  detail: "We check who is free and propose a time that suits your family.",
+                },
+                {
+                  title: "We write it down and confirm it",
+                  detail: "It appears here as confirmed, and we call if anything changes.",
+                },
+              ]}
+            />
+            <Rows>
+              <Row
+                icon={<Phone size={22} aria-hidden="true" />}
+                title="The office line"
+                meta={`${FAMILY_HELP.phone} · ${FAMILY_HELP.hours}`}
+                action={<QuietAction href={FAMILY_HELP.phoneHref} label="Call to set a day" />}
+              />
+              <Row
+                icon={<MapPin size={22} aria-hidden="true" />}
+                title="Where we can meet"
+                meta="Your home, the office in Sunrise, or the park at Begang."
+                action={<QuietLink href="/map" label="Open the park map" />}
+              />
+            </Rows>
+          </>
+        }
       >
-        <Steps
-          steps={[
-            {
-              title: "Call us",
-              detail: `Any day, ${FAMILY_HELP.hours} — tell us what you would like to talk about and where you would like to meet.`,
-            },
-            {
-              title: "We agree the day with you",
-              detail: "We look at who is free, check the park or the office, and propose a time that suits your family.",
-            },
-            {
-              title: "We write it down and confirm it",
-              detail: "It appears on this page as confirmed, and we call you if anything at all has to change.",
-            },
-          ]}
-        />
-        <Rows>
-          <Row
-            icon={<Phone size={22} aria-hidden="true" />}
-            title="The office line"
-            meta={`${FAMILY_HELP.phone} · ${FAMILY_HELP.hours}`}
-            action={<QuietAction href={FAMILY_HELP.phoneHref} label="Call to set a day" />}
-          />
-          <Row
-            icon={<MapPin size={22} aria-hidden="true" />}
-            title="Where we can meet"
-            meta={`Your home, the office in Sunrise, or the park at Begang — whichever is easiest for you.`}
-          />
-        </Rows>
-        <p>
-          <QuietLink href="/map" label="Open the park map" />
-        </p>
-      </Section>
-
-      <Note>
-        <p>
-          <strong>About this page.</strong> These times come from our office’s own record, and the
-          scheduling service is not connected to this page yet — so nothing here books, moves or
-          cancels by itself. A time is only real when a person has confirmed it: call{" "}
-          {FAMILY_HELP.phone} and we will agree it, write it down and read it back to you.
-        </p>
-      </Note>
+        The scheduling service isn’t connected yet, so nothing here books or moves a time. Call{" "}
+        {FAMILY_HELP.phone}.
+      </WhatThisShows>
     </>
   );
 }

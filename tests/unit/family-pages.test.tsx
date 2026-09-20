@@ -54,15 +54,15 @@ const { default: FamilyDashboardPage } = await import("@/app/(family)/client/fam
 const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "Home", Page: HomePage, headline: "is still to pay" },
   { name: "The funeral", Page: FuneralPage, headline: "funeral plan is kept by our office" },
-  { name: "Payments", Page: PaymentsPage, headline: "is still to pay on your family" },
+  { name: "Payments", Page: PaymentsPage, headline: "Here’s how to pay" },
   { name: "Papers", Page: PapersPage, headline: "papers are ready" },
   { name: "Remembering", Page: RememberingPage, headline: "is published anywhere" },
   { name: "Help", Page: HelpPage, headline: "Call us." },
   { name: "Your details", Page: DetailsPage, headline: "details are correct" },
   { name: "Your plan", Page: PlanPage, headline: "is active" },
-  { name: "Your lot", Page: LotPage, headline: "lot records are kept by our office" },
-  { name: "Ask for a visit", Page: VisitPage, headline: "we will set a time" },
-  { name: "Requests", Page: RequestsPage, headline: "Ask us for anything" },
+  { name: "Your lot", Page: LotPage, headline: "is your family’s place at the park" },
+  { name: "Ask for a visit", Page: VisitPage, headline: "we will set a day" },
+  { name: "Requests", Page: RequestsPage, headline: "with us right now" },
   { name: "What we tell you about", Page: NoticesPage, headline: "Nothing has been sent" },
   { name: "Privacy Center", Page: PrivacyPage, headline: "shared unless you say so" },
   { name: "Your family", Page: FamilyDashboardPage, headline: "everything your family holds" },
@@ -86,13 +86,20 @@ describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline
     const primary = html.indexOf('class="btn btn--primary');
     const firstSection = html.indexOf('class="ag-sec');
     expect(primary, `${name} needs a primary action`).toBeGreaterThan(-1);
-    expect(primary, `${name}'s action must lead, not trail`).toBeLessThan(firstSection);
+    if (firstSection > -1) {
+      expect(primary, `${name}'s action must lead, not trail`).toBeLessThan(firstSection);
+    }
   });
 
   it("uses the shared portal grammar for its sections", async () => {
     const html = await render(Page);
-    expect(html, `${name} must use the shared section grammar`).toContain('class="ag-sec"');
-    expect(html).toContain('class="ag-h2"');
+    // Every page keeps the shared hero; a page with no supporting content ends
+    // at the one shared gap disclosure instead of inventing a section.
+    expect(html, `${name} must use the shared hero`).toContain('class="ag-hero"');
+    expect(
+      html.includes('class="ag-sec"') || html.includes('class="fv-gap"'),
+      `${name} must use the shared section grammar or the shared gap disclosure`,
+    ).toBe(true);
   });
 
   it("keeps the office number one tap away", async () => {
@@ -131,9 +138,10 @@ describe("the pages that end in a calm honesty note", () => {
     ].includes(page.name),
   );
 
-  it.each(PLANNED)("$name says so in one calm note", async ({ Page }) => {
+  it.each(PLANNED)("$name says so in the one shared gap disclosure", async ({ Page }) => {
     const html = await render(Page);
-    expect(html).toContain("About this page.");
+    expect(html).toContain("What this page can’t show yet");
+    expect(html).not.toContain("About this page");
     expect(html).not.toContain("alert");
   });
 });

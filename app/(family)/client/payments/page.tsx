@@ -5,7 +5,6 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
 import {
   Answer,
-  Note,
   PaidSoFar,
   PrimaryAction,
   QuietAction,
@@ -13,16 +12,22 @@ import {
   Row,
   Rows,
   Section,
+  WhatThisShows,
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Payments — Villa Memorial" };
 
 /**
- * Payments — the family's “My Payments” screen (PRD screen-inventory), on the
- * shared portal kit. Real today: the balance and the three ways a family can
- * pay. The payment history is not wired, and says so in one calm note — never
- * an empty table that reads as if the family had never paid.
+ * Payments — the family's “My Payments” screen (PRD screen-inventory),
+ * compressed to the family reading budget (2026-09-21): the figure leads, the
+ * three ways are rows, and the history sits behind the ONE shared
+ * `WhatThisShows` disclosure. The duplicate “official receipts” section is gone
+ * (receipts live on Papers, linked here).
+ *
+ * Real today: the balance and the three ways a family can pay. The payment
+ * history is not wired, and the disclosure says so in one line — never an empty
+ * table that reads as if the family had never paid.
  */
 export default async function ClientPaymentsPage() {
   await requirePortalSessionOrRedirect("family");
@@ -41,13 +46,13 @@ export default async function ClientPaymentsPage() {
         kicker="Payments"
         headline={
           hasBalance
-            ? `${balance.remaining} is still to pay on your family’s plan.`
+            ? `${balance.remaining} is still to pay. Here’s how to pay.`
             : "Your plan is fully paid. Nothing is due."
         }
         sub={
           hasBalance
-            ? `That is what is left of ${balance.total} — you have already paid ${balance.paid}. The next date in your agreement is ${plan_summary.next_due}.`
-            : `${balance.total} of ${balance.total} · thank you. We will tell you if anything changes.`
+            ? `You have paid ${balance.paid} of ${balance.total}.`
+            : `${balance.total} of ${balance.total} · thank you.`
         }
         chips={
           <>
@@ -60,7 +65,7 @@ export default async function ClientPaymentsPage() {
             <PrimaryAction href="#ways" label="See how to pay" />
             <QuietLink
               href={FAMILY_HELP.phoneHref}
-              label="Talk to us first — nothing bad happens"
+              label="Talk to us first"
               icon={<MessageCircle size={20} aria-hidden="true" />}
             />
           </>
@@ -77,20 +82,20 @@ export default async function ClientPaymentsPage() {
       <Section
         id="ways"
         title="Three ways to pay"
-        sub="Every payment gets an official receipt. Pick whichever is easiest for your family."
+        sub="Every payment gets an official receipt."
       >
         <Rows>
           <Row
             icon={<Phone size={22} aria-hidden="true" />}
             title="GCash or Maya"
-            meta="Call us while you send it, and we will confirm the number and your reference"
+            meta="Call us while you send it; we confirm the number and your reference"
             state="Easiest"
             action={<QuietAction href={FAMILY_HELP.phoneHref} label="Call to pay" />}
           />
           <Row
             icon={<Banknote size={22} aria-hidden="true" />}
             title="Bank transfer"
-            meta="Ask us for the account details, then send us a photo of the deposit slip"
+            meta="Ask us for the account, then send a photo of the deposit slip"
             action={
               <QuietAction href={FAMILY_HELP.phoneHref} label="Ask for the details" />
             }
@@ -99,14 +104,21 @@ export default async function ClientPaymentsPage() {
             icon={<Store size={22} aria-hidden="true" />}
             title="At the office"
             meta={`${FAMILY_HELP.office} · cash, card or cheque`}
-            action={<QuietAction href={FAMILY_HELP.phoneHref} label="Arrange a collection" />}
+            action={<QuietAction href={FAMILY_HELP.phoneHref} label="Arrange a time" />}
           />
         </Rows>
+        <p>
+          <QuietLink
+            href="/client/documents"
+            label="See your official receipts"
+            icon={<FileText size={20} aria-hidden="true" />}
+          />
+        </p>
       </Section>
 
       <Section
         title="If money is tight"
-        sub="Tell us before a payment is missed and we will agree a new schedule with you, in writing. Nothing is lost just because a date passes."
+        sub="Tell us before a date passes and we will agree a new schedule."
       >
         <QuietLink
           href={FAMILY_HELP.phoneHref}
@@ -115,24 +127,10 @@ export default async function ClientPaymentsPage() {
         />
       </Section>
 
-      <Note>
-        <p>
-          <strong>Your payment history is not on this page yet.</strong> Every payment gets its own
-          official receipt, and every receipt is kept in your papers — it is yours, and you never
-          need to ask for it. The full history joins them here when the family records service is
-          switched on. Until then, call us and we will read your statement to you.
-        </p>
-      </Note>
-      <Section
-        title="Your official receipts"
-        sub="Every receipt we issue is kept in your papers, always available to you."
-      >
-        <QuietLink
-          href="/client/documents"
-          label="See your official receipts"
-          icon={<FileText size={20} aria-hidden="true" />}
-        />
-      </Section>
+      <WhatThisShows>
+        Your full payment history isn’t connected yet. Call {FAMILY_HELP.phone} and we’ll read your
+        statement to you.
+      </WhatThisShows>
     </>
   );
 }

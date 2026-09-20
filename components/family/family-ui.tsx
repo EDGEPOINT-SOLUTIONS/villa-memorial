@@ -448,12 +448,49 @@ export function Steps({ steps }: { steps: Array<{ title: string; detail: string 
 /* ------------------------------------------------------- the honest note ---- */
 
 /**
- * The calm honesty block. Every page whose data does not exist yet ends with
- * one of these instead of an alert box: plain words, what is missing, and the
- * phone number when calling is the way forward.
+ * The calm honesty block. Most pages no longer need it — the shared
+ * `WhatThisShows` disclosure below carries the one honest gap line. It stays
+ * for a page with a genuinely important, in-context sentence to add.
  */
 export function Note({ children }: { children: ReactNode }) {
   return <PortalNote>{children}</PortalNote>;
+}
+
+/**
+ * The ONE honest gap block (family reading budget, 2026-09-21). Every screen
+ * that cannot yet show something uses this instead of its own “About this
+ * page.” paragraph: closed by default, one short line, the office number when
+ * calling is the way forward. It carries `planned` previews only when a page
+ * has them, and never a wall of prose.
+ */
+export function WhatThisShows({
+  children,
+  planned,
+  extra,
+}: {
+  /** The one gap line (≤18 words) — may contain the office number. */
+  children: ReactNode;
+  /** What will live here, if the page has a short preview list. */
+  planned?: Array<{ label: string; detail: string }>;
+  /** Extra disclosed content (rows with states, a small visual). */
+  extra?: ReactNode;
+}) {
+  return (
+    <details className="fv-gap">
+      <summary>What this page can’t show yet</summary>
+      <div className="fv-gap__body">
+        <p>{children}</p>
+        {extra}
+        {planned ? (
+          <Rows>
+            {planned.map((item) => (
+              <Row key={item.label} title={item.label} meta={item.detail} />
+            ))}
+          </Rows>
+        ) : null}
+      </div>
+    </details>
+  );
 }
 
 /** The full honest answer for a page whose service is not switched on yet. */
@@ -461,8 +498,6 @@ export function PlannedAnswer({
   kicker,
   headline,
   sub,
-  plannedTitle,
-  sectionSub,
   planned,
   note,
   action,
@@ -471,9 +506,6 @@ export function PlannedAnswer({
   kicker: string;
   headline: string;
   sub: string;
-  plannedTitle: string;
-  /** One line above the rows; defaults to the honest “what will live here”. */
-  sectionSub?: string;
   planned: Array<{ label: string; detail: string }>;
   note: string;
   /** Overrides the default “Call {phone}” primary action. */
@@ -489,25 +521,8 @@ export function PlannedAnswer({
         sub={sub}
         actions={action ?? <CallAction label={`Call ${FAMILY_HELP.phone}`} />}
       />
-      <Section
-        title={plannedTitle}
-        sub={
-          sectionSub ??
-          "This is what will live here. Until then, call us and we will tell you exactly where things stand."
-        }
-      >
-        <Rows>
-          {planned.map((item) => (
-            <Row key={item.label} title={item.label} meta={item.detail} />
-          ))}
-        </Rows>
-      </Section>
       {children}
-      <Note>
-        <p>
-          <strong>About this page.</strong> {note}
-        </p>
-      </Note>
+      <WhatThisShows planned={planned}>{note}</WhatThisShows>
     </>
   );
 }

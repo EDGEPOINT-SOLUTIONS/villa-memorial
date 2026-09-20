@@ -5,13 +5,13 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyHousehold } from "@/lib/family/family-view";
 import {
   Answer,
-  Note,
   PrimaryAction,
   QuietAction,
   QuietLink,
   Row,
   Rows,
   Section,
+  WhatThisShows,
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
@@ -19,12 +19,14 @@ export const metadata = { title: "Your family — Villa Memorial" };
 
 /**
  * Your family — the family account dashboard (PRD screen-inventory “Family
- * Dashboard”; blueprint §39 “My Family”), on the shared portal kit.
+ * Dashboard”; blueprint §39 “My Family”), compressed to the family reading
+ * budget (2026-09-21): one-sentence hero, the household, the four things the
+ * family holds, and the gaps in the ONE shared `WhatThisShows` disclosure.
  *
- * Real today: the household the snapshot records, the plan and balance, and
- * the papers count — each linked to its own screen. The family circle with its
- * own roles is not wired, so the people block says exactly that instead of
- * showing invented members. Nothing here is a figure we do not hold.
+ * Real today: the household the snapshot records, the plan and balance, and the
+ * papers count — each linked to its own screen. The family circle with its own
+ * roles is not wired, so the disclosure says exactly that once instead of five
+ * separate “not switched on” lines.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -38,8 +40,8 @@ export default async function Page() {
     <>
       <Answer
         kicker="Your family"
-        headline={`${household} — everything your family holds with Villa Memorial.`}
-        sub="The plan, the lot, the papers and the memorial, and who can see them. Where something is not connected yet, we say so plainly rather than guess."
+        headline={`${household} — everything your family holds.`}
+        sub="The plan, the lot, the papers and the memorial."
         chips={
           <>
             <PortalChip>{plan_summary.plan_name}</PortalChip>
@@ -60,10 +62,7 @@ export default async function Page() {
         }
       />
 
-      <Section
-        title="The people on this account"
-        sub="Who signs in today, and who will be able to when the family circle is switched on."
-      >
+      <Section title="The people on this account" sub="Who signs in today.">
         <Rows>
           <Row
             icon={<Users size={22} aria-hidden="true" />}
@@ -74,18 +73,13 @@ export default async function Page() {
           <Row
             icon={<Globe size={22} aria-hidden="true" />}
             title="Family living abroad"
-            meta="Joining from overseas will be arranged with the office until the family circle is switched on."
-            action={
-              <QuietAction href={FAMILY_HELP.phoneHref} label="Ask us to arrange it" />
-            }
+            meta="Arranged with the office until the family circle is on."
+            action={<QuietAction href={FAMILY_HELP.phoneHref} label="Ask us to arrange it" />}
           />
         </Rows>
       </Section>
 
-      <Section
-        title="What your family holds"
-        sub="Every row opens the page that holds it — nothing here is a summary we cannot stand behind."
-      >
+      <Section title="What your family holds" sub="Every row opens the page that holds it.">
         <Rows>
           <Row
             icon={<ScrollText size={22} aria-hidden="true" />}
@@ -99,46 +93,28 @@ export default async function Page() {
           <Row
             icon={<TreePine size={22} aria-hidden="true" />}
             title="Your family’s place at the park"
-            meta="Lot records are kept by the property office — the park map is real, and open, today."
+            meta="The park map is real, and open, today."
             action={<QuietAction href="/map" label="Open the park map" />}
           />
           <Row
             icon={<HeartHandshake size={22} aria-hidden="true" />}
             title="Remembering"
-            meta="Nothing about your loved one is published anywhere until your family says yes."
+            meta="Nothing is published until your family says yes."
             action={<QuietAction href="/client/memorials" label="See remembering" />}
           />
           <Row
             icon={<FileText size={22} aria-hidden="true" />}
             title={papers === 1 ? "One paper with your family" : `${countWord(papers)} papers with your family`}
-            meta="The papers your family holds today — the rest arrive as the arrangement goes on."
+            meta="The rest arrive as the arrangement goes on."
             action={<QuietAction href="/client/documents" label="See your papers" />}
           />
         </Rows>
       </Section>
 
-      <Section
-        title="Who can see it"
-        sub="Today, one account signs in — this one. A family circle with its own roles, and a log of every staff look-up, is on its way."
-      >
-        <Rows>
-          <Row
-            icon={<Users size={22} aria-hidden="true" />}
-            title="Roles for each family member"
-            meta="Each person with their own sign-in and their own level of access — not switched on yet."
-            action={<QuietAction href="/client/privacy" label="Open Privacy Center" />}
-          />
-        </Rows>
-      </Section>
-
-      <Note>
-        <p>
-          <strong>About this page.</strong> The household, the plan, the balance and the papers
-          count come from our office’s own records. Family membership, the lot records and the
-          memorial are not switched on yet — until they are, call us and we will arrange anything
-          for your family, or add it to your account by hand.
-        </p>
-      </Note>
+      <WhatThisShows>
+        Family membership, the lot records and the memorial aren’t connected yet. Call{" "}
+        {FAMILY_HELP.phone} and we’ll arrange anything.
+      </WhatThisShows>
     </>
   );
 }

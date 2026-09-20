@@ -33,7 +33,7 @@ export default async function ClientProfilePage() {
       <Answer
         kicker="Your details"
         headline="Your details are correct. You can make the writing bigger if you like."
-        sub={`${family.display_name} · ${email} · ${family.primary_contact}. If anything changes, call us and we will update it for you.`}
+        sub={`${family.display_name} · ${email} · ${family.primary_contact}`}
         actions={
           <>
             <PrimaryAction href="#reading" label="Make the writing bigger" />
@@ -49,7 +49,7 @@ export default async function ClientProfilePage() {
       <Section
         id="reading"
         title="Make it easier to read"
-        sub="These three settings work on this device, right away."
+        sub="These three settings work on this device."
       >
         <PortalCard>
           <FamilyReadingPreferences />
@@ -71,8 +71,8 @@ export default async function ClientProfilePage() {
           />
         </Rows>
         <p className="ag-note">
-          To change any of these, call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> or
-          tell us at the office — it takes a minute.
+          To change any of these, call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> — it
+          takes a minute.
         </p>
       </Section>
 

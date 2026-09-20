@@ -1,13 +1,14 @@
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 import { PlannedAnswer } from "@/components/family/family-ui";
 
 export const metadata = { title: "Privacy Center — Villa Memorial" };
 
 /**
- * Privacy Center — the approved redesign (docs/08-delivery/family-portal-design).
- * Consent controls and the access log need services that do not exist yet; the
- * promises below are what we hold ourselves to, and the page says plainly that
- * the buttons are not switched on.
+ * Privacy Center — compressed to the family reading budget (2026-09-21). The
+ * promise leads in one line; the controls that will exist sit behind the ONE
+ * shared `WhatThisShows` disclosure. Consent controls and the access log need
+ * services that do not exist yet, and the page says so plainly.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -16,8 +17,7 @@ export default async function Page() {
     <PlannedAnswer
       kicker="Privacy Center"
       headline="Nothing about your family is shared unless you say so."
-      sub="What we hold, who on our staff looked at it, and the choices that change it — the promises are below, and the controls are not switched on yet."
-      plannedTitle="What will be here"
+      sub="The promises are below; the controls aren’t switched on yet."
       planned={[
         {
           label: "Our promise to your family",
@@ -44,7 +44,7 @@ export default async function Page() {
           detail: "With the reason — including what the law does not let us erase",
         },
       ]}
-      note="Consent controls and the access log are not switched on yet. Until they are, call us for anything about your family’s records — a copy, a correction, or a question about who has seen them."
+      note={`Consent controls and the access log aren’t connected yet. Call ${FAMILY_HELP.phone} for anything about your records.`}
     />
   );
 }
