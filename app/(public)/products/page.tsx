@@ -3,6 +3,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { COFFIN_SKUS } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE } from "@/lib/villa-pricing";
 import {
@@ -18,6 +19,10 @@ export const metadata: Metadata = pageMetadata({
     "The client's full 2026 casket catalogue at published prices — SRP, senior-citizen price and the inclusions per family, with details for every model.",
   path: "/products",
 });
+
+// Reads the content document + catalogue per request — a staff edit must be
+// what the NEXT visitor sees, never a build-time snapshot.
+export const dynamic = "force-dynamic";
 
 /** Bind each sheet model to its catalogue entry (SKU map: lib/catalogue-skus.ts). */
 function bindCaskets(
@@ -60,6 +65,7 @@ export default async function ProductsPage() {
       </div>
     );
   }
+  const page = await getPageDocument("coffins").catch(() => null);
 
   const caskets = bindCaskets(items);
   const [leadTier, ...higherTiers] = COFFINS;
@@ -67,14 +73,11 @@ export default async function ProductsPage() {
   return (
     <div className="stack-5">
       <section className="page-hero">
-        <p className="eyebrow-label">Coffins &amp; caskets</p>
-        <h1 className="page-hero__title">Coffin options</h1>
+        <p className="eyebrow-label">{page?.hero.eyebrow || "Coffins & caskets"}</p>
+        <h1 className="page-hero__title">{page?.hero.headline || "Coffin options"}</h1>
         <p className="page-hero__lead">
-          Choose the coffin that honours your loved one — from dignified Bronze to the
-          sophisticated Gold. Every 2026 model is shown with its own photograph and its
-          published price: the SRP, the senior-citizen discount and the discounted price.
-          Open any model for its full detail, add it to the cart, or send a request and
-          the office confirms the final price.
+          {page?.hero.lead ||
+            "Choose the coffin that honours your loved one — from dignified Bronze to the sophisticated Gold. Every 2026 model is shown with its own photograph and its published price: the SRP, the senior-citizen discount and the discounted price. Open any model for its full detail, add it to the cart, or send a request and the office confirms the final price."}
         </p>
       </section>
 

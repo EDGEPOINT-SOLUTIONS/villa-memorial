@@ -9,6 +9,7 @@ import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { ProductCard, ResultsGrid } from "@/components/kit";
 import { catalogueItemPhoto, type CatalogueItemPhoto } from "@/lib/catalogue-imagery";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { pageMetadata } from "@/lib/seo";
 import {
@@ -68,6 +69,8 @@ export default async function PlansPage({
     ? (type as "package" | "service" | "add_on")
     : undefined;
 
+  const page = await getPageDocument("plans").catch(() => null);
+
   let itemsAll: Awaited<ReturnType<typeof listCatalogItems>>;
   try {
     itemsAll = await listCatalogItems();
@@ -94,12 +97,12 @@ export default async function PlansPage({
       <section className="hero-premium">
         <div className="hero-premium__grid">
           <div>
-            <p className="eyebrow-label">Memorial plans</p>
-            <h1 className="hero-premium__title">Villa Memorial Plan</h1>
+            <p className="eyebrow-label">{page?.hero.eyebrow || "Memorial plans"}</p>
+            <h1 className="hero-premium__title">{page?.hero.headline || "Villa Memorial Plan"}</h1>
             {/* The page's one-line answer + one primary action (reading budget,
                 captain 2026-09-18). */}
             <p className="hero-premium__lead">
-              The park&rsquo;s memorial plan — five tiers, four ways to pay.
+              {page?.hero.lead || "The park's memorial plan — five tiers, four ways to pay."}
             </p>
             <div className="hero-premium__actions">
               <Link href="#plan-payments" className="btn btn--primary">

@@ -7,12 +7,14 @@ import { listLandingContent } from "@/lib/api-client/landing";
 
 /**
  * The approved public-navigation contract (captain, 2026-09-17 — Lavish review
- * "Public navigation", reference under docs/08-delivery/public-nav-design):
- * the two-layer bar, the short page labels with the client's full names in the
- * grouped "Plan ahead" menu, the cart icon + count, and the permanent phone
- * action bar. Executed through react-dom/server like the rest of the repo's UI
- * tests; the interactive behaviour (scroll compression, disclosure, dialog) is
- * client-only and pinned structurally here.
+ * "Public navigation", reference under docs/08-delivery/public-nav-design;
+ * updated by the captain's 2026-09-21 review: the bar carries the page's FULL
+ * name — Funeraria Memorial Services · Villa Memorial Plan · Villa Memorial
+ * Park — with the grouped "Plan ahead" menu keeping the same names and notes):
+ * the two-layer bar, the cart icon + count, and the permanent phone action bar.
+ * Executed through react-dom/server like the rest of the repo's UI tests; the
+ * interactive behaviour (scroll compression, disclosure, dialog) is client-only
+ * and pinned structurally here.
  */
 async function chrome() {
   return listLandingContent();
@@ -34,17 +36,17 @@ describe("the two-layer public bar", () => {
     expect(html).toContain("Immediate assistance");
   });
 
-  it("carries the short labels, marks only the current page and keeps full names in Plan ahead", async () => {
+  it("carries the captain's full page names, marks only the current page and keeps Plan ahead grouped", async () => {
     const { logo, contact } = await chrome();
     const html = renderToStaticMarkup(
       createElement(SiteHeaderBar, { brand: logo, contact, currentPath: "/plans", cartCount: 2 }),
     );
     for (const [href, label] of [
       ["/", "Home"],
-      ["/services", "Services"],
-      ["/plans", "Plans"],
+      ["/services", "Funeraria Memorial Services"],
+      ["/plans", "Villa Memorial Plan"],
       ["/lots", "Lots"],
-      ["/map", "Park"],
+      ["/map", "Villa Memorial Park"],
       ["/facilities", "Facilities"],
       ["/gallery", "Gallery"],
       ["/memorials", "Memorials"],
@@ -54,7 +56,7 @@ describe("the two-layer public bar", () => {
       expect(html).toContain(`href="${href}"${aria}>${label}</a>`);
     }
     // Active state stays on the current page only (one aria-current in the bar).
-    expect(html).toContain('href="/plans" aria-current="page">Plans</a>');
+    expect(html).toContain('href="/plans" aria-current="page">Villa Memorial Plan</a>');
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     // The grouped menu: disclosure trigger, hidden menu, full names verbatim.
     expect(html).toContain('aria-haspopup="true"');

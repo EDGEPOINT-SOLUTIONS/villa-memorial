@@ -1,0 +1,91 @@
+{
+  "_provenance": {
+    "status": "RECORDED SEED — app-authored page documents for the content catalogue (Phase 0+1 of data/villa-content-catalog-plan/report.md, captain review 2026-09-21). NOT a service response: no content contract exists, so this fixture store is the write path in fixture mode (see lib/api-client/content-pages.ts).",
+    "date": "2026-09-21",
+    "sources": [
+      "The hero words are the CURRENT PAGE COPY, transcribed from the live pages so the editable document starts as what visitors read today — never new marketing copy:",
+      "  · park  ← app/(public)/map/page.tsx (eyebrow/headline/lead)",
+      "  · services ← app/(public)/services/page.tsx (eyebrow/headline/lead)",
+      "  · plans ← app/(public)/plans/page.tsx (eyebrow/headline/lead)",
+      "  · coffins ← app/(public)/products/page.tsx (eyebrow/headline/lead)",
+      "The Home document is NOT stored here: it is the landing content document (lib/fixtures/landing/content.json) and is listed in Pages & content with its own full editor.",
+      "Tabs for the park: Park view (/map) + Lots (/map?tab=lots) — the captain's 2026-09-21 direction that the Lot page is a tab inside the park page.",
+      "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store."
+    ]
+  },
+  "version": 1,
+  "updated_at": null,
+  "pages": [
+    {
+      "key": "park",
+      "title": "Villa Memorial Park",
+      "hero": {
+        "eyebrow": "Interactive park map",
+        "headline": "Villa Memorial Park",
+        "lead": "Walk the grounds of every Villa-affiliated park — zoom, pan and click any plot to see its type, status and asking price where published.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [
+        { "id": "tab-view", "label": "Park view", "href": "/map", "note": null },
+        { "id": "tab-lots", "label": "Lots", "href": "/map?tab=lots", "note": null }
+      ],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "services",
+      "title": "Funeraria Memorial Services",
+      "hero": {
+        "eyebrow": "Funeraria Memorial Services · 2026 prices",
+        "headline": "Funeral services, and what they cost in 2026",
+        "lead": "At-need funeral care, any hour — with 2026 prices.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "plans",
+      "title": "Villa Memorial Plan",
+      "hero": {
+        "eyebrow": "Memorial plans",
+        "headline": "Villa Memorial Plan",
+        "lead": "The park's memorial plan — five tiers, four ways to pay.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "coffins",
+      "title": "Coffins & caskets",
+      "hero": {
+        "eyebrow": "Coffins & caskets",
+        "headline": "Coffin options",
+        "lead": "Choose the coffin that honours your loved one — from dignified Bronze to the sophisticated Gold. Every 2026 model is shown with its own photograph and its published price: the SRP, the senior-citizen discount and the discounted price. Open any model for its full detail, add it to the cart, or send a request and the office confirms the final price.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    }
+  ]
+}

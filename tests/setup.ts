@@ -15,6 +15,7 @@ import { mkdtempSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
+import { beforeEach } from "vitest";
 
 const dir = mkdtempSync(path.join(os.tmpdir(), "vm-fixture-stores-"));
 
@@ -32,3 +33,15 @@ const STORE_PATH_ENV_VARS = [
 for (const name of STORE_PATH_ENV_VARS) {
   if (!process.env[name]) process.env[name] = path.join(dir, `${name.toLowerCase()}.json`);
 }
+
+// In-memory content seams (landing content + the page documents) live on
+// globalThis; reset them before every test so one suite's save can never leak
+// into the next.
+beforeEach(() => {
+  const g = globalThis as typeof globalThis & {
+    __imContentPages?: unknown;
+    __imLandingContent?: unknown;
+  };
+  delete g.__imContentPages;
+  delete g.__imLandingContent;
+});

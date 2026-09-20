@@ -17,6 +17,15 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      pinned to the real 2026 figures of `lib/villa-pricing.ts` by its
      fixture-contract tests. Replaced by recorded fixtures once a content
      contract freezes (see the file's own comment + `lib/api-client/landing.ts`).
+   - `content/pages.json` ← the page documents of the content catalogue
+     (Phase 0+1, captain review 2026-09-21): `park · services · plans · coffins`
+     for Pages & content. APP-AUTHORED with provenance in its own `_provenance`
+     block — the hero words are the CURRENT PAGE COPY transcribed from the live
+     pages, not new marketing copy, and no price is authored anywhere (price
+     blocks bind to catalogue SKUs / the pricing store). Home is NOT stored
+     here: it is the landing document above. Read/written by
+     `lib/api-client/content-pages.ts` (in-process, like landing content) and
+     saved through `POST /api/content/pages`; the model is `lib/content-catalog.ts`.
    - `commerce/catalog-items.json` ← the FROZEN `GET /api/v1/catalog_items`
      response shape (docs/08-delivery/contracts/order-payment-api-v1.md) with
      the client's real 2026 price-list figures: SKUs unchanged, prices and four

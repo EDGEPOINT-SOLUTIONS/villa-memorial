@@ -1,32 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader, PageSection } from "@/components/ui/page";
-import { ForbiddenState, ErrorState } from "@/components/ui/states";
+import { EmptyState } from "@/components/ui/empty-state";
+import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
-import { listLandingContent } from "@/lib/api-client/landing";
-import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { LandingPageEditor } from "@/components/landing/landing-page-editor";
+import { listPageDocuments } from "@/lib/api-client/content-pages";
+import { PAGE_DOCUMENTS, type PageDocument } from "@/lib/content-catalog";
 
 export const metadata: Metadata = { title: "Pages & content — Admin Portal" };
 
 /**
- * Staff content editor (the ONE content surface — captain, 2026-09-18). The
- * public home at / AND the FAQ page at /faq render ONLY from the content
- * document this page edits: brand mark/wordmark + the 24/7 line, hero copy +
- * CTAs, the fixed left/right rails (UNLIMITED real services/plans/products/links
- * per side, with photo and order), about/mission/vision + photo, the full
- * service sections, the plan card grid, the live park map heading/intro, the
- * blog newsfeed (any number of rich posts with photo/video attachments — photos
- * come from the media library, a REAL device upload, or a URL) and the FAQ page
- * copy. Images can be picked from the uploaded library, from a local file on
- * this device (stored through the same fixture-store save path, no backend), or
- * from a public URL. Saving POSTs the whole document through the BFF route,
- * which validates it and persists it into the same fixture store the public
- * pages read. The section navigator mirrors the public page order: map before
- * newsfeed. The old /staff/store stub redirects here (audit §7.1 G5).
+ * Pages & content — the page home (Phase 1 of the content-catalogue plan,
+ * captain review 2026-09-21).
+ *
+ * ONE list of the five page documents the captain named — Home · Villa Memorial
+ * Park · Funeraria Memorial Services · Villa Memorial Plan · Coffins & caskets —
+ * each a door to the editor that owns its content:
+ *   · Home opens the existing full landing/FAQ editor (/staff/landing/home);
+ *   · the others open the page-document editor (/staff/landing/<key>).
+ *
+ * The list is the answer to "where do I edit this page?": every public page's
+ * page-level content traces to exactly one card here. The service/plan/casket
+ * item content still lives in the Commerce catalogue (its own pass).
  */
-export default async function LandingPageAdminPage() {
+export default async function PagesAndContentPage() {
   const session = await requireSessionOrRedirect();
   if (!hasAnyScope(session.scopes, ["catalog:write"])) {
     return (
@@ -39,21 +37,21 @@ export default async function LandingPageAdminPage() {
     );
   }
 
-  let content;
-  let pricing;
+  let documents: PageDocument[];
   try {
-    content = await listLandingContent();
-    pricing = await loadPricingDocument();
+    documents = await listPageDocuments();
   } catch {
     return (
       <>
         <PageHeader eyebrow="Commerce" title="Pages & content" />
         <PageSection>
-          <ErrorState message="The landing content store is unavailable right now." />
+          <ErrorState message="The page documents are unavailable right now." />
         </PageSection>
       </>
     );
   }
+
+  const byKey = new Map(documents.map((document) => [document.key, document]));
 
   return (
     <div className="stack-4">
@@ -62,16 +60,53 @@ export default async function LandingPageAdminPage() {
         title="Pages & content"
         actions={
           <Link href="/" target="_blank" rel="noreferrer" className="btn btn--secondary btn--sm">
-            View live page
+            View live home
           </Link>
         }
       />
-      <LandingPageEditor
-        initialContent={content}
-        lotCategories={pricing.lotCategories}
-        planPricing={pricing.plans}
-        sessionName={session.displayName.split(" ")[0] ?? session.displayName}
-      />
+      <p className="text-md" style={{ maxWidth: "46rem" }}>
+        Every public page&rsquo;s content lives in one of these documents. Open a page to edit its hero, its words and —
+        where its migration has landed — its content blocks. Prices are never typed here: a price block stores a live
+        reference to the catalogue or the pricing store.
+      </p>
+
+      {documents.length === 0 ? (
+        <EmptyState title="No page documents yet" hint="The seeded pages appear here." />
+      ) : (
+        <div className="landing__grid">
+          {PAGE_DOCUMENTS.map((def) => {
+            const document = byKey.get(def.key);
+            if (!document) return null;
+            const updated = document.updated_at
+              ? `Last saved ${new Date(document.updated_at).toLocaleString()}`
+              : "Seed copy — not yet edited";
+            const href = def.editor === "landing" ? "/staff/landing/home" : `/staff/landing/${def.key}`;
+            return (
+              <section key={def.key} className="card" aria-labelledby={`page-doc-${def.key}`}>
+                <div className="card__body stack-3">
+                  <div>
+                    <p className="eyebrow-label" style={{ marginBottom: "var(--space-1)" }}>
+                      {def.route}
+                    </p>
+                    <h2 id={`page-doc-${def.key}`} className="text-lg" style={{ margin: 0 }}>
+                      {def.label}
+                    </h2>
+                  </div>
+                  <p className="text-sm text-muted" style={{ margin: 0 }}>
+                    {def.hint}
+                  </p>
+                  <p className="text-sm text-muted" style={{ margin: 0 }}>
+                    {updated}
+                  </p>
+                  <Link href={href} className="btn btn--primary btn--sm">
+                    Edit this page
+                  </Link>
+                </div>
+              </section>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

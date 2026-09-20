@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
+import { ContentBlocks } from "@/components/content/content-blocks";
 import { PublicParkMap } from "@/components/public-park-map";
+import { LotListing } from "@/app/(public)/lots/lot-listing";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
+import { listCatalogItems } from "@/lib/api-client/commerce";
+import { getPageDocument } from "@/lib/api-client/content-pages";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { buildLotListing } from "@/lib/lot-listing-data";
+import { EMPTY_LOT_FILTERS } from "@/lib/lot-listing";
+import { heroBackgroundLayer } from "@/lib/landing/hero-background";
+import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { pageMetadata } from "@/lib/seo";
+import type { PageHero, PageTab } from "@/lib/content-catalog";
 
 export const metadata: Metadata = pageMetadata({
   title: "Villa Memorial Park — Villa Memorial",
@@ -17,7 +27,16 @@ export const metadata: Metadata = pageMetadata({
 export const dynamic = "force-dynamic";
 
 /**
- * Public park map (Module D, client-facing surface).
+ * Public park map (Module D, client-facing surface) — now the captain's
+ * "Villa Memorial Park" PAGE (content-catalogue Phase 1, review 2026-09-21):
+ *
+ *   hero (editable in Pages & content) → Park view / Lots tabs → the page
+ *   document's content blocks.
+ *
+ * The Lots listing is a TAB of this page (the captain's direction); the standalone
+ * /lots route and the /lots/[id] and /lots/price-list-2026 routes stay, per the
+ * same review. Both surfaces shape their rows through lib/lot-listing-data.ts, so
+ * they cannot list different plots.
  *
  * Shares the SAME map component + data as the staff property explorer, so what a
  * client sees and what staff see is the same picture — derived positions, same status
@@ -37,14 +56,31 @@ export const dynamic = "force-dynamic";
  * viewer: sections, plots, availability, lot details, deep links and the 3D
  * walk-through, with nothing that changes data.
  */
+
+/** Read-failure fallback — the recorded seed's own hero words, never new copy. */
+const FALLBACK_HERO: PageHero = {
+  eyebrow: "Interactive park map",
+  headline: "Villa Memorial Park",
+  lead: "Walk the grounds of every Villa-affiliated park — zoom, pan and click any plot to see its type, status and asking price where published.",
+  image: null,
+  background: null,
+  backgroundTransparency: 100,
+};
+
+const FALLBACK_TABS: PageTab[] = [
+  { id: "tab-view", label: "Park view", href: "/map", note: null },
+  { id: "tab-lots", label: "Lots", href: "/map?tab=lots", note: null },
+];
+
 export default async function PublicMapPage({
   searchParams,
 }: {
-  searchParams: Promise<{ park?: string; plot?: string }>;
+  searchParams: Promise<{ park?: string; plot?: string; tab?: string }>;
 }) {
   const sp = await searchParams;
-  const initialPark = sp.park && ["villa","loyola","golden"].includes(sp.park) ? sp.park : undefined;
+  const initialPark = sp.park && ["villa", "loyola", "golden"].includes(sp.park) ? sp.park : undefined;
   const initialPlot = sp.plot?.trim() || undefined;
+  const activeTab = sp.tab === "lots" ? "lots" : "view";
 
   let lots;
   try {
@@ -76,17 +112,31 @@ export default async function PublicMapPage({
     );
   }
 
+  // Page content (hero, tabs, blocks) + the sellable lines a price block may
+  // resolve against. A content read failure falls back to the recorded words;
+  // it must never take the map down.
+  const [document, catalogItems, pricing] = await Promise.all([
+    getPageDocument("park").catch(() => null),
+    listCatalogItems().catch(() => []),
+    loadPricingDocument().catch(() => null),
+  ]);
+  const hero = document?.hero ?? FALLBACK_HERO;
+  const tabs = document?.tabs.length ? document.tabs : FALLBACK_TABS;
+  const wash = heroBackgroundLayer({ background: hero.background, backgroundTransparency: hero.backgroundTransparency });
+  const priceBySku = new Map(catalogItems.map((item) => [item.sku, item.display_price]));
+
+  const isLotsTab = (tab: PageTab) => tab.href.includes("tab=lots");
+  const lotData = activeTab === "lots" ? buildLotListing(lots) : null;
+
   return (
     <div className="stack-4">
-      <section className="hero-premium">
+      <section className="hero-premium park-hero">
+        {wash ? <div className="park-hero__wash" aria-hidden="true" style={{ background: wash.background, opacity: wash.opacity }} /> : null}
         <div className="hero-premium__grid">
           <div>
-            <p className="eyebrow-label">Interactive park map</p>
-            <h1 className="hero-premium__title">Villa Memorial Park</h1>
-            <p className="hero-premium__lead">
-              Walk the grounds of every Villa-affiliated park — zoom, pan and click any
-              plot to see its type, status and asking price where published.
-            </p>
+            <p className="eyebrow-label">{hero.eyebrow || "Interactive park map"}</p>
+            <h1 className="hero-premium__title">{hero.headline || "Villa Memorial Park"}</h1>
+            <p className="hero-premium__lead">{hero.lead}</p>
             <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
               {lots.length} lots · 3 parks · deep-link any plot, e.g.{" "}
               <Link href="/map?park=villa&plot=A-001">/map?park=villa&amp;plot=A-001</Link>
@@ -105,11 +155,64 @@ export default async function PublicMapPage({
               <Link href="/gallery">Photos of the park</Link>
             </nav>
           </div>
+          {hero.image ? (
+            <figure className="hero-premium__media park-hero__media">
+              {/* eslint-disable-next-line @next/next/no-img-element -- staff-chosen hero photo */}
+              <img src={hero.image} alt="" />
+            </figure>
+          ) : null}
         </div>
       </section>
-      <div className="map-shell">
-        <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} enable3d />
-      </div>
+
+      <nav className="seg-filter park-tabs" aria-label="Park page sections">
+        {tabs.map((tab) => {
+          const active = isLotsTab(tab) === (activeTab === "lots");
+          return (
+            <Link
+              key={tab.id}
+              href={tab.href}
+              className={`pill-toggle${active ? " pill-toggle--active" : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      {activeTab === "lots" && lotData ? (
+        <LotListing
+          items={lotData.items}
+          parks={lotData.parks}
+          statuses={lotData.statuses}
+          types={lotData.types}
+          sections={lotData.sections}
+          initialFilters={{ ...EMPTY_LOT_FILTERS }}
+          initialSort=""
+          syncUrl={false}
+        />
+      ) : (
+        <div className="map-shell">
+          <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} enable3d />
+        </div>
+      )}
+
+      {document && document.blocks.length > 0 ? (
+        <ContentBlocks
+          blocks={document.blocks}
+          priceOf={(sku) => priceBySku.get(sku) ?? null}
+          matrixOf={(ref) => {
+            if (!pricing) return null;
+            if (ref === "plans.regular") {
+              return <PlanPaymentTable rows={pricing.plans.regular} label="Villa Memorial Plan — regular payment schedule" />;
+            }
+            if (ref === "plans.senior") {
+              return <PlanPaymentTable rows={pricing.plans.senior} senior label="Villa Memorial Plan — senior citizen payment schedule" />;
+            }
+            return null;
+          }}
+        />
+      ) : null}
     </div>
   );
 }

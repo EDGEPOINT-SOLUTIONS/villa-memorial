@@ -12,6 +12,7 @@ import { ServicesSubnav, type SubnavItem } from "@/components/villa/services-sub
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 
 export const metadata: Metadata = pageMetadata({
   title: "Funeraria Memorial Services — Villa Memorial",
@@ -19,6 +20,10 @@ export const metadata: Metadata = pageMetadata({
     "At-need funeral care day or night: the 24/7 call steps, a-la-carte service rates, embalming by the day and chapel bookings at Villa Memorial Park.",
   path: "/services",
 });
+
+// Reads the content document + catalogue per request — a staff edit must be
+// what the NEXT visitor sees, never a build-time snapshot.
+export const dynamic = "force-dynamic";
 
 /** The page's own sections, in order — the sticky bar and the anchors share one list. */
 const SECTIONS: ReadonlyArray<SubnavItem> = [
@@ -44,9 +49,10 @@ export default async function ServicesPage() {
   // The 24/7 line is STAFF-EDITABLE (landing content, zone 01) — every call
   // action on this page reads the same document the site header reads, so an
   // editor's phone change lands here too. No number is typed into this page.
-  const [items, content] = await Promise.all([
+  const [items, content, page] = await Promise.all([
     listCatalogItems().catch(() => null),
     listLandingContent(),
+    getPageDocument("services").catch(() => null),
   ]);
   if (!items) {
     return (
@@ -74,12 +80,14 @@ export default async function ServicesPage() {
           </nav>
           <div className="sv-hero__grid">
             <div>
-              <p className="sv-hero__eyebrow">Funeraria Memorial Services · 2026 prices</p>
+              <p className="sv-hero__eyebrow">
+                {page?.hero.eyebrow || "Funeraria Memorial Services · 2026 prices"}
+              </p>
               <h1 className="sv-hero__title" id="services-title">
-                Funeral services, and what they cost in 2026
+                {page?.hero.headline || "Funeral services, and what they cost in 2026"}
               </h1>
               {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
-              <p className="sv-hero__lead">At-need funeral care, any hour — with 2026 prices.</p>
+              <p className="sv-hero__lead">{page?.hero.lead || "At-need funeral care, any hour — with 2026 prices."}</p>
             </div>
             <figure className="sv-hero__media">
               {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}

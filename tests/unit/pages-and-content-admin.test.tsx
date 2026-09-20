@@ -1,0 +1,120 @@
+import { describe, expect, it, vi } from "vitest";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import type { Session } from "@/lib/auth/types";
+
+/**
+ * Pages & content — the page home (content-catalogue Phase 1).
+ *
+ * The list must carry the captain's five documents, each pointing at the one
+ * editor that owns it (Home → the existing landing/FAQ editor; the rest → the
+ * page-document editor), and the page-document route must render the document's
+ * hero/tabs/blocks for a writer and the designed 403 without `catalog:write`.
+ */
+
+const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
+vi.mock("@/lib/auth/guard", () => ({
+  requireSessionOrRedirect: async () => sessionHolder.current,
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: { href?: string; children?: ReactNode } & AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined, replace: () => undefined }),
+  notFound: () => {
+    throw new Error("NEXT_NOT_FOUND");
+  },
+  redirect: (href: string) => {
+    throw new Error(`NEXT_REDIRECT:${href}`);
+  },
+}));
+
+const { default: PagesAndContentPage } = await import("@/app/(staff)/staff/landing/page");
+const { default: PageDocumentAdminPage } = await import("@/app/(staff)/staff/landing/[doc]/page");
+
+const USER_ID = "00000000-0000-4000-8000-000000000012";
+const TENANT_ID = "00000000-0000-4000-8000-000000000001";
+
+function session(scopes: string[]): Session {
+  return {
+    sub: USER_ID,
+    tenantId: TENANT_ID,
+    scopes,
+    displayName: "Ada Admin",
+    email: "admin@vm.demo",
+    expiresAt: Date.now() + 60_000,
+  } as unknown as Session;
+}
+
+function params(doc: string) {
+  return { params: Promise.resolve({ doc }) };
+}
+
+describe("Pages & content", () => {
+  it("lists the captain's five documents with one editor home each", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    const html = renderToStaticMarkup(await PagesAndContentPage());
+    for (const label of [
+      "Home",
+      "Villa Memorial Park",
+      "Funeraria Memorial Services",
+      "Villa Memorial Plan",
+      "Coffins &amp; caskets",
+    ]) {
+      expect(html).toContain(label);
+    }
+    // Home keeps the existing full editor; the others open the page editor.
+    expect(html).toContain('href="/staff/landing/home"');
+    expect(html).toContain('href="/staff/landing/park"');
+    expect(html).toContain('href="/staff/landing/services"');
+    expect(html).toContain('href="/staff/landing/plans"');
+    expect(html).toContain('href="/staff/landing/coffins"');
+  });
+
+  it("answers the list with the designed 403 without catalog:write", async () => {
+    sessionHolder.current = session(["cases:read"]);
+    const html = renderToStaticMarkup(await PagesAndContentPage());
+    expect(html).toContain("catalog:write");
+    expect(html).not.toContain("Edit this page");
+  });
+
+  it("renders the park document's hero, tabs and block canvas", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    const html = renderToStaticMarkup(await PageDocumentAdminPage(params("park")));
+    expect(html).toContain("Villa Memorial Park");
+    expect(html).toContain("Interactive park map");
+    expect(html).toContain("Page tabs");
+    expect(html).toContain("Content blocks");
+    expect(html).toContain("Park view");
+  });
+
+  it("keeps the service document hero-only until its migration", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    const html = renderToStaticMarkup(await PageDocumentAdminPage(params("services")));
+    expect(html).toContain("Funeraria Memorial Services");
+    expect(html).toContain("Funeral services, and what they cost in 2026");
+    expect(html).not.toContain("Content blocks");
+  });
+
+  it("404s a key that is not one of the page documents", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    await expect(PageDocumentAdminPage(params("store"))).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+
+  it("forbids the document editor without the write scope", async () => {
+    sessionHolder.current = session(["catalog:read"]);
+    const html = renderToStaticMarkup(await PageDocumentAdminPage(params("park")));
+    expect(html).toContain("catalog:write");
+    expect(html).not.toContain("Page tabs");
+  });
+});
