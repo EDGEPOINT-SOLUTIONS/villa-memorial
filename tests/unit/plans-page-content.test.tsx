@@ -40,7 +40,8 @@ describe("the Plans page content home", () => {
     for (const heading of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
       expect(html, heading).toContain(heading);
     }
-    // One column of five cards.
+    // One row of five cards on desktop (the wrap ladder is pinned by
+    // tests/unit/plans-tiers-layout.test.ts).
     expect(html).toContain('class="plan-tiers"');
     expect((html.match(/class="plan-tier[ "]/g) ?? []).length).toBe(5);
     // The inclusion checklist prints IN the card — never a disclosure.
