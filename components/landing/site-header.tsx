@@ -33,13 +33,15 @@ import { HeaderBehavior } from "@/components/landing/header-behavior";
 /** Same order on every page — Home first, so visitors always know the way back. */
 export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Home", href: "/" },
-  { label: "Services", href: "/services" },
+  // The captain's full page names (2026-09-21 review): the bar shows the page
+  // name itself, not a shorthand the visitor has to translate.
+  { label: "Funeraria Memorial Services", href: "/services" },
   // The Smart Service Builder (F-05) — the configurator, beside the price pages
   // it draws its figures from.
   { label: "Builder", href: "/builder" },
-  { label: "Plans", href: "/plans" },
+  { label: "Villa Memorial Plan", href: "/plans" },
   { label: "Lots", href: "/lots" },
-  { label: "Park", href: "/map" },
+  { label: "Villa Memorial Park", href: "/map" },
   // The park's rooms (chapels + grounds) — its own page beside the map, so a
   // family choosing where to hold a wake does not have to read /services.
   { label: "Facilities", href: "/facilities" },

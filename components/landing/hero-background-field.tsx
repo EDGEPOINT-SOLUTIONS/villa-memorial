@@ -22,7 +22,6 @@ import { useEffect, useId, useState } from "react";
 import { Check, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import type { HeroSection } from "@/lib/api-client/landing";
 import {
   HERO_BACKGROUND_DEFAULT_COLOUR,
   HERO_BACKGROUND_PALETTE,
@@ -38,8 +37,9 @@ export function HeroBackgroundField({
   hero,
   onChange,
 }: {
-  hero: HeroSection;
-  onChange: (patch: Partial<HeroSection>) => void;
+  /** Any hero carrying the two background fields (the landing hero or a page document's hero). */
+  hero: { background: string | null; backgroundTransparency: number };
+  onChange: (patch: { background?: string | null; backgroundTransparency?: number }) => void;
 }) {
   const ids = useId();
   const colourId = `${ids}-colour`;

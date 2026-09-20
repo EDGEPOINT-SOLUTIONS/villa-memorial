@@ -8080,6 +8080,35 @@ because the shared `.ag-appt` rule comes later in this file. */
   box-shadow: var(--shadow-raised);
 }
 
+/* Park page hero (content catalogue, Phase 1): the park document's editable
+   hero above the map. The wash reuses the home hero's ONE-layer discipline —
+   above the photo, below every copy block — and only exists when staff set a
+   colour with transparency below 100%. */
+.park-hero {
+  position: relative;
+  overflow: hidden;
+}
+.park-hero__wash {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+.park-hero > .hero-premium__grid {
+  position: relative;
+  z-index: 3;
+}
+.park-hero__media {
+  position: relative;
+  z-index: 1;
+}
+
+/* Park page view tabs (Park view · Lots) — the same pill grammar as the
+   catalogue filters, as a navigation row rather than a button group. */
+.park-tabs {
+  margin: 0 0 var(--space-4);
+}
+
 /* Cart: framed line items + brass-trimmed summary */
 .cart-page .page-section .table-wrapper {
   border: 1px solid var(--color-border);
@@ -9979,7 +10008,10 @@ a.card:hover {
   padding: 0 var(--space-5);
   height: 4.25rem;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  /* Brand and actions size to their content; the nav takes the middle and can
+     scroll when the captain's FULL page names need more room than a narrow
+     desktop has. Never let a track shrink the brand into the nav. */
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-5);
   transition: height var(--motion-base);
@@ -9990,10 +10022,10 @@ a.card:hover {
 }
 
 .anchored-header__brand {
-  /* stretch (not start) so the wordmark can ellipsize inside its track on
-     narrow phones instead of painting under the actions */
-  justify-self: stretch;
-  min-width: 0;
+  /* size to the wordmark so a wide full page name can never paint under the
+     nav chips; the nav track handles any remaining slack */
+  justify-self: start;
+  min-width: max-content;
   display: inline-flex;
   align-items: center;
   gap: var(--space-3);
@@ -10041,10 +10073,21 @@ a.card:hover {
    the header bar regardless of how wide the brand or the actions are. The
    short labels (D1) keep it breatheable at every width. */
 .anchored-header__nav {
-  justify-self: center;
+  justify-self: stretch;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--space-1);
+  min-width: 0;
+  /* The captain's full page names can exceed a narrow desktop's middle track;
+     scroll the chips instead of overlapping the brand or the actions. Wide
+     desktops fit every chip, so no scrollbar shows there. */
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.anchored-header__nav::-webkit-scrollbar {
+  display: none;
 }
 
 .anchored-header__nav > a,
@@ -10218,9 +10261,12 @@ a.card:hover {
   background: var(--color-bg-subtle);
 }
 
-/* Compact desktops (75–85rem): the two-layer bar still fits, but keep taking
-   slack out of the nav chips and the Plan ahead trigger so nothing wraps. */
-@media (max-width: 84.999rem) {
+/* The captain's full page names (Funeraria Memorial Services · Villa Memorial
+   Plan · Villa Memorial Park) are wide: tighten the nav chips for every bar
+   width that still shows them, so nothing wraps and the tracks keep their
+   intended sizes. Wide screens keep the same look with slightly tighter
+   padding — the labels, order and tap targets are unchanged. */
+@media (max-width: 109.999rem) {
   .anchored-header__nav {
     gap: 0;
   }
@@ -11851,6 +11897,12 @@ a.card:hover {
     padding-inline: var(--space-4);
     gap: var(--space-3);
     height: 3.75rem;
+  }
+
+  /* Phones: let the brand shrink again so the wordmark's ellipsis engages
+     instead of pushing the Sign in / cart actions off the row. */
+  .anchored-header__brand {
+    min-width: 0;
   }
 
   .anchored-header--compressed .anchored-header__bar {

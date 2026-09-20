@@ -222,7 +222,8 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the same module. Never author an amount in the fixture, the copy or a view,
   and keep the board's `.plan-scroll` pan frame + the `.plan-band` stack below
   88rem (the five columns do not fit the railed middle column otherwise).
-- The staff editor is the premium `app/(staff)/staff/landing` page (scope
+- The staff editor is the premium `app/(staff)/staff/landing/home` page (Pages
+  & content → Home; scope
   catalog:write, reused provisionally); its rail picker catalogue in
   `lib/landing/catalogue.ts` is built from the REAL catalogue/villa-pricing —
   never add a picker option with invented prices. The picker pins one item per
@@ -243,16 +244,23 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   09 and rendered by `app/(public)/faq/page.tsx`. Never re-hardcode FAQ copy —
   seed + tolerant reader + validator + save path are `lib/api-client/landing.ts`,
   and `tests/unit/faq-page.test.tsx` pins that an edit reaches the page.
-- **ONE content editor** (captain, 2026-09-18): `/staff/landing` (nav
-  "Pages & content") is the only content surface; the retired `/staff/store`
-  stub is a redirect to it and its duplicate nav entry is gone. Storefront
+- **ONE content editor** (captain, 2026-09-18; reorganised into the page home
+  2026-09-21): `/staff/landing` (nav "Pages & content") is the only content
+  surface, listing the five page documents — Home · Villa Memorial Park ·
+  Funeraria Memorial Services · Villa Memorial Plan · Coffins & caskets. Home
+  keeps the full landing/FAQ editor at `/staff/landing/home`; the rest are page
+  documents (see the content-catalogue block below). The retired `/staff/store`
+  stub is a redirect and its duplicate nav entry is gone. Storefront
   COMMERCE settings live on `/staff/catalog`, `/staff/pricing`, `/staff/plans` —
-  never recreate a second content route. Evidence: `tests/unit/content-editor-nav.test.ts`.
+  never recreate a second content route. Evidence: `tests/unit/content-editor-nav.test.ts`,
+  `tests/unit/pages-and-content-admin.test.tsx`.
 - Public lot browse (/lots) is a **client-filtered product listing** (captain
   2026-09-20: pictures on every lot, a sticky left filter, Amazon-style cards;
   filtering must not reload — the URL is the view's serialisation, written with
   `history.replaceState`). The server half (`app/(public)/lots/page.tsx`) shapes
-  each plot into a `LotListingItem`; the client half (`lot-listing.tsx` +
+  each plot into a `LotListingItem` through the ONE shaping module
+  `lib/lot-listing-data.ts` (`buildLotListing`), which the park page's Lots tab
+  uses too, so the two surfaces cannot list different rows; the client half (`lot-listing.tsx` +
   `lot-filters.tsx`, the "Refine lots by" panel: collapsible checkbox groups,
   live per-option counts — zero counts stay visible, dimmed — and a min/max
   price range) filters and sorts in place. ONE filter/sort model:
@@ -276,6 +284,50 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   quick price ranges ride `.btn--secondary .btn--sm` (which is also their phone
   44px touch target); group heads and the Filters toggle hover like their rows.
   Record + before/after shots: `docs/08-delivery/lots-cta-consistency-design/`.
+
+## Content catalogue — Pages & content, five page documents (read before touching page-level content)
+
+- **Phase 0+1 of `data/villa-content-catalog-plan/report.md` (captain review 2026-09-21).**
+  `/staff/landing` is the page HOME listing five documents: Home · Villa Memorial
+  Park · Funeraria Memorial Services · Villa Memorial Plan · Coffins & caskets.
+  Home is the existing landing/FAQ document edited by the full editor at
+  `/staff/landing/home`; the other four are
+  **page documents** seeded in `lib/fixtures/content/pages.json` (recorded from the
+  pages' current copy), read/written by `lib/api-client/content-pages.ts` (the
+  landing seam: an in-process globalThis store — no upstream content service
+  exists, the contract ask travels with the PR) and saved through
+  `POST /api/content/pages` (`catalog:write` provisionally, like the landing
+  route). Editor: `components/content/page-document-editor.tsx`; renderer:
+  `components/content/content-blocks.tsx`.
+- **One pure model: `lib/content-catalog.ts`** — the PageDocument + CatalogueEntry
+  shapes, the shared block vocabulary (paragraph · bullets · checklist · steps ·
+  gallery · table · priceTable · priceList · note · links), the tolerant reader
+  and the save validator that the store, the BFF route and the editor all run.
+  A price block stores a REFERENCE — a catalogue SKU or a
+  `CONTENT_RATE_REFS` name (`plans.regular` / `plans.senior`) — never an amount;
+  the validator resolves it against the LIVE catalogue + pricing stores and
+  refuses a dangling ref. A sample image requires its caption; every authored
+  string passes the one glyph gate (`lib/text-gate.ts`, re-exported by
+  `lib/api-client/landing.ts`). Tests: `tests/unit/content-catalog.test.ts`,
+  `tests/unit/content-pages-store.test.ts`, `tests/unit/pages-and-content-admin.test.tsx`.
+- **The park page (`/map`) is the first WIRED surface**: its hero (eyebrow,
+  headline, lead, photo, and the home's background colour + transparency
+  control) + tabs (Park view · Lots) + blocks come from the park document, so an
+  edit reaches the page on its next request. The Lots listing is a tab of the
+  page; `/lots`, `/lots/[id]` and `/lots/price-list-2026` stay as routes
+  (captain-confirmed). The tab passes `syncUrl={false}` to `LotListing` — the
+  map's query string belongs to the map. Evidence:
+  `tests/unit/park-page-content.test.tsx`.
+- **Public nav names are the captain's full forms** (Funeraria Memorial
+  Services · Villa Memorial Plan · Villa Memorial Park) in the bar, the flyout
+  and the footer. The bar's middle track is `minmax(0, 1fr)` and scrolls the
+  chips on narrow desktops (never letting them paint under the brand); phone
+  rules keep the wordmark ellipsis and the 44 px targets. Pinned by
+  `tests/unit/public-nav.test.tsx` + `tests/unit/landing-view.test.tsx`.
+- **Phases 2–4 are separately queued — do not build them here**: the Plans page
+  becomes tiers + per-tier inclusion checklists (no services); the Services page
+  becomes one hero → straight to the services with the guide pages as entries;
+  the item catalogue's entry blocks and the nav cleanup follow.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

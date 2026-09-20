@@ -48,6 +48,7 @@ export function LotListing({
   sections,
   initialFilters,
   initialSort,
+  syncUrl = true,
 }: {
   items: LotListingItem[];
   parks: RefineOption[];
@@ -56,6 +57,12 @@ export function LotListing({
   sections: string[];
   initialFilters: LotFilters;
   initialSort: LotsSort;
+  /**
+   * When false the listing keeps its state local and never rewrites the URL.
+   * The park page's Lots tab uses this: its query string belongs to the map
+   * (`?park=`/`?plot=`), and the canonical filtered-listing URL stays /lots.
+   */
+  syncUrl?: boolean;
 }) {
   const [filters, setFilters] = useState<LotFilters>(initialFilters);
   const [sort, setSort] = useState<LotsSort>(initialSort);
@@ -65,8 +72,9 @@ export function LotListing({
 
   // The URL is the serialisation of the view state — never a navigation.
   useEffect(() => {
+    if (!syncUrl) return;
     window.history.replaceState(null, "", lotListingQuery(filters, sort));
-  }, [filters, sort]);
+  }, [filters, sort, syncUrl]);
 
   const visible = useMemo(
     () => sortListingItems(items.filter((item) => matchesListingFilters(item, filters)), sort),

@@ -82,33 +82,29 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Funeraria Memorial Services"));
   });
 
-  it("public chrome carries the approved short labels and keeps the client's full names in the Plan ahead menu", async () => {
+  it("public chrome carries the captain's full page names in the bar and the Plan ahead menu", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     // Header bar (the ONE public nav — same component on every public page):
-    // the short words the captain approved (D1).
+    // the captain's full page names (2026-09-21 review).
     const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
     for (const [href, label] of [
       ["/", "Home"],
-      ["/services", "Services"],
-      ["/plans", "Plans"],
+      ["/services", "Funeraria Memorial Services"],
+      ["/plans", "Villa Memorial Plan"],
       ["/lots", "Lots"],
-      ["/map", "Park"],
+      ["/map", "Villa Memorial Park"],
       ["/contact", "Contact"],
     ] as const) {
       expect(nav).toContain(`href="${href}">${label}</a>`);
     }
-    // The client's full names stay verbatim inside the grouped Plan ahead menu.
+    // The same full names stay verbatim inside the grouped Plan ahead menu.
     const menu = nav.slice(nav.indexOf("anchored-header__plan-menu"));
     expect(menu).toContain("Funeraria Memorial Services");
     expect(menu).toContain("Villa Memorial Plan");
     expect(menu).toContain("Villa Memorial Park");
-    // ...and are no longer long chips in the bar itself.
-    expect(nav).not.toContain(">Funeraria Memorial Services</a>");
-    expect(nav).not.toContain(">Villa Memorial Plan</a>");
-    expect(nav).not.toContain(">Villa Memorial Park</a>");
     // Footer "Explore" column links the same three destinations verbatim.
     expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
     expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');

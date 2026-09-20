@@ -225,34 +225,14 @@ const RAIL_KINDS: RailItemKind[] = ["product", "service", "plan", "link"];
 const MEDIA_KINDS: MediaKind[] = ["photo", "video"];
 
 /**
- * The product owns exactly two faces — Alegreya and Source Sans 3, both
- * self-hosted (styles/fonts.css). Neither carries an emoji, so an emoji typed
- * into the content editor does not render as a picture or as a fallback face:
- * the browser prints a "tofu" box on the public page. The seed caption shipped
- * one (U+1F33F, the herb), and the landing page showed the empty box until the
- * publish gate below learned to refuse it.
- *
- * The rule is deliberately narrow: it names the astral emoji/pictograph blocks
- * plus the two invisible modifiers that only exist to dress them. Everything the
- * product DOES publish stays legal — ₱ · — → ↑ ↓ ← ↔ ▸ ▾ ◆ ○ ● ⚠ ✓ ✕ are all
- * BMP characters the two faces carry, and a rule written as "no symbols" would
- * reject the arrows and marks this product uses as text.
- *
- * Returns the offending characters, empty when the text is publishable.
+ * The publish gate for staff-typed text — ONE home in lib/text-gate.ts so the
+ * landing document and the content catalogue refuse the same characters.
+ * Re-exported here to keep this module's historical API stable (tests and the
+ * landing editor import `unrenderableGlyphs` from this file).
  */
-export function unrenderableGlyphs(text: string): string[] {
-  const bad: string[] = [];
-  for (const ch of text) {
-    const cp = ch.codePointAt(0) as number;
-    const emoji =
-      (cp >= 0x1f000 && cp <= 0x1faff) || // pictographs, emoticons, transport, symbols
-      (cp >= 0x1f1e6 && cp <= 0x1f1ff) || // regional indicators (flags)
-      cp === 0xfe0f || // variation selector-16: turns a BMP mark into an emoji
-      cp === 0x20e3; // enclosing keycap
-    if (emoji) bad.push(ch);
-  }
-  return bad;
-}
+import { unrenderableGlyphs } from "@/lib/text-gate";
+
+export { unrenderableGlyphs };
 
 /**
  * Every string a member of staff types into the content editor, in the order the
