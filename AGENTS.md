@@ -1238,6 +1238,37 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
 - The page is in `tests/unit/reading-budget.test.tsx` (a copilot answer is read at a glance too).
   Evidence, Lighthouse numbers and the shot list: `docs/08-delivery/ai-copilot-design/`.
 
+## Admin platform screens — `/staff/users` · `/staff/workflows` · `/staff/settings` (S30–S32; read before touching them)
+
+- **All three are designed READ-ONLY screens over recorded data, each naming its missing service
+  in one line** — never re-stub them. Users & roles shows the recorded accounts + what each
+  role's permissions mean; Workflows shows the four processes the shipped modules already run
+  with their in-flight records; Tenant settings shows the configuration the product actually
+  applies. Nothing here provisions a user, runs a workflow or writes a setting.
+- **Users & roles.** The permission model's ONE reading is `lib/rbac/scope-vocabulary.ts` (the
+  frozen `rbac-scopes-v1` grants in plain words + the raw token; `tests/fixture-contract/access-control.test.ts`
+  fails if the scope set drifts from the contract). Roles are data
+  (`lib/fixtures/auth/access-control.json`): each role's scope list is EXACTLY its seeded
+  persona's in `auth/personas.json`, and the reader (`lib/api-client/access-control.ts`) is
+  fixture-only — `accessControlLiveModeEnabled() === false`, because no provisioning API exists
+  and no env var may claim one. The people table lists recorded sign-in accounts only; office
+  staff stay on `/staff/hr`.
+- **Workflows.** Definitions are recorded in `lib/fixtures/operations/workflows.json` with their
+  steps pinned to the enforcing module (`case-events-v1`'s stage order · the lot record's four
+  clerk states); the in-flight rows are composed live per source by `lib/api-client/workflows.ts`
+  (cases · applications + lot statuses · transfers · chapel bookings), and a source that cannot
+  answer marks only its own process unavailable. Never re-declare a stage or transfer word here.
+- **Tenant settings.** Rule rows read their values from the enforcing module
+  (`lib/tenant-settings.ts`); identity rows read the landing content document (edited at
+  `/staff/landing`); configuration states come from the real stores. `tenancy-config` is not in
+  this build, so the screen writes nothing, and platform-only items are named as facts — do not
+  add a `/platform/*` link to a product screen.
+- Page tests `tests/unit/{users,workflows,settings}-page.test.tsx` pin one `h1`, no write
+  controls and the honest states; all three are in `tests/unit/reading-budget.test.tsx`, so keep
+  the copy compressed (≤12-word opening, ≤30-word paragraphs/list items). The page titles carry
+  the **Admin Portal** suffix from the parallel portal rename — do not revert them to
+  `Staff Portal`. Evidence: `docs/08-delivery/admin-platform-design/`.
+
 ## Provisional receipts — the counter's paper (read before touching `/staff/billing/provisional-receipts`)
 
 - **The provisional slip is the counter's fallback, not the product's receipt** (F-18 /

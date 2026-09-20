@@ -1,0 +1,87 @@
+{
+  "_provenance": {
+    "status": "APP-AUTHORED role records — identity-access publishes no role table in this build",
+    "recorded": "2026-09-19",
+    "note": [
+      "rbac-scopes-v1 rule 4: roles are data, not code. No role/permission endpoint or contract is frozen, so this file records the four roles the identity-access seed actually grants (lib/fixtures/auth/personas.json, which mirrors identity-access/db/seeds.rb).",
+      "Each role's scope list is EXACTLY the seeded persona's scope list — admin@vm.demo, staff@vm.demo, agent@vm.demo, customer@vm.demo — in the same order; the role labels read the seed accounts' own names. tests/fixture-contract/access-control.test.ts fails on any drift, and on a scope outside docs/08-delivery/contracts/rbac-scopes-v1.md.",
+      "The roles screen (/staff/users) reads this file through lib/api-client/access-control.ts. The provisioning API that would create users and assign roles does not exist; the file is display data with provenance, never a write path."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "roles": [
+    {
+      "key": "administrator",
+      "label": "Administrator",
+      "detail": "Runs the whole park: every module, plus the account and the people in it.",
+      "holder_emails": ["admin@vm.demo"],
+      "scopes": [
+        "identity:roles:read",
+        "identity:users:manage",
+        "tenancy:tenants:manage",
+        "tenancy:modules:read",
+        "audit:events:read",
+        "catalog:read",
+        "catalog:write",
+        "orders:read",
+        "orders:write",
+        "billing:read",
+        "billing:write",
+        "accounting:read",
+        "accounting:post",
+        "cases:read",
+        "cases:write",
+        "scheduling:read",
+        "scheduling:write",
+        "property:read",
+        "property:write",
+        "hr:read",
+        "hr:write",
+        "documents:read",
+        "documents:write"
+      ]
+    },
+    {
+      "key": "staff",
+      "label": "Staff",
+      "detail": "The office's day-to-day work: cases, the schedule, billing, orders, catalog and papers.",
+      "holder_emails": ["staff@vm.demo"],
+      "scopes": [
+        "tenancy:modules:read",
+        "catalog:read",
+        "orders:read",
+        "orders:write",
+        "billing:read",
+        "billing:write",
+        "cases:read",
+        "cases:write",
+        "scheduling:read",
+        "scheduling:write",
+        "property:read",
+        "hr:read",
+        "documents:read",
+        "documents:write"
+      ]
+    },
+    {
+      "key": "agent",
+      "label": "Sales agent",
+      "detail": "Sells lots and services: orders and the property list, without office administration.",
+      "holder_emails": ["agent@vm.demo"],
+      "scopes": [
+        "tenancy:modules:read",
+        "catalog:read",
+        "orders:read",
+        "orders:write",
+        "property:read"
+      ]
+    },
+    {
+      "key": "customer",
+      "label": "Customer / family",
+      "detail": "The storefront and the family's own record — no staff work.",
+      "holder_emails": ["customer@vm.demo"],
+      "scopes": ["tenancy:modules:read", "catalog:read"]
+    }
+  ]
+}

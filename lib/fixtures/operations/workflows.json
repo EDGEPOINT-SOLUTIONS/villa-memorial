@@ -1,0 +1,65 @@
+{
+  "_provenance": {
+    "status": "APP-AUTHORED records of the four processes the product runs today — the workflow engine does not exist",
+    "recorded": "2026-09-19",
+    "note": [
+      "No workflow/config engine or contract exists, so the office cannot define its own steps, owners or order. This file records the processes the shipped modules already enforce — it is display data, not an executable definition.",
+      "The service-contract steps are case-events-v1's frozen seven-stage order (docs/08-delivery/contracts/case-events-v1.md); the lot-transfer steps are the four states of the office's own lot record (lib/lot-lifecycle.ts). tests/fixture-contract/workflows.test.ts fails on any drift from either vocabulary.",
+      "The purchase-application and chapel-booking steps are transcribed from the shipped flows (the property lot statuses + the purchase-application capture; lib/chapel-booking.ts + booking-events-v1).",
+      "The in-flight rows are NOT in this file: lib/api-client/workflows.ts reads the recorded records live (cases, lot transfers, chapel bookings, applications + lots). Nothing on the screen is invented here."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "workflows": [
+    {
+      "key": "service_contract",
+      "name": "Funeral service",
+      "summary": "A family's case moves from the first call to the completed service.",
+      "source": "case-events-v1 (frozen) — the seven-stage order funeral-cases enforces",
+      "steps": [
+        { "key": "inquiry", "label": "Inquiry" },
+        { "key": "retrieval", "label": "Retrieval" },
+        { "key": "preparation", "label": "Preparation" },
+        { "key": "viewing", "label": "Viewing" },
+        { "key": "ceremony", "label": "Ceremony" },
+        { "key": "interment", "label": "Interment" },
+        { "key": "completed", "label": "Completed" }
+      ]
+    },
+    {
+      "key": "purchase_application",
+      "name": "Lot purchase application",
+      "summary": "A family applies to buy a lot, and the office reserves and sells it.",
+      "source": "property-gis lot statuses + the purchase-application capture",
+      "steps": [
+        { "key": "captured", "label": "Application captured" },
+        { "key": "review", "label": "Office review" },
+        { "key": "reserved", "label": "Lot reserved" },
+        { "key": "sold", "label": "Lot sold" }
+      ]
+    },
+    {
+      "key": "lot_transfer",
+      "name": "Lot transfer",
+      "summary": "Ownership passes to a new person through four recorded office steps.",
+      "source": "the office's own lot record — lot-events-v1 defers transfers",
+      "steps": [
+        { "key": "submitted", "label": "Submitted" },
+        { "key": "verified", "label": "Verified" },
+        { "key": "approved", "label": "Approved" },
+        { "key": "completed", "label": "Completed" }
+      ]
+    },
+    {
+      "key": "chapel_booking",
+      "name": "Chapel booking",
+      "summary": "A family holds a chapel for a 3–9 day stay and the office confirms it.",
+      "source": "booking-events-v1 + the online chapel booking flow",
+      "steps": [
+        { "key": "requested", "label": "Chapel and dates chosen" },
+        { "key": "held", "label": "Held in the cart" },
+        { "key": "confirmed", "label": "Confirmed" }
+      ]
+    }
+  ]
+}

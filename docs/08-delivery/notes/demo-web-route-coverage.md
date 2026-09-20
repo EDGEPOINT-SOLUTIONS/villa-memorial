@@ -63,8 +63,9 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 | `/staff/store` | ✅ redirect to `/staff/landing`; the old separate store stub and its duplicate nav entry are gone (captain, 2026-09-18) |
 | `/staff/documents`, `/[id]` | ✅ repository + generation/export; upload disabled (no object store); `/new` ⚠ |
 | `/staff/hr`, `/[id]` | ✅ fixture-backed directory; `/new` ⚠ (hr service) |
-| `/staff/users` | ⚠ auth/roles are real; user provisioning is dev-authored; `/new` is the invite door |
-| `/staff/workflows`, `/new`, `/staff/settings` | ⚠ config/workflow engine deferred |
+| `/staff/users` | ✅ the people and the permission model over the recorded identity-access seed (`lib/fixtures/auth/access-control.json`, pinned to the seeded personas + `rbac-scopes-v1`): each account with its role and door, every permission in plain words beside its frozen token, and the invite path stated honestly. Read-only — no provisioning API exists; `/new` stays the honest not-wired door |
+| `/staff/workflows`, `/new` | ✅ the four processes the shipped modules already run (service contract · purchase application · lot transfer · chapel booking) with their REAL steps and the recorded records at each current step, owner included where recorded; each source reads independently (the property-backed process says “cannot be read” in property live mode). The workflow engine's absence is named in one line; `/new` stays the honest not-wired door |
+| `/staff/settings` | ✅ the park's configuration: the identity its public pages publish (read from the landing document), the business rules its modules apply (filing window · booking window · plan/lot terms · senior rules), what is configured/placeholder/waiting, and what only the platform can change. Read-only — `tenancy-config` is not in this build |
 | `/staff/audit` | ✅ frozen audit-events read |
 
 Every ⚠ page renders the shared `NotWiredState` with the unblocking contract named, after a
