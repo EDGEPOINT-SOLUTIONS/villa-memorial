@@ -28,6 +28,9 @@ import {
   TextField,
   type SkuOption,
 } from "@/components/content/content-editor-fields";
+import { RichTextEditor } from "@/components/content/rich-text-editor";
+import { GalleryEditor } from "@/components/content/gallery-editor";
+import { SpecsEditor } from "@/components/content/specs-editor";
 import {
   CONTENT_BLOCK_TYPES,
   CONTENT_RATE_REFS,
@@ -42,8 +45,14 @@ import {
 
 type SaveState = { tone: "ok" | "danger"; text: string } | null;
 
-function blankGalleryImage(id: string): ContentImage {
-  return { id, src: "", alt: "", caption: null, sample: false };
+/** Where a MediaPicker result lands: the storefront hero, the PDP gallery, or a content block. */
+type PickerTarget =
+  | { kind: "hero" }
+  | { kind: "gallery"; imageId: string }
+  | { kind: "block"; blockId: string; imageId: string };
+
+function blankHeroImage(): ContentImage {
+  return { id: "img-hero", src: "", alt: "", caption: null, sample: false };
 }
 
 export function CatalogueEntryEditor({
@@ -59,7 +68,7 @@ export function CatalogueEntryEditor({
   const [entry, setEntry] = useState<CatalogueEntry>(() => structuredClone(initial));
   const [pending, setPending] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>(null);
-  const [picker, setPicker] = useState<{ blockId: string; imageId: string } | null>(null);
+  const [picker, setPicker] = useState<PickerTarget | null>(null);
   const [newBlockType, setNewBlockType] = useState<ContentBlockType>("paragraph");
 
   const skuSet = new Set(skuOptions.map((option) => option.sku));
@@ -75,7 +84,7 @@ export function CatalogueEntryEditor({
     setEntry((current) => {
       const gallery = current.media.gallery.length > 0
         ? current.media.gallery
-        : [blankGalleryImage("img-hero")];
+        : [blankHeroImage()];
       const [first, ...rest] = gallery;
       const next = { ...first, ...patch };
       return { ...current, media: { hero: next.src || null, gallery: [next, ...rest] } };
@@ -242,7 +251,7 @@ export function CatalogueEntryEditor({
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => setPicker({ blockId: "__hero__", imageId: "__hero__" })}
+                onClick={() => setPicker({ kind: "hero" })}
               >
                 {hero?.src ? "Change photo" : "Choose photo"}
               </Button>
@@ -267,6 +276,59 @@ export function CatalogueEntryEditor({
               </label>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="card" aria-labelledby="entry-description-title">
+        <div className="card__body stack-3">
+          <div>
+            <h2 id="entry-description-title" className="text-lg">
+              Description
+            </h2>
+            <p className="text-sm text-muted" style={{ margin: 0 }}>
+              The long read on the product page — headings, bold, italic, lists and links. It prints as real
+              text, never HTML.
+            </p>
+          </div>
+          <RichTextEditor
+            value={entry.description}
+            onChange={(description) => patchEntry({ description })}
+            label="Product description"
+          />
+        </div>
+      </section>
+
+      <section className="card" aria-labelledby="entry-gallery-title">
+        <div className="card__body stack-3">
+          <div>
+            <h2 id="entry-gallery-title" className="text-lg">
+              Photographs
+            </h2>
+            <p className="text-sm text-muted" style={{ margin: 0 }}>
+              The product page&rsquo;s viewer and thumbnail rail. Drag to reorder, or use the arrows.
+            </p>
+          </div>
+          <GalleryEditor
+            images={entry.gallery}
+            onChange={(gallery) => patchEntry({ gallery })}
+            onPickImage={(imageId) => setPicker({ kind: "gallery", imageId })}
+            suggested={entry.media.gallery[0] ?? null}
+          />
+        </div>
+      </section>
+
+      <section className="card" aria-labelledby="entry-specs-title">
+        <div className="card__body stack-3">
+          <div>
+            <h2 id="entry-specs-title" className="text-lg">
+              Specifications
+            </h2>
+            <p className="text-sm text-muted" style={{ margin: 0 }}>
+              The formatted table the product page prints. Header names and rows are yours; money is a live
+              price, never a cell.
+            </p>
+          </div>
+          <SpecsEditor value={entry.specs} onChange={(specs) => patchEntry({ specs })} />
         </div>
       </section>
 
@@ -334,7 +396,7 @@ export function CatalogueEntryEditor({
                       skuOptions={skuOptions}
                       skuLabel={skuLabel}
                       onChange={replaceBlock}
-                      onPickImage={(imageId) => setPicker({ blockId: block.id, imageId })}
+                      onPickImage={(imageId) => setPicker({ kind: "block", blockId: block.id, imageId })}
                     />
                   </div>
                 </li>
@@ -351,8 +413,17 @@ export function CatalogueEntryEditor({
           const target = picker;
           setPicker(null);
           if (!target) return;
-          if (target.blockId === "__hero__") {
+          if (target.kind === "hero") {
             replaceHero({ src });
+            return;
+          }
+          if (target.kind === "gallery") {
+            setEntry((current) => ({
+              ...current,
+              gallery: current.gallery.map((image) =>
+                image.id === target.imageId ? { ...image, src } : image,
+              ),
+            }));
             return;
           }
           setEntry((current) => ({

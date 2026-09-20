@@ -18,7 +18,7 @@
 | `/` | ✅ content-model home (editable LandingPage document; live park map in the middle column) |
 | `/services`, `/services/death-at-home`, `/services/death-at-hospital`, `/transport` | ✅ client's 2026 a-la-carte/embalming/chapel sheets; chapel lines open the booking dialog |
 | `/facilities` | ✅ the park's rooms (chapel classes + the sheet's per-day rates) and the masterplan's grounds list; no room name/capacity/count (an open client question, said on the page) |
-| `/products`, `/products/[sku]` | ✅ 24 casket models from the 2026 sheet; sample imagery labelled illustrative |
+| `/products`, `/products/[sku]` | ✅ 24 casket models from the 2026 sheet; sample imagery labelled illustrative. The detail page renders the item entry's editable rich description, gallery viewer + thumbnail rail and specs table (durable `content-entries` store; no gallery falls back to the rule-derived sample figure) |
 | `/plans`, `/plans/[sku]`, `/plans/compare`, `/plans/senior-benefits`, `/plans/villa-memorial-plan`, `/packages` | ✅ plan tables + catalogue read the pricing/catalog stores |
 | `/lots`, `/lots/[id]`, `/lots/price-list-2026` | ✅ lot browse/filter, detail, 2026 lot families |
 | `/map` | ✅ shared park map — 2D masterplan + 3D mode, VIEW-ONLY for everyone (plot authoring is `property:write` on `/staff/property`) |

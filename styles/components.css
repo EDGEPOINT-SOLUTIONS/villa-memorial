@@ -8349,6 +8349,309 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-accent);
 }
 
+/* ===========================================================================
+ * Product-page content (PDP fields pass): rich description · gallery viewer +
+ * thumbnail rail · formatted specs table · the admin editors' three sections.
+ * Tokens only; the photograph leads and stays honest (sample chip + note).
+ * ========================================================================= */
+
+.rich-text {
+  display: grid;
+  gap: var(--space-3);
+  font-size: var(--text-md);
+  line-height: 1.65;
+  color: var(--color-text-secondary);
+}
+
+.rich-text h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  color: var(--color-text-primary);
+}
+
+.rich-text h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.rich-text p,
+.rich-text ul,
+.rich-text ol {
+  margin: 0;
+}
+
+.rich-text ul,
+.rich-text ol {
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-1);
+}
+
+.rich-text a {
+  color: var(--color-text-accent);
+  text-decoration: underline;
+}
+
+.pdp-gallery {
+  margin: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.pdp-gallery__main {
+  position: relative;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--marble-100);
+}
+
+.pdp-gallery__main img {
+  display: block;
+  width: 100%;
+  /* The height reset every img-level ratio in this file carries. */
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.pdp-gallery__caption {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+.pdp-gallery__rail {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+}
+
+.pdp-gallery__thumb {
+  position: relative;
+  display: block;
+  width: 6rem;
+  padding: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--marble-100);
+  cursor: pointer;
+}
+
+.pdp-gallery__thumb img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.pdp-gallery__thumb--active {
+  border-color: var(--sky-600);
+  border-width: 2px;
+}
+
+.pdp-gallery__thumb .casket-sample__mini {
+  position: absolute;
+  left: var(--space-1);
+  bottom: var(--space-1);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 0.94);
+}
+
+.pdp-gallery__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.pdp-specs {
+  width: 100%;
+}
+
+.pdp-specs th[scope="row"] {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.pdp-specs caption {
+  padding: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+/* --- rich-text editor (components/content/rich-text-editor.tsx) ----------- */
+
+.rte {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rte__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+}
+
+.rte-btn {
+  min-height: 2rem;
+  min-width: 2rem;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rte-btn:hover {
+  border-color: var(--sky-600);
+}
+
+.rte__host {
+  min-height: 9rem;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.rte__host:empty::before {
+  content: attr(data-placeholder);
+  color: var(--color-text-muted);
+}
+
+.rte__host h2 {
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+}
+
+.rte__host h3 {
+  font-size: var(--text-lg);
+}
+
+.rte__hint {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* --- specifications editor (components/content/specs-editor.tsx) ---------- */
+
+.specs-editor__scroll {
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+}
+
+.specs-editor {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.specs-editor th,
+.specs-editor td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--color-rule);
+  border-right: 1px solid var(--color-rule);
+  vertical-align: top;
+}
+
+.specs-editor thead th {
+  background: var(--sky-50);
+}
+
+.specs-editor__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.specs-editor input[type="text"] {
+  min-width: 8rem;
+}
+
+.specs-editor__row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 2.5rem;
+}
+
+/* --- gallery editor (components/content/gallery-editor.tsx) --------------- */
+
+.gallery-editor {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.gallery-editor__item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  cursor: grab;
+}
+
+.gallery-editor__item--dragging {
+  opacity: 0.55;
+}
+
+.gallery-editor__media {
+  position: relative;
+}
+
+.gallery-editor__order {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: rgb(255 255 255 / 0.94);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.gallery-editor__fields {
+  min-width: 0;
+}
+
+.gallery-editor__suggested {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+@media (max-width: 40rem) {
+  .gallery-editor__item {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 /* Map page: framed interactive surface */
 .map-shell {
   border: 1px solid var(--color-border);

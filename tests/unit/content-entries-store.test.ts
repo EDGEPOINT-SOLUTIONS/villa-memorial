@@ -1,4 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { ApiError } from "@/lib/api-client/api-error";
 import {
   getServiceEntry,
@@ -10,10 +13,21 @@ import { SERVICE_ENTRY_DEFS } from "@/lib/service-content";
 
 /**
  * The service-entry store (content-catalogue Phase 3): the three guide entries,
- * the seed-then-save seam, and the server veto on a price binding that does not
- * resolve against the live catalogue. The same pattern as the page-document
- * store.
+ * the seed-then-save seam, the durable journal, and the server veto on a price
+ * binding that does not resolve against the live catalogue.
  */
+
+let dir: string;
+
+beforeEach(async () => {
+  dir = await mkdtemp(path.join(os.tmpdir(), "vm-service-entries-"));
+  process.env.CONTENT_ENTRIES_STORE_PATH = path.join(dir, "entries.json");
+});
+
+afterEach(async () => {
+  delete process.env.CONTENT_ENTRIES_STORE_PATH;
+  await rm(dir, { recursive: true, force: true });
+});
 
 function edited(title: string) {
   const seed = seedServiceEntries().find((entry) => entry.key === "death-at-home")!;
@@ -66,5 +80,12 @@ describe("the service-entry store", () => {
     await saveServiceEntry("death-at-home", edited("Edited"));
     const after = seedServiceEntries().find((entry) => entry.key === "death-at-home")?.title;
     expect(before).toBe(after);
+  });
+
+  it("persists a save to the durable journal on disk", async () => {
+    await saveServiceEntry("death-at-home", edited("Death at home, revised"), "user-1");
+    const journal = await readFile(process.env.CONTENT_ENTRIES_STORE_PATH as string, "utf8");
+    expect(journal).toContain("entry_saved");
+    expect(journal).toContain("Death at home, revised");
   });
 });

@@ -1,16 +1,38 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { ApiError } from "@/lib/api-client/api-error";
 import {
   getItemEntry,
   listItemEntries,
   saveItemEntry,
 } from "@/lib/api-client/content-entries";
+import { CONTENT_SPECS_COLUMNS_MAX } from "@/lib/content-catalog";
 
 /**
- * The item-entry store (content-catalogue Phase 4): the casket/package entries
- * derive their identity from the live catalogue, keep only the authored half, and
- * refuse a price binding the catalogue cannot resolve.
+ * The item-entry store (content-catalogue Phase 4 + the PDP fields pass): the
+ * casket/package entries derive their identity from the live catalogue, keep the
+ * authored half (summary · rich description · gallery · specs · blocks), refuse a
+ * price binding the catalogue cannot resolve, and persist to the durable journal.
+ *
+ * Each test points CONTENT_ENTRIES_STORE_PATH at its own throwaway file, so one
+ * test's save can never leak into the next (the store is durable now).
  */
+
+let dir: string;
+
+beforeEach(async () => {
+  dir = await mkdtemp(path.join(os.tmpdir(), "vm-content-entries-"));
+  process.env.CONTENT_ENTRIES_STORE_PATH = path.join(dir, "entries.json");
+});
+
+const storePath = () => process.env.CONTENT_ENTRIES_STORE_PATH as string;
+
+afterEach(async () => {
+  delete process.env.CONTENT_ENTRIES_STORE_PATH;
+  await rm(dir, { recursive: true, force: true });
+});
 
 describe("the item-entry store", () => {
   it("serves an entry for every casket and package, in catalogue order", async () => {
@@ -24,11 +46,14 @@ describe("the item-entry store", () => {
     expect(keys).not.toContain("SRV-INTERMENT");
   });
 
-  it("derives the identity from the catalogue and starts without authored blocks", async () => {
+  it("derives the identity from the catalogue and starts without authored content", async () => {
     const entry = await getItemEntry("CSK-LUMINA");
     expect(entry?.sku).toBe("CSK-LUMINA");
     expect(entry?.title).toBe("Lumina casket");
     expect(entry?.blocks).toEqual([]);
+    expect(entry?.description).toBeNull();
+    expect(entry?.gallery).toEqual([]);
+    expect(entry?.specs).toBeNull();
     expect(entry?.updated_at).toBeNull();
   });
 
@@ -110,5 +135,69 @@ describe("the item-entry store", () => {
 
   it("refuses a SKU that is not a casket or package", async () => {
     await expect(saveItemEntry("SRV-INTERMENT", {})).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it("saves the rich description, gallery and specs, and serves them next read", async () => {
+    const seed = await getItemEntry("CSK-LUMINA");
+    await saveItemEntry(
+      "CSK-LUMINA",
+      {
+        ...seed,
+        description: {
+          nodes: [
+            { type: "heading", level: 2, text: "About the Lumina" },
+            { type: "paragraph", spans: [{ text: "A quiet, solid " }, { text: "hardwood", marks: ["bold"] }] },
+            { type: "bulletList", items: [[{ text: "Half lid" }], [{ text: "Full lid" }]] },
+          ],
+        },
+        gallery: [
+          { id: "g1", src: "/media/client/lumina-card-440.webp", alt: "The Lumina coffin", caption: null, sample: false },
+          { id: "g2", src: "/media/client/rose-wide-960.webp", alt: "A sample arrangement", caption: "Illustrative sample.", sample: true },
+        ],
+        specs: { columns: ["Material", "Finish"], rows: [["Metal", "White and gold"]] },
+      },
+      "editor@vm.demo",
+    );
+
+    const saved = await getItemEntry("CSK-LUMINA");
+    expect(saved?.description?.nodes).toHaveLength(3);
+    expect(saved?.gallery.map((image) => image.id)).toEqual(["g1", "g2"]);
+    expect(saved?.specs?.rows).toEqual([["Metal", "White and gold"]]);
+  });
+
+  it("refuses a 16th spec column and a sample gallery photo with no caption", async () => {
+    const seed = await getItemEntry("CSK-LUMINA");
+    const columns = Array.from({ length: CONTENT_SPECS_COLUMNS_MAX + 1 }, (_, i) => `Header ${i + 1}`);
+    await expect(
+      saveItemEntry("CSK-LUMINA", { ...seed, specs: { columns, rows: [] } }, "editor@vm.demo"),
+    ).rejects.toBeInstanceOf(ApiError);
+    await expect(
+      saveItemEntry(
+        "CSK-LUMINA",
+        {
+          ...seed,
+          gallery: [{ id: "s", src: "/media/client/lumina-card-440.webp", alt: "A sample", caption: null, sample: true }],
+        },
+        "editor@vm.demo",
+      ),
+    ).rejects.toBeInstanceOf(ApiError);
+  });
+
+  it("persists the saved entry to the durable journal", async () => {
+    const seed = await getItemEntry("CSK-WHITE-ROSE-FULL");
+    await saveItemEntry(
+      "CSK-WHITE-ROSE-FULL",
+      { ...seed, specs: { columns: ["Length"], rows: [["2.10 m"]] } },
+      "editor@vm.demo",
+    );
+    const journal = await readFile(storePath(), "utf8");
+    expect(journal).toContain("entry_saved");
+    expect(journal).toContain("2.10 m");
+    expect(journal).toContain("CSK-WHITE-ROSE-FULL");
+  });
+
+  it("fails honestly (500) when the journal on disk is corrupt", async () => {
+    await writeFile(storePath(), "{ not json", "utf8");
+    await expect(getItemEntry("CSK-LUMINA")).rejects.toBeInstanceOf(ApiError);
   });
 });
