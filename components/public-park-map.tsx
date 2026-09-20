@@ -1,18 +1,17 @@
 "use client";
 
 /**
- * Client-facing park map — multi-park (Villa Memorial · Loyola Gardens ·
- * Golden Haven). Uses the SAME shared store as staff, so plot edits made by
- * staff appear here (demo-local persistence). Read-only for customers: click a
- * plot for details; linked (Villa) plots show real lot info; demo-area plots
- * explain their status honestly.
+ * Client-facing park map — Villa Memorial Park (the product's ONE park; the demo
+ * Loyola Gardens / Golden Haven records were removed 2026-09-21). Uses the SAME
+ * shared store as staff, so plot edits made by staff appear here (demo-local
+ * persistence). Read-only for customers: click a plot for details; linked plots
+ * show real lot info; map-only plots explain their status honestly.
  *
  * Two connected modes (spec §3, docs/07-client-villa/park-3d-spec.md):
  *   · MAP — the plain masterplan image;
  *   · 3D  — the orbit-navigated park, built from the same masterplan, entered in
  *           FULL SCREEN, with every control INSIDE the experience.
- * Both read ONE plot store and the selection is shared; the 3D world exists for
- * the Villa park (the client's masterplan), the other parks keep their images.
+ * Both read ONE plot store and the selection is shared.
  *
  * VIEW-ONLY BY CONSTRUCTION (captain 2026-09-20). This public surface takes no
  * capability prop and resolves no session: it must never render an editing

@@ -144,17 +144,22 @@ export function RefinePanel({
         ) : null}
       </div>
 
-      <Group title="Park" open={isOpen("park")} onToggleOpen={() => toggleOpen("park")}>
-        {parks.map((option) => (
-          <OptionRow
-            key={option.id}
-            option={option}
-            count={counts.parks[option.id] ?? 0}
-            checked={filters.parks.includes(option.id)}
-            onToggle={() => onToggle("parks", option.id)}
-          />
-        ))}
-      </Group>
+      {/* The park group is a refine facet only when there is more than one park.
+          This product carries Villa Memorial Park alone, so the band names it and
+          the filter would be a one-option group. */}
+      {parks.length > 1 ? (
+        <Group title="Park" open={isOpen("park")} onToggleOpen={() => toggleOpen("park")}>
+          {parks.map((option) => (
+            <OptionRow
+              key={option.id}
+              option={option}
+              count={counts.parks[option.id] ?? 0}
+              checked={filters.parks.includes(option.id)}
+              onToggle={() => onToggle("parks", option.id)}
+            />
+          ))}
+        </Group>
+      ) : null}
 
       <Group title="Section" open={isOpen("section")} onToggleOpen={() => toggleOpen("section")}>
         {sections.map((section) => (

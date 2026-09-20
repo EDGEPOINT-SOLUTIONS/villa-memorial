@@ -6,6 +6,11 @@
  * to the signed-in tenant and a real switch needs the dev-authored tenancy
  * contract/session story. Flagged here so nobody mistakes it for real
  * multi-tenant switching.
+ *
+ * The product carries ONE tenant (Villa Memorial): the demo Loyola Gardens /
+ * Golden Haven entries were removed 2026-09-21. `TenantSwitcher` renders
+ * nothing while this list holds a single tenant — a one-option select is not a
+ * switch.
  */
 export type DemoTenant = {
   id: string;
@@ -16,6 +21,4 @@ export type DemoTenant = {
 
 export const DEMO_TENANTS: DemoTenant[] = [
   { id: "villa", name: "Villa Memorial", branch: "Isabela City", facility: "Main Chapel" },
-  { id: "loyola", name: "Loyola Gardens", branch: "Quezon City", facility: "Memorial Park" },
-  { id: "golden", name: "Golden Haven", branch: "Las Piñas", facility: "Crematorium" },
 ];

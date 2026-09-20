@@ -3,7 +3,6 @@ import lifecycleFile from "@/lib/fixtures/property/lot-lifecycle.json";
 import lotsFile from "@/lib/fixtures/property/lots.json";
 import casesFile from "@/lib/fixtures/operations/cases.json";
 import documentsFile from "@/lib/fixtures/documents/documents.json";
-import parksFile from "@/lib/fixtures/property/parks.json";
 import customersFile from "@/lib/fixtures/crm/customers.json";
 import appsFile from "@/lib/fixtures/property/purchase-applications.json";
 import { getLot } from "@/lib/api-client/property";
@@ -111,9 +110,6 @@ const documentsByNumber = new Map(
   (documentsFile as unknown as {
     documents: Array<{ document_number: string; related_case_number: string | null; status: string }>;
   }).documents.map((doc) => [doc.document_number, doc]),
-);
-const parkNames = (parksFile as unknown as { parks: Array<{ name: string }> }).parks.map(
-  (park) => park.name,
 );
 const customerNames = (customersFile as unknown as {
   customers: Array<{ first_name: string; last_name: string }>;
@@ -273,13 +269,14 @@ describe("exhumations are deliberate until every step is recorded", () => {
       expect(interment, `unknown interment ${exhumation.interment_id}`).toBeTruthy();
       expect(interment!.lot_id).toBe(exhumation.lot_id);
       expect(interment!.deceased_name).toBe(exhumation.deceased_name);
-      // The requester is a recorded customer, and the destination a recorded park.
+      // The requester is a recorded customer; the destination is a written
+      // receiving place. It is NOT required to be one of this product's parks —
+      // an exhumation can name an external cemetery (Loyola Gardens) — so only
+      // its presence is checked here, never a park cross-reference.
       expect(customerNames, `${exhumation.asked_by} is not a recorded customer`).toContain(
         exhumation.asked_by,
       );
-      expect(parkNames, `${exhumation.destination} is not a recorded park`).toContain(
-        exhumation.destination,
-      );
+      expect(exhumation.destination.trim(), `${exhumation.id} destination`).not.toBe("");
       expect(isCalendarDay(exhumation.asked_on), `${exhumation.id} asked_on`).toBe(true);
     }
   });
