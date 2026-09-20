@@ -219,10 +219,22 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   stub is a redirect to it and its duplicate nav entry is gone. Storefront
   COMMERCE settings live on `/staff/catalog`, `/staff/pricing`, `/staff/plans` —
   never recreate a second content route. Evidence: `tests/unit/content-editor-nav.test.ts`.
-- Public lot browse (/lots) filters plots by park, status and legend type; the
-  type-filter + live chip counts live in `lib/lots-legend.ts` (pure + unit-
-  tested at tests/unit/lots-legend.test.ts) and read types from
-  `lib/park-types.ts` — never inline that filter logic in the page. The demo
+- Public lot browse (/lots) is a **client-filtered product listing** (captain
+  2026-09-20: pictures on every lot, a sticky left filter, Amazon-style cards;
+  filtering must not reload — the URL is the view's serialisation, written with
+  `history.replaceState`). The server half (`app/(public)/lots/page.tsx`) shapes
+  each plot into a `LotListingItem`; the client half (`lot-listing.tsx` +
+  `lot-filters.tsx`, the "Refine lots by" panel: collapsible checkbox groups,
+  live per-option counts — zero counts stay visible, dimmed — and a min/max
+  price range) filters and sorts in place. ONE filter/sort model:
+  `lib/lot-listing.ts` (pure, unit-tested at `tests/unit/lot-listing.test.ts`)
+  — never inline that logic in a component. Every plot's photograph is derived
+  by ONE rule home, `lib/lot-imagery.ts` (linked lot's section → legend type →
+  the park's own plan), each card captioned for what the picture is (a section,
+  never "this plot"); the frozen Lot contract carries NO image field, so that
+  derivation is an open contract ask, not a fixture field. Cards reuse the
+  shared `.shop-grid`/`.shop-card` kit; `.lot-grid` only narrows the column
+  floor and the listing's CSS block owns the sticky rail / phone sheet. The demo
   lots' areas/prices are the 2026 lot sheet's family figures for their section
   (`lib/catalog-sources.ts`, pinned by `tests/fixture-contract/catalog-sources.test.ts`)
   — never a per-plot price.

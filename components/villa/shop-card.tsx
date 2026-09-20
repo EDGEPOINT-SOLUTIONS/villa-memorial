@@ -28,6 +28,10 @@ import type { ReactNode } from "react";
  * the photograph's link is `aria-hidden` with an empty alt so a screen reader
  * meets ONE link per product (the titled one below), never a duplicate.
  *
+ * ONE OPTIONAL STATUS ROW. `/lots` adds its availability chip under the price
+ * (the captain's 2026-09-20 listing pass); every other surface passes no
+ * `status` and renders exactly as before.
+ *
  * Size discipline (the reason the old page read as "no images"): the photograph
  * is the widest thing in the card, at the grid's full column width — never a
  * thumbnail beside text. `styles/components.css` carries one `.shop-grid`
@@ -51,6 +55,7 @@ export function ShopCard({
   meta,
   price,
   priceNote,
+  status,
   senior,
   caption,
   actions,
@@ -73,6 +78,9 @@ export function ShopCard({
   price: ReactNode;
   /** What the figure is ("regular SRP", "catalogue price", "per day"). */
   priceNote?: string;
+  /** Availability (the lot listing's Available/Reserved/Sold chip), under the
+   *  figure — the second thing a shopper reads. */
+  status?: ReactNode;
   /** The senior-citizen line, when the item has one. */
   senior?: ReactNode;
   /** What the photograph is. Required wherever `chip` is set. */
@@ -110,6 +118,7 @@ export function ShopCard({
           {price}
           {priceNote ? <span className="shop-card__unit">{priceNote}</span> : null}
         </div>
+        {status ? <div className="shop-card__status">{status}</div> : null}
         {senior ? <div className="shop-card__senior">{senior}</div> : null}
         <div className="shop-card__actions">{actions}</div>
       </div>

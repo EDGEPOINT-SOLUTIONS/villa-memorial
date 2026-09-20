@@ -1,21 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
-import { listLots, type Lot, type LotStatus } from "@/lib/api-client/property";
-import { formatMinorUnits } from "@/lib/money";
-import { SAMPLE_PARK_IMAGE, PARK_PLACE_BY_TYPE, PARK_PLACE_PHOTOS } from "@/lib/media";
-import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
-import { parkType } from "@/lib/park-types";
+import { listLots, type Lot } from "@/lib/api-client/property";
+import { lotPhoto } from "@/lib/lot-imagery";
+import { lotStatusLabel } from "@/lib/lot-labels";
 import {
-  legendTypeChips,
-  legendTypeFilter,
-  matchesPlotFilters,
-  type LegendPlotRow,
-} from "@/lib/lots-legend";
+  parseLotFilters,
+  parseLotsSort,
+  sectionOf,
+  type LotListingItem,
+} from "@/lib/lot-listing";
+import { PARK_TYPES, parkType } from "@/lib/park-types";
 import parksFile from "@/lib/fixtures/property/parks.json";
 import { pageMetadata } from "@/lib/seo";
+import { LotListing } from "./lot-listing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Memorial lots — Villa Memorial",
@@ -25,11 +23,23 @@ export const metadata: Metadata = pageMetadata({
 });
 
 /**
- * Public lot browse (Module D public face) — villa item-card grammar on the DOC
- * palette. Unlike a raw Lot API feed, this page mirrors what staff SEE on the
- * admin park maps: EVERY plot in every park (Villa Memorial · Loyola Gardens ·
- * Golden Haven), tagged with its legend type. Plots linked to a sellable Lot
- * (frozen contract) carry real prices; map-only demo plots are honest about it.
+ * Public lot browse (Module D public face) — a product listing, captain
+ * 2026-09-20: "still /lots have lots that doesn't have any images… the filter
+ * is in the left side it should be sticky… inspired by amazon product pages,
+ * but the theme color is our theme" — plus the two additions that made the
+ * filter panel a client-side "Refine lots by" surface.
+ *
+ * THE SERVER HALF of that split loads and shapes the data once:
+ *   · every plot becomes a `LotListingItem` with its photograph resolved
+ *     through the ONE imagery rule (lib/lot-imagery.ts) and each card's one
+ *     href already decided (the lot's page, or the plot on the park map);
+ *   · the filter/sort state is parsed from the query string so the first paint
+ *     is the filtered view a shareable URL describes.
+ *
+ * The client half (./lot-listing.tsx) filters, sorts and mirrors the state back
+ * into the URL without a navigation. The frozen `Lot` contract carries no image
+ * field — the imagery derivation and its open contract ask are documented in
+ * lib/lot-imagery.ts.
  */
 const PLOT_STATUSES = ["available", "reserved", "sold", "occupied"] as const;
 
@@ -55,17 +65,9 @@ function codeOrder(a: string, b: string): number {
 export default async function LotsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; park?: string; type?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { status, park, type } = await searchParams;
-  const parkFilter = park && SEED_PARKS.some((p) => p.id === park) ? park : undefined;
-  const statusFilter = (PLOT_STATUSES as readonly string[]).includes(status ?? "")
-    ? (status as LotStatus)
-    : undefined;
-  // Legend/plot-type filter — seeded legend ids from lib/park-types.ts (same
-  // source the park map legend and the plot cards read); the chip counts + row
-  // matching live in lib/lots-legend.ts so they stay unit-tested.
-  const typeFilter = legendTypeFilter(type);
+  const params = await searchParams;
 
   let lots: Lot[];
   try {
@@ -91,382 +93,110 @@ export default async function LotsPage({
       lot: plot.lot_id ? byLotId.get(plot.lot_id) ?? null : null,
     })),
   ).sort((a, b) => {
-    const pi = SEED_PARKS.findIndex((p) => p.id === a.park.id) - SEED_PARKS.findIndex((p) => p.id === b.park.id);
+    const pi =
+      SEED_PARKS.findIndex((p) => p.id === a.park.id) -
+      SEED_PARKS.findIndex((p) => p.id === b.park.id);
     return pi || codeOrder(a.plot.code, b.plot.code);
   });
 
-  const filtered = rows.filter((r) =>
-    matchesPlotFilters(r as LegendPlotRow, {
-      park: parkFilter,
-      status: statusFilter,
-      type: typeFilter,
-    }),
-  );
-  const totalPlots = rows.length;
+  const items: LotListingItem[] = rows.map(({ plot, park, lot }) => {
+    const type = parkType(plot.typeId);
+    const section = lot?.section ?? sectionOf(plot.sectionBlock);
+    const photo = lotPhoto({
+      plotCode: plot.code,
+      section: lot?.section,
+      typeId: plot.typeId,
+      parkImage: park.image,
+    });
+    const facts = lot
+      ? `Section ${lot.section} · Block ${lot.block} · ${lot.area_sqm} sqm`
+      : (plot.sectionBlock ?? "Map plot");
+    return {
+      key: `${park.id}-${plot.code}`,
+      code: plot.code,
+      href: lot
+        ? `/lots/${lot.id}`
+        : `/map?park=${park.id}&plot=${encodeURIComponent(plot.code)}`,
+      status: plot.status,
+      typeId: type.id,
+      typeName: type.name,
+      hasLot: lot !== null,
+      priceCents: lot?.price_cents ?? null,
+      currency: lot?.currency ?? "PHP",
+      parkId: park.id,
+      parkBranch: park.branch,
+      section,
+      areaSqm: lot?.area_sqm ?? null,
+      facts: lot?.owner_name
+        ? `${facts} · Owner: ${lot.owner_name}`
+        : plot.owner
+          ? `${facts} · Owner: ${plot.owner}`
+          : facts,
+      photo: {
+        src: photo.src,
+        srcSet: photo.srcSet,
+        width: photo.width,
+        height: photo.height,
+        caption: photo.caption,
+      },
+    };
+  });
 
-  // Legend chips: the plot types actually present after the park + status
-  // filters, each with its live count — so a visitor always sees what a type
-  // chip will show before clicking it (lib/lots-legend.ts keeps this tested).
-  const legendChips = legendTypeChips(
-    rows as LegendPlotRow[],
-    { park: parkFilter, status: statusFilter },
+  const parkOptions = SEED_PARKS.map((park) => ({ id: park.id, label: park.name }));
+  const statusOptions = PLOT_STATUSES.map((status) => ({
+    id: status,
+    label: lotStatusLabel(status),
+  }));
+  const typeOptions = PARK_TYPES.filter((type) => items.some((i) => i.typeId === type.id)).map(
+    (type) => ({ id: type.id, label: type.name, color: type.color }),
+  );
+  const sections = [...new Set(items.map((i) => i.section).filter((s): s is string => s !== null))];
+
+  const initialFilters = parseLotFilters(params, {
+    parks: parkOptions.map((p) => p.id),
+    statuses: statusOptions.map((s) => s.id),
+    types: typeOptions.map((t) => t.id),
+    sections,
+  });
+  const initialSort = parseLotsSort(
+    typeof params.sort === "string" ? params.sort : undefined,
   );
 
-  const q = (patch: { status?: string | null; park?: string | null; type?: string | null }) => {
-    const sp = new URLSearchParams();
-    const statusValue = patch.status === undefined ? statusFilter : patch.status;
-    const parkValue = patch.park === undefined ? parkFilter : patch.park;
-    const typeValue = patch.type === undefined ? typeFilter : patch.type;
-    if (statusValue) sp.set("status", statusValue);
-    if (parkValue) sp.set("park", parkValue);
-    if (typeValue) sp.set("type", typeValue);
-    const s = sp.toString();
-    return s ? `/lots?${s}` : "/lots";
-  };
+  const availableCount = items.filter((item) => item.status === "available").length;
 
   return (
     <>
-      <section className="hero-premium">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">Memorial lots</p>
-            <h1 className="hero-premium__title">Find a place of rest</h1>
-            <p className="hero-premium__lead">
-              Every plot on our park maps — each with its type, status and asking price
-              where published. Walk any plot on the{" "}
-              <Link href="/map">interactive park map</Link> or compare against the{" "}
-              <Link href="/lots/price-list-2026">2026 price list</Link>.
-            </p>
-            <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
-              {rows.filter((r) => r.plot.status === "available").length} available ·{" "}
-              {totalPlots} plots · {SEED_PARKS.length} parks
-            </p>
-            <nav className="seg-filter" aria-label="Filter by park">
-              <Link href={q({ park: null })} className={`pill-toggle${!parkFilter ? " pill-toggle--active" : ""}`}>
-                All parks
-              </Link>
-              {SEED_PARKS.map((p) => (
-                <Link key={p.id} href={q({ park: p.id })} className={`pill-toggle${parkFilter === p.id ? " pill-toggle--active" : ""}`}>
-                  {p.name}
-                </Link>
-              ))}
-            </nav>
-            <nav className="seg-filter" aria-label="Filter by status" style={{ marginTop: "var(--space-2)" }}>
-              <Link href={q({ status: null })} className={`pill-toggle${!statusFilter ? " pill-toggle--active" : ""}`}>
-                All statuses
-              </Link>
-              {PLOT_STATUSES.map((s) => (
-                <Link key={s} href={q({ status: s })} className={`pill-toggle${statusFilter === s ? " pill-toggle--active" : ""}`}>
-                  {lotStatusLabel(s)}
-                </Link>
-              ))}
-            </nav>
-            <nav className="seg-filter seg-filter--legend" aria-label="Filter by legend type" style={{ marginTop: "var(--space-2)" }}>
-              <Link href={q({ type: null })} className={`pill-toggle${!typeFilter ? " pill-toggle--active" : ""}`}>
-                All types
-              </Link>
-              {legendChips.map((t) => (
-                <Link
-                  key={t.id}
-                  href={q({ type: t.id })}
-                  className={`pill-toggle pill-toggle--type${typeFilter === t.id ? " pill-toggle--active" : ""}`}
-                  title={`${t.name} — ${t.count} plot${t.count === 1 ? "" : "s"}`}
-                >
-                  <span className="type-dot" style={{ background: t.color }} aria-hidden="true" />
-                  <span className="type-name">{t.name}</span>
-                  <span className="type-count">{t.count}</span>
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <figure className="hero-premium__media">
-            {/* The hero used the LEGEND TILE itself, whose baked-in "PRIMARY LOT"
-                banner and corner logo printed a second title inside a page that
-                already has one. It is now the tile's photograph alone
-                (scripts/build-composition-images.mjs) at 1×/2× widths. */}
-            {/* eslint-disable-next-line @next/next/no-img-element -- client lot photograph */}
-            <img
-              src={PARK_PLACE_PHOTOS.prime.replace("-720", "-480")}
-              srcSet={`${PARK_PLACE_PHOTOS.prime.replace("-720", "-480")} 480w, ${PARK_PLACE_PHOTOS.prime} 720w`}
-              sizes="(max-width: 60rem) 90vw, 32rem"
-              alt="Primary lots at Villa Memorial"
-            />
-            <figcaption>Primary lots — Villa Memorial, Isabela City</figcaption>
-          </figure>
+      {/* A compact head, not a photographic hero: the listing's own cards carry
+          every picture, and a 660px hero pushed the filters and results below
+          the fold ("answer at a glance", captain 2026-09-18). */}
+      <section className="page-hero lot-hero">
+        <p className="eyebrow-label">Memorial lots</p>
+        <h1 className="page-hero__title">Find a place of rest</h1>
+        <p className="page-hero__lead">
+          Every plot, pictured — with its type, status and price where published.
+        </p>
+        <p className="lot-hero__facts">
+          {availableCount} available · {items.length} plots · {SEED_PARKS.length} parks
+        </p>
+        <div className="lot-hero__actions">
+          <Link href="/map" className="btn btn--primary">
+            Walk the park map
+          </Link>
+          <Link href="/lots/price-list-2026" className="btn btn--secondary">
+            2026 price list
+          </Link>
         </div>
       </section>
 
-      {/* The gallery the captain asked for (2026-09-19): the lot page printed
-          three photographs above a long list of priced rows. Each KIND of place
-          now leads with the client's own photograph of that place at the shop
-          card's own size (448×336 at 1440), with its real plot counts and the
-          lowest available price of anything of that kind. The photographs are
-          the tiles' photographs alone (scripts/build-composition-images.mjs) —
-          never the marketing tile with its baked-in title band and logo. */}
-      <section className="stack-3" aria-labelledby="lot-kinds-title">
-        <header className="band-head">
-          <h2 className="band-head__title" id="lot-kinds-title">
-            The kinds of place you can choose
-          </h2>
-          <span className="band-head__count">
-            {legendChips.length} types · {rows.filter((r) => r.plot.status === "available").length}{" "}
-            of {totalPlots} plots available
-          </span>
-        </header>
-        <ul className="shop-grid">
-          {legendChips.map((t) => {
-            const ofType = rows.filter((r) => r.plot.typeId === t.id);
-            const availableOfType = ofType.filter((r) => r.plot.status === "available");
-            const prices = ofType
-              .map((r) => r.lot)
-              .filter((lot): lot is Lot => lot !== null)
-              .map((lot) => lot.price_cents);
-            const href = q({ type: t.id });
-            const photo = PARK_PLACE_BY_TYPE[t.id] ?? PARK_PLACE_PHOTOS.grounds;
-            return (
-              <li className="shop-card" key={t.id}>
-                <figure className="shop-card__figure">
-                  <Link href={href} className="shop-card__media" tabIndex={-1} aria-hidden="true">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- the client's lot photograph */}
-                    <img
-                      src={photo.replace("-720", "-480")}
-                      srcSet={`${photo.replace("-720", "-480")} 480w, ${photo} 720w`}
-                      width={720}
-                      height={540}
-                      sizes="(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 26rem"
-                      alt=""
-                      loading="lazy"
-                    />
-                  </Link>
-                  <figcaption className="shop-card__caption">
-                    {t.name.charAt(0) + t.name.slice(1).toLowerCase()} — the client&rsquo;s own
-                    photograph of the park.
-                  </figcaption>
-                </figure>
-                <div className="shop-card__body">
-                  <h3 className="shop-card__title">
-                    <Link href={href}>{t.name}</Link>
-                  </h3>
-                  <div className="shop-card__meta">
-                    {ofType.length} plot{ofType.length === 1 ? "" : "s"} · {availableOfType.length}{" "}
-                    available now
-                  </div>
-                  {prices.length > 0 ? (
-                    <div className="shop-card__price">
-                      {formatMinorUnits(Math.min(...prices), lots[0]?.currency ?? "PHP")}
-                      <span className="shop-card__unit">published asking price, from</span>
-                    </div>
-                  ) : (
-                    <div className="shop-card__price">
-                      Price on request
-                      <span className="shop-card__unit">the office quotes per plot</span>
-                    </div>
-                  )}
-                  <div className="shop-card__actions">
-                    <Link href={href} className="btn btn--secondary btn--sm">
-                      See {ofType.length} plot{ofType.length === 1 ? "" : "s"}
-                    </Link>
-                    <Link href="/map" className="btn btn--ghost btn--sm">
-                      Walk the map
-                    </Link>
-                  </div>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      {filtered.length !== rows.length ? (
-        <p className="text-sm text-muted" style={{ margin: "var(--space-3) 0 var(--space-2)" }}>
-          Showing {filtered.length} of {rows.length} plots —{" "}
-          <Link href="/lots">clear all filters</Link>.
-        </p>
-      ) : null}
-
-      {filtered.length === 0 ? (
-        <EmptyState
-          title="No plots match those filters"
-          hint="Clear a filter, or contact the memorial park office."
-        />
-      ) : (
-        // Composition pass (captain 2026-09-18): this was 56 equal shadowed
-        // cards, each reprinting its legend type's marketing tile — the same
-        // four pictures across the whole page. It is now one band per park with
-        // its real plot count and how many are available, the park's first plot
-        // led by the photograph of its actual legend type, and every other plot
-        // as a hairline row whose status, area and price are the point.
-        <div className="catalogue-index">
-          {SEED_PARKS.map((park) => {
-            const parkRows = filtered.filter((r) => r.park.id === park.id);
-            const [lead, ...rest] = parkRows;
-            if (!lead) return null;
-            const available = parkRows.filter((r) => r.plot.status === "available").length;
-            return (
-              <section key={park.id} className="cat-band" aria-label={park.name}>
-                <header className="band-head">
-                  <h2 className="band-head__title">{park.name}</h2>
-                  <span className="band-head__count">
-                    {parkRows.length} plot{parkRows.length === 1 ? "" : "s"} · {available} available
-                    · {park.branch}
-                  </span>
-                </header>
-
-                <LotLead row={lead} />
-
-                {rest.length > 0 ? (
-                  <ul className="ledger__list">
-                    {rest.map((row) => (
-                      <LotRow key={`${row.park.id}-${row.plot.code}`} row={row} />
-                    ))}
-                  </ul>
-                ) : null}
-              </section>
-            );
-          })}
-        </div>
-      )}
+      <LotListing
+        items={items}
+        parks={parkOptions}
+        statuses={statusOptions}
+        types={typeOptions}
+        sections={sections}
+        initialFilters={initialFilters}
+        initialSort={initialSort}
+      />
     </>
-  );
-}
-
-/** The plot's own facts, shared by the lead and the rows. */
-type PlotRow = {
-  plot: SeedPlot;
-  park: SeedPark;
-  lot: Lot | null;
-};
-
-/** Where the plot lives on the park map (a linked lot opens its own page). */
-function plotHref(row: PlotRow): string {
-  return row.lot
-    ? `/lots/${row.lot.id}`
-    : `/map?park=${row.park.id}&plot=${encodeURIComponent(row.plot.code)}`;
-}
-
-/** The published asking price, or the honest "on request" state for a map plot. */
-function plotPrice(row: PlotRow) {
-  return row.lot ? (
-    formatMinorUnits(row.lot.price_cents, row.lot.currency)
-  ) : (
-    <span className="text-sm text-muted">Price on request</span>
-  );
-}
-
-/** The plot's status + listing kind, at a glance. */
-function PlotStatus({ row }: { row: PlotRow }) {
-  const status = row.plot.status as LotStatus;
-  return (
-    <>
-      <Badge tone={LOT_TONE[status] ?? "neutral"}>
-        {lotStatusLabel(status) ?? status}
-      </Badge>
-      <span className="badge">{row.lot ? "Linked listing" : "Map plot"}</span>
-    </>
-  );
-}
-
-/** The band's dominant plot: its legend type's photograph, then every fact. */
-function LotLead({ row }: { row: PlotRow }) {
-  const type = parkType(row.plot.typeId);
-  // The composition derivative of the legend type's own tile (its photograph
-  // past the tile's logo and title band) — never the tile itself, whose
-  // baked-in "PRIMARY LOT" type would print inside a page that already names the
-  // type. Types the client has no photograph for fall back to the generic park
-  // photo rather than to a picture of a different kind of place.
-  const photo = PARK_PLACE_BY_TYPE[type.id] ?? SAMPLE_PARK_IMAGE;
-  const sizeable = photo.startsWith("/media/composition/");
-  return (
-    <article className="ledger__lead">
-      <figure className="ledger__media">
-        {/* eslint-disable-next-line @next/next/no-img-element -- client lot photograph */}
-        <img
-          src={sizeable ? photo.replace("-720", "-480") : photo}
-          srcSet={sizeable ? `${photo.replace("-720", "-480")} 480w, ${photo} 720w` : undefined}
-          /* The lead's media column is ~44% of the folio at desktop (measured
-             625px at 1440), so the size hint must say that — 26rem made the
-             browser fetch the 480 file for a 625px slot and upscale it. */
-          sizes="(max-width: 60rem) 90vw, 44vw"
-          alt={`${type.name} — Villa Memorial Park`}
-          loading="lazy"
-        />
-      </figure>
-      <div className="ledger__body">
-        <p className="ledger__eyebrow">
-          <span style={{ color: type.color }}>●</span> {type.name}
-        </p>
-        <h3 className="ledger__title">
-          <Link href={plotHref(row)}>
-            {row.plot.code} <span className="text-muted">· {row.park.name}</span>
-          </Link>
-        </h3>
-        <p className="ledger__note">
-          {row.lot
-            ? `Section ${row.lot.section} · Block ${row.lot.block} · ${row.lot.area_sqm} sqm`
-            : (row.plot.sectionBlock ?? "demo area")}
-          {row.plot.owner ? ` · Owner: ${row.plot.owner}` : ""}
-        </p>
-        <p className="ledger__figure">
-          {plotPrice(row)}
-          {row.lot ? <span className="ledger__unit">published lot price</span> : null}
-        </p>
-        <div className="lot-line__tags">
-          <PlotStatus row={row} />
-        </div>
-        <div className="ledger__actions">
-          {row.lot ? (
-            <Link href={`/lots/${row.lot.id}`} className="btn btn--primary btn--sm">
-              View listing
-            </Link>
-          ) : null}
-          <Link href={`/map?park=${row.park.id}&plot=${encodeURIComponent(row.plot.code)}`} className="btn btn--secondary btn--sm">
-            View on the park map
-          </Link>
-        </div>
-        {!row.lot ? (
-          <p className="text-sm text-muted">
-            Online purchase for map plots arrives with the geometry &amp; M1 contracts —
-            request it at the park office.
-          </p>
-        ) : null}
-      </div>
-    </article>
-  );
-}
-
-/** A supporting plot: code, type, status, area and figure, on one hairline row. */
-function LotRow({ row }: { row: PlotRow }) {
-  const type = parkType(row.plot.typeId);
-  const status = row.plot.status as LotStatus;
-  return (
-    <li className="ledger__entry">
-      <div className="ledger__row">
-        <h3 className="ledger__row-title">
-          <Link href={plotHref(row)}>{row.plot.code}</Link>
-        </h3>
-        <span className="ledger__row-figure">{plotPrice(row)}</span>
-        <p className="ledger__row-meta">
-          <span style={{ color: type.color }}>●</span> {type.name} ·{" "}
-          {lotStatusLabel(status) ?? status} ·{" "}
-          {row.lot
-            ? `Section ${row.lot.section} · Block ${row.lot.block} · ${row.lot.area_sqm} sqm`
-            : (row.plot.sectionBlock ?? "demo area")}
-          {row.plot.owner ? ` · Owner: ${row.plot.owner}` : ""}
-        </p>
-        <div className="ledger__row-actions">
-          {row.lot ? (
-            <Link href={`/lots/${row.lot.id}`} className="btn btn--secondary btn--sm">
-              View listing
-            </Link>
-          ) : null}
-          <Link
-            href={`/map?park=${row.park.id}&plot=${encodeURIComponent(row.plot.code)}`}
-            className="btn btn--secondary btn--sm"
-          >
-            View on the park map
-          </Link>
-        </div>
-      </div>
-    </li>
   );
 }
