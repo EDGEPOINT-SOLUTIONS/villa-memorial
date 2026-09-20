@@ -1,0 +1,213 @@
+#!/bin/bash
+# ============================================================================
+# villa-web host bootstrap — AWS shape A
+#
+# Rendered by Terraform from infra/aws/user-data.sh.tftpl. Runs once on first
+# boot (cloud-init) and is safe to re-run by hand:
+#
+#   sudo /var/lib/cloud/instance/user-data.txt      # or the rendered copy below
+#
+# What it does:
+#   1. mounts the attached gp3 EBS volume at Docker's data-root /var/lib/docker
+#      (so the compose named volume villa-web-data — container /app/.data —
+#      survives instance replacement);
+#   2. installs Docker + the Compose CLI plugin;
+#   3. materialises .env.production from SSM Parameter Store;
+#   4. clones the repository at the pinned ref;
+#   5. runs the production compose profile.
+#
+# Log: /var/log/villa-web-bootstrap.log
+# Recipe + verification: docs/08-delivery/deploying-web.md
+# Runbook: docs/08-delivery/aws-deploy.md
+# ============================================================================
+set -euo pipefail
+
+exec > >(tee -a /var/log/villa-web-bootstrap.log) 2>&1
+echo "=== villa-web bootstrap starting $(date -u +%FT%TZ) ==="
+
+# --- values injected by Terraform -------------------------------------------
+REGION="${region}"
+PARAM_PREFIX="${param_prefix}"
+REPO_URL="${repo_url}"
+GIT_REF="${git_ref}"
+APP_DIR="${app_dir}"
+GIT_TOKEN_PARAM="${git_token_param}"
+WEB_PORT="${web_port}"
+COMPOSE_VERSION="${compose_version}"
+
+ENV_FILE="$APP_DIR/.env.production"
+COMPOSE_FILE="docker-compose.production.yml"
+
+echo "region=$REGION app_dir=$APP_DIR git_ref=$GIT_REF web_port=$WEB_PORT"
+
+# ---------------------------------------------------------------------------
+# 1. Swap: the Next.js production build is memory-hungry on a small instance.
+# ---------------------------------------------------------------------------
+if [ ! -f /swapfile ]; then
+  echo "--- creating 2 GiB swap"
+  fallocate -l 2G /swapfile || dd if=/dev/zero of=/swapfile bs=1M count=2048
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  if ! grep -q "^/swapfile" /etc/fstab; then
+    echo "/swapfile none swap sw 0 0" >> /etc/fstab
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# 2. Docker engine + git (Docker is enabled but NOT started until the data
+#    volume is mounted, so its data-root lands on the attached EBS volume).
+# ---------------------------------------------------------------------------
+echo "--- installing docker and git"
+dnf install -y docker git
+systemctl enable docker
+
+if ! docker compose version >/dev/null 2>&1; then
+  echo "--- installing docker compose plugin $COMPOSE_VERSION"
+  mkdir -p /usr/libexec/docker/cli-plugins
+  curl -fsSL "https://github.com/docker/compose/releases/download/$COMPOSE_VERSION/docker-compose-linux-$(uname -m)" \
+    -o /usr/libexec/docker/cli-plugins/docker-compose
+  chmod +x /usr/libexec/docker/cli-plugins/docker-compose
+fi
+docker compose version
+
+# AWS CLI ships with AL2023; install only if missing.
+if ! command -v aws >/dev/null 2>&1; then
+  dnf install -y awscli-2 || dnf install -y awscli
+fi
+aws --version
+
+# ---------------------------------------------------------------------------
+# 3. Attach the data volume at Docker's data-root.
+#    The Terraform volume attachment completes a few seconds after the instance
+#    is created, so wait for the second (non-root, unmounted) disk to appear.
+# ---------------------------------------------------------------------------
+find_data_disk() {
+  local root_src root_disk dev name
+  root_src=$(findmnt -n -o SOURCE / || true)
+  root_disk=$(lsblk -no PKNAME "$root_src" 2>/dev/null | head -n1 || true)
+  if [ -z "$root_disk" ]; then
+    # Fallback: strip a partition suffix (sda1 / nvme0n1p1) to get the disk name.
+    root_disk=$(basename "$root_src" | sed -E 's/p?[0-9]+$//')
+  fi
+  for dev in $(lsblk -dpno NAME); do
+    name=$(basename "$dev")
+    if [ "$name" = "$root_disk" ]; then
+      continue
+    fi
+    if lsblk -no MOUNTPOINT "$dev" | grep -q .; then
+      continue
+    fi
+    printf '%s' "$dev"
+    return 0
+  done
+  return 1
+}
+
+echo "--- waiting for the persistent data volume (up to 5 min)"
+DATA_DEV=""
+tries=0
+while [ "$tries" -lt 60 ]; do
+  DATA_DEV=$(find_data_disk || true)
+  if [ -n "$DATA_DEV" ]; then
+    break
+  fi
+  tries=$((tries + 1))
+  sleep 5
+done
+
+if [ -z "$DATA_DEV" ]; then
+  echo "WARNING: no data volume found; Docker will use the root volume." >&2
+else
+  echo "--- data device: $DATA_DEV"
+  if ! blkid "$DATA_DEV" >/dev/null 2>&1; then
+    echo "--- formatting $DATA_DEV"
+    mkfs.ext4 -L villa-web-data "$DATA_DEV"
+  fi
+  DATA_UUID=$(blkid -s UUID -o value "$DATA_DEV")
+  mkdir -p /var/lib/docker
+  if ! grep -q "villa-web-data" /etc/fstab; then
+    printf 'UUID=%s /var/lib/docker ext4 defaults,nofail 0 2\n' "$DATA_UUID" >> /etc/fstab
+  fi
+  mountpoint -q /var/lib/docker || mount /var/lib/docker
+  echo "--- mounted $DATA_DEV at /var/lib/docker (uuid $DATA_UUID)"
+fi
+
+echo "--- starting docker"
+systemctl start docker
+systemctl is-active docker
+
+# ---------------------------------------------------------------------------
+# 4. Materialise .env.production from SSM Parameter Store.
+# ---------------------------------------------------------------------------
+get_param() {
+  aws ssm get-parameter --region "$REGION" --name "$PARAM_PREFIX/$1" \
+    --query 'Parameter.Value' --output text 2>/dev/null || true
+}
+
+get_secure_param() {
+  aws ssm get-parameter --region "$REGION" --name "$1" --with-decryption \
+    --query 'Parameter.Value' --output text 2>/dev/null || true
+}
+
+echo "--- materialising $ENV_FILE from SSM $PARAM_PREFIX"
+SITE_URL_VALUE=$(get_param site_url)
+if [ -z "$SITE_URL_VALUE" ]; then
+  echo "ERROR: SSM parameter $PARAM_PREFIX/site_url is missing — cannot write a valid .env.production." >&2
+  exit 1
+fi
+
+mkdir -p "$APP_DIR"
+umask 077
+: > "$ENV_FILE"
+printf 'SITE_URL=%s\n' "$SITE_URL_VALUE" >> "$ENV_FILE"
+printf 'WEB_PORT=%s\n' "$WEB_PORT" >> "$ENV_FILE"
+
+# A parameter that is absent = an empty URL = that surface stays on fixtures.
+GATEWAY_VARS="AUTH_BASE_URL COMMERCE_BASE_URL PROPERTY_BASE_URL OPERATIONS_BASE_URL BILLING_BASE_URL SCHEDULING_BASE_URL DOCUMENTS_BASE_URL AUDIT_BASE_URL"
+for var_name in $GATEWAY_VARS; do
+  param_name=$(printf '%s' "$var_name" | tr '[:upper:]' '[:lower:]')
+  param_value=$(get_param "$param_name")
+  if [ -n "$param_value" ]; then
+    printf '%s=%s\n' "$var_name" "$param_value" >> "$ENV_FILE"
+  fi
+done
+
+TENANT_VALUE=$(get_param tenant_display_name)
+if [ -n "$TENANT_VALUE" ]; then
+  printf 'TENANT_DISPLAY_NAME=%s\n' "$TENANT_VALUE" >> "$ENV_FILE"
+fi
+chmod 600 "$ENV_FILE"
+echo "--- wrote $ENV_FILE ($(wc -l < "$ENV_FILE") lines)"
+
+# ---------------------------------------------------------------------------
+# 5. Fetch the application.
+# ---------------------------------------------------------------------------
+CLONE_URL="$REPO_URL"
+if [ -n "$GIT_TOKEN_PARAM" ]; then
+  GIT_TOKEN=$(get_secure_param "$GIT_TOKEN_PARAM")
+  if [ -n "$GIT_TOKEN" ]; then
+    CLONE_URL=$(printf '%s' "$REPO_URL" | sed "s#^https://#https://x-access-token:$GIT_TOKEN@#")
+  fi
+fi
+
+echo "--- fetching $GIT_REF into $APP_DIR"
+mkdir -p "$APP_DIR"
+cd "$APP_DIR"
+if [ ! -d .git ]; then
+  git init -q
+  git remote add origin "$CLONE_URL"
+else
+  git remote set-url origin "$CLONE_URL"
+fi
+git fetch --depth 1 origin "$GIT_REF"
+git checkout --force FETCH_HEAD
+
+# ---------------------------------------------------------------------------
+# 6. Build and run the production profile.
+# ---------------------------------------------------------------------------
+echo "--- docker compose up -d --build"
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --build
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" ps
+
+echo "=== villa-web bootstrap complete $(date -u +%FT%TZ) ==="

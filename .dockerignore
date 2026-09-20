@@ -31,3 +31,9 @@ legacy-mockup
 tests
 .agents
 .claude
+
+# Terraform working dirs/state (infra/aws) must never enter the build context:
+# a local `.terraform/` holds provider binaries hundreds of MB large.
+**/.terraform
+**/*.tfstate
+**/*.tfstate.*

@@ -23,6 +23,12 @@ in the env file — an env file cannot switch them back on (verified; see §7).
 
 ## 1 · Build and run
 
+> **Hosting this on AWS?** The deployable infrastructure (one EC2 host + ALB +
+> managed HTTPS + Route 53, parameterized by account/region/domain) and its
+> runbook live in `infra/aws/` and [`aws-deploy.md`](aws-deploy.md). That
+> package consumes this production profile unchanged — it does not replace any
+> guarantee below.
+
 ```sh
 cp .env.production.example .env.production     # then edit it — at minimum SITE_URL
 docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
