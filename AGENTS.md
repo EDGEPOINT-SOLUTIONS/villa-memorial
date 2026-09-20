@@ -80,6 +80,28 @@ on backend services.
   caps, pan containers' `overflow-x`, and the closed utility vocabulary — add the rule in the
   same commit as the class, and `grep "^\\.<class> {"` first).
 
+## Component kit — the settled patterns (read before building any new screen)
+
+- **`components/kit/` is the one home for the repeated layouts.** `DataTable` (admin tables:
+  header, sortable columns, status chips, empty state, self-panning), `ResultsGrid` +
+  `ProductCard` (the card grid and the photograph-first product card), `FilterRail` (sticky
+  grouped filter panel with counts, a price group and a phone sheet), `StatCard` (a KPI
+  figure), `StatusChip` and `EmptyState`. The kit's own `README.md` carries the rules it
+  encodes (tokens only; figures/labels/status lead; every list has an empty AND a no-match
+  state; photographs lead; honest data only) and its adoption status.
+- **New screens render the kit; they do not invent a layout.** A table, chip, KPI tile or empty
+  state copied into a page is the defect this kit exists to stop. If a screen truly needs a
+  shape the kit lacks, add it to `components/kit/` (small, typed, tested, honesty rule in the
+  file header) so the next screen inherits it. Domain vocabulary stays in the feature module;
+  the kit stays generic.
+- **Migration is markup-for-markup, no restyle.** The kit emits the existing
+  `styles/components.css` classes (`.table`/`.table-wrapper`, `.badge`, `.empty-state`,
+  `.kpi-card`, `.shop-card`/`.shop-grid`); a migration that changes how a page looks is a bug.
+  Migrated: `/staff/inventory`, `/staff/accounting`, `/staff/notifications`, `/staff/workflows`,
+  `/staff/settings`, `/staff/users`. The public pages adopt `ProductCard`/`ResultsGrid`/
+  `FilterRail` in the follow-up pass after the `/lots` rebuild. Kit CSS lives in the
+  "Component kit" blocks of `styles/components.css` so the typography gate scans it.
+
 ## Self-check commands (before every PR)
 ```bash
 npm run lint && npm run typecheck && npm test        # unit + fixture-contract tests

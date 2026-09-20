@@ -1,6 +1,10 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/ui/empty-state";
+import {
+  DataTable,
+  StatCard,
+  StatusChip,
+  type DataTableColumn,
+} from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { ApiError } from "@/lib/api-client/api-error";
@@ -21,6 +25,8 @@ import {
   movementDelta,
   sortInventoryItems,
   sortMovements,
+  type InventoryItem,
+  type InventoryMovement,
 } from "@/lib/inventory";
 
 export const metadata = { title: "Inventory — Admin Portal" };
@@ -41,6 +47,10 @@ export const metadata = { title: "Inventory — Admin Portal" };
  *
  * READ-ONLY: purchasing and stock adjustments arrive with the inventory service;
  * nothing on this screen writes.
+ *
+ * Layout renders through the component kit (`components/kit`): the two tables are
+ * `DataTable`, the KPI tiles `StatCard`, each state chip `StatusChip` — the same
+ * markup the page rendered by hand, now from one home.
  */
 
 type InventorySearch = {
@@ -50,6 +60,27 @@ type InventorySearch = {
 };
 
 const STOCK_STATES = ["out", "low", "in_stock"] as const;
+
+const ITEM_COLUMNS: ReadonlyArray<DataTableColumn<InventoryItem>> = [
+  { key: "item", header: "Item" },
+  { key: "category", header: "Category" },
+  { key: "on_hand", header: "On hand" },
+  { key: "state", header: "State" },
+  { key: "reorder", header: "Reorder at", numeric: true },
+  { key: "supplier", header: "Supplier" },
+  { key: "location", header: "Location" },
+  { key: "cost", header: "Cost", numeric: true },
+  { key: "price", header: "Price", numeric: true },
+];
+
+const MOVEMENT_COLUMNS: ReadonlyArray<DataTableColumn<InventoryMovement>> = [
+  { key: "date", header: "Date", className: "nowrap" },
+  { key: "item", header: "Item" },
+  { key: "movement", header: "Movement" },
+  { key: "change", header: "Change", numeric: true },
+  { key: "reference", header: "Reference" },
+  { key: "by", header: "Recorded by" },
+];
 
 function isStockState(value: string): value is (typeof STOCK_STATES)[number] {
   return (STOCK_STATES as readonly string[]).includes(value);
@@ -141,38 +172,32 @@ export default async function InventoryPage({
 
       <PageSection>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Items tracked</span>
-              <span className="kpi-card__value">{summary.tracked}</span>
-              <span className="kpi-card__sub">{summary.in_stock} in stock</span>
-            </span>
-          </span>
-          <Link href="/staff/inventory?state=out" className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Out of stock</span>
-              <span className="kpi-card__value">{summary.out}</span>
-              <span className="kpi-card__sub">reorder now</span>
-            </span>
-          </Link>
-          <Link href="/staff/inventory?state=low" className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Low stock</span>
-              <span className="kpi-card__value">{summary.low}</span>
-              <span className="kpi-card__sub">at or below the reorder level</span>
-            </span>
-          </Link>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Stock value (at cost)</span>
-              <span className="kpi-card__value">{formatMinorUnits(summary.cost_cents)}</span>
-              <span className="kpi-card__sub">
-                {summary.cost_missing > 0
-                  ? `${summary.cost_missing} item${summary.cost_missing === 1 ? "" : "s"} ${summary.cost_missing === 1 ? "carries" : "carry"} no recorded cost`
-                  : "recorded cost × on hand"}
-              </span>
-            </span>
-          </span>
+          <StatCard
+            label="Items tracked"
+            value={summary.tracked}
+            sub={`${summary.in_stock} in stock`}
+          />
+          <StatCard
+            href="/staff/inventory?state=out"
+            label="Out of stock"
+            value={summary.out}
+            sub="reorder now"
+          />
+          <StatCard
+            href="/staff/inventory?state=low"
+            label="Low stock"
+            value={summary.low}
+            sub="at or below the reorder level"
+          />
+          <StatCard
+            label="Stock value (at cost)"
+            value={formatMinorUnits(summary.cost_cents)}
+            sub={
+              summary.cost_missing > 0
+                ? `${summary.cost_missing} item${summary.cost_missing === 1 ? "" : "s"} ${summary.cost_missing === 1 ? "carries" : "carry"} no recorded cost`
+                : "recorded cost × on hand"
+            }
+          />
         </div>
       </PageSection>
 
@@ -223,88 +248,71 @@ export default async function InventoryPage({
           ) : null}
         </form>
 
-        {items.length === 0 ? (
-          <EmptyState
-            title={hasFilter ? "No stock matches your filter" : "No stock recorded"}
-            hint={
-              hasFilter
-                ? "Try a different category, state or search."
-                : "Stock lines appear here once the office records them."
+        <DataTable<InventoryItem>
+          columns={ITEM_COLUMNS}
+          rows={items}
+          rowKey={(item) => item.id}
+          renderCell={(item, column) => {
+            const state = inventoryState(item);
+            switch (column.key) {
+              case "item":
+                return (
+                  <>
+                    <div className="table__name">{item.name}</div>
+                    <div className="table__sub">
+                      <code>{item.sku}</code>
+                    </div>
+                  </>
+                );
+              case "category":
+                return INVENTORY_CATEGORY_LABEL[item.category];
+              case "on_hand":
+                return (
+                  <>
+                    {item.on_hand} <span className="text-muted text-sm">{item.unit}</span>
+                  </>
+                );
+              case "state":
+                return (
+                  <StatusChip tone={INVENTORY_STATE_TONE[state]}>
+                    {INVENTORY_STATE_LABEL[state]}
+                  </StatusChip>
+                );
+              case "reorder":
+                return item.reorder_level > 0 ? item.reorder_level : "—";
+              case "supplier":
+                return item.supplier ?? <span className="text-muted">Not recorded</span>;
+              case "location":
+                return item.location ?? <span className="text-muted">—</span>;
+              case "cost":
+                return item.cost_cents === null ? (
+                  <span className="text-muted">—</span>
+                ) : (
+                  formatMinorUnits(item.cost_cents)
+                );
+              case "price":
+                return item.price_cents === null ? (
+                  <span className="text-muted">Not listed</span>
+                ) : (
+                  formatMinorUnits(item.price_cents)
+                );
+              default:
+                return null;
             }
-          />
-        ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <caption>
-                Out-of-stock and low rows lead; every amount is the recorded file, and a
-                catalogue price is read live from the catalogue.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Item</th>
-                  <th scope="col">Category</th>
-                  <th scope="col">On hand</th>
-                  <th scope="col">State</th>
-                  <th scope="col" className="table__numeric">
-                    Reorder at
-                  </th>
-                  <th scope="col">Supplier</th>
-                  <th scope="col">Location</th>
-                  <th scope="col" className="table__numeric">
-                    Cost
-                  </th>
-                  <th scope="col" className="table__numeric">
-                    Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {items.map((item) => {
-                  const state = inventoryState(item);
-                  return (
-                    <tr key={item.id}>
-                      <td>
-                        <div className="table__name">{item.name}</div>
-                        <div className="table__sub">
-                          <code>{item.sku}</code>
-                        </div>
-                      </td>
-                      <td>{INVENTORY_CATEGORY_LABEL[item.category]}</td>
-                      <td>
-                        {item.on_hand}{" "}
-                        <span className="text-muted text-sm">{item.unit}</span>
-                      </td>
-                      <td>
-                        <Badge tone={INVENTORY_STATE_TONE[state]}>
-                          {INVENTORY_STATE_LABEL[state]}
-                        </Badge>
-                      </td>
-                      <td className="table__numeric">
-                        {item.reorder_level > 0 ? item.reorder_level : "—"}
-                      </td>
-                      <td>{item.supplier ?? <span className="text-muted">Not recorded</span>}</td>
-                      <td>{item.location ?? <span className="text-muted">—</span>}</td>
-                      <td className="table__numeric">
-                        {item.cost_cents === null ? (
-                          <span className="text-muted">—</span>
-                        ) : (
-                          formatMinorUnits(item.cost_cents)
-                        )}
-                      </td>
-                      <td className="table__numeric">
-                        {item.price_cents === null ? (
-                          <span className="text-muted">Not listed</span>
-                        ) : (
-                          formatMinorUnits(item.price_cents)
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+          }}
+          caption={
+            <>
+              Out-of-stock and low rows lead; every amount is the recorded file, and a
+              catalogue price is read live from the catalogue.
+            </>
+          }
+          emptyTitle={hasFilter ? "No stock matches your filter" : "No stock recorded"}
+          emptyHint={
+            hasFilter
+              ? "Try a different category, state or search."
+              : "Stock lines appear here once the office records them."
+          }
+        />
       </PageSection>
 
       <PageSection>
@@ -313,59 +321,49 @@ export default async function InventoryPage({
           Newest first — what came in, what went to a case, and every stock adjustment on
           record. {movements.length} movement{movements.length === 1 ? "" : "s"}.
         </p>
-        {movements.length === 0 ? (
-          <EmptyState
-            title="No movements recorded"
-            hint="Received, allocated and adjusted rows appear here once the office records them."
-          />
-        ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <caption>
-                Every movement sums to the item&rsquo;s on-hand count — the stock file cannot
-                carry a quantity its own history contradicts.
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Item</th>
-                  <th scope="col">Movement</th>
-                  <th scope="col" className="table__numeric">
-                    Change
-                  </th>
-                  <th scope="col">Reference</th>
-                  <th scope="col">Recorded by</th>
-                </tr>
-              </thead>
-              <tbody>
-                {movements.map((movement) => {
-                  const item = itemsById.get(movement.item_id);
-                  return (
-                    <tr key={movement.id}>
-                      <td className="nowrap">{formatDay(movement.at)}</td>
-                      <td>
-                        <div className="table__name">{item?.name ?? movement.item_id}</div>
-                        <div className="table__sub">
-                          <code>{item?.sku ?? movement.item_id}</code>
-                        </div>
-                      </td>
-                      <td>
-                        <Badge tone={MOVEMENT_KIND_TONE[movement.kind]}>
-                          {MOVEMENT_KIND_LABEL[movement.kind]}
-                        </Badge>
-                      </td>
-                      <td className="table__numeric">{movementDelta(movement.quantity)}</td>
-                      <td>
-                        {movement.reference ? <code>{movement.reference}</code> : "—"}
-                      </td>
-                      <td>{movement.by ?? <span className="text-muted">—</span>}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <DataTable<InventoryMovement>
+          columns={MOVEMENT_COLUMNS}
+          rows={movements}
+          rowKey={(movement) => movement.id}
+          renderCell={(movement, column) => {
+            const item = itemsById.get(movement.item_id);
+            switch (column.key) {
+              case "date":
+                return formatDay(movement.at);
+              case "item":
+                return (
+                  <>
+                    <div className="table__name">{item?.name ?? movement.item_id}</div>
+                    <div className="table__sub">
+                      <code>{item?.sku ?? movement.item_id}</code>
+                    </div>
+                  </>
+                );
+              case "movement":
+                return (
+                  <StatusChip tone={MOVEMENT_KIND_TONE[movement.kind]}>
+                    {MOVEMENT_KIND_LABEL[movement.kind]}
+                  </StatusChip>
+                );
+              case "change":
+                return movementDelta(movement.quantity);
+              case "reference":
+                return movement.reference ? <code>{movement.reference}</code> : "—";
+              case "by":
+                return movement.by ?? <span className="text-muted">—</span>;
+              default:
+                return null;
+            }
+          }}
+          caption={
+            <>
+              Every movement sums to the item&rsquo;s on-hand count — the stock file cannot
+              carry a quantity its own history contradicts.
+            </>
+          }
+          emptyTitle="No movements recorded"
+          emptyHint="Received, allocated and adjusted rows appear here once the office records them."
+        />
       </PageSection>
     </>
   );

@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
+import {
+  DataTable,
+  StatusChip,
+  type DataTableColumn,
+} from "@/components/kit";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
@@ -12,6 +16,7 @@ import {
   ROLE_MATRIX_NOTE,
   initialsOf,
   permissionCountLabel,
+  type AccessAccount,
   type AccessRole,
 } from "@/lib/access-control";
 import { loadAccessControlRoster } from "@/lib/api-client/access-control";
@@ -35,7 +40,19 @@ export const metadata = { title: "Users & roles — Admin Portal" };
  * Every scope printed comes from `rbac-scopes-v1` through
  * `lib/rbac/scope-vocabulary.ts`; the role records are pinned to the seeded
  * personas by `tests/fixture-contract/access-control.test.ts`.
+ *
+ * Layout renders through the component kit (`components/kit`) — the people table
+ * is `DataTable`, the state chips `StatusChip`.
  */
+
+const PEOPLE_COLUMNS: ReadonlyArray<DataTableColumn<AccessAccount>> = [
+  { key: "person", header: "Person" },
+  { key: "email", header: "Email", className: "text-sm" },
+  { key: "role", header: "Role" },
+  { key: "permissions", header: "Permissions" },
+  { key: "portal", header: "Portal", className: "text-sm" },
+  { key: "state", header: "State" },
+];
 
 /** One role card: what it is, who holds it, and every permission in plain words. */
 function RoleCard({ role }: { role: AccessRole }) {
@@ -45,7 +62,7 @@ function RoleCard({ role }: { role: AccessRole }) {
       header={
         <div className="row row--space">
           <h3 id={`role-${role.key}`}>{role.label}</h3>
-          <Badge tone="neutral">{permissionCountLabel(role.scopes.length)}</Badge>
+          <StatusChip tone="neutral">{permissionCountLabel(role.scopes.length)}</StatusChip>
         </div>
       }
     >
@@ -106,7 +123,7 @@ export default async function UsersPage() {
       <PageHeader
         eyebrow="Administration"
         title="Users & roles"
-        actions={<Badge tone="warning">Read-only</Badge>}
+        actions={<StatusChip tone="warning">Read-only</StatusChip>}
       />
 
       <PageSection>
@@ -133,57 +150,53 @@ export default async function UsersPage() {
           The recorded sign-in accounts and the role each one holds. Office staff records live in
           the Staff directory.
         </p>
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <caption>{ACCOUNT_STATE_NOTE}</caption>
-            <thead>
-              <tr>
-                <th scope="col">Person</th>
-                <th scope="col">Email</th>
-                <th scope="col">Role</th>
-                <th scope="col">Permissions</th>
-                <th scope="col">Portal</th>
-                <th scope="col">State</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account) => (
-                <tr key={account.id}>
-                  <th scope="row">
-                    <span className="name-cell">
-                      <span className="name-avatar" aria-hidden="true">
-                        {initialsOf(account.name)}
-                      </span>
-                      {account.name}
+        <DataTable<AccessAccount>
+          columns={PEOPLE_COLUMNS}
+          rows={accounts}
+          rowKey={(account) => account.id}
+          rowHeader
+          renderCell={(account, column) => {
+            switch (column.key) {
+              case "person":
+                return (
+                  <span className="name-cell">
+                    <span className="name-avatar" aria-hidden="true">
+                      {initialsOf(account.name)}
                     </span>
-                  </th>
-                  <td className="text-sm">{account.email}</td>
-                  <td>
-                    <Link href={`#role-${account.role.key}`}>{account.role.label}</Link>
-                  </td>
-                  <td>
-                    <details>
-                      <summary className="text-sm">
-                        {permissionCountLabel(account.role.scopes.length)}
-                      </summary>
-                      <ul className="text-sm stack-2 mt-2">
-                        {grantsByGroup(account.role.scopes).flatMap((group) =>
-                          group.entries.map((entry) => (
-                            <li key={entry.scope}>{entry.grant}</li>
-                          )),
-                        )}
-                      </ul>
-                    </details>
-                  </td>
-                  <td className="text-sm">{account.portal_label}</td>
-                  <td>
-                    <Badge tone="neutral">Seeded sign-in</Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    {account.name}
+                  </span>
+                );
+              case "email":
+                return account.email;
+              case "role":
+                return <Link href={`#role-${account.role.key}`}>{account.role.label}</Link>;
+              case "permissions":
+                return (
+                  <details>
+                    <summary className="text-sm">
+                      {permissionCountLabel(account.role.scopes.length)}
+                    </summary>
+                    <ul className="text-sm stack-2 mt-2">
+                      {grantsByGroup(account.role.scopes).flatMap((group) =>
+                        group.entries.map((entry) => (
+                          <li key={entry.scope}>{entry.grant}</li>
+                        )),
+                      )}
+                    </ul>
+                  </details>
+                );
+              case "portal":
+                return account.portal_label;
+              case "state":
+                return <StatusChip tone="neutral">Seeded sign-in</StatusChip>;
+              default:
+                return null;
+            }
+          }}
+          caption={<>{ACCOUNT_STATE_NOTE}</>}
+          emptyTitle="No sign-in accounts recorded"
+          emptyHint="Recorded accounts appear here once identity-access publishes them."
+        />
       </PageSection>
 
       <PageSection>

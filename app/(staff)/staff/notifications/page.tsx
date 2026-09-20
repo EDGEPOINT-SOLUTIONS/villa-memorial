@@ -1,6 +1,11 @@
-import { Badge } from "@/components/ui/badge";
+import {
+  DataTable,
+  EmptyState,
+  StatCard,
+  StatusChip,
+  type DataTableColumn,
+} from "@/components/kit";
 import { Card } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { ApiError } from "@/lib/api-client/api-error";
@@ -17,6 +22,8 @@ import {
   NOTIFICATION_SERVICE_NEEDS,
   NOTIFICATION_SERVICE_NOTE,
   type NotificationCatalogue,
+  type NotificationMessage,
+  type NotificationTemplate,
 } from "@/lib/notifications";
 
 export const metadata = { title: "Notifications — Admin Portal" };
@@ -35,47 +42,61 @@ export const metadata = { title: "Notifications — Admin Portal" };
  * The catalogue is APP-AUTHORED (`lib/fixtures/operations/notifications.json`): the
  * blueprint's own audiences and channels, described and not configured. The screen is
  * read-only — sending is exactly what the service that does not exist would do.
+ *
+ * Layout renders through the component kit (`components/kit`) — both tables are
+ * `DataTable`, the tiles `StatCard`, the state chips `StatusChip`.
  */
+
+const TEMPLATE_COLUMNS: ReadonlyArray<DataTableColumn<NotificationTemplate>> = [
+  { key: "message", header: "Message" },
+  { key: "trigger", header: "Trigger", className: "text-sm" },
+  { key: "when", header: "When", className: "text-sm" },
+  { key: "audiences", header: "Goes to" },
+  { key: "channels", header: "Channel", className: "text-sm" },
+  { key: "state", header: "State" },
+];
+
+const LOG_COLUMNS: ReadonlyArray<DataTableColumn<NotificationMessage>> = [
+  { key: "when", header: "When", className: "text-sm" },
+  { key: "message", header: "Message" },
+  { key: "audience", header: "To" },
+  { key: "channel", header: "Channel", className: "text-sm" },
+  { key: "state", header: "State" },
+];
+
 function TemplateTable({ catalogue }: { catalogue: NotificationCatalogue }) {
   const notWired = catalogue.service_state === "not_wired";
   return (
-    <div className="table-wrapper" tabIndex={0}>
-      <table className="table">
-        <caption>
-          The messages the product is designed to send — described, not configured.
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">Message</th>
-            <th scope="col">Trigger</th>
-            <th scope="col">When</th>
-            <th scope="col">Goes to</th>
-            <th scope="col">Channel</th>
-            <th scope="col">State</th>
-          </tr>
-        </thead>
-        <tbody>
-          {catalogue.templates.map((template) => (
-            <tr key={template.id}>
-              <td>
-                <strong>{template.message}</strong>
-              </td>
-              <td className="text-sm">{template.event}</td>
-              <td className="text-sm">{template.when}</td>
-              <td>{audienceLabel(template.audiences)}</td>
-              <td className="text-sm">{channelLabel(template.channels)}</td>
-              <td>
-                {notWired ? (
-                  <Badge tone="warning">Not switched on</Badge>
-                ) : (
-                  <Badge tone="success">Ready</Badge>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable<NotificationTemplate>
+      columns={TEMPLATE_COLUMNS}
+      rows={catalogue.templates}
+      rowKey={(template) => template.id}
+      renderCell={(template, column) => {
+        switch (column.key) {
+          case "message":
+            return <strong>{template.message}</strong>;
+          case "trigger":
+            return template.event;
+          case "when":
+            return template.when;
+          case "audiences":
+            return audienceLabel(template.audiences);
+          case "channels":
+            return channelLabel(template.channels);
+          case "state":
+            return notWired ? (
+              <StatusChip tone="warning">Not switched on</StatusChip>
+            ) : (
+              <StatusChip tone="success">Ready</StatusChip>
+            );
+          default:
+            return null;
+        }
+      }}
+      caption={<>The messages the product is designed to send — described, not configured.</>}
+      emptyTitle="No messages designed"
+      emptyHint="Designed messages appear here as the notification service is scoped."
+    />
   );
 }
 
@@ -123,7 +144,9 @@ export default async function NotificationsPage() {
       <PageHeader
         eyebrow="Overview"
         title="Notifications"
-        actions={<Badge tone="warning">{notWired ? "Not switched on" : "Connected"}</Badge>}
+        actions={
+          <StatusChip tone="warning">{notWired ? "Not switched on" : "Connected"}</StatusChip>
+        }
       />
 
       <PageSection>
@@ -138,29 +161,19 @@ export default async function NotificationsPage() {
         </div>
         <p className="text-sm text-muted">{NOTIFICATION_SERVICE_NOTE}</p>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Sent</span>
-              <span className="kpi-card__value">{sent}</span>
-              <span className="kpi-card__sub">recorded messages</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Designed messages</span>
-              <span className="kpi-card__value">{catalogue.templates.length}</span>
-              <span className="kpi-card__sub">waiting on the service</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Service</span>
-              <span className="kpi-card__value">{notWired ? "Off" : "On"}</span>
-              <span className="kpi-card__sub">
-                {notWired ? "no notification contract is frozen" : "notification service connected"}
-              </span>
-            </span>
-          </span>
+          <StatCard label="Sent" value={sent} sub="recorded messages" />
+          <StatCard
+            label="Designed messages"
+            value={catalogue.templates.length}
+            sub="waiting on the service"
+          />
+          <StatCard
+            label="Service"
+            value={notWired ? "Off" : "On"}
+            sub={
+              notWired ? "no notification contract is frozen" : "notification service connected"
+            }
+          />
         </div>
       </PageSection>
 
@@ -198,39 +211,38 @@ export default async function NotificationsPage() {
                 </p>
               </div>
             ) : (
-              <div className="table-wrapper" tabIndex={0}>
-                <table className="table">
-                  <caption>The recorded sends, newest first.</caption>
-                  <thead>
-                    <tr>
-                      <th scope="col">When</th>
-                      <th scope="col">Message</th>
-                      <th scope="col">To</th>
-                      <th scope="col">Channel</th>
-                      <th scope="col">State</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {catalogue.log.map((message) => (
-                      <tr key={message.id}>
-                        <td className="text-sm">
+              <DataTable<NotificationMessage>
+                columns={LOG_COLUMNS}
+                rows={catalogue.log}
+                rowKey={(message) => message.id}
+                renderCell={(message, column) => {
+                  switch (column.key) {
+                    case "when":
+                      return (
+                        <>
                           {manilaDay(message.sent_at)} · {manilaTime(message.sent_at)}
-                        </td>
-                        <td>
-                          <strong>{message.message}</strong>
-                        </td>
-                        <td>{audienceLabel([message.audience])}</td>
-                        <td className="text-sm">{NOTIFICATION_CHANNEL_LABEL[message.channel]}</td>
-                        <td>
-                          <Badge tone={NOTIFICATION_LOG_STATE_TONE[message.state]}>
-                            {NOTIFICATION_LOG_STATE_LABEL[message.state]}
-                          </Badge>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </>
+                      );
+                    case "message":
+                      return <strong>{message.message}</strong>;
+                    case "audience":
+                      return audienceLabel([message.audience]);
+                    case "channel":
+                      return NOTIFICATION_CHANNEL_LABEL[message.channel];
+                    case "state":
+                      return (
+                        <StatusChip tone={NOTIFICATION_LOG_STATE_TONE[message.state]}>
+                          {NOTIFICATION_LOG_STATE_LABEL[message.state]}
+                        </StatusChip>
+                      );
+                    default:
+                      return null;
+                  }
+                }}
+                caption={<>The recorded sends, newest first.</>}
+                emptyTitle="Nothing has been sent yet"
+                emptyHint="Delivered and failed messages appear here once the service is connected."
+              />
             )}
           </div>
         </div>
@@ -241,7 +253,7 @@ export default async function NotificationsPage() {
           header={
             <div className="row row--space row--wrap">
               <h2>What the notification service adds</h2>
-              <Badge tone="warning">Waiting on the service</Badge>
+              <StatusChip tone="warning">Waiting on the service</StatusChip>
             </div>
           }
         >
