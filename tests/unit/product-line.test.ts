@@ -1,4 +1,14 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import {
+  getProductLine,
+  getProductLineForSku,
+  listProductLines,
+  saveProductLine,
+  seedProductLines,
+} from "@/lib/api-client/product-lines";
 import {
   CASKET_PRODUCT_LINES,
   casketProductLines,
@@ -198,5 +208,84 @@ describe("resolveSpecs", () => {
       expect(resolved.errors.join(" ")).toContain("V6");
       expect(resolved.errors.join(" ")).toContain(String(CONTENT_SPECS_COLUMNS_MAX));
     }
+  });
+});
+
+/**
+ * The durable product-line store (P2): the four derived lines served by
+ * default, an edit reaching the next read and the public selector, and the
+ * server's veto on a variant the catalogue does not carry.
+ */
+let dir: string;
+beforeEach(async () => {
+  dir = await mkdtemp(path.join(os.tmpdir(), "vm-product-lines-"));
+  process.env.PRODUCT_LINES_STORE_PATH = path.join(dir, "lines.json");
+});
+afterEach(async () => {
+  delete process.env.PRODUCT_LINES_STORE_PATH;
+  await rm(dir, { recursive: true, force: true });
+});
+
+describe("the product-line store", () => {
+  it("serves the four derived lines in the sheet's collection order", async () => {
+    const lines = await listProductLines();
+    expect(lines.map((line) => line.id)).toEqual(seedProductLines().map((line) => line.id));
+    expect(lines.map((line) => line.name)).toEqual([
+      "Lumina",
+      "The White Rose Collection",
+      "The Crown Collection",
+      "The Dynasty Collection",
+    ]);
+  });
+
+  it("reads a line by id and resolves a SKU to its line's membership", async () => {
+    expect((await getProductLine("the-white-rose-collection"))?.name).toBe(
+      "The White Rose Collection",
+    );
+    expect((await getProductLineForSku("CSK-WHITE-ROSE-FULL"))?.id).toBe(
+      "the-white-rose-collection",
+    );
+    // A model another line owns resolves to that line, not this one.
+    expect((await getProductLineForSku("CSK-LUMINA"))?.id).toBe("lumina");
+    expect(await getProductLine("not-a-line")).toBeNull();
+  });
+
+  it("serves a saved name and shared specs to the next read", async () => {
+    const seed = await getProductLine("the-crown-collection");
+    await saveProductLine(
+      "the-crown-collection",
+      {
+        ...seed,
+        name: "The Crown Collection (renamed)",
+        sharedSpecs: { columns: ["Material", "Finish"], rows: [["Metal", "White"]] },
+      },
+      "editor@vm.demo",
+    );
+    const line = await getProductLine("the-crown-collection");
+    expect(line?.name).toBe("The Crown Collection (renamed)");
+    expect(line?.sharedSpecs?.rows).toEqual([["Metal", "White"]]);
+    expect(line?.updated_by).toBe("editor@vm.demo");
+    // The stored grouping survives a re-list.
+    expect((await listProductLines())[2]?.name).toBe("The Crown Collection (renamed)");
+  });
+
+  it("lets a stored membership exclude a variant from the SKU's line", async () => {
+    const seed = await getProductLine("the-crown-collection");
+    const remaining = seed!.variantSkus.filter((sku) => sku !== "CSK-NOBLE-FULL-SPLIT");
+    await saveProductLine("the-crown-collection", { ...seed, variantSkus: remaining });
+    expect(await getProductLineForSku("CSK-NOBLE-FULL-SPLIT")).toBeNull();
+    expect((await getProductLineForSku(remaining[0]!))?.id).toBe("the-crown-collection");
+  });
+
+  it("refuses a variant the catalogue does not carry", async () => {
+    const seed = await getProductLine("lumina");
+    await expect(
+      saveProductLine("lumina", { ...seed, variantSkus: ["CSK-GONE"] }),
+    ).rejects.toThrow(/CSK-GONE/);
+  });
+
+  it("refuses a save whose id disagrees with the record", async () => {
+    const seed = await getProductLine("lumina");
+    await expect(saveProductLine("the-crown-collection", seed)).rejects.toThrow(/lumina/i);
   });
 });

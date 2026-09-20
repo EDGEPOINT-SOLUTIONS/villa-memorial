@@ -456,6 +456,25 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the product's tags, so a pasted `<script>` never survives. Evidence + 1440/390
   shots: `docs/08-delivery/pdp-fields-design/`; tests `pdp-gallery`,
   `catalogue-entry-page`, `catalogue-entries-store`, `content-entries-store`.
+- **Phase P2 has LANDED — the PDP's variant selector** (plan §5–7; the captain's
+  Q1/Q4/Q6). A **line = the sheet's collection** (four, derived in
+  `lib/product-line.ts`, never hand-listed) and **variant = each model**; the
+  line document is DURABLE (`lib/api-client/product-lines.ts`, seed + atomic
+  journal, `PRODUCT_LINES_STORE_PATH` or `.data/content-product-lines.json`,
+  written through `POST /api/content/product-lines`, `catalog:write`, handler
+  rules-free) and edited by `components/content/product-line-editor.tsx` on a
+  casket's item content screen (line name · ordered membership · shared specs ·
+  a link to each model's own editor). The page resolves the line and every
+  sibling entry **server-side in one pass** and passes plain data to
+  `components/villa/product-detail.tsx`, so selecting a variant swaps gallery,
+  price, `resolveSpecs(line, variant)` and rule-derived facts locally; the
+  selector is a labelled `role="radiogroup"` with `aria-checked` + an
+  `aria-live` line, and `history.replaceState` keeps the per-SKU URL (canonical
+  stays per-SKU). Imagery fallback: the variant's own gallery → the rule-derived
+  sample (chip + sheet note) → an honest text placeholder; a line-level shared
+  gallery is NOT in the P0 `ProductLine` type. P3 owns the layout/zoom/phone
+  pass. Evidence + 1440/390 shots: `docs/08-delivery/pdp-variants-design/`;
+  tests `product-line`, `pdp-variants`.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

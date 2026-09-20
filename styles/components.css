@@ -8489,6 +8489,95 @@ because the shared `.ag-appt` rule comes later in this file. */
   text-align: left;
 }
 
+/* --- variant selector (components/villa/product-detail.tsx) ---------------- */
+
+.pdp-variants {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pdp-variants__label {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.pdp-variants__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4.5rem, 1fr));
+  gap: var(--space-2);
+}
+
+.pdp-variant {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: center;
+  padding: var(--space-2);
+  min-height: 44px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  cursor: pointer;
+  text-align: center;
+}
+
+.pdp-variant:hover {
+  border-color: var(--sky-400);
+}
+
+.pdp-variant--active {
+  border-color: var(--sky-600);
+  border-width: 2px;
+  background: var(--color-bg-subtle);
+}
+
+.pdp-variant__thumb {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--marble-100);
+}
+
+.pdp-variant__thumb img {
+  display: block;
+  width: 100%;
+  /* The height reset every img-level ratio in this file carries. */
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.pdp-variant__thumb--empty {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 3;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.pdp-variant__name {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.pdp-variants__live {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.pdp-gallery__placeholder {
+  margin: 0;
+  padding: var(--space-6) var(--space-4);
+  border: 1px dashed var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--marble-100);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
 /* --- rich-text editor (components/content/rich-text-editor.tsx) ----------- */
 
 .rte {
