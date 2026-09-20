@@ -1,58 +1,23 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { clientPhotoWide } from "@/lib/client-photos";
 import { pageMetadata } from "@/lib/seo";
+import { ServiceGuidePage } from "@/components/villa/service-guide-page";
+import { loadServiceGuideView } from "@/lib/api-client/content-entries";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Transport — Villa Memorial",
-  description:
-    "Dignified transport coordinated by our team — retrieval and delivery within the first 25 km of every Villa Memorial Plan.",
-  path: "/transport",
-});
+// Reads the service entry per request — a staff edit is what the NEXT visitor
+// sees, never a build-time snapshot (same rule as /services).
+export const dynamic = "force-dynamic";
 
-export default function Page() {
-  return (
-    <div className="stack-4">
-      <section className="hero-premium">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">Services · Transport</p>
-            <h1 className="hero-premium__title">Transport</h1>
-            <p className="hero-premium__lead">
-              Dignified transport for your loved one — from home or hospital to the
-              service venue, and onward when the time comes. Coordinated by our team
-              as part of your arrangement.
-            </p>
-            <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
-              Retrieval and delivery are covered within the first 25 km of every
-              Villa Memorial Plan.
-            </p>
-            <div className="row" style={{ gap: "var(--space-3)", marginTop: "var(--space-5)" }}>
-              <Link href="/immediate-assistance" className="btn btn--accent">
-                Immediate assistance
-              </Link>
-              <Link href="/plans/villa-memorial-plan" className="btn btn--secondary">
-                Villa Memorial Plan
-              </Link>
-            </div>
-            <nav aria-label="Back to Funeraria Memorial Services" style={{ marginTop: "var(--space-4)" }}>
-              <Link href="/services" className="back-link">
-                ← Back to Funeraria Memorial Services
-              </Link>
-            </nav>
-          </div>
-          <figure className="hero-premium__media">
-            {/* The client's OWN carriage, not a stock hearse: 2026-09-19 imagery pass. */}
-            {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
-            <img
-              src={clientPhotoWide("hearse-carriage-gold-side").src}
-              srcSet={clientPhotoWide("hearse-carriage-gold-side").srcSet}
-              alt="The office's funeral carriage (karwahe) with its gold casket compartment, black canopy and white flower decorations"
-            />
-            <figcaption>The office&rsquo;s carriage, the karwahe.</figcaption>
-          </figure>
-        </div>
-      </section>
-    </div>
-  );
+export async function generateMetadata(): Promise<Metadata> {
+  const view = await loadServiceGuideView("transport");
+  return pageMetadata({
+    title: `${view?.title ?? "Transport"} — Villa Memorial`,
+    description:
+      view?.summary ??
+      "Dignified transport coordinated by our team — retrieval and delivery within the first 25 km of every Villa Memorial Plan.",
+    path: "/transport",
+  });
+}
+
+export default async function Page() {
+  return ServiceGuidePage({ entryKey: "transport" });
 }

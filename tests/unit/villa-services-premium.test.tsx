@@ -26,11 +26,11 @@ import {
 } from "@/lib/villa-pricing";
 import {
   CHAPEL_SAMPLE_NOTE,
-  DEATH_AT_HOSPITAL_IMAGE,
-  WAKESETUP_DRESSING_IMAGE,
   casketSamplePhoto,
 } from "@/lib/media";
 import { clientPhotoCard, clientPhotoWide } from "@/lib/client-photos";
+import { listChapelRecords } from "@/lib/api-client/chapel-store";
+import type { ChapelClass } from "@/lib/chapel-booking";
 
 /**
  * The premium pass over the two client-facing surfaces this work rebuilt:
@@ -98,9 +98,13 @@ function escapeRe(value: string): string {
  */
 describe("/services reads as the approved senior-first service page", () => {
   let html: string;
+  const chapelName: Partial<Record<ChapelClass, string>> = {};
 
   beforeAll(async () => {
     html = await renderWithCart(await ServicesPage());
+    for (const record of await listChapelRecords()) {
+      chapelName[record.chapel_class] ??= record.name;
+    }
   });
 
   it("groups the 2026 rates into the three priced sections", () => {
@@ -144,17 +148,17 @@ describe("/services reads as the approved senior-first service page", () => {
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("labelled the first-steps and embalming photographs as samples", () => {
-    // The death-at-home guide shows the client's own photograph of the set-up
-    // being built; the hospital guide keeps the generic care image (the
-    // client's 2026 set has no hospital photograph — recorded in the PR); the
-    // embalming aside shows their finished set-up in flowers, which replaced a
-    // 297 KB stock JPEG rendered at 350 px (imagery pass, 2026-09-19).
-    expect(html).toContain(WAKESETUP_DRESSING_IMAGE);
-    expect(html).toContain(DEATH_AT_HOSPITAL_IMAGE);
+  it("keeps the guide service entries and the embalming aside", () => {
+    // The embalming aside shows the client's own finished set-up in flowers,
+    // which replaced a 297 KB stock JPEG rendered at 350 px (imagery pass).
     expect(html).toContain(clientPhotoWide("wake-setup-flower-bank").src);
+    // The three guide pages are service entries, listed in their own section
+    // and linked to their own routes (content-catalogue Phase 3).
+    expect(html).toContain('id="guides"');
     expect(html).toContain("/services/death-at-home");
     expect(html).toContain("/services/death-at-hospital");
+    expect(html).toContain("/transport");
+    expect(html).toContain("Death at hospital");
     // Both prepared set-ups say what they are.
     expect(html).toContain("A wake set-up the office prepared — illustration purposes only.");
   });
@@ -177,15 +181,16 @@ describe("/services reads as the approved senior-first service page", () => {
   it("opens the chapel booking step instead of a straight add (main's booking intent)", () => {
     // A chapel is never a one-click cart item: the cards' "Check dates & price"
     // and every 3–9 day row's "Book N days" open the booking dialog. The row's
-    // accessible name carries the chapel its group heading carries visually.
+    // accessible name carries the chapel's OWN name (its staff-editable record),
+    // the same name the booking dialog reads.
     expect((html.match(/Check dates &amp; price/g) ?? []).length).toBe(2);
     for (const r of CHAPEL_RATES) {
       expect(html, `stay ${r.days}`).toContain(`Book ${r.days} days`);
       expect(html, `common aria ${r.days}`).toContain(
-        `aria-label="Book ${r.days} days — Common chapel"`,
+        `aria-label="Book ${r.days} days — ${chapelName.common}"`,
       );
       expect(html, `private aria ${r.days}`).toContain(
-        `aria-label="Book ${r.days} days — Private chapel"`,
+        `aria-label="Book ${r.days} days — ${chapelName.private}"`,
       );
     }
     expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(
@@ -194,21 +199,22 @@ describe("/services reads as the approved senior-first service page", () => {
     // No plain chapel add-to-cart survived the senior-first redesign.
     expect(html).not.toContain('aria-label="Add to cart: Chapel use — common chapel, per day"');
     expect(html).not.toContain('aria-label="Add to cart: Chapel use — private chapel, per day"');
+    // The card reads the park's own chapel record for its name and capacity.
+    expect(html).toContain(chapelName.common);
+    expect(html).toContain(chapelName.private);
   });
 
-  it("makes the 12,000 px page navigable: anchors, back-to-top and a call bar", () => {
-    expect(html).toContain('class="sv-subnav"');
-    expect(html).toContain("On this page");
-    for (const id of ["first-steps", "services", "embalming", "chapel", "sources"]) {
-      expect(html, `anchor ${id}`).toContain(`href="#${id}"`);
-    }
-    expect(html).toContain('href="#top"');
-    expect(html).toContain("Back to top");
-    // The 24/7 call stays one thumb away and leads the page — the client's own line
-    // (2026 purchase application form), read from the seeded content document.
-    expect(html).toContain('class="sv-call"');
-    expect(html).toMatch(/href="tel:\+639176178489"/);
+  it("leads with one hero and a call bar — no subnav or steps (captain 2026-09-21)", () => {
+    // One hero, then straight to the services: the pre-migration sticky subnav
+    // and the "what happens after you call" steps are gone.
+    expect(html).not.toContain('class="sv-subnav"');
+    expect(html).not.toContain('id="first-steps"');
+    expect(html).toContain('class="sv-hero__actions"');
+    expect(html).toContain('href="#services"');
+    // The 24/7 call stays one thumb away — the client's own line (2026 purchase
+    // application form), read from the seeded content document.
     expect(html).toContain('class="sv-callbar"');
+    expect(html).toMatch(/href="tel:\+639176178489"/);
   });
 
   it("prices embalming through the day picker and the full day rows", () => {

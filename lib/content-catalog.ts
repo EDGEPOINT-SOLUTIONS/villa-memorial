@@ -86,8 +86,8 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     label: "Funeraria Memorial Services",
     route: "/services",
     editor: "page",
-    blocks: false,
-    hint: "The services page hero. The service entries and the straight-to-services shape arrive with the page's migration.",
+    blocks: true,
+    hint: "One hero, then straight to the services. The service descriptions and the guide service entries are edited here.",
   },
   {
     key: "plans",
