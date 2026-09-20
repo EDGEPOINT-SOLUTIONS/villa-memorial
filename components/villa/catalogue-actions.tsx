@@ -23,6 +23,7 @@ export function CatalogueActions({
   quantity = 1,
   addLabel,
   displayPrice,
+  secondaryAsLink = false,
 }: {
   item: Omit<CartLine, "quantity">;
   /** Extra request context; item/sku/price default to the catalogue facts. */
@@ -37,6 +38,13 @@ export function CatalogueActions({
    * the unit the row shows; falls back to formatting the minor units.
    */
   displayPrice?: string;
+  /**
+   * Render Request order as a quiet text link instead of the secondary button.
+   * A CARD passes this when the row already has one primary action (the casket
+   * listing's Add to cart) and its detail link; a full row/page keeps the two
+   * buttons. The href and its prefill are identical either way.
+   */
+  secondaryAsLink?: boolean;
 }) {
   return (
     <div className="catalogue-actions">
@@ -55,7 +63,7 @@ export function CatalogueActions({
             formatMinorUnits(item.unitPriceCents, item.currency),
           note: prefill?.note,
         })}
-        className="btn btn--secondary btn--sm"
+        className={secondaryAsLink ? "catalogue-actions__link" : "btn btn--secondary btn--sm"}
       >
         Request order
       </Link>

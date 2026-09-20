@@ -633,6 +633,24 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `coffinCover`): the sheet states lids per SAMPLE coffin, never per model. Lumina names
   no cover, so its detail view says the office confirms the cover
   (`COFFIN_COVER_UNSTATED`) rather than guessing.
+- **`/products` is ONE continuous card grid, not four collection bands (UI/UX pass, 2026-09-21).**
+  The single Lumina band stranded one card in a row of four; the page now renders a
+  static collection index (name · count · entry price, no filter — `lib/fixtures/content/pages.json`'s
+  `coffins` lead is the same one sentence the page falls back to) above a flat grid in the
+  sheet's collection order. `.casket-grid` (not the shared `.shop-grid`) owns the column floor:
+  **3 across at 1440/1280, 2 at 1024/900/768, 1 at ≤600** — `min(100%, 21rem)`, no extra media
+  query (the shared 26rem floor gave 2 × 604px at 1280 and 1 × 852px at 900). A card is
+  picture → family → name → ONE supporting line (the cover; Lumina reads "Cover confirmed by the
+  office", the long `COFFIN_COVER_UNSTATED` stays on the detail view) → the prominent SRP → one
+  compact senior line → **ONE primary action** (the gold `Add to cart`), with `Request order` and
+  `View details` as quiet `.catalogue-actions__link` links and the photograph/title as the detail
+  path. `CatalogueActions`' `secondaryAsLink` option is what demotes the pair on a card;
+  `/services` and the embalming picker keep two buttons. The card's caption is one short
+  `COFFIN_SAMPLE_NOTE` ("Illustration purposes only."); the full `COFFIN_TIER_NOTE` prints once
+  below the tier band and on the detail view. Cards fell from a 50–73-word `<li>` (avg 54.8) to
+  29–39 (avg 32.9). Evidence + 1440/390 shots + measured columns/overflow:
+  `docs/08-delivery/products-listing-design/`; the word/one-primary-action rules are pinned by
+  `tests/unit/products-listing.test.tsx`.
 - Casket details are a **route, not a dialog**: `/products/[sku]` (SKU from
   `coffinSku` in `lib/catalogue-skus.ts`; resolve with `coffinModelForSku`, anything
   else → 404). Every catalogue card carries "View details", and the detail page's

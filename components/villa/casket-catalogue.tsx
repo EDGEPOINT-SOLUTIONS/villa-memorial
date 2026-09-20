@@ -9,8 +9,7 @@ import {
   CASKET_INCLUSION_COLUMNS,
   CASKET_INCLUSION_NOTES,
   CASKET_INCLUSIONS,
-  COFFIN_COVER_UNSTATED,
-  COFFIN_TIER_NOTE,
+  COFFIN_SAMPLE_NOTE,
   coffinCover,
   php,
   type CasketModel,
@@ -21,23 +20,28 @@ import {
  * the collection the sheet files it under, with the per-family inclusion
  * reference table below it.
  *
- *  - CasketModelGrid: the shop itself. Every model is a card in `.shop-grid` —
- *    the client's photograph leads at the column's full width (a measured
- *    448×336 at 1440, three across), then the family, the cover the model's own
- *    name states, the catalogue SKU, the regular SRP and the senior-citizen
- *    price, the caption of what the photograph actually is, and the two actions
- *    ("View details" and the shared CatalogueActions pair — one-click Add to
- *    cart on the exact catalogue SKU/price, plus the prefilled Request order).
+ *  - CasketModelCards: the shop itself. Every model is a card in the narrower
+ *    `.casket-grid` (an even 3 across at 1440, 2 on a tablet, 1 at 390), led by
+ *    the client's photograph, then the family, the model name, ONE short
+ *    supporting line (the cover its own name states), the regular SRP, one
+ *    compact senior-citizen line and ONE primary action (Add to cart on the
+ *    exact catalogue SKU/price) with the quieter Request order beside it. The
+ *    photograph and the title are the detail path; the SKU, the long cover note
+ *    and the full substitution sentence live on /products/[sku].
  *    Every published figure stays: SRP, senior SRP, senior discount, discounted
- *    price, the SKU and the model's own detail route.
+ *    price and the model's own detail route. The 2026-09-21 listing pass moved
+ *    the card's two long paragraphs (the per-model cover essay and the full
+ *    caption) to the detail view and the page's tier band, cutting the average
+ *    card from ~58 to ~33 words without dropping a figure or a label.
  *
  *    On the photographs: the client supplied 14 usable 2026 photographs and none
  *    of them is named after a 2026 sheet model (open client question — see
  *    lib/client-photos.ts). Each model therefore shows the photograph selected
  *    by the explicit 24-row table in lib/media.ts (the cover its own name states
  *    and its collection's price band), and EVERY card carries the sample chip
- *    and the sheet's own substitution note (COFFIN_TIER_NOTE). A family never
- *    reads a picture as a promise: it reads exactly what the photograph is.
+ *    and the short illustration line (`COFFIN_SAMPLE_NOTE`). The full
+ *    substitution sentence (COFFIN_TIER_NOTE) prints once below the tier band
+ *    and on the detail view; a family never reads a picture as a promise.
  *
  *    The sheet's own five sample coffins (Bronze 1/2, Silver 1/2, Gold) keep
  *    their strip on the model detail page, where the sheet's lid lines are
@@ -81,50 +85,54 @@ function casketRequest(model: CasketModel) {
   };
 }
 
+/** The one short supporting line a card prints: the sheet's cover, or the office confirms it. */
+function coverLine(model: CasketModel): string {
+  return coffinCover(model.model) ?? "Cover confirmed by the office";
+}
+
 export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
+  const collections = CASKET_COLLECTIONS.map((collection) => ({
+    collection,
+    models: caskets.filter((c) => c.model.collection === collection),
+  })).filter((entry) => entry.models.length > 0);
+
   return (
-    <div className="stack-5">
-      {CASKET_COLLECTIONS.map((collection) => {
-        const inCollection = caskets.filter((c) => c.model.collection === collection);
-        if (inCollection.length === 0) return null;
-        const from = Math.min(...inCollection.map((c) => c.model.srp));
-        const to = Math.max(...inCollection.map((c) => c.model.srp));
-        return (
-          <section
-            key={collection}
-            className="stack-3"
-            aria-labelledby={`collection-${collection.replace(/\W+/g, "-")}`}
-          >
-            <header className="band-head">
-              <h3
-                className="band-head__title"
-                id={`collection-${collection.replace(/\W+/g, "-")}`}
-              >
-                {collection}
-              </h3>
-              <span className="band-head__count">
-                {inCollection.length} model{inCollection.length === 1 ? "" : "s"} · {
-                  amount(from) === amount(to) ? amount(from) : `${amount(from)} – ${amount(to)}`
-                }
+    <div className="stack-4">
+      {/* The lightweight collection index: the four collections with their model
+          count and entry price, so the whole catalogue's shape is read before
+          the grid. No filter, no second control — the grid below is one flow. */}
+      <ul className="casket-index" aria-label="Collections in the 2026 catalogue">
+        {collections.map(({ collection, models }) => {
+          const from = Math.min(...models.map((c) => c.model.srp));
+          return (
+            <li className="casket-index__item" key={collection}>
+              <span className="casket-index__name">{collection}</span>
+              <span className="casket-index__meta">
+                {models.length} model{models.length === 1 ? "" : "s"} · from {amount(from)}
               </span>
-            </header>
-            <ResultsGrid
-              items={inCollection}
-              itemKey={({ item }) => item.sku}
-              emptyTitle="No models in this collection yet"
-              renderItem={({ model, item }) => <CasketCard model={model} item={item} />}
-            />
-          </section>
-        );
-      })}
+            </li>
+          );
+        })}
+      </ul>
+      {/* One continuous grid instead of a grid per collection: the old bands
+          stranded the single Lumina card in a row of its own (measured
+          2026-09-21), and a flat grid fills even rows at every width. */}
+      <ResultsGrid
+        items={caskets}
+        itemKey={({ item }) => item.sku}
+        emptyTitle="No models in this catalogue yet"
+        className="casket-grid"
+        renderItem={({ model, item }) => <CasketCard model={model} item={item} />}
+      />
     </div>
   );
 }
 
 /**
- * One model, one card. The photograph leads at the column's full width; every
- * published figure stays under it; the sample chip and the sheet's substitution
- * note travel with the picture.
+ * One model, one card. The photograph leads at the column's full width; the
+ * figures stay under it, but only the ones a family reads at a glance: the
+ * name, the cover, the regular price, the senior line, and one primary action.
+ * The detail view owns the SKU, the long cover note and the full caption.
  */
 function CasketCard({ model, item }: SellableCasket) {
   const photo = casketSamplePhoto(model);
@@ -135,31 +143,26 @@ function CasketCard({ model, item }: SellableCasket) {
       chip="Sample photograph"
       eyebrow={`${model.family} family`}
       title={item.name}
-      supporting={
-        <>
-          {coffinCover(model.model) ?? COFFIN_COVER_UNSTATED} ·{" "}
-          <code>{item.sku}</code>
-        </>
-      }
+      supporting={coverLine(model)}
       price={amount(model.srp)}
       priceNote="regular SRP"
       senior={
         <>
-          Senior citizen {amount(model.seniorPrice)} — {amount(model.seniorDiscount)} off
-          (61–100, no insurance benefit)
+          Senior 61–100 · {amount(model.seniorPrice)} · {amount(model.seniorDiscount)} off
         </>
       }
-      caption={`${photo.label}. ${COFFIN_TIER_NOTE}`}
+      caption={`${photo.label}. ${COFFIN_SAMPLE_NOTE}`}
       actions={
         <>
-          <Link href={href} className="btn btn--secondary btn--sm">
-            View details
-          </Link>
           <CatalogueActions
             item={cartItemOf(item)}
             displayPrice={item.display_price}
             prefill={casketRequest(model)}
+            secondaryAsLink
           />
+          <Link href={href} className="catalogue-actions__link">
+            View details
+          </Link>
         </>
       }
       photo={{
