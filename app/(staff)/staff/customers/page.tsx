@@ -10,7 +10,7 @@ import { listCustomers } from "@/lib/api-client/crm";
 import { listCrmLeads } from "@/lib/api-client/crm-leads";
 import { LeadRecordsPanel } from "@/components/crm/lead-records-panel";
 
-export const metadata = { title: "Customers — Staff Portal" };
+export const metadata = { title: "Customers — Admin Portal" };
 
 export default async function CustomersPage({
   searchParams,

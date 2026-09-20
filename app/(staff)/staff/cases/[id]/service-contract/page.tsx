@@ -9,7 +9,7 @@ import { getOrderByNumber } from "@/lib/api-client/commerce";
 import { resolveTerms } from "@/lib/contracts/villa-terms";
 import { ServiceContractScreen } from "./service-contract-screen";
 
-export const metadata = { title: "Service contract — Staff Portal" };
+export const metadata = { title: "Service contract — Admin Portal" };
 
 /**
  * The Funeral Service Contract paper form as a capture screen, for one case.

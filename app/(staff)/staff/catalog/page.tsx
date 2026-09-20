@@ -15,7 +15,7 @@ import {
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { CatalogPublishToggle } from "./publish-toggle";
 
-export const metadata = { title: "Catalog — Staff Portal" };
+export const metadata = { title: "Catalog — Admin Portal" };
 
 /**
  * Staff Catalogue admin (ready phase of the admin-commerce plan): every item the

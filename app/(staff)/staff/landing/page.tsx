@@ -8,7 +8,7 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { LandingPageEditor } from "@/components/landing/landing-page-editor";
 
-export const metadata: Metadata = { title: "Pages & content — Staff Portal" };
+export const metadata: Metadata = { title: "Pages & content — Admin Portal" };
 
 /**
  * Staff content editor (the ONE content surface — captain, 2026-09-18). The

@@ -1,6 +1,6 @@
 import { gatedSectionPage } from "../../gated-section";
 
-export const metadata = { title: "New document — Staff Portal" };
+export const metadata = { title: "New document — Admin Portal" };
 
 /** Document GENERATION already works contextually (e.g. official receipts on
  * payment, purchase agreements from a lot). A standalone composer page arrives

@@ -23,7 +23,7 @@ import {
   type CopilotFinding,
 } from "@/lib/copilot";
 
-export const metadata = { title: "AI Copilot — Staff Portal" };
+export const metadata = { title: "AI Copilot — Admin Portal" };
 
 /**
  * Staff AI Copilot (PRD S29, `docs/05-ai/ai-capabilities.md` §"AI Operations Copilot").

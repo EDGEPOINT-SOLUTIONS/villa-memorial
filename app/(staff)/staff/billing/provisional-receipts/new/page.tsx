@@ -8,7 +8,7 @@ import { getCase, listCases } from "@/lib/api-client/operations";
 import { businessToday, findInvoiceByReference, normaliseReference } from "@/lib/billing-payments";
 import { ProvisionalReceiptForm } from "./provisional-receipt-form";
 
-export const metadata = { title: "Issue a provisional receipt — Staff Portal" };
+export const metadata = { title: "Issue a provisional receipt — Admin Portal" };
 
 /**
  * Issue a provisional receipt — the counter's paper, captured in the folio language.

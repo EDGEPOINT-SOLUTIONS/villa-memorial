@@ -10,8 +10,9 @@
  *  · hover and selection are a soft frame + a quiet name tag;
  *  · PLACE and MOVE write image-space coordinates straight back into the shared
  *    store, so the 2D mode (and the staff editor) show the change immediately.
- *    They are ADMIN ONLY (spec §3): `canPlot` comes from the viewer's scopes, and
- *    a customer's 3D world cannot create, move or delete a plot at all.
+ *    They are ADMIN ONLY (spec §3, revised 2026-09-20): `canPlot` comes from the
+ *    host's resolved capability — the public map never passes one, so a public
+ *    3D world cannot create, move or delete a plot at all.
  *
  *  · `visibleCodes` carries the in-experience explorer panel's search/filter
  *    result: only those plots render (and only they can be picked), while the

@@ -21,7 +21,7 @@ import {
 } from "@/lib/lot-lifecycle";
 import { LotRecordTabs } from "../lot-record-tabs";
 
-export const metadata = { title: "Interments — Staff Portal" };
+export const metadata = { title: "Interments — Admin Portal" };
 
 /**
  * Interments (captain checklist F-11) — the record of each interment in a lot:

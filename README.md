@@ -15,7 +15,7 @@ the UX reference; this app is what actually runs against the platform services).
 | Surface | Door | Persona (demo) | State |
 |---|---|---|---|
 | **Public site** | `/` (landing) + `/plans` `/lots` `/map` `/packages` etc. | none | ✅ real (catalog/lot data, cart/checkout on frozen commerce contract) |
-| **Staff portal** | `/login` → `/staff/*` | `admin@vm.demo` / `staff@vm.demo` | ✅ real core (dashboard, billing, cases, schedule, property map, documents, audit) + honest "not wired yet" screens |
+| **Admin portal** | `/login` → `/staff/*` | `admin@vm.demo` / `staff@vm.demo` | ✅ real core (dashboard, billing, cases, schedule, property map, documents, audit) + honest "not wired yet" screens |
 | **Family portal** | `/client/login` → `/client/*` | `customer@vm.demo` | Built: real auth + the shared family/agent portal frame; screens read one recorded family snapshot fixture until the family API contract freezes (dev-authored), and the family's own papers (service contract, receipts) always show |
 | **Agent portal** | `/agent/login` → `/agent/*` | `agent@vm.demo` | Built: real auth + the same portal frame; 11 screens read one provisional agent-workspace fixture until the agent/commission contract exists, so commission amounts are `null` by design |
 

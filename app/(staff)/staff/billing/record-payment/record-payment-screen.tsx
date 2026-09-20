@@ -134,7 +134,7 @@ function readReceiptRow(raw: unknown): RecordedPayment["receipt_document"] {
     related_case_number: typeof r.related_case_number === "string" ? r.related_case_number : null,
     related_order_number: typeof r.related_order_number === "string" ? r.related_order_number : null,
     status: "approved",
-    uploaded_by: typeof r.uploaded_by === "string" ? r.uploaded_by : "Staff portal",
+    uploaded_by: typeof r.uploaded_by === "string" ? r.uploaded_by : "Admin portal",
     uploaded_at: typeof r.uploaded_at === "string" ? r.uploaded_at : "",
     file_size_bytes:
       typeof r.file_size_bytes === "number" && Number.isInteger(r.file_size_bytes)

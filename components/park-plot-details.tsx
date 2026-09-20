@@ -9,11 +9,11 @@
  *
  * The panel itself writes nothing. Its "next action" for an available linked lot is
  * chosen by the viewer's capability, in this order:
- *  · `reserveSlot` given (the viewer holds `property:write`) → the host renders the
- *    real reservation control (`components/lot-reserve-action.tsx`);
+ *  · `reserveSlot` given (an administrative host that resolved `property:write`) →
+ *    the host renders the real reservation control (`components/lot-reserve-action.tsx`);
  *  · else `showReserveRequest` (default) → the request-to-reserve contact link,
- *    which claims and reserves nothing. A signed-out customer therefore keeps the
- *    honest path the public map already used — never a control they are not
+ *    which claims and reserves nothing. The public `/map` is view-only for everyone
+ *    (captain 2026-09-20) and renders this path — never a control the viewer is not
  *    entitled to use;
  *  · else nothing — a role with its own action (the agent portal) passes
  *    `showReserveRequest={false}` and supplies it through `children`.
@@ -167,7 +167,8 @@ export function PlotDetails({
         <p className="text-sm text-muted">
           <strong>{selected.area.code}</strong> is a <strong>placeholder lot</strong> from the
           masterplan blockout — a labelled stand-in until the park publishes its real lot list.
-          Editing it in either mode updates this same record.
+          Both park modes draw this same record, so a plot the office places or adjusts appears
+          here too.
         </p>
       ) : (
         <p className="text-sm text-muted">

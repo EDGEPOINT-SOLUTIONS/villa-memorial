@@ -18,7 +18,7 @@ import { hasAnyScope } from "@/lib/rbac/nav";
 import { PLAN_TIERS } from "@/lib/villa-pricing";
 import { ApiError } from "@/lib/api-client/api-error";
 
-export const metadata = { title: "Membership applications — Staff Portal" };
+export const metadata = { title: "Membership applications — Admin Portal" };
 
 /**
  * Membership applications — the Villa Memorial Plan enrolment register (FORMS_PLAN gap 4 /

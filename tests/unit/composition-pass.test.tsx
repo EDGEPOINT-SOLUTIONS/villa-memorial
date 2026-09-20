@@ -89,7 +89,7 @@ describe("decorative sheen is gone from the public buttons", () => {
     );
     // Regression: this single element accounted for 24-42 of the gradient
     // elements on /products, /plans and /lots. The check is anchored to the
-    // PUBLIC rule — the staff portal's `.app-shell .btn--accent` is its own
+    // PUBLIC rule — the Admin Portal's `.app-shell .btn--accent` is its own
     // captain-approved direction and is deliberately out of this pass's scope.
     expect(cssRules.match(/^\.btn--accent \{[^}]*gradient/m)).toBeNull();
     expect(rule(".btn--accent")).toContain("background: var(--gold-400);");

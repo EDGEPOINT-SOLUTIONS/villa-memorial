@@ -20,7 +20,7 @@ import { EditIntakeForm } from "./edit-intake";
 import { StageMove } from "./stage-move";
 import { TaskChecklist } from "./task-checklist";
 
-export const metadata = { title: "Case detail — Staff Portal" };
+export const metadata = { title: "Case detail — Admin Portal" };
 
 export default async function CaseDetailPage({
   params,

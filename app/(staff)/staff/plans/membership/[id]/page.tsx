@@ -25,7 +25,7 @@ import { formatMinorUnits } from "@/lib/money";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { PLAN_TIERS } from "@/lib/villa-pricing";
 
-export const metadata = { title: "Membership application — Staff Portal" };
+export const metadata = { title: "Membership application — Admin Portal" };
 
 /**
  * One recorded membership application — the folio at a glance plus the application paper.

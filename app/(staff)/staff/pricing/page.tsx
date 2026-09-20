@@ -6,7 +6,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { LotPricesEditor } from "./lot-prices-editor";
 
-export const metadata = { title: "Pricing rules — Staff Portal" };
+export const metadata = { title: "Pricing rules — Admin Portal" };
 
 /**
  * Staff lot-price administration (phase 3 of the admin-commerce plan): the four

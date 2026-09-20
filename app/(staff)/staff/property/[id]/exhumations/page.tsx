@@ -19,7 +19,7 @@ import {
 } from "@/lib/lot-lifecycle";
 import { LotRecordTabs } from "../lot-record-tabs";
 
-export const metadata = { title: "Exhumations — Staff Portal" };
+export const metadata = { title: "Exhumations — Admin Portal" };
 
 /**
  * Exhumations (captain checklist F-11) — the deliberate, careful process: the

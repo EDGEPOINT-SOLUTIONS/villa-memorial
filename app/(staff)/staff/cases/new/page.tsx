@@ -6,7 +6,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { OpenCaseForm } from "./open-case";
 
-export const metadata = { title: "Open a case — Staff Portal" };
+export const metadata = { title: "Open a case — Admin Portal" };
 
 export default async function NewCasePage() {
   const session = await requireSessionOrRedirect();

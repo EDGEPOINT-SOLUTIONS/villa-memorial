@@ -16,7 +16,7 @@ import {
 } from "@/lib/billing-payments";
 import { RecordPaymentScreen } from "./record-payment-screen";
 
-export const metadata = { title: "Record payment — Staff Portal" };
+export const metadata = { title: "Record payment — Admin Portal" };
 
 /**
  * Record payment — the counter's money screen, anchored on ONE invoice.

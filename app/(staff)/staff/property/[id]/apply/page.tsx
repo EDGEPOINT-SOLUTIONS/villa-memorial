@@ -17,7 +17,7 @@ import {
   centsToPesoInput,
 } from "@/lib/contracts/purchase-application-values";
 
-export const metadata = { title: "Purchase application — Staff Portal" };
+export const metadata = { title: "Purchase application — Admin Portal" };
 
 const STATUS_TONE: Record<string, "success" | "warning" | "info" | "neutral" | "danger"> = {
   available: "success",

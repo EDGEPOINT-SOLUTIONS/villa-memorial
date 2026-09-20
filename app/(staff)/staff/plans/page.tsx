@@ -6,7 +6,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { PlanRatesEditor } from "./plan-rates-editor";
 
-export const metadata = { title: "Plans — Staff Portal" };
+export const metadata = { title: "Plans — Admin Portal" };
 
 /**
  * Staff plan-rate administration (phase 3 of the admin-commerce plan): the five

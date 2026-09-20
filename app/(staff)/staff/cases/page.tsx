@@ -10,7 +10,7 @@ import { listCases, type Case } from "@/lib/api-client/operations";
 import { CASE_STAGES, STAGE_LABEL, STAGE_TONE, isCaseStage } from "@/lib/operations/case-board";
 import { PipelineDots } from "@/components/case-pipeline";
 
-export const metadata = { title: "Cases — Staff Portal" };
+export const metadata = { title: "Cases — Admin Portal" };
 
 function CaseCard({ kase }: { kase: Case }) {
   const pendingIntake = kase.deceased_name === "Pending intake";

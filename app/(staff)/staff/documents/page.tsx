@@ -7,7 +7,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listDocuments } from "@/lib/api-client/documents";
 
-export const metadata = { title: "Documents — Staff Portal" };
+export const metadata = { title: "Documents — Admin Portal" };
 
 const TYPE_TONE: Record<string, "info" | "neutral"> = {
   receipt: "info",

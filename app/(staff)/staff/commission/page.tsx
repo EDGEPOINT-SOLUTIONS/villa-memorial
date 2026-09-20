@@ -20,7 +20,7 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { formatMinorUnits } from "@/lib/money";
 import { hasAnyScope } from "@/lib/rbac/nav";
 
-export const metadata = { title: "Commission — Staff Portal" };
+export const metadata = { title: "Commission — Admin Portal" };
 
 /**
  * Staff Commission (P25 / S25 of the screen inventory, captain checklist F-12,

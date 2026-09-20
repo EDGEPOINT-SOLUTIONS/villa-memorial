@@ -16,13 +16,15 @@
  * interest glides the camera onto it; the gestures and the envelope live in
  * `components/park3d/camera-rig.tsx` + `lib/park-3d/orbit.ts`.
  *
- * Booking: the plot panel is the shared `PlotDetails`, which renders the real
- * reservation control for a viewer whose scopes allow it (the SAME inline
- * `LotReserveAction` the staff map uses) and the request-to-reserve contact link
- * for everyone else. Nothing is invented here — see `components/park-plot-details.tsx`.
+ * Booking: the plot panel is the shared `PlotDetails`. On the public map it renders
+ * the request-to-reserve contact link for everyone (view-only; the capability door
+ * is not wired there, 2026-09-20) — an administrative host may pass a `reserveSlot`
+ * instead. Nothing is invented here — see `components/park-plot-details.tsx`.
  *
- * Plotting is ADMIN ONLY: with `canPlot` false the explorer can search, filter,
- * select and inspect, and the world cannot create, move or delete a plot.
+ * Plotting is ADMIN ONLY. The public park page passes NO capability, so `canPlot`
+ * defaults to false there and the explorer can only search, filter, select and
+ * inspect — the world cannot create, move or delete a plot. Plot authoring lives
+ * on the administrative property map (`/staff/property` → `PropertyExplorer`).
  *
  * Loaded with `next/dynamic({ ssr: false })` from the park page, so three.js only
  * reaches browsers whose visitor actually opens 3D mode.
@@ -56,8 +58,12 @@ export type Park3dViewProps = {
   legendById: Record<string, LegendEntry>;
   selectedCode: string | null;
   onSelect: (area: PlotArea) => void;
-  /** Admin-only plotting (spec §3). */
-  canPlot: boolean;
+  /**
+   * Admin-only plotting. OPTIONAL and false by default: the public host passes
+   * nothing, so the explorer can never render an editing control there. Only an
+   * administrative surface resolves `property:write` and turns it on.
+   */
+  canPlot?: boolean;
   onChangeAreas?: (areas: PlotArea[]) => void;
   /** Leave the 3D experience — the host also leaves full screen. */
   onExit: () => void;
@@ -85,7 +91,7 @@ export function Park3dView({
   legendById,
   selectedCode,
   onSelect,
-  canPlot,
+  canPlot = false,
   onChangeAreas,
   onExit,
   fullscreen,
@@ -527,7 +533,7 @@ export function Park3dView({
             <code>GN-</code>; prices read “Contact for pricing” until the park publishes real lots.
             {canPlot
               ? " Plotting is open to you (property:write) — edits share one store with the map view."
-              : " Plotting tools are staff-only; you can inspect and select any plot."}
+              : " Plotting is handled by the office on the property map; you can inspect and select any plot."}
           </p>
           <p className="park3d__note">
             {areas.length} plots shown · {counts.map((c) => `${c.count} ${c.status}`).join(" · ")}.

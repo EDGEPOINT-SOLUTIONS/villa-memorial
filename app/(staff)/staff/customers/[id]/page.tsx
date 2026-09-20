@@ -6,7 +6,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getCustomer, listCustomers } from "@/lib/api-client/crm";
 
-export const metadata = { title: "Customer — Staff Portal" };
+export const metadata = { title: "Customer — Admin Portal" };
 
 export default async function CustomerDetailPage({
   params,

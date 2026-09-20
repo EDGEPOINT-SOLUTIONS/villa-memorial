@@ -10,7 +10,7 @@ import { APPLICATION_NOT_A_COC_NOTE } from "@/lib/contracts/membership-applicati
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ApiError } from "@/lib/api-client/api-error";
 
-export const metadata = { title: "New membership application — Staff Portal" };
+export const metadata = { title: "New membership application — Admin Portal" };
 
 // Reads the pricing store per request — the folio must quote the CURRENT published rate.
 export const dynamic = "force-dynamic";

@@ -7,7 +7,7 @@ import { hasAnyScope } from "@/lib/rbac/nav";
 import { listCrmLeads } from "@/lib/api-client/crm-leads";
 import { LeadRecordsPanel } from "@/components/crm/lead-records-panel";
 
-export const metadata = { title: "Sales pipeline — Staff Portal" };
+export const metadata = { title: "Sales pipeline — Admin Portal" };
 
 /**
  * Sales pipeline (Relationships) — the CRM area's lead list and the entry point

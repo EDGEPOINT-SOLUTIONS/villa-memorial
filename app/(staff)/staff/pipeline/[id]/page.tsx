@@ -21,7 +21,7 @@ import {
   stageTrail,
 } from "@/lib/crm/lead-view";
 
-export const metadata = { title: "Lead record — Staff Portal" };
+export const metadata = { title: "Lead record — Admin Portal" };
 
 /**
  * The staff lead record (PRD S4, Lead Detail) — the office's view of one lead,

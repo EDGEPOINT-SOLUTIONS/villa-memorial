@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Sign-in card — ONE premium sign-in for every portal door (staff / family /
+ * Sign-in card — ONE premium sign-in for every portal door (admin / family /
  * agent). Layout is identical across doors; only the eyebrow, blurb and demo
  * persona chips differ.
  *
@@ -123,7 +123,7 @@ export function SignInCard({
             />
           </Field>
           <Button type="submit" disabled={submitting} className="btn--block">
-            {submitting ? "Signing in…" : `Sign in to the ${door} portal`}
+            {submitting ? "Signing in…" : `Sign in to the ${SIGN_IN_BLURBS[door].portal} portal`}
           </Button>
         </form>
 

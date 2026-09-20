@@ -50,7 +50,7 @@ function paid(over: Partial<RecordedPayment> = {}): RecordedPayment {
       related_case_number: null,
       related_order_number: "ORD-2026-00003",
       status: "approved",
-      uploaded_by: "Staff portal (Sam Staff)",
+      uploaded_by: "Admin portal (Sam Staff)",
       uploaded_at: "2026-09-18T04:00:00.000Z",
       file_size_bytes: 0,
     },

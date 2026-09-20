@@ -4,9 +4,10 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { PropertyExplorer } from "@/components/property-explorer";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
+import { canEditPlots } from "@/lib/park-3d/capability";
 import { listLots, type LotStatus } from "@/lib/api-client/property";
 
-export const metadata = { title: "Property map — Staff Portal" };
+export const metadata = { title: "Property map — Admin Portal" };
 
 const VALID_STATUSES: LotStatus[] = [
   "available",
@@ -35,6 +36,10 @@ export default async function PropertyPage({
     );
   }
   const canReserve = hasAnyScope(session.scopes, ["property:write"]);
+  // Plot authoring lives HERE (the administrative property map), gated on the
+  // same `property:write` scope the shared capability module names. The public
+  // /map is view-only for everyone — an admin plots from this screen.
+  const canPlot = canEditPlots(session.scopes);
 
   let lots;
   try {
@@ -114,6 +119,7 @@ export default async function PropertyPage({
         <PropertyExplorer
           lots={lots}
           canReserve={canReserve}
+          canPlot={canPlot}
           initialQuery={(q ?? "").trim()}
           initialStatus={initialStatus}
         />

@@ -5,7 +5,7 @@
  * jwt-claims-v1), so the app infers the right surface from scopes. These rules
  * decide where a signed-in user belongs:
  *
- *   staff-ish scopes → Staff portal
+ *   admin-ish scopes → Admin Portal
  *   else order/property scopes (agent) → Agent portal
  *   else (storefront-only, e.g. customer) → Family portal
  *

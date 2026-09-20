@@ -11,7 +11,7 @@ import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE } from "@/lib/api-client/bill
 import { outstandingCents } from "@/lib/billing-payments";
 import { formatMinorUnits } from "@/lib/money";
 
-export const metadata = { title: "Billing & collections — Staff Portal" };
+export const metadata = { title: "Billing & collections — Admin Portal" };
 
 const AGING_BUCKETS: string[] = ["current", "1-30", "31-60", "61-90", "91-120", "120+"];
 

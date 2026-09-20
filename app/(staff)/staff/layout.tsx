@@ -10,7 +10,7 @@ import { visibleNav } from "@/lib/rbac/nav";
 import { redirect } from "next/navigation";
 
 /**
- * Staff portal frame (RBAC-gated). Session is validated server-side on every
+ * Admin Portal frame (RBAC-gated). Session is validated server-side on every
  * navigation; nav items render only for scopes the session actually holds.
  * A signed-in customer or agent who lands here is sent to their own portal
  * home instead of seeing a hollow staff shell.
@@ -25,7 +25,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   return (
     <AppShell
       brandEyebrow="Villa Memorial"
-      brandTitle="Staff Portal"
+      brandTitle="Admin Portal"
       sections={sections}
       topbar={
         <div className="app-topbar__group">

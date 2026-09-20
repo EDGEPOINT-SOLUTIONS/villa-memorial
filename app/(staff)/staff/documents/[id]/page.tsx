@@ -7,7 +7,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getDocument, renderDocument, type DocumentStatus } from "@/lib/api-client/documents";
 
-export const metadata = { title: "Document — Staff Portal" };
+export const metadata = { title: "Document — Admin Portal" };
 
 const STATUS_TONE: Record<DocumentStatus, "success" | "warning" | "info" | "neutral" | "danger"> = {
   uploaded: "info",

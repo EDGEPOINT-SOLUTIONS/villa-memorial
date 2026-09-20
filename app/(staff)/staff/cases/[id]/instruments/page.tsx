@@ -11,7 +11,7 @@ import {
 } from "@/lib/api-client/guarantee-instruments";
 import { businessToday } from "@/lib/contracts/payment-capture";
 
-export const metadata = { title: "Guarantee instruments — Staff Portal" };
+export const metadata = { title: "Guarantee instruments — Admin Portal" };
 
 /**
  * The guarantee-instrument tracker for one case (F-18 / FORMS_PLAN gap 5).

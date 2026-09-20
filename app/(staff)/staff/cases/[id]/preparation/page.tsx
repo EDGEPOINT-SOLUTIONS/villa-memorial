@@ -42,7 +42,7 @@ import {
  * read-only and says so. Where the record does not exist, the case's own task lines —
  * what the office actually records today — are shown instead.
  */
-export const metadata = { title: "Embalming & preparation — Staff Portal" };
+export const metadata = { title: "Embalming & preparation — Admin Portal" };
 
 function SummaryCard({
   item,

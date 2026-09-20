@@ -5,7 +5,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { CatalogItemForm } from "../catalog-item-form";
 
-export const metadata = { title: "New catalog item — Staff Portal" };
+export const metadata = { title: "New catalog item — Admin Portal" };
 
 /**
  * Create one catalogue item (`catalog:write`). The form validates field by field

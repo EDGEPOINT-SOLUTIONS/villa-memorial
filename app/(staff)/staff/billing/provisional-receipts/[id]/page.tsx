@@ -25,7 +25,7 @@ import {
 } from "@/lib/contracts/provisional-receipt";
 import { provisionalReceiptAgainst } from "@/lib/contracts/provisional-receipt-capture";
 
-export const metadata = { title: "Provisional receipt — Staff Portal" };
+export const metadata = { title: "Provisional receipt — Admin Portal" };
 
 /**
  * One provisional receipt — the counter's paper, or the official receipt that replaces it.

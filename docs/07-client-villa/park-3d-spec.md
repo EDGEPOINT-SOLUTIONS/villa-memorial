@@ -85,17 +85,23 @@ lower-right, and the MAIN ENTRANCE at the bottom-right.
 
 The existing **Villa Memorial Park page (`/map`)** hosts both modes, with a mode toggle:
 
-- **Map mode** — the plain masterplan image (`public/media/Park map.png`) with the existing
-  plotting/editing behaviour: draw, place, move, edit and inspect plots on the image.
+- **Map mode** — the plain masterplan image (`public/media/Park map.png`). On the public page it
+  is inspect-and-select only; plot authoring moved to the administrative property map
+  (`/staff/property`, 2026-09-20 revision below).
 - **3D mode** — the 3D park built from the same masterplan, entered in **full screen**
   (the mode switch requests full screen; a visible in-experience control leaves it, and the
   switch degrades gracefully where a browser refuses the request).
 
-**Role separation (captain's direction, 2026-09-16).** Plotting/editing is **admin only**.
-On the customer-facing page a visitor sees the map and the lots, can inspect and select
-them, and must have **no plotting or editing tools at all**; staff (authenticated, with the
-property edit scope) additionally get the plotting tools. The shared store is the same; the
-capability differs by viewer. Selection sync still applies to everyone.
+**Role separation (captain's direction, 2026-09-16; revised 2026-09-20).** Plotting/editing is
+**admin only**, and the customer-facing page carries none of it: `/map` is **view-only for
+everyone**, signed in or not (a signed-in administrator plots from the admin area, not here).
+A visitor sees the map and the lots, can inspect and select them, and gets **no plotting or
+editing tools at all** in either mode — nothing hidden, nothing disabled. Plot authoring lives
+on the administrative property map (`/staff/property` → `PropertyExplorer` → the shared
+`components/park-maps-view.tsx` editor), gated on `property:write` through
+`lib/park-3d/capability.ts`. The shared store is the same; staff edits appear on the public
+view, and selection sync still applies to everyone. `tests/unit/public-map-view-only.test.tsx`
+is the regression gate.
 
 **Movement is Blender-style orbit navigation (captain's direction, 2026-09-17).** The 3D map is
 navigated the way a 3D authoring tool is, not the way a game is — the drone/free-flight camera is
@@ -108,13 +114,13 @@ direction. No roll, no ground clipping, optional slow auto-orbit. The mode toggl
 math live in `lib/park-3d/orbit.ts` (pure, unit-tested); the gestures live in
 `components/park3d/camera-rig.tsx`.
 
-**Reserving from the 3D world (captain's direction, 2026-09-17).** The plot panel's next action
-follows the viewer's capability, exactly as the 2D/staff map does: a viewer holding
-`property:write` gets the real **reserve** control (`components/lot-reserve-action.tsx`, the same
-BFF route `POST /api/property/lots/:id/reserve` the staff property map uses, and the same rule —
-only an available lot, the service is the authority); everyone else keeps the request-to-reserve
-contact link, which claims and reserves nothing. A successful reservation is the LOT's new
-status, and both modes overlay it onto the same plot records, so the map view shows it
+**Reserving from the 3D world (captain's direction, 2026-09-17; revised 2026-09-20).** On the
+public page the plot panel's next action is the request-to-reserve contact link for everyone
+(which claims and reserves nothing) — the real reservation control is no longer wired there;
+it lives on the administrative property map (`/staff/property`, `property:write`,
+`components/lot-reserve-action.tsx` → `POST /api/property/lots/:id/reserve`, only
+`available → reserved`, the service is the authority). A successful reservation is the LOT's
+new status, and both modes overlay it onto the same plot records, so the map view shows it
 immediately.
 
 **All controls live inside the experience (captain's direction, 2026-09-16).** The 3D
@@ -290,9 +296,9 @@ visual perfection on the first iteration.
 ## 11. Decisions (captain-confirmed 2026-09-16, extended 2026-09-17)
 
 1. **Placement** — inside the existing `/map` page (Villa Memorial Park) as a mode toggle;
-   the page's existing plotting behaviour is preserved as Map mode for staff, and the two
-   modes share one store as described in section 3. Customers see the same two modes
-   without any plotting/editing capability.
+   the page is **view-only for everyone** (2026-09-20 revision — plot authoring moved to the
+   administrative property map `/staff/property`), and the two modes share one store as
+   described in section 3.
 2. **Identity** — the 3D experience uses the masterplan's own identity (Sanctuario Memorial
    Park, Begang, Isabela City, Basilan; "A Sacred Place. A Lasting Legacy.") while the page
    keeps its existing Villa Memorial Park framing. Both names already appear on the current
