@@ -4,13 +4,20 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { CatalogueEntryEditor } from "@/components/content/catalogue-entry-editor";
+import {
+  ProductLineEditor,
+  type ProductLineCatalogueRow,
+} from "@/components/content/product-line-editor";
 import type { SkuOption } from "@/components/content/content-editor-fields";
 import { ApiError } from "@/lib/api-client/api-error";
 import { getAdminCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
 import { getItemEntry } from "@/lib/api-client/content-entries";
+import { getProductLineForSku } from "@/lib/api-client/product-lines";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { itemEntryKind, itemEntryTarget } from "@/lib/catalogue-content";
+import { coffinModelForSku } from "@/lib/catalogue-skus";
+import type { ProductLine } from "@/lib/content-catalog";
 
 type ContentParams = { params: Promise<{ id: string }> };
 
@@ -100,6 +107,8 @@ export default async function CatalogItemContentPage({ params }: ContentParams) 
 
   let entry: Awaited<ReturnType<typeof getItemEntry>>;
   let skuOptions: SkuOption[] = [];
+  let catalogueRows: ProductLineCatalogueRow[] = [];
+  let line: ProductLine | null = null;
   try {
     entry = await getItemEntry(record.item.sku);
     const items = await listCatalogItems();
@@ -108,6 +117,11 @@ export default async function CatalogItemContentPage({ params }: ContentParams) 
       name: item.name,
       displayPrice: item.display_price,
     }));
+    catalogueRows = items.map((item) => ({ id: item.id, sku: item.sku, name: item.name }));
+    // Casket models carry the "choose a model" line; packages do not.
+    if (itemEntryKind(record.item.sku) === "casket") {
+      line = await getProductLineForSku(record.item.sku);
+    }
   } catch {
     return (
       <>
@@ -143,6 +157,13 @@ export default async function CatalogItemContentPage({ params }: ContentParams) 
         def={itemEntryTarget(record.item)}
         skuOptions={skuOptions}
       />
+      {line ? (
+        <ProductLineEditor
+          initial={line}
+          collection={coffinModelForSku(record.item.sku)?.collection ?? line.name}
+          catalogue={catalogueRows}
+        />
+      ) : null}
     </div>
   );
 }
