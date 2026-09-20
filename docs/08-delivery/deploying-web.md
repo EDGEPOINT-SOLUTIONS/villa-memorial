@@ -111,8 +111,8 @@ honest about it in the UI. The per-route truth is
 | Chapel schedule + bookings | `SCHEDULING_BASE_URL` | Yes — `booking-events-v1` frozen, staff-session only (a visitor gets 401 → *Request order*) |
 | Documents | `DOCUMENTS_BASE_URL` | Yes — `documents-api-v1` frozen |
 | Audit | `AUDIT_BASE_URL` | Yes — `audit-event-types-v1` frozen |
-| CRM (enquiries, customers, leads, pipeline) | `CRM_BASE_URL` | **No** — no contract; the live branch is an unbuilt 501, so the switch stays off |
-| HR | `HR_BASE_URL` | **No** — same, 501 |
+| CRM (enquiries, customers, leads, pipeline) | `CRM_BASE_URL` | **No** — no contract; live reads refuse with a named 503, so the switch stays off |
+| HR | `HR_BASE_URL` | **No** — same, 503 |
 | Family portal, agent portal, memorials, platform operator screens, commission | — | **No** — fixture-only by design; their live switches return `false`. They render recorded data, labelled |
 | Reports, accounting, notifications, dispatch, work orders | — | **No** — screens carry their honest "waits on the platform" state |
 
