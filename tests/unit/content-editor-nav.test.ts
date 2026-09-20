@@ -55,4 +55,17 @@ describe("the staff area has one content editor", () => {
     expect(source).not.toContain("gatedSectionPage");
     expect(source).not.toContain("NotWiredState");
   });
+
+  it("retired the plan stubs and keeps the membership route (content-catalogue Phase 4)", () => {
+    // The two honest not-wired stubs are gone; anything under /staff/plans other
+    // than membership now 404s.
+    expect(existsSync(path.join(STAFF_DIR, "plans", "[id]", "page.tsx"))).toBe(false);
+    expect(existsSync(path.join(STAFF_DIR, "plans", "new", "page.tsx"))).toBe(false);
+    expect(existsSync(path.join(STAFF_DIR, "plans", "membership", "page.tsx"))).toBe(true);
+    // The retired /staff/plans entry redirects into the consolidated rate home.
+    const source = readFileSync(path.join(STAFF_DIR, "plans", "page.tsx"), "utf8");
+    expect(source).toContain('redirect("/staff/pricing")');
+    expect(source).not.toContain("gatedSectionPage");
+    expect(source).not.toContain("NotWiredState");
+  });
 });

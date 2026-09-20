@@ -55,26 +55,28 @@ export const STAFF_NAV: NavSection[] = [
   {
     label: "Commerce",
     items: [
-      // Staff plan management — gates on catalog:write so the customer persona
-      // (which legitimately holds catalog:read) never sees it.
-      { href: "/staff/plans", label: "Plans", scopes: ["catalog:write"] },
+      // The page home: the five page documents (content-catalogue Phase 1).
+      // ONE content editor (captain, 2026-09-18): /staff/store redirects here.
+      // Gates on catalog:write provisionally (front-end CMS seam) until the
+      // content contract freezes its own scope.
+      { href: "/staff/landing", label: "Pages & content", scopes: ["catalog:write"] },
+      // The item catalogue: casket models · packages · service lines. Caskets and
+      // packages also carry a per-item page-content entry (Phase 4), reached from
+      // the row's "Page content" action; service lines are edited on Pages & content.
+      { href: "/staff/catalog", label: "Catalog", scopes: ["catalog:read"] },
+      // ONE rate source (Phase 4 nav consolidation): the plan tiers AND the lot
+      // families edit one pricing document, so they share this home. /staff/plans
+      // redirects here; the membership folio keeps its own nested route below.
+      { href: "/staff/pricing", label: "Pricing rules", scopes: ["catalog:write"] },
+      // Inventory gates on catalog:write (admin-manage) rather than catalog:read —
+      // the customer persona holds catalog:read for the storefront.
+      { href: "/staff/inventory", label: "Inventory", scopes: ["catalog:write"] },
+      { href: "/staff/orders", label: "Orders", scopes: ["orders:read"] },
       // Membership application folio (F-18 / FORMS_PLAN gap 4). Provisional scope:
       // rbac-scopes-v1 names no membership/plan-holder code, so this reuses the
       // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes
       // (the page says so). Never invent a token the guard cannot match.
       { href: "/staff/plans/membership", label: "Memberships", scopes: ["catalog:write"] },
-      { href: "/staff/catalog", label: "Catalog", scopes: ["catalog:read"] },
-      // Inventory/pricing/store gate on catalog:write (admin-manage) rather than
-      // catalog:read — the customer persona holds catalog:read for the storefront.
-      { href: "/staff/inventory", label: "Inventory", scopes: ["catalog:write"] },
-      { href: "/staff/pricing", label: "Pricing rules", scopes: ["catalog:write"] },
-      // ONE content editor (captain, 2026-09-18): the old "Store & content" stub
-      // was merged into the real editor, which now holds the landing page AND the
-      // FAQ page. /staff/store redirects here. Gates on catalog:write provisionally
-      // (front-end CMS seam) until the content contract freezes its own scope.
-      // See app/(staff)/staff/landing + lib/api-client/landing.ts.
-      { href: "/staff/landing", label: "Pages & content", scopes: ["catalog:write"] },
-      { href: "/staff/orders", label: "Orders", scopes: ["orders:read"] },
     ],
   },
   {

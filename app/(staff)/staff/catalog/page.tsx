@@ -13,6 +13,7 @@ import {
   type CatalogItemType,
 } from "@/lib/catalog-admin";
 import { hasAnyScope } from "@/lib/rbac/nav";
+import { isItemEntrySku } from "@/lib/catalogue-content";
 import { CatalogPublishToggle } from "./publish-toggle";
 
 export const metadata = { title: "Catalog — Admin Portal" };
@@ -251,13 +252,21 @@ export default async function CatalogPage({
                     <td className="text-sm">{updatedStamp(record)}</td>
                     {canWrite ? (
                       <td>
-                        <div className="row">
+                        <div className="row row--wrap">
                           <Link
                             href={`/staff/catalog/${record.item.id}/edit`}
                             className="btn btn--secondary btn--sm"
                           >
                             Edit
                           </Link>
+                          {isItemEntrySku(record.item.sku) ? (
+                            <Link
+                              href={`/staff/catalog/${record.item.id}/content`}
+                              className="btn btn--secondary btn--sm"
+                            >
+                              Page content
+                            </Link>
+                          ) : null}
                           <CatalogPublishToggle record={record} />
                         </div>
                       </td>

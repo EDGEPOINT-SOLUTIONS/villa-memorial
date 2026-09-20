@@ -11,8 +11,9 @@ import type { Session } from "@/lib/auth/types";
  * RBAC gating for the two pricing screens and their BFF route:
  *  - POST /api/pricing (the only write) needs `catalog:write`; GET needs the
  *    matching `catalog:read`. Both answer 401/403 before touching the store.
- *  - /staff/plans and /staff/pricing render gracefully with the write scope and
- *    a ForbiddenState without it (the same provisional scope the nav entries use).
+ *  - /staff/pricing (the consolidated rate home) renders both editors with the
+ *    write scope and a ForbiddenState without it (the same provisional scope the
+ *    nav entry uses); /staff/plans redirects there.
  *  - a write-scoped save lands in the SAME store the public pages read.
  *
  * Cookies and the server session gate are mocked; every test uses a throwaway
@@ -32,10 +33,15 @@ vi.mock("@/lib/auth/guard", () => ({
   requireSessionOrRedirect: async () => sessionHolder.current,
 }));
 
+const redirectCalls = vi.hoisted(() => ({ hrefs: [] as string[] }));
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: () => undefined, push: () => undefined, replace: () => undefined }),
   notFound: () => {
     throw new Error("NEXT_NOT_FOUND");
+  },
+  redirect: (href: string) => {
+    redirectCalls.hrefs.push(href);
+    throw new Error("NEXT_REDIRECT");
   },
 }));
 
@@ -198,29 +204,18 @@ describe("/api/pricing RBAC", () => {
 });
 
 describe("the staff pages gate on catalog:write", () => {
-  it("/staff/plans shows the rates editor for a write session", async () => {
+  it("/staff/pricing is the one rate home — plan rates AND lot prices", async () => {
     setSession(["catalog:write"]);
-    const html = renderToStaticMarkup(await PlansStaffPage());
+    const html = renderToStaticMarkup(await PricingStaffPage());
+    expect(html).toContain("Pricing rules");
+    // Plan rates half.
     expect(html).toContain("Plan rates");
     expect(html).toContain("Save plan rates");
     expect(html).toContain("Preview — exactly what the public pages print");
     // The senior-rate client question stays visible on the screen.
     expect(html).toContain("Open client question");
     expect(html).toContain("senior chapel sheet contradicts itself");
-    expect(html).not.toContain("don’t have access");
-  });
-
-  it("/staff/plans denies a read-only session gracefully", async () => {
-    setSession(["catalog:read"]);
-    const html = renderToStaticMarkup(await PlansStaffPage());
-    expect(html).toContain("don’t have access");
-    expect(html).toContain("catalog:write");
-    expect(html).not.toContain("Save plan rates");
-  });
-
-  it("/staff/pricing shows the lot editor and its open question for a write session", async () => {
-    setSession(["catalog:write"]);
-    const html = renderToStaticMarkup(await PricingStaffPage());
+    // Lot prices half.
     expect(html).toContain("Lot prices");
     expect(html).toContain("Save lot prices");
     expect(html).toContain("Lot A-001");
@@ -233,5 +228,12 @@ describe("the staff pages gate on catalog:write", () => {
     expect(html).toContain("don’t have access");
     expect(html).toContain("catalog:write");
     expect(html).not.toContain("Save lot prices");
+    expect(html).not.toContain("Save plan rates");
+  });
+
+  it("/staff/plans redirects to the consolidated Pricing rules home", () => {
+    redirectCalls.hrefs = [];
+    expect(() => PlansStaffPage()).toThrow("NEXT_REDIRECT");
+    expect(redirectCalls.hrefs).toEqual(["/staff/pricing"]);
   });
 });

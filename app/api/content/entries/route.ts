@@ -1,14 +1,20 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 import { ApiError } from "@/lib/api-client/api-error";
-import { listServiceEntries, saveServiceEntry } from "@/lib/api-client/content-entries";
+import {
+  listItemEntries,
+  listServiceEntries,
+  saveItemEntry,
+  saveServiceEntry,
+} from "@/lib/api-client/content-entries";
+import { isItemEntrySku } from "@/lib/catalogue-content";
 import { ACCESS_COOKIE, parseAccessTokenClaims } from "@/lib/auth/session";
 import { hasAnyScope } from "@/lib/rbac/nav";
 
 /**
  * BFF: the service-entry write path (content-catalogue Phase 3).
  *
- *   GET  /api/content/entries         — every service entry (the editor's read)
+ *   GET  /api/content/entries         — every entry (service guides + casket/package items)
  *   POST /api/content/entries         — save one: { key, entry }
  *
  * No content/CMS service exists upstream (the contract ask travels with the
@@ -32,7 +38,8 @@ async function requireCatalogWrite() {
 export async function GET() {
   const gate = await requireCatalogWrite();
   if ("error" in gate) return gate.error;
-  return NextResponse.json({ entries: await listServiceEntries() });
+  const [services, items] = await Promise.all([listServiceEntries(), listItemEntries()]);
+  return NextResponse.json({ entries: [...services, ...items] });
 }
 
 export async function POST(request: NextRequest) {
@@ -49,11 +56,14 @@ export async function POST(request: NextRequest) {
   const record = typeof body === "object" && body !== null ? (body as Record<string, unknown>) : {};
   const key = typeof record.key === "string" ? record.key.trim() : "";
   if (!key) {
-    return NextResponse.json({ error: "The save must name the service entry." }, { status: 422 });
+    return NextResponse.json({ error: "The save must name the entry." }, { status: 422 });
   }
 
   try {
-    const entry = await saveServiceEntry(key, record.entry ?? record, gate.claims.sub);
+    // A casket/package SKU is an item entry; anything else is a service guide.
+    const entry = isItemEntrySku(key)
+      ? await saveItemEntry(key, record.entry ?? record, gate.claims.sub)
+      : await saveServiceEntry(key, record.entry ?? record, gate.claims.sub);
     return NextResponse.json({ ok: true, entry });
   } catch (err) {
     if (err instanceof ApiError) {

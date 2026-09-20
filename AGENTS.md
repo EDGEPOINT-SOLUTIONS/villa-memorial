@@ -251,9 +251,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   keeps the full landing/FAQ editor at `/staff/landing/home`; the rest are page
   documents (see the content-catalogue block below). The retired `/staff/store`
   stub is a redirect and its duplicate nav entry is gone. Storefront
-  COMMERCE settings live on `/staff/catalog`, `/staff/pricing`, `/staff/plans` —
-  never recreate a second content route. Evidence: `tests/unit/content-editor-nav.test.ts`,
-  `tests/unit/pages-and-content-admin.test.tsx`.
+  COMMERCE settings live on `/staff/catalog` and `/staff/pricing` (the plan-rate
+  and lot-price editors share the ONE pricing document since the Phase 4 nav
+  consolidation; `/staff/plans` redirects there) — never recreate a second
+  content route. Evidence: `tests/unit/content-editor-nav.test.ts`,
+  `tests/unit/pages-and-content-admin.test.tsx`, `tests/unit/pricing-admin-rbac.test.tsx`.
 - Public lot browse (/lots) is a **client-filtered product listing** (captain
   2026-09-20: pictures on every lot, a sticky left filter, Amazon-style cards;
   filtering must not reload — the URL is the view's serialisation, written with
@@ -361,9 +363,19 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   Evidence + before/after shots: `docs/08-delivery/content-services-page-design/`;
   tests `service-content`, `content-entries-store`, `service-entry-page`,
   `pages-and-content-admin`.
-- **Phase 4 is queued — do not build it here**: the item catalogue's entry blocks
-  (per-casket/package content, and the plan-tier entries as opposed to document
-  blocks) and the nav cleanup follow.
+- **Phase 4 has LANDED** (`docs/08-delivery/content-catalogue-cleanup-design/`):
+  the casket and package **item entries** (`lib/catalogue-content.ts` +
+  `lib/api-client/content-entries.ts`, edited at `/staff/catalog/[id]/content`)
+  add the ecommerce-style half — a long description (`entry.summary`), photos and
+  ordered **content blocks** (specifications, dimension tables, inclusions, notes)
+  — with a price block bound to a live catalogue SKU, never an amount. The entry's
+  identity (title/group/price) is DERIVED from the catalogue record on every read,
+  so a content edit can never rename a product or move a price; `/products/[sku]`
+  and `/plans/[sku]` render the entry's summary and blocks. The Commerce nav is
+  consolidated to the captain's §6.1 shape (Pages & content · Catalog · Pricing
+  rules · Inventory · Orders · Memberships) and the `/staff/plans/[id]`/`new`
+  stubs are retired. The plan-tier **entries** (as opposed to document blocks)
+  remain out of scope.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

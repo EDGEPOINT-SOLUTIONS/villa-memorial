@@ -295,6 +295,7 @@ All are documented as captain-approved in the villa docs; none contradicts a PRD
 | reporting-analytics | Reports/BI, executive dashboards, real aggregation | reporting-dashboards.md:125-140 | Dashboard aggregates in the app; `/staff/reports` stub. |
 | accounting screens API | Journal entries/trial balance UI | finance-billing.md:50-53 | `/staff/accounting` stub. |
 | catalog write + pricing read/write APIs | Admin stores' live mode | commerce-catalog.md:3-10 · finance-billing.md:42-48 | App-authored fixture stores; 503 live. |
+| content/CMS read-write contract (page documents + catalogue entries) | Pages & content (`/staff/landing/*`) and the per-item page-content editor (`/staff/catalog/[id]/content`, content-catalogue Phases 0–4) | documents-contracts.md:111-115 | App-authored globalThis stores (landing · content-pages · content-entries); every save re-validates against the LIVE catalogue + pricing stores; no upstream service to address. See [`content-catalogue-cleanup-design/`](./content-catalogue-cleanup-design/). |
 | order-admin record/lifecycle | Orders admin live mode | known-limitations-cp1.md:48-49 | App-authored wrapper; 503 live. |
 | notification service contract + scope | Staff + family notifications | documents-contracts.md:105-109 | Honest stubs both portals. |
 | family API contract + family scopes | Family portal live data (plans, payments, lots, cases, documents, appointments) | digital-memorial.md:26-30 · rbac-scopes-v1 | Snapshot fixture; 11/12 screens honest/partial. |

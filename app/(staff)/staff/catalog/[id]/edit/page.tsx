@@ -6,6 +6,7 @@ import { ApiError } from "@/lib/api-client/api-error";
 import { getAdminCatalogItem, type AdminCatalogItem } from "@/lib/api-client/commerce";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
+import { isItemEntrySku } from "@/lib/catalogue-content";
 import { CatalogItemForm } from "../../catalog-item-form";
 
 export const metadata = { title: "Edit catalog item — Admin Portal" };
@@ -75,9 +76,19 @@ export default async function EditCatalogItemPage({
         eyebrow="Commerce · Catalog"
         title={`Edit ${record.item.sku}`}
         actions={
-          <Link href="/staff/catalog" className="btn btn--secondary btn--sm">
-            Back to catalog
-          </Link>
+          <>
+            {isItemEntrySku(record.item.sku) ? (
+              <Link
+                href={`/staff/catalog/${record.item.id}/content`}
+                className="btn btn--secondary btn--sm"
+              >
+                Edit page content
+              </Link>
+            ) : null}
+            <Link href="/staff/catalog" className="btn btn--secondary btn--sm">
+              Back to catalog
+            </Link>
+          </>
         }
       />
       <PageSection>

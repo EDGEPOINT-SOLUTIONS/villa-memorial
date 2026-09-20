@@ -86,9 +86,19 @@ describe("activeNavHref — the one current entry", () => {
   });
 
   it("keeps the parent entry active for its own sub-pages", () => {
-    expect(activeNavHref("/staff/plans", STAFF_NAV)).toBe("/staff/plans");
-    expect(activeNavHref("/staff/plans/new", STAFF_NAV)).toBe("/staff/plans");
     expect(activeNavHref("/staff/cases/123", STAFF_NAV)).toBe("/staff/cases");
+    expect(activeNavHref("/staff/landing/service-entry/transport", STAFF_NAV)).toBe(
+      "/staff/landing",
+    );
+  });
+
+  it("has retired the standalone Plans entry (Phase 4 nav consolidation)", () => {
+    // The plan-rate editor merged into Pricing rules; /staff/plans redirects.
+    expect(STAFF_NAV.flatMap((section) => section.items).some((item) => item.href === "/staff/plans")).toBe(
+      false,
+    );
+    expect(activeNavHref("/staff/plans", STAFF_NAV)).toBeNull();
+    expect(activeNavHref("/staff/plans/new", STAFF_NAV)).toBeNull();
   });
 
   it("returns null when nothing owns the pathname", () => {

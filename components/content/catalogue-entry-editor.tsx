@@ -37,8 +37,8 @@ import {
   type ContentBlock,
   type ContentBlockType,
   type ContentImage,
+  type EntryEditorTarget,
 } from "@/lib/content-catalog";
-import type { ServiceEntryDef } from "@/lib/service-content";
 
 type SaveState = { tone: "ok" | "danger"; text: string } | null;
 
@@ -52,7 +52,7 @@ export function CatalogueEntryEditor({
   skuOptions,
 }: {
   initial: CatalogueEntry;
-  def: ServiceEntryDef;
+  def: EntryEditorTarget;
   skuOptions: SkuOption[];
 }) {
   const router = useRouter();
@@ -142,7 +142,9 @@ export function CatalogueEntryEditor({
         <div className="card__body stack-3">
           <div className="row row--space row--wrap">
             <div>
-              <p className="eyebrow-label">Service entry · {entry.title || def.fallbackTitle}</p>
+              <p className="eyebrow-label">
+                {def.kindLabel} · {entry.title || def.fallbackTitle}
+              </p>
               <p className="text-sm text-muted" style={{ margin: 0 }}>
                 Public page: <code>{def.route}</code>
                 {entry.updated_at
@@ -179,21 +181,47 @@ export function CatalogueEntryEditor({
           <h2 id="entry-identity-title" className="text-lg">
             Identity
           </h2>
-          <div className="field-grid field-grid--2">
-            <TextField label="Title" value={entry.title} onChange={(value) => patchEntry({ title: value })} />
-            <TextField
-              label="Eyebrow"
-              value={entry.group ?? ""}
-              onChange={(value) => patchEntry({ group: value || null })}
-              hint="The small line above the title on the guide page."
-            />
-          </div>
+          {def.identityLocked ? (
+            <div className="stack-2">
+              <p className="text-sm" style={{ margin: 0 }}>
+                <strong>{entry.title || def.fallbackTitle}</strong>
+                {entry.group ? <span className="text-muted"> · {entry.group}</span> : null}
+                {entry.sku ? <span className="text-muted"> · <code>{entry.sku}</code></span> : null}
+              </p>
+              {def.identityNote ? (
+                <p className="text-sm text-muted" style={{ margin: 0 }}>
+                  {def.identityNote}
+                </p>
+              ) : null}
+              {def.identityHref ? (
+                <p style={{ margin: 0 }}>
+                  <a href={def.identityHref} className="btn btn--secondary btn--sm">
+                    Edit the catalogue record
+                  </a>
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="field-grid field-grid--2">
+              <TextField label="Title" value={entry.title} onChange={(value) => patchEntry({ title: value })} />
+              <TextField
+                label="Eyebrow"
+                value={entry.group ?? ""}
+                onChange={(value) => patchEntry({ group: value || null })}
+                hint="The small line above the title on the guide page."
+              />
+            </div>
+          )}
           <AreaField
-            label="Summary"
+            label={def.identityLocked ? "Long description" : "Summary"}
             value={entry.summary}
             onChange={(value) => patchEntry({ summary: value })}
             rows={3}
-            hint="The guide page's lead paragraph."
+            hint={
+              def.identityLocked
+                ? "The item's own page lead — leave it blank to keep the catalogue record's short description."
+                : "The guide page's lead paragraph."
+            }
           />
         </div>
       </section>
