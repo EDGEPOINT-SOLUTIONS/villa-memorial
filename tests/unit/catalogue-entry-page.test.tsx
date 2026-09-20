@@ -156,7 +156,9 @@ describe("an item entry reaches the storefront", () => {
     // The viewer's lead photograph, its caption, and the sample photograph's label.
     expect(html).toContain("/media/client/rose-card-440.webp");
     expect(html).toContain("Shown with the full lid raised.");
-    expect(html).toContain("Sample photograph");
+    // The sample photograph stays labelled in the rail and under the gallery.
+    expect(html).toContain("casket-sample__mini");
+    expect(html).toContain("Illustration purposes only.");
     // The thumbnail rail is a real, labelled control set.
     expect(html).toContain('aria-label="Show photograph 2 of 2"');
     // The formatted specs table with a row header.

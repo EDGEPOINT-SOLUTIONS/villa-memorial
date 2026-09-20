@@ -472,9 +472,26 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `aria-live` line, and `history.replaceState` keeps the per-SKU URL (canonical
   stays per-SKU). Imagery fallback: the variant's own gallery → the rule-derived
   sample (chip + sheet note) → an honest text placeholder; a line-level shared
-  gallery is NOT in the P0 `ProductLine` type. P3 owns the layout/zoom/phone
-  pass. Evidence + 1440/390 shots: `docs/08-delivery/pdp-variants-design/`;
-  tests `product-line`, `pdp-variants`.
+  gallery is NOT in the P0 `ProductLine` type. Evidence + 1440/390 shots:
+  `docs/08-delivery/pdp-variants-design/`; tests `product-line`, `pdp-variants`.
+- **Phase P3 has LANDED — the PDP is the Amazon structure in our tokens** (plan
+  §6; the captain's 2026-09-21 removal direction). The legacy bespoke blocks are
+  GONE from `/products/[sku]`: the long sample caption/tier note, "This model at a
+  glance" (`CasketFacts`/`CasketPriceGrid`), "What comes with this model"
+  (`CasketInclusionPanel`), "How the five tiers are shown" (the `COFFINS` strip),
+  the five-link row and the sibling row (their CSS was pruned too). The page is
+  now a `.pdp-layout`: a sticky `.pdp-media` gallery (≥64rem) beside the `.pdp-buy`
+  box (eyebrow · variant h1 · lead · selector · live price + senior line ·
+  availability/trust lines · one primary CTA), with `.pdp-below` full width — the
+  editable rich description, the authored `bullets` blocks as feature bullets,
+  the `SpecsTable` and the rest of `ContentBlocks`. Below 64rem it stacks
+  gallery → buy box → content. `PdpGallery` owns a `useModalFocus` zoom dialog
+  (natural-size pan frame); every non-lead image is lazy. Nothing visible is
+  rule-authored prose and money stays a live catalogue price; `casket-detail.tsx`
+  keeps only `CasketSampleFigure` for the no-gallery fallback. Evidence + 1440/390
+  shots + page weights: `docs/08-delivery/pdp-layout-design/`; tests
+  `phone-layout`, `reading-budget`, `villa-services-premium`, `catalogue-entry-page`,
+  `pdp-gallery`, `pdp-variants`.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

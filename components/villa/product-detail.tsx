@@ -1,17 +1,29 @@
 "use client";
 
 /**
- * Product detail with the variant selector (P2 of data/villa-pdp-cms-plan/report.md
- * §5) — the client half of `/products/[sku]`.
+ * Product detail — the Amazon STRUCTURE in our tokens and kit (P3 of
+ * data/villa-pdp-cms-plan/report.md §6, the captain's 2026-09-21 removal
+ * direction). The client half of `/products/[sku]`.
  *
- * ONE PASS, LOCAL SWAP. The server page resolves the line and EVERY sibling
- * entry in one read and hands them here as `variants`, so choosing a model is
- * local state: the gallery, price, specs, description and rule-derived facts
- * re-render in the same React commit, with no navigation and no round-trip.
+ * THE LAYOUT. A two-row grid (`.pdp-layout`): the sticky gallery on the left
+ * (`.pdp-media`, `position: sticky` at desktop) and the buy box on the right
+ * (`.pdp-buy`); the editable content spans both columns below the fold
+ * (`.pdp-below`). Below `64rem` it collapses to one column in DOM order —
+ * gallery, buy box, content — which is the Amazon phone stack. The gallery is a
+ * `<figure>`, so the buy box is the first `<section>` a reader reaches.
+ *
+ * THE BUY BOX. Collection eyebrow · the selected variant's h1 · its one-line
+ * lead · the P2 variant selector · the live catalogue price (and the model's
+ * sheet senior line) · the honest availability/trust lines · the ONE primary
+ * action (Add to cart) with Request order beside it.
+ *
+ * BELOW THE FOLD. Everything here comes from the catalogue entry: the typed rich
+ * description, the authored feature bullets (`bullets` blocks), the formatted
+ * specs table and the remaining authored blocks. Nothing is rule-derived prose.
  *
  * THE SELECTOR. An Amazon-style `role="radiogroup"` of `role="radio"` buttons —
- * one thumbnail + name per model, `aria-checked` for the selection, arrow keys
- * to move (Home/End to the ends), and an `aria-live` line announcing the swap.
+ * one thumbnail + name per model, `aria-checked` for the selection, arrow keys to
+ * move (Home/End to the ends), and an `aria-live` line announcing the swap.
  * Selecting calls `history.replaceState` so the URL stays the selected model's
  * own SKU page (captain's Q6) while the canonical stays per-SKU (the server head).
  *
@@ -20,10 +32,8 @@
  *
  * IMAGERY FALLBACK, in priority order (the report's §5): the variant's own
  * authored gallery; otherwise the rule-derived sample photograph with its
- * "Sample photograph" chip and the sheet's substitution note; otherwise an
- * honest text placeholder — never another variant's photograph silently. (A
- * line-level shared gallery is NOT part of the confirmed P0 `ProductLine` model,
- * so that rung does not exist here.)
+ * "Sample photograph" chip and the sheet's short illustration label; otherwise an
+ * honest text placeholder — never another variant's photograph silently.
  *
  * MONEY IS ALWAYS THE SELECTED VARIANT'S LIVE CATALOGUE PRICE — never authored,
  * never carried across the swap.
@@ -31,14 +41,10 @@
 import { useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import Link from "next/link";
 import type { CatalogItem } from "@/lib/api-client/commerce";
+import type { ContactInfo } from "@/lib/api-client/landing";
 import type { ContentBlock, ContentImage, ContentSpecs, RichTextDoc } from "@/lib/content-catalog";
 import { php, type CasketModel } from "@/lib/villa-pricing";
-import {
-  CasketFacts,
-  CasketInclusionPanel,
-  CasketPriceGrid,
-  CasketSampleFigure,
-} from "@/components/villa/casket-detail";
+import { CasketSampleFigure } from "@/components/villa/casket-detail";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { RichText } from "@/components/content/rich-text";
@@ -66,22 +72,15 @@ export type PdpVariant = {
   thumb: string | null;
 };
 
+type BulletsBlock = Extract<ContentBlock, { type: "bullets" }>;
+
+function isBulletsBlock(block: ContentBlock): block is BulletsBlock {
+  return block.type === "bullets";
+}
+
 /** The variant a SKU selects, falling back to the first for an unknown SKU. */
 export function activeVariant(variants: PdpVariant[], sku: string): PdpVariant | undefined {
   return variants.find((variant) => variant.sku === sku) ?? variants[0];
-}
-
-/** Chips shared by the detail page's hero. */
-function RelatedChips() {
-  return (
-    <nav className="hero-chips" aria-label="Related pages">
-      <Link href="/products">All coffins &amp; caskets</Link>
-      <Link href="/price-list">Price list</Link>
-      <Link href="/services">Memorial service rates</Link>
-      <Link href="/lots/price-list-2026">2026 lot price list</Link>
-      <Link href="/contact">Ask the office</Link>
-    </nav>
-  );
 }
 
 export function ProductDetail({
@@ -89,16 +88,18 @@ export function ProductDetail({
   selectedSku,
   variants,
   pricesBySku,
-  staticAside,
-  staticBelowFold,
+  contact,
+  aside,
 }: {
   lineName: string;
   selectedSku: string;
   variants: PdpVariant[];
   /** Every catalogue display price, so an authored price block can resolve. */
   pricesBySku: Record<string, string>;
-  staticAside?: ReactNode;
-  staticBelowFold?: ReactNode;
+  /** The staff-editable 24/7 line (the landing contact region). */
+  contact: ContactInfo;
+  /** The advisor card, rendered under the buy box. */
+  aside?: ReactNode;
 }) {
   const [selected, setSelected] = useState(selectedSku);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -143,189 +144,183 @@ export function ProductDetail({
 
   if (!variant) return null;
 
+  const featureBlocks = variant.blocks.filter(isBulletsBlock);
+  const otherBlocks = variant.blocks.filter((block) => !isBulletsBlock(block));
+  const hasSamplePhoto =
+    variant.gallery.some((image) => image.sample) || (!variant.gallery.length && Boolean(model));
+
   return (
-    <div className="plan-layout">
-      <div className="plan-main">
-        <section aria-labelledby="casket-title">
-          <p className="mid-kicker">{lineName}</p>
-          <h1 className="pkg-title" id="casket-title">
-            {variant.name}
-          </h1>
-          {variant.summary ? <p className="pkg-lead">{variant.summary}</p> : null}
-          <p className="pkg-note">
-            Every figure below is the client&rsquo;s own 2026 published price — the SRP, the
-            senior-citizen SRP, the senior discount and the discounted price the sheet prints
-            against this model.
-          </p>
-          <RelatedChips />
-        </section>
-
-        {variant.gallery.length > 0 ? (
-          <PdpGallery key={variant.sku} images={variant.gallery} label={variant.name} />
-        ) : model ? (
-          <CasketSampleFigure model={model} />
-        ) : (
-          <p className="pdp-gallery__placeholder" role="note">
-            Photographs for this model are being prepared — the office will show them before you
-            commit.
-          </p>
-        )}
-
-        {variant.description ? (
-          <section className="mid-section" aria-labelledby="casket-about">
-            <p className="mid-kicker">From the office</p>
-            <h2 id="casket-about">About this model</h2>
-            <RichText doc={variant.description} />
-          </section>
-        ) : null}
-
-        {variant.specs && variant.specs.columns.length > 0 ? (
-          <section className="mid-section" aria-labelledby="casket-specs">
-            <p className="mid-kicker">Specifications</p>
-            <h2 id="casket-specs">Specifications</h2>
-            <SpecsTable
-              specs={variant.specs}
-              caption={`${variant.name} — as recorded by the office`}
-            />
-          </section>
-        ) : null}
-
-        {variant.blocks.length > 0 ? (
-          <section className="mid-section" aria-labelledby="casket-authored">
-            <p className="mid-kicker">From the office</p>
-            <h2 id="casket-authored">More about this model</h2>
-            <ContentBlocks
-              blocks={variant.blocks}
-              priceOf={(sku) => pricesBySku[sku] ?? null}
-            />
-          </section>
-        ) : null}
-
-        {model ? (
-          <section className="mid-section" aria-labelledby="casket-glance">
-            <p className="mid-kicker">From the client&rsquo;s 2026 sheets</p>
-            <h2 id="casket-glance">This model at a glance</h2>
-            <p className="mid-intro">
-              Where the sheet files the model, the cover its name states, and the four published
-              prices.
+    <div className="pdp">
+      <div className="pdp-layout">
+        <div className="pdp-media">
+          {variant.gallery.length > 0 ? (
+            <PdpGallery key={variant.sku} images={variant.gallery} label={variant.name} />
+          ) : model ? (
+            <CasketSampleFigure model={model} />
+          ) : (
+            <p className="pdp-gallery__placeholder" role="note">
+              Photographs for this model are being prepared — the office will show them before you
+              commit.
             </p>
-            <CasketFacts model={model} item={variant.item} />
-            <h3 className="casket-subtitle">Published 2026 prices</h3>
-            <CasketPriceGrid model={model} />
-            <p className="mid-note">
-              Senior citizens are 61–100 years old with no insurance benefit. The office confirms
-              the final price on the order.
-            </p>
-          </section>
-        ) : null}
+          )}
+        </div>
 
-        {model ? (
-          <section className="mid-section" aria-labelledby="casket-included">
-            <p className="mid-kicker">PRICE LIST FOR 2026 III</p>
-            <h2 id="casket-included">What comes with this model</h2>
-            <p className="mid-intro">
-              The {model.family} family row, exactly as the sheet prints it — flowers, tarp,
-              lapida, family car, one dozen roses and the thank-you card — plus the package&rsquo;s
-              own chapel day rates.
-            </p>
-            <CasketInclusionPanel model={model} />
-          </section>
-        ) : null}
+        <div className="pdp-buy-column">
+          <section className="pdp-buy" aria-labelledby="pdp-title">
+            <p className="pdp-buy__eyebrow">{lineName}</p>
+            <h1 className="pdp-buy__title" id="pdp-title">
+              {variant.name}
+            </h1>
+            {variant.summary ? <p className="pdp-buy__lead">{variant.summary}</p> : null}
 
-        {staticBelowFold}
-      </div>
-
-      <aside className="plan-side">
-        <section className="buy-card" aria-labelledby="casket-buy">
-          <div className="buy-card__label" id="casket-buy">
-            {variant.name} · 2026 price
-          </div>
-
-          <div className="pdp-variants">
-            <p className="pdp-variants__label" id="pdp-variants-label">
-              Choose a model
-            </p>
-            <div
-              className="pdp-variants__list"
-              role="radiogroup"
-              aria-labelledby="pdp-variants-label"
-            >
-              {variants.map((option, index) => {
-                const active = option.sku === variant.sku;
-                return (
-                  <button
-                    key={option.sku}
-                    ref={(element) => {
-                      buttonRefs.current[index] = element;
-                    }}
-                    type="button"
-                    role="radio"
-                    aria-checked={active}
-                    aria-label={option.name}
-                    className={`pdp-variant${active ? " pdp-variant--active" : ""}`}
-                    onClick={() => choose(option)}
-                    onKeyDown={(event) => onSelectorKeyDown(event, index)}
-                  >
-                    <span className="pdp-variant__thumb">
-                      {option.thumb ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- client sample photo
-                        <img src={option.thumb} alt="" loading="lazy" decoding="async" />
-                      ) : (
-                        <span className="pdp-variant__thumb--empty" aria-hidden="true">
-                          {option.name.slice(0, 1)}
-                        </span>
-                      )}
-                    </span>
-                    <span className="pdp-variant__name">{option.name}</span>
-                  </button>
-                );
-              })}
+            <div className="pdp-variants">
+              <p className="pdp-variants__label" id="pdp-variants-label">
+                Choose a model
+              </p>
+              <div
+                className="pdp-variants__list"
+                role="radiogroup"
+                aria-labelledby="pdp-variants-label"
+              >
+                {variants.map((option, index) => {
+                  const active = option.sku === variant.sku;
+                  return (
+                    <button
+                      key={option.sku}
+                      ref={(element) => {
+                        buttonRefs.current[index] = element;
+                      }}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      aria-label={option.name}
+                      className={`pdp-variant${active ? " pdp-variant--active" : ""}`}
+                      onClick={() => choose(option)}
+                      onKeyDown={(event) => onSelectorKeyDown(event, index)}
+                    >
+                      <span className="pdp-variant__thumb">
+                        {option.thumb ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- client sample photo
+                          <img src={option.thumb} alt="" loading="lazy" decoding="async" />
+                        ) : (
+                          <span className="pdp-variant__thumb--empty" aria-hidden="true">
+                            {option.name.slice(0, 1)}
+                          </span>
+                        )}
+                      </span>
+                      <span className="pdp-variant__name">{option.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="pdp-variants__live" aria-live="polite">
+                Now showing {variant.name}, {variant.item.display_price}.
+              </p>
             </div>
-            <p className="pdp-variants__live" aria-live="polite">
-              Now showing {variant.name}, {variant.item.display_price}.
-            </p>
-          </div>
 
-          <div>
-            <div className="detail-sticky__label">Published price</div>
-            <div className="detail-sticky__price">{variant.item.display_price}</div>
-          </div>
+            <div className="pdp-buy__price">
+              <div className="detail-sticky__label">Published 2026 price</div>
+              <div className="detail-sticky__price">{variant.item.display_price}</div>
+              {model ? (
+                <p className="pdp-buy__senior">
+                  Senior citizens pay <strong>{php(model.seniorPrice)}</strong> (61–100, no insurance
+                  benefit).{" "}
+                  <Link href="/price-list">Senior plan and rates</Link>.
+                </p>
+              ) : null}
+            </div>
 
-          {model ? (
-            <p className="plan-advisor__line">
-              <span className="text-sm text-muted">
-                Senior citizens pay <strong>{php(model.seniorPrice)}</strong> (61–100, no
-                insurance benefit). Regular SRP {php(model.srp)}.
-              </span>
-            </p>
+            <ul className="pdp-trust">
+              <li>Ordered from the office — availability and the final price are confirmed first.</li>
+              {hasSamplePhoto ? (
+                <li>Photographs are illustrative samples, not this exact unit.</li>
+              ) : null}
+              <li>
+                Included in every <Link href="/plans">Villa Memorial Plan</Link> tier.
+              </li>
+              <li>
+                <a href={contact.phoneHref}>Call {contact.phoneDisplay}</a> — {contact.phoneLabel}.
+              </li>
+            </ul>
+
+            <div className="plan-buy-actions">
+              <CatalogueActions
+                key={variant.sku}
+                item={{
+                  sku: variant.item.sku,
+                  name: variant.item.name,
+                  itemType: variant.item.item_type,
+                  unitPriceCents: variant.item.unit_price_cents,
+                  currency: variant.item.currency,
+                }}
+                displayPrice={variant.item.display_price}
+                prefill={{
+                  price: variant.item.display_price,
+                  note: model
+                    ? `${model.collection} · ${model.family} family. Regular SRP ${php(model.srp)}; senior-citizen price ${php(model.seniorPrice)} (61–100, no insurance benefit).`
+                    : undefined,
+                }}
+              />
+            </div>
+          </section>
+
+          {aside ? <div className="pdp-aside">{aside}</div> : null}
+        </div>
+
+        <div className="pdp-below">
+          {variant.description ? (
+            <section className="pdp-section" aria-labelledby="pdp-about">
+              <h2 className="pdp-section__title" id="pdp-about">
+                About this model
+              </h2>
+              <RichText doc={variant.description} />
+            </section>
           ) : null}
 
-          <div className="plan-buy-actions">
-            <CatalogueActions
-              key={variant.sku}
-              item={{
-                sku: variant.item.sku,
-                name: variant.item.name,
-                itemType: variant.item.item_type,
-                unitPriceCents: variant.item.unit_price_cents,
-                currency: variant.item.currency,
-              }}
-              displayPrice={variant.item.display_price}
-              prefill={{
-                price: variant.item.display_price,
-                note: model
-                  ? `${model.collection} · ${model.family} family. Regular SRP ${php(model.srp)}; senior-citizen price ${php(model.seniorPrice)} (61–100, no insurance benefit).`
-                  : undefined,
-              }}
-            />
-            <Link href="/cart" className="btn btn--secondary btn--sm btn--block">
-              View cart
-            </Link>
-          </div>
-        </section>
+          {featureBlocks.length > 0 ? (
+            <section className="pdp-section" aria-labelledby="pdp-features">
+              <h2 className="pdp-section__title" id="pdp-features">
+                What comes with it
+              </h2>
+              {featureBlocks.map((block) => (
+                <div key={block.id} className="pdp-feature-group">
+                  {block.heading ? (
+                    <h3 className="pdp-feature-group__title">{block.heading}</h3>
+                  ) : null}
+                  <ul className="pdp-features">
+                    {block.items
+                      .filter((item) => item.trim().length > 0)
+                      .map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))}
+                  </ul>
+                </div>
+              ))}
+            </section>
+          ) : null}
 
-        {staticAside}
-      </aside>
+          {variant.specs && variant.specs.columns.length > 0 ? (
+            <section className="pdp-section" aria-labelledby="pdp-specs">
+              <h2 className="pdp-section__title" id="pdp-specs">
+                Specifications
+              </h2>
+              <SpecsTable
+                specs={variant.specs}
+                caption={`${variant.name} — as recorded by the office`}
+              />
+            </section>
+          ) : null}
+
+          {otherBlocks.length > 0 ? (
+            <section className="pdp-section" aria-labelledby="pdp-more">
+              <h2 className="pdp-section__title" id="pdp-more">
+                More about this model
+              </h2>
+              <ContentBlocks blocks={otherBlocks} priceOf={(sku) => pricesBySku[sku] ?? null} />
+            </section>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }

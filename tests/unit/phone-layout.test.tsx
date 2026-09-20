@@ -186,6 +186,49 @@ describe("wide data tables stay reachable at 390", () => {
   });
 });
 
+describe("the product detail page stacks at 390 — the P3 Amazon layout", () => {
+  // The PDP collapses at 64rem (the sticky-gallery breakpoint), which is wider
+  // than the shared 40rem phone query, so this gate reads the 64rem rules.
+  const collapse = RULES.filter(
+    (r) =>
+      r.media !== null &&
+      /max-width:\s*64rem/.test(r.media) &&
+      selectors(r).includes(".pdp-layout"),
+  );
+
+  it("is a two-column structure that becomes one column on a narrow screen", () => {
+    const layout = ruleFor(RULES, ".pdp-layout");
+    expect(declares(layout, "grid-template-columns", /minmax\(0,\s*1fr\)\s+minmax/)).toBe(true);
+    expect(
+      collapse.some((r) => declares(r, "grid-template-columns", /minmax\(0,\s*1fr\)/)),
+    ).toBe(true);
+  });
+
+  it("stacks the gallery above the buy box and the content below it", () => {
+    const layout = ruleFor(RULES, ".pdp-layout");
+    expect(layout?.body).toMatch(/grid-template-areas/);
+    expect(layout?.body).toMatch(/"media buy"/);
+    const phone = collapse.find((r) => declares(r, "grid-template-areas"));
+    expect(phone?.body).toMatch(/"media"[\s\S]*"buy"[\s\S]*"below"/);
+  });
+
+  it("makes the gallery sticky only on desktop, never inside the phone stack", () => {
+    const sticky = RULES.filter(
+      (r) => selectors(r).includes(".pdp-media") && /position:\s*sticky/.test(r.body),
+    );
+    expect(sticky).toHaveLength(1);
+    expect(sticky[0]?.media).toMatch(/min-width:\s*64rem/);
+  });
+
+  it("opens a fixed zoom dialog with a pan frame and a 44px trigger", () => {
+    expect(declares(ruleFor(RULES, ".pdp-zoom"), "position", /fixed/)).toBe(true);
+    expect(declares(ruleFor(RULES, ".pdp-zoom__frame"), "overflow", /auto/)).toBe(true);
+    const trigger = ruleFor(RULES, ".pdp-gallery__zoom");
+    expect(declares(trigger, "height", /2\.75rem/)).toBe(true);
+    expect(declares(trigger, "width", /2\.75rem/)).toBe(true);
+  });
+});
+
 describe("the utility vocabulary is closed", () => {
   it("every text-/stack-/nowrap/sr-only class in a static className is defined", async () => {
     const sources = await appSources();

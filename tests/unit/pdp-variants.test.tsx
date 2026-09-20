@@ -9,6 +9,7 @@ import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { getProductLine, saveProductLine } from "@/lib/api-client/product-lines";
 import { activeVariant, ProductDetail, type PdpVariant } from "@/components/villa/product-detail";
 import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { coffinModelForSku } from "@/lib/catalogue-skus";
 import type { Session } from "@/lib/auth/types";
 
@@ -251,7 +252,8 @@ describe("the imagery fallback", () => {
     expect(html).not.toContain("casket-sample__media");
   });
 
-  it("states an honest placeholder when a variant has no photographs and no model", () => {
+  it("states an honest placeholder when a variant has no photographs and no model", async () => {
+    const contact = (await listLandingContent()).contact;
     const item = {
       id: 1,
       sku: "CSK-MANUAL-1",
@@ -285,6 +287,7 @@ describe("the imagery fallback", () => {
           selectedSku: variant.sku,
           variants: [variant],
           pricesBySku: { [variant.sku]: item.display_price },
+          contact,
         }),
       ),
     );

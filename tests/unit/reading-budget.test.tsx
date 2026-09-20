@@ -80,6 +80,7 @@ vi.mock("@/lib/auth/guard", async (importOriginal) => {
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
+const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku]/page");
 const { default: ImmediateAssistancePage } = await import(
   "@/app/(public)/immediate-assistance/page"
 );
@@ -146,6 +147,21 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/immediate-assistance",
     render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
     openingLead: /<p class="ia-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    // The Amazon-structure PDP (P3): the gallery leads, the buy box answers at a
+    // glance (name · variant selector · live price · one CTA) and the editable
+    // content lives below the fold.
+    name: "/products/[sku] (casket detail)",
+    render: async () =>
+      renderToStaticMarkup(
+        createElement(
+          CartProvider,
+          null,
+          await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) }),
+        ),
+      ),
+    openingLead: /<p class="pdp-buy__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/facilities",
