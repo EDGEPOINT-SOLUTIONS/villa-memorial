@@ -135,12 +135,20 @@ export const COFFINS = [
 ] as const;
 
 /**
+ * The short form of the client's illustration label. A catalogue CARD prints
+ * this one line under a sample photograph so the card stays a card; the full
+ * substitution sentence (COFFIN_TIER_NOTE) stays on the detail view and once
+ * under the tier band on /products.
+ */
+export const COFFIN_SAMPLE_NOTE = "Illustration purposes only.";
+
+/**
  * The client's substitution note, printed under the tier photography on the
  * TYPES OF COFFIN sheet. Published with the photos on /products and beside each
- * casket detail view's sample photograph.
+ * casket detail view's sample photograph. Built on the short label so the two
+ * can never disagree.
  */
-export const COFFIN_TIER_NOTE =
-  "Illustration purposes only. In case the coffin is not available, we will provide another with equal or greater value.";
+export const COFFIN_TIER_NOTE = `${COFFIN_SAMPLE_NOTE} In case the coffin is not available, we will provide another with equal or greater value.`;
 
 /**
  * The cover/lid a model's own sheet name states, with the sheet's lid line for

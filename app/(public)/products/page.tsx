@@ -40,13 +40,14 @@ function bindCaskets(
 /**
  * Coffins & caskets — the client's full 2026 casket catalogue at published
  * prices, sold as a SHOP: every model is a card in the shared `.shop-grid`
- * (three across at 1440, one at 390) whose photograph leads at the column's own
- * width — never the 88×66 thumbnails the captain measured on 2026-09-19. Each
- * card carries the family, the cover its sheet name states, its catalogue SKU,
- * the regular SRP, the senior-citizen price and discount, the caption of what
- * the photograph actually is, and its two actions ("View details" to
- * /products/[sku], and the shared CatalogueActions pair — one-click Add to cart
- * on the real SKU, plus the prefilled Request order).
+ * (three across at 1440, two on a tablet, one at 390) whose photograph leads at
+ * the column's own width — never the 88×66 thumbnails the captain measured on
+ * 2026-09-19. Each card carries the family, the model name, the cover its sheet
+ * name states, the regular SRP, one compact senior line, a one-line illustration
+ * label, and one primary action (Add to cart on the real SKU) with the quieter
+ * Request order and View details links beside it. The SKU, the long cover note
+ * and the full caption live on /products/[sku], where a family has stopped to
+ * read; the 2026-09-21 pass moved them there so a card stays a card.
  *
  * The five tiers on the client's TYPES OF COFFIN sheet follow the shop as a
  * reference band (the sheet's own reading, with its substitution note), and the
@@ -80,8 +81,16 @@ export default async function ProductsPage() {
         <h1 className="page-hero__title">{page?.hero.headline || "Coffin options"}</h1>
         <p className="page-hero__lead">
           {page?.hero.lead ||
-            "Choose the coffin that honours your loved one — from dignified Bronze to the sophisticated Gold. Every 2026 model is shown with its own photograph and its published price: the SRP, the senior-citizen discount and the discounted price. Open any model for its full detail, add it to the cart, or send a request and the office confirms the final price."}
+            "Every 2026 coffin, with its published price."}
         </p>
+        <div className="page-hero__actions">
+          <a className="btn btn--primary" href="#catalogue-title">
+            See the catalogue
+          </a>
+          <a className="btn btn--secondary" href="#coffin-tiers-title">
+            Compare the five tiers
+          </a>
+        </div>
       </section>
 
       {page && page.blocks.length > 0 ? (
@@ -157,11 +166,13 @@ export default async function ProductsPage() {
 
       <p className="text-sm text-muted">
         Every casket model above is included in the{" "}
-        <Link href="/plans">Villa Memorial Plan</Link>; senior
-        citizens enjoy the <Link href="/price-list">senior plan</Link> with free
-        flowers. See the <Link href="/services">memorial service rates</Link> (embalming per
-        day, retrieval, delivery, viewing equipment, coffin and interment) or{" "}
-        <Link href="/lots/price-list-2026">the 2026 lot price list</Link>.
+        <Link href="/plans">Villa Memorial Plan</Link>; senior citizens enjoy the{" "}
+        <Link href="/price-list">senior plan</Link> with free flowers.
+      </p>
+      <p className="text-sm text-muted">
+        See the <Link href="/services">memorial service rates</Link> (embalming,
+        retrieval, delivery, viewing and interment) or the{" "}
+        <Link href="/lots/price-list-2026">2026 lot price list</Link>.
       </p>
     </div>
   );

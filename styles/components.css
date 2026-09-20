@@ -1655,6 +1655,14 @@ a.ledger__row:hover .ledger__row-title {
   margin: var(--space-3) auto 0;
 }
 
+.page-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
 .catalog-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1693,6 +1701,48 @@ a.ledger__row:hover .ledger__row-title {
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* The casket listing's own column floor (2026-09-21 UI/UX pass). The shared
+   26rem floor gave TWO 604px cards at 1280 and ONE 852px card at 900 — no
+   tablet ever saw two cards. 21rem yields the brief's ladder honestly:
+   3 across at 1440 (448px, unchanged), 3 at 1280 (394px), 2 at 1024/900/768,
+   and 1 at 390. `min(100%, 21rem)` still protects the phone column; no extra
+   media query is needed. `.lot-grid` is the /lots equivalent. */
+.casket-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+}
+
+/* The collection index above the casket grid: the four collections with their
+   model count and entry price. A static legend — no filter, no second control. */
+.casket-index {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.casket-index__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 9rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+}
+
+.casket-index__name {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.casket-index__meta {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
 }
 
 .shop-card {
@@ -2317,6 +2367,22 @@ a.ledger__row:hover .ledger__row-title {
 .catalogue-actions--column {
   flex-direction: column;
   align-items: stretch;
+}
+
+/* The quiet second action (2026-09-21 UI/UX pass): a catalogue CARD whose
+   primary is the gold Add to cart renders Request order — and its detail link —
+   as this text link instead of a second button, so the card has one clear
+   primary. The href and prefill are identical to the button form. */
+.catalogue-actions__link {
+  align-self: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-accent);
+  text-decoration: none;
+}
+
+.catalogue-actions__link:hover {
+  text-decoration: underline;
 }
 
 /* --- Chapel booking step (public dialog; grammar mirrors the editor modal) --- */
