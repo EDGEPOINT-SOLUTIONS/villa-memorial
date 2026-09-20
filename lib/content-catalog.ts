@@ -102,8 +102,8 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     label: "Coffins & caskets",
     route: "/products",
     editor: "page",
-    blocks: false,
-    hint: "The casket catalogue hero. The per-model detail blocks arrive with the item-catalogue pass.",
+    blocks: true,
+    hint: "The casket catalogue hero and its page copy. Each casket model's own description and detail blocks are edited on its catalogue entry.",
   },
 ];
 
@@ -246,6 +246,30 @@ export type CatalogueEntry = {
   price: PriceBinding;
   updated_at: string | null;
   updated_by: string | null;
+};
+
+/**
+ * What the ONE entry editor needs to render any entry (a service guide, a casket
+ * model, a package). An item entry locks the title/group to its catalogue record
+ * (`identityLocked`) so a content edit can never rename a product or drift its
+ * price; a service guide keeps them editable. Both build this shape at the call
+ * site so the editor stays generic.
+ */
+export type EntryEditorTarget = {
+  /** The entry identity a save is addressed by. */
+  key: string;
+  /** The public route the entry feeds (shown as a "View live page" link). */
+  route: string;
+  /** The small label above the title, e.g. "Service entry" / "Casket entry". */
+  kindLabel: string;
+  fallbackTitle: string;
+  fallbackSummary: string;
+  /** When true the title/group are read-only and point at their real home. */
+  identityLocked?: boolean;
+  /** Where the locked identity is edited (the catalogue form). */
+  identityHref?: string;
+  /** One sentence explaining why the identity is locked. */
+  identityNote?: string;
 };
 
 /**

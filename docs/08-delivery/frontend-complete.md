@@ -80,11 +80,12 @@ per-installment receipt event + payer on receipt · interment/exhumation/ownersh
 workflows · commission engine + client rates · AI capabilities + governance wiring · platform
 administration · digital-memorial services · Smart Service Builder rules/availability engine.
 
-The screens built after the audit raised **eight more of the same kind** — each names its ask in
+The screens built after the audit raised **nine more of the same kind** — each names its ask in
 its design record and refuses live mode honestly (a named 503 or a `not_wired` state):
 
 | Ask | What waits on it |
 |---|---|
+| Content/CMS read-write contract (page documents + catalogue entries) | Pages & content (`/staff/landing/*`) and the item page-content editor (`/staff/catalog/[id]/content`, content-catalogue Phases 0–4): the app-authored globalThis stores (`lib/api-client/landing.ts`, `content-pages.ts`, `content-entries.ts`) have no upstream service and no frozen write schema, so a real CMS cannot be addressed yet. Every save validates against the LIVE catalogue + pricing stores so a dangling price binding is refused. See [`content-catalogue-cleanup-design/`](./content-catalogue-cleanup-design/). |
 | Provisional-receipt record/endpoint | `/staff/billing/provisional-receipts` live mode (`PROVISIONAL_RECEIPTS_NOT_WIRED`); the app-authored POST body/response. See [`provisional-receipt-design/`](./provisional-receipt-design/). |
 | Membership application / COC record | `/staff/plans/membership` live mode (`MEMBERSHIP_ADMIN_NOT_WIRED`); the pre-need partner's number/coverage/clause fields. See [`membership-folio-design/`](./membership-folio-design/). |
 | Embalming-preparation record | `/staff/cases/[id]/preparation` live mode (`PREPARATION_NOT_WIRED`); a funeral-cases extension for the mortuary record. See [`notes/known-limitations-cp1.md`](./notes/known-limitations-cp1.md) Module H. |

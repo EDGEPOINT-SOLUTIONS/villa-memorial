@@ -11,6 +11,7 @@ import {
   CasketModelCards,
   type SellableCasket,
 } from "@/components/villa/casket-catalogue";
+import { ContentBlocks } from "@/components/content/content-blocks";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -69,6 +70,8 @@ export default async function ProductsPage() {
 
   const caskets = bindCaskets(items);
   const [leadTier, ...higherTiers] = COFFINS;
+  const priceBy = new Map(items.map((line) => [line.sku, line.display_price]));
+  const priceOf = (sku: string) => priceBy.get(sku) ?? null;
 
   return (
     <div className="stack-5">
@@ -80,6 +83,10 @@ export default async function ProductsPage() {
             "Choose the coffin that honours your loved one — from dignified Bronze to the sophisticated Gold. Every 2026 model is shown with its own photograph and its published price: the SRP, the senior-citizen discount and the discounted price. Open any model for its full detail, add it to the cart, or send a request and the office confirms the final price."}
         </p>
       </section>
+
+      {page && page.blocks.length > 0 ? (
+        <ContentBlocks blocks={page.blocks} priceOf={priceOf} />
+      ) : null}
 
       <section className="stack-4" aria-labelledby="catalogue-title">
         <h2 className="section-title" id="catalogue-title">

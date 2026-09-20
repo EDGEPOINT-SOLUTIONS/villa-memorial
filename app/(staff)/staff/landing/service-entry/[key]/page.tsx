@@ -71,7 +71,11 @@ export default async function ServiceEntryAdminPage({ params }: EntryParams) {
         </Link>
       </p>
       <PageHeader eyebrow="Commerce · Pages & content" title={def.fallbackTitle} />
-      <CatalogueEntryEditor initial={entry} def={def} skuOptions={skuOptions} />
+      <CatalogueEntryEditor
+        initial={entry}
+        def={{ ...def, kindLabel: "Service entry" }}
+        skuOptions={skuOptions}
+      />
     </div>
   );
 }

@@ -4,13 +4,16 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
+import { ContentBlocks } from "@/components/content/content-blocks";
 import {
   CasketFacts,
   CasketInclusionPanel,
   CasketPriceGrid,
   CasketSampleFigure,
 } from "@/components/villa/casket-detail";
-import { getCatalogItem } from "@/lib/api-client/commerce";
+import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
+import { getItemEntry } from "@/lib/api-client/content-entries";
+import { itemEntryView } from "@/lib/catalogue-content";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { casketDetailHref, coffinModelForSku, coffinSku } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
@@ -96,6 +99,17 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
 
   const siblings = CASKET_MODELS.filter((m) => m.collection === model.collection && m.model !== model.model);
 
+  // The item's authored page content (Phase 4): a long description and ordered
+  // detail blocks (specifications, dimension tables, photographs, notes). A
+  // catalogue hiccup leaves the page on its own rule-driven content.
+  const [entry, items] = await Promise.all([
+    getItemEntry(item.sku).catch(() => null),
+    listCatalogItems().catch(() => []),
+  ]);
+  const authored = itemEntryView(entry, item);
+  const priceBy = new Map(items.map((line) => [line.sku, line.display_price]));
+  const priceOf = (sku: string) => priceBy.get(sku) ?? null;
+
   const { contact } = await listLandingContent();
 
   return (
@@ -112,7 +126,7 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
             <h1 className="pkg-title" id="casket-title">
               {item.name}
             </h1>
-            <p className="pkg-lead">{item.description}</p>
+            {authored.summary ? <p className="pkg-lead">{authored.summary}</p> : null}
             <p className="pkg-note">
               Every figure below is the client&rsquo;s own 2026 published price — the SRP, the
               senior-citizen SRP, the senior discount and the discounted price the sheet prints
@@ -122,6 +136,14 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
           </section>
 
           <CasketSampleFigure model={model} />
+
+          {authored.blocks.length > 0 ? (
+            <section className="mid-section" aria-labelledby="casket-authored">
+              <p className="mid-kicker">From the office</p>
+              <h2 id="casket-authored">More about this model</h2>
+              <ContentBlocks blocks={authored.blocks} priceOf={priceOf} />
+            </section>
+          ) : null}
 
           <section className="mid-section" aria-labelledby="casket-glance">
             <p className="mid-kicker">From the client&rsquo;s 2026 sheets</p>

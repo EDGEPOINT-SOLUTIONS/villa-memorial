@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
 import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
+import { getItemEntry } from "@/lib/api-client/content-entries";
+import { itemEntryView } from "@/lib/catalogue-content";
+import { ContentBlocks } from "@/components/content/content-blocks";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
@@ -147,6 +150,14 @@ export default async function PlanDetailPage({
   const typeLabel = TYPE_LABEL[item.item_type] ?? item.item_type.replace("_", "-");
   const isPackage = item.item_type === "package";
   const tierItems = isPackage ? await packageTierItems() : [];
+
+  // The item's authored page content (Phase 4): packages carry an entry; a
+  // service line falls back to the catalogue description unchanged.
+  const entry = await getItemEntry(item.sku).catch(() => null);
+  const authored = itemEntryView(entry, item);
+  const authoredPrices = authored.blocks.length > 0 ? await listCatalogItems().catch(() => []) : [];
+  const priceBy = new Map(authoredPrices.map((line) => [line.sku, line.display_price]));
+  const priceOf = (sku: string) => priceBy.get(sku) ?? null;
   const [pricing, content, plansPage] = await Promise.all([
     loadPricingDocument(),
     listLandingContent(),
@@ -187,10 +198,18 @@ export default async function PlanDetailPage({
               <h1 className="pkg-title" id="pkg-title">
                 {item.name}
               </h1>
-              {item.description ? <p className="pkg-lead">{item.description}</p> : null}
+              {authored.summary ? <p className="pkg-lead">{authored.summary}</p> : null}
               <p className="pkg-note">{PACKAGE_TAGLINE}</p>
               <RelatedPlanChips />
             </section>
+
+            {authored.blocks.length > 0 ? (
+              <section className="mid-section" aria-labelledby="pkg-authored">
+                <p className="mid-kicker">From the office</p>
+                <h2 id="pkg-authored">More about this package</h2>
+                <ContentBlocks blocks={authored.blocks} priceOf={priceOf} />
+              </section>
+            ) : null}
 
             <p className="plan-quote">“An affordable life plan for all”</p>
 
@@ -389,8 +408,8 @@ export default async function PlanDetailPage({
               <Link href="/plans">Villa Memorial Plan</Link> · {typeLabel}
             </p>
             <h1 className="hero-premium__title">{item.name}</h1>
-            {item.description ? (
-              <p className="hero-premium__lead">{item.description}</p>
+            {authored.summary ? (
+              <p className="hero-premium__lead">{authored.summary}</p>
             ) : (
               <ErrorState message="No description is published for this item yet." />
             )}

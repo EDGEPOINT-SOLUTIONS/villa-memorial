@@ -23,8 +23,14 @@
  * `validateCatalogueEntry` (lib/content-catalog.ts) is the save rule, run with
  * the LIVE catalogue SKUs and the pricing store's rate refs, so a price binding
  * that names a withdrawn SKU is refused rather than silently orphaned. Only the
- * three known service keys are writable here — the item-catalogue editor
- * (caskets/packages) is a later pass.
+ * three known service keys are writable here.
+ *
+ * PHASE 4 — ITEM ENTRIES. The same store also serves the casket and package
+ * entries (lib/catalogue-content.ts owns which SKUs qualify and how the entry's
+ * identity is DERIVED from the live catalogue record): the authored half
+ * (long description · media · blocks) is kept here, keyed by SKU; the name,
+ * group and price binding are re-derived from the catalogue on every read, so a
+ * content edit can never rename a product or restate a price.
  */
 import { ApiError } from "@/lib/api-client/api-error";
 import { listCatalogItems } from "@/lib/api-client/commerce";
@@ -37,6 +43,11 @@ import {
   type ContentValidationContext,
 } from "@/lib/content-catalog";
 import { SERVICE_ENTRY_DEFS, serviceEntryDef, serviceEntryView, type ServiceEntryView } from "@/lib/service-content";
+import {
+  catalogueEntryDefaults,
+  isItemEntrySku,
+  mergeItemEntry,
+} from "@/lib/catalogue-content";
 import seedFile from "@/lib/fixtures/content/service-entries.json";
 
 type EntrySeed = { entries: unknown[] };
@@ -46,12 +57,20 @@ const SEED: CatalogueEntry[] = ((seedFile as unknown as EntrySeed).entries ?? []
   .filter((entry, index, all) => all.findIndex((other) => other.key === entry.key) === index);
 
 // One process-wide store, the landing/page-document pattern.
-type EntryGlobal = typeof globalThis & { __imContentEntries?: CatalogueEntry[] };
+type EntryGlobal = typeof globalThis & {
+  __imContentEntries?: CatalogueEntry[];
+  __imContentItemEntries?: Record<string, CatalogueEntry>;
+};
 const entryGlobal = globalThis as EntryGlobal;
 
 function stored(): CatalogueEntry[] {
   entryGlobal.__imContentEntries ??= SEED.map((entry) => structuredClone(entry));
   return entryGlobal.__imContentEntries;
+}
+
+function storedItemEntries(): Record<string, CatalogueEntry> {
+  entryGlobal.__imContentItemEntries ??= {};
+  return entryGlobal.__imContentItemEntries;
 }
 
 /** Every guide entry, in the captain's listing order. */
@@ -125,4 +144,72 @@ export async function saveServiceEntry(
 /** Test helper: the seed as the store starts. */
 export function seedServiceEntries(): CatalogueEntry[] {
   return SEED.map((entry) => structuredClone(entry));
+}
+
+/* ------------------------------ item entries ------------------------------- */
+
+/**
+ * The live catalogue item an entry belongs to, or null when the SKU is not a
+ * casket/package (or not in the catalogue at all).
+ */
+async function itemForEntry(sku: string) {
+  if (!isItemEntrySku(sku)) return null;
+  const items = await listCatalogItems();
+  return items.find((item) => item.sku === sku) ?? null;
+}
+
+/**
+ * Every casket and package entry, in catalogue order. Identity is derived from
+ * the live record; only summary/media/blocks come from the store.
+ */
+export async function listItemEntries(): Promise<CatalogueEntry[]> {
+  const [items, overrides] = [await listCatalogItems(), storedItemEntries()];
+  return items
+    .filter((item) => isItemEntrySku(item.sku))
+    .map((item) => mergeItemEntry(catalogueEntryDefaults(item), overrides[item.sku]));
+}
+
+/** One item entry by SKU, or null for a SKU this pass does not own. */
+export async function getItemEntry(sku: string): Promise<CatalogueEntry | null> {
+  const item = await itemForEntry(sku);
+  if (!item) return null;
+  return mergeItemEntry(catalogueEntryDefaults(item), storedItemEntries()[item.sku]);
+}
+
+/**
+ * Validates and persists one item entry's authored half. The catalogue record
+ * owns the identity, so whatever the body says about the name/group/price is
+ * replaced before validation — a content save can never rename a product or
+ * write an amount.
+ */
+export async function saveItemEntry(
+  sku: string,
+  raw: unknown,
+  actor?: string,
+): Promise<CatalogueEntry> {
+  const item = await itemForEntry(sku);
+  if (!item) throw new ApiError(`“${sku}” is not a casket or package in the catalogue.`, 422);
+  const defaults = catalogueEntryDefaults(item);
+  const candidate = mergeItemEntry(defaults, readCatalogueEntry(raw));
+  const context = await validationContext();
+  const verdict = validateCatalogueEntry(candidate, context);
+  if (!verdict.ok) throw new ApiError(firstContentError(verdict.errors), 422);
+  const saved: CatalogueEntry = {
+    ...verdict.value,
+    kind: "product",
+    sku: item.sku,
+    key: item.sku,
+    title: item.name,
+    group: defaults.group,
+    price: defaults.price,
+    updated_at: new Date().toISOString(),
+    updated_by: actor ?? null,
+  };
+  storedItemEntries()[item.sku] = saved;
+  return saved;
+}
+
+/** Test helper: the authored item-entry store as it starts (empty). */
+export function seedItemEntries(): Record<string, CatalogueEntry> {
+  return structuredClone(storedItemEntries());
 }
