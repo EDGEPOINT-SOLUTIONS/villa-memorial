@@ -232,8 +232,20 @@ export function LotListing({
   );
 }
 
-/** One plot as a product card: photograph, number, facts, figure, status, one
- *  action — the order the captain's brief names. */
+/**
+ * One plot as a product card: photograph, number, facts, figure, status, one
+ * action — the order the captain's brief names.
+ *
+ * ONE CARD ACTION (captain follow-up, 2026-09-21). Every card dresses its one
+ * action in the shop grammar's PRIMARY rung — `.btn--accent` (the gold the
+ * catalogue already gives a card's main action: `Add to cart` on /products,
+ * /plans, /packages) — instead of the page-level `.btn--primary` (sky) it used
+ * before. There is no cart action on a lot, so the card's single action owns
+ * the primary slot. The label keeps the two honest destinations (a published
+ * lot page vs the park map) but reads as ONE grammar: the shared core "View
+ * this lot", with the map destination spelled out only where that is where it
+ * goes. See docs/08-delivery/lots-cta-consistency-design/README.md.
+ */
 function LotCard({ item }: { item: LotListingItem }) {
   const status = item.status as LotStatus;
   return (
@@ -261,15 +273,9 @@ function LotCard({ item }: { item: LotListingItem }) {
       status={{ tone: LOT_TONE[status] ?? "neutral", label: lotStatusLabel(status) }}
       caption={item.photo.caption}
       actions={
-        item.hasLot ? (
-          <Link href={item.href} className="btn btn--primary btn--sm">
-            View this lot
-          </Link>
-        ) : (
-          <Link href={item.href} className="btn btn--primary btn--sm">
-            View on the park map
-          </Link>
-        )
+        <Link href={item.href} className="btn btn--accent btn--sm">
+          {item.hasLot ? "View this lot" : "View this lot on the park map"}
+        </Link>
       }
     />
   );

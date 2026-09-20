@@ -138,7 +138,7 @@ export function RefinePanel({
       <div className="lot-refine__head">
         <p className="lot-refine__title">Refine lots by</p>
         {activeCount > 0 ? (
-          <button type="button" className="lot-refine__clear" onClick={onClear}>
+          <button type="button" className="btn btn--secondary btn--sm" onClick={onClear}>
             Clear
           </button>
         ) : null}
@@ -238,7 +238,7 @@ export function RefinePanel({
               />
             </label>
           </div>
-          <button type="submit" className="btn btn--secondary btn--sm">
+          <button type="submit" className="btn btn--primary">
             Go
           </button>
         </form>
@@ -252,7 +252,7 @@ export function RefinePanel({
                 <button
                   key={range.id}
                   type="button"
-                  className="lot-filter__quick-link"
+                  className="btn btn--secondary btn--sm lot-filter__quick-link"
                   aria-pressed={active}
                   onClick={() => onQuickRange(range)}
                 >

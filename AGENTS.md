@@ -267,6 +267,15 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   lots' areas/prices are the 2026 lot sheet's family figures for their section
   (`lib/catalog-sources.ts`, pinned by `tests/fixture-contract/catalog-sources.test.ts`)
   — never a per-plot price.
+- `/lots` runs on the catalogue's **one control ladder** (captain follow-up,
+  2026-09-21): a card's single action is `.btn--accent` (the gold primary rung,
+  matching `Add to cart` on the other catalogue cards — not the page-level sky
+  `.btn--primary`), every supporting action is `.btn--secondary`, and the
+  panel's commit (`Go` / `Show N lots`) is `.btn--primary` full-size on both
+  surfaces. The rail Clear and the no-results Clear are the same control; the
+  quick price ranges ride `.btn--secondary .btn--sm` (which is also their phone
+  44px touch target); group heads and the Filters toggle hover like their rows.
+  Record + before/after shots: `docs/08-delivery/lots-cta-consistency-design/`.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by
