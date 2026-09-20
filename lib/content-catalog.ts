@@ -26,6 +26,14 @@
  *  - Every authored string passes the one glyph gate (lib/text-gate.ts): the
  *    product's two faces carry no emoji, so a published one is a missing glyph.
  *  - Reference lists (`tabs`, `entries`) are ordered and unique.
+ *
+ * THE PDP EXTENSION (P0 of data/villa-pdp-cms-plan/report.md). A catalogue
+ * entry also carries the product-detail half the captain confirmed: a typed
+ * rich-text `description` (a node tree, never HTML), an uncapped PDP `gallery`,
+ * and a ≤15-column `specs` table. The same module owns the product-line record
+ * whose shared specs merge with a variant's (`resolveSpecs` in
+ * lib/product-line.ts). Money stays a `PriceBinding`; the seven withheld client
+ * photographs remain unpublished.
  */
 
 import { unrenderableGlyphs } from "@/lib/text-gate";
@@ -134,6 +142,21 @@ export const CONTENT_CHECKLIST_ITEMS_MAX = 30;
 export const CONTENT_GALLERY_IMAGES_MAX = 12;
 export const CONTENT_LINKS_MAX = 12;
 export const CONTENT_STEPS_MAX = 10;
+/**
+ * The product-detail spreadsheet: the captain's ≤15 editable columns with an
+ * UNCAPPED row count (the entry-level `specs`, distinct from the block table's
+ * 12-column / 40-row `table` above).
+ */
+export const CONTENT_SPECS_COLUMNS_MAX = 15;
+/** The rich-text read: a bounded node tree keeps a document parseable. */
+export const CONTENT_RICHTEXT_NODES_MAX = 120;
+/**
+ * The stored-document size a product's authored gallery may reach (an uncapped
+ * image COUNT is fine; the DOCUMENT may not grow without bound). Counts the
+ * payload a data URL carries — a published path stores no bytes in the
+ * document — so a device upload cannot silently bloat every read.
+ */
+export const CONTENT_ENTRY_GALLERY_BYTES_MAX = 40_000_000;
 
 const IMAGE_SRC_PATTERN = /^(?:data:image\/|\/|https?:\/\/)/i;
 const HREF_PATTERN = /^(?:\/|#|https?:\/\/|mailto:|tel:)/i;
@@ -169,6 +192,71 @@ export type ContentImage = {
   caption: string | null;
   /** A sample/illustrative picture — publishing one REQUIRES its caption. */
   sample: boolean;
+};
+
+/* -------------------------------- rich text -------------------------------- */
+
+/**
+ * A product's rich description — a typed NODE TREE, never an HTML string
+ * (captain's Q5: a zero-dependency model, not a WYSIWYG library). Bold and
+ * italic are marks on a span; a link is a span's href; headings are levels 2
+ * and 3 only (the page owns the h1). The renderer and the editor walk the same
+ * nodes, so what is stored is exactly what prints.
+ */
+export type RichTextMark = "bold" | "italic";
+
+export type RichTextSpan = {
+  text: string;
+  marks?: RichTextMark[];
+  /** A destination the HREF_PATTERN accepts (/ or # or https:// or mailto:/tel:). */
+  href?: string;
+};
+
+export type RichTextNode =
+  | { type: "heading"; level: 2 | 3; text: string }
+  | { type: "paragraph"; spans: RichTextSpan[] }
+  | { type: "bulletList"; items: RichTextSpan[][] }
+  | { type: "orderedList"; items: RichTextSpan[][] };
+
+export type RichTextDoc = { nodes: RichTextNode[] };
+
+/* ---------------------------------- specs ---------------------------------- */
+
+/**
+ * The spreadsheet specifications: staff-typed column headers (≤15) and any
+ * number of rows, each row carrying exactly one cell per column. A price is
+ * never a cell value — money stays a live `PriceBinding`, never an amount.
+ */
+export type ContentSpecs = { columns: string[]; rows: string[][] };
+
+/* ------------------------------- product line ------------------------------ */
+
+/**
+ * Where a product line draws its variants. `casketCollection` seeds the line
+ * from the client sheet's own collection grouping (captain's Q4: the four
+ * collections are the four lines); `manual` is an authored list for a family
+ * the sheet does not group.
+ */
+export type ProductLineSource =
+  | { kind: "casketCollection"; collection: string }
+  | { kind: "manual" };
+
+/**
+ * The "choose a model" grouping behind a PDP: one line per collection, its
+ * ordered variant SKUs, and the shared specs every variant inherits (captain's
+ * Q1: per-variant specs with line-level shared defaults). A line is the
+ * grouping; a variant (each casket model) keeps its own entry, gallery and
+ * specs. `lib/product-line.ts` derives the four sheet lines and resolves the
+ * merged table; the store keeps the authored overrides.
+ */
+export type ProductLine = {
+  id: string;
+  name: string;
+  source: ProductLineSource;
+  variantSkus: string[];
+  sharedSpecs: ContentSpecs | null;
+  updated_at: string | null;
+  updated_by: string | null;
 };
 
 export type ChecklistItem = { id: string; label: string; checked: boolean };
@@ -243,9 +331,20 @@ export type CatalogueEntry = {
   sku: string | null;
   key: string;
   title: string;
+  /** The short lead (the storefront card line); `description` is the long read. */
   summary: string;
+  /** The rich-text long read; absent falls back to `summary`. */
+  description: RichTextDoc | null;
   group: string | null;
   media: { hero: string | null; gallery: ContentImage[] };
+  /**
+   * The product-detail gallery: ordered and uncapped (validated by stored
+   * payload, not by count). `media.gallery` stays the one storefront photo the
+   * catalogue record owns; this is the PDP viewer + thumbnail rail.
+   */
+  gallery: ContentImage[];
+  /** Per-variant specifications, merged with the line's shared defaults at render. */
+  specs: ContentSpecs | null;
   blocks: ContentBlock[];
   price: PriceBinding;
   updated_at: string | null;
@@ -385,6 +484,106 @@ function readPriceBinding(value: unknown): PriceBinding {
   }
 }
 
+/* --------------------------- rich-text readers ----------------------------- */
+
+/** One span: a bare string is tolerated as text, marks are filtered to the vocabulary. */
+function readRichTextSpan(raw: unknown): RichTextSpan {
+  if (typeof raw === "string") return { text: raw };
+  if (!isRecord(raw)) return { text: "" };
+  const marks = readArray(raw.marks).filter((mark): mark is RichTextMark => mark === "bold" || mark === "italic");
+  const uniqueMarks = [...new Set(marks)];
+  const span: RichTextSpan = { text: readStr(raw.text) };
+  if (uniqueMarks.length > 0) span.marks = uniqueMarks;
+  const href = readNullableStr(raw.href);
+  if (href) span.href = href;
+  return span;
+}
+
+function readRichTextSpans(raw: unknown): RichTextSpan[] {
+  return readArray(raw).map(readRichTextSpan);
+}
+
+function readRichTextNode(raw: unknown): RichTextNode | null {
+  if (!isRecord(raw)) return null;
+  switch (raw.type) {
+    case "heading": {
+      // The page owns the h1, so only levels 2 and 3 are legal; anything else is
+      // dropped rather than guessed into a heading level.
+      const level = raw.level === 3 ? 3 : raw.level === 2 ? 2 : null;
+      if (level === null) return null;
+      return { type: "heading", level, text: readStr(raw.text) };
+    }
+    case "paragraph":
+      return { type: "paragraph", spans: readRichTextSpans(raw.spans) };
+    case "bulletList":
+      return { type: "bulletList", items: readArray(raw.items).map(readRichTextSpans) };
+    case "orderedList":
+      return { type: "orderedList", items: readArray(raw.items).map(readRichTextSpans) };
+    default:
+      return null;
+  }
+}
+
+/** Reads a rich-text document defensively; unknown node types are dropped. */
+export function readRichTextDoc(raw: unknown): RichTextDoc {
+  const r = isRecord(raw) ? raw : {};
+  return {
+    nodes: readArray(r.nodes)
+      .map(readRichTextNode)
+      .filter((node): node is RichTextNode => node !== null),
+  };
+}
+
+function readNullableRichTextDoc(raw: unknown): RichTextDoc | null {
+  if (raw === null || raw === undefined) return null;
+  const doc = readRichTextDoc(raw);
+  return doc.nodes.length > 0 ? doc : null;
+}
+
+/* ----------------------------- specs readers ------------------------------ */
+
+/** Reads a specs table defensively (every cell a string; shape checked by the validator). */
+export function readContentSpecs(raw: unknown): ContentSpecs {
+  const r = isRecord(raw) ? raw : {};
+  return {
+    columns: readArray(r.columns).map((column) => readStr(column)),
+    rows: readArray(r.rows).map((row) => readArray(row).map((cell) => readStr(cell))),
+  };
+}
+
+function readNullableContentSpecs(raw: unknown): ContentSpecs | null {
+  if (raw === null || raw === undefined) return null;
+  const specs = readContentSpecs(raw);
+  return specs.columns.length > 0 || specs.rows.length > 0 ? specs : null;
+}
+
+/* --------------------------- product-line reader --------------------------- */
+
+function readProductLineSource(raw: unknown): ProductLineSource {
+  if (isRecord(raw) && raw.kind === "casketCollection") {
+    return { kind: "casketCollection", collection: readTrimmed(raw.collection) };
+  }
+  return { kind: "manual" };
+}
+
+/**
+ * Reads a product line defensively: missing fields take honest defaults (an
+ * empty id is refused by the save rule, never guessed).
+ */
+export function readProductLine(raw: unknown): ProductLine {
+  const r = isRecord(raw) ? raw : {};
+  const source = readProductLineSource(r.source);
+  return {
+    id: readTrimmed(r.id),
+    name: readTrimmed(r.name),
+    source,
+    variantSkus: readArray(r.variantSkus).map((sku) => readTrimmed(sku)).filter(Boolean),
+    sharedSpecs: readNullableContentSpecs(r.sharedSpecs),
+    updated_at: readNullableStr(r.updated_at),
+    updated_by: readNullableStr(r.updated_by),
+  };
+}
+
 /* ----------------------------- tolerant reader ----------------------------- */
 
 /**
@@ -438,6 +637,7 @@ export function readCatalogueEntry(raw: unknown): CatalogueEntry {
     key: readTrimmed(r.key),
     title: readTrimmed(r.title),
     summary: readTrimmed(r.summary),
+    description: readNullableRichTextDoc(r.description),
     group: readNullableStr(r.group),
     media: {
       hero: readNullableStr(mediaRaw.hero),
@@ -445,6 +645,10 @@ export function readCatalogueEntry(raw: unknown): CatalogueEntry {
         .map((image) => readContentImage(image))
         .filter((image): image is ContentImage => image !== null),
     },
+    gallery: readArray(r.gallery)
+      .map((image) => readContentImage(image))
+      .filter((image): image is ContentImage => image !== null),
+    specs: readNullableContentSpecs(r.specs),
     blocks: readArray(r.blocks)
       .map((block) => readContentBlock(block).block)
       .filter((block): block is ContentBlock => block !== null),
@@ -618,6 +822,179 @@ function validateContentImage(image: ContentImage, what: string, errors: string[
   if (image.sample && !image.caption) {
     errors.push(`${what} is marked a sample — samples need their caption saying what the picture shows.`);
   }
+}
+
+/* ------------------------- rich-text validation ---------------------------- */
+
+function validateRichTextSpan(span: RichTextSpan, what: string, errors: string[]): void {
+  const text = tooLong(span.text, CONTENT_TEXT_MAX, what);
+  if (text) errors.push(text);
+  if (span.href) {
+    if (!HREF_PATTERN.test(span.href)) {
+      errors.push(`${what} has a link that must start with /, #, https://, mailto: or tel:.`);
+    }
+  }
+}
+
+function richTextHasText(doc: RichTextDoc): boolean {
+  const spansHaveText = (spans: RichTextSpan[]) => spans.some((span) => span.text.trim().length > 0);
+  return doc.nodes.some((node) => {
+    if (node.type === "heading") return node.text.trim().length > 0;
+    if (node.type === "paragraph") return spansHaveText(node.spans);
+    return node.items.some(spansHaveText);
+  });
+}
+
+/**
+ * The rich-text rules the store, the editor and the BFF route all run: a bounded
+ * node tree, the shared text limit on every span, real destinations on links and
+ * at least one word of actual copy. It never sees HTML — the input is the typed
+ * node tree (or an unknown value, which reads as an empty one).
+ */
+function richTextErrors(doc: RichTextDoc, what: string): string[] {
+  const errors: string[] = [];
+  if (doc.nodes.length > CONTENT_RICHTEXT_NODES_MAX) {
+    errors.push(`${what} keeps at most ${CONTENT_RICHTEXT_NODES_MAX} blocks of text.`);
+  }
+  if (!richTextHasText(doc)) errors.push(`${what} has no text yet.`);
+  doc.nodes.forEach((node, i) => {
+    const at = `${what} — block ${i + 1}`;
+    switch (node.type) {
+      case "heading": {
+        if (!node.text.trim()) errors.push(`${at} is an empty heading.`);
+        const err = tooLong(node.text, CONTENT_HEADING_MAX, at);
+        if (err) errors.push(err);
+        break;
+      }
+      case "paragraph":
+        node.spans.forEach((span) => validateRichTextSpan(span, at, errors));
+        break;
+      case "bulletList":
+      case "orderedList":
+        if (node.items.length === 0) errors.push(`${at} is an empty list.`);
+        node.items.forEach((item) => item.forEach((span) => validateRichTextSpan(span, at, errors)));
+        break;
+    }
+  });
+  return errors;
+}
+
+/** Reads and validates one rich-text document (the description's own rule). */
+export function validateRichText(
+  raw: unknown,
+  what = "The description",
+): ContentValidation<RichTextDoc> {
+  const doc = readRichTextDoc(raw);
+  const errors = richTextErrors(doc, what);
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, value: doc };
+}
+
+function richTextTexts(doc: RichTextDoc | null): string[] {
+  if (!doc) return [];
+  const out: string[] = [];
+  for (const node of doc.nodes) {
+    if (node.type === "heading") {
+      out.push(node.text);
+      continue;
+    }
+    const items = node.type === "paragraph" ? [node.spans] : node.items;
+    for (const spans of items) for (const span of spans) out.push(span.text);
+  }
+  return out;
+}
+
+/* --------------------------- specs validation ------------------------------ */
+
+/**
+ * The one specs rule: ≤15 columns (the refusal names the offending header),
+ * any number of rows, and every row carrying exactly one cell per column.
+ */
+function specsErrors(specs: ContentSpecs, what: string): string[] {
+  const errors: string[] = [];
+  if (specs.columns.length === 0) errors.push(`${what} need at least one column.`);
+  if (specs.columns.length > CONTENT_SPECS_COLUMNS_MAX) {
+    const overflow = specs.columns[CONTENT_SPECS_COLUMNS_MAX]?.trim() || `column ${CONTENT_SPECS_COLUMNS_MAX + 1}`;
+    errors.push(
+      `${what} keep at most ${CONTENT_SPECS_COLUMNS_MAX} columns — “${overflow}” is the ${CONTENT_SPECS_COLUMNS_MAX + 1}th.`,
+    );
+  }
+  specs.columns.forEach((column, i) => {
+    if (!column.trim()) errors.push(`${what} column ${i + 1} needs a header.`);
+    const err = tooLong(column, CONTENT_CELL_MAX, `${what} column ${i + 1}`);
+    if (err) errors.push(err);
+  });
+  specs.rows.forEach((row, i) => {
+    if (row.length !== specs.columns.length) {
+      errors.push(`${what} row ${i + 1} has ${row.length} cells but the table has ${specs.columns.length} columns.`);
+    }
+    row.forEach((cell, c) => {
+      const err = tooLong(cell, CONTENT_CELL_MAX, `${what} row ${i + 1} cell ${c + 1}`);
+      if (err) errors.push(err);
+    });
+  });
+  return errors;
+}
+
+/** Reads and validates one specs table (the entry's and the line's own rule). */
+export function validateContentSpecs(
+  raw: unknown,
+  what = "The specifications",
+): ContentValidation<ContentSpecs> {
+  const specs = readContentSpecs(raw);
+  const errors = specsErrors(specs, what);
+  return errors.length > 0 ? { ok: false, errors } : { ok: true, value: specs };
+}
+
+/**
+ * The bytes the stored document carries for its photographs. A published path
+ * carries none; a device-upload data URL carries its base64 payload, which is
+ * the only thing that can grow a gallery document without bound.
+ */
+export function referencedImageBytes(images: readonly ContentImage[]): number {
+  let total = 0;
+  for (const image of images) {
+    if (/^data:/i.test(image.src)) total += image.src.length;
+  }
+  return total;
+}
+
+function specsTexts(specs: ContentSpecs | null): string[] {
+  if (!specs) return [];
+  return [...specs.columns, ...specs.rows.flat()];
+}
+
+/* ------------------------- product-line validation ------------------------- */
+
+/**
+ * The save rule for a product line: a stable id and name, at least one unique
+ * variant that the live catalogue carries, and shared specs within the ≤15
+ * cap. The line's variant MEMBERSHIP is derived in lib/product-line.ts; this
+ * only checks that whatever the record names really exists.
+ */
+export function validateProductLine(
+  raw: unknown,
+  context: ContentValidationContext,
+): ContentValidation<ProductLine> {
+  const line = readProductLine(raw);
+  const errors: string[] = [];
+  if (!line.id.trim()) errors.push("The product line needs a stable id.");
+  if (!line.name.trim()) errors.push("The product line needs a name.");
+  const name = tooLong(line.name, CONTENT_HEADING_MAX, "The product line name");
+  if (name) errors.push(name);
+  if (line.source.kind === "casketCollection" && !line.source.collection.trim()) {
+    errors.push("The product line names a casket collection but leaves it empty.");
+  }
+  if (line.variantSkus.length === 0) errors.push("The product line needs at least one variant.");
+  if (!uniqueStrings(line.variantSkus)) errors.push("Two variants repeat in the product line.");
+  line.variantSkus.forEach((sku, i) => {
+    if (!context.skus.has(sku)) {
+      errors.push(`Variant ${i + 1} names the SKU “${sku}”, which the catalogue does not carry.`);
+    }
+  });
+  if (line.sharedSpecs) errors.push(...specsErrors(line.sharedSpecs, "The shared specifications"));
+  errors.push(...glyphErrors([line.name, ...line.variantSkus]));
+  if (errors.length > 0) return { ok: false, errors };
+  return { ok: true, value: line };
 }
 
 function validateBlock(raw: unknown, index: number, context: ContentValidationContext): { block: ContentBlock | null; errors: string[] } {
@@ -927,11 +1304,21 @@ export function validateCatalogueEntry(
   if (!entry.title.trim()) errors.push("The entry title can't be empty.");
   const summary = tooLong(entry.summary, CONTENT_LEAD_MAX, "The summary");
   if (summary) errors.push(summary);
+  if (entry.description) errors.push(...richTextErrors(entry.description, "The description"));
   if (entry.media.hero) {
     const err = imageSrcError(entry.media.hero, "The hero image");
     if (err) errors.push(err);
   }
   entry.media.gallery.forEach((image, i) => validateContentImage(image, `Image ${i + 1}`, errors));
+  // The PDP gallery is uncapped by COUNT (validated by stored payload instead).
+  entry.gallery.forEach((image, i) => validateContentImage(image, `Gallery image ${i + 1}`, errors));
+  const galleryBytes = referencedImageBytes(entry.gallery);
+  if (galleryBytes > CONTENT_ENTRY_GALLERY_BYTES_MAX) {
+    errors.push(
+      `The gallery's stored photographs total about ${Math.round(galleryBytes / 1_000_000)} MB — keep them under ${CONTENT_ENTRY_GALLERY_BYTES_MAX / 1_000_000} MB.`,
+    );
+  }
+  if (entry.specs) errors.push(...specsErrors(entry.specs, "The specifications"));
   if (entry.blocks.length > CONTENT_BLOCKS_MAX) errors.push(`An entry keeps at most ${CONTENT_BLOCKS_MAX} content blocks.`);
   const rawBlocks = isRecord(raw) ? readArray(raw.blocks) : [];
   entry.blocks.forEach((_, i) => {
@@ -953,8 +1340,12 @@ export function validateCatalogueEntry(
     ...glyphErrors([
       entry.title,
       entry.summary,
+      ...richTextTexts(entry.description),
       ...entry.media.gallery.map((image) => image.alt),
       ...entry.media.gallery.map((image) => image.caption ?? ""),
+      ...entry.gallery.map((image) => image.alt),
+      ...entry.gallery.map((image) => image.caption ?? ""),
+      ...specsTexts(entry.specs),
       ...authoredBlockTexts(entry.blocks),
     ]),
   );
