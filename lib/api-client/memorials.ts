@@ -19,6 +19,7 @@
  */
 import memorialsFile from "@/lib/fixtures/memorials/memorials.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 import {
   isMemorialVisibility,
   type MemorialLifeDates,
@@ -33,7 +34,9 @@ import {
  * worse than saying plainly that there is no live branch.)
  */
 export function memorialsLiveModeEnabled(): boolean {
-  return false;
+  // No digital-memorial service or contract exists: the switch is declared in
+  // lib/live-mode.ts (state "none") and cannot enter live mode.
+  return liveModeEnabled("memorials");
 }
 
 function malformed(what: string): never {

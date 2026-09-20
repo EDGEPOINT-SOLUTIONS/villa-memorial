@@ -40,6 +40,8 @@ import { ApiError } from "@/lib/api-client/api-error";
  *   them and never asks the family to request a copy.
  *   other — certificates, permits, applications: these keep the request path.
  */
+import { liveModeEnabled } from "@/lib/live-mode";
+
 export type FamilyDocumentKind = "service_contract" | "official_receipt" | "other";
 
 export type FamilyDocument = {
@@ -186,7 +188,9 @@ export type FamilyWorkspace = {
 };
 
 export function familyLiveModeEnabled(): boolean {
-  return false; // no family API contract yet — fixture only until the dev freeze
+  // A family API contract is not frozen: the switch is declared in lib/live-mode.ts
+  // but cannot enter live mode until the branch exists.
+  return liveModeEnabled("family");
 }
 
 /**

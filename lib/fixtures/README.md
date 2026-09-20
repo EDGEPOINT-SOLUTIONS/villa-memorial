@@ -200,3 +200,37 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
    any real service (services verify RS256 via JWKS).
 4. Drift between fixtures and upstream specs fails CI nightly once services
    publish OpenAPI specs (identity-access spec is still template-generic).
+
+## Platform-contract pre-wire (2026-09-21)
+
+The app-side pre-wire (`lib/live-mode.ts`, `lib/contracts/validate.ts`,
+`lib/contracts/proposed-shapes.ts`) turns the platform-contracts plan into a swap. It
+does NOT add a contract or change a record. The fixtures below are the recorded shapes
+a proposed packet describes; `tests/fixture-contract/proposed-contracts.test.ts` reads
+each through the shared validation layer against its proposed field list, so a fixture
+that drifts from the proposal fails loudly (naming the field).
+
+| Fixture | Proposed packet | Live state |
+|---|---|---|
+| `crm/customers.json` · `crm/inquiries.json` | C1 crm-families | refuses — `CRM_NOT_WIRED` 503 |
+| `hr/employees.json` | C2 HR | refuses — `HR_NOT_WIRED` 503 |
+| `family/snapshot.json` · `family/workspace.json` | C8 family API | declared, fixture-only |
+| `agent/workspace.json` | C9 agent workspace | declared, fixture-only |
+| `finance/commission.json` | C15 commission engine | declared, fixture-only |
+| `memorials/memorials.json` | C18 digital memorials | declared, fixture-only |
+| `operations/notifications.json` | C7 notifications | declared, fixture-only |
+| `commerce/inventory.json` | C28 inventory | declared, fixture-only |
+| `finance/accounting.json` | C4 accounting read | declared, fixture-only |
+| `property/lot-lifecycle.json` | C14 lot lifecycle | declared, fixture-only |
+| `operations/preparation-records.json` | C22 preparation | declared, fixture-only |
+| `operations/guarantee-instruments.json` | C23 guarantee instruments | declared, fixture-only |
+| `property/purchase-applications.json` | C11 purchase application | declared, fixture-only |
+| `commerce/membership-applications.json` | C21 membership/COC | declared, fixture-only |
+| `commerce/orders.json` | C6 order admin | refuses — `ADMIN_ORDERS_NOT_WIRED` 503 |
+| `commerce/pricing.json` | C5 pricing write | refuses — `PRICING_ADMIN_NOT_WIRED` 503 |
+
+Every one is PROVISIONAL: no contract under `docs/08-delivery/contracts/` names these
+records, and the proposed field list is the packet the platform dev is asked to freeze
+(`lib/live-mode.ts` is the switch registry; its `module` column names the reader each
+packet will enter through). When one freezes, replace the fixture with a recorded
+response and delete the matching `*_NOT_WIRED` constant in the same PR.

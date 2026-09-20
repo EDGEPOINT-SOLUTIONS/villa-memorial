@@ -14,6 +14,7 @@
  */
 import notificationsFile from "@/lib/fixtures/operations/notifications.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 import {
   isNotificationAudience,
   isNotificationChannel,
@@ -22,6 +23,11 @@ import {
   type NotificationMessage,
   type NotificationTemplate,
 } from "@/lib/notifications";
+
+/** No notification service exists: the switch is declared but cannot enter live mode. */
+export function notificationsLiveModeEnabled(): boolean {
+  return liveModeEnabled("notifications");
+}
 
 function text(raw: unknown): string | null {
   return typeof raw === "string" && raw.trim() !== "" ? raw.trim() : null;

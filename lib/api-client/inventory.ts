@@ -24,6 +24,7 @@
  */
 import inventoryFile from "@/lib/fixtures/commerce/inventory.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 import { getCatalogRecord } from "@/lib/api-client/catalog-store";
 import {
   isInventoryCategory,
@@ -34,7 +35,7 @@ import {
 
 /** No live branch exists: nothing under `docs/08-delivery/contracts/` names inventory. */
 export function inventoryLiveModeEnabled(): boolean {
-  return false;
+  return liveModeEnabled("inventory");
 }
 
 /** The one honest line the screen prints above the recorded stock. */

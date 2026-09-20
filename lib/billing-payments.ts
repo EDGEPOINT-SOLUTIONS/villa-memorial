@@ -333,6 +333,12 @@ export type RecordedPayment = {
   recorded_at: string;
   recorded_by: string;
   receipt_document: ReceiptDocumentRow | null;
+  /**
+   * The payer a `payment.recorded`-era service names on the payment (PROPOSED,
+   * platform-contracts plan C13). Absent when the service sent none; the receipt
+   * then falls back to the invoice's customer, exactly as it did before.
+   */
+  payer?: string | null;
 };
 
 /** The one sentence a payment without an official receipt carries. */
@@ -359,7 +365,7 @@ export function receiptFiguresForPayment(
     covers: invoice.order_number
       ? `${payment.invoice_number} · ${invoice.order_number}`
       : payment.invoice_number,
-    payer: invoice.customer_name,
+    payer: payment.payer ?? invoice.customer_name,
     received_by: payment.recorded_by,
     method: INSTRUMENT_LABEL[payment.method],
     reference: payment.reference,

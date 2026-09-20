@@ -28,6 +28,13 @@ export type JwtClaims = {
   scopes: string[];
   iat: number;
   exp: number;
+  /**
+   * Optional v2 role/portal claims (PROPOSED — see lib/auth/destination.ts).
+   * The frozen jwt-claims-v1 carries neither, so both are absent today. They are
+   * read only when they are non-empty strings; anything else is ignored.
+   */
+  role?: string;
+  portal?: string;
 };
 
 /**
@@ -68,7 +75,16 @@ export function parseAccessTokenClaims(token: string | undefined): JwtClaims | n
     scopes: p.scopes as string[],
     iat: p.iat,
     exp: p.exp,
+    // Optional v2 claims: present only when the issuer sends a non-empty string.
+    // Absent keys are omitted entirely so an older token parses exactly as before.
+    ...(typeof p.role === "string" && p.role.trim() !== "" ? { role: p.role } : {}),
+    ...(typeof p.portal === "string" && p.portal.trim() !== "" ? { portal: p.portal } : {}),
   };
+}
+
+/** The optional v2 portal claim from a token, or undefined. Tolerant — never throws. */
+export function portalClaimFromToken(token: string | undefined): string | undefined {
+  return parseAccessTokenClaims(token)?.portal;
 }
 
 export function isExpired(claims: JwtClaims, nowSec = Math.floor(Date.now() / 1000), skewSec = 5): boolean {
@@ -95,5 +111,9 @@ export function buildSession(
     email: u.email,
     displayName: u.display_name,
     expiresAt: new Date(claims.exp * 1000).toISOString(),
+    // Carry the optional v2 claims through when present; omitted otherwise, so a
+    // session built from a v1 token is byte-shape unchanged.
+    ...(claims.role ? { role: claims.role } : {}),
+    ...(claims.portal ? { portal: claims.portal } : {}),
   };
 }

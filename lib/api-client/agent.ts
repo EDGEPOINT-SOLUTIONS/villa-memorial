@@ -26,6 +26,7 @@
  */
 import workspaceFile from "@/lib/fixtures/agent/workspace.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 
 export type AgentIdentity = {
   id: string;
@@ -238,7 +239,9 @@ export type AgentWorkspace = {
 };
 
 export function agentLiveModeEnabled(): boolean {
-  return false; // no agent-workspace API contract yet — fixture only until the dev freeze
+  // No agent-workspace API contract yet: declared in lib/live-mode.ts, cannot
+  // enter live mode until the branch exists.
+  return liveModeEnabled("agent");
 }
 
 /**

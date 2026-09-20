@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ACCESS_COOKIE, buildSession } from "@/lib/auth/session";
-import { isAgentSession, isFamilySession, isStaffSession, portalHomeFor } from "@/lib/auth/destination";
+import { portalForSession, portalHomeForSession } from "@/lib/auth/destination";
 
 type Portal = "family" | "agent";
 
@@ -31,14 +31,15 @@ export async function requirePortalSessionOrRedirect(portal: Portal) {
     redirect(portal === "family" ? "/client/login" : "/agent/login");
   }
 
+  const portalOfSession = portalForSession(session);
   const allowed =
     portal === "family"
-      ? isStaffSession(session.scopes) || isFamilySession(session.scopes)
-      : isStaffSession(session.scopes) || isAgentSession(session.scopes);
+      ? portalOfSession === "staff" || portalOfSession === "family"
+      : portalOfSession === "staff" || portalOfSession === "agent";
 
   if (!allowed) {
     // Belongs to another portal — send them home, never show a hollow shell.
-    redirect(portalHomeFor(session.scopes));
+    redirect(portalHomeForSession(session));
   }
 
   return session as NonNullable<typeof session>;
