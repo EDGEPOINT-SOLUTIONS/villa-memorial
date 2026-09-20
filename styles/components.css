@@ -184,7 +184,7 @@ input[type="checkbox"] {
    the semantics need (F-16: an h1→h3 skip is fixed by promoting the tag, not
    by resizing the card). */
 .card__header h2 {
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
 }
 
 .card__body {
@@ -755,7 +755,7 @@ input[type="checkbox"] {
 
 .empty-state__title {
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
   margin: 0;
 }
@@ -1301,7 +1301,7 @@ input[type="checkbox"] {
 .ledger__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-section-title);
   line-height: 1.2;
   color: var(--color-text-primary);
 }
@@ -1387,7 +1387,7 @@ a.ledger__row:hover .ledger__row-title {
 
 .ledger__row-title {
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   line-height: 1.25;
   color: var(--color-text-primary);
 }
@@ -1442,7 +1442,7 @@ a.ledger__row:hover .ledger__row-title {
 .band-head__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-section-title);
   line-height: 1.15;
   color: var(--color-text-primary);
 }
@@ -1644,7 +1644,7 @@ a.ledger__row:hover .ledger__row-title {
 
 .page-hero__title {
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-page-title);
   margin: 0;
 }
 
@@ -1801,7 +1801,7 @@ a.ledger__row:hover .ledger__row-title {
 .shop-card__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-card-title);
   line-height: 1.25;
   color: var(--color-text-primary);
 }
@@ -2319,7 +2319,7 @@ a.ledger__row:hover .ledger__row-title {
 
 .item-card__title {
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
 }
 
@@ -2666,7 +2666,7 @@ a.ledger__row:hover .ledger__row-title {
 /* --- Sellable casket cards (/products): collection heading + price facts ------ */
 .casket-collection__title {
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
   margin: 0;
   padding-bottom: var(--space-1);
@@ -2781,7 +2781,7 @@ a.ledger__row:hover .ledger__row-title {
 
 .landing__title {
   font-family: var(--font-serif);
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.08;
   letter-spacing: -0.01em;
   margin: 0 0 var(--space-4);
@@ -2861,7 +2861,7 @@ a.ledger__row:hover .ledger__row-title {
 
 .section-title {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
   margin: 0 0 var(--space-6);
   line-height: 1.2;
 }
@@ -4364,7 +4364,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 /* --- Dashboard (villa grammar: KPI tiles · glance bars · split lists) --------- */
 .page-section-title {
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
   margin: 0 0 var(--space-4);
 }
 
@@ -4611,7 +4611,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .case-card__name {
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   margin: 0;
 }
 
@@ -5001,7 +5001,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .ops-card__name {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   line-height: 1.25;
 }
 
@@ -6217,7 +6217,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .landing-showcase__title {
   margin: 0;
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
   line-height: 1.12;
   color: var(--color-text-inverse);
 }
@@ -6369,7 +6369,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .hero-premium__title {
   margin: 0;
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.12;
 }
 
@@ -6473,7 +6473,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .pkg-title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.05;
   color: var(--color-text-primary);
 }
@@ -6554,7 +6554,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-size: var(--text-lg);
+  font-size: var(--text-section-title);
   color: var(--color-text-primary);
 }
 
@@ -6873,7 +6873,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .price-module__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-section-title);
   color: var(--color-text-primary);
 }
 
@@ -7722,13 +7722,13 @@ because the shared `.ag-appt` rule comes later in this file. */
   padding: 0;
   list-style: none;
   font-size: var(--text-md);
-  color: var(--navy-700);
+  color: var(--color-text-secondary);
 }
 
 .gal-crumbs li + li::before {
   content: "/";
   margin-right: var(--space-2);
-  color: var(--navy-500);
+  color: var(--color-text-muted);
 }
 
 .gal-crumbs a {
@@ -7737,7 +7737,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .gal-crumbs [aria-current="page"] {
-  color: var(--navy-900);
+  color: var(--color-text-primary);
   font-weight: 700;
 }
 
@@ -7772,13 +7772,13 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-size: var(--text-md);
   font-weight: 650;
   line-height: 1.4;
-  color: var(--navy-900);
+  color: var(--color-text-primary);
 }
 
 .gal-figure__note {
   font-size: var(--text-sm);
   line-height: 1.45;
-  color: var(--navy-600);
+  color: var(--color-text-muted);
 }
 
 /* Hero figure — the client's gate photo, 16:9 like the source. */
@@ -7867,9 +7867,9 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-hero__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.12;
-  color: var(--navy-900);
+  color: var(--color-text-primary);
 }
 
 .gal-hero__lead {
@@ -7877,7 +7877,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   max-width: 34rem;
   font-size: var(--text-lg);
   line-height: 1.6;
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .gal-hero__actions {
@@ -7909,23 +7909,23 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-group__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
   line-height: 1.2;
-  color: var(--navy-900);
+  color: var(--color-text-primary);
 }
 
 .gal-group__intro {
   margin: var(--space-2) 0 0;
   font-size: var(--text-lg);
   line-height: 1.6;
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .gal-provenance {
   margin: 0;
   font-size: var(--text-md);
   line-height: 1.6;
-  color: var(--navy-700);
+  color: var(--color-text-secondary);
 }
 
 /* --- the walk-through entry ----------------------------------------------- */
@@ -7963,9 +7963,9 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-walk__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
   line-height: 1.2;
-  color: var(--navy-900);
+  color: var(--color-text-primary);
 }
 
 .gal-walk__line {
@@ -7973,7 +7973,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   max-width: 40rem;
   font-size: var(--text-lg);
   line-height: 1.6;
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .gal-walk__actions {
@@ -8018,14 +8018,14 @@ because the shared `.ag-appt` rule comes later in this file. */
 .gal-visit__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  color: var(--navy-900);
+  font-size: var(--text-section-title);
+  color: var(--color-text-primary);
 }
 
 .gal-visit__text {
   margin: var(--space-2) 0 0;
   font-size: var(--text-lg);
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .gal-visit__actions {
@@ -8164,13 +8164,13 @@ because the shared `.ag-appt` rule comes later in this file. */
 .rich-text h2 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
   color: var(--color-text-primary);
 }
 
 .rich-text h3 {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
 }
 
@@ -8664,11 +8664,11 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .rte__host h2 {
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
 }
 
 .rte__host h3 {
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
 }
 
 .rte__hint {
@@ -8952,23 +8952,12 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 /* ---------------------------------------------------------------------------
- * Global premium system: typography pairing, focus, transitions, active nav
+ * Global premium system: focus, transitions, active nav
  * ------------------------------------------------------------------------- */
-body {
-  font-family: var(--font-sans);
-  font-size: var(--text-md);
-  line-height: 1.55;
-  color: var(--color-text-primary);
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4 {
-  font-family: var(--font-serif);
-  font-weight: 600;
-  line-height: 1.18;
-  letter-spacing: -0.005em;
-  color: var(--color-text-primary);
-}
+/* The heading and body type rules live in styles/base.css alone — one owner.
+   A second `h1, h2, h3, h4` block here silently re-weighted every heading to
+   600 (and its 1.18 line-height beat base's role ladder); removed in the
+   consistency pass, 2026-09-22. */
 
 /* Keyboard focus is ONE rule in styles/base.css (ring + halo from tokens) —
    no per-surface overrides below. */
@@ -9284,7 +9273,7 @@ a.card:hover {
 }
 
 .app-shell .app-main .page-header h1 {
-  font-size: var(--text-3xl);
+  font-size: var(--text-page-title);
   letter-spacing: -0.012em;
   color: var(--color-figure);
 }
@@ -9295,7 +9284,7 @@ a.card:hover {
 
 /* --- Section titles: serif + short gold underline ----------------------------- */
 .app-shell .app-main .page-section-title {
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
   letter-spacing: -0.005em;
   padding-bottom: var(--space-2);
   color: var(--color-text-primary);
@@ -9489,7 +9478,7 @@ a.card:hover {
   border: 1px solid var(--color-rule);
   border-radius: 999px;
   background: var(--color-bg-surface-raised);
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-weight: 600;
   text-decoration: none;
@@ -9501,12 +9490,12 @@ a.card:hover {
 
 .lot-rec-tabs a:hover {
   border-color: var(--navy-300);
-  color: var(--navy-950);
+  color: var(--color-text-primary);
 }
 
 .lot-rec-tabs a[aria-current="page"] {
   background: var(--navy-800);
-  border-color: var(--navy-900);
+  border-color: var(--color-text-primary);
   color: var(--marble-100);
 }
 
@@ -9792,7 +9781,7 @@ a.card:hover {
 
 .paper-hero__title {
   margin: 0;
-  font-size: var(--text-3xl);
+  font-size: var(--text-page-title);
   line-height: 1.12;
   color: #ffffff;
   letter-spacing: -0.01em;
@@ -9909,7 +9898,7 @@ a.card:hover {
 
 .capture-section__title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
   letter-spacing: -0.005em;
 }
@@ -10283,14 +10272,14 @@ a.card:hover {
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--navy-500);
+  color: var(--color-text-muted);
 }
 
 .membership-glance__value {
   margin: var(--space-1) 0 0;
   font-family: var(--font-serif);
   font-size: var(--text-lg);
-  color: var(--navy-900);
+  color: var(--color-text-primary);
   overflow-wrap: anywhere;
 }
 
@@ -10323,7 +10312,7 @@ a.card:hover {
   border-left: 3px solid var(--gold-400);
   background: var(--navy-50);
   border-radius: var(--radius-sm) var(--radius-md) var(--radius-md) var(--radius-sm);
-  color: var(--navy-700);
+  color: var(--color-text-secondary);
 }
 
 .membership-rate svg {
@@ -10336,7 +10325,7 @@ a.card:hover {
   margin: 0;
   font-family: var(--font-serif);
   font-size: var(--text-xl);
-  color: var(--navy-900);
+  color: var(--color-text-primary);
 }
 
 .membership-rate__meta {
@@ -11703,7 +11692,7 @@ a.card:hover {
 .hero-home__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.08;
   letter-spacing: -0.01em;
   color: var(--color-text-primary);
@@ -11758,7 +11747,7 @@ a.card:hover {
 .mid-section > h2 {
   margin: var(--space-1) 0 var(--space-2);
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
   line-height: 1.15;
   color: var(--color-text-primary);
 }
@@ -12007,7 +11996,7 @@ a.card:hover {
 .svc-card__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-card-title);
   line-height: 1.2;
   color: var(--color-text-primary);
 }
@@ -13163,7 +13152,7 @@ a.card:hover {
 .ed-section__head h2 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
   line-height: 1.2;
   color: var(--color-text-primary);
 }
@@ -14194,7 +14183,7 @@ a.card:hover {
 }
 
 .ed-hero-bg__swatch--active {
-  border-color: var(--navy-950);
+  border-color: var(--color-text-primary);
   box-shadow: 0 0 0 2px var(--gold-300), var(--shadow-paper);
 }
 
@@ -14417,7 +14406,7 @@ a.card:hover {
 .ag-h2 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
   color: var(--color-figure);
 }
 
@@ -14505,7 +14494,7 @@ a.card:hover {
 .ag-hero__title {
   margin: var(--space-2) 0 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-page-title);
   line-height: 1.1;
   color: var(--color-figure);
   letter-spacing: -0.01em;
@@ -14557,7 +14546,7 @@ a.card:hover {
 
 .ag-action__title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   font-weight: 700;
   color: var(--color-figure);
 }
@@ -14639,7 +14628,7 @@ a.card:hover {
 
 .ag-work__title {
   margin: var(--space-1) 0 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   font-weight: 700;
   color: var(--color-figure);
 }
@@ -15174,7 +15163,7 @@ a.card:hover {
 
 .ag-card__title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   font-weight: 700;
   color: var(--color-figure);
 }
@@ -15604,7 +15593,7 @@ a.card:hover {
 
 .ag-state__title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   font-weight: 700;
   color: var(--color-figure);
 }
@@ -15887,12 +15876,12 @@ a.card:hover {
 }
 
 .sv-page h1 {
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.15;
 }
 
 .sv-page h2 {
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
   line-height: 1.2;
 }
 
@@ -17034,7 +17023,7 @@ a.card:hover {
 
 /* Senior-first type inside the booking step: 17px body, 16px minimum. */
 .sv-page .booking-step__title {
-  font-size: var(--text-xl);
+  font-size: var(--text-card-title);
 }
 
 .sv-page .booking-step__blurb,
@@ -17083,7 +17072,7 @@ a.card:hover {
 .sv-help h2 {
   margin: 0 0 var(--space-2);
   color: var(--color-text-primary);
-  font-size: var(--text-2xl);
+  font-size: var(--text-section-title);
 }
 
 .sv-help p {
@@ -17172,7 +17161,7 @@ a.card:hover {
 
 .sv-sources h2 {
   margin-bottom: var(--space-2);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
 }
 
 .sv-sources p {
@@ -17371,7 +17360,7 @@ a.card:hover {
 
 .ia-hero__title {
   margin: 0;
-  font-size: var(--text-3xl);
+  font-size: var(--text-page-title);
   color: var(--color-text-primary);
 }
 
@@ -17451,7 +17440,7 @@ a.card:hover {
 
 .ia-steps h2 {
   margin: 0 0 var(--space-4);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
 }
 
 .ia-steps__list {
@@ -17538,7 +17527,7 @@ a.card:hover {
 /* --- the alternatives, clearly secondary --- */
 .ia-alts h2 {
   margin: 0 0 var(--space-3);
-  font-size: var(--text-xl);
+  font-size: var(--text-section-title);
 }
 
 .ia-alts__grid {
@@ -17742,7 +17731,7 @@ a.ia-alt:hover {
 
 .fac-section__title {
   margin: 0;
-  font-size: var(--text-3xl);
+  font-size: var(--text-section-title);
 }
 
 .fac-section__intro {
@@ -17807,7 +17796,7 @@ a.ia-alt:hover {
 
 .fac-room__name {
   margin: 0;
-  font-size: var(--text-2xl);
+  font-size: var(--text-card-title);
 }
 
 .fac-room__rate {
@@ -18041,25 +18030,20 @@ a.ia-alt:hover {
 
 
 /* ---------------------------------------------------------------------------
- * Ladder — phone heading steps (typography voice, 2026-09-18)
- * Section headings that used to be fluid clamps now sit on one ladder step at
- * desktop; on phones they step down one or two rungs so the display sizes never
- * ride the desktop value at 390px. Values stay on the seven-step ladder.
+ * Ladder — phone step-downs for the non-role sizes (typography voice,
+ * 2026-09-18; role-map consistency pass, 2026-09-22)
+ * The heading roles (hero / page title / section title / card title) step down
+ * through the tokens.css role aliases, so they are NOT repeated here. What
+ * remains are the display FIGURES and one sign-in card title that are not part
+ * of the eight text roles; they step down one rung on phones so a display value
+ * never rides at 390px. Values stay on the seven-step ladder.
  * ------------------------------------------------------------------------- */
 @media (max-width: 48rem) {
-  .section-title { font-size: var(--text-xl); }        /* 22 */
   .plan-quote { font-size: var(--text-xl); }           /* 22 */
   .svc-total__amount { font-size: var(--text-2xl); }   /* 28 */
-  .paper-hero__title { font-size: var(--text-2xl); }   /* 28 */
-  .mid-section > h2 { font-size: var(--text-2xl); }    /* 28 */
-  .ag-hero__title { font-size: var(--text-2xl); }      /* 28 */
   .ag-money__value { font-size: var(--text-2xl); }     /* 28 */
   .ag-signin__title { font-size: var(--text-2xl); }    /* 28 */
-  .sv-page h2 { font-size: var(--text-2xl); }          /* 28 */
-  .sv-help h2 { font-size: var(--text-xl); }           /* 22 */
-  .ia-hero__title { font-size: var(--text-2xl); }      /* 28 */
   .ia-call__number { font-size: var(--text-2xl); }     /* 28 */
-  .fac-section__title { font-size: var(--text-2xl); }  /* 28 */
 }
 
 /* ===========================================================================
@@ -18102,13 +18086,13 @@ a.ia-alt:hover {
   padding: 0;
   list-style: none;
   font-size: var(--text-sm);
-  color: var(--navy-700);
+  color: var(--color-text-secondary);
 }
 
 .mem-crumbs li + li::before {
   content: "/";
   margin-right: var(--space-2);
-  color: var(--navy-500);
+  color: var(--color-text-muted);
 }
 
 .mem-crumbs a {
@@ -18117,7 +18101,7 @@ a.ia-alt:hover {
 }
 
 .mem-crumbs [aria-current="page"] {
-  color: var(--navy-900);
+  color: var(--color-text-primary);
   font-weight: 700;
 }
 
@@ -18137,7 +18121,7 @@ a.ia-alt:hover {
 .mem-hero__card-title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
 }
 
@@ -18161,8 +18145,8 @@ a.ia-alt:hover {
 .mem-section-title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
-  color: var(--navy-900);
+  font-size: var(--text-section-title);
+  color: var(--color-text-primary);
 }
 
 .mem-intro {
@@ -18170,7 +18154,7 @@ a.ia-alt:hover {
   max-width: 44rem;
   font-size: var(--text-lg);
   line-height: 1.55;
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .mem-service-note {
@@ -18400,8 +18384,8 @@ a.ia-alt:hover {
 .mem-result__name {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--navy-900);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
 }
 
 .mem-result__dates {
@@ -18420,7 +18404,7 @@ a.ia-alt:hover {
 .mem-result__line {
   margin: var(--space-2) 0 0;
   font-size: var(--text-lg);
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 /* --- What a published memorial shows (a labelled shape, never a person) ---- */
@@ -18489,14 +18473,14 @@ a.ia-alt:hover {
 .mem-find__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
-  color: var(--navy-900);
+  font-size: var(--text-section-title);
+  color: var(--color-text-primary);
 }
 
 .mem-find__line {
   margin: var(--space-2) 0 0;
   font-size: var(--text-lg);
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .mem-find__actions {
@@ -18549,7 +18533,7 @@ a.ia-alt:hover {
 
 .mem-step__title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
 }
 
@@ -18699,9 +18683,9 @@ a.ia-alt:hover {
 .mem-profile__name {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-display);
+  font-size: var(--text-hero);
   line-height: 1.12;
-  color: var(--navy-900);
+  color: var(--color-text-primary);
 }
 
 .mem-profile__dates {
@@ -18716,7 +18700,7 @@ a.ia-alt:hover {
   font-family: var(--font-serif);
   font-size: var(--text-xl);
   line-height: 1.45;
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .mem-profile__actions {
@@ -18744,7 +18728,7 @@ a.ia-alt:hover {
   font-family: var(--font-serif);
   font-size: var(--text-lg);
   line-height: 1.7;
-  color: var(--navy-800);
+  color: var(--color-text-secondary);
 }
 
 .mem-profile__place-line {
@@ -19367,7 +19351,7 @@ a.ia-alt:hover {
 .next-steps__title {
   margin: var(--space-1) 0 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-section-title);
   font-weight: 700;
   line-height: 1.15;
 }
@@ -19932,7 +19916,7 @@ a.plan-advisor__phone:hover {
   margin: var(--space-1) 0 0;
   max-width: 46rem;
   font-size: var(--text-sm);
-  color: var(--navy-200);
+  color: var(--color-text-inverse-muted);
 }
 
 .platform-nav {
@@ -20107,7 +20091,7 @@ a.plan-advisor__phone:hover {
   height: 2rem;
   border-radius: 50%;
   background: var(--navy-100);
-  color: var(--navy-900);
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   font-weight: 700;
 }
@@ -20212,9 +20196,9 @@ a.plan-advisor__phone:hover {
 }
 
 .platform-flow__steps li[aria-current="step"] {
-  border-color: var(--navy-700);
+  border-color: var(--color-text-secondary);
   background: var(--navy-50);
-  color: var(--navy-900);
+  color: var(--color-text-primary);
   font-weight: 700;
 }
 

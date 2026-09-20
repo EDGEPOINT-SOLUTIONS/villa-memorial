@@ -434,13 +434,13 @@ describe("the hero background colour + transparency (staff colour changer)", () 
 });
 
 /**
- * The two faces this product owns (Alegreya, Source Sans 3 — styles/fonts.css,
- * self-hosted) carry no emoji, so an emoji in published copy renders as an empty
- * "tofu" box on the page. The seed shipped one (the herb, U+1F33F) in the
- * newsfeed lead caption and the landing page showed the box; these pin the fix
- * and the publish gate that keeps it from coming back.
+ * The one face this product owns (Inter — styles/fonts.css, self-hosted) carries
+ * no emoji, so an emoji in published copy renders as an empty "tofu" box on the
+ * page. The seed shipped one (the herb, U+1F33F) in the newsfeed lead caption and
+ * the landing page showed the box; these pin the fix and the publish gate that
+ * keeps it from coming back.
  */
-describe("landing copy stays inside the two typefaces", () => {
+describe("landing copy stays inside the product typeface", () => {
   it("the seed document publishes no unrenderable glyph", async () => {
     const content = await listLandingContent();
     expect(unrenderableGlyphs(JSON.stringify(content))).toEqual([]);
@@ -467,8 +467,8 @@ describe("landing copy stays inside the two typefaces", () => {
     bad.blog.posts[0].caption = "A quiet morning at the park. 🌿";
     const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
     expect(verdict.ok).toBe(false);
-    if (!verdict.ok) expect(verdict.error).toMatch(/carry no emoji/);
-    await expect(saveLandingContent(bad)).rejects.toThrow(/carry no emoji/);
+    if (!verdict.ok) expect(verdict.error).toMatch(/carr(y|ies) no emoji/);
+    await expect(saveLandingContent(bad)).rejects.toThrow(/carr(y|ies) no emoji/);
     const reread = await listLandingContent();
     expect(reread.blog.posts[0].caption).toBe("A quiet morning at the park.");
   });

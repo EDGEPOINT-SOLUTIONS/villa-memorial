@@ -39,17 +39,23 @@ on backend services.
   folders/config; shared kit stays generic (ⓡ discipline applies to UI too).
 - Hard-coding colors/sizes in views — every visual decision goes through `styles/tokens.css`
   (design-system.md consumption rule #1).
-- **Typing a font or an off-ladder size.** The product owns two faces — Alegreya (display serif)
-  and Source Sans 3 (interface sans), SIL OFL 1.1, self-hosted under `public/fonts/` and declared
-  in `styles/fonts.css` (imported first in `app/globals.css`). Every readable text size is one
-  of the seven ladder steps in `styles/tokens.css` (12px hard floor; the public hero is the one
-  fluid `--text-display`); text ink is one of the four `--color-text-*` roles, and decorative
-  gold never carries text. `tests/unit/typography-system.test.ts` fails a raw/off-ladder size,
-  a sub-12px value, a second typeface or a gold-as-text rule; `tests/unit/park-map-labels.test.ts`
-  pins the overview map label density rule. **The two faces carry no emoji**, so a published one
-  is not an emoji but a missing glyph — an empty box on the page, which the home's newsfeed lead
-  caption shipped (U+1F33F). `unrenderableGlyphs()` in `lib/api-client/landing.ts` is the one rule
-  and the content publish gate refuses them by name.
+- **Typing a font or an off-ladder size.** The product owns **one** face — Inter, SIL OFL 1.1,
+  self-hosted under `public/fonts/inter/` and declared in `styles/fonts.css` (imported first in
+  `app/globals.css`); `--font-serif` and `--font-sans` both resolve to it (hierarchy comes from
+  weight + the role steps, not a second typeface). Every readable text size is one of the seven
+  ladder steps in `styles/tokens.css` (12px hard floor; the public hero is the one fluid
+  `--text-display`) chosen through the **role→step map** there (`--text-hero` · `--text-page-title`
+  · `--text-section-title` · `--text-card-title` · `--text-body` · `--text-ui` · `--text-caption`
+  · `--text-micro`; the display roles step down one rung below 48rem through the same aliases).
+  A role class must not ride a raw rung: consume the alias. Text ink is one of the four
+  `--color-text-*` roles, and decorative gold never carries text. The paper/legal print layer is
+  NOT Inter — it keeps the client's own faces (`lib/export/paper-profile.ts`).
+  `tests/unit/typography-system.test.ts` fails a raw/off-ladder size, a sub-12px value, a second
+  typeface, a gold-as-text rule, or a mapped role class moved off its step;
+  `tests/unit/park-map-labels.test.ts` pins the overview map label density rule. **The face carries
+  no emoji**, so a published one is not an emoji but a missing glyph — an empty box on the page,
+  which the home's newsfeed lead caption shipped (U+1F33F). `unrenderableGlyphs()` in
+  `lib/api-client/landing.ts` is the one rule and the content publish gate refuses them by name.
 - **Inventing a shape or a scope ahead of the contract, then not flagging it loudly enough.**
   Fixtures-first is the right pattern — screens must not wait on services — but a fixture
   invented before a freeze becomes the de facto contract by the time anyone reviews it. The
