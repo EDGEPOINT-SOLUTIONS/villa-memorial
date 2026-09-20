@@ -64,7 +64,7 @@ platform's own surface:
 | [#68](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/68) | The journey's action/contact layer: one closing band, click-to-call, one contact surface (F-17). |
 | [#70](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/70) | The accessibility & craft pass: one focus ring, real labels, honest headings (F-16). |
 | [#73](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/73) | The paper layer: every printed document on the client's own sheet, in the client's own type. |
-| #TBD | The last three admin screens (PRD S30 · S31/S32): `/staff/users` (the people and the recorded role↔scope model), `/staff/workflows` (the four processes the modules run, with their in-flight records) and `/staff/settings` (the configuration the product applies) — designed, read-only, each naming its missing service. See [`admin-platform-design/`](./admin-platform-design/). |
+| [#81](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/81) | The last three admin screens (PRD S30 · S31/S32): `/staff/users` (the people and the recorded role↔scope model), `/staff/workflows` (the four processes the modules run, with their in-flight records) and `/staff/settings` (the configuration the product applies) — designed, read-only, each naming its missing service. See [`admin-platform-design/`](./admin-platform-design/). |
 
 ## What remains — with its owner
 
