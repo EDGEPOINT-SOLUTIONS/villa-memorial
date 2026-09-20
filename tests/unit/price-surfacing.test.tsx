@@ -55,6 +55,7 @@ process.env.PRICING_STORE_PATH = path.join(os.tmpdir(), "villa-price-surfacing-n
 const { default: ProductsPage } = await import("@/app/(public)/products/page");
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
+const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: LotsPriceListPage } = await import(
   "@/app/(public)/lots/price-list-2026/page"
 );
@@ -322,9 +323,19 @@ describe("the plan payment tables render on every plan surface", () => {
     expect(seniorGold!.get("note")).toMatch(/Senior-citizen rates/);
   });
 
-  it("/plans prints both schedules, cash assistance, eligibility and the notes", async () => {
-    const html = renderToStaticMarkup(
+  it("/plans prints the five tier checklists; /price-list prints the schedules, cash assistance, eligibility and the notes", async () => {
+    const plans = seedPageDocuments().find((doc) => doc.key === "plans")!;
+    const content = planContentFromDocument(plans);
+    const planHtml = renderToStaticMarkup(
       createElement(CartProvider, null, await PlansPage()),
+    );
+    for (const tier of content.tiers) expect(planHtml).toContain(tier.heading);
+    expect(planHtml).toContain("The five tiers — what each one includes");
+    // The 2026 payment tables left the tier page (captain, 2026-09-21).
+    expect(planHtml).not.toContain("2026 rates — five tiers, four payment terms");
+
+    const html = renderToStaticMarkup(
+      createElement(CartProvider, null, await PriceListPage()),
     );
     for (const rows of [VMP_PAYMENTS, SENIOR_PAYMENTS]) {
       for (const row of rows) {
@@ -338,16 +349,10 @@ describe("the plan payment tables render on every plan surface", () => {
       expect(html).toContain(c.tiers.replace(/&/g, "&amp;"));
       expect(html).toContain(php(c.amount));
     }
-    // Eligibility, the notes and the five tier checklists are the Plans page
-    // document's own content (Phase 2) — a staff edit is what the next visitor
-    // reads. Pin the SEED's values, read through the document's typed reader.
-    const plans = seedPageDocuments().find((doc) => doc.key === "plans")!;
-    const content = planContentFromDocument(plans);
+    // Eligibility and the notes are the plans document's own content (Phase 2).
     for (const e of content.eligibility) expect(html).toContain(e);
     expect(html).toContain(content.notes.contestability);
     expect(html).toContain(content.notes.assign);
-    for (const tier of content.tiers) expect(html).toContain(tier.heading);
-    expect(html).toContain("2026 rates — five tiers, four payment terms");
   });
 
   it("/plans shows the five tiers and no longer cards the service catalogue", async () => {
@@ -368,8 +373,14 @@ describe("the plan payment tables render on every plan surface", () => {
       expect(html, tier).toContain(tier);
     }
     expect(html).toContain("The five tiers — what each one includes");
-    // Packages keep their own route and cards.
-    expect(html).toContain("Browse the 2026 packages");
+    // The hero's trimmed chips (captain, 2026-09-21): only View packages and
+    // Coffins & caskets remain; the four retired chips are gone.
+    expect(html).toContain('href="/plans/PKG-BASIC">View packages</a>');
+    expect(html).toContain('href="/products">Coffins &amp; caskets</a>');
+    expect(html).not.toContain("2026 plan payments");
+    expect(html).not.toContain('href="/plans/compare"');
+    expect(html).not.toContain('href="/plans/senior-benefits"');
+    expect(html).not.toContain('href="/plans/villa-memorial-plan"');
   });
 });
 

@@ -48,7 +48,7 @@ import {
  *      `sr-only` class referenced in a static className must exist in the
  *      stylesheets. Three shipped surfaces referenced classes that had no rule
  *      (and one that had been deleted from the stylesheet while the page kept
- *      the name — the villa-memorial-plan hero printed two 560px logos).
+ *      the name — the price-list hero printed two 560px logos).
  */
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
@@ -201,9 +201,9 @@ describe("the utility vocabulary is closed", () => {
   });
 });
 
-describe("the villa-memorial-plan hero logo row — a class whose rule was deleted", () => {
+describe("the price-list hero logo row — a class whose rule was deleted", () => {
   it("the page uses the live .logo-row, not the orphaned name", () => {
-    const page = readSource("app/(public)/plans/villa-memorial-plan/page.tsx");
+    const page = readSource("app/(public)/price-list/page.tsx");
     expect(page).toContain('className="logo-row"');
     expect(page).not.toMatch(/className="[^"]*plan-logo-row/);
     expect(declares(ruleFor(RULES, ".logo-row img"), "height", /2\.6rem/)).toBe(true);

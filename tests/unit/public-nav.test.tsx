@@ -10,8 +10,8 @@ import { listLandingContent } from "@/lib/api-client/landing";
  * "Public navigation", reference under docs/08-delivery/public-nav-design;
  * updated by the captain's 2026-09-21 direction: the bar keeps the five
  * top-level destinations and the grouped "Explore more" menu holds Builder ·
- * Facilities · Gallery · Memorials): the two-layer bar, the cart icon + count,
- * and the permanent phone action bar.
+ * Facilities · Gallery · Memorials · Price list): the two-layer bar, the cart
+ * icon + count, and the permanent phone action bar.
  * Executed through react-dom/server like the rest of the repo's UI tests; the
  * interactive behaviour (scroll compression, disclosure, dialog) is client-only
  * and pinned structurally here.
@@ -64,7 +64,7 @@ describe("the two-layer public bar", () => {
     expect(html).toContain('href="/plans" aria-current="page">Villa Memorial Plan</a>');
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     // The removed standalone links leave the top-level bar entirely: the bar's
-    // chips before the dropdown are only the five destinations, and the four
+    // chips before the dropdown are only the five destinations, and the
     // secondary pages live inside the Explore more menu.
     const nav = html.slice(html.indexOf('class="anchored-header__nav"'), html.indexOf("</nav>"));
     const topLevel = nav.slice(0, nav.indexOf("anchored-header__explore"));
@@ -73,12 +73,14 @@ describe("the two-layer public bar", () => {
     expect(topLevel).not.toContain('href="/facilities"');
     expect(topLevel).not.toContain('href="/gallery"');
     expect(topLevel).not.toContain('href="/memorials"');
+    expect(topLevel).not.toContain('href="/price-list"');
     // The grouped Explore more menu: disclosure trigger, hidden menu, exact items.
     expect(EXPLORE_MORE_LINKS.map((item) => [item.href, item.title])).toEqual([
       ["/builder", "Builder"],
       ["/facilities", "Facilities"],
       ["/gallery", "Gallery"],
       ["/memorials", "Memorials"],
+      ["/price-list", "Price list"],
     ]);
     expect(html).toContain("Explore more");
     expect(html).not.toContain("Plan ahead");

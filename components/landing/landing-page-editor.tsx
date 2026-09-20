@@ -775,7 +775,7 @@ function BlogEditor({
                   htmlFor={`post-link-${post.id}`}
                   value={post.link ?? ""}
                   onChange={(v) => patchPost(post.id, { link: v.trim() || null })}
-                  hint="When set, clicking this post's photo (and caption) opens this route, e.g. /plans/villa-memorial-plan, /lots/price-list-2026, /map?plot=A-001. Leave empty to keep the post non-clickable."
+                  hint="When set, clicking this post's photo (and caption) opens this route, e.g. /price-list, /lots/price-list-2026, /map?plot=A-001. Leave empty to keep the post non-clickable."
                 />
                 {post.media.length === 0 ? (
                   <p className="ed-hint">No attachments — a caption-only post is fine.</p>

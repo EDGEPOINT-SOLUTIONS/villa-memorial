@@ -10,7 +10,7 @@
  * through `pageMetadata()` and its JSON-LD through `localBusinessJsonLd()`, so
  * one file answers "what does the site tell search engines".
  *
- * HOST: the repo does not freeze a production hostname and `next.config.mjs` is
+ * HOST: the repo does not freeze a production hostname and `next.config.ts` is
  * intentionally minimal. The documented deployment host is
  * `https://in-memoriam.edgepoint-ai.com`
  * (`docs/08-delivery/notes/known-limitations-cp1.md` §Revision Aug 29,
@@ -147,10 +147,11 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/services/death-at-home", changeFrequency: "monthly", priority: 0.7 },
   { path: "/services/death-at-hospital", changeFrequency: "monthly", priority: 0.7 },
   { path: "/plans", changeFrequency: "weekly", priority: 0.9 },
-  { path: "/plans/villa-memorial-plan", changeFrequency: "weekly", priority: 0.9 },
-  { path: "/plans/senior-benefits", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/plans/compare", changeFrequency: "monthly", priority: 0.6 },
-  { path: "/packages", changeFrequency: "monthly", priority: 0.7 },
+  // The consolidated price list (captain 2026-09-21): the plan sub-pages
+  // (/plans/villa-memorial-plan, /plans/senior-benefits, /plans/compare) and
+  // the /packages listing all redirect here or to a package detail
+  // (next.config.ts) — a redirect is not a public page.
+  { path: "/price-list", changeFrequency: "weekly", priority: 0.9 },
   { path: "/products", changeFrequency: "monthly", priority: 0.8 },
   { path: "/lots", changeFrequency: "weekly", priority: 0.9 },
   { path: "/lots/price-list-2026", changeFrequency: "monthly", priority: 0.8 },

@@ -50,9 +50,8 @@ vi.mock("next/navigation", () => ({
 
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
-const { default: SeniorBenefitsPage } = await import("@/app/(public)/plans/senior-benefits/page");
+const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: FaqPage } = await import("@/app/(public)/faq/page");
-const { default: PackagesPage } = await import("@/app/(public)/packages/page");
 const { default: ContactPage } = await import("@/app/(public)/contact/page");
 const { default: QuotePage } = await import("@/app/(public)/quote/page");
 const { default: AppointmentsPage } = await import("@/app/(public)/appointments/page");
@@ -89,14 +88,10 @@ const PAGES: ReadonlyArray<PageCase> = [
       ),
   },
   {
-    name: "/plans/senior-benefits",
-    render: async () => renderToStaticMarkup(await SeniorBenefitsPage()),
+    name: "/price-list",
+    render: async () => renderToStaticMarkup(await PriceListPage()),
   },
   { name: "/faq", render: async () => renderToStaticMarkup(await FaqPage()) },
-  {
-    name: "/packages",
-    render: async () => renderToStaticMarkup(createElement(CartProvider, null, await PackagesPage())),
-  },
   {
     name: "/contact",
     render: async () =>

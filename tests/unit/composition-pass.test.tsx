@@ -56,7 +56,6 @@ vi.mock("next/navigation", () => ({
 
 const { LandingView } = await import("@/components/landing/landing-view");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
-const { default: PackagesPage } = await import("@/app/(public)/packages/page");
 const { listLandingContent } = await import("@/lib/api-client/landing");
 const { loadPricingDocument } = await import("@/lib/api-client/pricing");
 const { LOT_PRICE_CATEGORIES, SEED_PRICING } = await import("@/lib/villa-pricing");
@@ -231,25 +230,6 @@ describe("a catalogue prints a photograph only where one exists", () => {
     for (const tier of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
       expect(html, tier).toContain(tier);
     }
-  });
-
-  it("/packages publishes its own cards, each with a photograph", async () => {
-    const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PackagesPage()),
-    );
-    // The imagery pass (captain 2026-09-19): a catalogue card leads with the
-    // client's own photograph from the ONE rule home (lib/catalogue-imagery.ts),
-    // never a list of rows. Nothing without a source: a card that borrows a
-    // picture must SAY it is a sample, and the chip never appears without its
-    // caption.
-    const cards = html.match(/class="shop-card"/g) ?? [];
-    expect(cards.length).toBeGreaterThanOrEqual(3);
-    const photos = html.match(/class="shop-card__media"/g) ?? [];
-    expect(photos.length).toBeGreaterThanOrEqual(cards.length);
-    const chips = html.match(/class="casket-sample__chip"/g) ?? [];
-    const captions = html.match(/class="shop-card__caption"/g) ?? [];
-    expect(chips.length).toBeGreaterThan(0);
-    expect(captions.length).toBe(chips.length);
   });
 });
 

@@ -35,8 +35,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
-const { default: VillaMemorialPlanPage } = await import("@/app/(public)/plans/villa-memorial-plan/page");
-const { default: SeniorBenefitsPage } = await import("@/app/(public)/plans/senior-benefits/page");
+const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: PlanDetailPage } = await import("@/app/(public)/plans/[sku]/page");
 const { default: LotsPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
 
@@ -83,9 +82,13 @@ describe("public pages read the saved plan rates", () => {
     await saveLotPricing(editedLots(), "Sam Staff");
   });
 
-  it("/plans prints the edited regular and senior cells, not the replaced ones", async () => {
-    const html = await renderWithCart(await PlansPage());
-    // Regular Bronze 1: annual 7,428 (the numbers appear in the request links too).
+  it("/plans prints the edited monthly tier rate; /price-list prints the edited schedule cells", async () => {
+    // The tier card prints the live monthly (Bronze 1 regular ₱619.00).
+    const plans = await renderWithCart(await PlansPage());
+    expect(plans).toContain("₱619.00");
+    expect(plans).not.toContain("₱7,428");
+    // The 2026 payment-mode tables now live on the consolidated Price list page.
+    const html = await renderWithCart(await PriceListPage());
     expect(html).toContain("₱7,428");
     expect(html).toContain("₱619");
     expect(html).not.toContain("₱7,200");
@@ -94,8 +97,8 @@ describe("public pages read the saved plan rates", () => {
     expect(html).toContain("₱555");
   });
 
-  it("/plans/villa-memorial-plan prints both schedules and the edited lot price", async () => {
-    const html = await renderWithCart(await VillaMemorialPlanPage());
+  it("/price-list prints both schedules and the edited lot price", async () => {
+    const html = await renderWithCart(await PriceListPage());
     expect(html).toContain("₱7,428");
     expect(html).toContain("₱6,660");
     expect(html).toContain("₱130,000");
@@ -103,8 +106,8 @@ describe("public pages read the saved plan rates", () => {
     expect(html).not.toContain("₱128,000");
   });
 
-  it("/plans/senior-benefits prints the edited senior cell only", async () => {
-    const html = await renderWithCart(await SeniorBenefitsPage());
+  it("/price-list prints the edited senior cell only", async () => {
+    const html = await renderWithCart(await PriceListPage());
     expect(html).toContain("₱6,660");
     expect(html).toContain("₱555");
     // The replaced Bronze 1 annual is gone; the other 6,600 (Silver 2's own
@@ -148,9 +151,11 @@ describe("a refused edit never reaches the public pages", () => {
     broken.regular.find((r) => r.mode === "Monthly")!.bronze1 = 500; // senior 550 > 500
     await expect(savePlanPricing(broken, "Sam Staff")).rejects.toMatchObject({ status: 422 });
 
-    const html = await renderWithCart(await PlansPage());
-    expect(html).toContain("₱7,200");
-    expect(html).toContain("₱600");
-    expect(html).not.toContain("₱7,428");
+    const priceList = await renderWithCart(await PriceListPage());
+    expect(priceList).toContain("₱7,200");
+    expect(priceList).toContain("₱600");
+    expect(priceList).not.toContain("₱7,428");
+    const plans = await renderWithCart(await PlansPage());
+    expect(plans).toContain("₱600.00");
   });
 });

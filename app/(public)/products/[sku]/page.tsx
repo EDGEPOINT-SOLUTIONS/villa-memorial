@@ -70,7 +70,7 @@ function RelatedChips() {
   return (
     <nav className="hero-chips" aria-label="Related pages">
       <Link href="/products">All coffins &amp; caskets</Link>
-      <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>
+      <Link href="/price-list">Price list</Link>
       <Link href="/services">Memorial service rates</Link>
       <Link href="/lots/price-list-2026">2026 lot price list</Link>
       <Link href="/contact">Ask the office</Link>
@@ -284,8 +284,8 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
 
           <p className="text-sm text-muted" style={{ margin: 0 }}>
             <Badge tone="accent">Casket</Badge> Included in every{" "}
-            <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link> tier; senior
-            citizens enjoy the <Link href="/plans/senior-benefits">senior plan</Link> with free
+            <Link href="/plans">Villa Memorial Plan</Link> tier; senior
+            citizens enjoy the <Link href="/price-list">senior plan</Link> with free
             flowers.
           </p>
         </aside>

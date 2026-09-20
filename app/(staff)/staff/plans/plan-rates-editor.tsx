@@ -5,8 +5,8 @@
  * admin-commerce plan). It edits the two published payment-mode tables (regular
  * + senior citizen) for all five tiers × four terms and saves them through
  * POST /api/pricing, which validates and persists into the same fixture store
- * every public plan surface reads (/plans, /plans/villa-memorial-plan,
- * /plans/senior-benefits, /plans/[sku], the home board, /agent/lots).
+ * every public plan surface reads (/plans, /price-list, /plans/[sku], the home
+ * board, /agent/lots).
  *
  * The rules the save must pass live in lib/pricing-model.ts (`checkPlanPricing`):
  * every payment mode present exactly once, whole-peso amounts, and the schedule's
@@ -149,9 +149,8 @@ export function PlanRatesEditor({
     <div className="stack-4 pricing-editor">
       <Alert tone="info" title="These figures publish directly">
         The client&rsquo;s 2026 payment-mode sheets, kept in the pricing store. Saving
-        republishes every surface that prints a plan rate: /plans,
-        /plans/villa-memorial-plan, /plans/senior-benefits, each package page and the home
-        board. In live mode this screen refuses instead of pretending a pricing write API
+        republishes every surface that prints a plan rate: /plans, /price-list,
+        each package page and the home board. In live mode this screen refuses instead of pretending a pricing write API
         exists (none has frozen yet) — the figures stay as recorded.
       </Alert>
 

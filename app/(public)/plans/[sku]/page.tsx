@@ -129,10 +129,8 @@ function mediaFor(item: { item_type: string; sku: string; image?: string | null 
 function RelatedPlanChips() {
   return (
     <nav className="hero-chips" aria-label="Related plan pages">
-      <Link href="/plans/compare">Compare packages</Link>
-      <Link href="/plans/villa-memorial-plan">Villa Memorial Plan</Link>
-      <Link href="/plans/senior-benefits">Senior citizen rates</Link>
-      <Link href="/plans">Browse all plans &amp; services</Link>
+      <Link href="/price-list">Price list</Link>
+      <Link href="/plans">Browse all plan tiers</Link>
     </nav>
   );
 }
