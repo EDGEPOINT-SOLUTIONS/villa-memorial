@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
-import { CasketPriceGrid } from "@/components/villa/casket-detail";
+import { ShopCard } from "@/components/villa/shop-card";
 import type { CatalogItem } from "@/lib/api-client/commerce";
 import { casketDetailHref } from "@/lib/catalogue-skus";
 import { casketSamplePhoto } from "@/lib/media";
@@ -21,25 +21,23 @@ import {
  * the collection the sheet files it under, with the per-family inclusion
  * reference table below it.
  *
- *  - CasketModelCards: one LEDGER per collection (the composition grammar in
- *    styles/components.css). The collection's first model leads at full size,
- *    beside its complete facts; that collection's other models follow as
- *    hairline-separated rows, EACH CARRYING ITS OWN PHOTOGRAPH, its own figures,
- *    its own detail link and its own two actions. Every model therefore keeps
- *    everything it had — name, SRP, senior SRP, discount and discounted price,
- *    the catalogue SKU, "View details", "Add to cart" (the exact catalogue
- *    SKU/price through the shared CatalogueActions pair) and "Request order"
- *    (the prefilled contact capture — an enquiry, never a reservation).
+ *  - CasketModelGrid: the shop itself. Every model is a card in `.shop-grid` —
+ *    the client's photograph leads at the column's full width (a measured
+ *    448×336 at 1440, three across), then the family, the cover the model's own
+ *    name states, the catalogue SKU, the regular SRP and the senior-citizen
+ *    price, the caption of what the photograph actually is, and the two actions
+ *    ("View details" and the shared CatalogueActions pair — one-click Add to
+ *    cart on the exact catalogue SKU/price, plus the prefilled Request order).
+ *    Every published figure stays: SRP, senior SRP, senior discount, discounted
+ *    price, the SKU and the model's own detail route.
  *
  *    On the photographs: the client supplied 14 usable 2026 photographs and none
  *    of them is named after a 2026 sheet model (open client question — see
- *    lib/client-photos.ts). Each model therefore shows the closest photograph BY
- *    THE COVER ITS OWN NAME STATES AND ITS COLLECTION'S PRICE BAND (the rule and
- *    its reasons: `CASKET_MODEL_PHOTO_RULES` in lib/media.ts), and every
- *    published photograph — the lead's and the rows' — is chipped and captioned
- *    as a sample with the sheet's own substitution note (COFFIN_TIER_NOTE). A
- *    family never reads a picture as a promise: it reads exactly what the
- *    photograph is.
+ *    lib/client-photos.ts). Each model therefore shows the photograph selected
+ *    by the explicit 24-row table in lib/media.ts (the cover its own name states
+ *    and its collection's price band), and EVERY card carries the sample chip
+ *    and the sheet's own substitution note (COFFIN_TIER_NOTE). A family never
+ *    reads a picture as a promise: it reads exactly what the photograph is.
  *
  *    The sheet's own five sample coffins (Bronze 1/2, Silver 1/2, Gold) keep
  *    their strip on the model detail page, where the sheet's lid lines are
@@ -85,111 +83,93 @@ function casketRequest(model: CasketModel) {
 
 export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
   return (
-    <div className="stack-4">
+    <div className="stack-5">
       {CASKET_COLLECTIONS.map((collection) => {
         const inCollection = caskets.filter((c) => c.model.collection === collection);
-        const [lead, ...rest] = inCollection;
-        if (!lead) return null;
-        const sample = casketSamplePhoto(lead.model);
-        const leadHref = casketDetailHref(lead.model.model);
+        if (inCollection.length === 0) return null;
+        const from = Math.min(...inCollection.map((c) => c.model.srp));
+        const to = Math.max(...inCollection.map((c) => c.model.srp));
         return (
-          <section key={collection} className="ledger" aria-label={collection}>
-            <article className="ledger__lead">
-              <figure className="ledger__media ledger__media--chip">
-                {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-                <img
-                  src={sample.src}
-                  srcSet={sample.srcSet}
-                  sizes="(max-width: 48rem) 92vw, 30rem"
-                  alt={`Illustrative sample coffin — ${sample.alt}`}
-                  loading="lazy"
-                />
-                <span className="casket-sample__chip">Sample photograph</span>
-                <figcaption className="ledger__caption">
-                  <strong>{sample.label}</strong> — a sample from the client&rsquo;s own 2026
-                  photographs, chosen for this collection&rsquo;s cover and finish. {COFFIN_TIER_NOTE}
-                </figcaption>
-              </figure>
-              <div className="ledger__body">
-                <p className="ledger__eyebrow">
-                  {collection} · {inCollection.length} model{inCollection.length === 1 ? "" : "s"}
-                </p>
-                <h3 className="ledger__title">
-                  <Link href={leadHref}>{lead.item.name}</Link>
-                </h3>
-                <p className="ledger__note">
-                  {lead.model.family} family ·{" "}
-                  {coffinCover(lead.model.model) ?? COFFIN_COVER_UNSTATED} ·{" "}
-                  <code className="text-sm">{lead.item.sku}</code>
-                </p>
-                <CasketPriceGrid model={lead.model} />
-                <p className="ledger__figure">
-                  {lead.item.display_price} <span className="ledger__unit">catalogue price</span>
-                </p>
-                <div className="ledger__actions">
-                  <Link href={leadHref} className="btn btn--secondary">
-                    View details
-                  </Link>
-                  <CatalogueActions
-                    item={cartItemOf(lead.item)}
-                    displayPrice={lead.item.display_price}
-                    prefill={casketRequest(lead.model)}
-                  />
-                </div>
-              </div>
-            </article>
-
-            {rest.length > 0 ? (
-              <ul className="ledger__list">
-                {rest.map(({ model, item }) => {
-                  const href = casketDetailHref(model.model);
-                  const photo = casketSamplePhoto(model);
-                  return (
-                    <li className="ledger__entry" key={item.sku}>
-                      <div className="ledger__row ledger__row--model">
-                        <figure className="model-photo">
-                          {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-                          <img
-                            src={photo.src}
-                            srcSet={photo.srcSet}
-                            sizes="(max-width: 40rem) 6rem, 8rem"
-                            alt={`Illustrative sample coffin — ${photo.alt}`}
-                            loading="lazy"
-                          />
-                          <figcaption className="model-photo__label">
-                            <span className="model-photo__chip">Sample</span> {photo.label}
-                          </figcaption>
-                        </figure>
-                        <h4 className="ledger__row-title">
-                          <Link href={href}>{item.name}</Link>
-                        </h4>
-                        <span className="ledger__row-figure">{amount(model.srp)}</span>
-                        <p className="ledger__row-meta">
-                          {model.family} family ·{" "}
-                          {coffinCover(model.model) ?? COFFIN_COVER_UNSTATED} ·{" "}
-                          <code>{item.sku}</code> · senior {amount(model.seniorPrice)} after{" "}
-                          {amount(model.seniorDiscount)} off
-                        </p>
-                        <div className="ledger__row-actions">
-                          <Link href={href} className="btn btn--secondary btn--sm">
-                            View details
-                          </Link>
-                          <CatalogueActions
-                            item={cartItemOf(item)}
-                            displayPrice={item.display_price}
-                            prefill={casketRequest(model)}
-                          />
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : null}
+          <section
+            key={collection}
+            className="stack-3"
+            aria-labelledby={`collection-${collection.replace(/\W+/g, "-")}`}
+          >
+            <header className="band-head">
+              <h3
+                className="band-head__title"
+                id={`collection-${collection.replace(/\W+/g, "-")}`}
+              >
+                {collection}
+              </h3>
+              <span className="band-head__count">
+                {inCollection.length} model{inCollection.length === 1 ? "" : "s"} · {
+                  amount(from) === amount(to) ? amount(from) : `${amount(from)} – ${amount(to)}`
+                }
+              </span>
+            </header>
+            <ul className="shop-grid">
+              {inCollection.map(({ model, item }) => (
+                <CasketCard key={item.sku} model={model} item={item} />
+              ))}
+            </ul>
           </section>
         );
       })}
     </div>
+  );
+}
+
+/**
+ * One model, one card. The photograph leads at the column's full width; every
+ * published figure stays under it; the sample chip and the sheet's substitution
+ * note travel with the picture.
+ */
+function CasketCard({ model, item }: SellableCasket) {
+  const photo = casketSamplePhoto(model);
+  const href = casketDetailHref(model.model);
+  return (
+    <ShopCard
+      href={href}
+      chip="Sample photograph"
+      eyebrow={`${model.family} family`}
+      title={item.name}
+      meta={
+        <>
+          {coffinCover(model.model) ?? COFFIN_COVER_UNSTATED} ·{" "}
+          <code>{item.sku}</code>
+        </>
+      }
+      price={amount(model.srp)}
+      priceNote="regular SRP"
+      senior={
+        <>
+          Senior citizen {amount(model.seniorPrice)} — {amount(model.seniorDiscount)} off
+          (61–100, no insurance benefit)
+        </>
+      }
+      caption={`${photo.label}. ${COFFIN_TIER_NOTE}`}
+      actions={
+        <>
+          <Link href={href} className="btn btn--secondary btn--sm">
+            View details
+          </Link>
+          <CatalogueActions
+            item={cartItemOf(item)}
+            displayPrice={item.display_price}
+            prefill={casketRequest(model)}
+          />
+        </>
+      }
+      photo={{
+        src: photo.card.src,
+        srcSet: photo.card.srcSet,
+        width: photo.card.width,
+        height: photo.card.height,
+        sizes: "(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 26rem",
+        alt: `Illustrative sample coffin — ${photo.alt}`,
+      }}
+    />
   );
 }
 

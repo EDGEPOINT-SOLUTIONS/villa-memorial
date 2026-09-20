@@ -14,19 +14,18 @@ import {
   coffinSku,
 } from "@/lib/catalogue-skus";
 import {
-  CASKET_COLLECTIONS,
   CASKET_INCLUSIONS,
   CASKET_MODELS,
   CHAPEL_RATES,
   COFFIN_COVER_UNSTATED,
   COFFIN_TIER_NOTE,
+  COFFINS,
   EMBALMING_RATES,
   coffinCover,
   php,
 } from "@/lib/villa-pricing";
 import {
   CHAPEL_SAMPLE_NOTE,
-  COFFIN_SAMPLE_PHOTOS,
   DEATH_AT_HOSPITAL_IMAGE,
   WAKESETUP_DRESSING_IMAGE,
   casketSamplePhoto,
@@ -245,21 +244,16 @@ describe("/products cards offer a real detail view", () => {
       const photo = casketSamplePhoto(model);
       expect(html, `${model.model} photograph`).toContain(clientPhotoCard(photo.id).src);
     }
-    // The sheet photographs FIVE sample coffins and binds none of them to a
-    // named model, so a per-model card could only ever reprint its collection's
-    // one picture — 24 cards showing 4 images, which is what read as a template.
-    // The composition pass (2026-09-18) publishes each collection's sample ONCE,
-    // chipped and captioned as illustrative, and lists that collection's models
-    // as priced lines. This pins the stricter form of the old guarantee: no
-    // published sample photograph without its illustration chip and the sheet's
-    // substitution note, and every one of the 24 models still reachable and
-    // priced (`CasketCollectionLedger` / lib/media.ts casketSamplePhoto).
-    expect((html.match(/class="casket-sample__chip"/g) ?? []).length).toBe(
-      CASKET_COLLECTIONS.length,
-    );
-    expect((html.match(/Sample photograph/g) ?? []).length).toBe(CASKET_COLLECTIONS.length);
-    expect(html).toContain(COFFIN_TIER_NOTE);
-    expect(html).toContain('alt="Illustrative sample coffin');
+    // The card's photograph is a sample and says so twice: the chip on the
+    // picture, and the caption under it carrying the record's own label. The
+    // picture's own link is aria-hidden (the titled link below is the one a
+    // screen reader uses), so the alt is empty BY DESIGN — the description a
+    // reader gets is the caption, which is real text on the page.
+    expect(html).toContain("Sample photograph");
+    for (const model of CASKET_MODELS) {
+      const chosen = casketSamplePhoto(model);
+      expect(html, `${model.model} caption`).toContain(chosen.label);
+    }
   });
 
   it("keeps every model's own 2026 figures on the catalogue it prints", () => {
@@ -327,9 +321,10 @@ describe("the casket detail view renders the model's own data", () => {
     expect(html).toContain(COFFIN_TIER_NOTE);
     expect(html).toContain("Sample photograph");
     expect(html).toMatch(/alt="Illustrative sample coffin/);
-    // The sheet's own sample strip keeps illustration-only wording too.
-    for (const photo of COFFIN_SAMPLE_PHOTOS) {
-      expect(html, photo.tier).toContain(photo.src);
+    // The tier samples take the SAME client photographs as the /products band,
+    // so one tier cannot look like two different coffins across the surfaces.
+    for (const coffin of COFFINS) {
+      expect(html, coffin.tier).toContain(coffin.photo);
     }
   });
 

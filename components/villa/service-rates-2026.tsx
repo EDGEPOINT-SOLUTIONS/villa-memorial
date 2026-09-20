@@ -196,7 +196,7 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
       </h2>
       <ActionsLegend />
 
-      <div className="sv-prices">
+      <div className="sv-prices sv-prices--photos">
         {ALACARTE_LINES.map((fee) => {
           const item = lookup(fee.sku);
           const IconShape = ServiceIcons[fee.service] ?? IconChapel;
@@ -209,7 +209,7 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
                   <img
                     src={photo.src}
                     srcSet={photo.srcSet}
-                    sizes="(max-width: 48rem) 5.5rem, 7.5rem"
+                    sizes="(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 22rem"
                     alt={photo.alt}
                     loading="lazy"
                   />

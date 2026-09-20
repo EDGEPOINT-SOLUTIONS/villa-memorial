@@ -53,7 +53,7 @@ describe("/packages gives every plan package its own photograph", () => {
     const items = await listCatalogItems("package");
     const srcs = [...html.matchAll(/<img src="(\/media\/client\/[^"]+)"/g)].map((m) => m[1]);
     // One image per card, all distinct (the card, not the 1×/2× srcSet list).
-    const perCard = [...html.matchAll(/<figure class="item-card__figure">([\s\S]*?)<\/figure>/g)].map(
+    const perCard = [...html.matchAll(/<figure class="shop-card__figure">([\s\S]*?)<\/figure>/g)].map(
       (card) => /<img src="(\/media\/client\/[^"]+)"/.exec(card[1])?.[1],
     );
     expect(perCard.length).toBe(items.length);
@@ -64,11 +64,11 @@ describe("/packages gives every plan package its own photograph", () => {
 
   it("labels each photograph as the client's own sample, with the sheet's note", async () => {
     const html = await renderPackages();
-    const captions = [...html.matchAll(/<figcaption class="item-card__caption">([\s\S]*?)<\/figcaption>/g)];
+    const captions = [...html.matchAll(/<figcaption class="shop-card__caption">([\s\S]*?)<\/figcaption>/g)];
     expect(captions.length).toBe((await listCatalogItems("package")).length);
     for (const [, caption] of captions) {
-      expect(caption).toContain("tier casket");
-      expect(caption).toContain("a sample from the client\u2019s own photographs");
+      expect(caption).toContain("entry casket");
+      expect(caption).toContain("Sample only.");
       // The sheet's own substitution note rides with every sample photograph.
       expect(caption).toContain(COFFIN_TIER_NOTE);
     }

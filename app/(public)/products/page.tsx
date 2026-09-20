@@ -5,7 +5,11 @@ import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { COFFIN_SKUS } from "@/lib/catalogue-skus";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE } from "@/lib/villa-pricing";
-import { CasketCatalogue, type SellableCasket } from "@/components/villa/casket-catalogue";
+import {
+  CasketInclusionTable,
+  CasketModelCards,
+  type SellableCasket,
+} from "@/components/villa/casket-catalogue";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -29,13 +33,20 @@ function bindCaskets(
 
 /**
  * Coffins & caskets — the client's full 2026 casket catalogue at published
- * prices, sold as cards: every model carries "View details" (its own
- * /products/[sku] page), "Add to cart" (the real catalogue SKU/price) and
- * "Request order" (the prefilled contact capture). The tier photography block
- * keeps the existing treatment (TYPES OF COFFIN sheet) and the per-family
- * inclusion table below the cards keeps PRICE LIST FOR 2026 III —
- * see components/villa/casket-catalogue.tsx and lib/villa-pricing.ts for
- * provenance.
+ * prices, sold as a SHOP: every model is a card in the shared `.shop-grid`
+ * (three across at 1440, one at 390) whose photograph leads at the column's own
+ * width — never the 88×66 thumbnails the captain measured on 2026-09-19. Each
+ * card carries the family, the cover its sheet name states, its catalogue SKU,
+ * the regular SRP, the senior-citizen price and discount, the caption of what
+ * the photograph actually is, and its two actions ("View details" to
+ * /products/[sku], and the shared CatalogueActions pair — one-click Add to cart
+ * on the real SKU, plus the prefilled Request order).
+ *
+ * The five tiers on the client's TYPES OF COFFIN sheet follow the shop as a
+ * reference band (the sheet's own reading, with its substitution note), and the
+ * per-family inclusions from PRICE LIST FOR 2026 III close the page. Provenance
+ * for every figure: lib/villa-pricing.ts; for every photograph:
+ * lib/client-photos.ts + the 24-row table in lib/media.ts.
  */
 export default async function ProductsPage() {
   let items: Awaited<ReturnType<typeof listCatalogItems>>;
@@ -51,96 +62,87 @@ export default async function ProductsPage() {
   }
 
   const caskets = bindCaskets(items);
+  const [leadTier, ...higherTiers] = COFFINS;
 
   return (
-    <div className="stack-4">
+    <div className="stack-5">
       <section className="page-hero">
         <p className="eyebrow-label">Coffins &amp; caskets</p>
         <h1 className="page-hero__title">Coffin options</h1>
         <p className="page-hero__lead">
           Choose the coffin that honours your loved one — from dignified Bronze to the
-          sophisticated Gold. Every 2026 model is listed below with its published price:
-          the SRP, the senior-citizen discount and the discounted price. Open any model
-          for its photograph, lid, inclusions and full detail, add it to the cart, or send
-          a request and the office confirms the final price.
+          sophisticated Gold. Every 2026 model is shown with its own photograph and its
+          published price: the SRP, the senior-citizen discount and the discounted price.
+          Open any model for its full detail, add it to the cart, or send a request and
+          the office confirms the final price.
         </p>
-        <nav aria-label="Back to Villa Memorial Plan" style={{ marginTop: "var(--space-3)" }}>
-  <Link href="/plans" className="back-link">
-    ← Back to Villa Memorial Plan (All · Packages · Services · Add-ons)
-  </Link>
-</nav>
+      </section>
+
+      <section className="stack-4" aria-labelledby="catalogue-title">
+        <h2 className="section-title" id="catalogue-title">
+          The 2026 casket catalogue — every model with its price
+        </h2>
+        {caskets.length === 0 ? (
+          <EmptyState
+            title="The model catalogue is unavailable right now"
+            hint="The five tiers are shown below; send a request and the office will confirm the model, its published 2026 price and availability."
+          />
+        ) : (
+          <CasketModelCards caskets={caskets} />
+        )}
       </section>
 
       <section className="stack-3" aria-labelledby="coffin-tiers-title">
         <h2 className="section-title" id="coffin-tiers-title">
           The five coffin tiers on the 2026 sheet
         </h2>
-        {/* Composition pass (captain 2026-09-18): five equal photo cards became a
-            ledged band — the entry tier leads at full size, the four steps above
-            it follow as hairline rows, each still carrying its own photograph,
-            lid line and description. */}
-        {(() => {
-          const [leadTier, ...higherTiers] = COFFINS;
-          return (
-            <div className="ledger">
-              <article className="ledger__lead">
-                <figure className="ledger__media">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
-                  <img src={leadTier.photo} alt={`${leadTier.tier} casket`} loading="lazy" />
-                </figure>
-                <div className="ledger__body">
-                  <p className="ledger__eyebrow">The entry tier</p>
-                  <h3 className="ledger__title">{leadTier.tier}</h3>
-                  <p className="ledger__note">{leadTier.description}</p>
-                  <p className="ledger__note">
-                    <strong>Lid:</strong> {leadTier.lid}
-                  </p>
-                </div>
-              </article>
-              <ul className="ledger__list">
-                {higherTiers.map((coffin) => (
-                  <li className="ledger__entry" key={coffin.tier}>
-                    <article className="tier-ledger__row">
-                      <figure className="tier-ledger__media">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
-                        <img src={coffin.photo} alt="" loading="lazy" />
-                      </figure>
-                      <div className="tier-ledger__body">
-                        <h3 className="ledger__row-title">{coffin.tier}</h3>
-                        <p className="ledger__row-meta">{coffin.description}</p>
-                        <p className="ledger__row-meta">
-                          <strong>Lid:</strong> {coffin.lid}
-                        </p>
-                      </div>
-                    </article>
-                  </li>
-                ))}
-              </ul>
+        {/* The sheet's own reading of its five sample coffins — the entry tier
+            leads at full size, the four steps above it follow as hairline rows,
+            each with its photograph, lid line and description. The models above
+            are the shop; this band is the sheet's index of what the tiers mean. */}
+        <div className="ledger">
+          <article className="ledger__lead">
+            <figure className="ledger__media">
+              {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
+              <img src={leadTier.photo} alt={`${leadTier.tier} casket`} loading="lazy" />
+            </figure>
+            <div className="ledger__body">
+              <p className="ledger__eyebrow">The entry tier</p>
+              <h3 className="ledger__title">{leadTier.tier}</h3>
+              <p className="ledger__note">{leadTier.description}</p>
+              <p className="ledger__note">
+                <strong>Lid:</strong> {leadTier.lid}
+              </p>
             </div>
-          );
-        })()}
+          </article>
+          <ul className="ledger__list">
+            {higherTiers.map((coffin) => (
+              <li className="ledger__entry" key={coffin.tier}>
+                <article className="tier-ledger__row">
+                  <figure className="tier-ledger__media">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
+                    <img src={coffin.photo} alt="" loading="lazy" />
+                  </figure>
+                  <div className="tier-ledger__body">
+                    <h3 className="ledger__row-title">{coffin.tier}</h3>
+                    <p className="ledger__row-meta">{coffin.description}</p>
+                    <p className="ledger__row-meta">
+                      <strong>Lid:</strong> {coffin.lid}
+                    </p>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </div>
         <p className="text-sm text-muted">{COFFIN_TIER_NOTE}</p>
       </section>
 
-      <section className="stack-3" aria-labelledby="catalogue-title">
-        <h2 className="section-title" id="catalogue-title">
-          The 2026 casket catalogue — every model with its price
+      <section className="stack-3" aria-labelledby="casket-inclusions-title">
+        <h2 className="section-title" id="casket-inclusions-title">
+          What is included per casket family
         </h2>
-        <p className="text-sm text-muted">
-          Regular SRP, the senior-citizen SRP the sheet reprints beside it, the
-          senior-citizen discount and the discounted price for each casket. Senior
-          citizens are 61–100 years old with no insurance benefit. The chapel columns are
-          the package&rsquo;s own day rates; a family that does not take a package pays the
-          chapel-use rates on the <Link href="/services">services page</Link>.
-        </p>
-        {caskets.length === 0 ? (
-          <EmptyState
-            title="The model catalogue is unavailable right now"
-            hint="The five tiers are shown above; send a request and the office will confirm the model, its published 2026 price and availability."
-          />
-        ) : (
-          <CasketCatalogue caskets={caskets} />
-        )}
+        <CasketInclusionTable />
       </section>
 
       <p className="text-sm text-muted">

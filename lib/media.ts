@@ -185,61 +185,78 @@ type CasketSampleKey = { collection: string; model: string };
  * The client supplied 14 usable photographs (six of caskets, two of the
  * karwahe, two of the chapel hall, four of wake set-ups). Their record and the
  * honesty rule live in lib/client-photos.ts; this is the MODEL → PHOTOGRAPH
- * decision, written out so a reviewer can check it rather than trust it.
+ * decision, written out as an explicit 24-row table so a reviewer can check it
+ * rather than trust it.
  *
- * WHY THERE IS STILL A RULE AND NOT A NAME MATCH. The client's folder calls the
- * coffins Tribute, Serenity, Everlasting, Divine Rest and Heaven's Gate. The
- * 2026 price sheets sell White Rose, Angelica, Magnolia, Noble, Royal, Monarch,
- * Majesty, Emperor, Imperial and Lumina. Nobody has reconciled the two lists
- * (open client question, opened 2026-09-19 with this import), so NO photograph
- * may be published as "the White Rose Full". What IS defensible is the cover the
- * model's own sheet name states and the collection's own price band:
+ * WHY A TABLE AND NOT A NAME MATCH. The client's folder calls the coffins
+ * Tribute, Serenity, Everlasting, Divine Rest and Heaven's Gate. The 2026 price
+ * sheets sell White Rose, Angelica, Magnolia, Noble, Royal, Monarch, Majesty,
+ * Emperor, Imperial and Lumina. Nobody has reconciled the two lists (open client
+ * question, opened 2026-09-19 with this import), so NO photograph may be
+ * published as "the White Rose Full". Two rules fix every row instead:
  *
- *   · the entry collection (Lumina) shows the plain white, closed casket;
- *   · a model whose name states a half cover ("Half") shows a closed white-and-
- *     gold casket — the sheet's half-glass presentation, lid down between
- *     visitations;
- *   · a full-glass model ("Full") shows a raised full-glass lid;
- *   · a "Full Split" / "Flexi" model shows a second raised-lid photograph, so
- *     two siblings never repeat one picture;
- *   · the Dynasty Collection (the sheet's ₱120,000–₱160,000 band) shows the
- *     wood-and-gold casket with the raised full-glass lid — the richest finish
- *     among the client's photographs.
+ *   · the COVER the model's own name states leads the choice — a "Half" model
+ *     is shown lid-down or on its half stay, a "Full" / "Full Split" / "Flexi"
+ *     model with the raised cover the sheet's convertible line describes;
+ *   · within one cover class the COLLECTION's own price band picks the finish —
+ *     the entry Lumina is the plain white coffin, the Dynasty band the
+ *     wood-and-gold shell — and the table is laid out so no two neighbouring
+ *     cards, and no two models of one family, print the same picture.
+ *
+ * The honest limit, stated where it belongs: six photographs cannot be
+ * twenty-four coffins. Every card therefore carries the sample chip and the
+ * sheet's substitution note, `tests/unit/catalogue-imagery.test.ts` walks this
+ * table and reports how often each photograph is used, and the PR names the
+ * models that still have no photograph of their own.
  *
  * Every surface publishing these repeats the record's own label and the sheet's
  * substitution note (COFFIN_TIER_NOTE), so a family always reads what the
  * picture is: a sample from the client's photographs, not this exact model.
  * ------------------------------------------------------------------------- */
-const CASKET_MODEL_PHOTO_RULES: ReadonlyArray<{ test: (m: CasketSampleKey) => boolean; id: ClientPhotoId }> = [
-  { test: (m) => m.collection === "Lumina", id: "casket-white-closed" },
-  {
-    test: (m) => m.collection === "The Dynasty Collection" && /Full$/.test(m.model),
-    id: "casket-wood-white-gold-bible-lid",
-  },
-  {
-    test: (m) => m.collection === "The Dynasty Collection" && /Flexi$/.test(m.model),
-    id: "casket-white-gold-wreath-lid",
-  },
-  {
-    test: (m) => m.collection === "The Dynasty Collection" && /Full Split$/.test(m.model),
-    id: "casket-white-gold-glass-lid",
-  },
-  { test: (m) => /Full Split$/.test(m.model), id: "casket-white-gold-wreath-lid" },
-  { test: (m) => /Half$/.test(m.model), id: "casket-white-gold-closed" },
-  { test: (m) => /Full$/.test(m.model), id: "casket-white-gold-glass-lid" },
-  { test: (m) => /Flexi$/.test(m.model), id: "casket-white-gold-wreath-lid" },
-];
+export const CASKET_MODEL_PHOTOS: Readonly<Record<string, ClientPhotoId>> = {
+  // The entry collection is the plain white coffin, lid down.
+  Lumina: "casket-white-closed",
+  // White Rose — the client's white-and-gold coffin, half then full cover.
+  "White Rose Half": "casket-white-gold-closed",
+  "White Rose Full": "casket-white-gold-glass-lid",
+  // Angelica — plain white half, then the wreath-interior full lid.
+  "Angelica Half": "casket-white-closed",
+  "Angelica Full": "casket-white-gold-wreath-lid",
+  // Magnolia — white-and-gold half, then the open-lid chapel photograph.
+  "Magnolia Half": "casket-white-gold-closed",
+  "Magnolia Full": "casket-white-open-lid",
+  // Noble — plain white half; the fulls step up to the wood-and-gold shell.
+  "Noble Half": "casket-white-closed",
+  "Noble Full": "casket-wood-white-gold-bible-lid",
+  "Noble Full Split": "casket-white-gold-glass-lid",
+  // Royal — the Crown band's middle: gold half, wreath full, open split.
+  "Royal Half": "casket-white-gold-closed",
+  "Royal Full": "casket-white-gold-wreath-lid",
+  "Royal Full Split": "casket-white-open-lid",
+  // Monarch — the top of the Crown band.
+  "Monarch Half": "casket-white-closed",
+  "Monarch Full": "casket-wood-white-gold-bible-lid",
+  // Majesty — the Dynasty band opens on the full-glass white-and-gold lids.
+  "Majesty Full": "casket-white-gold-glass-lid",
+  "Majesty Full Split": "casket-white-gold-wreath-lid",
+  "Majesty Flexi": "casket-wood-white-gold-bible-lid",
+  // Emperor — the open lid, then the convertible pair.
+  "Emperor Full": "casket-white-open-lid",
+  "Emperor Full Split": "casket-white-gold-glass-lid",
+  "Emperor Flexi": "casket-white-gold-wreath-lid",
+  // Imperial — the richest finish closes the catalogue.
+  "Imperial Full": "casket-wood-white-gold-bible-lid",
+  "Imperial Full Split": "casket-white-open-lid",
+  "Imperial Flexi": "casket-white-gold-glass-lid",
+};
 
 /**
- * The one photograph a catalogue model shows, by the rule above. Kept as a
- * function (not a frozen map) so the rule reads in one place; the result is
- * deterministic, which is what the pages and tests rely on.
+ * The one photograph a catalogue model shows, by the table above. The result is
+ * deterministic, which is what the pages and tests rely on; a model the table
+ * does not name falls back to the white-and-gold coffin rather than to nothing.
  */
 export function casketModelPhotoId(model: CasketSampleKey): ClientPhotoId {
-  for (const rule of CASKET_MODEL_PHOTO_RULES) {
-    if (rule.test(model)) return rule.id;
-  }
-  return "casket-white-gold-closed";
+  return CASKET_MODEL_PHOTOS[model.model] ?? "casket-white-gold-closed";
 }
 
 /**
@@ -255,16 +272,23 @@ export type CasketPhotoChoice = {
   what: string;
   alt: string;
   note: string;
+  /** The 3:2 feature crop — detail leads, hero figures. */
+  wide: { src: string; srcSet: string; width: number; height: number };
+  /** The 4:3 catalogue crop — shop cards, rows, rails. */
+  card: { src: string; srcSet: string; width: number; height: number };
 };
 
 export function casketSamplePhoto(model: CasketSampleKey): CasketPhotoChoice {
   const id = casketModelPhotoId(model);
   const photo = clientPhoto(id);
   const card = clientPhotoCard(id);
+  const wide = clientPhotoWide(id);
   return {
     id,
     src: card.src,
     srcSet: card.srcSet,
+    card,
+    wide,
     label: photo.label,
     what: photo.what,
     alt: photo.alt,

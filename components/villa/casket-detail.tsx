@@ -9,7 +9,6 @@ import {
   type CasketModel,
 } from "@/lib/villa-pricing";
 import { casketSamplePhoto } from "@/lib/media";
-import { clientPhotoWide } from "@/lib/client-photos";
 import type { CatalogItem } from "@/lib/api-client/commerce";
 
 /**
@@ -30,14 +29,15 @@ import type { CatalogItem } from "@/lib/api-client/commerce";
 /** The model's illustrative photograph, what it shows, and the sheet's note. */
 export function CasketSampleFigure({ model }: { model: CasketModel }) {
   const sample = casketSamplePhoto(model);
-  const wide = clientPhotoWide(sample.id);
   return (
     <figure className="casket-sample">
       <div className="casket-sample__media">
         {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
         <img
-          src={wide.src}
-          srcSet={wide.srcSet}
+          src={sample.wide.src}
+          srcSet={sample.wide.srcSet}
+          width={sample.wide.width}
+          height={sample.wide.height}
           sizes="(max-width: 64rem) 92vw, 57rem"
           alt={`Illustrative sample coffin — ${sample.alt}`}
         />

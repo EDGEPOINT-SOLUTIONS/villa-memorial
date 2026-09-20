@@ -362,6 +362,52 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (tier × term, regular + senior tables; 2026 sheet family captions live there too).
   The prototype wins over every older render.
 
+## The storefront imagery pass — the client's own photographs, and the shop card (read before changing any product or service picture)
+
+- **One rule home for a model's photograph: `lib/media.ts`'s `CASKET_MODEL_PHOTOS`** — an
+  explicit 24-row table (model → `lib/client-photos.ts` id), laid out so no family and no
+  neighbouring card repeats a picture. The chosen picture answers two questions only: the
+  COVER the model's own name states (Half = lid down or on its half stay; Full / Full Split /
+  Flexi = the raised cover the sheet's convertible line describes) and the collection's price
+  band. The client's photographs are NOT named after the 2026 sheet models — that
+  reconciliation is an OPEN CLIENT QUESTION — so no page may name a photograph as a model, and
+  **every** published sample carries the chip and the sheet's substitution note
+  (`COFFIN_TIER_NOTE`). Six photographs cannot be twenty-four coffins: the PR that owns this
+  pass names the models that still have no picture of their own.
+- **One rule home for a catalogue item's photograph: `lib/catalogue-imagery.ts`**
+  (`catalogueItemPhoto(sku)`) — used by `/plans`; the caskets delegate to the table above, the
+  packages to `COFFIN_TIER_PHOTO_IDS`, the services to the client's own chapel / karwahe /
+  set-up photographs. An admin-set `item.image` wins over the rule; an item the client's
+  material does not cover returns `null` and renders TEXT ONLY rather than a wrong picture.
+- **One card grammar for the storefront: `.shop-grid` + `.shop-card`**
+  (`components/villa/shop-card.tsx`). 26rem columns give three cards across at 1440 (~448px
+  measured) and one at 390; the photograph LEADS at the column's full width, 4:3, with the
+  figures under it and the actions last. `/products` (24 model cards, then the sheet's
+  five-tier reference band and the inclusions table), `/plans` (every catalogue item, with the
+  eight embalming day counts as ONE `.day-ladder` — a photograph and a priced ladder, never
+  eight cards printing one picture), `/packages` and `/lots` (one card per legend type, above
+  the per-park plot bands). Never re-add a per-surface card: the captain's 2026-09-19
+  complaint was measured at 88×66 product images and three images on the whole of `/plans`.
+- **The tier rows are a figure, not a swatch.** `/products`' five-tier band is the ledger
+  grammar (one 625px lead, four hairline rows), but a row's photo is
+  `clamp(9rem, 14vw, 11rem)` — the old 5.5rem (88×66) is the exact box the captain measured.
+  `tests/unit/broken-pages.test.ts` pins the template. `/products/[sku]`'s own tier strip uses
+  the SAME `COFFINS[].photo` the band does (two-up at 1440, one-up at 390, top hairline, no
+  box) — never the old `COFFIN_SAMPLE_PHOTOS` sheet crops, so one tier cannot look like two
+  different coffins across the surfaces; `tests/unit/villa-services-premium.test.tsx` pins it.
+- **A `sizes` hint must match the layout it is in.** The measured upscales this pass fixed
+  were all one bug: a 480px derivative asked for by a 620–690px column because the hint said
+  `22rem`/`26rem` (the lot band lead, the facilities grounds figures, the home rail thumbs).
+  When a figure's column width changes, change its `sizes` in the same edit.
+- `scripts/build-client-photos.mjs` writes `public/media/client/` (4:3 `*-card-440/880`,
+  3:2 `*-wide-960/1600`) from the client's originals kept OUTSIDE `public/` in
+  `media-sources/client-photos/` — seven of the twenty-one show identifiable mourners and are
+  held by name in `lib/client-photos.ts` (`HELD_CLIENT_PHOTOS`). Re-run it when an original
+  changes; `tests/unit/client-photos.test.ts` pins every published file and its honesty class.
+  `tests/unit/catalogue-imagery.test.ts` walks every catalogue SKU, fails a missing file, a
+  sample without its caption, a casket photo that disagrees with `casketModelPhotoId()`, or a
+  photograph two items share without a sample label.
+
 ## Public services page & casket catalogue — `/services`, `/products`
 
 - `/services` is the **captain-approved 2026-09-16 senior-first design** — the contract

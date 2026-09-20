@@ -6,6 +6,8 @@ import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
+import { ShopCard } from "@/components/villa/shop-card";
+import { catalogueItemPhoto, type CatalogueItemPhoto } from "@/lib/catalogue-imagery";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { pageMetadata } from "@/lib/seo";
@@ -155,22 +157,18 @@ export default async function PlansPage({
             hint="Check back soon — the catalog is being set up."
           />
         ) : (
-          // Composition pass (captain 2026-09-18): this band used to be 42 equal
-          // shadowed cards, EVERY ONE of them showing the same "Plan Packages"
-          // promotional image (none of the 42 catalogue items carries a
-          // photograph of its own — lib/fixtures/commerce/catalog-items.json).
-          // Twenty-four of the product photographs on the page were therefore
-          // republished marketing art, which is what made the page read as a
-          // template. It is now a grouped PRICE INDEX: one group heading per
-          // item type with its real count, a dominant first entry, and the rest
-          // as hairline-separated rows whose figures are the point. No image is
-          // invented for an item that has none — the caskets' own sample
-          // photographs live on /products, where each collection's is shown once.
+          // Imagery pass (captain 2026-09-19): this band was a grouped PRICE
+          // INDEX of hairline rows — a reader moving here from /products or
+          // /packages saw three images on the whole page and no way to compare a
+          // photograph. It is now the same `.shop-grid`/`shop-card` grammar those
+          // pages use: every one of the 42 catalogue items leads with its own
+          // photograph from the ONE rule home (lib/catalogue-imagery.ts), its
+          // name, its published price and its two actions. The group heading
+          // still carries the real count.
           <div className="catalogue-index">
             {CATALOGUE_GROUPS.map((group) => {
               const inGroup = items.filter((i) => i.item_type === group.key);
-              const [lead, ...rest] = inGroup;
-              if (!lead) return null;
+              if (inGroup.length === 0) return null;
               return (
                 <section key={group.key} className="cat-band" aria-label={group.label}>
                   <header className="band-head">
@@ -179,45 +177,36 @@ export default async function PlansPage({
                       {inGroup.length} item{inGroup.length === 1 ? "" : "s"} · 2026 catalogue prices
                     </span>
                   </header>
-
-                  <article className="cat-lead">
-                    <div className="cat-lead__body">
-                      <h4 className="ledger__title">
-                        <Link href={`/plans/${lead.sku}`}>{lead.name}</Link>
-                      </h4>
-                    </div>
-                    <p className="ledger__figure">{lead.display_price}</p>
-                    <div className="ledger__actions">
-                      <Link
-                        href={`/plans/${lead.sku}`}
-                        className="btn btn--secondary btn--sm"
-                      >
-                        View this item
-                      </Link>
-                      <CatalogueActions
-                        item={{
-                          sku: lead.sku,
-                          name: lead.name,
-                          itemType: lead.item_type,
-                          unitPriceCents: lead.unit_price_cents,
-                          currency: lead.currency,
-                        }}
-                        displayPrice={lead.display_price}
-                        prefill={{ note: `${group.label} from the 2026 catalogue.` }}
-                      />
-                    </div>
-                  </article>
-
-                  {rest.length > 0 ? (
-                    <ul className="ledger__list">
-                      {rest.map((item) => (
-                        <li className="ledger__entry" key={item.sku}>
-                          <div className="ledger__row">
-                            <h4 className="ledger__row-title">
-                              <Link href={`/plans/${item.sku}`}>{item.name}</Link>
-                            </h4>
-                            <span className="ledger__row-figure">{item.display_price}</span>
-                            <div className="ledger__row-actions">
+                  <ul className="shop-grid">
+                    {inGroup
+                      .filter((item) => !item.sku.startsWith("SRV-EMBALM"))
+                      .map((item) => {
+                      const photo: CatalogueItemPhoto | undefined = item.image
+                        ? { id: item.sku, src: item.image, alt: item.name }
+                        : catalogueItemPhoto(item.sku) ?? undefined;
+                      return (
+                        <ShopCard
+                          key={item.sku}
+                          href={`/plans/${item.sku}`}
+                          title={item.name}
+                          meta={<code>{item.sku}</code>}
+                          price={item.display_price}
+                          chip={photo?.chip}
+                          caption={photo?.caption}
+                          photo={
+                            photo
+                              ? {
+                                  src: photo.src,
+                                  srcSet: photo.srcSet,
+                                  width: photo.width,
+                                  height: photo.height,
+                                  sizes: "(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 26rem",
+                                  alt: photo.alt,
+                                }
+                              : undefined
+                          }
+                          actions={
+                            <>
                               <Link
                                 href={`/plans/${item.sku}`}
                                 className="btn btn--secondary btn--sm"
@@ -235,11 +224,61 @@ export default async function PlansPage({
                                 displayPrice={item.display_price}
                                 prefill={{ note: `${group.label} from the 2026 catalogue.` }}
                               />
-                            </div>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
+                            </>
+                          }
+                        />
+                      );
+                    })}
+                  </ul>
+                  {/* The embalming ladder is ONE service at eight day counts, so it
+                      is one photograph and a priced ladder — eight identical cards
+                      would be a wall of the same picture. Every row keeps its own
+                      Add to cart and Request order (all 42 items stay sellable). */}
+                  {inGroup.some((item) => item.sku.startsWith("SRV-EMBALM")) ? (
+                    <div className="day-ladder">
+                      <figure className="day-ladder__media">
+                        {(() => {
+                          const photo = catalogueItemPhoto("SRV-EMBALM-3D");
+                          if (!photo) return null;
+                          return (
+                            <>
+                              {/* eslint-disable-next-line @next/next/no-img-element -- the client's own photograph */}
+                              <img
+                                src={photo.src}
+                                srcSet={photo.srcSet}
+                                sizes="(max-width: 60rem) 92vw, 22rem"
+                                alt=""
+                                loading="lazy"
+                              />
+                              <figcaption className="day-ladder__caption">
+                                {photo.caption}
+                              </figcaption>
+                            </>
+                          );
+                        })()}
+                      </figure>
+                      <ul className="day-ladder__rows">
+                        {inGroup
+                          .filter((item) => item.sku.startsWith("SRV-EMBALM"))
+                          .map((item) => (
+                            <li className="day-ladder__row" key={item.sku}>
+                              <span className="day-ladder__name">{item.name}</span>
+                              <span className="day-ladder__price">{item.display_price}</span>
+                              <CatalogueActions
+                                item={{
+                                  sku: item.sku,
+                                  name: item.name,
+                                  itemType: item.item_type,
+                                  unitPriceCents: item.unit_price_cents,
+                                  currency: item.currency,
+                                }}
+                                displayPrice={item.display_price}
+                                prefill={{ note: `${group.label} from the 2026 catalogue.` }}
+                              />
+                            </li>
+                          ))}
+                      </ul>
+                    </div>
                   ) : null}
                 </section>
               );

@@ -263,7 +263,10 @@ export default async function FacilitiesPage() {
                 <img
                   src={area.src.replace("-720", "-480")}
                   srcSet={`${area.src.replace("-720", "-480")} 480w, ${area.src} 720w`}
-                  sizes="(max-width: 46rem) 90vw, 22rem"
+                  /* Two columns inside the folio at desktop: each figure is ~48vw
+                     (measured 628px at 1440). The old 22rem hint made the browser
+                     fetch the 480 file for a 628px slot and upscale it. */
+                  sizes="(max-width: 46rem) 92vw, 48vw"
                   alt={area.label}
                   loading="lazy"
                 />
