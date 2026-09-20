@@ -11,6 +11,7 @@
       "The Home document is NOT stored here: it is the landing content document (lib/fixtures/landing/content.json) and is listed in Pages & content with its own full editor.",
       "Tabs for the park: Park view (/map) + Lots (/map?tab=lots) — the captain's 2026-09-21 direction that the Lot page is a tab inside the park page.",
       "The plans document's blocks (Phase 2, captain's 2026-09-21 direction: five tiers + per-tier inclusion checklists, no services) record the CURRENT plan copy the page published from lib/villa-pricing.ts: the five tiers' inclusion checklists, the complete memorial package table, eligibility, senior terms and the five plan notes. Stable block ids set the typed reading in lib/plan-content.ts; every string is the client's own (COMPLETE MEMORIAL PACKAGE / TYPES OF COFFIN sheets).",
+      "The services document's blocks (Phase 3) carry the service descriptions the page published in code: the five a-la-carte notes (services-alacarte-*) and the two chapel-class copy lines (services-chapel-*). Stable block ids set the typed reading in lib/service-content.ts; a missing block falls back to the same copy. The three guide service entries live in lib/fixtures/content/service-entries.json.",
       "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store. The cash-assistance table stays a sheet constant (lib/villa-pricing.ts CASH_ASSISTANCE), never a free-text block."
     ]
   },
@@ -49,8 +50,51 @@
         "backgroundTransparency": 100
       },
       "tabs": [],
-      "blocks": [],
-      "entries": [],
+      "blocks": [
+        {
+          "id": "services-alacarte-retrieval",
+          "type": "paragraph",
+          "heading": "Retrieval",
+          "body": ["Into our care, first 25 km."]
+        },
+        {
+          "id": "services-alacarte-delivery",
+          "type": "paragraph",
+          "heading": "Delivery",
+          "body": ["Delivery to the wake or chapel."]
+        },
+        {
+          "id": "services-alacarte-viewing",
+          "type": "paragraph",
+          "heading": "Viewing equipment",
+          "body": ["Lights, curtains and carpets, set up."]
+        },
+        {
+          "id": "services-alacarte-ord-coffin",
+          "type": "paragraph",
+          "heading": "ORD coffin",
+          "body": ["A simple plain coffin. Other models: catalogue."]
+        },
+        {
+          "id": "services-alacarte-interment",
+          "type": "paragraph",
+          "heading": "Interment",
+          "body": ["Family cars and the graveside trip, staff included."]
+        },
+        {
+          "id": "services-chapel-common",
+          "type": "paragraph",
+          "heading": "Common chapel",
+          "body": ["Shared chapel; several families at once."]
+        },
+        {
+          "id": "services-chapel-private",
+          "type": "paragraph",
+          "heading": "Private chapel",
+          "body": ["A room for your family alone."]
+        }
+      ],
+      "entries": ["death-at-home", "death-at-hospital", "transport"],
       "updated_at": null,
       "updated_by": null
     },

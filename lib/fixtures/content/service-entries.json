@@ -1,0 +1,95 @@
+{
+  "_provenance": {
+    "status": "RECORDED SEED — app-authored service entries for the content catalogue (Phase 3 of data/villa-content-catalog-plan/report.md, captain review 2026-09-21). NOT a service response: no content contract exists, so this fixture store is the write path in fixture mode (see lib/api-client/content-entries.ts).",
+    "date": "2026-09-21",
+    "sources": [
+      "The captain's §10 answer 3: the three guide pages stay as SERVICE ENTRIES under Funeraria Memorial Services.",
+      "Every string here is the CURRENT PAGE COPY transcribed from the live guide pages, so the entry starts as what visitors already read — never new marketing copy:",
+      "  · death-at-home   ← app/(public)/services/death-at-home/page.tsx (title / lead / figcaption / photo)",
+      "  · death-at-hospital ← app/(public)/services/death-at-hospital/page.tsx",
+      "  · transport       ← app/(public)/transport/page.tsx (the client's own karwahe photograph)",
+      "`blocks` is EMPTY for all three: the pre-migration pages carried only their hero, so no body copy is invented here. Staff add blocks in Pages & content → Funeraria Memorial Services.",
+      "The routes stay exactly where they were (captain answer 2/3): /services/death-at-home · /services/death-at-hospital · /transport."
+    ],
+    "imagery": "The hero photographs are the client's own material, exactly as the pages published them (lib/media.ts's DEATH_AT_HOME_IMAGE / DEATH_AT_HOSPITAL_IMAGE, and lib/client-photos.ts's hearse-carriage-gold-side). No withheld photograph (HELD_CLIENT_PHOTOS) is referenced."
+  },
+  "version": 1,
+  "updated_at": null,
+  "entries": [
+    {
+      "id": "svc-guide-death-at-home",
+      "kind": "service",
+      "sku": null,
+      "key": "death-at-home",
+      "title": "Death at home",
+      "summary": "When a loved one passes at home, you should not have to manage the next steps alone. Our coordinators arrange transport, dignified preparation, and guide you through the service options that fit your family — at your pace, with no pressure.",
+      "group": "Services · At home",
+      "media": {
+        "hero": "/media/death_at_home.jpg",
+        "gallery": [
+          {
+            "id": "img-death-at-home-hero",
+            "src": "/media/death_at_home.jpg",
+            "alt": "Death at home",
+            "caption": "Caring coordination when it happens at home.",
+            "sample": false
+          }
+        ]
+      },
+      "blocks": [],
+      "price": { "kind": "quoteOnly" },
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "id": "svc-guide-death-at-hospital",
+      "kind": "service",
+      "sku": null,
+      "key": "death-at-hospital",
+      "title": "Death at hospital",
+      "summary": "When a loved one passes in a hospital or care facility, we liaise directly with the facility so you can focus on family. We handle the logistics of transfer, preparation, and coordination with the service venue.",
+      "group": "Services · In care",
+      "media": {
+        "hero": "/media/death_at_hospital.jpg",
+        "gallery": [
+          {
+            "id": "img-death-at-hospital-hero",
+            "src": "/media/death_at_hospital.jpg",
+            "alt": "Death at hospital",
+            "caption": "Liaising with facilities, so you can focus on family.",
+            "sample": false
+          }
+        ]
+      },
+      "blocks": [],
+      "price": { "kind": "quoteOnly" },
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "id": "svc-guide-transport",
+      "kind": "service",
+      "sku": null,
+      "key": "transport",
+      "title": "Transport",
+      "summary": "Dignified transport for your loved one — from home or hospital to the service venue, and onward when the time comes. Coordinated by our team as part of your arrangement.",
+      "group": "Services · Transport",
+      "media": {
+        "hero": "/media/client/hearse-carriage-gold-side-wide-960.webp",
+        "gallery": [
+          {
+            "id": "img-transport-hero",
+            "src": "/media/client/hearse-carriage-gold-side-wide-960.webp",
+            "alt": "The office's funeral carriage (karwahe) with its gold casket compartment, black canopy and white flower decorations",
+            "caption": "The office's carriage, the karwahe.",
+            "sample": false
+          }
+        ]
+      },
+      "blocks": [],
+      "price": { "kind": "quoteOnly" },
+      "updated_at": null,
+      "updated_by": null
+    }
+  ]
+}

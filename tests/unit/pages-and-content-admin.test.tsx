@@ -41,6 +41,9 @@ vi.mock("next/navigation", () => ({
 
 const { default: PagesAndContentPage } = await import("@/app/(staff)/staff/landing/page");
 const { default: PageDocumentAdminPage } = await import("@/app/(staff)/staff/landing/[doc]/page");
+const { default: ServiceEntryAdminPage } = await import(
+  "@/app/(staff)/staff/landing/service-entry/[key]/page"
+);
 
 const USER_ID = "00000000-0000-4000-8000-000000000012";
 const TENANT_ID = "00000000-0000-4000-8000-000000000001";
@@ -58,6 +61,10 @@ function session(scopes: string[]): Session {
 
 function params(doc: string) {
   return { params: Promise.resolve({ doc }) };
+}
+
+function entryParams(key: string) {
+  return { params: Promise.resolve({ key }) };
 }
 
 describe("Pages & content", () => {
@@ -98,12 +105,28 @@ describe("Pages & content", () => {
     expect(html).toContain("Park view");
   });
 
-  it("keeps the service document hero-only until its migration", async () => {
+  it("gives the service document its block canvas and the service-entry list", async () => {
     sessionHolder.current = session(["catalog:write"]);
     const html = renderToStaticMarkup(await PageDocumentAdminPage(params("services")));
     expect(html).toContain("Funeraria Memorial Services");
     expect(html).toContain("Funeral services, and what they cost in 2026");
-    expect(html).not.toContain("Content blocks");
+    // Phase 3: the document carries the service descriptions as blocks…
+    expect(html).toContain("Content blocks");
+    // …and the three guide pages are service entries, each with its own editor.
+    expect(html).toContain("Service entries");
+    expect(html).toContain('href="/staff/landing/service-entry/death-at-home"');
+    expect(html).toContain('href="/staff/landing/service-entry/death-at-hospital"');
+    expect(html).toContain('href="/staff/landing/service-entry/transport"');
+  });
+
+  it("renders the service-entry editor for one guide and 404s an unknown key", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    const html = renderToStaticMarkup(await ServiceEntryAdminPage(entryParams("death-at-home")));
+    expect(html).toContain("Death at home");
+    expect(html).toContain("Service entry");
+    expect(html).toContain("Hero photograph");
+    expect(html).toContain("Content blocks");
+    await expect(ServiceEntryAdminPage(entryParams("not-a-guide"))).rejects.toThrow("NEXT_NOT_FOUND");
   });
 
   it("404s a key that is not one of the page documents", async () => {

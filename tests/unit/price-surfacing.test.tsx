@@ -22,6 +22,8 @@ import {
   coffinSku,
   embalmingDaySku,
 } from "@/lib/catalogue-skus";
+import { listChapelRecords } from "@/lib/api-client/chapel-store";
+import type { ChapelClass } from "@/lib/chapel-booking";
 
 /**
  * The 2026 price list must be SEEN and SELLABLE, not just stored: these render
@@ -160,9 +162,13 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
 
 describe("/services publishes the 2026 service rates as sellable lines", () => {
   let html: string;
+  const chapelName: Partial<Record<ChapelClass, string>> = {};
 
   beforeAll(async () => {
     html = await renderWithCart(await ServicesPage());
+    for (const record of await listChapelRecords()) {
+      chapelName[record.chapel_class] ??= record.name;
+    }
   });
 
   it("renders the embalming day counts and the per-day rate beyond nine", () => {
@@ -226,15 +232,15 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
   it("opens the chapel booking step (never a straight add) and keeps the request path", () => {
     // A chapel is not a one-click product: the cards' “Check dates & price” and
     // every 3–9 day row's “Book N days” are dialog triggers, and the row's
-    // accessible name carries the chapel its group heading carries visually.
+    // accessible name carries the chapel's OWN record name.
     expect(html).toContain("Check dates &amp; price");
     for (const r of CHAPEL_RATES) {
       expect(html, `stay ${r.days}`).toContain(`Book ${r.days} days`);
       expect(html, `common stay ${r.days}`).toContain(
-        `aria-label="Book ${r.days} days — Common chapel"`,
+        `aria-label="Book ${r.days} days — ${chapelName.common}"`,
       );
       expect(html, `private stay ${r.days}`).toContain(
-        `aria-label="Book ${r.days} days — Private chapel"`,
+        `aria-label="Book ${r.days} days — ${chapelName.private}"`,
       );
     }
     // Two cards + every row's two classes open the dialog (aria-haspopup).
@@ -258,11 +264,13 @@ describe("/services publishes the 2026 service rates as sellable lines", () => {
     expect(stays.length).toBeGreaterThanOrEqual(CHAPEL_RATES.length);
   });
 
-  it("keeps the first-steps guide cards and their links", () => {
+  it("keeps the service guide cards and their links", () => {
     expect(html).toContain("Death at home");
-    expect(html).toContain("Death in hospital");
+    expect(html).toContain("Death at hospital");
+    expect(html).toContain("Transport");
     expect(html).toContain("/services/death-at-home");
     expect(html).toContain("/services/death-at-hospital");
+    expect(html).toContain("/transport");
   });
 });
 

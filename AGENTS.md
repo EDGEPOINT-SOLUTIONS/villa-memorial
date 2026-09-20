@@ -346,10 +346,24 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `docs/08-delivery/content-plans-page-design/`; tests
   `tests/unit/plans-page-content.test.tsx` + `plan-content.test.ts` +
   `pricing-admin-render.test.tsx`.
-- **Phases 3–4 are separately queued — do not build them here**: the Services page
-  becomes one hero → straight to the services with the guide pages as service
-  entries; the item catalogue's entry blocks (per-casket/package content, and the
-  plan-tier entries as opposed to document blocks) and the nav cleanup follow.
+- **Phase 3 has LANDED — the Services page is one hero → straight to the services.**
+  The hero and the service descriptions are the `services` page document (stable
+  block ids `services-alacarte-*` / `services-chapel-*`, read by the ONE typed
+  module `lib/service-content.ts`); the three guide pages (`/services/death-at-home`,
+  `/services/death-at-hospital`, `/transport`) are editable SERVICE ENTRIES
+  (`lib/fixtures/content/service-entries.json` + `lib/api-client/content-entries.ts`,
+  edited by `components/content/catalogue-entry-editor.tsx` at
+  `/staff/landing/service-entry/[key]`, listed from `/staff/landing/services`).
+  The chapel card NAMES and capacity read the park's chapel record
+  (`getChapelSchedule()`), so a rename on `/staff/schedule` reaches the card and
+  the booking dialog together (`tests/unit/chapel-storefront-sync.test.tsx`). The
+  subnav/steps sections and `components/villa/services-subnav.tsx` are retired.
+  Evidence + before/after shots: `docs/08-delivery/content-services-page-design/`;
+  tests `service-content`, `content-entries-store`, `service-entry-page`,
+  `pages-and-content-admin`.
+- **Phase 4 is queued — do not build it here**: the item catalogue's entry blocks
+  (per-casket/package content, and the plan-tier entries as opposed to document
+  blocks) and the nav cleanup follow.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

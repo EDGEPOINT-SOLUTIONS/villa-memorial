@@ -5,7 +5,8 @@ import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
 import { InCartNotice } from "@/components/villa/in-cart-notice";
 import { ServiceIcons, IconChapel, IconEmbalming } from "@/components/villa/service-icons";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
-import type { ChapelClass } from "@/lib/chapel-booking";
+import { CHAPEL_CLASS_LABEL, CHAPEL_CLASS_ORDER, type ChapelClass } from "@/lib/chapel-booking";
+import type { ChapelScheduleResource } from "@/lib/api-client/chapel-reservations";
 import type { CatalogItem } from "@/lib/api-client/commerce";
 import type { ContactInfo } from "@/lib/api-client/landing";
 import {
@@ -118,20 +119,6 @@ const ALACARTE_REQUEST_NOTE =
   "A-la-carte 2026 rate — applies when the family does not take a package.";
 
 /**
- * One plain sentence per a-la-carte line, phrased from the sheet's own package
- * wording (the package inclusions in the Plans page document, read through
- * lib/plan-content.ts) so a card explains the service without inventing
- * anything the sheet does not say.
- */
-const ALACARTE_NOTES: Readonly<Record<string, string>> = {
-  Retrieval: "Into our care, first 25 km.",
-  Delivery: "Delivery to the wake or chapel.",
-  "Viewing equipment": "Lights, curtains and carpets, set up.",
-  "ORD coffin": "A simple plain coffin. Other models: catalogue.",
-  Interment: "Family cars and the graveside trip, staff included.",
-};
-
-/**
  * The photograph beside each a-la-carte line (2026-09-19 imagery pass).
  *
  * Every one is the client's OWN material: a casket in their care, the karwahe
@@ -186,7 +173,14 @@ function ActionsLegend() {
 }
 
 /** The at-need services block: five sellable cards, the sheet's total. */
-export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
+export function AlacarteServiceRates({
+  items,
+  notes,
+}: {
+  items: CatalogItem[];
+  /** One plain description per service line, edited in Pages & content. */
+  notes: Readonly<Record<string, string>>;
+}) {
   const lookup = catalogueLookup(items);
 
   return (
@@ -226,7 +220,7 @@ export function AlacarteServiceRates({ items }: { items: CatalogItem[] }) {
               <div className="sv-price-card__amount">
                 {money(fee.amount)} <span className="sv-price-card__unit">per service</span>
               </div>
-              <p className="sv-price-card__plain">{ALACARTE_NOTES[fee.service]}</p>
+              <p className="sv-price-card__plain">{notes[fee.service]}</p>
               <div className="sv-price-card__actions">
                 <LineActions item={item} prefill={{ note: ALACARTE_REQUEST_NOTE }} />
                 <InCartNotice sku={fee.sku} />
@@ -369,56 +363,78 @@ export function EmbalmingRates({
  * then adds it. The prefilled request stays beside it for senior rates,
  * questions and office-arranged stays.
  */
-export function ChapelRates({ items }: { items: CatalogItem[] }) {
+/**
+ * The chapel options: one photo card per chapel the park's own record carries
+ * (common & private, per day, the 3-day example, both actions) above the sheet's
+ * full 3–9 day schedule, published as one row per stay so a phone never scrolls
+ * a table sideways.
+ *
+ * THE NAME IS THE PARK'S RECORD (content-catalogue Phase 3): the card title, the
+ * booking dialog and the schedule all read the same staff-editable chapel record
+ * (lib/api-client/chapel-store.ts) — a rename on /staff/schedule lands here and
+ * in the dialog together. The card's class line and the "what it is" copy come
+ * from the sheet / the page document. A chapel is NOT a one-click cart item:
+ * every chapel action opens the booking step
+ * (components/chapel-booking-dialog.tsx), where the customer picks the chapel, a
+ * 3–9 day stay and a start date, sees that the park's own schedule has every one
+ * of those days free, sees the exact price for the range, and only then adds it.
+ * The prefilled request stays beside it for senior rates, questions and
+ * office-arranged stays.
+ */
+export function ChapelRates({
+  items,
+  chapels,
+  chapelNotes,
+}: {
+  items: CatalogItem[];
+  /** The park's active chapel records (getChapelSchedule().chapels). */
+  chapels: ChapelScheduleResource[];
+  /** One copy line per class, edited in Pages & content. */
+  chapelNotes: Readonly<Record<ChapelClass, string>>;
+}) {
   const lookup = catalogueLookup(items);
-  const common = lookup(CHAPEL_SKUS.common);
-  const privateChapel = lookup(CHAPEL_SKUS.private);
-  const commonCart = cartItemOf(common);
-  const privateCart = cartItemOf(privateChapel);
+  const itemByClass: Record<ChapelClass, CatalogItem | undefined> = {
+    common: lookup(CHAPEL_SKUS.common),
+    private: lookup(CHAPEL_SKUS.private),
+  };
   const chapelItems: Partial<Record<ChapelClass, ChapelCatalogueItem>> = {};
-  if (commonCart) chapelItems.common = commonCart;
-  if (privateCart) chapelItems.private = privateCart;
+  for (const chapelClass of CHAPEL_CLASS_ORDER) {
+    const cart = cartItemOf(itemByClass[chapelClass]);
+    if (cart) chapelItems[chapelClass] = cart;
+  }
 
-  const chapelRequest = (
-    chapelClass: ChapelClass,
-    item: CatalogItem | undefined,
-    perDay: number,
-  ) =>
+  const chapelRequest = (record: ChapelScheduleResource, item: CatalogItem | undefined, perDay: number) =>
     buildRequestHref({
-      item: `Chapel use — ${chapelClass} chapel, per day`,
+      item: `Chapel use — ${record.name}, per day`,
       sku: item?.sku,
       price: `${money(perDay)} / day`,
       note: `Chapel use when the service is not with Villa. ${CHAPEL_NOTES.miscFee}`,
     });
 
-  const chapels = [
-    {
-      key: "common",
-      name: "Common chapel",
-      image: clientPhotoWide("chapel-hall-candle-pedestals").src,
+  /**
+   * Each class's sample photograph is the client's own 2026 set (lib/client-photos.ts):
+   * the hall for the common class, a decorated viewing room for the private one. The
+   * client's material carries no room name or capacity — the name now comes from the
+   * park's record and the photo stays an illustrative sample.
+   */
+  const classPhoto: Record<ChapelClass, { src: string; srcSet: string; alt: string }> = {
+    common: {
+      src: clientPhotoWide("chapel-hall-candle-pedestals").src,
       srcSet: clientPhotoWide("chapel-hall-candle-pedestals").srcSet,
       alt: "The chapel hall in the client's own photograph — a draped side table and tall candle pedestals on a green carpet",
-      perDay: CHAPEL_PER_DAY.common,
-      threeDay: CHAPEL_RATES[0].common,
-      resource: "Chapel A",
-      capacity: 120,
-      item: common,
-      what: "Shared chapel; several families at once.",
     },
-    {
-      key: "private",
-      name: "Private chapel",
-      image: WAKESETUP_ALCOVE_IMAGE,
+    private: {
+      src: WAKESETUP_ALCOVE_IMAGE,
       srcSet: clientPhotoWide("wake-setup-lamp-alcove").srcSet,
       alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
-      perDay: CHAPEL_PER_DAY.private,
-      threeDay: CHAPEL_RATES[0].private,
-      resource: "Chapel B",
-      capacity: 60,
-      item: privateChapel,
-      what: "A room for your family alone.",
     },
-  ] as const;
+  };
+
+  // One card per class the park's record carries, in the sheet's class order.
+  const cards = CHAPEL_CLASS_ORDER.flatMap((chapelClass) => {
+    const record = chapels.find((chapel) => chapel.chapel_class === chapelClass);
+    return record ? [{ chapelClass, record }] : [];
+  });
 
   return (
     <section className="sv-section" id="chapel" aria-labelledby="chapel-title">
@@ -431,70 +447,76 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
       </p>
       <ActionsLegend />
 
-      <div className="sv-chapels">
-        {chapels.map((chapel) => (
-          <article className="sv-chapel" key={chapel.key}>
-            <figure className="sv-chapel__media">
-              {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-              <img
-                src={chapel.image}
-                srcSet={chapel.srcSet}
-                sizes="(max-width: 60rem) 92vw, 38rem"
-                alt={chapel.alt}
-                loading="lazy"
-              />
-            </figure>
-            <div className="sv-chapel__body">
-              <h3 className="sv-chapel__name">{chapel.name}</h3>
-              <div className="sv-chapel__rate">
-                {money(chapel.perDay)} <span className="sv-chapel__unit">per day</span>
-              </div>
-              <p className="sv-chapel__what">{chapel.what}</p>
-              <dl className="sv-chapel__facts">
-                <div>
-                  <dt>Booked as</dt>
-                  <dd>{chapel.resource}</dd>
-                </div>
-                <div>
-                  <dt>Room fits about</dt>
-                  <dd>{chapel.capacity} people</dd>
-                </div>
-                <div>
-                  <dt>3 days — regular</dt>
-                  <dd>{money(chapel.threeDay.regular)}</dd>
-                </div>
-                <div>
-                  <dt>3 days — senior citizen</dt>
-                  <dd>{money(chapel.threeDay.senior)}</dd>
-                </div>
-              </dl>
-              <div className="sv-chapel__actions">
-                {chapel.item ? (
-                  <ChapelBookingButton
-                    chapelClass={chapel.key}
-                    items={chapelItems}
-                    label="Check dates & price"
+      {cards.length === 0 ? (
+        <p className="sv-note">
+          The park has not published an active chapel right now — call the office for dates.
+        </p>
+      ) : (
+        <div className="sv-chapels">
+          {cards.map(({ chapelClass, record }) => {
+            const photo = classPhoto[chapelClass];
+            const item = itemByClass[chapelClass];
+            const perDay = CHAPEL_PER_DAY[chapelClass];
+            const threeDay = CHAPEL_RATES[0][chapelClass];
+            return (
+              <article className="sv-chapel" key={record.id}>
+                <figure className="sv-chapel__media">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
+                  <img
+                    src={photo.src}
+                    srcSet={photo.srcSet}
+                    sizes="(max-width: 60rem) 92vw, 38rem"
+                    alt={photo.alt}
+                    loading="lazy"
                   />
-                ) : null}
-                <Link
-                  href={chapelRequest(chapel.key, chapel.item, chapel.perDay)}
-                  className="btn btn--secondary btn--block"
-                >
-                  Request order
-                </Link>
-                <InCartNotice sku={chapel.item?.sku ?? ""} unit="stay" />
-              </div>
-              <p className="sv-chapel__illus">{CHAPEL_SAMPLE_NOTE}</p>
-            </div>
-          </article>
-        ))}
-      </div>
+                </figure>
+                <div className="sv-chapel__body">
+                  <h3 className="sv-chapel__name">{record.name}</h3>
+                  <p className="text-sm text-muted">{CHAPEL_CLASS_LABEL[chapelClass]}</p>
+                  <div className="sv-chapel__rate">
+                    {money(perDay)} <span className="sv-chapel__unit">per day</span>
+                  </div>
+                  <p className="sv-chapel__what">{chapelNotes[chapelClass]}</p>
+                  <dl className="sv-chapel__facts">
+                    <div>
+                      <dt>Room fits about</dt>
+                      <dd>{record.capacity} people</dd>
+                    </div>
+                    <div>
+                      <dt>3 days — regular</dt>
+                      <dd>{money(threeDay.regular)}</dd>
+                    </div>
+                    <div>
+                      <dt>3 days — senior citizen</dt>
+                      <dd>{money(threeDay.senior)}</dd>
+                    </div>
+                  </dl>
+                  <div className="sv-chapel__actions">
+                    {item ? (
+                      <ChapelBookingButton
+                        chapelClass={chapelClass}
+                        items={chapelItems}
+                        label="Check dates & price"
+                      />
+                    ) : null}
+                    <Link href={chapelRequest(record, item, perDay)} className="btn btn--secondary btn--block">
+                      Request order
+                    </Link>
+                    <InCartNotice sku={item?.sku ?? ""} unit="stay" />
+                  </div>
+                  <p className="sv-chapel__illus">{CHAPEL_SAMPLE_NOTE}</p>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      )}
 
       <div className="sv-placeholder">
         <span aria-hidden="true"><HeartMark /></span>
         <p>
-          <strong>Chapel names are placeholders</strong> — the client has not confirmed the
-          real list yet. Prices and dates are real.
+          <strong>The chapel list is still unconfirmed</strong> — names and capacity are the
+          park&rsquo;s placeholder records. Prices and dates are real.
         </p>
       </div>
 
@@ -504,21 +526,19 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
         </summary>
         <div className="sv-disclosure__body">
           <p className="sv-note">The sheet&rsquo;s own totals. Senior bookings: use Request.</p>
-          {chapels.map((chapel) => (
-            <div key={chapel.key}>
-              <h4 className="sv-stay__heading">
-                {chapel.name} — {chapel.resource}
-              </h4>
-              <ul className="sv-stays" aria-label={`${chapel.name} stays`}>
+          {cards.map(({ chapelClass, record }) => (
+            <div key={record.id}>
+              <h4 className="sv-stay__heading">{record.name}</h4>
+              <ul className="sv-stays" aria-label={`${record.name} stays`}>
                 {CHAPEL_RATES.map((row) => {
-                  const rate = row[chapel.key];
+                  const rate = row[chapelClass];
                   const request = buildRequestHref({
                     item: `Chapel use — ${row.days} days`,
                     price: `${money(rate.regular)} regular / ${money(rate.senior)} senior for ${row.days} days (${money(rate.ratePerDay)} / day)`,
                     note: `Chapel use when the service is not with Villa, ${row.days} days. ${CHAPEL_NOTES.miscFee}`,
                   });
                   return (
-                    <li className="sv-stay" key={`${chapel.key}-${row.days}`}>
+                    <li className="sv-stay" key={`${record.id}-${row.days}`}>
                       <span className="sv-stay__days">{row.days} days</span>
                       <span className="sv-stay__prices">
                         <span>
@@ -532,13 +552,13 @@ export function ChapelRates({ items }: { items: CatalogItem[] }) {
                         </span>
                       </span>
                       <span className="sv-stay__actions">
-                        {chapel.item ? (
+                        {itemByClass[chapelClass] ? (
                           <ChapelBookingButton
-                            chapelClass={chapel.key}
+                            chapelClass={chapelClass}
                             days={row.days}
                             items={chapelItems}
                             label={`Book ${row.days} days`}
-                            ariaLabel={`Book ${row.days} days — ${chapel.name}`}
+                            ariaLabel={`Book ${row.days} days — ${record.name}`}
                           />
                         ) : null}
                         <Link href={request} className="btn btn--secondary btn--sm">
@@ -599,16 +619,25 @@ function HeartMark() {
 export function ServiceRates2026({
   items,
   contact,
+  alacarteNotes,
+  chapelNotes,
+  chapels,
 }: {
   items: CatalogItem[];
   /** The staff-editable 24/7 line (landing content) — never a typed number. */
   contact: ContactInfo;
+  /** The five a-la-carte descriptions, edited in Pages & content. */
+  alacarteNotes: Readonly<Record<string, string>>;
+  /** The two chapel-class copy lines, edited in Pages & content. */
+  chapelNotes: Readonly<Record<ChapelClass, string>>;
+  /** The park's active chapel records (getChapelSchedule().chapels). */
+  chapels: ChapelScheduleResource[];
 }) {
   return (
     <>
-      <AlacarteServiceRates items={items} />
+      <AlacarteServiceRates items={items} notes={alacarteNotes} />
       <EmbalmingRates items={items} contact={contact} />
-      <ChapelRates items={items} />
+      <ChapelRates items={items} chapels={chapels} chapelNotes={chapelNotes} />
     </>
   );
 }

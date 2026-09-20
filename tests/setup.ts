@@ -40,8 +40,10 @@ for (const name of STORE_PATH_ENV_VARS) {
 beforeEach(() => {
   const g = globalThis as typeof globalThis & {
     __imContentPages?: unknown;
+    __imContentEntries?: unknown;
     __imLandingContent?: unknown;
   };
   delete g.__imContentPages;
+  delete g.__imContentEntries;
   delete g.__imLandingContent;
 });
