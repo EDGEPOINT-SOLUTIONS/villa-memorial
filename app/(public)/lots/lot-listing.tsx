@@ -3,9 +3,8 @@
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ShopCard } from "@/components/villa/shop-card";
+import { ProductCard, ResultsGrid } from "@/components/kit";
 import type { LotStatus } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
@@ -216,11 +215,13 @@ export function LotListing({
                       available · {parkItems[0]?.parkBranch}
                     </span>
                   </header>
-                  <ul className="shop-grid lot-grid">
-                    {parkItems.map((item) => (
-                      <LotCard key={item.key} item={item} />
-                    ))}
-                  </ul>
+                  <ResultsGrid
+                    items={parkItems}
+                    itemKey={(item) => item.key}
+                    emptyTitle="No plots to show"
+                    className="lot-grid"
+                    renderItem={(item) => <LotCard item={item} />}
+                  />
                 </section>
               );
             })}
@@ -236,7 +237,7 @@ export function LotListing({
 function LotCard({ item }: { item: LotListingItem }) {
   const status = item.status as LotStatus;
   return (
-    <ShopCard
+    <ProductCard
       href={item.href}
       photo={{
         src: item.photo.src,
@@ -250,14 +251,14 @@ function LotCard({ item }: { item: LotListingItem }) {
       }}
       eyebrow={item.typeName}
       title={item.code}
-      meta={item.facts}
+      supporting={item.facts}
       price={
         item.priceCents !== null
           ? formatMinorUnits(item.priceCents, item.currency)
           : "Price on request"
       }
       priceNote={item.hasLot ? "published plot price" : "the office quotes per plot"}
-      status={<Badge tone={LOT_TONE[status] ?? "neutral"}>{lotStatusLabel(status)}</Badge>}
+      status={{ tone: LOT_TONE[status] ?? "neutral", label: lotStatusLabel(status) }}
       caption={item.photo.caption}
       actions={
         item.hasLot ? (

@@ -6,7 +6,7 @@ import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
-import { ShopCard } from "@/components/villa/shop-card";
+import { ProductCard, ResultsGrid } from "@/components/kit";
 import { catalogueItemPhoto, type CatalogueItemPhoto } from "@/lib/catalogue-imagery";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
@@ -177,19 +177,19 @@ export default async function PlansPage({
                       {inGroup.length} item{inGroup.length === 1 ? "" : "s"} · 2026 catalogue prices
                     </span>
                   </header>
-                  <ul className="shop-grid">
-                    {inGroup
-                      .filter((item) => !item.sku.startsWith("SRV-EMBALM"))
-                      .map((item) => {
+                  <ResultsGrid
+                    items={inGroup.filter((item) => !item.sku.startsWith("SRV-EMBALM"))}
+                    itemKey={(item) => item.sku}
+                    emptyTitle="No catalogue items in this group yet"
+                    renderItem={(item) => {
                       const photo: CatalogueItemPhoto | undefined = item.image
                         ? { id: item.sku, src: item.image, alt: item.name }
                         : catalogueItemPhoto(item.sku) ?? undefined;
                       return (
-                        <ShopCard
-                          key={item.sku}
+                        <ProductCard
                           href={`/plans/${item.sku}`}
                           title={item.name}
-                          meta={<code>{item.sku}</code>}
+                          supporting={<code>{item.sku}</code>}
                           price={item.display_price}
                           chip={photo?.chip}
                           caption={photo?.caption}
@@ -228,8 +228,8 @@ export default async function PlansPage({
                           }
                         />
                       );
-                    })}
-                  </ul>
+                    }}
+                  />
                   {/* The embalming ladder is ONE service at eight day counts, so it
                       is one photograph and a priced ladder — eight identical cards
                       would be a wall of the same picture. Every row keeps its own

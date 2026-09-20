@@ -3,7 +3,7 @@ import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
-import { ShopCard } from "@/components/villa/shop-card";
+import { ProductCard, ResultsGrid } from "@/components/kit";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { catalogueItemPhoto, type CatalogueItemPhoto } from "@/lib/catalogue-imagery";
 import { COFFIN_TIER_NOTE } from "@/lib/villa-pricing";
@@ -32,9 +32,10 @@ export const metadata: Metadata = pageMetadata({
  * sample wording and the sheet's substitution note; a package the mapping does
  * not know keeps the plan's own poster.
  *
- * The card is `components/villa/shop-card.tsx` inside the shared `.shop-grid`:
- * the photograph LEADS at 4:3 (the one card ratio /products, /plans and /lots
- * use), the name and figures sit under it, and the actions ("View package" plus
+ * The card is the kit `ProductCard` inside the shared `.shop-grid` (the
+ * storefront's one card grammar, 2026-09-21 public adoption): the photograph
+ * LEADS at 4:3 (the one card ratio /products, /plans and /lots use), the name
+ * and figures sit under it, and the actions ("View package" plus
  * the shared Add-to-cart / Request-order pair) close it. Each heading ladder
  * stays real: this section's h2 names the band, each card's title is an h3.
  */
@@ -77,17 +78,19 @@ export default async function PackagesPage() {
               {items.length} package{items.length === 1 ? "" : "s"} · 2026 catalogue prices
             </span>
           </header>
-          <ul className="shop-grid">
-            {items.map((item) => {
+          <ResultsGrid
+            items={items}
+            itemKey={(item) => item.sku}
+            emptyTitle="No packages yet"
+            renderItem={(item) => {
               const photo: CatalogueItemPhoto | undefined = item.image
                 ? { id: item.sku, src: item.image, alt: item.name }
                 : catalogueItemPhoto(item.sku) ?? undefined;
               return (
-                <ShopCard
-                  key={item.sku}
+                <ProductCard
                   href={`/plans/${item.sku}`}
                   title={item.name}
-                  meta={
+                  supporting={
                     <>
                       {item.description ? `${item.description} · ` : null}
                       <code>{item.sku}</code>
@@ -133,8 +136,8 @@ export default async function PackagesPage() {
                   }
                 />
               );
-            })}
-          </ul>
+            }}
+          />
         </section>
       )}
 

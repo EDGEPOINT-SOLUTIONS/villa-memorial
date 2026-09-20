@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
-import { ShopCard } from "@/components/villa/shop-card";
+import { ProductCard, ResultsGrid } from "@/components/kit";
 import type { CatalogItem } from "@/lib/api-client/commerce";
 import { casketDetailHref } from "@/lib/catalogue-skus";
 import { casketSamplePhoto } from "@/lib/media";
@@ -108,11 +108,12 @@ export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
                 }
               </span>
             </header>
-            <ul className="shop-grid">
-              {inCollection.map(({ model, item }) => (
-                <CasketCard key={item.sku} model={model} item={item} />
-              ))}
-            </ul>
+            <ResultsGrid
+              items={inCollection}
+              itemKey={({ item }) => item.sku}
+              emptyTitle="No models in this collection yet"
+              renderItem={({ model, item }) => <CasketCard model={model} item={item} />}
+            />
           </section>
         );
       })}
@@ -129,12 +130,12 @@ function CasketCard({ model, item }: SellableCasket) {
   const photo = casketSamplePhoto(model);
   const href = casketDetailHref(model.model);
   return (
-    <ShopCard
+    <ProductCard
       href={href}
       chip="Sample photograph"
       eyebrow={`${model.family} family`}
       title={item.name}
-      meta={
+      supporting={
         <>
           {coffinCover(model.model) ?? COFFIN_COVER_UNSTATED} ·{" "}
           <code>{item.sku}</code>

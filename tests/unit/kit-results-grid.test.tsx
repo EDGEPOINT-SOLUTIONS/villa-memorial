@@ -53,6 +53,22 @@ describe("kit ResultsGrid", () => {
     expect(html).toContain("Garden plot");
   });
 
+  it("omits the accessible name when the grid sits inside a labelled section", () => {
+    // The storefront bands name their `<section>`; `label` is optional (like
+    // `DataTable.label`) so the list does not carry a duplicate name and the
+    // public adoption stays byte-identical.
+    const html = renderToStaticMarkup(
+      <ResultsGrid<Lot>
+        items={lots}
+        itemKey={(lot) => lot.id}
+        emptyTitle="No lots published"
+        renderItem={(lot) => <li>{lot.name}</li>}
+      />,
+    );
+    expect(html).toContain('<ul class="shop-grid">');
+    expect(html).not.toContain("aria-label");
+  });
+
   it("renders the empty state instead of an empty grid", () => {
     const html = renderGrid({ items: [] });
     expect(html).not.toContain("shop-grid");

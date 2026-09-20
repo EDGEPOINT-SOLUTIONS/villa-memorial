@@ -66,6 +66,45 @@ describe("kit ProductCard", () => {
     expect(html).toContain("Illustration purposes only.");
   });
 
+  it("prints the status chip UNDER the figure — the /lots card's second read", () => {
+    // The reconciled storefront grammar (2026-09-21 public adoption): the
+    // availability chip sits under the price, not beside the supporting line.
+    const html = renderToStaticMarkup(
+      <ProductCard
+        href="/lots/A-001"
+        photo={photo}
+        title="A-001"
+        supporting="Section A · Block 1 · 2.5 sqm"
+        price="₱128,000.00"
+        status={{ tone: "success", label: "Available" }}
+        actions={<span />}
+      />,
+    );
+    const at = (needle: string) => html.indexOf(needle);
+    expect(at('class="shop-card__meta"')).toBeLessThan(at('class="shop-card__price"'));
+    expect(at('class="shop-card__price"')).toBeLessThan(at('class="shop-card__status"'));
+    expect(at('class="shop-card__status"')).toBeLessThan(at('class="shop-card__actions"'));
+    expect(html).toContain("Section A · Block 1 · 2.5 sqm");
+  });
+
+  it("carries the senior-citizen figure as its own line, not paragraph prose", () => {
+    const html = renderToStaticMarkup(
+      <ProductCard
+        href="/products/lumina"
+        photo={photo}
+        title="Lumina"
+        price="₱33,000"
+        priceNote="regular SRP"
+        senior="Senior citizen ₱27,000 — ₱6,000 off"
+        actions={<span />}
+      />,
+    );
+    expect(html).toContain('class="shop-card__senior"');
+    expect(html).toContain("Senior citizen ₱27,000");
+    // Card furniture never becomes <p> prose (the reading-budget guard).
+    expect(html.match(/<p[ >]/g) ?? []).toHaveLength(0);
+  });
+
   it("renders text-only when the client's material has no picture — never a wrong one", () => {
     const html = renderToStaticMarkup(
       <ProductCard
