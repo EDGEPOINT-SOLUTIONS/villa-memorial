@@ -122,14 +122,21 @@ with `cache: 'reload'`. Before = the default branch (58e4bea), after = this bran
 | page | before | after |
 | --- | --- | --- |
 | `/products` @1440 | 11 img · median **88px** · 5 upscaled · 143 KB | **31 img · median 448px · 0 upscaled · 275 KB** |
-| `/products` @390 | 11 img · median 88px · 1 upscaled | 31 img · median 342px · 0 upscaled |
+| `/products` @390 | 11 img · median 88px · 1 upscaled · 143 KB | 31 img · median 342px · 0 upscaled · 275 KB |
 | `/products/CSK-LUMINA` @1440 | hero 902×640, an **upscaled 330px stock photo** · 150 KB | hero 902×601 from the client's own photograph · 228 KB |
+| `/products/CSK-LUMINA` @390 | hero 340×241 upscaled from the 330px stock photo | hero 340×227 from the client's own photograph |
 | `/plans` @1440 | **3 img** · 75 KB | **38 img · median 448px** · 459 KB |
+| `/plans` @390 | 3 img · 75 KB | 38 img · median 342px · 459 KB |
 | `/lots` @1440 | 6 img · median 497px · 3 upscaled · 263 KB | 11 img · median 448px · 0 upscaled · 427 KB |
+| `/lots` @390 | 6 img · 208 KB | 11 img · median 342px · 240 KB |
 | `/services` @1440 | 8 img · 3 upscaled · 410 KB | 13 img · median 389px · 0 upscaled · 489 KB |
+| `/services` @390 | 8 img · 410 KB | 13 img · median 340px · 489 KB |
 | `/facilities` @1440 | 8 img · 5 upscaled · 261 KB | 8 img · 0 upscaled · 451 KB |
+| `/facilities` @390 | 8 img · 261 KB | 8 img · 386 KB |
 | `/packages` @1440 | 5 img · 3× the same poster · 630 KB | 5 img · three different casket photographs · **64 KB** |
+| `/packages` @390 | 5 img · the poster again · 630 KB | 5 img · 64 KB |
 | `/` @1440 | 28 img · 3151 KB | 28 img · 3151 KB (unchanged) |
+| `/` @390 | 28 img (11 in the collapsed flyout) · 3151 KB | 28 img · 3151 KB (unchanged) |
 
 The home page is untouched by this pass. Its 3.1 MB is dominated by one pre-existing asset,
 the client masterplan `public/media/Park map.png` (2.3 MB, 1254×1254, the Leaflet overlay and
