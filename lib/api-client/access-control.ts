@@ -95,7 +95,7 @@ const PERSONAS = personasFile as unknown as {
 
 function portalLabelFor(scopes: string[]): string {
   const home = portalHomeFor(scopes);
-  if (home.startsWith("/staff/")) return "Staff portal";
+  if (home.startsWith("/staff/")) return "Admin portal";
   if (home.startsWith("/agent/")) return "Agent portal";
   return "Family portal";
 }

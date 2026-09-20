@@ -15,13 +15,17 @@ import { readSource } from "../helpers/css-rules";
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const STAFF_APP = path.join(ROOT, "app/(staff)");
 
-/** Every `.tsx` under app/(staff), recursively. */
-function staffSources(dir = STAFF_APP): string[] {
+/** Every `.ts`/`.tsx` under a directory, recursively. */
+function sources(dir: string): string[] {
   return readdirSync(dir).flatMap((entry) => {
     const full = path.join(dir, entry);
-    if (statSync(full).isDirectory()) return staffSources(full);
-    return entry.endsWith(".tsx") ? [full] : [];
+    if (statSync(full).isDirectory()) return sources(full);
+    return /\.tsx?$/.test(entry) ? [full] : [];
   });
+}
+
+function staffSources(dir = STAFF_APP): string[] {
+  return sources(dir);
 }
 
 function relative(file: string): string {
@@ -44,6 +48,16 @@ describe("the administrative area is named the Admin Portal", () => {
     );
     // Every staff page carries the suffix; a mass revert to a mixed set fails here.
     expect(titled.length).toBeGreaterThan(50);
+  });
+
+  it("no lib or shared component names the area the staff portal", () => {
+    const offenders = [
+      ...sources(path.join(ROOT, "lib")),
+      ...sources(path.join(ROOT, "components")),
+    ]
+      .filter((file) => /Staff Portal|Staff portal|staff portal/.test(readFileSync(file, "utf8")))
+      .map(relative);
+    expect(offenders).toEqual([]);
   });
 
   it("the sign-in door, the portal switcher and the document provenance say Admin", () => {

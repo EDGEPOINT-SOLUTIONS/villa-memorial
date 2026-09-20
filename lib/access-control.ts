@@ -31,7 +31,7 @@ export type AccessAccount = {
   name: string;
   email: string;
   role: AccessRole;
-  /** Which door the role opens: Staff portal · Agent portal · Family portal. */
+  /** Which door the role opens: Admin portal · Agent portal · Family portal. */
   portal_label: string;
 };
 

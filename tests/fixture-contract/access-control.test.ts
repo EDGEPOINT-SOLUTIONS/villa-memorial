@@ -120,7 +120,7 @@ describe("the composed roster", () => {
 
     const byEmail = new Map(accounts.map((account) => [account.email, account]));
     expect(byEmail.get("admin@vm.demo")!.role.key).toBe("administrator");
-    expect(byEmail.get("admin@vm.demo")!.portal_label).toBe("Staff portal");
+    expect(byEmail.get("admin@vm.demo")!.portal_label).toBe("Admin portal");
     expect(byEmail.get("agent@vm.demo")!.portal_label).toBe("Agent portal");
     expect(byEmail.get("customer@vm.demo")!.portal_label).toBe("Family portal");
   });

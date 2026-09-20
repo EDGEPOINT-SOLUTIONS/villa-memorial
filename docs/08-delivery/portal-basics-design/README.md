@@ -41,6 +41,9 @@ forked. The agent portal's `canEdit={false}` (property:read) is unchanged.
 - Portal switcher label for `/staff/dashboard`: **Admin** (`components/portal-switch.tsx`).
 - Counter-authored document provenance: `Admin portal (<actor>)`
   (`lib/api-client/billing-store.ts`, record-payment screen fallback).
+- The Users & roles roster's per-account door label (`portal_label`, built by
+  `lib/api-client/access-control.ts`) reads `Admin portal` — a string main added after this branch
+  opened; the naming sweep covers it and the gate scans `lib/` and `components/` for regressions.
 - "Staff" still names people and things — the staff directory, staff roles, the
   `staff@vm.demo` persona and the `/staff/*` routes are untouched.
 
@@ -74,9 +77,9 @@ Tab titles read from the live render: `Dashboard — Admin Portal`, `Property ma
   public map (map mode) and the 3D explorer with no capability contain **none** of the 13
   editing affordances; the public component imports no editor and forwards only `false`; the
   administrative wiring (`canEditPlots` → `canPlot` → `canEdit={canPlot}`) is pinned.
-- `tests/unit/admin-portal-naming.test.ts` — no file under `app/(staff)` says "Staff Portal";
-  the brand title is "Admin Portal" and >50 page titles carry the suffix; the sign-in door,
-  portal switcher and document provenance say Admin.
+- `tests/unit/admin-portal-naming.test.ts` — no file under `app/(staff)`, `lib/` or `components/`
+  says "Staff Portal"; the brand title is "Admin Portal" and 62 page titles carry the suffix;
+  the sign-in door, portal switcher and document provenance say Admin.
 - `tests/unit/agent-park-map.test.tsx` (existing) still pins admin `canEdit: true`,
   agent `canEdit: false` on the shared map.
 
