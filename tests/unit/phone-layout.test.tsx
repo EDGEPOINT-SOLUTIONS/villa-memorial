@@ -39,7 +39,9 @@ import {
  *   2. A `border-radius: 999px` capsule is only a capsule while it is one row.
  *      Any top-level rule that pairs a 999px radius with `flex-wrap: wrap` must
  *      cap its radius below 40rem, where it can wrap past two rows — the /lots
- *      legend filter turned into an ellipse cutting through its own chips.
+ *      legend filter turned into an ellipse cutting through its own chips. (The
+ *      2026-09-20 listing pass removed that capsule from /lots altogether; the
+ *      guard below still covers every surface that keeps one, /plans included.)
  *   3. Wide-data-table containers must declare `overflow-x`, so a table that is
  *      genuinely wider than a phone stays reachable.
  *   4. The utility vocabulary is closed: a `text-*` / `stack-*` / `nowrap` /
@@ -97,7 +99,7 @@ describe("a rate table at 390 — the /plans defect", () => {
   });
 });
 
-describe("wrapping capsule controls at 390 — the /lots defect", () => {
+describe("wrapping capsule controls at 390", () => {
   const capsules = TOP.filter(
     (r) => /border-radius:\s*999px/.test(r.body) && /flex-wrap:\s*wrap/.test(r.body),
   );
@@ -123,10 +125,32 @@ describe("wrapping capsule controls at 390 — the /lots defect", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("the /lots legend group is one of them", () => {
-    const seg = capsules.find((r) => r.selector === ".seg-filter");
-    expect(seg).toBeDefined();
-    expect(readSource("app/(public)/lots/page.tsx")).toContain("seg-filter seg-filter--legend");
+  it("the /lots listing replaced the capsule with full-width checkbox rows", () => {
+    // Captain 2026-09-20 rebuilt /lots as a product listing whose filter rail is
+    // a 17rem column of refine rows. A 999px capsule inside that column resolves
+    // to an ellipse as soon as the types wrap — so the listing stopped using
+    // `.seg-filter` entirely and declares its own 44px rows. The generic cap
+    // above still covers every surface that keeps the capsule (/plans).
+    const panelSource = readSource("app/(public)/lots/lot-filters.tsx");
+    expect(panelSource).not.toContain("seg-filter");
+    const row = ruleFor(RULES, ".lot-filter__row");
+    expect(declares(row, "min-height", /2\.75rem/)).toBe(true);
+    // The rail is sticky on desktop and hidden below the rail breakpoint in
+    // favour of the phone sheet (the same rule pair that keeps results reachable
+    // at 390 without a column pushing them down).
+    const rail = RULES.find(
+      (r) => selectors(r).includes(".lot-rail") && declares(r, "display", /none/),
+    );
+    expect(rail, "the rail is hidden below its breakpoint").toBeDefined();
+    const railDesktop = RULES.filter(
+      (r) => selectors(r).includes(".lot-rail") && /position:\s*sticky/.test(r.body),
+    );
+    expect(railDesktop.length).toBe(1);
+    const sheetHidden = RULES.find(
+      (r) => selectors(r).includes(".lot-sheet") && declares(r, "display", /none/),
+    );
+    expect(sheetHidden, "the phone sheet is hidden on desktop").toBeDefined();
+    expect(readSource("app/(public)/lots/lot-listing.tsx")).toContain("lot-sheet__toggle");
   });
 });
 

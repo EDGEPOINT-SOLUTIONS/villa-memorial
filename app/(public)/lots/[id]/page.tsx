@@ -7,7 +7,7 @@ import { getLot } from "@/lib/api-client/property";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { formatMinorUnits } from "@/lib/money";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
-import { SAMPLE_PARK_IMAGE, VILLA_SECTION_PHOTOS } from "@/lib/media";
+import { lotPhoto } from "@/lib/lot-imagery";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import { pageMetadata } from "@/lib/seo";
 
@@ -70,6 +70,8 @@ export default async function PublicLotDetailPage({
     );
   }
 
+  const photo = lotPhoto({ plotCode: lot.lot_number, section: lot.section });
+
   return (
     <div className="stack-4">
       <div className="page-header">
@@ -85,16 +87,18 @@ export default async function PublicLotDetailPage({
       </div>
 
       <div className="landing__grid landing__grid--pair" >
-        {/* media-block--natural: the photo sets the box height instead of
-            being cropped by a fixed 16:10 frame — the raw 1254px tile used to
-            overflow a 746px / 342px box and showed only its top-left corner
-            (craft pass, 2026-09-18). */}
-        <div className="media-block product-layout__media media-block--natural">
-          {/* eslint-disable-next-line @next/next/no-img-element -- legend-attached lot photos */}
-          <img
-            src={VILLA_SECTION_PHOTOS[lot.section] ?? SAMPLE_PARK_IMAGE}
-            alt={VILLA_SECTION_PHOTOS[lot.section] ? `${lot.lot_number} · section ${lot.section}` : "Memorial park grounds"}
-          />
+        {/* The picture comes from the ONE imagery rule home the listing uses
+            (lib/lot-imagery.ts), so a lot cannot show one photograph in the
+            grid and another on its own page. media-block--natural: the photo
+            sets the box height instead of being cropped by a fixed 16:10
+            frame. The caption is the honesty line — it is a photograph of the
+            section, never of this plot. */}
+        <div>
+          <div className="media-block product-layout__media media-block--natural">
+            {/* eslint-disable-next-line @next/next/no-img-element -- client lot photograph */}
+            <img src={photo.src} srcSet={photo.srcSet} alt={photo.caption} />
+          </div>
+          <p className="text-xs text-muted">{photo.caption}</p>
         </div>
 
         <div className="detail-sticky">
