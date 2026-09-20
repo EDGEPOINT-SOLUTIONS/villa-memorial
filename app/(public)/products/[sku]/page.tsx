@@ -5,6 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { RichText } from "@/components/content/rich-text";
+import { SpecsTable } from "@/components/content/specs-table";
+import { PdpGallery } from "@/components/villa/pdp-gallery";
 import {
   CasketFacts,
   CasketInclusionPanel,
@@ -135,7 +138,27 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
             <RelatedChips />
           </section>
 
-          <CasketSampleFigure model={model} />
+          {authored.gallery.length > 0 ? (
+            <PdpGallery images={authored.gallery} label={item.name} />
+          ) : (
+            <CasketSampleFigure model={model} />
+          )}
+
+          {authored.description ? (
+            <section className="mid-section" aria-labelledby="casket-about">
+              <p className="mid-kicker">From the office</p>
+              <h2 id="casket-about">About this model</h2>
+              <RichText doc={authored.description} />
+            </section>
+          ) : null}
+
+          {authored.specs && authored.specs.columns.length > 0 ? (
+            <section className="mid-section" aria-labelledby="casket-specs">
+              <p className="mid-kicker">Specifications</p>
+              <h2 id="casket-specs">Specifications</h2>
+              <SpecsTable specs={authored.specs} caption={`${item.name} — as recorded by the office`} />
+            </section>
+          ) : null}
 
           {authored.blocks.length > 0 ? (
             <section className="mid-section" aria-labelledby="casket-authored">

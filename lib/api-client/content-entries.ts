@@ -1,37 +1,41 @@
 /**
- * Service-entry store — the reader/writer behind the Services catalogue's guide
- * entries (content-catalogue Phase 3).
+ * Entry store — the reader/writer behind the Services catalogue's guide entries
+ * AND the casket/package item entries (content-catalogue Phases 3–4; the PDP
+ * fields pass).
  *
  * WHAT LIVES HERE
- * The three guide pages the captain confirmed stay as service entries under
- * Funeraria Memorial Services (§10 answer 3): death-at-home · death-at-hospital ·
- * transport. Each is a CatalogueEntry of kind `service` — title, summary, hero
- * photograph, ordered content blocks and a price binding (all three are
- * `quoteOnly`: a guide publishes no amount). The seed is
- * lib/fixtures/content/service-entries.json, recorded from the pages' current
- * copy (see its `_provenance`).
+ *   · The three guide pages the captain confirmed stay as service entries under
+ *     Funeraria Memorial Services: death-at-home · death-at-hospital ·
+ *     transport. Each is a CatalogueEntry of kind `service`; the seed is
+ *     lib/fixtures/content/service-entries.json, recorded from the pages' current
+ *     copy (see its `_provenance`).
+ *   · The item entries (casket models + packages): the authored half of the
+ *     ecommerce-style page — a rich description, a PDP gallery, a specs table and
+ *     ordered content blocks — keyed by catalogue SKU. The item's NAME, GROUP and
+ *     PRICE are DERIVED from the live catalogue record on every read, so a
+ *     content edit can never rename a product or move a price.
  *
- * THE STORE PATTERN
- * The same seam as the landing content document and the page documents: demo
- * mutations live on globalThis so the BFF save route and the re-rendered public
- * pages agree within one server process. No upstream content service exists —
- * the platform has no content/CMS contract — so this is the app-authored CMS
- * seam; the write path is POST /api/content/entries (gated `catalog:write`
- * provisionally, like the landing and page-document routes).
+ * THE STORE PATTERN — DURABLE (the PDP-gallery pass)
+ * The authored half used to live on globalThis, which lost an uploaded gallery on
+ * restart. It now persists as an append-only event journal on disk, the same
+ * pattern as lib/api-client/catalog-store.ts:
+ *   - the recorded service seed is read-only and folded with the journal on every
+ *     read, so updating the seed never has to migrate old state;
+ *   - each save appends one event; the whole journal is rewritten to a temp file,
+ *     fsync'd, then renamed over the store path (atomic replace);
+ *   - saves run through ONE in-process promise chain, so two requests cannot
+ *     interleave a read-modify-write in the server process that owns the store;
+ *   - path: `CONTENT_ENTRIES_STORE_PATH` when set (tests), otherwise
+ *     `.data/content-entries.json` under the app's cwd (gitignored).
  *
  * THE AUTHORITY
  * `validateCatalogueEntry` (lib/content-catalog.ts) is the save rule, run with
  * the LIVE catalogue SKUs and the pricing store's rate refs, so a price binding
  * that names a withdrawn SKU is refused rather than silently orphaned. Only the
- * three known service keys are writable here.
- *
- * PHASE 4 — ITEM ENTRIES. The same store also serves the casket and package
- * entries (lib/catalogue-content.ts owns which SKUs qualify and how the entry's
- * identity is DERIVED from the live catalogue record): the authored half
- * (long description · media · blocks) is kept here, keyed by SKU; the name,
- * group and price binding are re-derived from the catalogue on every read, so a
- * content edit can never rename a product or restate a price.
+ * three known service keys and the casket/package SKUs are writable here.
  */
+import { promises as fs } from "node:fs";
+import path from "node:path";
 import { ApiError } from "@/lib/api-client/api-error";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import {
@@ -56,28 +60,126 @@ const SEED: CatalogueEntry[] = ((seedFile as unknown as EntrySeed).entries ?? []
   .map((raw) => readCatalogueEntry(raw))
   .filter((entry, index, all) => all.findIndex((other) => other.key === entry.key) === index);
 
-// One process-wide store, the landing/page-document pattern.
-type EntryGlobal = typeof globalThis & {
-  __imContentEntries?: CatalogueEntry[];
-  __imContentItemEntries?: Record<string, CatalogueEntry>;
-};
-const entryGlobal = globalThis as EntryGlobal;
+type PersistedEvent = { kind: "entry_saved"; at: string; entry: CatalogueEntry };
+type PersistedStore = { version: 1; events: PersistedEvent[] };
 
-function stored(): CatalogueEntry[] {
-  entryGlobal.__imContentEntries ??= SEED.map((entry) => structuredClone(entry));
-  return entryGlobal.__imContentEntries;
+export function contentEntriesStorePath(): string {
+  const configured = process.env.CONTENT_ENTRIES_STORE_PATH?.trim();
+  return configured && configured.length > 0
+    ? configured
+    : path.join(process.cwd(), ".data", "content-entries.json");
 }
 
-function storedItemEntries(): Record<string, CatalogueEntry> {
-  entryGlobal.__imContentItemEntries ??= {};
-  return entryGlobal.__imContentItemEntries;
+function malformed(what: string): never {
+  throw new ApiError(`malformed content-entries store: ${what}`, 500);
+}
+
+function toPersistedEvent(raw: unknown): PersistedEvent {
+  if (typeof raw !== "object" || raw === null) malformed("store event");
+  const r = raw as Record<string, unknown>;
+  if (r.kind !== "entry_saved" || typeof r.at !== "string" || r.at.trim().length === 0) {
+    malformed(`store event kind ${String(r.kind)}`);
+  }
+  const entry = readCatalogueEntry(r.entry);
+  if (!entry.key.trim()) malformed("an event entry has no key");
+  return { kind: "entry_saved", at: r.at, entry };
+}
+
+async function readPersistedEvents(): Promise<PersistedEvent[]> {
+  let raw: string;
+  try {
+    raw = await fs.readFile(contentEntriesStorePath(), "utf8");
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw new ApiError("the entry store could not be read", 500);
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new ApiError("the entry store file is not valid JSON", 500);
+  }
+  if (typeof parsed !== "object" || parsed === null) {
+    throw new ApiError("the entry store file has an unexpected shape", 500);
+  }
+  const p = parsed as Record<string, unknown>;
+  if (p.version !== 1 || !Array.isArray(p.events)) {
+    throw new ApiError("the entry store file has an unexpected shape", 500);
+  }
+  return p.events.map(toPersistedEvent);
+}
+
+async function persistEvents(events: PersistedEvent[]): Promise<void> {
+  const store = contentEntriesStorePath();
+  await fs.mkdir(path.dirname(store), { recursive: true }).catch(() => {
+    throw new ApiError("the entry store directory could not be created", 500);
+  });
+  const temp = `${store}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
+  const payload = JSON.stringify({ version: 1, events } satisfies PersistedStore, null, 2) + "\n";
+  try {
+    const handle = await fs.open(temp, "w");
+    try {
+      await handle.writeFile(payload, "utf8");
+      // Flush before the rename so a crash cannot leave the renamed file empty.
+      await handle.sync();
+    } finally {
+      await handle.close();
+    }
+    await fs.rename(temp, store);
+  } catch {
+    await fs.rm(temp, { force: true }).catch(() => undefined);
+    throw new ApiError("the entry store could not be written", 500);
+  }
+}
+
+// One in-process writer: every mutation chains onto the previous one, so a
+// read-modify-write cycle is never interleaved by another request in this process.
+let writeQueue: Promise<unknown> = Promise.resolve();
+
+function withStoreLock<T>(task: () => Promise<T>): Promise<T> {
+  const run = writeQueue.then(task, task);
+  writeQueue = run.then(
+    () => undefined,
+    () => undefined,
+  );
+  return run;
+}
+
+type StoreState = {
+  services: Map<string, CatalogueEntry>;
+  items: Map<string, CatalogueEntry>;
+  events: PersistedEvent[];
+};
+
+/**
+ * The seed + journal folded into the current entries. Service entries start from
+ * the recorded seed; item entries start empty (their identity is always derived
+ * from the live catalogue at read time).
+ */
+async function loadState(): Promise<StoreState> {
+  const services = new Map(SEED.map((entry) => [entry.key, structuredClone(entry)]));
+  const items = new Map<string, CatalogueEntry>();
+  const events = await readPersistedEvents();
+  for (const event of events) {
+    const entry = event.entry;
+    if (isItemEntrySku(entry.key)) items.set(entry.key, entry);
+    else services.set(entry.key, entry);
+  }
+  return { services, items, events };
+}
+
+async function appendEntry(entry: CatalogueEntry): Promise<void> {
+  await withStoreLock(async () => {
+    const { events } = await loadState();
+    await persistEvents([...events, { kind: "entry_saved", at: new Date().toISOString(), entry }]);
+  });
 }
 
 /** Every guide entry, in the captain's listing order. */
 export async function listServiceEntries(): Promise<CatalogueEntry[]> {
-  const entries = stored();
+  const { services } = await loadState();
   return SERVICE_ENTRY_DEFS.flatMap((def) => {
-    const found = entries.find((entry) => entry.key === def.key);
+    const found = services.get(def.key);
     return found ? [found] : [];
   });
 }
@@ -85,7 +187,7 @@ export async function listServiceEntries(): Promise<CatalogueEntry[]> {
 /** One guide entry by key, or null for a key that is not one of the three. */
 export async function getServiceEntry(key: string): Promise<CatalogueEntry | null> {
   if (!serviceEntryDef(key)) return null;
-  return stored().find((entry) => entry.key === key) ?? null;
+  return (await loadState()).services.get(key) ?? null;
 }
 
 /** The guide page's values (entry + recorded fallbacks) for its route and head. */
@@ -134,10 +236,7 @@ export async function saveServiceEntry(
     updated_at: new Date().toISOString(),
     updated_by: actor ?? null,
   };
-  const entries = stored();
-  const index = entries.findIndex((entry) => entry.key === key);
-  if (index >= 0) entries[index] = saved;
-  else entries.push(saved);
+  await appendEntry(saved);
   return saved;
 }
 
@@ -160,20 +259,22 @@ async function itemForEntry(sku: string) {
 
 /**
  * Every casket and package entry, in catalogue order. Identity is derived from
- * the live record; only summary/media/blocks come from the store.
+ * the live record; only description/gallery/specs/summary/media/blocks come from
+ * the store.
  */
 export async function listItemEntries(): Promise<CatalogueEntry[]> {
-  const [items, overrides] = [await listCatalogItems(), storedItemEntries()];
+  const [items, state] = [await listCatalogItems(), await loadState()];
   return items
     .filter((item) => isItemEntrySku(item.sku))
-    .map((item) => mergeItemEntry(catalogueEntryDefaults(item), overrides[item.sku]));
+    .map((item) => mergeItemEntry(catalogueEntryDefaults(item), state.items.get(item.sku)));
 }
 
 /** One item entry by SKU, or null for a SKU this pass does not own. */
 export async function getItemEntry(sku: string): Promise<CatalogueEntry | null> {
   const item = await itemForEntry(sku);
   if (!item) return null;
-  return mergeItemEntry(catalogueEntryDefaults(item), storedItemEntries()[item.sku]);
+  const { items } = await loadState();
+  return mergeItemEntry(catalogueEntryDefaults(item), items.get(item.sku));
 }
 
 /**
@@ -205,11 +306,11 @@ export async function saveItemEntry(
     updated_at: new Date().toISOString(),
     updated_by: actor ?? null,
   };
-  storedItemEntries()[item.sku] = saved;
+  await appendEntry(saved);
   return saved;
 }
 
 /** Test helper: the authored item-entry store as it starts (empty). */
 export function seedItemEntries(): Record<string, CatalogueEntry> {
-  return structuredClone(storedItemEntries());
+  return {};
 }

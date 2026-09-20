@@ -431,6 +431,31 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   rules · Inventory · Orders · Memberships) and the `/staff/plans/[id]`/`new`
   stubs are retired. The plan-tier **entries** (as opposed to document blocks)
   remain out of scope.
+- **Phase P1 has LANDED — the catalogue entry carries the PDP content, and the
+  PDP renders it** (plan: `data/villa-pdp-cms-plan/report.md` §4–7; P0 model in
+  `lib/content-catalog.ts`). An item entry's authored half is `description`
+  (`RichTextDoc`, a typed node tree — NEVER HTML), `gallery` (ordered, uncapped,
+  `ContentImage[]`) and `specs` (`ContentSpecs`, ≤15 columns, unlimited rows);
+  **money stays a live `PriceBinding`, never a specs cell**. The entry store is
+  now DURABLE (`lib/api-client/content-entries.ts`: append-only journal,
+  `CONTENT_ENTRIES_STORE_PATH` or `.data/content-entries.json`), the same pattern
+  as `catalog-store.ts`; the identity (name/group/price) is still derived from
+  the catalogue record on every read. The admin editor
+  (`components/content/catalogue-entry-editor.tsx`) gains three sections —
+  **Description** (zero-dep toolbar, `components/content/rich-text-editor.tsx`),
+  **Photographs** (`components/content/gallery-editor.tsx`; library/device/URL via
+  the shared `MediaPicker`, drag + arrow reorder, remove) and **Specifications**
+  (`components/content/specs-editor.tsx`; paged + `content-visibility`). The
+  public PDP renders `components/content/rich-text.tsx` (React elements from the
+  nodes, never `dangerouslySetInnerHTML`), `components/villa/pdp-gallery.tsx`
+  (main viewer + thumbnail rail; lead eager, every non-lead `loading="lazy"`) and
+  `components/content/specs-table.tsx`. Keep the honesty states: a gallery-less
+  item keeps the rule-derived `CasketSampleFigure`, a sample needs its caption,
+  the seven withheld client photographs are never suggested, and the seven-tier
+  substitution note prints when a sample is shown. `parseEditorHtml` keeps only
+  the product's tags, so a pasted `<script>` never survives. Evidence + 1440/390
+  shots: `docs/08-delivery/pdp-fields-design/`; tests `pdp-gallery`,
+  `catalogue-entry-page`, `catalogue-entries-store`, `content-entries-store`.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

@@ -28,7 +28,14 @@
  * marked `sample: true` so the editor forces its caption before it can be saved.
  */
 import type { CatalogItem } from "@/lib/api-client/commerce";
-import type { ContentBlock, EntryEditorTarget, CatalogueEntry } from "@/lib/content-catalog";
+import type {
+  ContentBlock,
+  ContentImage,
+  ContentSpecs,
+  EntryEditorTarget,
+  CatalogueEntry,
+  RichTextDoc,
+} from "@/lib/content-catalog";
 import { catalogueItemPhoto } from "@/lib/catalogue-imagery";
 import { COFFIN_SKUS } from "@/lib/catalogue-skus";
 import { CASKET_MODELS } from "@/lib/villa-pricing";
@@ -143,13 +150,27 @@ export function itemEntryTarget(item: ItemIdentity): EntryEditorTarget {
   };
 }
 
-/** What the public detail page reads: the long description and the authored blocks. */
+/**
+ * What the public detail page reads: the lead summary, the rich description, the
+ * authored PDP gallery (empty means the page keeps its rule-derived sample
+ * figure), the specs table, and the ordered detail blocks.
+ */
 export function itemEntryView(
   entry: CatalogueEntry | null,
   item: { description: string | null },
-): { summary: string; blocks: ContentBlock[]; hero: string | null } {
+): {
+  summary: string;
+  description: RichTextDoc | null;
+  gallery: ContentImage[];
+  specs: ContentSpecs | null;
+  blocks: ContentBlock[];
+  hero: string | null;
+} {
   return {
     summary: entry?.summary?.trim() || item.description?.trim() || "",
+    description: entry?.description ?? null,
+    gallery: entry?.gallery ?? [],
+    specs: entry?.specs ?? null,
     blocks: entry?.blocks ?? [],
     hero: entry?.media.hero ?? null,
   };

@@ -70,7 +70,7 @@ which is why the Dockerfile refuses a `NEXT_PUBLIC_DEMO_PASSWORD` build arg).
 | `NEXT_PUBLIC_DEMO_HINTS` | build arg: persona chips + the persona list in the page payload | `0` (pinned) |
 | `TENANT_DISPLAY_NAME` | the tenant name printed on app-generated documents (default `Villa Memoria`) | set it if the letterhead needs the registered name |
 | `NEXT_TELEMETRY_DISABLED` | Next.js usage telemetry | `1` |
-| `*_STORE_PATH` (`ORDERS_`, `CATALOG_`, `PRICING_`, `CHAPEL_`, `PAYMENTS_`, `MEMBERSHIP_`, `OPERATIONS_`, `PROVISIONAL_RECEIPTS_`) | where a fixture-mode journal is written | leave unset — the named volume is mounted at `/app/.data`, which is the default |
+| `*_STORE_PATH` (`ORDERS_`, `CATALOG_`, `PRICING_`, `CHAPEL_`, `PAYMENTS_`, `MEMBERSHIP_`, `OPERATIONS_`, `PROVISIONAL_RECEIPTS_`, `CONTENT_ENTRIES_`) | where a fixture-mode journal is written | leave unset — the named volume is mounted at `/app/.data`, which is the default |
 | `NEXT_PUBLIC_DEMO_PASSWORD` | **must never be set** — Next inlines it into public JS | the image build fails if it is |
 
 One gateway base URL serves every service; the client adds the gateway's route

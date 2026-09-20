@@ -2,8 +2,8 @@
  * Test isolation for the durable fixture stores.
  *
  * `lib/api-client/order-store.ts`, `catalog-store.ts`, `chapel-store.ts`,
- * `pricing-store.ts`, `billing-store.ts`, `membership-store.ts` and `operations-store.ts`
- * default their journals
+ * `pricing-store.ts`, `billing-store.ts`, `membership-store.ts`, `operations-store.ts`
+ * and `content-entries.ts` default their journals
  * to `.data/` under the app's cwd — which for a developer is the running demo store. A
  * suite that reads a store without pointing it at a throwaway path would then depend on
  * whatever the dev server wrote (an edited catalogue price, a created order, an edited
@@ -28,6 +28,7 @@ const STORE_PATH_ENV_VARS = [
   "MEMBERSHIP_STORE_PATH",
   "OPERATIONS_STORE_PATH",
   "PROVISIONAL_RECEIPTS_STORE_PATH",
+  "CONTENT_ENTRIES_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {
@@ -36,14 +37,13 @@ for (const name of STORE_PATH_ENV_VARS) {
 
 // In-memory content seams (landing content + the page documents) live on
 // globalThis; reset them before every test so one suite's save can never leak
-// into the next.
+// into the next. The entry store is durable now (its own journal under
+// CONTENT_ENTRIES_STORE_PATH), so it needs no globalThis reset.
 beforeEach(() => {
   const g = globalThis as typeof globalThis & {
     __imContentPages?: unknown;
-    __imContentEntries?: unknown;
     __imLandingContent?: unknown;
   };
   delete g.__imContentPages;
-  delete g.__imContentEntries;
   delete g.__imLandingContent;
 });
