@@ -372,8 +372,9 @@ credentials. They are gated on §8.
 The package is ready; the apply is blocked only on access and three choices.
 
 1. **AWS credentials** for account `632296084403` with permission to create the
-   resources in §3 (or a role to assume), plus the region to use. The account id
-   is already the documented default; the guard refuses a different account.
+   resources in §3 (or a role to assume). The account id **and the region are
+   confirmed**: account `632296084403`, region `ap-southeast-1` (Singapore), which
+   is already the module default. The account guard refuses a different account.
 2. **The target domain and its Route 53 hosted zone** (zone id or name). Still
    pending per the captain's note.
 3. **A decision on reachability**: a public staging URL (`allowed_ingress_cidrs =
