@@ -1,0 +1,48 @@
+# ============================================================================
+# villa-web AWS shape A — example variables.
+#
+#   cp terraform.tfvars.example terraform.tfvars   # then edit
+#   terraform init && terraform plan
+#
+# terraform.tfvars is gitignored (real values never enter git). The defaults in
+# variables.tf are the Villa staging shape; only the domain/zone lines below are
+# genuinely required to change. Full runbook: docs/08-delivery/aws-deploy.md.
+# ============================================================================
+
+# --- Account / region -------------------------------------------------------
+# Captain-confirmed account. The plan fails if your credentials are another account.
+aws_account_id = "632296084403"
+aws_region     = "ap-southeast-1"
+
+# --- Domain / TLS -----------------------------------------------------------
+domain_name       = "staging.example.ph"
+route53_zone_name = "example.ph" # or route53_zone_id = "Z0123456789ABC"
+# site_url defaults to https://<domain_name>; set it only to override.
+# alb_certificate_arn = "arn:aws:acm:ap-southeast-1:632296084403:certificate/..." # to reuse an existing cert
+
+# --- App host ---------------------------------------------------------------
+instance_type    = "t3.medium"
+# key_name = "my-key"        # leave unset to use SSM Session Manager only
+# ssh_cidr = "203.0.113.10/32"
+
+# --- App source -------------------------------------------------------------
+git_repo_url = "https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial.git"
+git_ref      = "main"
+# Private repo? create a SecureString parameter once, then name it here:
+# git_token_ssm_parameter = "/villa-web/github-token"
+
+# --- Application environment (SSM Parameter Store) --------------------------
+# SITE_URL is written automatically. Add a gateway URL only once that service
+# answers; an absent URL keeps that surface on recorded fixtures.
+service_base_urls = {
+  # AUTH_BASE_URL       = "https://gateway.example.ph"
+  # COMMERCE_BASE_URL   = "https://gateway.example.ph"
+  # PROPERTY_BASE_URL   = "https://gateway.example.ph"
+  # OPERATIONS_BASE_URL = "https://gateway.example.ph"
+  # BILLING_BASE_URL    = "https://gateway.example.ph"
+  # SCHEDULING_BASE_URL = "https://gateway.example.ph"
+  # DOCUMENTS_BASE_URL  = "https://gateway.example.ph"
+  # AUDIT_BASE_URL      = "https://gateway.example.ph"
+}
+
+# tenant_display_name = "Villa Memorial"
