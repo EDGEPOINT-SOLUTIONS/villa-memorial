@@ -60,7 +60,13 @@ vi.mock("@/lib/auth/portal-guard", () => ({
 const staffSession = {
   userId: "00000000-0000-4000-8000-000000000012",
   tenantId: "00000000-0000-4000-8000-000000000001",
-  scopes: ["cases:read", "scheduling:read"],
+  scopes: [
+    "cases:read",
+    "scheduling:read",
+    "identity:users:manage",
+    "tenancy:tenants:manage",
+    "catalog:write",
+  ],
   email: "sam.staff@vm.demo",
   displayName: "Sam Staff",
   expiresAt: new Date(Date.now() + 900_000).toISOString(),
@@ -83,6 +89,9 @@ const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/f
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
 const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
 const { default: CopilotPage } = await import("@/app/(staff)/staff/copilot/page");
+const { default: UsersPage } = await import("@/app/(staff)/staff/users/page");
+const { default: WorkflowsPage } = await import("@/app/(staff)/staff/workflows/page");
+const { default: SettingsPage } = await import("@/app/(staff)/staff/settings/page");
 
 const BUDGET = {
   /** Paragraph prose per page (words inside <p> elements). */
@@ -177,6 +186,21 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     render: async () =>
       renderToStaticMarkup(await CopilotPage({ searchParams: Promise.resolve({}) })),
     openingLead: /<p class="copilot-lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/staff/users (Users & roles)",
+    render: async () => renderToStaticMarkup(await UsersPage()),
+    openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/staff/workflows",
+    render: async () => renderToStaticMarkup(await WorkflowsPage()),
+    openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/staff/settings (Tenant settings)",
+    render: async () => renderToStaticMarkup(await SettingsPage()),
+    openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
   },
 ];
 

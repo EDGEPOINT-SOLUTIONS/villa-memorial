@@ -111,8 +111,10 @@ export const STAFF_NAV: NavSection[] = [
     label: "Administration",
     items: [
       { href: "/staff/users", label: "Users & roles", scopes: ["identity:users:manage"] },
-      // Workflows/settings are not-wired admin stubs; scopes provisional until the
-      // config-engine contracts freeze. tenants:manage keeps them admin-only.
+      // Workflows and Tenant settings are the designed read-only admin screens (S31/S32):
+      // recorded process definitions + in-flight records, and the park's applied
+      // configuration. Scopes are provisional until the config-engine contracts freeze;
+      // tenants:manage keeps them admin-only.
       { href: "/staff/workflows", label: "Workflows", scopes: ["tenancy:tenants:manage"] },
       { href: "/staff/audit", label: "Audit trail", scopes: ["audit:events:read"] },
       { href: "/staff/settings", label: "Tenant settings", scopes: ["tenancy:tenants:manage"] },

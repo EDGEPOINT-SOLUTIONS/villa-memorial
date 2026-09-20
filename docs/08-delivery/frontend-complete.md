@@ -64,6 +64,7 @@ platform's own surface:
 | [#68](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/68) | The journey's action/contact layer: one closing band, click-to-call, one contact surface (F-17). |
 | [#70](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/70) | The accessibility & craft pass: one focus ring, real labels, honest headings (F-16). |
 | [#73](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/73) | The paper layer: every printed document on the client's own sheet, in the client's own type. |
+| #TBD | The last three admin screens (PRD S30 · S31/S32): `/staff/users` (the people and the recorded role↔scope model), `/staff/workflows` (the four processes the modules run, with their in-flight records) and `/staff/settings` (the configuration the product applies) — designed, read-only, each naming its missing service. See [`admin-platform-design/`](./admin-platform-design/). |
 
 ## What remains — with its owner
 
@@ -79,7 +80,7 @@ per-installment receipt event + payer on receipt · interment/exhumation/ownersh
 workflows · commission engine + client rates · AI capabilities + governance wiring · platform
 administration · digital-memorial services · Smart Service Builder rules/availability engine.
 
-The screens built after the audit raised **five more of the same kind** — each names its ask in
+The screens built after the audit raised **eight more of the same kind** — each names its ask in
 its design record and refuses live mode honestly (a named 503 or a `not_wired` state):
 
 | Ask | What waits on it |
@@ -89,6 +90,9 @@ its design record and refuses live mode honestly (a named 503 or a `not_wired` s
 | Embalming-preparation record | `/staff/cases/[id]/preparation` live mode (`PREPARATION_NOT_WIRED`); a funeral-cases extension for the mortuary record. See [`notes/known-limitations-cp1.md`](./notes/known-limitations-cp1.md) Module H. |
 | Guarantee-instrument record | The FSC-deduction tracker's live mode; the sub-ledger is dev-owned (`FORMS_PLAN.md` gap 5, the dev's issue #54). See [`guarantee-instruments-design/`](./guarantee-instruments-design/). |
 | Scheduling resource write + maintenance shape | Chapel settings/closures/confirmations live mode (`CHAPEL_ADMIN_NOT_WIRED`); a booking-events write endpoint. See [“Chapel administration — staff side”](../../AGENTS.md) in `AGENTS.md`. |
+| User provisioning + role assignment | `/staff/users` is read-only over the recorded seed (`lib/api-client/access-control.ts`, always `false` live mode): identity-access publishes no user list, invite or role endpoint. See [`admin-platform-design/`](./admin-platform-design/). |
+| Workflow engine | `/staff/workflows` renders the four processes the shipped modules already enforce; no service lets the office define steps, owners or order. The ask is the deferred config/workflow layer. See [`admin-platform-design/`](./admin-platform-design/). |
+| tenancy-config (module flags / tenant settings) | `/staff/settings` reports the configuration the product applies and the platform-only remainder; the service that would own tenant settings and the A–J module registry is not in this build. See [`admin-platform-design/`](./admin-platform-design/). |
 
 ### Villa (JBR owns the decision) — the five answers
 
