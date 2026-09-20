@@ -993,6 +993,27 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
 - Evidence: `tests/unit/ops-board-model.test.ts`, `tests/unit/ops-board-page.test.tsx`; design
   record + 1440/390/moved/empty shots `docs/08-delivery/ops-board-design/`.
 
+## Vehicle dispatch · Work orders · Notifications — the three designed admin screens (read before touching them)
+
+- Captain 2026-09-19: the three stubs became real screens over recorded data, each naming its
+  missing platform service in one line. **Dispatch** (`/staff/dispatch`, `scheduling:read`): the
+  day board + assignment view over `lib/fixtures/operations/dispatch.json` — trips link to real
+  cases, drivers are HR employees; dispatch belongs to D5 scheduling-resources and no contract
+  exists, so nothing writes and live mode answers 503. **Work orders** (`/staff/work-orders`,
+  `property:read`): the maintenance list over `lib/fixtures/operations/work-orders.json` with asset
+  links to the real schedule/property screens; the state is the recorded trail and `overdue` is
+  derived from the recorded due date against the file's own `as_of` day — never a wall clock or
+  an invented SLA; live mode answers 503 (field-ops unbuilt). **Notifications**
+  (`/staff/notifications`, `cases:read` provisional): the four designed message types + audiences
+  + channels, with the sent log EMPTY — the P4 notification service has no contract and no
+  outward API, so no message may be fabricated (the family page takes the same line).
+- Pure rules homes: `lib/dispatch.ts` · `lib/work-orders.ts` · `lib/notifications.ts`; tolerant
+  readers `lib/api-client/dispatch.ts` · `work-orders.ts` · `notifications.ts` (502 on a malformed
+  record, 503 live). Fixture-contract tests pin every cross-reference (cases, HR employees, the
+  scheduling Hearse 1, lots, resources) and that no amount or fabricated send exists; page tests
+  pin the rendered states; all three are in `tests/unit/reading-budget.test.tsx`.
+- Evidence + shots: `docs/08-delivery/admin-ops-screens-design/README.md`.
+
 ## Agent lead record — `/agent/prospects/[id]` (read before touching it or the agent fixture)
 
 - F-09 (captain 2026-09-18) grew the approved page-04 prospect record into the lead record the

@@ -157,6 +157,21 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      stored: it is derived from the case's recorded contract date
      (`lib/guarantee-instruments.ts`, paper clause 2) and pinned by
      `tests/fixture-contract/guarantee-instruments.test.ts`.
+   - `operations/dispatch.json` · `operations/work-orders.json` ·
+     `operations/notifications.json` ← the three designed admin screens
+     (`/staff/dispatch`, `/staff/work-orders`, `/staff/notifications`). ALL THREE ARE
+     APP-AUTHORED with provenance, because none of their services exists: dispatch is
+     D5 scheduling-resources (no dispatch contract — live answers 503), work orders
+     are the unbuilt field-ops service (live answers 503), and notifications are P4
+     (no contract and no outward API — the log is EMPTY and no message may be
+     fabricated). Dispatch cross-references the real case records and the HR
+     directory; work orders cross-reference scheduling resources, dispatch vehicles
+     and property lots and derive overdue from the recorded due date against the
+     file's own `as_of` day; the notification catalogue carries the four designed
+     message types, audiences and channels and no recipient detail. Pinned by
+     `tests/fixture-contract/dispatch.test.ts`, `work-orders.test.ts` and
+     `notifications.test.ts`; readers are `lib/api-client/dispatch.ts`,
+     `work-orders.ts` and `notifications.ts`.
    - `platform/tenants.json` ← the platform operator surface (PRD screen
      inventory "Platform Dashboard/Tenant Management · Platform Login · Tenant
      Sign-Up"; classification `02-architecture/platform-administration.md`).

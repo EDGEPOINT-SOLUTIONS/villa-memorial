@@ -1,0 +1,114 @@
+{
+  "_provenance": {
+    "status": "APP-AUTHORED example records — no work-order service or contract exists (see lib/api-client/work-orders.ts)",
+    "recorded": "2026-09-10",
+    "brief": [
+      "Captain checklist (2026-09-19): the Work orders screen (/staff/work-orders) was a twelve-line stub; it is now the office's recorded maintenance and repair list.",
+      "Domain wording follows docs/04-modules/facilities-scheduling.md §38 (blueprint §38 maintenance & work orders: grass cutting · landscaping · cleaning · monument repair · lighting · pest control · drainage · tree maintenance · infrastructure; lifecycle assignment → priority → execution → inspection → close) and the field-ops service classification (docs/02-architecture/microservices.md:178)."
+    ],
+    "note": [
+      "WHAT THIS IS: the office's own recorded maintenance list — what needs doing, which chapel/vehicle/plot/equipment it belongs to, who is assigned, its priority, its due date and the recorded date each state moved. Work orders are a deferred property/field-ops workflow (property-gis carries lots, reservations and sales today) and no contract names a work-order record, so live mode answers 503 and only fixture mode serves these records (lib/api-client/work-orders.ts).",
+      "WHAT IT CROSS-REFERENCES (pinned by tests/fixture-contract/work-orders.test.ts): chapel and equipment refs are scheduling resources (lib/fixtures/scheduling/resources.json); vehicle refs are the dispatch fixture's fleet (lib/fixtures/operations/dispatch.json); plot refs are property lots (lib/fixtures/property/lots.json) and the label is the lot's own `lot_number`. An `assignee` with an `employee_number` is an HR directory employee (lib/fixtures/hr/employees.json); an assignee with none must be one of WORK_ORDER_TEAM_ASSIGNEES in lib/work-orders.ts — the HR directory records no grounds or maintenance staff yet, so those rows name the crew/contractor the office's own file names and the screen says so.",
+      "THE STATE IS THE HISTORY: each order's state is the last recorded movement and `moved_on` its date; the screen derives `overdue` from the recorded due date against `as_of` (the day the list was recorded) — never from a wall clock or an invented SLA. `as_of` is the only clock this fixture has.",
+      "DEMO DATA ONLY: no amount (cost, quotation, fee) appears anywhere — a work order records work, not money."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "as_of": "2026-09-10",
+  "work_orders": [
+    {
+      "id": "WO-2026-0001",
+      "title": "Replace the front brake pads on Hearse 1",
+      "detail": "Front pads are below the wear line; the hearse is off long-distance runs until they are replaced.",
+      "asset": { "kind": "vehicle", "ref": "veh-hearse-1", "label": "Hearse 1" },
+      "priority": "high",
+      "assignee": { "name": "Miguel Torres", "employee_number": "EMP-006" },
+      "opened_on": "2026-09-01",
+      "due_on": "2026-09-04",
+      "history": [
+        { "state": "open", "on": "2026-09-01" }
+      ]
+    },
+    {
+      "id": "WO-2026-0002",
+      "title": "Repair the leaking tap in Chapel A's washroom",
+      "detail": "Slow drip under the washroom basin; the cabinet floor is staying wet.",
+      "asset": {
+        "kind": "chapel",
+        "ref": "10000000-0000-4000-8000-0000000000c1",
+        "label": "Chapel A"
+      },
+      "priority": "high",
+      "assignee": { "name": "Park maintenance crew", "employee_number": null },
+      "opened_on": "2026-09-05",
+      "due_on": "2026-09-09",
+      "history": [
+        { "state": "open", "on": "2026-09-05" },
+        { "state": "in_hand", "on": "2026-09-06" }
+      ]
+    },
+    {
+      "id": "WO-2026-0003",
+      "title": "Clear the grass growing over plot B-002's marker",
+      "detail": "Grass has grown over the marker and the kerb; the path edge in Section B needs trimming too.",
+      "asset": { "kind": "plot", "ref": "00000000-0000-4000-8000-000000000D06", "label": "Plot B-002" },
+      "priority": "low",
+      "assignee": { "name": "Grounds crew", "employee_number": null },
+      "opened_on": "2026-09-02",
+      "due_on": "2026-09-08",
+      "history": [
+        { "state": "open", "on": "2026-09-02" },
+        { "state": "in_hand", "on": "2026-09-03" },
+        { "state": "done", "on": "2026-09-08" }
+      ]
+    },
+    {
+      "id": "WO-2026-0004",
+      "title": "Replace the failed light over Chapel A's entrance",
+      "detail": "The entrance lamp stays dark after dusk; staff have been carrying a torch for arrivals.",
+      "asset": {
+        "kind": "chapel",
+        "ref": "10000000-0000-4000-8000-0000000000c1",
+        "label": "Chapel A"
+      },
+      "priority": "medium",
+      "assignee": { "name": "Park electrician", "employee_number": null },
+      "opened_on": "2026-09-09",
+      "due_on": "2026-09-12",
+      "history": [
+        { "state": "open", "on": "2026-09-09" }
+      ]
+    },
+    {
+      "id": "WO-2026-0005",
+      "title": "Re-seat the collapsed marker on plot A-003",
+      "detail": "The slab has dropped on one side after the rains; the family has been told it is in hand.",
+      "asset": { "kind": "plot", "ref": "00000000-0000-4000-8000-000000000D03", "label": "Plot A-003" },
+      "priority": "medium",
+      "assignee": { "name": "Monument mason", "employee_number": null },
+      "opened_on": "2026-09-04",
+      "due_on": "2026-09-19",
+      "history": [
+        { "state": "open", "on": "2026-09-04" },
+        { "state": "in_hand", "on": "2026-09-08" }
+      ]
+    },
+    {
+      "id": "WO-2026-0006",
+      "title": "Service the extraction table in Preparation Room 1",
+      "detail": "The table's lift is stiff; a service is booked before its next use.",
+      "asset": {
+        "kind": "equipment",
+        "ref": "10000000-0000-4000-8000-0000000000c3",
+        "label": "Preparation Room 1"
+      },
+      "priority": "low",
+      "assignee": { "name": "Park maintenance crew", "employee_number": null },
+      "opened_on": "2026-09-07",
+      "due_on": "2026-09-21",
+      "history": [
+        { "state": "open", "on": "2026-09-07" }
+      ]
+    }
+  ]
+}
