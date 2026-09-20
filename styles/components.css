@@ -8423,7 +8423,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .pdp-section__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-section-title);
   color: var(--color-text-primary);
 }
 
@@ -8434,7 +8434,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .pdp-feature-group__title {
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-card-title);
   color: var(--color-text-primary);
 }
 
@@ -8470,7 +8470,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .pdp-buy__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-page-title);
   line-height: 1.1;
   color: var(--color-text-primary);
 }
