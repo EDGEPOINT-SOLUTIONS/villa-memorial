@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { ServiceBuilder } from "@/components/builder/service-builder";
 import { pageMetadata } from "@/lib/seo";
@@ -45,8 +47,13 @@ export const dynamic = "force-dynamic";
  * component beside it.
  */
 export default async function BuilderPage() {
-  const [pricing, content] = await Promise.all([loadPricingDocument(), listLandingContent()]);
-  const catalog = builderCatalog(pricing);
+  const [pricing, content, plansPage] = await Promise.all([
+    loadPricingDocument(),
+    listLandingContent(),
+    getPageDocument("plans").catch(() => null),
+  ]);
+  const plan = planContentFromDocument(plansPage);
+  const catalog = builderCatalog(pricing, plan.notes.contestability);
   const { contact } = content;
 
   return (

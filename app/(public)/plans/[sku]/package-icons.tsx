@@ -78,8 +78,9 @@ function IconFlowers() {
 }
 
 /**
- * The five feature columns, in VMP_INCLUSIONS order (lib/villa-pricing.ts).
- * A unit test pins that order, so this array can stay positional.
+ * The five feature columns, in the Plans document's package-inclusion order
+ * (`lib/plan-content.ts`). A unit test pins that order, so this array can stay
+ * positional.
  */
 export const INCLUSION_ICONS: ReadonlyArray<() => ReactNode> = [
   IconTruck,

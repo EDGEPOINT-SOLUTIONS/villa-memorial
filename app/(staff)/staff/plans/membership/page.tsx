@@ -6,7 +6,9 @@ import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { PlanTermsDisplay } from "@/components/villa/plan-terms-display";
 import { listMembershipApplications } from "@/lib/api-client/membership-applications";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import {
   APPLICATION_NOT_A_COC_NOTE,
@@ -45,11 +47,16 @@ export default async function MembershipsPage() {
 
   let applications: Awaited<ReturnType<typeof listMembershipApplications>>;
   let pricing: Awaited<ReturnType<typeof loadPricingDocument>>;
+  let planContent: ReturnType<typeof planContentFromDocument>;
   try {
-    [applications, pricing] = await Promise.all([
+    const [apps, rates, page] = await Promise.all([
       listMembershipApplications(),
       loadPricingDocument(),
+      getPageDocument("plans").catch(() => null),
     ]);
+    applications = apps;
+    pricing = rates;
+    planContent = planContentFromDocument(page);
   } catch (err) {
     return (
       <>
@@ -155,7 +162,7 @@ export default async function MembershipsPage() {
         )}
       </PageSection>
 
-      <PlanTermsDisplay pricing={pricing.plans} />
+      <PlanTermsDisplay pricing={pricing.plans} content={planContent} />
     </div>
   );
 }

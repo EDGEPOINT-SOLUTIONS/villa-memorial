@@ -5,7 +5,6 @@ import { fileURLToPath } from "node:url";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CartProvider } from "@/lib/cart/cart-context";
-import { listCatalogItems } from "@/lib/api-client/commerce";
 
 /**
  * The composition pass (captain 2026-09-18 — the client's president: the product
@@ -57,6 +56,7 @@ vi.mock("next/navigation", () => ({
 
 const { LandingView } = await import("@/components/landing/landing-view");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
+const { default: PackagesPage } = await import("@/app/(public)/packages/page");
 const { listLandingContent } = await import("@/lib/api-client/landing");
 const { loadPricingDocument } = await import("@/lib/api-client/pricing");
 const { LOT_PRICE_CATEGORIES, SEED_PRICING } = await import("@/lib/villa-pricing");
@@ -218,40 +218,38 @@ describe("the home's service band leads instead of counting", () => {
 });
 
 describe("a catalogue prints a photograph only where one exists", () => {
-  it("/plans publishes every catalogue item with its own photograph", async () => {
-    const items = await listCatalogItems();
+  it("/plans is the five plan tiers, not the mixed catalogue", async () => {
     const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlansPage({ searchParams: Promise.resolve({}) })),
+      createElement(CartProvider, null, await PlansPage()),
     );
-    // Imagery pass (captain 2026-09-19), superseding the 2026-09-18 price index:
-    // the page rendered THREE images for a forty-two item catalogue, because none
-    // of the fixture items carried a photograph. Every item now has one from the
-    // ONE rule home (lib/catalogue-imagery.ts) — the client's own 2026
-    // photographs, the plan's own poster, or the item's admin-set image — so the
-    // catalogue is a gallery a family can shop from, not a list of rows.
+    // Captain, 2026-09-21 (Phase 2 of the content-catalogue plan): the plan page
+    // shows the five tiers with their inclusion checklists; the flat 42-item
+    // catalogue left it. Its cards move to /packages, /services and /products.
+    expect(html).not.toContain('class="shop-card"');
+    expect(html).not.toContain('class="day-ladder"');
+    expect(html).toContain("The five tiers — what each one includes");
+    for (const tier of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
+      expect(html, tier).toContain(tier);
+    }
+  });
+
+  it("/packages publishes its own cards, each with a photograph", async () => {
+    const html = renderToStaticMarkup(
+      createElement(CartProvider, null, await PackagesPage()),
+    );
+    // The imagery pass (captain 2026-09-19): a catalogue card leads with the
+    // client's own photograph from the ONE rule home (lib/catalogue-imagery.ts),
+    // never a list of rows. Nothing without a source: a card that borrows a
+    // picture must SAY it is a sample, and the chip never appears without its
+    // caption.
     const cards = html.match(/class="shop-card"/g) ?? [];
-    // The eight embalming day counts are the one group rendered as a priced
-    // ladder (one photograph, eight rows) rather than eight photo cards, so the
-    // count that matters is cards + ladder rows = every catalogue item.
-    const ladderRows = html.match(/class="day-ladder__row"/g) ?? [];
-    expect(cards.length + ladderRows.length).toBeGreaterThanOrEqual(items.length);
-    // One photograph per card, and every photograph a real committed file.
+    expect(cards.length).toBeGreaterThanOrEqual(3);
     const photos = html.match(/class="shop-card__media"/g) ?? [];
     expect(photos.length).toBeGreaterThanOrEqual(cards.length);
-    // Nothing without a source: a card that borrows a picture must SAY it is a
-    // sample, and the chip never appears without its caption.
     const chips = html.match(/class="casket-sample__chip"/g) ?? [];
     const captions = html.match(/class="shop-card__caption"/g) ?? [];
     expect(chips.length).toBeGreaterThan(0);
     expect(captions.length).toBe(chips.length);
-    // The group headings carry a real count each.
-    for (const label of ["Packages", "Services", "Add-ons"]) {
-      expect(html, label).toContain(label);
-    }
-    expect(html).toMatch(/band-head__count/);
-    // The embalming ladder is one service at eight day counts: one photograph and
-    // a priced ladder, never eight cards printing the same picture.
-    expect(html).toMatch(/class="day-ladder"/);
   });
 });
 

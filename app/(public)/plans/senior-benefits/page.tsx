@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { SENIOR_TERMS } from "@/lib/villa-pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -18,7 +19,11 @@ export const dynamic = "force-dynamic";
 
 /** Villa Memorial senior citizen plan — real terms & payment schedule. */
 export default async function SeniorBenefitsPage() {
-  const pricing = await loadPricingDocument();
+  const [pricing, page] = await Promise.all([
+    loadPricingDocument(),
+    getPageDocument("plans").catch(() => null),
+  ]);
+  const content = planContentFromDocument(page);
   return (
     <div className="stack-4">
       <section className="page-hero">
@@ -37,7 +42,7 @@ export default async function SeniorBenefitsPage() {
 
       <Card header={<h2 className="text-lg">Eligibility &amp; terms</h2>}>
         <ul className="stack-3">
-          {SENIOR_TERMS.map((t) => (
+          {content.seniorTerms.map((t) => (
             <li key={t}>{t}</li>
           ))}
         </ul>

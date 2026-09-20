@@ -4,7 +4,9 @@ import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { MembershipApplicationFolio } from "@/components/membership-application-folio";
 import { PlanTermsDisplay } from "@/components/villa/plan-terms-display";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { APPLICATION_NOT_A_COC_NOTE } from "@/lib/contracts/membership-application";
 import { hasAnyScope } from "@/lib/rbac/nav";
@@ -38,8 +40,14 @@ export default async function NewMembershipApplicationPage() {
   }
 
   let pricing: Awaited<ReturnType<typeof loadPricingDocument>>;
+  let planContent: ReturnType<typeof planContentFromDocument>;
   try {
-    pricing = await loadPricingDocument();
+    const [rates, page] = await Promise.all([
+      loadPricingDocument(),
+      getPageDocument("plans").catch(() => null),
+    ]);
+    pricing = rates;
+    planContent = planContentFromDocument(page);
   } catch (err) {
     return (
       <>
@@ -93,7 +101,7 @@ export default async function NewMembershipApplicationPage() {
         today={new Date().toISOString().slice(0, 10)}
       />
 
-      <PlanTermsDisplay pricing={pricing.plans} heading="What this plan publishes" />
+      <PlanTermsDisplay pricing={pricing.plans} content={planContent} heading="What this plan publishes" />
     </div>
   );
 }

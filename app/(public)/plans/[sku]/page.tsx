@@ -4,15 +4,11 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { ErrorState } from "@/components/ui/states";
 import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import {
-  CASH_ASSISTANCE,
-  PLAN_TIERS,
-  VMP_ELIGIBILITY,
-  VMP_INCLUSIONS,
-  VMP_NOTES,
-} from "@/lib/villa-pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
+import { CASH_ASSISTANCE, PLAN_TIERS } from "@/lib/villa-pricing";
 import { planTierForPackageSku, planTierPackageSku } from "@/lib/catalogue-skus";
 import {
   DOC_COMPLETE_PACKAGE,
@@ -151,8 +147,13 @@ export default async function PlanDetailPage({
   const typeLabel = TYPE_LABEL[item.item_type] ?? item.item_type.replace("_", "-");
   const isPackage = item.item_type === "package";
   const tierItems = isPackage ? await packageTierItems() : [];
-  const [pricing, content] = await Promise.all([loadPricingDocument(), listLandingContent()]);
+  const [pricing, content, plansPage] = await Promise.all([
+    loadPricingDocument(),
+    listLandingContent(),
+    getPageDocument("plans").catch(() => null),
+  ]);
   const { contact } = content;
+  const plan = planContentFromDocument(plansPage);
 
   const cartItem = {
     sku: item.sku,
@@ -202,14 +203,14 @@ export default async function PlanDetailPage({
             <h2 className="plan-section-title">Complete Memorial Package</h2>
 
             <section className="pkg-inclusions" aria-label="What the package includes">
-              {VMP_INCLUSIONS.map((inc, i) => {
+              {plan.packageInclusions.map((inc, i) => {
                 const IncIcon = INCLUSION_ICONS[i];
                 return (
-                  <div key={inc.service} className="pkg-inclusion">
+                  <div key={inc.label} className="pkg-inclusion">
                     <span className="pkg-inclusion__icon" aria-hidden="true">
-                      <IncIcon />
+                      {IncIcon ? <IncIcon /> : null}
                     </span>
-                    <h3 className="pkg-inclusion__title">{inc.service}</h3>
+                    <h3 className="pkg-inclusion__title">{inc.label}</h3>
                     <p className="pkg-inclusion__text">{inc.detail}</p>
                   </div>
                 );
@@ -224,7 +225,7 @@ export default async function PlanDetailPage({
                 <div>
                   <h3 className="pkg-condition__title">Eligibility</h3>
                   <ul>
-                    {VMP_ELIGIBILITY.map((line) => (
+                    {plan.eligibility.map((line) => (
                       <li key={line}>{line}</li>
                     ))}
                   </ul>
@@ -236,7 +237,7 @@ export default async function PlanDetailPage({
                 </span>
                 <div>
                   <h3 className="pkg-condition__title">Limited contestability</h3>
-                  <p>{VMP_NOTES.contestability}</p>
+                  <p>{plan.notes.contestability}</p>
                 </div>
               </div>
               <div className="pkg-condition">
@@ -245,7 +246,7 @@ export default async function PlanDetailPage({
                 </span>
                 <div>
                   <h3 className="pkg-condition__title">Assignable and transferable</h3>
-                  <p>{VMP_NOTES.assign}</p>
+                  <p>{plan.notes.assign}</p>
                 </div>
               </div>
               <div className="pkg-condition">

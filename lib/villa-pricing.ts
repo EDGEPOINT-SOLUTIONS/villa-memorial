@@ -22,9 +22,12 @@
  *    document through `lib/api-client/pricing.ts`; the exports below are the
  *    RECORDED SEED for static consumers and tests.
  *  · "COMPLETE MEMORIAL PACKAGE.jpg" — the plan's standard payment-mode table
- *    + CASH_ASSISTANCE, VMP_ELIGIBILITY, VMP_NOTES.
- *  · "TYPES OF COFFIN.jpg" — the senior payment-mode table + SENIOR_TERMS, the
- *    coffin tier photography/descriptions and the substitution note.
+ *    and CASH_ASSISTANCE. The plan's presentational copy (the package
+ *    inclusions, eligibility, senior terms and notes) was retired from this
+ *    module in Phase 2 of the content-catalogue plan: it is now the editable
+ *    "Villa Memorial Plan" page document, read through `lib/plan-content.ts`.
+ *  · "TYPES OF COFFIN.jpg" — the senior payment-mode table, the coffin tier
+ *    photography/descriptions and the substitution note.
  *
  * tests/unit/villa-pricing.test.ts pins every one of those figures (including
  * the ones now in the fixture), so a future transcription slip cannot ship.
@@ -171,43 +174,17 @@ export function coffinCover(model: string): string | undefined {
 export const COFFIN_COVER_UNSTATED =
   "The 2026 sheet names no cover for this model — its sample coffins are photographed with half-glass and full-glass lids, and the office confirms the exact cover.";
 
-export const SENIOR_TERMS = [
-  "Must be 61–100 years old",
-  "Senior citizens have no insurance benefit",
-  "Pay-the-balance arrangement",
-  "With FREE flowers",
-  "With complete memorial package",
-  "Transferable / assignable (terms apply)",
-];
-
+/**
+ * The cash-assistance benefit per coffin tier (COMPLETE MEMORIAL PACKAGE
+ * sheet). A CLIENT FIGURE, so it stays a sheet constant and is never authored
+ * into an editable content block; the plan page renders it beside the live
+ * rate tables.
+ */
 export const CASH_ASSISTANCE = [
   { tiers: "Bronze 1 & 2", amount: 10000 },
   { tiers: "Silver 1 & 2", amount: 20000 },
   { tiers: "Gold", amount: 30000 },
 ];
-
-export const VMP_PACKAGE = [
-  { service: "Retrieval & delivery", detail: "Retrieval of the deceased to the morgue and delivery of the same in casket. Good for the first 25 kms only." },
-  // Embalming is INCLUDED in the package with no fixed day count: the client's
-  // "2026 price FV website A" (byte-identical to PRICE LIST FOR 2026 II) prices
-  // embalming per day (3 days 6,000 … 9 days 15,000, +1,500/day beyond) and
-  // states that table applies only when the family does NOT take a package.
-  // There is no 1-day option in the list — never state a day count here.
-  { service: "Preparation & casketing", detail: "Embalming with make-up and dressing. The type of coffin differs with the plan." },
-  { service: "Viewing equipment", detail: "State-of-the-Art and classy equipment which includes lights, curtains and carpets." },
-  { service: "Interment", detail: "Several cars will be ready and bring the deceased to its final destination." },
-];
-
-export const VMP_ELIGIBILITY = ["Age 1–60 years old", "In good health", "Resident of the Philippines"];
-
-export const VMP_NOTES = {
-  contestability: "Inception date is 30 days after payment. Contestability period is 7 months after payment.",
-  assign: "The plan is assignable and transferable to anyone. Transfer/assignment fee is ₱1,000.",
-  extras: "All packages include FREE flowers and a tarpaulin.",
-  serving:
-    "Served by Funeraria Villa & ZC-Arcega Funeral Homes, underwritten by Villa Agency Insurance Services. Affiliated parlors: Funeraria Villa – Capilla de San Jose, Isabela City, Basilan · Funeraria Villa – National Highway, Brgy. Salvacion, Panabo City · Villa ZC-Arcega Funeral Homes – Zamboanga City · all Villa-affiliated funeral parlors around Mindanao.",
-  adjust: "Amortization can be adjusted to 8 years and 10 years.",
-};
 
 /**
  * One lot family's entry-level “from” figures (the recorded seed). Same shape
@@ -248,16 +225,6 @@ export function planRate(tier: PlanTier, term: PlanTerm, senior = false): number
 export function planTermOptions(tier: PlanTier, senior = false): Array<{ term: PlanTerm; label: string; per: string; amount: number }> {
   return planTermOptionsOf(SEED_PRICING.plans, tier, senior);
 }
-
-/** All five inclusions shown on the package page (client's COMPLETE MEMORIAL
- * PACKAGE sheet: the four service blocks + the free flowers/tarpaulin block). */
-export const VMP_INCLUSIONS: Array<{ service: string; detail: string }> = [
-  ...VMP_PACKAGE,
-  {
-    service: "Free flowers and tarpaulin",
-    detail: "Free! flowers and tarpaulin are included with the complete memorial package.",
-  },
-] as const;
 
 /* ===========================================================================
  * 2026 CASKET CATALOGUE — "2026 price FV website A" (= "PRICE LIST FOR 2026

@@ -94,8 +94,8 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     label: "Villa Memorial Plan",
     route: "/plans",
     editor: "page",
-    blocks: false,
-    hint: "The plan page hero. The five tiers and their inclusion checklists arrive with the page's migration.",
+    blocks: true,
+    hint: "The plan page: its five tiers and their inclusion checklists, the complete memorial package and the plan notes. Rates stay a live read of the pricing store.",
   },
   {
     key: "coffins",

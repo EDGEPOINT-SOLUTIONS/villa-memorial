@@ -56,10 +56,11 @@ const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: LotsPriceListPage } = await import(
   "@/app/(public)/lots/price-list-2026/page"
 );
-const { SENIOR_PAYMENTS, VMP_PAYMENTS, CASH_ASSISTANCE, VMP_ELIGIBILITY, VMP_NOTES } =
-  await import("@/lib/villa-pricing");
+const { SENIOR_PAYMENTS, VMP_PAYMENTS, CASH_ASSISTANCE } = await import("@/lib/villa-pricing");
 const { LOT_PRICE_CATEGORIES } = await import("@/lib/villa-pricing");
 const { listCatalogItems } = await import("@/lib/api-client/commerce");
+const { seedPageDocuments } = await import("@/lib/api-client/content-pages");
+const { planContentFromDocument } = await import("@/lib/plan-content");
 
 /** Every request link on the page, decoded into its params. */
 function requestLinks(html: string): URLSearchParams[] {
@@ -313,11 +314,10 @@ describe("the plan payment tables render on every plan surface", () => {
     expect(seniorGold!.get("note")).toMatch(/Senior-citizen rates/);
   });
 
-  it("/plans itself prints both schedules, cash assistance, eligibility and the notes", async () => {
-    const ui = await PlansPage({ searchParams: Promise.resolve({}) });
-    // The catalog cards mount the real add-to-cart control, which needs the cart
-    // context (same wrapper the cart render tests use).
-    const html = renderToStaticMarkup(createElement(CartProvider, null, ui));
+  it("/plans prints both schedules, cash assistance, eligibility and the notes", async () => {
+    const html = renderToStaticMarkup(
+      createElement(CartProvider, null, await PlansPage()),
+    );
     for (const rows of [VMP_PAYMENTS, SENIOR_PAYMENTS]) {
       for (const row of rows) {
         expect(html).toContain(row.mode);
@@ -330,31 +330,38 @@ describe("the plan payment tables render on every plan surface", () => {
       expect(html).toContain(c.tiers.replace(/&/g, "&amp;"));
       expect(html).toContain(php(c.amount));
     }
-    for (const e of VMP_ELIGIBILITY) expect(html).toContain(e);
-    expect(html).toContain(VMP_NOTES.contestability);
-    expect(html).toContain(VMP_NOTES.assign);
+    // Eligibility, the notes and the five tier checklists are the Plans page
+    // document's own content (Phase 2) — a staff edit is what the next visitor
+    // reads. Pin the SEED's values, read through the document's typed reader.
+    const plans = seedPageDocuments().find((doc) => doc.key === "plans")!;
+    const content = planContentFromDocument(plans);
+    for (const e of content.eligibility) expect(html).toContain(e);
+    expect(html).toContain(content.notes.contestability);
+    expect(html).toContain(content.notes.assign);
+    for (const tier of content.tiers) expect(html).toContain(tier.heading);
     expect(html).toContain("2026 rates — five tiers, four payment terms");
   });
 
-  it("/plans cards every catalogue item with Add to cart AND Request order", async () => {
+  it("/plans shows the five tiers and no longer cards the service catalogue", async () => {
     const items = await listCatalogItems();
-    const ui = await PlansPage({ searchParams: Promise.resolve({}) });
-    const html = renderToStaticMarkup(createElement(CartProvider, null, ui));
-    const bySku = requestLinksBySku(html);
-    for (const item of items) {
-      // React escapes any ampersand in a catalogue name (none of the sheet's own labels
-      // has one since the four un-sourced upstream items were withdrawn).
-      const name = item.name.replace(/&/g, "&amp;");
-      expect(html, `${item.sku} add button`).toContain(
-        `aria-label="Add to cart: ${name}"`,
+    const html = renderToStaticMarkup(
+      createElement(CartProvider, null, await PlansPage()),
+    );
+    // The captain's Phase-2 direction: the mixed 42-item catalogue left this
+    // page. Services and caskets (add-ons) belong to /services and /products.
+    const services = items.filter((item) => item.item_type === "service" || item.item_type === "add_on");
+    for (const item of services) {
+      expect(html, `${item.sku} must not be on /plans`).not.toContain(
+        `aria-label="Add to cart: ${item.name.replace(/&/g, "&amp;")}"`,
       );
-      const request = bySku.get(item.sku);
-      expect(request, `${item.sku} request link`).toBeTruthy();
-      expect(request!.get("item")).toBe(item.name);
-      expect(request!.get("price")).toBe(item.display_price);
     }
-    expect(html).toContain("Request order");
-    expect(html).toContain("View this item");
+    // The five client tiers render, one checklist each.
+    for (const tier of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
+      expect(html, tier).toContain(tier);
+    }
+    expect(html).toContain("The five tiers — what each one includes");
+    // Packages keep their own route and cards.
+    expect(html).toContain("Browse the 2026 packages");
   });
 });
 

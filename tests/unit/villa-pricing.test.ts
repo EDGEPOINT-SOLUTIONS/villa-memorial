@@ -11,6 +11,8 @@
  */
 import { describe, expect, it } from "vitest";
 import { checkLotCategories, checkPlanPricing } from "@/lib/pricing-model";
+import { seedPageDocuments } from "@/lib/api-client/content-pages";
+import { planContentFromDocument } from "@/lib/plan-content";
 import {
   ALACARTE_SERVICE_FEES,
   ALACARTE_SERVICE_TOTAL,
@@ -30,8 +32,6 @@ import {
   PLAN_TIERS,
   SENIOR_PAYMENTS,
   SEED_PRICING,
-  VMP_INCLUSIONS,
-  VMP_PACKAGE,
   VMP_PAYMENTS,
   lotCategoryFromPrice,
   php,
@@ -108,10 +108,21 @@ describe("2026 price list structure", () => {
     }
   });
 
-  it("shows five package inclusions (four service blocks + flowers/tarpaulin)", () => {
-    expect(VMP_INCLUSIONS).toHaveLength(5);
-    expect(VMP_INCLUSIONS.slice(0, 4)).toEqual(VMP_PACKAGE);
-    expect(VMP_INCLUSIONS[4].service).toMatch(/flowers/i);
+  it("keeps the five package inclusions in the Plans page document (four service blocks + flowers/tarpaulin)", () => {
+    // Phase 2 retired VMP_PACKAGE/VMP_INCLUSIONS from lib/villa-pricing.ts into
+    // the editable Plans page document; the sheet's figures and wording stay
+    // pinned here, through the document's own typed reading.
+    const plans = seedPageDocuments().find((doc) => doc.key === "plans");
+    expect(plans, "the Plans page document seed").toBeTruthy();
+    const content = planContentFromDocument(plans!);
+    expect(content.packageInclusions).toHaveLength(5);
+    expect(content.packageInclusions.slice(0, 4).map((row) => row.label)).toEqual([
+      "Retrieval & delivery",
+      "Preparation & casketing",
+      "Viewing equipment",
+      "Interment",
+    ]);
+    expect(content.packageInclusions[4].label).toMatch(/flowers/i);
   });
 
   it("derives each family's entry-level “from …” figures for the home service cards", () => {
