@@ -98,8 +98,15 @@ on backend services.
   `styles/components.css` classes (`.table`/`.table-wrapper`, `.badge`, `.empty-state`,
   `.kpi-card`, `.shop-card`/`.shop-grid`); a migration that changes how a page looks is a bug.
   Migrated: `/staff/inventory`, `/staff/accounting`, `/staff/notifications`, `/staff/workflows`,
-  `/staff/settings`, `/staff/users`. The public pages adopt `ProductCard`/`ResultsGrid`/
-  `FilterRail` in the follow-up pass after the `/lots` rebuild. Kit CSS lives in the
+  `/staff/settings`, `/staff/users`, and the public storefront card grids `/lots`, `/plans`,
+  `/packages`, `/products` (2026-09-21). The `components/villa/shop-card.tsx` duplicate is gone —
+  kit `ProductCard` owns that grammar exactly (status under the figure, plus the casket `senior`
+  line); `ResultsGrid.label` is optional so a grid inside a labelled band adds no `aria-label`.
+  `FilterRail` is deliberately NOT on `/lots`: the captain-approved Amazon rail there is a
+  different grammar (button group heads with carets, count pills, quick price ranges, an in-place
+  phone sheet), so forcing the kit rail would be a restyle. The delta, the byte-identical DOM and
+  the 1440/390 screenshot evidence are in
+  `docs/08-delivery/component-kit-public-adoption-design/`. Kit CSS lives in the
   "Component kit" blocks of `styles/components.css` so the typography gate scans it.
 
 ## Self-check commands (before every PR)

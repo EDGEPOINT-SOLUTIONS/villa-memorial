@@ -34,8 +34,13 @@ export function ResultsGrid<Item>({
   items: ReadonlyArray<Item>;
   itemKey: (item: Item, index: number) => string;
   renderItem: (item: Item, index: number) => ReactNode;
-  /** Accessible name for the list ("Lots", "Plans", "Coffins"). */
-  label: string;
+  /**
+   * Accessible name for the list ("Lots", "Plans", "Coffins"). Optional — like
+   * `DataTable.label` — so a grid already inside a labelled `<section>` (the
+   * storefront bands) does not carry a duplicate name and its DOM stays
+   * byte-identical to the pre-kit markup.
+   */
+  label?: string;
   emptyTitle: ReactNode;
   emptyHint?: ReactNode;
   /** Set when a filter/search is active, so the empty state reads as a no-match. */

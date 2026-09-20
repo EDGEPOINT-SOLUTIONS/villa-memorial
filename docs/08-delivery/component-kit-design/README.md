@@ -40,9 +40,11 @@ showing a plausible number.
 `/staff/settings` · `/staff/users`
 
 Their tables are `DataTable`, tiles `StatCard`, state chips `StatusChip`, empty states
-`EmptyState`. Behaviour, data, prices and honesty notes are unchanged. The public pages are
-deliberately **not** touched — `/lots` is being rebuilt in parallel; `ProductCard` / `ResultsGrid` /
-`FilterRail` are the pieces that pass adopts next.
+`EmptyState`. Behaviour, data, prices and honesty notes are unchanged. The public storefront adopted
+`ProductCard` / `ResultsGrid` in the follow-up pass — see
+[`../component-kit-public-adoption-design/README.md`](../component-kit-public-adoption-design/README.md).
+`FilterRail` was **not** adopted on `/lots`: the landed Amazon-style rail is a different grammar,
+and forcing it would be a restyle (the delta is recorded there).
 
 ## No-visual-change evidence
 

@@ -18,15 +18,23 @@ import { StatusChip, type StatusTone } from "@/components/kit/status-chip";
  * it never borrows a wrong picture to fill the slot. Everything else passes a
  * `photo`.
  *
- * ONE STATUS CHIP. The item's availability / sample state is a `StatusChip`
- * (`status.tone` + `status.label`), so its colour cannot drift. A sample
- * photograph also carries `chip` — the marker the storefront's substitution note
- * requires (`COFFIN_TIER_NOTE`) — and its `caption` says what the picture really
- * is.
+ * ONE STATUS ROW, UNDER THE FIGURE. The item's availability / sample state is a
+ * `StatusChip` (`status.tone` + `status.label`), printed directly under the
+ * price — the second thing a shopper reads after the figure, which is where the
+ * /lots listing's availability chip has always sat. A sample photograph also
+ * carries `chip` — the marker the storefront's substitution note requires
+ * (`COFFIN_TIER_NOTE`) — and its `caption` says what the picture really is.
  *
- * The markup is the catalogue's existing `.shop-card`, unchanged, so a surface
- * that already renders one (the storefront's `ShopCard`) adopts this component
- * with no visual change.
+ * THE SENIOR LINE. A casket carries a second published figure (the senior-
+ * citizen price and discount); `senior` is that line, under the status row. It is
+ * data, not prose — a `<div>`, never a paragraph (the reading-budget guard
+ * measures every `<p>` on /plans and /products).
+ *
+ * This IS the catalogue's former `components/villa/shop-card.tsx`, moved onto
+ * the kit's one product component (2026-09-21 public adoption). The markup is
+ * unchanged — `.shop-card` body order is eyebrow · title · supporting · price ·
+ * status · senior · actions — so /lots, /plans, /packages and /products adopt it
+ * with no visual change and no duplicated card grammar.
  */
 export type ProductCardPhoto = {
   src: string;
@@ -47,6 +55,7 @@ export function ProductCard({
   price,
   priceNote,
   status,
+  senior,
   caption,
   actions,
 }: {
@@ -64,11 +73,13 @@ export function ProductCard({
   price: ReactNode;
   /** What the figure is ("regular SRP", "per day"). */
   priceNote?: string;
-  /** The availability / honesty chip. */
+  /** The availability / honesty chip, under the figure. */
   status?: { tone?: StatusTone; label: ReactNode };
+  /** The senior-citizen line, when the item has one. */
+  senior?: ReactNode;
   /** What the photograph is. Required wherever `chip` is set. */
   caption?: ReactNode;
-  /** The card's one action slot (the shared View / Add / Request grammar). */
+  /** The card's action slot (the shared View / Add / Request grammar). */
   actions: ReactNode;
 }) {
   return (
@@ -98,16 +109,17 @@ export function ProductCard({
         <h3 className="shop-card__title">
           <Link href={href}>{title}</Link>
         </h3>
-        {status ? (
-          <div className="shop-card__meta">
-            <StatusChip tone={status.tone}>{status.label}</StatusChip>
-          </div>
-        ) : null}
         {supporting ? <div className="shop-card__meta">{supporting}</div> : null}
         <div className="shop-card__price">
           {price}
           {priceNote ? <span className="shop-card__unit">{priceNote}</span> : null}
         </div>
+        {status ? (
+          <div className="shop-card__status">
+            <StatusChip tone={status.tone}>{status.label}</StatusChip>
+          </div>
+        ) : null}
+        {senior ? <div className="shop-card__senior">{senior}</div> : null}
         <div className="shop-card__actions">{actions}</div>
       </div>
     </li>

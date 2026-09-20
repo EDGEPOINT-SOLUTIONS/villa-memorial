@@ -45,11 +45,17 @@ that show the same thing look the same, and the honesty rules below apply on bot
 - **Migrated (this kit's proof):** the admin screens `/staff/inventory`, `/staff/accounting`,
   `/staff/notifications`, `/staff/workflows` and `/staff/settings` render their tables, KPI
   tiles and empty states through the kit. The migration is markup-for-markup — no visual change.
-- **Built, awaiting the public adoption pass:** `ProductCard`, `ResultsGrid` and `FilterRail`
-  are the storefront patterns (`product-card` is the same grammar as the catalogue's existing
-  `components/villa/shop-card.tsx`). The public pages (`/lots`, `/plans`, `/products`, …) adopt
-  them in a follow-up once the `/lots` listing rebuild lands; the kit does not touch public
-  routes today.
+- **Migrated — public storefront (2026-09-21):** every surface that renders the product card
+  grammar reads `ProductCard` + `ResultsGrid`: `/lots`, `/plans`, `/packages` and `/products`
+  (the casket catalogue). The duplicate `components/villa/shop-card.tsx` was deleted; its exact
+  markup is now `ProductCard`'s (the availability chip under the figure, plus the casket's
+  `senior` line), so the swap is byte-identical. `FilterRail` is NOT adopted on `/lots`: the
+  captain-approved Amazon rail there is a different grammar (`<button>` group heads with chevron
+  carets, count pills, quick price ranges, an in-place sheet) from this rail's `<details>` /
+  min-max / modal-sheet shape, so moving it would be a restyle. It stays landed; promoting that
+  Amazon grammar into the kit is an open decision. `/services`, `/facilities` and `/gallery`
+  keep their captain-approved bespoke card grammars; `/map` and `/builder` have no kit-shaped
+  pattern.
 
 ## Adding a screen
 
