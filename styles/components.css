@@ -1873,19 +1873,14 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-accent);
 }
 
-.lot-refine__clear {
-  border: 0;
-  padding: 0.35rem 0;
-  background: transparent;
-  color: var(--color-sky-strong);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
-}
+/* No bespoke Clear style: the rail header's Clear is the SAME control as the
+   no-results "Clear all filters" — `.btn--secondary` (the shop grammar's
+   supporting rung), so the one reset act has one treatment. */
 
 /* Each group is separated by a hairline, headed by a caret button that
-   collapses it in place — Amazon's refine panel, our type ladder. */
+   collapses it in place — Amazon's refine panel, our type ladder. The head
+   carries the same hover affordance as its option rows (a subtle wash) so the
+   whole panel reads as one control system. */
 .lot-filter {
   border-bottom: 1px solid var(--color-rule);
 }
@@ -1897,11 +1892,16 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-2);
   width: 100%;
   min-height: 2.75rem; /* 44px group toggle */
-  padding: var(--space-2) 0;
+  padding: var(--space-2) var(--space-1);
   border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
   text-align: left;
   cursor: pointer;
+}
+
+.lot-filter__head:hover {
+  background: var(--color-bg-subtle);
 }
 
 .lot-filter__group {
@@ -1994,22 +1994,11 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-2);
 }
 
-.lot-filter__quick-link {
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 0.4rem 0.6rem;
-  background: var(--color-bg-surface-raised);
-  color: var(--color-text-secondary);
-  font-size: var(--text-xs);
-  text-align: left;
-  cursor: pointer;
-}
-
-.lot-filter__quick-link:hover {
-  border-color: var(--brass-400);
-  color: var(--color-text-accent);
-}
-
+/* The quick ranges are a TOGGLE on the same ladder as Go and the rail's other
+   controls: `.btn--secondary .btn--sm` (no bespoke chip). Only the pressed
+   state is route-local — the selected range reads as chosen, not just hovered.
+   Riding `.btn` also gives them the phone 44px touch target the old chip-sized
+   control never reached. */
 .lot-filter__quick-link[aria-pressed="true"] {
   border-color: var(--color-sky-strong);
   background: var(--sky-50);
@@ -2034,6 +2023,10 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-md);
   font-weight: 700;
   cursor: pointer;
+}
+
+.lot-sheet__toggle:hover {
+  border-color: var(--navy-300);
 }
 
 .lot-sheet__toggle-label {

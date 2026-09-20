@@ -43,6 +43,31 @@ vi.mock("next/navigation", () => ({
 
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { lotPhoto } = await import("@/lib/lot-imagery");
+const { RefinePanel } = await import("@/app/(public)/lots/lot-filters");
+const { EMPTY_LOT_FILTERS } = await import("@/lib/lot-listing");
+
+/** Render the refine panel on its own so the phone-only Apply action (mounted
+ *  behind client state a server render never opens) can be inspected. */
+function renderPanel(apply: boolean): string {
+  return renderToStaticMarkup(
+    <RefinePanel
+      filters={{ ...EMPTY_LOT_FILTERS }}
+      counts={{ parks: {}, statuses: {}, types: {}, sections: {}, areas: {} }}
+      parks={[{ id: "villa", label: "Villa Memorial" }]}
+      statuses={[{ id: "available", label: "Available" }]}
+      types={[{ id: "lt-prime", label: "Prime lots" }]}
+      sections={["A"]}
+      priceRanges={[
+        { id: "up-to", label: "Up to ₱128,000.00", minCents: 0, maxCents: 12_800_000 },
+      ]}
+      onToggle={() => {}}
+      onClear={() => {}}
+      onPriceApply={() => {}}
+      onQuickRange={() => {}}
+      {...(apply ? { onApply: () => {}, applyLabel: "Show 56 lots" } : {})}
+    />,
+  );
+}
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
@@ -84,9 +109,9 @@ describe("the /lots product listing", () => {
       expect(card).toContain('class="shop-card__media"');
       expect(card).toMatch(/<img src="\/media\/[^"]+"/);
       expect(card).toContain('class="shop-card__caption"');
-      // One availability chip and one primary action per card — no second CTA.
+      // One availability chip and one card action per card — no second CTA.
       expect(card.match(/class="badge badge--/g) ?? []).toHaveLength(1);
-      expect(card.match(/class="btn btn--primary btn--sm"/g) ?? []).toHaveLength(1);
+      expect(card.match(/class="btn btn--accent btn--sm"/g) ?? []).toHaveLength(1);
       // Card furniture never becomes paragraph prose (reading at a glance).
       expect(card.match(/<p[ >]/g) ?? []).toHaveLength(1);
     }
@@ -222,6 +247,60 @@ describe("the /lots product listing", () => {
     // Closed by default, so the results lead on a phone (the panel is mounted
     // only when the control is used — no hidden duplicate inputs).
     expect(html).not.toContain('class="lot-sheet__panel"');
+  });
+});
+
+/**
+ * One CTA grammar (captain follow-up, 2026-09-21: "tell me why in the lots, the
+ * buttons or cta is not consistent"): every repeated control on /lots belongs
+ * to the SAME ladder the public catalogue already uses — a card's primary
+ * action is `.btn--accent` (the gold `Add to cart` rung), every supporting
+ * action is `.btn--secondary`, and the panel's commit is `.btn--primary`,
+ * the page-level rung. These pin the classes, not the colour.
+ */
+describe("one control ladder for /lots", () => {
+  it("dresses every card's action in the catalogue's primary (accent) rung", async () => {
+    const actions = [...(await renderPage()).matchAll(/class="(btn [^"]*)"[^>]*>(View[^<]+)</g)];
+    expect(actions.length).toBe(56);
+    for (const [, cls, label] of actions) {
+      expect(cls, label).toBe("btn btn--accent btn--sm");
+    }
+  });
+
+  it("keeps the two honest destinations but reads them as one action grammar", async () => {
+    const labels = new Set(
+      [...(await renderPage()).matchAll(/class="btn [^"]*"[^>]*>(View[^<]+)</g)].map(
+        (m) => m[1],
+      ),
+    );
+    // Every label shares the same core action; a map-only plot spells out where
+    // it goes, a published lot does not need to.
+    for (const label of labels) expect(label.startsWith("View this lot")).toBe(true);
+    expect(labels).toEqual(new Set(["View this lot", "View this lot on the park map"]));
+  });
+
+  it("gives the two Clear controls one treatment (the supporting rung)", async () => {
+    // The rail's Clear is only rendered while a filter is applied.
+    const withFilter = await renderPage({ park: "villa" });
+    const railClear = withFilter.match(/class="([^"]*)"[^>]*>\s*Clear\s*</)?.[1] ?? "";
+    expect(railClear).toBe("btn btn--secondary btn--sm");
+    // The no-results recovery is the same act, so the same control.
+    const noMatch = await renderPage({ park: "loyola", status: "sold", type: "lt-mausoleum" });
+    const emptyClear =
+      noMatch.match(/class="([^"]*)"[^>]*>\s*Clear all filters\s*</)?.[1] ?? "";
+    expect(emptyClear).toBe("btn btn--secondary btn--sm");
+  });
+
+  it("gives the desktop Go and the phone Apply the same commit rung", () => {
+    const html = renderPanel(true);
+    expect(html).toContain('class="btn btn--primary">Go</button>');
+    expect(html).toContain('class="btn btn--primary lot-sheet__apply"');
+    // The quick ranges stay subordinate, but ride the same `.btn` ladder (which
+    // also gives them the phone 44px touch target the old chip never reached).
+    expect(html).toContain('class="btn btn--secondary btn--sm lot-filter__quick-link"');
+    expect(html).not.toMatch(/class="lot-filter__quick-link"/);
+    // Without an apply handler the rail renders no Apply button.
+    expect(renderPanel(false)).not.toContain("lot-sheet__apply");
   });
 });
 
