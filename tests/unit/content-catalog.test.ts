@@ -1,11 +1,19 @@
 import { describe, expect, it } from "vitest";
 import {
   CONTENT_RATE_REFS,
+  CONTENT_RICHTEXT_NODES_MAX,
+  CONTENT_SPECS_COLUMNS_MAX,
   PAGE_DOCUMENTS,
   emptyBlock,
+  readCatalogueEntry,
+  readContentSpecs,
   readPageDocument,
+  readRichTextDoc,
+  referencedImageBytes,
   validateCatalogueEntry,
+  validateContentSpecs,
   validatePageDocument,
+  validateRichText,
   type ContentValidationContext,
 } from "@/lib/content-catalog";
 
@@ -291,6 +299,21 @@ describe("the shared block vocabulary", () => {
 });
 
 describe("validateCatalogueEntry", () => {
+  const baseEntry = {
+    id: "e1",
+    kind: "product",
+    sku: "CSK-WHITE-ROSE-FULL",
+    key: "white-rose-full",
+    title: "White Rose Full casket",
+    summary: "Full glass lid.",
+    group: "The White Rose Collection",
+    media: { hero: null, gallery: [] },
+    gallery: [],
+    specs: null,
+    blocks: [],
+    price: { kind: "sku", sku: "CSK-WHITE-ROSE-FULL" },
+  };
+
   it("accepts an entry bound to a live SKU", () => {
     const verdict = validateCatalogueEntry(
       {
@@ -316,5 +339,165 @@ describe("validateCatalogueEntry", () => {
       CONTEXT,
     );
     expect(verdict.ok).toBe(false);
+  });
+
+  it("accepts a rich description, a gallery and per-variant specs", () => {
+    const verdict = validateCatalogueEntry(
+      {
+        ...baseEntry,
+        description: { nodes: [{ type: "paragraph", spans: [{ text: "A solid casket." }] }] },
+        gallery: [{ id: "g1", src: "/media/x.webp", alt: "A casket", caption: null, sample: false }],
+        specs: { columns: ["Material", "Finish"], rows: [["Metal", "White"]] },
+      },
+      CONTEXT,
+    );
+    expect(verdict.ok).toBe(true);
+  });
+
+  it("keeps the entry gallery uncapped while the in-block gallery stays capped at 12", () => {
+    const images = Array.from({ length: 20 }, (_, i) => ({
+      id: `g${i}`,
+      src: "/media/x.webp",
+      alt: `Casket ${i}`,
+      caption: null,
+      sample: false,
+    }));
+    const entry = validateCatalogueEntry({ ...baseEntry, gallery: images }, CONTEXT);
+    expect(entry.ok).toBe(true);
+
+    const block = validatePageDocument(
+      parkDocument({ blocks: [{ id: "b", type: "gallery", heading: "", images }] }),
+      CONTEXT,
+    );
+    expect(block.ok).toBe(false);
+  });
+
+  it("refuses a 16-column specs table on the entry, naming the column", () => {
+    const columns = Array.from({ length: CONTENT_SPECS_COLUMNS_MAX }, (_, i) => `Header ${i + 1}`);
+    const verdict = validateCatalogueEntry(
+      { ...baseEntry, specs: { columns: [...columns, "Weight"], rows: [] } },
+      CONTEXT,
+    );
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("Weight");
+  });
+
+  it("runs the glyph gate over the rich description, gallery and specs", () => {
+    const verdict = validateCatalogueEntry(
+      {
+        ...baseEntry,
+        description: { nodes: [{ type: "paragraph", spans: [{ text: "A quiet place \ud83c\udf3f" }] }] },
+      },
+      CONTEXT,
+    );
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("Alegreya");
+  });
+
+  it("reads the new authored fields from a stored entry", () => {
+    const entry = readCatalogueEntry({
+      ...baseEntry,
+      description: { nodes: [{ type: "heading", level: 2, text: "About" }] },
+      gallery: [{ id: "g1", src: "/media/x.webp", alt: "A casket", caption: null, sample: false }],
+      specs: { columns: ["Material"], rows: [["Metal"]] },
+    });
+    expect(entry.description?.nodes).toHaveLength(1);
+    expect(entry.gallery).toHaveLength(1);
+    expect(entry.specs?.columns).toEqual(["Material"]);
+  });
+});
+
+describe("the rich-text description", () => {
+  const doc = {
+    nodes: [
+      { type: "heading", level: 2, text: "About this model" },
+      { type: "paragraph", spans: [{ text: "Solid " }, { text: "hardwood", marks: ["bold"] }] },
+      { type: "bulletList", items: [[{ text: "Half lid" }], [{ text: "Full lid", marks: ["italic"] }]] },
+      { type: "orderedList", items: [[{ text: "Choose a model" }]] },
+    ],
+  };
+
+  it("reads a typed node tree, never an HTML string", () => {
+    const read = readRichTextDoc(doc);
+    expect(read.nodes.map((node) => node.type)).toEqual(["heading", "paragraph", "bulletList", "orderedList"]);
+    expect(JSON.stringify(read)).not.toContain("<p>");
+  });
+
+  it("drops unknown node types and heading levels the page cannot use", () => {
+    const read = readRichTextDoc({
+      nodes: [
+        { type: "html", text: "<b>hi</b>" },
+        { type: "heading", level: 1, text: "Too big" },
+        { type: "heading", level: 3, text: "Fine" },
+      ],
+    });
+    expect(read.nodes).toEqual([{ type: "heading", level: 3, text: "Fine" }]);
+  });
+
+  it("filters marks to the bold/italic vocabulary", () => {
+    const read = readRichTextDoc({
+      nodes: [{ type: "paragraph", spans: [{ text: "hi", marks: ["bold", "underline", "blink"] }] }],
+    });
+    const [node] = read.nodes;
+    if (node?.type !== "paragraph") throw new Error("expected a paragraph");
+    expect(node.spans[0]?.marks).toEqual(["bold"]);
+  });
+
+  it("accepts a valid document and refuses one with no text", () => {
+    expect(validateRichText(doc).ok).toBe(true);
+    const empty = validateRichText({ nodes: [{ type: "paragraph", spans: [] }] });
+    expect(empty.ok).toBe(false);
+  });
+
+  it("refuses more than the node cap", () => {
+    const nodes = Array.from({ length: CONTENT_RICHTEXT_NODES_MAX + 1 }, () => ({
+      type: "paragraph",
+      spans: [{ text: "one" }],
+    }));
+    const verdict = validateRichText({ nodes });
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain(String(CONTENT_RICHTEXT_NODES_MAX));
+  });
+
+  it("refuses an over-long span and a javascript: link", () => {
+    const long = validateRichText({ nodes: [{ type: "paragraph", spans: [{ text: "x".repeat(2001) }] }] });
+    expect(long.ok).toBe(false);
+    const badLink = validateRichText({
+      nodes: [{ type: "paragraph", spans: [{ text: "click", href: "javascript:alert(1)" }] }],
+    });
+    expect(badLink.ok).toBe(false);
+  });
+});
+
+describe("the specifications table", () => {
+  it("reads a specs table defensively", () => {
+    const read = readContentSpecs({ columns: ["A"], rows: [["1"]], extra: true });
+    expect(read).toEqual({ columns: ["A"], rows: [["1"]] });
+  });
+
+  it("accepts 15 columns and refuses a 16th by name", () => {
+    const columns = Array.from({ length: CONTENT_SPECS_COLUMNS_MAX }, (_, i) => `Header ${i + 1}`);
+    expect(validateContentSpecs({ columns, rows: [columns.map(() => "")] }).ok).toBe(true);
+
+    const tooMany = validateContentSpecs({ columns: [...columns, "Weight"], rows: [] });
+    expect(tooMany.ok).toBe(false);
+    if (!tooMany.ok) {
+      expect(tooMany.errors.join(" ")).toContain("Weight");
+      expect(tooMany.errors.join(" ")).toContain(String(CONTENT_SPECS_COLUMNS_MAX + 1));
+    }
+  });
+
+  it("refuses a row whose cells do not match the columns", () => {
+    const verdict = validateContentSpecs({ columns: ["A", "B"], rows: [["only one"]] });
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("columns");
+  });
+
+  it("counts only stored data-URL payload for the gallery size guard", () => {
+    expect(referencedImageBytes([{ id: "a", src: "/media/x.webp", alt: "x", caption: null, sample: false }])).toBe(0);
+    const dataUrl = `data:image/png;base64,${"A".repeat(500)}`;
+    expect(
+      referencedImageBytes([{ id: "b", src: dataUrl, alt: "x", caption: null, sample: false }]),
+    ).toBe(dataUrl.length);
   });
 });
