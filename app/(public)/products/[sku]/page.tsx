@@ -12,7 +12,7 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import { casketDetailHref, coffinModelForSku, coffinSku } from "@/lib/catalogue-skus";
 import { catalogueItemPhoto } from "@/lib/catalogue-imagery";
 import { resolveSpecs } from "@/lib/product-line";
-import { COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
+import { php } from "@/lib/villa-pricing";
 import { casketSamplePhoto } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
@@ -24,6 +24,13 @@ import { pageMetadata } from "@/lib/seo";
  * /plans/[sku] detail pattern, so a model is linkable, shareable and readable
  * without JavaScript, and every fact comes from data (the catalogue entry plus
  * lib/villa-pricing.ts) instead of being typed into the view.
+ *
+ * P3 (data/villa-pdp-cms-plan/report.md §6): the page is the Amazon STRUCTURE in
+ * our tokens — a sticky gallery beside the buy box, then the editable catalogue
+ * content below the fold. The legacy bespoke blocks (the long sample captions,
+ * "This model at a glance", "What comes with this model", "How the five tiers are
+ * shown", the five-link row and the sibling row) are gone; every visible string
+ * below the fold comes from the entry, and money is always a live price.
  *
  * THE VARIANT SELECTOR (P2). The model's line (its sheet collection) and EVERY
  * sibling entry are resolved server-side in one pass and handed to
@@ -136,73 +143,44 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
   for (const line of allItems) pricesBySku[line.sku] = line.display_price;
   pricesBySku[item.sku] = item.display_price;
 
-  const staticAside = (
-    <>
-      <section className="buy-card" aria-labelledby="casket-advisor">
-        <div className="buy-card__label" id="casket-advisor">
-          Talk to our memorial care advisor
-        </div>
-        <p className="plan-advisor__line">
-          <a className="plan-advisor__phone" href={contact.phoneHref}>
-            Call {contact.phoneDisplay}
-          </a>
-          <br />
-          <span className="text-sm text-muted">
-            {contact.phoneLabel} · {contact.location}
-          </span>
-        </p>
-        <p className="plan-note">
-          Not sure which cover or model suits the family? Send a request with this model — the
-          office confirms availability and the final price before anything is reserved.
-        </p>
-        <Link
-          href={buildRequestHref({
-            item: `${model.model} casket`,
-            sku: item.sku,
-            price: item.display_price,
-            note: `Model question — ${model.collection}, ${model.family} family. Nothing is reserved by this request.`,
-          })}
-          className="btn btn--secondary btn--sm btn--block"
-        >
-          Request a model check
-        </Link>
-      </section>
-
-      <p className="text-sm text-muted" style={{ margin: 0 }}>
-        <Badge tone="accent">Casket</Badge> Included in every{" "}
-        <Link href="/plans">Villa Memorial Plan</Link> tier; senior citizens enjoy the{" "}
-        <Link href="/price-list">senior plan</Link> with free flowers.
+  const advisor = (
+    <section className="buy-card" aria-labelledby="casket-advisor">
+      <div className="buy-card__label" id="casket-advisor">
+        Talk to our memorial care advisor
+      </div>
+      <p className="plan-advisor__line">
+        <a className="plan-advisor__phone" href={contact.phoneHref}>
+          Call {contact.phoneDisplay}
+        </a>
+        <br />
+        <span className="text-sm text-muted">
+          {contact.phoneLabel} · {contact.location}
+        </span>
       </p>
-    </>
+      <p className="plan-note">
+        Not sure which cover or model suits the family? Send a request with this model — the
+        office confirms availability and the final price before anything is reserved.
+      </p>
+      <Link
+        href={buildRequestHref({
+          item: `${model.model} casket`,
+          sku: item.sku,
+          price: item.display_price,
+          note: `Model question — ${model.collection}, ${model.family} family. Nothing is reserved by this request.`,
+        })}
+        className="btn btn--secondary btn--sm btn--block"
+      >
+        Request a model check
+      </Link>
+    </section>
   );
 
-  const staticBelowFold = (
-    <section className="mid-section" aria-labelledby="casket-samples">
-      <p className="mid-kicker">The client&rsquo;s own photographs</p>
-      <h2 id="casket-samples">How the five tiers are shown</h2>
-      <p className="mid-intro">
-        Each tier below carries one sample from the client&rsquo;s own 2026 photographs, chosen for
-        the lid line its sheet name states — the office confirms the cover before anything is
-        reserved. {COFFIN_TIER_NOTE}
-      </p>
-      <div className="casket-sample-strip">
-        {COFFINS.map((coffin) => (
-          <figure key={coffin.tier} className="tribute-figure">
-            {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-            <img
-              src={coffin.photo}
-              alt={`Illustrative sample coffin — ${coffin.tier}, ${coffin.lid}`}
-              loading="lazy"
-            />
-            <figcaption>
-              <strong>{coffin.tier}</strong>
-              <span>{coffin.lid}</span>
-              <span className="casket-sample__mini">Sample photograph</span>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-    </section>
+  const planBadge = (
+    <p className="text-sm text-muted" style={{ margin: 0 }}>
+      <Badge tone="accent">Casket</Badge> Included in every{" "}
+      <Link href="/plans">Villa Memorial Plan</Link> tier; senior citizens enjoy the{" "}
+      <Link href="/price-list">senior plan</Link> with free flowers.
+    </p>
   );
 
   return (
@@ -217,8 +195,13 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
         selectedSku={item.sku}
         variants={variants}
         pricesBySku={pricesBySku}
-        staticAside={staticAside}
-        staticBelowFold={staticBelowFold}
+        contact={contact}
+        aside={
+          <>
+            {advisor}
+            {planBadge}
+          </>
+        }
       />
     </div>
   );

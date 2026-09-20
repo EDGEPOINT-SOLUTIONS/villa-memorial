@@ -14,14 +14,9 @@ import {
   coffinSku,
 } from "@/lib/catalogue-skus";
 import {
-  CASKET_INCLUSIONS,
   CASKET_MODELS,
   CHAPEL_RATES,
-  COFFIN_COVER_UNSTATED,
-  COFFIN_TIER_NOTE,
-  COFFINS,
   EMBALMING_RATES,
-  coffinCover,
   php,
 } from "@/lib/villa-pricing";
 import {
@@ -270,34 +265,24 @@ describe("the casket detail view renders the model's own data", () => {
     html = await renderDetail(SKU);
   });
 
-  it("shows the catalogue name, collection, family and the cover its name states", () => {
+  it("leads with the catalogue name, its collection and the live 2026 price", () => {
     expect(html).toContain("White Rose Full casket");
     expect(html).toContain("The White Rose Collection");
-    expect(html).toContain("White Rose family");
-    expect(html).toContain(coffinCover("White Rose Full")!);
-    // The catalogue SKU is published on the page as the code.
-    expect(html).toContain(SKU);
-  });
-
-  it("publishes all four sheet prices and the senior conditions", () => {
-    expect(html).toContain(php(68000));
-    expect(html).toContain(php(13600));
+    expect(html).toContain('<div class="detail-sticky__price">₱68,000.00</div>');
+    expect(html).toContain("Published 2026 price");
+    // The model's own senior figures stay published beside the live price.
     expect(html).toContain(php(54400));
-    expect(html).toContain("Regular SRP");
-    expect(html).toContain("Senior-citizen discounted price");
     expect(html).toContain("61–100");
   });
 
-  it("renders the family's inclusion row with the chapel day rates", () => {
-    const row = CASKET_INCLUSIONS.find((r) => r.family === "White Rose")!;
-    expect(row).toBeTruthy();
-    for (const label of ["Flowers", "Tarp", "Lapida", "Family car", "1 doz roses", "Thank you card"]) {
-      expect(html, label).toContain(label);
-    }
-    expect(html).toContain("Included");
-    expect(html).toContain(php(row.commonChapelPerDay));
-    expect(html).toContain(php(row.privateChapelPerDay));
-    expect(html).toContain("1,000");
+  it("renders the Amazon structure: sticky gallery, buy box and below-fold content", () => {
+    expect(html).toContain("pdp-layout");
+    expect(html).toContain("pdp-media");
+    expect(html).toContain("pdp-buy");
+    expect(html).toContain("pdp-below");
+    // The buy box carries the variant selector and the one primary action.
+    expect(html).toContain("Choose a model");
+    expect(html).toContain("Add to cart");
   });
 
   it("keeps both real actions and the illustrative sample photograph", () => {
@@ -308,24 +293,32 @@ describe("the casket detail view renders the model's own data", () => {
     // photograph; the catalogue rows take the 4:3 card crop.
     expect(html).toContain(clientPhotoWide(sample.id).src);
     expect(html).toContain(sample.label);
-    // The record's own description of what the photograph shows is published
-    // beside it — the reader is told what the picture is, not just that it is a
-    // sample.
-    expect(html).toContain(sample.what);
-    expect(html).toContain(COFFIN_TIER_NOTE);
     expect(html).toContain("Sample photograph");
+    expect(html).toContain("Illustration purposes only.");
     expect(html).toMatch(/alt="Illustrative sample coffin/);
-    // The tier samples take the SAME client photographs as the /products band,
-    // so one tier cannot look like two different coffins across the surfaces.
-    for (const coffin of COFFINS) {
-      expect(html, coffin.tier).toContain(coffin.photo);
-    }
   });
 
-  it("says plainly when a model's sheet name states no cover", async () => {
+  it("has retired the legacy bespoke blocks and both rows", () => {
+    for (const gone of [
+      "This model at a glance",
+      "What comes with this model",
+      "How the five tiers are shown",
+      "Related pages",
+      "Regular SRP",
+      "Senior-citizen discounted price",
+    ]) {
+      expect(html, gone).not.toContain(gone);
+    }
+    expect(html).not.toContain("casket-sample-strip");
+    expect(html).not.toContain("casket-facts");
+    expect(html).not.toContain("casket-inclusions");
+    expect(html).not.toContain("All coffins &amp; caskets");
+  });
+
+  it("renders a model whose sheet name states no cover without inventing one", async () => {
     const lumina = await renderDetail(coffinSku("Lumina"));
-    expect(lumina).toContain(COFFIN_COVER_UNSTATED);
     expect(lumina).toContain("Lumina casket");
+    expect(lumina).toContain(php(33000));
   });
 
   it("resolves each model from its SKU and rejects anything else", () => {

@@ -8102,178 +8102,8 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-secondary);
 }
 
-.casket-facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0 0 var(--space-5);
-}
-
-@media (max-width: 40rem) {
-  .casket-facts,
-  .casket-prices,
-  .casket-chapel {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.casket-facts > div {
-  display: grid;
-  gap: 2px;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--sky-200);
-  border-radius: var(--radius-md);
-  background: var(--sky-50);
-}
-
-.casket-facts dt {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.casket-facts dd {
-  margin: 0;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.casket-subtitle {
-  margin: 0 0 var(--space-3);
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-}
-
-.casket-prices {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-}
-
-.casket-prices > div {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface);
-}
-
-.casket-prices dt {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.casket-prices dd {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.casket-inclusions {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-@media (max-width: 48rem) {
-  .casket-inclusions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-.casket-inclusion {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 0 var(--space-2);
-  padding: var(--space-3);
-  border: 1px solid var(--sky-200);
-  border-radius: var(--radius-md);
-  background: var(--sky-50);
-}
-
-.casket-inclusion--no {
-  border-color: var(--color-border);
-  background: var(--color-bg-surface);
-}
-
-.casket-inclusion__mark {
-  font-weight: 700;
-  color: var(--color-text-accent);
-}
-
-.casket-inclusion--no .casket-inclusion__mark {
-  color: var(--color-text-muted);
-}
-
-.casket-inclusion__label {
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.casket-inclusion__state {
-  grid-column: 2;
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
-
-.casket-chapel {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0 0 var(--space-3);
-}
-
-.casket-chapel > div {
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--gold-300);
-  border-radius: var(--radius-md);
-  background: var(--gold-wash-soft);
-}
-
-.casket-chapel dt {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
-
-.casket-chapel dd {
-  margin: 2px 0 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.casket-sample-strip {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
-}
-
-@media (max-width: 40rem) {
-  .casket-sample-strip {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* The detail page's tier samples follow the shop card's grammar — a top hairline
-   and a photograph, never a box per tile — so a reader moving from /products to
-   a model page meets the same card rhythm. The old 11rem auto-fit grid rendered
-   four 126px boxes plus an orphan; two columns give each sample a real figure. */
+/* The content-block gallery figure family: a top hairline and a photograph,
+   never a box per tile — the same grammar as the storefront's shop cards. */
 .tribute-figure {
   margin: 0;
   padding-top: var(--space-4);
@@ -8287,9 +8117,9 @@ because the shared `.ag-appt` rule comes later in this file. */
 .tribute-figure img {
   display: block;
   width: 100%;
-  /* The site's one ratio family (4:3) so the detail page's tier samples
-     match the shop grid's cards. `height: auto` is the reset every img-level
-     ratio in this file carries — a definite height would make it a no-op. */
+  /* The site's one ratio family (4:3). `height: auto` is the reset every
+     img-level ratio in this file carries — a definite height would make it a
+     no-op. */
   height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
@@ -8314,38 +8144,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-text-accent);
-}
-
-.casket-siblings {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
-
-.casket-siblings li {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: var(--space-3);
-  padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--color-rule);
-}
-
-.casket-siblings li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.casket-siblings a {
-  font-weight: 600;
-  color: var(--color-text-primary);
-  text-decoration: none;
-}
-
-.casket-siblings a:hover {
   color: var(--color-text-accent);
 }
 
@@ -8575,6 +8373,242 @@ because the shared `.ag-appt` rule comes later in this file. */
   border-radius: var(--radius-lg);
   background: var(--marble-100);
   color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* --- PDP Amazon structure (P3): sticky gallery · buy box · below the fold -- */
+
+.pdp-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
+  grid-template-areas:
+    "media buy"
+    "below below";
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: start;
+}
+
+.pdp-media {
+  grid-area: media;
+  min-width: 0;
+  align-self: start;
+}
+
+.pdp-buy-column {
+  grid-area: buy;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-5);
+  align-self: start;
+}
+
+.pdp-below {
+  grid-area: below;
+  min-width: 0;
+  display: grid;
+  gap: var(--space-6);
+  max-width: 60rem;
+}
+
+.pdp-aside {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pdp-section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.pdp-section__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-2xl);
+  color: var(--color-text-primary);
+}
+
+.pdp-feature-group {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pdp-feature-group__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+}
+
+.pdp-features {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.pdp-buy {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.pdp-buy__eyebrow {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.pdp-buy__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-3xl);
+  line-height: 1.1;
+  color: var(--color-text-primary);
+}
+
+.pdp-buy__lead {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.pdp-buy__price {
+  display: grid;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-rule);
+}
+
+.pdp-buy__senior {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pdp-buy__senior a {
+  color: var(--color-text-accent);
+}
+
+.pdp-trust {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pdp-trust li {
+  position: relative;
+  padding-left: var(--space-5);
+}
+
+.pdp-trust li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  color: var(--color-text-accent);
+}
+
+.pdp-trust a {
+  color: var(--color-text-accent);
+}
+
+/* The gallery is sticky only where the two-column structure exists (desktop).
+   Below it the page collapses to the phone stack: gallery, buy box, content. */
+@media (min-width: 64rem) {
+  .pdp-media {
+    position: sticky;
+    top: var(--space-5);
+  }
+}
+
+@media (max-width: 64rem) {
+  .pdp-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "media"
+      "buy"
+      "below";
+  }
+}
+
+/* --- gallery zoom (components/villa/pdp-gallery.tsx) ----------------------- */
+
+.pdp-gallery__zoom {
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: inline-grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: rgb(255 255 255 / 0.94);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.pdp-gallery__zoom:hover {
+  border-color: var(--sky-400);
+}
+
+.pdp-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--navy-950);
+}
+
+.pdp-zoom__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.pdp-zoom__count {
+  margin: 0;
+  color: var(--marble-50);
+  font-size: var(--text-sm);
+}
+
+.pdp-zoom__frame {
+  overflow: auto;
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-lg);
+  background: var(--marble-100);
+}
+
+.pdp-zoom__frame img {
+  display: block;
+  max-width: none;
+  height: auto;
+}
+
+.pdp-zoom__caption {
+  margin: 0;
+  color: var(--marble-50);
+  font-size: var(--text-sm);
   text-align: center;
 }
 
