@@ -129,12 +129,15 @@ export default async function PlansPage() {
         </div>
       </section>
 
-      {/* The five tiers — the page's content home. ONE COLUMN of premium tier
-          cards (captain 2026-09-21): each is the client's pricing-page anatomy —
-          name · "Starting from" · the live monthly rate · a one-line description
-          · one enquiry action · the inclusion checklist printed under "Key
-          features:" (never a dropdown). An optional staff-attached photo leads
-          the card; without one it stays premium and text-only. */}
+      {/* The five tiers — the page's content home. ONE ROW of five premium tier
+          cards on desktop (captain 2026-09-21: "the five tier plan make it 5
+          plan per row"): `.plan-tiers` is five across from 86rem, 4/3/2 as the
+          viewport narrows, and one column on phones. Each is the client's
+          pricing-page anatomy — name · "Starting from" · the live monthly rate
+          · a one-line description · one enquiry action · the inclusion
+          checklist printed under "Key features:" (never a dropdown). An
+          optional staff-attached photo leads the card; without one it stays
+          premium and text-only. */}
       <section id="tiers" className="stack-4" aria-labelledby="tiers-title">
         <h2 className="section-title" id="tiers-title">
           The five tiers — what each one includes

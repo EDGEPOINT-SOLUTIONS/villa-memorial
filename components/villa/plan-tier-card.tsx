@@ -5,16 +5,19 @@ import { php2 } from "@/lib/villa-pricing";
 /**
  * One premium plan-tier card (captain, 2026-09-21: "make the 5 tier in one
  * column… the dropdown inclusion is displayed already in the card, not a
- * dropdown, it's the best practice").
+ * dropdown, it's the best practice", then on the follow-up "the five tier plan
+ * make it 5 plan per row").
  *
  * The card is the client's pricing-page anatomy: tier name · a "Starting from"
  * subtitle · the LIVE monthly rate · a one-line description · one action · then
  * the inclusion checklist printed under "Key features:" — never a disclosure.
+ * `.plan-tiers` lays the five out as one comparison row on desktop (five across
+ * from 86rem), so the card is a single vertical stack.
  *
  *  - The amount is passed in (read by the page through `planRateOf`), never
  *    authored here: this component prints a figure, it does not compute one.
- *  - The optional `tier.image` renders when present; when absent the card stays
- *    premium and text-only — no placeholder hole.
+ *  - The optional `tier.image` leads the card when present; when absent the card
+ *    stays premium and text-only — no placeholder hole.
  *  - The action is the existing enquiry path (a prefilled `/contact` request),
  *    never a claim of online availability.
  */

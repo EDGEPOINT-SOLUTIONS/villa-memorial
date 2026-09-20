@@ -7132,20 +7132,24 @@ because the shared `.ag-appt` rule comes later in this file. */
    from" subtitle · the LIVE monthly rate · a one-line description · one enquiry
    action · the inclusion checklist printed under "Key features:".
 
-   Layout: the card holds two text columns (intro, features) separated by a
-   hairline; a staff-attached photograph adds a fixed 20rem media column, and
-   without one the two text columns share the full width — no placeholder hole.
-   Below 56rem the card stacks: media (16:9) → intro → features. The feature list
-   flows to two columns when the card has the room. */
+   Layout: the five tiers are ONE comparison row on desktop, never a stack and
+   never a squeeze — `.plan-tiers` is 1 column on phones, 2 from 40rem, 3 from
+   60rem, 4 from 72rem, and the single row of five from 86rem (where five cards
+   are each ≥ ~15.5rem, so no "Key features:" line wraps). Every card is one
+   vertical stack: an optional 16:9 photograph leads, then the name · "Starting
+   from" · the live rate · the one-line summary · the action, then "Key
+   features:" one line per row. The name and the rate step down one ladder rung
+   on the five-row so nothing clips at ~253px. */
 .plan-tiers {
   display: grid;
-  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
 }
 
 .plan-tier {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--color-rule);
@@ -7171,11 +7175,20 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-2);
   align-content: start;
   min-width: 0;
-  padding: clamp(1.25rem, 2.5vw, 2rem);
+  padding: var(--space-5) var(--space-4);
 }
 
 .plan-tier__features {
+  /* Bottom-align the feature blocks in the row so their "Key features:"
+     headers line up across the five cards, whatever the summary length. */
+  margin-top: auto;
   border-top: 1px solid var(--color-rule);
+}
+
+/* A photo-led card tightens the intro's top padding a step — the picture
+   already separates the body from the card's top edge. */
+.plan-tier--media .plan-tier__intro {
+  padding-top: var(--space-4);
 }
 
 .plan-tier__name {
@@ -7260,9 +7273,10 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-weight: 700;
 }
 
-/* The optional photograph. Base gets a 16:9 reserve (a wrapper ratio, safe);
-   the picture fills it. On the ≥56rem row the panel stretches to the card's
-   height and the picture covers it. */
+/* The optional photograph. The panel always leads the card at 16:9 (a wrapper
+   ratio, safe); the picture fills it with `object-fit: cover`. On the five-row
+   an attached photo makes its card the tallest in the row — the grid stretches
+   the others to match, so the row stays tidy with no placeholder hole. */
 .plan-tier__media {
   position: relative;
   margin: 0;
@@ -7288,30 +7302,38 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-size: var(--text-xs);
 }
 
-@media (min-width: 56rem) {
-  .plan-tier {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+/* Wrap deliberately above the phone: 2 across from 40rem, 3 from 60rem, 4 from
+   72rem, and the single deliberate comparison row of five from 86rem. */
+@media (min-width: 40rem) {
+  .plan-tiers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 60rem) {
+  .plan-tiers {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 72rem) {
+  .plan-tiers {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 86rem) {
+  .plan-tiers {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
-  .plan-tier--media {
-    grid-template-columns: minmax(0, 20rem) minmax(0, 1fr) minmax(0, 1.2fr);
+  /* Step the two display steps down one rung so the ~253px card stays legible. */
+  .plan-tier__name {
+    font-size: var(--text-xl);
   }
 
-  .plan-tier__features {
-    border-top: 0;
-    border-left: 1px solid var(--color-rule);
-  }
-
-  .plan-tier__media {
-    aspect-ratio: auto;
-  }
-
-  .plan-tier__actions .btn {
-    width: auto;
-  }
-
-  .plan-tier__list {
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  .plan-tier__price {
+    font-size: var(--text-2xl);
   }
 }
 

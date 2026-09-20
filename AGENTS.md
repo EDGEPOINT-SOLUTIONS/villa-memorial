@@ -355,15 +355,22 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `docs/08-delivery/content-plans-page-design/`; tests
   `tests/unit/plans-page-content.test.tsx` + `plan-content.test.ts` +
   `pricing-admin-render.test.tsx`.
-  **The five tiers are ONE COLUMN of premium cards** (captain 2026-09-21):
-  `components/villa/plan-tier-card.tsx` renders name · a fixed "Starting from"
-  subtitle · the live monthly rate · the editable one-line `summary` · one
-  prefilled-request action (`planRequestAction`) · the inclusion checklist
-  PRINTED under "Key features:" (never a `<details>`) · an optional photograph.
+  **The five tiers are ONE ROW of premium cards on desktop** (captain
+  2026-09-21: the premium card pass, then "the five tier plan make it 5 plan
+  per row"). `components/villa/plan-tier-card.tsx` renders name · a fixed
+  "Starting from" subtitle · the live monthly rate · the editable one-line
+  `summary` · one prefilled-request action (`planRequestAction`) · the inclusion
+  checklist PRINTED under "Key features:" (never a `<details>`) · an optional
+  leading photograph. `.plan-tiers` is one comparison row — 5 across from 86rem,
+  then 4/3/2 as the viewport narrows and 1 on phones (the wrap ladder is pinned
+  by `tests/unit/plans-tiers-layout.test.ts`, which also fails the retired
+  two-column card), and every card is a single vertical stack; on the five-row
+  the name and rate step down one ladder rung so a ~253px card stays legible.
   The optional fields live on the checklist block (`summary: string`,
   `image: ContentImage | null`); a fresh checklist reads/opens `printed`, and a
-  sample image still needs its caption. Design record + 1440/390 shots:
-  `docs/08-delivery/plans-tiers-premium-design/`.
+  sample image still needs its caption. Design records + 1440/390 shots:
+  `docs/08-delivery/plans-tiers-premium-design/` (the premium pass) and
+  `docs/08-delivery/plans-tiers-five-row-design/` (the five-row pass).
 - **Phase 3 has LANDED — the Services page is one hero → straight to the services.**
   The hero and the service descriptions are the `services` page document (stable
   block ids `services-alacarte-*` / `services-chapel-*`, read by the ONE typed
