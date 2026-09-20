@@ -148,54 +148,42 @@ describe("/services reads as the approved senior-first service page", () => {
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("keeps the guide service entries and the embalming aside", () => {
+  it("keeps the embalming aside and drops the guide section (captain 2026-09-21)", () => {
     // The embalming aside shows the client's own finished set-up in flowers,
     // which replaced a 297 KB stock JPEG rendered at 350 px (imagery pass).
     expect(html).toContain(clientPhotoWide("wake-setup-flower-bank").src);
-    // The three guide pages are service entries, listed in their own section
-    // and linked to their own routes (content-catalogue Phase 3).
-    expect(html).toContain('id="guides"');
-    expect(html).toContain("/services/death-at-home");
-    expect(html).toContain("/services/death-at-hospital");
-    expect(html).toContain("/transport");
-    expect(html).toContain("Death at hospital");
+    // The three guide pages stay as service entries at their own routes, but
+    // the "Guides for what comes next" section left /services.
+    expect(html).not.toContain('id="guides"');
+    expect(html).not.toContain("Guides for what comes next");
+    expect(html).not.toContain("/services/death-at-home");
+    expect(html).not.toContain("/services/death-at-hospital");
     // Both prepared set-ups say what they are.
     expect(html).toContain("A wake set-up the office prepared — illustration purposes only.");
   });
 
-  it("keeps both chapel rates and their senior column on the schedule", () => {
+  it("keeps the chapel cards' per-day rate and 3-day columns", () => {
+    // Each card keeps the sheet's per-day rate and its 3-day regular/senior
+    // example; the full 3–9 day "See every stay" schedule left the section
+    // (captain 2026-09-21).
     expect(html).toContain("3 days — regular");
     expect(html).toContain("3 days — senior citizen");
-    // Every 3–9 day stay publishes both columns in the .sv-stay rows.
-    expect((html.match(/Senior citizen/g) ?? []).length).toBeGreaterThanOrEqual(
-      CHAPEL_RATES.length * 2,
-    );
-    for (const r of CHAPEL_RATES) {
-      expect(html, `common stay ${r.days}`).toContain(php(r.common.regular));
-      expect(html, `common senior ${r.days}`).toContain(php(r.common.senior));
-      expect(html, `private stay ${r.days}`).toContain(php(r.private.regular));
-      expect(html, `private senior ${r.days}`).toContain(php(r.private.senior));
-    }
+    const threeDay = CHAPEL_RATES[0];
+    expect(html).toContain(php(threeDay.common.regular));
+    expect(html).toContain(php(threeDay.common.senior));
+    expect(html).toContain(php(threeDay.private.regular));
+    expect(html).toContain(php(threeDay.private.senior));
+    // The removed schedule and its senior-rate footnote are gone.
+    expect(html).not.toContain('id="chapel-stays"');
+    expect(html).not.toContain("See every stay");
   });
 
   it("opens the chapel booking step instead of a straight add (main's booking intent)", () => {
-    // A chapel is never a one-click cart item: the cards' "Check dates & price"
-    // and every 3–9 day row's "Book N days" open the booking dialog. The row's
-    // accessible name carries the chapel's OWN name (its staff-editable record),
-    // the same name the booking dialog reads.
+    // A chapel is never a one-click cart item: each card's "Check dates & price"
+    // opens the booking dialog, whose accessible name carries the chapel's OWN
+    // name (its staff-editable record) the dialog reads.
     expect((html.match(/Check dates &amp; price/g) ?? []).length).toBe(2);
-    for (const r of CHAPEL_RATES) {
-      expect(html, `stay ${r.days}`).toContain(`Book ${r.days} days`);
-      expect(html, `common aria ${r.days}`).toContain(
-        `aria-label="Book ${r.days} days — ${chapelName.common}"`,
-      );
-      expect(html, `private aria ${r.days}`).toContain(
-        `aria-label="Book ${r.days} days — ${chapelName.private}"`,
-      );
-    }
-    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(
-      2 + CHAPEL_RATES.length * 2,
-    );
+    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(2);
     // No plain chapel add-to-cart survived the senior-first redesign.
     expect(html).not.toContain('aria-label="Add to cart: Chapel use — common chapel, per day"');
     expect(html).not.toContain('aria-label="Add to cart: Chapel use — private chapel, per day"');

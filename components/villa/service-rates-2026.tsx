@@ -352,22 +352,8 @@ export function EmbalmingRates({
 }
 
 /**
- * The chapel options: two photo cards (common & private, per day, the 3-day
- * example, both actions) above the sheet's full 3–9 day schedule, published as
- * one row per stay so a phone never scrolls a table sideways.
- *
- * A chapel is NOT a one-click cart item: every chapel action opens the booking
- * step (components/chapel-booking-dialog.tsx), where the customer picks the
- * chapel, a 3–9 day stay and a start date, sees that the park's own schedule has
- * every one of those days free, sees the exact price for the range, and only
- * then adds it. The prefilled request stays beside it for senior rates,
- * questions and office-arranged stays.
- */
-/**
  * The chapel options: one photo card per chapel the park's own record carries
- * (common & private, per day, the 3-day example, both actions) above the sheet's
- * full 3–9 day schedule, published as one row per stay so a phone never scrolls
- * a table sideways.
+ * (common & private, the per-day rate, the 3-day example, both actions).
  *
  * THE NAME IS THE PARK'S RECORD (content-catalogue Phase 3): the card title, the
  * booking dialog and the schedule all read the same staff-editable chapel record
@@ -380,6 +366,12 @@ export function EmbalmingRates({
  * of those days free, sees the exact price for the range, and only then adds it.
  * The prefilled request stays beside it for senior rates, questions and
  * office-arranged stays.
+ *
+ * TRIMMED (captain, 2026-09-21): the placeholder disclaimer, the full 3–9 day
+ * "See every stay" schedule and the senior-rate footnote left this section. The
+ * cards keep the per-day rate and the 3-day regular/senior examples; the
+ * recorded placeholder chapel names/capacity and the sheet's senior-rate
+ * disagreement remain in the data and the client questions, just not on the page.
  */
 export function ChapelRates({
   items,
@@ -511,107 +503,7 @@ export function ChapelRates({
           })}
         </div>
       )}
-
-      <div className="sv-placeholder">
-        <span aria-hidden="true"><HeartMark /></span>
-        <p>
-          <strong>The chapel list is still unconfirmed</strong> — names and capacity are the
-          park&rsquo;s placeholder records. Prices and dates are real.
-        </p>
-      </div>
-
-      <details className="sv-disclosure" id="chapel-stays">
-        <summary id="chapel-stays-title">
-          See every stay, 3 to 9 days — regular and senior prices
-        </summary>
-        <div className="sv-disclosure__body">
-          <p className="sv-note">The sheet&rsquo;s own totals. Senior bookings: use Request.</p>
-          {cards.map(({ chapelClass, record }) => (
-            <div key={record.id}>
-              <h4 className="sv-stay__heading">{record.name}</h4>
-              <ul className="sv-stays" aria-label={`${record.name} stays`}>
-                {CHAPEL_RATES.map((row) => {
-                  const rate = row[chapelClass];
-                  const request = buildRequestHref({
-                    item: `Chapel use — ${row.days} days`,
-                    price: `${money(rate.regular)} regular / ${money(rate.senior)} senior for ${row.days} days (${money(rate.ratePerDay)} / day)`,
-                    note: `Chapel use when the service is not with Villa, ${row.days} days. ${CHAPEL_NOTES.miscFee}`,
-                  });
-                  return (
-                    <li className="sv-stay" key={`${record.id}-${row.days}`}>
-                      <span className="sv-stay__days">{row.days} days</span>
-                      <span className="sv-stay__prices">
-                        <span>
-                          Regular <b>{money(rate.regular)}</b>
-                        </span>
-                        <span>
-                          Senior citizen <b>{money(rate.senior)}</b>
-                        </span>
-                        <span className="sv-note">
-                          ({row.days} × {money(rate.ratePerDay)} per day)
-                        </span>
-                      </span>
-                      <span className="sv-stay__actions">
-                        {itemByClass[chapelClass] ? (
-                          <ChapelBookingButton
-                            chapelClass={chapelClass}
-                            days={row.days}
-                            items={chapelItems}
-                            label={`Book ${row.days} days`}
-                            ariaLabel={`Book ${row.days} days — ${record.name}`}
-                          />
-                        ) : null}
-                        <Link href={request} className="btn btn--secondary btn--sm">
-                          Request
-                        </Link>
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </details>
-
-      <div className="sv-senior">
-        <span aria-hidden="true"><HeartMark /></span>
-        <div className="sv-senior__body">
-          {/* The sheet disagrees with itself (captain Q8): both figures stay,
-              neither is resolved. The per-day figures are derived from the
-              published table, never typed. */}
-          <p>
-            <strong>Senior rate:</strong> the table&rsquo;s column and the sheet&rsquo;s
-            footnote disagree — the office applies the rate.
-          </p>
-          <dl className="sv-chapel__facts">
-            <div>
-              <dt>Table column (per day)</dt>
-              <dd>
-                {money(CHAPEL_RATES[0].common.senior / CHAPEL_RATES[0].days)} common ·{" "}
-                {money(CHAPEL_RATES[0].private.senior / CHAPEL_RATES[0].days)} private
-              </dd>
-            </div>
-            <div>
-              <dt>Sheet footnote</dt>
-              <dd>{CHAPEL_NOTES.seniorPerDay}</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-      <p className="sv-note sv-section__note">
-        {CHAPEL_NOTES.miscFee} {CHAPEL_NOTES.privateChapelOnly}
-      </p>
     </section>
-  );
-}
-
-/** A small inline heart mark for the placeholder + senior notes. */
-function HeartMark() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" width="24" height="24">
-      <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
-    </svg>
   );
 }
 
