@@ -1,0 +1,417 @@
+{
+  "comment": [
+    "The office's recorded stock file for the Inventory screen (/staff/inventory).",
+    "",
+    "WHY THIS SHAPE EXISTS: an inventory service does not exist (no contract names one).",
+    "The screen still works over this recorded file, so the file IS the office's stock room",
+    "in demo form — APP-AUTHORED example records with provenance, the same pattern as",
+    "property/lot-lifecycle.json and operations/guarantee-instruments.json. lib/api-client/",
+    "inventory.ts is the only reader; live mode is unimplemented and says so.",
+    "",
+    "WHAT IS REAL AND WHAT IS EXAMPLE:",
+    " · Casket rows carry the catalogue SKUs the storefront really sells (CSK-…); their",
+    "   PRICE is never stored here — the reader resolves it from the durable catalogue so",
+    "   an admin price edit on /staff/catalog is what the stock screen shows. Cost figures",
+    "   are EXAMPLE stock-room costs (no client document prices a casket to the office).",
+    " · Supplier names are SAMPLE labels, never a real business. A row with no recorded",
+    "   supplier stores null and the screen prints 'Not recorded'.",
+    " · Movements are the office's own record of what came in, went to a case or was",
+    "   adjusted. Every item's movements sum to its on_hand — tests/fixture-contract/",
+    "   inventory.test.ts pins that, and allocated movements reference real case numbers",
+    "   from operations/cases.json.",
+    " · `by` names are employees from hr/employees.json — no invented staff.",
+    "",
+    "NO WRITE PATH: the screen is read-only; purchasing and stock adjustments arrive with",
+    "the inventory service."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "items": [
+    {
+      "id": "inv-001",
+      "sku": "CSK-LUMINA",
+      "name": "Lumina casket",
+      "category": "casket",
+      "unit": "piece",
+      "supplier": "Sample Casket Supply",
+      "catalogue_sku": "CSK-LUMINA",
+      "cost_cents": 2400000,
+      "on_hand": 3,
+      "location": "Stock room A · bay 1",
+      "reorder_level": 1
+    },
+    {
+      "id": "inv-002",
+      "sku": "CSK-WHITE-ROSE-HALF",
+      "name": "White Rose Half casket",
+      "category": "casket",
+      "unit": "piece",
+      "supplier": "Sample Casket Supply",
+      "catalogue_sku": "CSK-WHITE-ROSE-HALF",
+      "cost_cents": 4500000,
+      "on_hand": 2,
+      "location": "Stock room A · bay 2",
+      "reorder_level": 1
+    },
+    {
+      "id": "inv-003",
+      "sku": "CSK-NOBLE-FULL",
+      "name": "Noble Full casket",
+      "category": "casket",
+      "unit": "piece",
+      "supplier": "Sample Casket Supply",
+      "catalogue_sku": "CSK-NOBLE-FULL",
+      "cost_cents": 6500000,
+      "on_hand": 1,
+      "location": "Stock room A · bay 3",
+      "reorder_level": 1
+    },
+    {
+      "id": "inv-004",
+      "sku": "CSK-EMPEROR-FLEXI",
+      "name": "Emperor Flexi casket",
+      "category": "casket",
+      "unit": "piece",
+      "supplier": "Sample Casket Supply",
+      "catalogue_sku": "CSK-EMPEROR-FLEXI",
+      "cost_cents": 10800000,
+      "on_hand": 0,
+      "location": "Stock room A · bay 4",
+      "reorder_level": 1
+    },
+    {
+      "id": "inv-005",
+      "sku": "STK-URN-BRASS",
+      "name": "Brass urn (assorted)",
+      "category": "urn",
+      "unit": "piece",
+      "supplier": "Sample Funeral Goods",
+      "catalogue_sku": null,
+      "cost_cents": 350000,
+      "on_hand": 6,
+      "location": "Stock room B · urn cabinet",
+      "reorder_level": 2
+    },
+    {
+      "id": "inv-006",
+      "sku": "STK-URN-WOOD",
+      "name": "Wooden urn (assorted)",
+      "category": "urn",
+      "unit": "piece",
+      "supplier": "Sample Funeral Goods",
+      "catalogue_sku": null,
+      "cost_cents": 280000,
+      "on_hand": 4,
+      "location": "Stock room B · urn cabinet",
+      "reorder_level": 2
+    },
+    {
+      "id": "inv-007",
+      "sku": "STK-FLOW-STAND",
+      "name": "Standing spray",
+      "category": "flowers",
+      "unit": "piece",
+      "supplier": "Sample Flower Market",
+      "catalogue_sku": null,
+      "cost_cents": 180000,
+      "on_hand": 5,
+      "location": "Flower cooler",
+      "reorder_level": 2
+    },
+    {
+      "id": "inv-008",
+      "sku": "STK-FLOW-CROSS",
+      "name": "Flower cross",
+      "category": "flowers",
+      "unit": "piece",
+      "supplier": "Sample Flower Market",
+      "catalogue_sku": null,
+      "cost_cents": 220000,
+      "on_hand": 1,
+      "location": "Flower cooler",
+      "reorder_level": 2
+    },
+    {
+      "id": "inv-009",
+      "sku": "STK-FLOW-ROSES",
+      "name": "Dozen roses",
+      "category": "flowers",
+      "unit": "dozen",
+      "supplier": "Sample Flower Market",
+      "catalogue_sku": null,
+      "cost_cents": 70000,
+      "on_hand": 0,
+      "location": "Flower cooler",
+      "reorder_level": 3
+    },
+    {
+      "id": "inv-010",
+      "sku": "STK-EMB-FLUID",
+      "name": "Embalming fluid",
+      "category": "supply",
+      "unit": "gallon",
+      "supplier": "Sample Funeral Goods",
+      "catalogue_sku": null,
+      "cost_cents": 240000,
+      "on_hand": 8,
+      "location": "Preparation room store",
+      "reorder_level": 4
+    },
+    {
+      "id": "inv-011",
+      "sku": "STK-COTTON",
+      "name": "Cotton padding",
+      "category": "supply",
+      "unit": "roll",
+      "supplier": null,
+      "catalogue_sku": null,
+      "cost_cents": 65000,
+      "on_hand": 12,
+      "location": "Preparation room store",
+      "reorder_level": 6
+    },
+    {
+      "id": "inv-012",
+      "sku": "STK-GLOVES",
+      "name": "Examination gloves (box of 100)",
+      "category": "supply",
+      "unit": "box",
+      "supplier": "Sample Funeral Goods",
+      "catalogue_sku": null,
+      "cost_cents": 32000,
+      "on_hand": 3,
+      "location": "Supply cabinet 2",
+      "reorder_level": 5
+    },
+    {
+      "id": "inv-013",
+      "sku": "STK-GUESTBOOK",
+      "name": "Guest book",
+      "category": "supply",
+      "unit": "piece",
+      "supplier": null,
+      "catalogue_sku": null,
+      "cost_cents": null,
+      "on_hand": 20,
+      "location": "Supply cabinet 1",
+      "reorder_level": 5
+    }
+  ],
+  "movements": [
+    {
+      "id": "mov-001",
+      "item_id": "inv-001",
+      "at": "2026-06-05",
+      "kind": "received",
+      "quantity": 2,
+      "reference": "DR-2026-0104",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-002",
+      "item_id": "inv-001",
+      "at": "2026-07-18",
+      "kind": "received",
+      "quantity": 2,
+      "reference": "DR-2026-0121",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-003",
+      "item_id": "inv-001",
+      "at": "2026-08-21",
+      "kind": "allocated",
+      "quantity": -1,
+      "reference": "CASE-2026-0001",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-004",
+      "item_id": "inv-002",
+      "at": "2026-06-05",
+      "kind": "received",
+      "quantity": 3,
+      "reference": "DR-2026-0104",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-005",
+      "item_id": "inv-002",
+      "at": "2026-08-27",
+      "kind": "allocated",
+      "quantity": -1,
+      "reference": "CASE-2026-0002",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-006",
+      "item_id": "inv-003",
+      "at": "2026-06-20",
+      "kind": "received",
+      "quantity": 1,
+      "reference": "DR-2026-0109",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-007",
+      "item_id": "inv-004",
+      "at": "2026-05-30",
+      "kind": "received",
+      "quantity": 1,
+      "reference": "DR-2026-0098",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-008",
+      "item_id": "inv-004",
+      "at": "2026-08-22",
+      "kind": "allocated",
+      "quantity": -1,
+      "reference": "CASE-2026-0005",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-009",
+      "item_id": "inv-005",
+      "at": "2026-06-10",
+      "kind": "received",
+      "quantity": 6,
+      "reference": "DR-2026-0106",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-010",
+      "item_id": "inv-006",
+      "at": "2026-06-10",
+      "kind": "received",
+      "quantity": 5,
+      "reference": "DR-2026-0106",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-011",
+      "item_id": "inv-006",
+      "at": "2026-08-20",
+      "kind": "allocated",
+      "quantity": -1,
+      "reference": "CASE-2026-0004",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-012",
+      "item_id": "inv-007",
+      "at": "2026-07-01",
+      "kind": "received",
+      "quantity": 6,
+      "reference": "DR-2026-0114",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-013",
+      "item_id": "inv-007",
+      "at": "2026-08-20",
+      "kind": "allocated",
+      "quantity": -1,
+      "reference": "CASE-2026-0004",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-014",
+      "item_id": "inv-008",
+      "at": "2026-07-01",
+      "kind": "received",
+      "quantity": 3,
+      "reference": "DR-2026-0114",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-015",
+      "item_id": "inv-008",
+      "at": "2026-08-10",
+      "kind": "allocated",
+      "quantity": -2,
+      "reference": "CASE-2026-0003",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-016",
+      "item_id": "inv-009",
+      "at": "2026-07-01",
+      "kind": "received",
+      "quantity": 4,
+      "reference": "DR-2026-0114",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-017",
+      "item_id": "inv-009",
+      "at": "2026-08-10",
+      "kind": "allocated",
+      "quantity": -2,
+      "reference": "CASE-2026-0003",
+      "by": "Elena Villanueva"
+    },
+    {
+      "id": "mov-018",
+      "item_id": "inv-009",
+      "at": "2026-09-02",
+      "kind": "adjusted",
+      "quantity": -2,
+      "reference": "Stock count — unsold roses discarded",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-019",
+      "item_id": "inv-010",
+      "at": "2026-06-15",
+      "kind": "received",
+      "quantity": 10,
+      "reference": "DR-2026-0108",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-020",
+      "item_id": "inv-010",
+      "at": "2026-08-26",
+      "kind": "allocated",
+      "quantity": -2,
+      "reference": "CASE-2026-0004",
+      "by": "Ricardo Bautista"
+    },
+    {
+      "id": "mov-021",
+      "item_id": "inv-011",
+      "at": "2026-06-15",
+      "kind": "received",
+      "quantity": 12,
+      "reference": "DR-2026-0108",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-022",
+      "item_id": "inv-012",
+      "at": "2026-06-15",
+      "kind": "received",
+      "quantity": 6,
+      "reference": "DR-2026-0108",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-023",
+      "item_id": "inv-012",
+      "at": "2026-08-30",
+      "kind": "adjusted",
+      "quantity": -3,
+      "reference": "Stock count — expired gloves discarded",
+      "by": "Grace Aquino"
+    },
+    {
+      "id": "mov-024",
+      "item_id": "inv-013",
+      "at": "2026-07-05",
+      "kind": "received",
+      "quantity": 20,
+      "reference": "DR-2026-0117",
+      "by": "Grace Aquino"
+    }
+  ]
+}

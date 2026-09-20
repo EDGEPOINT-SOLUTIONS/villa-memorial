@@ -105,6 +105,28 @@ screens demo standalone (`docker compose up` against `stub-gateway/`, or bare
      on one. The engine's vocabulary (seven bases, four states, capabilities)
      lives in `lib/commission.ts`, pinned to the agent workspace fixture; what
      actually sold is NOT here — the screen reads the durable order store.
+   - `commerce/inventory.json` ← the office's recorded stock file for the
+     Inventory screen: items (caskets · urns · flowers · supplies) with SKU,
+     supplier, cost, on-hand count, location and reorder level, plus the signed
+     movement history (received · allocated to a case · adjusted). APP-AUTHORED
+     example records with provenance — no inventory service or contract exists,
+     so `lib/api-client/inventory.ts` is fixture-only and names the missing
+     service once on screen. The casket rows carry the storefront's real SKUs and
+     their PRICES ARE NOT STORED HERE: the reader resolves each price from the
+     durable catalogue, so an admin price edit is what the stock screen shows.
+     Supplier names are Sample labels; `by` names are HR employees; movements sum
+     to each item's on-hand count and allocated ones name real cases — all pinned
+     by `tests/fixture-contract/inventory.test.ts`.
+   - `finance/accounting.json` ← the office's recorded ledger for the Accounting
+     screen: a small chart of accounts and a balanced double-entry journal. The
+     platform's accounting service exists and its posting-rule contract is frozen,
+     but NO staff-facing ledger API has frozen, and posting stays the service's
+     business (the screen is read-only) — so this is APP-AUTHORED example
+     bookkeeping with provenance, served only in fixture mode by
+     `lib/api-client/accounting.ts`. The trial balance is never stored: it is
+     DERIVED from the entries by `lib/accounting.ts`. Entries naming an order or
+     case carry that order's total / a real case number, pinned by
+     `tests/fixture-contract/accounting.test.ts`.
    - `memorials/memorials.json` ← the recorded state of the PUBLIC digital-memorial
      surface (F-04 / 06-cultural-digital-memorial/digital-memorial.md, blueprint
      §22–23). APP-AUTHORED because NO digital-memorial service or contract exists:

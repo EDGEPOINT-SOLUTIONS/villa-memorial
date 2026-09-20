@@ -1211,6 +1211,27 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `lib/family/contact.ts`, never typed. It gates on `billing:read` provisionally (no commission
   scope exists in `rbac-scopes-v1`); evidence shots + record: `docs/08-delivery/commission-design/`.
 
+## Admin data screens — Inventory · Accounting · Reports (read before touching them)
+
+- Three designed, read-only screens over recorded data replace the old stubs. Each names its
+  missing platform service in ONE line (the constant in its reader) and then shows its table —
+  never re-add a stub or a second honest-state grammar. Live mode is unimplemented and named in
+  the module: `lib/api-client/inventory.ts`, `lib/api-client/accounting.ts` are fixture-only;
+  `lib/api-client/reporting.ts` aggregates the same clients the screens use (durable payment
+  journal, durable order store, property lots, scheduling chapels, operations cases).
+- ONE rules home each: `lib/inventory.ts` (out/low/in-stock derived, movement signs,
+  filter/sort), `lib/accounting.ts` (journal balance + period, trial balance DERIVED from
+  entries — never stored), `lib/reports.ts` + `lib/period.ts` (the four report keys, the
+  inclusive calendar window, collections/lot/chapel/case rollups).
+- Fixtures `commerce/inventory.json` (signed movements MUST sum to each item's `on_hand`;
+  PRICES ARE NEVER STORED — catalogue-linked rows resolve their price from the durable
+  catalogue at read time) and `finance/accounting.json` (balanced double-entry example books;
+  order/case references pinned to real fixtures) are APP-AUTHORED with provenance in
+  `lib/fixtures/README.md`; `tests/fixture-contract/{inventory,accounting}.test.ts` enforce.
+- Read-only by construction (`/staff/reports` too): no posting, purchasing or adjustment path
+  in any mode. Gating stays `catalog:write` / `accounting:read` / `accounting:read|billing:read`;
+  page evidence: `tests/unit/{inventory,accounting,reports}-page.test.tsx`.
+
 ## AI Copilot — `/staff/copilot` (PRD S29; read before touching it or `lib/copilot.ts`)
 
 - **It is the DESIGNED surface, not the wired one, and that is the deliverable.** No model

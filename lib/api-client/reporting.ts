@@ -1,5 +1,5 @@
 /**
- * Typed data access for Module I dashboard screens (summary stats).
+ * Typed data access for Module I dashboard + reporting screens.
  *
  * The reporting-analytics service is unbuilt, so there is nothing to query for a
  * pre-aggregated summary. Rather than serve a SEPARATE fixture — which is how the
@@ -14,10 +14,44 @@
  * invented — the screen renders them as "—":
  *   · collections_this_month_cents — needs payment dates; the invoice list has no history
  *   · activity — no inquiries or orders list endpoint exists
+ *
+ * `/staff/reports` reads four of the office's own reports through this module too. Each
+ * one derives from a REAL recorded source and says what reporting-analytics will supply
+ * when live — no report invents a figure:
+ *   · collections — the durable billing store's recorded payments (fixture mode only:
+ *     the frozen billing list contract names no payments list, so live mode reports the
+ *     report unavailable rather than an empty cash box);
+ *   · sales by agent — the durable order store. Orders record no agent attribution yet
+ *     (`lib/commission.ts` says the same), so every row is "Not recorded" and the screen
+ *     names crm-families as the missing input; a live order admin does not exist either,
+ *     so the 503 is caught and reported as unavailable;
+ *   · lot & chapel occupancy — the property lots and the scheduling chapel bookings the
+ *     staff Schedule already reads;
+ *   · cases by stage — the operations case store, using the ops board's own stage words.
+ *
+ * A source that cannot be read leaves its report `null` (the occupancy report carries one
+ * flag per half) and the page renders an honest unavailable state — never an empty chart.
  */
+import { ApiError } from "@/lib/api-client/api-error";
 import { listCases } from "@/lib/api-client/operations";
 import { listLots } from "@/lib/api-client/property";
-import { listInvoices } from "@/lib/api-client/finance";
+import { billingLiveModeEnabled, listInvoices } from "@/lib/api-client/finance";
+import { listFixturePayments } from "@/lib/api-client/billing-store";
+import { getChapelAdminView } from "@/lib/api-client/chapel-admin";
+import { listOrders, type OrderLifecycleStatus } from "@/lib/api-client/commerce";
+import { INSTRUMENT_LABEL } from "@/lib/contracts/payment-capture";
+import { inPeriod } from "@/lib/period";
+import {
+  caseRollup,
+  chapelRollup,
+  collectionsByMonth,
+  lotRollup,
+  type CaseStageRow,
+  type ChapelRollupRow,
+  type CollectionsMonthRow,
+  type LotRollupRow,
+  type ReportPeriod,
+} from "@/lib/reports";
 
 export type CaseSummary = {
   total: number;
@@ -125,4 +159,170 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
     finance,
     activity: { new_inquiries_this_month: null, orders_this_month: null },
   };
+}
+
+/* ============================================================================
+ * /staff/reports — the four office reports
+ * ========================================================================= */
+
+/* ------------------------------ collections ------------------------------ */
+
+type RawRecordedPayment = Awaited<ReturnType<typeof listFixturePayments>>[number];
+
+/** One recorded payment, joined to the invoice it settles for the payer's name. */
+export type RecordedCollectionPayment = {
+  id: string;
+  received_on: string;
+  invoice_number: string;
+  customer_name: string;
+  method_label: string;
+  amount_cents: number;
+};
+
+export type CollectionsReport = {
+  /** false when this mode cannot list payments at all (live: no payments-list endpoint). */
+  available: boolean;
+  months: CollectionsMonthRow[];
+  payments: RecordedCollectionPayment[];
+  total_cents: number;
+  count: number;
+};
+
+/**
+ * Collections over a period: the payments the counter recorded, newest first, grouped
+ * by the month they were received. The durable billing store is the source; a period
+ * with no payment is an empty result, which the page renders as the honest empty state.
+ */
+export async function loadCollectionsReport(period: ReportPeriod): Promise<CollectionsReport> {
+  if (billingLiveModeEnabled()) {
+    return { available: false, months: [], payments: [], total_cents: 0, count: 0 };
+  }
+  const [payments, invoices] = await Promise.all([listFixturePayments(), listInvoices()]);
+  const byNumber = new Map(invoices.map((invoice) => [invoice.invoice_number, invoice]));
+  const inWindow = payments.filter((payment: RawRecordedPayment) =>
+    inPeriod(payment.received_on, period),
+  );
+  return {
+    available: true,
+    months: collectionsByMonth(payments, period),
+    payments: [...inWindow]
+      .sort((a, b) => {
+        if (a.received_on !== b.received_on) return b.received_on.localeCompare(a.received_on);
+        return b.recorded_at.localeCompare(a.recorded_at);
+      })
+      .map((payment) => ({
+        id: payment.id,
+        received_on: payment.received_on,
+        invoice_number: payment.invoice_number,
+        customer_name: byNumber.get(payment.invoice_number)?.customer_name ?? "",
+        method_label: INSTRUMENT_LABEL[payment.method] ?? payment.method,
+        amount_cents: payment.amount_cents,
+      })),
+    total_cents: inWindow.reduce((sum, payment) => sum + payment.amount_cents, 0),
+    count: inWindow.length,
+  };
+}
+
+/* ----------------------------- sales by agent ---------------------------- */
+
+/** One sale's recorded facts. The agent is deliberately absent — nothing records one. */
+export type SalesOrderRow = {
+  number: string;
+  placed_at: string;
+  customer_name: string;
+  total_cents: number;
+  currency: string;
+  lifecycle_status: OrderLifecycleStatus;
+};
+
+export type SalesByAgentReport = {
+  available: boolean;
+  orders: SalesOrderRow[];
+  total_cents: number;
+  currency: string;
+  /** How many of the orders in the window were cancelled (shown, never hidden). */
+  cancelled: number;
+};
+
+/**
+ * Sales in a period, with no agent column filled: orders do not record attribution
+ * (`lib/commission.ts` carries the same limitation). A live order-admin read does not
+ * exist, so its 503 becomes `available: false` — the page names the missing input
+ * instead of erroring.
+ */
+export async function loadSalesByAgentReport(period: ReportPeriod): Promise<SalesByAgentReport> {
+  try {
+    const orders = await listOrders();
+    const placed = orders.filter(
+      (record) => record.order.placed_at && inPeriod(record.order.placed_at, period),
+    );
+    return {
+      available: true,
+      orders: [...placed]
+        .sort((a, b) => (b.order.placed_at ?? "").localeCompare(a.order.placed_at ?? ""))
+        .map((record) => ({
+          number: record.order.number,
+          placed_at: record.order.placed_at ?? "",
+          customer_name: record.customer.name,
+          total_cents: record.order.total_cents,
+          currency: record.order.currency,
+          lifecycle_status: record.lifecycle_status,
+        })),
+      total_cents: placed.reduce((sum, record) => sum + record.order.total_cents, 0),
+      currency: placed[0]?.order.currency ?? "PHP",
+      cancelled: placed.filter((record) => record.lifecycle_status === "cancelled").length,
+    };
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 503) {
+      return { available: false, orders: [], total_cents: 0, currency: "PHP", cancelled: 0 };
+    }
+    throw err;
+  }
+}
+
+/* ------------------------- lot & chapel occupancy ------------------------ */
+
+export type OccupancyReport = {
+  /** null when the lot source could not be read — the page names it plainly. */
+  lots: LotRollupRow[] | null;
+  /** null when the chapel source could not be read. */
+  chapels: ChapelRollupRow[] | null;
+  period: ReportPeriod;
+};
+
+/**
+ * Lot occupancy (snapshot + arrivals inside the window) and chapel occupancy (booked
+ * days over open days, closures excluded). One failing source nulls its own half —
+ * the other still renders.
+ */
+export async function loadOccupancyReport(period: ReportPeriod): Promise<OccupancyReport> {
+  const [lotsResult, chapelsResult] = await Promise.allSettled([
+    listLots(),
+    getChapelAdminView(),
+  ]);
+  const lots = lotsResult.status === "fulfilled" ? lotRollup(lotsResult.value, period) : null;
+  const chapels =
+    chapelsResult.status === "fulfilled"
+      ? chapelRollup(
+          chapelsResult.value.chapels,
+          chapelsResult.value.bookings,
+          chapelsResult.value.blocks,
+          period,
+        )
+      : null;
+  return { lots, chapels, period };
+}
+
+/* ------------------------------ cases by stage --------------------------- */
+
+export type CasesByStageReport = {
+  rows: CaseStageRow[];
+  total: number;
+};
+
+/** Cases opened in the window, grouped by the stage they are on today. */
+export async function loadCasesByStageReport(period: ReportPeriod): Promise<CasesByStageReport> {
+  const cases = await listCases();
+  const rows = caseRollup(cases, period);
+  return { rows, total: rows.reduce((sum, row) => sum + row.count, 0) };
 }
