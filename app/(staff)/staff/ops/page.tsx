@@ -14,7 +14,7 @@ import { parkToday } from "@/lib/schedule-board";
 import { buildOpsBoard, daysLabel } from "@/lib/operations/ops-board";
 import { OpsBoardView } from "./ops-board-view";
 
-export const metadata = { title: "Operations board — Staff Portal" };
+export const metadata = { title: "Operations board — Admin Portal" };
 
 /**
  * Staff Operations board (`/staff/ops`) — the morning screen: every case in the lane

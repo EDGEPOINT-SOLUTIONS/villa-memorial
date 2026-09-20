@@ -14,7 +14,7 @@ import { GenerateAgreementForm } from "./generate-agreement";
 import { canGeneratePurchaseAgreement } from "@/lib/contracts/purchase-agreement";
 import { formatMinorUnits } from "@/lib/money";
 
-export const metadata = { title: "Lot detail — Staff Portal" };
+export const metadata = { title: "Lot detail — Admin Portal" };
 
 const STATUS_TONE: Record<string, "success" | "warning" | "info" | "neutral" | "danger"> = {
   available: "success",

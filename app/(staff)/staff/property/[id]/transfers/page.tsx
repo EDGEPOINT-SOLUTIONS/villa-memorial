@@ -17,7 +17,7 @@ import {
 } from "@/lib/lot-lifecycle";
 import { LotRecordTabs } from "../lot-record-tabs";
 
-export const metadata = { title: "Transfers — Staff Portal" };
+export const metadata = { title: "Transfers — Admin Portal" };
 
 /**
  * Transfers (captain checklist F-11) — a request changing hands: who is

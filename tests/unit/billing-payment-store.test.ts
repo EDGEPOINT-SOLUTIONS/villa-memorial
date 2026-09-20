@@ -95,7 +95,7 @@ describe("recording a payment", () => {
     expect(payment.receipt_document!.document_type).toBe("receipt");
     expect(payment.receipt_document!.status).toBe("approved");
     expect(payment.receipt_document!.title).toBe(`Official Receipt — ${INVOICE}`);
-    expect(payment.receipt_document!.uploaded_by).toBe("Staff portal (Elena Villanueva)");
+    expect(payment.receipt_document!.uploaded_by).toBe("Admin portal (Elena Villanueva)");
     // Fixture mode stores no rendered artifact, so the row reports 0 rather than a
     // decorative byte count (documents-api-v1).
     expect(payment.receipt_document!.file_size_bytes).toBe(0);

@@ -11,7 +11,7 @@ import { formatMinorUnits } from "@/lib/money";
 import { formatRecordedAt } from "@/lib/contracts/payment-capture";
 import { provisionalReceiptAgainst } from "@/lib/contracts/provisional-receipt-capture";
 
-export const metadata = { title: "Provisional receipts — Staff Portal" };
+export const metadata = { title: "Provisional receipts — Admin Portal" };
 
 /**
  * The office's list of provisional receipts — every slip the counter has issued, with the

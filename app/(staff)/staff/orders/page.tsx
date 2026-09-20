@@ -14,7 +14,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { formatMinorUnits } from "@/lib/money";
 import { hasAnyScope } from "@/lib/rbac/nav";
 
-export const metadata = { title: "Orders — Staff Portal" };
+export const metadata = { title: "Orders — Admin Portal" };
 
 /**
  * Staff Orders admin (phase 1 of the admin-commerce plan): the durable order list with

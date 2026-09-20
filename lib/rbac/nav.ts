@@ -1,5 +1,5 @@
 /**
- * Staff portal navigation, gated by JWT scopes (jwt-claims-v1:
+ * Admin Portal navigation, gated by JWT scopes (jwt-claims-v1:
  * `scopes: [{module}:{action}]`). Nav gating is UX only — authorization is
  * enforced at service boundaries regardless of what renders here.
  *

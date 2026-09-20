@@ -8,25 +8,23 @@
  * explain their status honestly.
  *
  * Two connected modes (spec §3, docs/07-client-villa/park-3d-spec.md):
- *   · MAP — the plain masterplan image with the existing plotting behaviour;
+ *   · MAP — the plain masterplan image;
  *   · 3D  — the orbit-navigated park, built from the same masterplan, entered in
  *           FULL SCREEN, with every control INSIDE the experience.
- * Both read and write ONE plot store, so a plot placed, moved, retyped or
- * deleted in either mode appears in the other, and the selection is shared.
- * The 3D world exists for the Villa park (the client's masterplan); the other
- * parks keep their own map images.
+ * Both read ONE plot store and the selection is shared; the 3D world exists for
+ * the Villa park (the client's masterplan), the other parks keep their images.
  *
- * PLOTTING IS ADMIN ONLY (spec §3, captain 2026-09-16). `canPlot` is resolved
- * server-side from the viewer's session scopes (`property:write`) and passed
- * down; a customer sees the map and the lots, can inspect and select them, and
- * gets no plotting or editing tools in EITHER mode — including the 3D place and
- * move gestures, which write the same store.
+ * VIEW-ONLY BY CONSTRUCTION (captain 2026-09-20). This public surface takes no
+ * capability prop and resolves no session: it must never render an editing
+ * control, in Map mode or 3D, for anyone. Plotting is an administrative act and
+ * lives in the admin area (`/staff/property` → `PropertyExplorer` →
+ * `park-maps-view.tsx`'s `canEdit`, gated on `property:write`). The store still
+ * SHARES staff edits into this view; the viewer just cannot write to it. A
+ * regression here is caught by `tests/unit/public-map-view-only.test.tsx`.
  */
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ParkMapsView } from "@/components/park-maps-view";
-import { LotReserveAction } from "@/components/lot-reserve-action";
-import { Park3dPlotTools } from "@/components/park3d/plot-tools-panel";
 import { PlotDetails } from "@/components/park-plot-details";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -36,7 +34,6 @@ import {
   legendList,
   parkAreas,
   parksList,
-  saveParkAreas,
   setActiveParkId,
   useParkStore,
   type PlotArea,
@@ -76,46 +73,17 @@ function exitFullscreen(): void {
   doc.webkitExitFullscreen?.();
 }
 
-/**
- * Write a plot change into the store WITHOUT persisting the display-only overlay
- * (a linked lot's live status/owner are read from the property listing, not the
- * map store, so they must not be copied into it).
- */
-function commitVillaAreas(next: PlotArea[]) {
-  const stored = parkAreas(VILLA_PARK_ID);
-  const byId = new Map(next.map((a) => [a.id, a]));
-  const merged = stored
-    .filter((s) => byId.has(s.id))
-    .map((s) => {
-      const n = byId.get(s.id)!;
-      return {
-        ...s,
-        outline: n.outline,
-        circle: n.circle,
-        status: n.status,
-        typeId: n.typeId,
-        sectionBlock: n.sectionBlock,
-        owner: n.owner,
-      };
-    });
-  const added = next.filter((n) => !stored.some((s) => s.id === n.id));
-  saveParkAreas(VILLA_PARK_ID, [...merged, ...added]);
-}
-
 export function PublicParkMap({
   lots,
   initialPark,
   initialPlot,
   enable3d = false,
-  canPlot = false,
 }: {
   lots: Lot[];
   initialPark?: string;
   initialPlot?: string;
   /** Opt-in: only the park page hosts the 3D park. */
   enable3d?: boolean;
-  /** Admin-only plotting — resolved from the session scopes by the page. */
-  canPlot?: boolean;
 }) {
   const [selected, setSelected] = useState<{ area: PlotArea; parkId: string } | null>(null);
   const [parkId, setParkId] = useState<string>(() => initialPark ?? VILLA_PARK_ID);
@@ -218,18 +186,6 @@ export function PublicParkMap({
     setMode("map");
   }
 
-  function patchVillaArea(area: PlotArea, patch: Partial<PlotArea>) {
-    const next = parkAreas(VILLA_PARK_ID).map((a) => (a.id === area.id ? { ...a, ...patch } : a));
-    commitVillaAreas(next);
-    const updated = next.find((a) => a.id === area.id);
-    if (updated) setSelected({ area: updated, parkId: VILLA_PARK_ID });
-  }
-
-  function deleteVillaArea(area: PlotArea) {
-    commitVillaAreas(parkAreas(VILLA_PARK_ID).filter((a) => a.id !== area.id));
-    setSelected(null);
-  }
-
   const parkName =
     parks.find((p) => p.id === (mode === "3d" ? VILLA_PARK_ID : parkId))?.name ??
     parksRef.current[0]?.name ??
@@ -254,12 +210,6 @@ export function PublicParkMap({
       ? villaAreas.find((a) => a.id === selected.area.id) ?? selected.area
       : null;
 
-  /** The published lot behind the current selection, when there is one. */
-  const selectedLot =
-    selectedVillaArea?.lot_id != null
-      ? lots.find((l) => l.id === selectedVillaArea.lot_id) ?? null
-      : null;
-
   return (
     <div className="stack-4 park-mode" ref={hostRef}>
       {/* Page chrome — only while the plain map is on screen. In 3D everything
@@ -275,9 +225,8 @@ export function PublicParkMap({
             </Button>
           </div>
           <p className="text-sm text-muted" style={{ margin: 0 }}>
-            {canPlot
-              ? "The plain park map. Your account has the plotting tools; switch to 3D and the same plots are there to orbit, zoom and frame."
-              : "The plain park map. Switch to 3D to orbit the same masterplan — selecting a plot behaves the same in both views."}
+            The plain park map. Switch to 3D to orbit the same masterplan — selecting a plot
+            behaves the same in both views.
           </p>
         </div>
       ) : null}
@@ -289,8 +238,9 @@ export function PublicParkMap({
           selectedCode={selectedVillaArea?.code ?? null}
           selectionSeq={selectionSeq}
           onSelect={(area) => selectArea(area, VILLA_PARK_ID)}
-          canPlot={canPlot}
-          onChangeAreas={canPlot ? commitVillaAreas : undefined}
+          // View-only by construction: this public surface never grants plotting,
+          // even to an admin. Plot authoring lives on /staff/property.
+          canPlot={false}
           onExit={leave3d}
           fullscreen={fullscreen}
           details={
@@ -300,27 +250,15 @@ export function PublicParkMap({
               }
               lots={lots}
               parkName={parkName}
-              // The real reservation control, only for a viewer whose scopes allow it
-              // (property:write). Everyone else keeps the request-to-reserve link.
-              reserveSlot={
-                canPlot && selectedLot ? <LotReserveAction lot={selectedLot} /> : undefined
-              }
-            >
-              {canPlot && selectedVillaArea ? (
-                <Park3dPlotTools
-                  area={selectedVillaArea}
-                  onPatch={(patch) => patchVillaArea(selectedVillaArea, patch)}
-                  onDelete={() => deleteVillaArea(selectedVillaArea)}
-                />
-              ) : null}
-            </PlotDetails>
+            />
           }
         />
       ) : (
         <div className="map-layout">
           <div className="stack-4" style={{ flex: "1 1 auto", minWidth: 0 }}>
             <ParkMapsView
-              canEdit={canPlot}
+              // Public viewer: never editable here, for anyone.
+              canEdit={false}
               liveStatusById={liveStatus}
               liveOwnerById={liveOwner}
               initialParkId={initialPark}

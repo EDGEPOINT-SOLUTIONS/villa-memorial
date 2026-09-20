@@ -382,7 +382,7 @@ export function recordFixturePayment(args: {
       related_case_number: null,
       related_order_number: current.order_number,
       status: "approved",
-      uploaded_by: `Staff portal (${args.actor})`,
+      uploaded_by: `Admin portal (${args.actor})`,
       uploaded_at: at,
       file_size_bytes: 0,
     };

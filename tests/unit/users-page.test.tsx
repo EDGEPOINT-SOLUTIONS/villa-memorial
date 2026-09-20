@@ -70,7 +70,7 @@ describe("the permission model, answered at a glance", () => {
       "Administrator",
       "Sales agent",
       "Customer / family",
-      "Staff portal",
+      "Admin portal",
       "Agent portal",
       "Family portal",
       "Seeded sign-in",

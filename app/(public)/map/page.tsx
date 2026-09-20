@@ -3,8 +3,6 @@ import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { PublicParkMap } from "@/components/public-park-map";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
-import { optionalSession } from "@/lib/auth/guard";
-import { canEditPlots } from "@/lib/park-3d/capability";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -32,10 +30,12 @@ export const dynamic = "force-dynamic";
  * contract decision (blocked-on-dev, not invented here). Until then the live page
  * renders a graceful error instead of pretending.
  *
- * Capability note: the page stays public, but plotting is ADMIN ONLY (spec §3).
- * The viewer's session is read here from the httpOnly cookies; holding
- * `property:write` is what turns the plotting tools on, in Map mode and in 3D
- * alike. A customer simply gets the same map and lots without them.
+ * Capability note (captain 2026-09-20): this page is VIEW-ONLY FOR EVERYONE,
+ * signed in or not. It reads no session and passes no plotting capability —
+ * plotting is an administrative act and lives in the admin area
+ * (`/staff/property`, gated there on `property:write`). The public map is the
+ * viewer: sections, plots, availability, lot details, deep links and the 3D
+ * walk-through, with nothing that changes data.
  */
 export default async function PublicMapPage({
   searchParams,
@@ -45,8 +45,6 @@ export default async function PublicMapPage({
   const sp = await searchParams;
   const initialPark = sp.park && ["villa","loyola","golden"].includes(sp.park) ? sp.park : undefined;
   const initialPlot = sp.plot?.trim() || undefined;
-  const session = await optionalSession();
-  const canPlot = canEditPlots(session?.scopes);
 
   let lots;
   try {
@@ -110,7 +108,7 @@ export default async function PublicMapPage({
         </div>
       </section>
       <div className="map-shell">
-        <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} enable3d canPlot={canPlot} />
+        <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} enable3d />
       </div>
     </div>
   );

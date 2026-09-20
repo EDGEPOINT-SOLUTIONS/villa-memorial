@@ -8,7 +8,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { CatalogItemForm } from "../../catalog-item-form";
 
-export const metadata = { title: "Edit catalog item — Staff Portal" };
+export const metadata = { title: "Edit catalog item — Admin Portal" };
 
 /**
  * Edit one catalogue item by its numeric id (`catalog:write`). The id is the

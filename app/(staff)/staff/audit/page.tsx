@@ -7,7 +7,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listAuditEvents, type AuditOutcome } from "@/lib/api-client/audit";
 
-export const metadata = { title: "Audit trail — Staff Portal" };
+export const metadata = { title: "Audit trail — Admin Portal" };
 
 const OUTCOME_TONE: Record<AuditOutcome, "success" | "danger" | "neutral"> = {
   succeeded: "success",

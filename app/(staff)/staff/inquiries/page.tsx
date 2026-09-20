@@ -6,7 +6,7 @@ import { ForbiddenState } from "@/components/ui/states";
 import { InquiryBoard } from "./inquiry-board";
 import { listInquiries } from "@/lib/api-client/crm";
 
-export const metadata = { title: "Inquiries — Staff Portal" };
+export const metadata = { title: "Inquiries — Admin Portal" };
 
 const STATUS_TONE: Record<string, "info" | "warning" | "success" | "neutral"> = {
   new: "info",

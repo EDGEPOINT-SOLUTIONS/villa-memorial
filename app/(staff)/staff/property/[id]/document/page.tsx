@@ -9,7 +9,7 @@ import { getLot } from "@/lib/api-client/property";
 import { getPurchaseApplicationForLot } from "@/lib/api-client/purchase-applications";
 import { PurchaseApplicationDocument } from "@/components/purchase-application-document";
 
-export const metadata = { title: "Purchase document — Staff Portal" };
+export const metadata = { title: "Purchase document — Admin Portal" };
 
 /**
  * The recorded purchase application as its paper document — the counterpart to the

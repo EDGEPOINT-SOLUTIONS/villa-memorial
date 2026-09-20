@@ -27,7 +27,7 @@ import {
   scheduleDayLabel,
 } from "@/lib/schedule-board";
 
-export const metadata = { title: "Schedule — Staff Portal" };
+export const metadata = { title: "Schedule — Admin Portal" };
 
 /**
  * Staff Schedule — the day board first, then the week at a glance, then the

@@ -17,7 +17,7 @@ import { formatMinorUnits } from "@/lib/money";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { OrderStatusActions } from "./order-status-actions";
 
-export const metadata = { title: "Order detail — Staff Portal" };
+export const metadata = { title: "Order detail — Admin Portal" };
 
 /**
  * Staff order detail: the frozen order as created at checkout, the checkout contact the

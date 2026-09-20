@@ -21,7 +21,7 @@
 | `/products`, `/products/[sku]` | ✅ 24 casket models from the 2026 sheet; sample imagery labelled illustrative |
 | `/plans`, `/plans/[sku]`, `/plans/compare`, `/plans/senior-benefits`, `/plans/villa-memorial-plan`, `/packages` | ✅ plan tables + catalogue read the pricing/catalog stores |
 | `/lots`, `/lots/[id]`, `/lots/price-list-2026` | ✅ lot browse/filter, detail, 2026 lot families |
-| `/map` | ✅ shared park map — 2D masterplan + 3D mode (plotting is `property:write` only) |
+| `/map` | ✅ shared park map — 2D masterplan + 3D mode, VIEW-ONLY for everyone (plot authoring is `property:write` on `/staff/property`) |
 | `/gallery` | ✅ grouped client photography (gate · pavilion & grounds · chapels/viewing/carriage) + the ONE entry to `/map` and the full-screen 3D walk-through; sheet samples labelled illustrative |
 | `/cart`, `/checkout`, `/orders/[number]` | ✅ cart and real order creation on the frozen commerce contract |
 | `/builder` | ✅ Smart Service Builder (F-05): an ESTIMATE over the client's published 2026 figures (casket/senior columns · a-la-carte · embalming · chapel schedule · the pricing store's plan tables); the plan amount is kept out of the one-time total; the office confirms |
@@ -36,7 +36,7 @@
 Sign-in doors: `/login` (staff) ✅ · `/client/login` (family) ✅ · `/agent/login` (agent) ✅ —
 one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 
-## Staff portal — `app/(staff)/staff`
+## Admin Portal — `app/(staff)/staff`
 
 | Route | What it serves |
 |---|---|

@@ -7,7 +7,7 @@ import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getEmployee } from "@/lib/api-client/hr";
 
-export const metadata = { title: "Employee — Staff Portal" };
+export const metadata = { title: "Employee — Admin Portal" };
 
 const STATUS_TONE: Record<string, "success" | "warning" | "neutral"> = {
   active: "success",

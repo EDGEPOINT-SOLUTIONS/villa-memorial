@@ -1,6 +1,6 @@
 import { gatedSectionPage } from "../../gated-section";
 
-export const metadata = { title: "Plan — Staff Portal" };
+export const metadata = { title: "Plan — Admin Portal" };
 
 export default function PlanDetailPage() {
   return gatedSectionPage(

@@ -808,12 +808,12 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
 ## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
 
 - The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
-  switches between **Map** (the plain masterplan image, the existing plotting editor) and
-  **3D** (the orbit-navigated park, react-three-fiber). The 3D mode owns the whole screen:
-  entering requests full screen from the switch gesture (graceful where the browser refuses)
-  and every control — exit, camera, zoom/frame, section/search/filter list, settings, details,
-  plot tools — lives inside the experience, never in the page chrome. The other parks (Loyola,
-  Golden Haven) keep their own images and are untouched by the 3D world.
+  switches between **Map** (the plain masterplan image) and **3D** (the orbit-navigated park,
+  react-three-fiber). The 3D mode owns the whole screen: entering requests full screen from
+  the switch gesture (graceful where the browser refuses) and every control — exit, camera,
+  zoom/frame, section/search/filter list, settings, details — lives inside the experience,
+  never in the page chrome. The other parks (Loyola, Golden Haven) keep their own images and
+  are untouched by the 3D world.
 - **`lib/park-maps.ts` is the single plot store for both modes** (image-space coordinates,
   shapes, status, type, section/block, linked lot, demo-local localStorage — never claim
   multi-user sync). The ONE image↔world conversion is `lib/park-3d/coords.ts` (store frame
@@ -828,11 +828,14 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   “Contact for pricing”, every grid configurable there) and the chosen-not-measured values are
   listed in `ASSUMPTIONS` in `lib/park-3d/masterplan.ts`. The binding contract for this feature
   is `docs/07-client-villa/park-3d-spec.md` (§0).
-- **Plotting is admin-only**: `lib/park-3d/capability.ts` derives `canEditPlots` from the
-  viewer's `property:write` scope; the page reads an optional session
-  (`optionalSession` in `lib/auth/guard.ts`) and passes one boolean down. Customers see the map
-  and the lots, can select/inspect them in either mode, and get no plotting tools — the 3D place
-  and move gestalts are gated by the same flag.
+- **Plotting is admin-only, and the public map never carries it** (captain, 2026-09-20):
+  `app/(public)/map/page.tsx` reads no session and passes no capability — `/map` is VIEW-ONLY
+  for everyone, signed in or not, in Map mode and 3D alike; a signed-in administrator plots
+  from the admin area, not there. Plot authoring lives on `/staff/property`: the page resolves
+  `canEditPlots` (`lib/park-3d/capability.ts`, scope `property:write`) and hands it to
+  `PropertyExplorer`, which passes `canEdit` to the shared `park-maps-view.tsx` editor. Never
+  resolve a plotting capability on a public route again —
+  `tests/unit/public-map-view-only.test.tsx` fails it.
 - **Navigation is Blender-style orbit, not a game camera** (captain, 2026-09-17): drag orbits,
   wheel/pinch/± zoom, middle-drag or Shift+drag (two fingers on touch) pans, and selecting a
   plot/section/place frames it with a damped glide (never a teleport; no roll, no ground
@@ -841,13 +844,13 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   gestures are `components/park3d/camera-rig.tsx` (OrbitControls). "Masterplan view" is a
   top-down angle of the same camera, not a second camera. A plot drag disables the orbit
   controls for its duration (`draggingPlot` in the view store).
-- **Reserving works from the 3D plot panel, on the staff rule**: a viewer with
-  `property:write` gets `components/lot-reserve-action.tsx` (the same BFF route the staff map
-  uses, `POST /api/property/lots/:id/reserve`; only `available → reserved`, the property service
-  is the authority); everyone else keeps the request-to-reserve enquiry link. The panel's
-  action slot is `components/park-plot-details.tsx`'s `reserveSlot`. A reservation is the LOT's
-  status, and `lib/park-live-lots.ts` overlays it onto the same plot records both modes draw —
-  never write a lot's status into the plot store.
+- **Reserving on the public map is the request path only** (2026-09-20): the 3D plot panel
+  keeps the request-to-reserve enquiry link for everyone (the `reserveSlot` capability door is
+  no longer wired on `/map`). The real transition lives on `/staff/property`
+  (`components/lot-reserve-action.tsx`, the same BFF route `POST /api/property/lots/:id/reserve`;
+  only `available → reserved`, the property service is the authority). A reservation is the
+  LOT's status, and `lib/park-live-lots.ts` overlays it onto the same plot records both modes
+  draw — never write a lot's status into the plot store.
 - **The 2D canvas is an image map, so it must not snap zoom.** `ParksCanvas` sets
   `zoomSnap: 0` (craft pass, 2026-09-18): Leaflet's default snap of 1 makes `fitBounds`
   **floor** the fitted zoom (2.84 → 2), which left the square masterplan 300px wide inside a

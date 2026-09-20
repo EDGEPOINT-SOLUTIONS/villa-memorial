@@ -10,7 +10,7 @@ import { getDashboardSummary, type DashboardSummary } from "@/lib/api-client/rep
 import { listBookings } from "@/lib/api-client/scheduling";
 import { formatMinorUnits } from "@/lib/money";
 
-export const metadata = { title: "Dashboard — Staff Portal" };
+export const metadata = { title: "Dashboard — Admin Portal" };
 
 /**
  * Staff dashboard — villa-memorial design grammar: clickable KPI tiles, a

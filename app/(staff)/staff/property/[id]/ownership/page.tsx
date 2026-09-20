@@ -12,7 +12,7 @@ import { lotStatusLabel } from "@/lib/lot-labels";
 import { formatRecordDay, intermentSummary } from "@/lib/lot-lifecycle";
 import { LotRecordTabs } from "../lot-record-tabs";
 
-export const metadata = { title: "Ownership — Staff Portal" };
+export const metadata = { title: "Ownership — Admin Portal" };
 
 /**
  * Ownership (captain checklist F-11) — the lot's record card: the owner as the

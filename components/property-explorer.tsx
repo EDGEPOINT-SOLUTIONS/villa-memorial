@@ -14,6 +14,12 @@
  *
  * The list view remains a first-class sibling for accessibility and precise work
  * (design system: the map is never the only selection path).
+ *
+ * Plot authoring lives HERE (captain 2026-09-20): the shared map's plot editor is
+ * gated on `canPlot`, resolved by the page through the ONE capability module
+ * (`lib/park-3d/capability.ts`, scope `property:write`). The public `/map` passes
+ * no capability at all and is view-only for everyone — plotting is an
+ * administrative act, not a customer one.
  */
 import Link from "next/link";
 import { useState } from "react";
@@ -46,11 +52,14 @@ function LotStatusBadge({ status }: { status: Lot["status"] }) {
 export function PropertyExplorer({
   lots,
   canReserve,
+  canPlot = false,
   initialQuery = "",
   initialStatus = "all",
 }: {
   lots: Lot[];
   canReserve: boolean;
+  /** `property:write` — turns on the shared map's plot editor (see header). */
+  canPlot?: boolean;
   initialQuery?: string;
   initialStatus?: "all" | Lot["status"];
 }) {
@@ -124,7 +133,7 @@ export function PropertyExplorer({
         <div className="map-layout">
           <div className="stack" style={{ flex: "1 1 auto", minWidth: 0 }}>
             <ParkMapsView
-              canEdit={canReserve}
+              canEdit={canPlot}
               liveStatusById={Object.fromEntries(lots.map((l) => [l.id, l.status])) as Record<string, string>}
               liveOwnerById={Object.fromEntries(lots.map((l) => [l.id, l.owner_name ?? ""])) as Record<string, string>}
               selectedCode={selected ? selected.lot_number : null}
