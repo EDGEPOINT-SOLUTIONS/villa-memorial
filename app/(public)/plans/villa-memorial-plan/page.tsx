@@ -2,16 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP, PLAN_PACKAGES_IMAGE } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import {
-  CASH_ASSISTANCE,
-  COFFINS,
-  php,
-  SENIOR_TERMS,
-  VMP_ELIGIBILITY,
-  VMP_NOTES,
-  VMP_PACKAGE,
-} from "@/lib/villa-pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
+import { CASH_ASSISTANCE, COFFINS, php } from "@/lib/villa-pricing";
 
 import { pageMetadata } from "@/lib/seo";
 
@@ -26,7 +20,11 @@ export const metadata: Metadata = pageMetadata({
 export const dynamic = "force-dynamic";
 
 export default async function VillaMemorialPlanPage() {
-  const pricing = await loadPricingDocument();
+  const [pricing, page] = await Promise.all([
+    loadPricingDocument(),
+    getPageDocument("plans").catch(() => null),
+  ]);
+  const content = planContentFromDocument(page);
   return (
     <div className="stack-4">
       {/* Hero */}
@@ -137,7 +135,7 @@ export default async function VillaMemorialPlanPage() {
           <div className="card__body">
             <h3>Eligibility &amp; terms</h3>
             <ul className="stack-3">
-              {SENIOR_TERMS.map((t) => (
+              {content.seniorTerms.map((t) => (
                 <li key={t}>{t}</li>
               ))}
             </ul>
@@ -164,16 +162,16 @@ export default async function VillaMemorialPlanPage() {
             <div className="table-wrapper" tabIndex={0}>
               <table className="table">
                 <tbody>
-                  {VMP_PACKAGE.map((p) => (
-                    <tr key={p.service}>
-                      <th scope="row">{p.service}</th>
+                  {content.packageInclusions.map((p) => (
+                    <tr key={p.label}>
+                      <th scope="row">{p.label}</th>
                       <td>{p.detail}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="text-sm text-muted">{VMP_NOTES.extras}</p>
+            <p className="text-sm text-muted">{content.notes.extras}</p>
           </div>
         </div>
 
@@ -182,12 +180,12 @@ export default async function VillaMemorialPlanPage() {
             <div className="card__body stack-3">
               <h3>Eligibility</h3>
               <ul className="stack-3">
-                {VMP_ELIGIBILITY.map((e) => (
+                {content.eligibility.map((e) => (
                   <li key={e}>{e}</li>
                 ))}
               </ul>
               <h3>Limited contestability</h3>
-              <p className="text-sm">{VMP_NOTES.contestability}</p>
+              <p className="text-sm">{content.notes.contestability}</p>
             </div>
           </div>
           <div className="card">
@@ -213,7 +211,7 @@ export default async function VillaMemorialPlanPage() {
               </div>
               <p className="text-sm text-muted">During the paying period only.</p>
               <h3>Assignable and transferable</h3>
-              <p className="text-sm">{VMP_NOTES.assign}</p>
+              <p className="text-sm">{content.notes.assign}</p>
             </div>
           </div>
         </div>
@@ -239,7 +237,7 @@ export default async function VillaMemorialPlanPage() {
         </div>
         <p className="text-sm text-muted">
           Six-year amortization shown for regular and senior citizens.{" "}
-          <strong>{VMP_NOTES.adjust}</strong>
+          <strong>{content.notes.adjust}</strong>
         </p>
         {pricing.lotCategories.map((cat) => (
           <div className="card" key={cat.title}>

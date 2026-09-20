@@ -119,8 +119,9 @@ const ALACARTE_REQUEST_NOTE =
 
 /**
  * One plain sentence per a-la-carte line, phrased from the sheet's own package
- * wording (VMP_PACKAGE in lib/villa-pricing.ts) so a card explains the service
- * without inventing anything the sheet does not say.
+ * wording (the package inclusions in the Plans page document, read through
+ * lib/plan-content.ts) so a card explains the service without inventing
+ * anything the sheet does not say.
  */
 const ALACARTE_NOTES: Readonly<Record<string, string>> = {
   Retrieval: "Into our care, first 25 km.",

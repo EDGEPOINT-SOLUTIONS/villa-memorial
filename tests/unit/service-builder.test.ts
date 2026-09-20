@@ -31,7 +31,11 @@ import { SEED_PRICING, SEED_PRICING as pricing } from "@/lib/villa-pricing";
  * pinned separately by tests/unit/service-builder-page.test.tsx, and the reading
  * budget by tests/unit/reading-budget.test.tsx.
  */
-const catalog = builderCatalog(SEED_PRICING);
+/** The plan note the page reads from the Plans document (lib/plan-content.ts). */
+const PLAN_NOTE =
+  "Inception date is 30 days after payment. Contestability period is 7 months after payment.";
+
+const catalog = builderCatalog(SEED_PRICING, PLAN_NOTE);
 
 /** A selection with the given answers, everything else at its starting value. */
 const choose = (patch: Partial<BuilderSelection> = {}): BuilderSelection => ({
@@ -124,7 +128,7 @@ describe("the builder's catalog is the client's 2026 sheets, joined", () => {
         senior: pricing.plans.senior,
       },
     };
-    const editedCatalog = builderCatalog(edited);
+    const editedCatalog = builderCatalog(edited, PLAN_NOTE);
     expect(planRateCents(editedCatalog, "bronze1", "monthly", false)).toBe(77_700);
     // ...and the untouched document still answers with the sheet's own figure.
     expect(planRateCents(catalog, "bronze1", "monthly", false)).toBe(60_000);

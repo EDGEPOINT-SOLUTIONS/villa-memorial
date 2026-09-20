@@ -84,7 +84,7 @@ describe("public pages read the saved plan rates", () => {
   });
 
   it("/plans prints the edited regular and senior cells, not the replaced ones", async () => {
-    const html = await renderWithCart(await PlansPage({ searchParams: Promise.resolve({}) }));
+    const html = await renderWithCart(await PlansPage());
     // Regular Bronze 1: annual 7,428 (the numbers appear in the request links too).
     expect(html).toContain("₱7,428");
     expect(html).toContain("₱619");
@@ -148,7 +148,7 @@ describe("a refused edit never reaches the public pages", () => {
     broken.regular.find((r) => r.mode === "Monthly")!.bronze1 = 500; // senior 550 > 500
     await expect(savePlanPricing(broken, "Sam Staff")).rejects.toMatchObject({ status: 422 });
 
-    const html = await renderWithCart(await PlansPage({ searchParams: Promise.resolve({}) }));
+    const html = await renderWithCart(await PlansPage());
     expect(html).toContain("₱7,200");
     expect(html).toContain("₱600");
     expect(html).not.toContain("₱7,428");

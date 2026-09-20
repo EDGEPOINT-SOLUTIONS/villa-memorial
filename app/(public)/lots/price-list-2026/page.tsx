@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PriceList2026Tables } from "@/components/villa/price-list-2026";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { VMP_NOTES } from "@/lib/villa-pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
 import { pageMetadata } from "@/lib/seo";
 import { PARK_PLACE_PHOTOS } from "@/lib/media";
 
@@ -18,7 +19,11 @@ export const dynamic = "force-dynamic";
 
 /** Villa Memorial 2026 price list: all categories, regular + senior, 6-year amortization. */
 export default async function PriceList2026Page() {
-  const pricing = await loadPricingDocument();
+  const [pricing, plansPage] = await Promise.all([
+    loadPricingDocument(),
+    getPageDocument("plans").catch(() => null),
+  ]);
+  const plan = planContentFromDocument(plansPage);
   return (
     <div className="stack-4">
       <section className="page-hero">
@@ -26,7 +31,7 @@ export default async function PriceList2026Page() {
         <h1 className="page-hero__title">Lots, mausoleum &amp; packages</h1>
         <p className="page-hero__lead">
           Six-year amortization for regular and senior citizens.{" "}
-          <strong>{VMP_NOTES.adjust}</strong>
+          <strong>{plan.notes.adjust}</strong>
         </p>
       </section>
 

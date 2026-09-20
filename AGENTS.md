@@ -324,10 +324,32 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   chips on narrow desktops (never letting them paint under the brand); phone
   rules keep the wordmark ellipsis and the 44 px targets. Pinned by
   `tests/unit/public-nav.test.tsx` + `tests/unit/landing-view.test.tsx`.
-- **Phases 2–4 are separately queued — do not build them here**: the Plans page
-  becomes tiers + per-tier inclusion checklists (no services); the Services page
-  becomes one hero → straight to the services with the guide pages as entries;
-  the item catalogue's entry blocks and the nav cleanup follow.
+- **Phase 2 — the Plans page (`/plans`) is the second WIRED surface.** Its five
+  tiers, per-tier inclusion checklists, the complete memorial package table,
+  eligibility, senior terms and the five plan notes are the "Villa Memorial Plan"
+  page document (`lib/fixtures/content/pages.json`, `blocks: true` in
+  `lib/content-catalog.ts`), edited at `/staff/landing/plans`. **`lib/plan-content.ts`
+  is the ONE typed reading** of those blocks (stable ids `plans-tier-<id>`,
+  `plans-package`, `plans-eligibility`, `plans-senior-terms`, `plans-note-<key>`,
+  edited blocks keep their ids) and every plan surface reads it — `/plans`,
+  `/plans/villa-memorial-plan`, `/plans/senior-benefits`, `/plans/[sku]`,
+  `/lots/price-list-2026`, `/builder` and `components/villa/plan-terms-display.tsx`
+  (the staff membership screens) — so one edit lands together. The presentational
+  constants `VMP_PACKAGE`/`VMP_ELIGIBILITY`/`VMP_NOTES`/`VMP_INCLUSIONS`/`SENIOR_TERMS`
+  are RETIRED; the sheet figures stay pinned by `tests/unit/villa-pricing.test.ts`
+  through the document. **Rates stay a live read** (pricing store + `planRateOf`;
+  each tier card prints its own monthly from the store) and **no amount is authored
+  into a block** — `CASH_ASSISTANCE` stays the sheet constant and price blocks keep
+  their SKU/rate-table binding. The mixed 42-item catalogue LEFT `/plans` (services
+  → `/services`, caskets → `/products`; the three packages keep `/packages` +
+  `/plans/[sku]`). Evidence + before/after shots:
+  `docs/08-delivery/content-plans-page-design/`; tests
+  `tests/unit/plans-page-content.test.tsx` + `plan-content.test.ts` +
+  `pricing-admin-render.test.tsx`.
+- **Phases 3–4 are separately queued — do not build them here**: the Services page
+  becomes one hero → straight to the services with the guide pages as service
+  entries; the item catalogue's entry blocks (per-casket/package content, and the
+  plan-tier entries as opposed to document blocks) and the nav cleanup follow.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

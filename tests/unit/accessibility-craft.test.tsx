@@ -85,7 +85,7 @@ const PAGES: ReadonlyArray<PageCase> = [
     name: "/plans",
     render: async () =>
       renderToStaticMarkup(
-        createElement(CartProvider, null, await PlansPage({ searchParams: Promise.resolve({}) })),
+        createElement(CartProvider, null, await PlansPage()),
       ),
   },
   {

@@ -45,7 +45,6 @@ import {
   EMBALMING_PER_DAY_BEYOND_9,
   EMBALMING_RATES,
   PLAN_TIERS,
-  VMP_NOTES,
   type CasketFamily,
 } from "@/lib/villa-pricing";
 import { PLAN_TERM_DEFS, planRateOf, type PricingDocument } from "@/lib/pricing-model";
@@ -116,10 +115,12 @@ function planRates(pricing: PricingDocument): BuilderPlanRate[] {
 
 /**
  * The builder's catalog from the CURRENT pricing document (plan rates +
- * lot prices) and the sheet constants. Pure: no IO, no caching — the caller
- * reads the store per request, exactly like /plans and /lots/price-list-2026.
+ * lot prices), the sheet constants, and the plan note the caller reads from the
+ * Plans page document (`lib/plan-content.ts`). Pure: no IO, no caching — the
+ * caller reads the stores per request, exactly like /plans and
+ * /lots/price-list-2026.
  */
-export function builderCatalog(pricing: PricingDocument): BuilderCatalog {
+export function builderCatalog(pricing: PricingDocument, planNote: string): BuilderCatalog {
   const allCaskets = caskets();
   const collections = CASKET_COLLECTIONS.filter((collection) =>
     allCaskets.some((casket) => casket.collection === collection),
@@ -146,6 +147,6 @@ export function builderCatalog(pricing: PricingDocument): BuilderCatalog {
     substitutionNote: COFFIN_TIER_NOTE,
     chapelScopeNote: CHAPEL_NOTES.scope,
     chapelMiscFeeNote: CHAPEL_NOTES.miscFee,
-    planNote: VMP_NOTES.contestability,
+    planNote,
   };
 }

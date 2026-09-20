@@ -1,24 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet } from "@/lib/media";
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
-import { EmptyState } from "@/components/ui/empty-state";
-import { ErrorState } from "@/components/ui/states";
-import { CatalogueActions } from "@/components/villa/catalogue-actions";
-import { ProductCard, ResultsGrid } from "@/components/kit";
-import { catalogueItemPhoto, type CatalogueItemPhoto } from "@/lib/catalogue-imagery";
+import { ContentBlocks } from "@/components/content/content-blocks";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { planContentFromDocument } from "@/lib/plan-content";
+import { planRateOf } from "@/lib/pricing-model";
 import { pageMetadata } from "@/lib/seo";
-import {
-  CASH_ASSISTANCE,
-  php,
-  VMP_ELIGIBILITY,
-  VMP_INCLUSIONS,
-  VMP_NOTES,
-} from "@/lib/villa-pricing";
+import { CASH_ASSISTANCE, php, php2 } from "@/lib/villa-pricing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Villa Memorial Plan — Villa Memorial",
@@ -27,69 +20,69 @@ export const metadata: Metadata = pageMetadata({
   path: "/plans",
 });
 
-// Reads the pricing store per request — a staff edit must be what the NEXT
-// visitor sees, never a build-time snapshot.
+// Reads the pricing store + the page document per request — a staff edit must be
+// what the NEXT visitor sees, never a build-time snapshot.
 export const dynamic = "force-dynamic";
 
 /**
- * Public catalog (Module B/C public face) — villa-memorial item-card grammar on
- * the DOC palette. Cards carry REAL catalog data (name, description, price from
- * the frozen commerce contract); display_price is presentation-only and never
- * parsed. Each card offers two actions: "View this item" (the real detail page
- * with the real cart flow) and an "Add to cart" button that adds THIS card's
- * real SKU + price to the same cart context (fixtures-first, no invented
- * shapes — item data flows straight from listCatalogItems into the cart).
+ * The Villa Memorial Plan page (Phase 2 of the content-catalogue plan,
+ * data/villa-content-catalog-plan/report.md §9/§11).
  *
- * Below the catalog the page prints the plan's own price list — the client's two
- * 2026 payment-mode schedules (regular + senior), cash assistance, eligibility
- * and notes — from the CURRENT pricing store, so a family can price the plan
- * without leaving the page (the full walk-through stays on
- * /plans/villa-memorial-plan) and an office edit is what they read.
+ * THE CONTENT HOME: the five tiers and their per-tier inclusion checklists, the
+ * complete memorial package table, eligibility and the plan notes are the
+ * "Villa Memorial Plan" page document (Pages & content → Villa Memorial Plan,
+ * lib/fixtures/content/pages.json) — a staff edit reaches this page on its next
+ * request. `lib/plan-content.ts` is the ONE typed reading of that document, so
+ * the sub-pages and the staff screens print the same words.
+ *
+ * THE RATES STAY A LIVE READ: every amount comes through the pricing store
+ * (`loadPricingDocument()` + `planRateOf`) or the sheet's cash-assistance
+ * constant. No amount is authored in the document — the price blocks keep their
+ * SKU/rate-table reference semantics.
+ *
+ * THE SERVICES LEFT THE PAGE (captain 2026-09-21): this page is the five plan
+ * tiers, not the mixed 42-item catalogue. Packages keep their own route
+ * (`/packages`) and detail pages (`/plans/[sku]`); coffins and services live on
+ * `/products` and `/services`.
  */
-const TYPE_LABELS: Record<string, string> = {
-  package: "Packages",
-  service: "Services",
-  add_on: "Add-ons",
-};
+export default async function PlansPage() {
+  const [page, pricing, items] = await Promise.all([
+    getPageDocument("plans").catch(() => null),
+    loadPricingDocument(),
+    listCatalogItems().catch(() => []),
+  ]);
+  const plan = planContentFromDocument(page);
 
-/** The order the catalogue index presents the three groups in. */
-const CATALOGUE_GROUPS: ReadonlyArray<{ key: "package" | "service" | "add_on"; label: string }> = [
-  { key: "package", label: TYPE_LABELS.package },
-  { key: "service", label: TYPE_LABELS.service },
-  { key: "add_on", label: TYPE_LABELS.add_on },
-];
+  // A price block added to the document still resolves against the live
+  // catalogue; a `plans.regular` / `plans.senior` matrix renders the live table.
+  const priceBySku = new Map(items.map((item) => [item.sku, item.display_price]));
+  const priceOf = (sku: string): string | null => priceBySku.get(sku) ?? null;
+  const matrixOf = (ref: string): ReactNode | null => {
+    if (ref === "plans.regular") {
+      return (
+        <PlanPaymentTable
+          rows={pricing.plans.regular}
+          label="Villa Memorial Plan — regular payment schedule"
+        />
+      );
+    }
+    if (ref === "plans.senior") {
+      return (
+        <PlanPaymentTable
+          rows={pricing.plans.senior}
+          senior
+          label="Villa Memorial Plan — senior citizen payment schedule"
+        />
+      );
+    }
+    return null;
+  };
 
-export default async function PlansPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ type?: string }>;
-}) {
-  const { type } = await searchParams;
-  const filter = ["package", "service", "add_on"].includes(type ?? "")
-    ? (type as "package" | "service" | "add_on")
-    : undefined;
-
-  const page = await getPageDocument("plans").catch(() => null);
-
-  let itemsAll: Awaited<ReturnType<typeof listCatalogItems>>;
-  try {
-    itemsAll = await listCatalogItems();
-  } catch {
-    return (
-      <>
-        <h1>Villa Memorial Plan</h1>
-        <ErrorState message="The catalog is unavailable right now. Please try again shortly." />
-      </>
-    );
-  }
-  const items = filter ? itemsAll.filter((i) => i.item_type === filter) : itemsAll;
-  const pricing = await loadPricingDocument();
-  const counts = itemsAll.reduce<Record<string, number>>(
-    (acc, i) => {
-      acc[i.item_type] = (acc[i.item_type] ?? 0) + 1;
-      return acc;
-    },
-    {},
+  // The tier checklists get the live "from ₱X / month" figure; the rest of the
+  // document's blocks render through the shared renderer. The long
+  // "serves and underwrites" note stays on the staff terms module, not here.
+  const otherBlocks = (page?.blocks ?? []).filter(
+    (block) => !block.id.startsWith("plans-tier-") && block.id !== "plans-note-serving",
   );
 
   return (
@@ -110,11 +103,10 @@ export default async function PlansPage({
               </Link>
             </div>
             <p className="text-sm text-muted" style={{ margin: "var(--space-3) 0 0" }}>
-              {counts["package"] ?? 0} packages · {counts["service"] ?? 0} services ·{" "}
-              {counts["add_on"] ?? 0} add-ons — 2026 catalogue prices.
+              Five tiers · four payment terms · 2026 rates.
             </p>
             <nav className="hero-chips" aria-label="Related plan pages">
-              <Link href="/plans?type=package">View packages</Link>
+              <Link href="/packages">View packages</Link>
               <Link href="#plan-payments">2026 plan payments</Link>
               <Link href="/plans/compare">Compare</Link>
               <Link href="/plans/villa-memorial-plan">Products &amp; price list</Link>
@@ -135,163 +127,78 @@ export default async function PlansPage({
         </div>
       </section>
 
-      <section id="catalogue" className="stack-3" aria-labelledby="catalogue-title">
-        <h2 className="section-title" id="catalogue-title">
-          2026 catalogue — packages, services &amp; add-ons
+      {/* The five tiers — the page's content home. Each tier shows its inclusion
+          checklist (a dropdown, edited in Pages & content) and its own monthly
+          rate read live from the pricing store. */}
+      <section id="tiers" className="stack-3" aria-labelledby="tiers-title">
+        <h2 className="section-title" id="tiers-title">
+          The five tiers — what each one includes
         </h2>
-        <nav className="seg-filter" aria-label="Filter catalog">
-          <Link href="/plans" className={`pill-toggle${!filter ? " pill-toggle--active" : ""}`}>
-            All
-          </Link>
-          {Object.entries(TYPE_LABELS).map(([value, label]) => (
-            <Link
-              key={value}
-              href={`/plans?type=${value}`}
-              className={`pill-toggle${filter === value ? " pill-toggle--active" : ""}`}
-            >
-              {label}
-            </Link>
-          ))}
-        </nav>
-
-        {items.length === 0 ? (
-          <EmptyState
-            title="Nothing in this category yet"
-            hint="Check back soon — the catalog is being set up."
-          />
+        {plan.tiers.length === 0 ? (
+          <p className="text-sm text-muted">
+            The tier details are being prepared — the 2026 rates below still apply.
+          </p>
         ) : (
-          // Imagery pass (captain 2026-09-19): this band was a grouped PRICE
-          // INDEX of hairline rows — a reader moving here from /products or
-          // /packages saw three images on the whole page and no way to compare a
-          // photograph. It is now the same `.shop-grid`/`shop-card` grammar those
-          // pages use: every one of the 42 catalogue items leads with its own
-          // photograph from the ONE rule home (lib/catalogue-imagery.ts), its
-          // name, its published price and its two actions. The group heading
-          // still carries the real count.
-          <div className="catalogue-index">
-            {CATALOGUE_GROUPS.map((group) => {
-              const inGroup = items.filter((i) => i.item_type === group.key);
-              if (inGroup.length === 0) return null;
+          <div className="split-grid">
+            {plan.tiers.map((tier) => {
+              const monthly = planRateOf(pricing.plans, tier.tier, "monthly", false);
               return (
-                <section key={group.key} className="cat-band" aria-label={group.label}>
-                  <header className="band-head">
-                    <h3 className="band-head__title">{group.label}</h3>
-                    <span className="band-head__count">
-                      {inGroup.length} item{inGroup.length === 1 ? "" : "s"} · 2026 catalogue prices
-                    </span>
-                  </header>
-                  <ResultsGrid
-                    items={inGroup.filter((item) => !item.sku.startsWith("SRV-EMBALM"))}
-                    itemKey={(item) => item.sku}
-                    emptyTitle="No catalogue items in this group yet"
-                    renderItem={(item) => {
-                      const photo: CatalogueItemPhoto | undefined = item.image
-                        ? { id: item.sku, src: item.image, alt: item.name }
-                        : catalogueItemPhoto(item.sku) ?? undefined;
-                      return (
-                        <ProductCard
-                          href={`/plans/${item.sku}`}
-                          title={item.name}
-                          supporting={<code>{item.sku}</code>}
-                          price={item.display_price}
-                          chip={photo?.chip}
-                          caption={photo?.caption}
-                          photo={
-                            photo
-                              ? {
-                                  src: photo.src,
-                                  srcSet: photo.srcSet,
-                                  width: photo.width,
-                                  height: photo.height,
-                                  sizes: "(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 26rem",
-                                  alt: photo.alt,
-                                }
-                              : undefined
-                          }
-                          actions={
-                            <>
-                              <Link
-                                href={`/plans/${item.sku}`}
-                                className="btn btn--secondary btn--sm"
-                              >
-                                View this item
-                              </Link>
-                              <CatalogueActions
-                                item={{
-                                  sku: item.sku,
-                                  name: item.name,
-                                  itemType: item.item_type,
-                                  unitPriceCents: item.unit_price_cents,
-                                  currency: item.currency,
-                                }}
-                                displayPrice={item.display_price}
-                                prefill={{ note: `${group.label} from the 2026 catalogue.` }}
-                              />
-                            </>
-                          }
-                        />
-                      );
-                    }}
-                  />
-                  {/* The embalming ladder is ONE service at eight day counts, so it
-                      is one photograph and a priced ladder — eight identical cards
-                      would be a wall of the same picture. Every row keeps its own
-                      Add to cart and Request order (all 42 items stay sellable). */}
-                  {inGroup.some((item) => item.sku.startsWith("SRV-EMBALM")) ? (
-                    <div className="day-ladder">
-                      <figure className="day-ladder__media">
-                        {(() => {
-                          const photo = catalogueItemPhoto("SRV-EMBALM-3D");
-                          if (!photo) return null;
-                          return (
-                            <>
-                              {/* eslint-disable-next-line @next/next/no-img-element -- the client's own photograph */}
-                              <img
-                                src={photo.src}
-                                srcSet={photo.srcSet}
-                                sizes="(max-width: 60rem) 92vw, 22rem"
-                                alt=""
-                                loading="lazy"
-                              />
-                              <figcaption className="day-ladder__caption">
-                                {photo.caption}
-                              </figcaption>
-                            </>
-                          );
-                        })()}
-                      </figure>
-                      <ul className="day-ladder__rows">
-                        {inGroup
-                          .filter((item) => item.sku.startsWith("SRV-EMBALM"))
-                          .map((item) => (
-                            <li className="day-ladder__row" key={item.sku}>
-                              <span className="day-ladder__name">{item.name}</span>
-                              <span className="day-ladder__price">{item.display_price}</span>
-                              <CatalogueActions
-                                item={{
-                                  sku: item.sku,
-                                  name: item.name,
-                                  itemType: item.item_type,
-                                  unitPriceCents: item.unit_price_cents,
-                                  currency: item.currency,
-                                }}
-                                displayPrice={item.display_price}
-                                prefill={{ note: `${group.label} from the 2026 catalogue.` }}
-                              />
+                <Card
+                  key={tier.tier}
+                  header={<h3>{tier.heading}</h3>}
+                >
+                  <p className="text-sm text-muted" style={{ marginTop: 0 }}>
+                    Regular rate from <strong>{php2(monthly)}</strong> / month
+                  </p>
+                  {tier.mode === "dropdown" ? (
+                    <details className="sv-disclosure">
+                      <summary>{tier.heading} inclusions</summary>
+                      <div className="sv-disclosure__body">
+                        <ul className="stack-2" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                          {tier.items.map((item) => (
+                            <li key={item.id}>
+                              <span aria-hidden="true" style={{ marginRight: "var(--space-2)" }}>
+                                {item.checked ? "✓" : "○"}
+                              </span>
+                              {item.label}
                             </li>
                           ))}
-                      </ul>
-                    </div>
-                  ) : null}
-                </section>
+                        </ul>
+                      </div>
+                    </details>
+                  ) : (
+                    <ul className="stack-2" style={{ listStyle: "none", padding: 0, margin: 0 }}>
+                      {tier.items.map((item) => (
+                        <li key={item.id}>
+                          <span aria-hidden="true" style={{ marginRight: "var(--space-2)" }}>
+                            {item.checked ? "✓" : "○"}
+                          </span>
+                          {item.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Card>
               );
             })}
           </div>
         )}
       </section>
 
+      {/* Package details, eligibility and the plan notes — the document's own
+          blocks, rendered by the shared block renderer (money arrives only
+          through a price block's binding). */}
+      {otherBlocks.length > 0 ? (
+        <section id="package-details" className="stack-3" aria-labelledby="package-details-title">
+          <h2 className="section-title" id="package-details-title">
+            The complete memorial package
+          </h2>
+          <ContentBlocks blocks={otherBlocks} priceOf={priceOf} matrixOf={matrixOf} />
+        </section>
+      ) : null}
+
       {/* The plan's own 2026 price list — the client's two payment-mode
-          schedules. Every amount comes through lib/villa-pricing.ts. */}
+          schedules. Every amount comes through the pricing store. */}
       <section id="plan-payments" className="stack-3" aria-labelledby="plan-payments-title">
         <h2 className="section-title" id="plan-payments-title">
           2026 rates — five tiers, four payment terms
@@ -319,20 +226,6 @@ export default async function PlansPage({
         </div>
 
         <div className="split-grid">
-          <Card header={<h3>Eligibility &amp; plan notes</h3>}>
-            <ul className="rate-facts">
-              {VMP_ELIGIBILITY.map((e) => (
-                <li key={e}>{e}</li>
-              ))}
-            </ul>
-            <p className="text-sm" style={{ marginTop: "var(--space-3)" }}>
-              {VMP_NOTES.contestability}
-            </p>
-            <p className="text-sm" style={{ marginTop: "var(--space-2)" }}>
-              {VMP_NOTES.assign}
-            </p>
-          </Card>
-
           <Card header={<h3>Cash assistance with hospital benefit</h3>}>
             <div className="table-wrapper" tabIndex={0}>
               <table className="table price-table">
@@ -355,15 +248,17 @@ export default async function PlansPage({
             <p className="text-sm text-muted" style={{ marginTop: "var(--space-2)" }}>
               During the paying period only.
             </p>
-            <p className="text-sm" style={{ marginTop: "var(--space-3)" }}>
-              Complete memorial package includes:
+          </Card>
+
+          <Card header={<h3>The packages</h3>}>
+            <p className="text-sm" style={{ marginTop: 0 }}>
+              The three complete packages — Basic, Standard and Premium — with their own
+              cards and detail pages.
             </p>
-            <ul className="rate-facts" style={{ marginTop: "var(--space-2)" }}>
-              {VMP_INCLUSIONS.map((i) => (
-                <li key={i.service}>{i.service}</li>
-              ))}
-            </ul>
-            <p className="text-sm" style={{ marginTop: "var(--space-2)" }}>
+            <p className="text-sm">
+              <Link href="/packages">Browse the 2026 packages</Link>
+            </p>
+            <p className="text-sm">
               <Link href="/plans/villa-memorial-plan">Each inclusion in detail</Link>
             </p>
           </Card>

@@ -10,7 +10,8 @@
       "  · coffins ← app/(public)/products/page.tsx (eyebrow/headline/lead)",
       "The Home document is NOT stored here: it is the landing content document (lib/fixtures/landing/content.json) and is listed in Pages & content with its own full editor.",
       "Tabs for the park: Park view (/map) + Lots (/map?tab=lots) — the captain's 2026-09-21 direction that the Lot page is a tab inside the park page.",
-      "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store."
+      "The plans document's blocks (Phase 2, captain's 2026-09-21 direction: five tiers + per-tier inclusion checklists, no services) record the CURRENT plan copy the page published from lib/villa-pricing.ts: the five tiers' inclusion checklists, the complete memorial package table, eligibility, senior terms and the five plan notes. Stable block ids set the typed reading in lib/plan-content.ts; every string is the client's own (COMPLETE MEMORIAL PACKAGE / TYPES OF COFFIN sheets).",
+      "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store. The cash-assistance table stays a sheet constant (lib/villa-pricing.ts CASH_ASSISTANCE), never a free-text block."
     ]
   },
   "version": 1,
@@ -65,7 +66,156 @@
         "backgroundTransparency": 100
       },
       "tabs": [],
-      "blocks": [],
+      "blocks": [
+        {
+          "id": "plans-tier-bronze1",
+          "type": "checklist",
+          "heading": "Bronze 1",
+          "mode": "dropdown",
+          "items": [
+            { "id": "plans-bronze1-flowers", "label": "Flowers", "checked": true },
+            { "id": "plans-bronze1-tarp", "label": "Tarp", "checked": true },
+            { "id": "plans-bronze1-lapida", "label": "Lapida", "checked": true },
+            { "id": "plans-bronze1-family-car", "label": "Family car", "checked": true },
+            { "id": "plans-bronze1-roses", "label": "One dozen roses", "checked": true },
+            { "id": "plans-bronze1-thank-you", "label": "Thank-you card", "checked": true },
+            { "id": "plans-bronze1-chapel", "label": "Chapel days", "checked": true },
+            { "id": "plans-bronze1-package", "label": "Complete memorial package", "checked": true }
+          ]
+        },
+        {
+          "id": "plans-tier-bronze2",
+          "type": "checklist",
+          "heading": "Bronze 2",
+          "mode": "dropdown",
+          "items": [
+            { "id": "plans-bronze2-flowers", "label": "Flowers", "checked": true },
+            { "id": "plans-bronze2-tarp", "label": "Tarp", "checked": true },
+            { "id": "plans-bronze2-lapida", "label": "Lapida", "checked": true },
+            { "id": "plans-bronze2-family-car", "label": "Family car", "checked": true },
+            { "id": "plans-bronze2-roses", "label": "One dozen roses", "checked": true },
+            { "id": "plans-bronze2-thank-you", "label": "Thank-you card", "checked": true },
+            { "id": "plans-bronze2-chapel", "label": "Chapel days", "checked": true },
+            { "id": "plans-bronze2-package", "label": "Complete memorial package", "checked": true }
+          ]
+        },
+        {
+          "id": "plans-tier-silver1",
+          "type": "checklist",
+          "heading": "Silver 1",
+          "mode": "dropdown",
+          "items": [
+            { "id": "plans-silver1-flowers", "label": "Flowers", "checked": true },
+            { "id": "plans-silver1-tarp", "label": "Tarp", "checked": true },
+            { "id": "plans-silver1-lapida", "label": "Lapida", "checked": true },
+            { "id": "plans-silver1-family-car", "label": "Family car", "checked": true },
+            { "id": "plans-silver1-roses", "label": "One dozen roses", "checked": true },
+            { "id": "plans-silver1-thank-you", "label": "Thank-you card", "checked": true },
+            { "id": "plans-silver1-chapel", "label": "Chapel days", "checked": true },
+            { "id": "plans-silver1-package", "label": "Complete memorial package", "checked": true }
+          ]
+        },
+        {
+          "id": "plans-tier-silver2",
+          "type": "checklist",
+          "heading": "Silver 2",
+          "mode": "dropdown",
+          "items": [
+            { "id": "plans-silver2-flowers", "label": "Flowers", "checked": true },
+            { "id": "plans-silver2-tarp", "label": "Tarp", "checked": true },
+            { "id": "plans-silver2-lapida", "label": "Lapida", "checked": true },
+            { "id": "plans-silver2-family-car", "label": "Family car", "checked": true },
+            { "id": "plans-silver2-roses", "label": "One dozen roses", "checked": true },
+            { "id": "plans-silver2-thank-you", "label": "Thank-you card", "checked": true },
+            { "id": "plans-silver2-chapel", "label": "Chapel days", "checked": true },
+            { "id": "plans-silver2-package", "label": "Complete memorial package", "checked": true }
+          ]
+        },
+        {
+          "id": "plans-tier-gold",
+          "type": "checklist",
+          "heading": "Gold",
+          "mode": "dropdown",
+          "items": [
+            { "id": "plans-gold-flowers", "label": "Flowers", "checked": true },
+            { "id": "plans-gold-tarp", "label": "Tarp", "checked": true },
+            { "id": "plans-gold-lapida", "label": "Lapida", "checked": true },
+            { "id": "plans-gold-family-car", "label": "Family car", "checked": true },
+            { "id": "plans-gold-roses", "label": "One dozen roses", "checked": true },
+            { "id": "plans-gold-thank-you", "label": "Thank-you card", "checked": true },
+            { "id": "plans-gold-chapel", "label": "Chapel days", "checked": true },
+            { "id": "plans-gold-package", "label": "Complete memorial package", "checked": true }
+          ]
+        },
+        {
+          "id": "plans-package",
+          "type": "table",
+          "heading": "Complete memorial package includes",
+          "caption": null,
+          "columns": ["Included", "What it covers"],
+          "rows": [
+            ["Retrieval & delivery", "Retrieval of the deceased to the morgue and delivery of the same in casket. Good for the first 25 kms only."],
+            ["Preparation & casketing", "Embalming with make-up and dressing. The type of coffin differs with the plan."],
+            ["Viewing equipment", "State-of-the-Art and classy equipment which includes lights, curtains and carpets."],
+            ["Interment", "Several cars will be ready and bring the deceased to its final destination."],
+            ["Free flowers and tarpaulin", "Free! flowers and tarpaulin are included with the complete memorial package."]
+          ]
+        },
+        {
+          "id": "plans-eligibility",
+          "type": "bullets",
+          "heading": "Eligibility for the regular rate",
+          "items": ["Age 1–60 years old", "In good health", "Resident of the Philippines"]
+        },
+        {
+          "id": "plans-senior-terms",
+          "type": "bullets",
+          "heading": "Senior citizen eligibility & terms",
+          "items": [
+            "Must be 61–100 years old",
+            "Senior citizens have no insurance benefit",
+            "Pay-the-balance arrangement",
+            "With FREE flowers",
+            "With complete memorial package",
+            "Transferable / assignable (terms apply)"
+          ]
+        },
+        {
+          "id": "plans-note-contestability",
+          "type": "note",
+          "heading": "Limited contestability",
+          "tone": "info",
+          "text": "Inception date is 30 days after payment. Contestability period is 7 months after payment."
+        },
+        {
+          "id": "plans-note-assign",
+          "type": "note",
+          "heading": "Assignable and transferable",
+          "tone": "info",
+          "text": "The plan is assignable and transferable to anyone. Transfer/assignment fee is ₱1,000."
+        },
+        {
+          "id": "plans-note-extras",
+          "type": "note",
+          "heading": "",
+          "tone": "info",
+          "text": "All packages include FREE flowers and a tarpaulin."
+        },
+        {
+          "id": "plans-note-adjust",
+          "type": "note",
+          "heading": "",
+          "tone": "info",
+          "text": "Amortization can be adjusted to 8 years and 10 years."
+        },
+        {
+          "id": "plans-note-serving",
+          "type": "note",
+          "heading": "Who serves and underwrites the plan",
+          "tone": "info",
+          "text": "Served by Funeraria Villa & ZC-Arcega Funeral Homes, underwritten by Villa Agency Insurance Services. Affiliated parlors: Funeraria Villa – Capilla de San Jose, Isabela City, Basilan · Funeraria Villa – National Highway, Brgy. Salvacion, Panabo City · Villa ZC-Arcega Funeral Homes – Zamboanga City · all Villa-affiliated funeral parlors around Mindanao."
+        }
+      ],
       "entries": [],
       "updated_at": null,
       "updated_by": null

@@ -16,23 +16,20 @@
  */
 import { Card } from "@/components/ui/card";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
-import {
-  CASH_ASSISTANCE,
-  php,
-  SENIOR_TERMS,
-  VMP_ELIGIBILITY,
-  VMP_INCLUSIONS,
-  VMP_NOTES,
-} from "@/lib/villa-pricing";
+import { CASH_ASSISTANCE, php } from "@/lib/villa-pricing";
+import type { PlanContent } from "@/lib/plan-content";
 import { MEMBERSHIP_COVERAGE } from "@/lib/contracts/membership-application";
 import type { PlanPricing } from "@/lib/pricing-model";
 
 export function PlanTermsDisplay({
   pricing,
+  content,
   heading = "The plan's published terms",
 }: {
   /** The CURRENT plan tables (`loadPricingDocument()`), handed down by the server page. */
   pricing: PlanPricing;
+  /** The plan's presentational content, read from the Plans page document. */
+  content: PlanContent;
   heading?: string;
 }) {
   return (
@@ -48,9 +45,9 @@ export function PlanTermsDisplay({
       <div className="split-grid">
         <Card header={<h3>What the plan covers</h3>}>
           <ul className="rate-facts">
-            {VMP_INCLUSIONS.map((inclusion) => (
-              <li key={inclusion.service}>
-                <strong>{inclusion.service}</strong> — {inclusion.detail}
+            {content.packageInclusions.map((inclusion) => (
+              <li key={inclusion.label}>
+                <strong>{inclusion.label}</strong> — {inclusion.detail}
               </li>
             ))}
           </ul>
@@ -61,18 +58,18 @@ export function PlanTermsDisplay({
             Regular rate — ages 1–60
           </p>
           <ul className="rate-facts">
-            {VMP_ELIGIBILITY.map((line) => (
+            {content.eligibility.map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ul>
           <p className="capture-subhead">Senior citizen rate — ages 61–100</p>
           <ul className="rate-facts">
-            {SENIOR_TERMS.map((line) => (
+            {content.seniorTerms.map((line) => (
               <li key={line}>{line}</li>
             ))}
           </ul>
           <p className="text-sm" style={{ marginTop: "var(--space-3)" }}>
-            {VMP_NOTES.contestability}
+            {content.notes.contestability}
           </p>
         </Card>
       </div>
@@ -101,17 +98,17 @@ export function PlanTermsDisplay({
             During the paying period only.
           </p>
           <p className="text-sm" style={{ marginTop: "var(--space-2)" }}>
-            {VMP_NOTES.assign}
+            {content.notes.assign}
           </p>
         </Card>
 
         <Card header={<h3>Who serves and underwrites the plan</h3>}>
           <p className="text-sm" style={{ margin: "0 0 var(--space-3)" }}>
-            {VMP_NOTES.serving}
+            {content.notes.serving}
           </p>
           <ul className="rate-facts">
-            <li>{VMP_NOTES.extras}</li>
-            <li>{VMP_NOTES.adjust}</li>
+            <li>{content.notes.extras}</li>
+            <li>{content.notes.adjust}</li>
           </ul>
         </Card>
       </div>

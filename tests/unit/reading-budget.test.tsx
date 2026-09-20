@@ -137,7 +137,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
         createElement(
           CartProvider,
           null,
-          await PlansPage({ searchParams: Promise.resolve({}) }),
+          await PlansPage(),
         ),
       ),
     openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
