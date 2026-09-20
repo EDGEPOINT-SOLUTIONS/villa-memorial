@@ -24,6 +24,7 @@
  */
 import commissionFile from "@/lib/fixtures/finance/commission.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 import { listOrders, type AdminOrder } from "@/lib/api-client/commerce";
 import {
   COMMISSION_BASES,
@@ -36,9 +37,9 @@ import {
   type CommissionState,
 } from "@/lib/commission";
 
-/** The engine is recorded app state; there is no live branch to claim. */
+/** The engine is recorded app state; no live branch exists to claim. */
 export function commissionLiveModeEnabled(): boolean {
-  return false;
+  return liveModeEnabled("commission");
 }
 
 export type CommissionStatementPeriod = {

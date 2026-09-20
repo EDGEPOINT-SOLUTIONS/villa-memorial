@@ -4,7 +4,7 @@ import { PortalSwitch } from "@/components/portal-switch";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { TenantSwitcher } from "@/components/tenant-switcher";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
-import { isStaffSession, portalHomeFor } from "@/lib/auth/destination";
+import { portalForSession, portalHomeForSession } from "@/lib/auth/destination";
 import { STAFF_NOTICES } from "@/lib/demo-notices";
 import { visibleNav } from "@/lib/rbac/nav";
 import { redirect } from "next/navigation";
@@ -17,8 +17,8 @@ import { redirect } from "next/navigation";
  */
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSessionOrRedirect();
-  if (!isStaffSession(session.scopes)) {
-    redirect(portalHomeFor(session.scopes));
+  if (portalForSession(session) !== "staff") {
+    redirect(portalHomeForSession(session));
   }
   const sections = visibleNav(session.scopes);
 

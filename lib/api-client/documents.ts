@@ -62,6 +62,12 @@ export type Document = {
   uploaded_by: string;
   uploaded_at: string;
   file_size_bytes: number;
+  /**
+   * The invoice a generated receipt settles. PROPOSED additive field (platform-
+   * contracts plan C0c): documents-api-v1 has no invoice field, so a live row that
+   * names one is read here and an absent one is omitted — never defaulted.
+   */
+  invoice_number?: string | null;
 };
 
 type DocumentStore = {
@@ -91,6 +97,10 @@ function toDocument(raw: unknown): Document {
     uploaded_by: String(r.uploaded_by ?? ""),
     uploaded_at: String(r.uploaded_at ?? ""),
     file_size_bytes: Number(r.file_size_bytes ?? 0),
+    // Optional additive field: present only when the service named one.
+    ...(typeof r.invoice_number === "string" && r.invoice_number.trim() !== ""
+      ? { invoice_number: r.invoice_number }
+      : {}),
   };
 }
 

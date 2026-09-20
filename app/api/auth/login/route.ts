@@ -7,8 +7,8 @@ import {
 import {
   login as fixtureLogin,
 } from "@/lib/api-client/fixture-auth";
-import { ACCESS_COOKIE, REFRESH_COOKIE } from "@/lib/auth/session";
-import { portalHomeFor } from "@/lib/auth/destination";
+import { ACCESS_COOKIE, REFRESH_COOKIE, parseAccessTokenClaims } from "@/lib/auth/session";
+import { portalHomeForClaims } from "@/lib/auth/destination";
 
 /** Base64url-decode the JWT payload (no verification needed for routing: the
  * token was just issued/validated by the auth path; scopes decide the door). */
@@ -61,14 +61,18 @@ export async function POST(request: NextRequest) {
       ? await liveLogin(email, password)
       : await fixtureLogin(email, password);
 
+    const claims = parseAccessTokenClaims(result.accessToken);
     const res = NextResponse.json({
       user: {
         email: result.user.email,
         display_name: result.user.display_name,
       },
-      // The account's own portal — scopes decide, not the door the user walked in
-      // through. One sign-in, right place.
-      redirectTo: portalHomeFor(scopesFromToken(result.accessToken)),
+      // The account's own portal — a v2 portal claim when the issuer sends one,
+      // otherwise scopes decide, not the door the user walked in through.
+      redirectTo: portalHomeForClaims(
+        claims?.scopes ?? scopesFromToken(result.accessToken),
+        claims?.portal,
+      ),
     });
 
     const secure = process.env.SECURE_COOKIES === "1";

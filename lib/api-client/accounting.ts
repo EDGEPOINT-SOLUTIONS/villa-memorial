@@ -23,6 +23,7 @@
  */
 import accountingFile from "@/lib/fixtures/finance/accounting.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 import {
   isAccountType,
   isBalancedEntry,
@@ -36,7 +37,7 @@ import {
 
 /** No live branch exists: no contract names a staff-facing ledger read. */
 export function accountingLiveModeEnabled(): boolean {
-  return false;
+  return liveModeEnabled("accounting");
 }
 
 /** The one honest line the screen prints above the ledger. */

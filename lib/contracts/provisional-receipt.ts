@@ -192,6 +192,8 @@ export type ProvisionalReceiptDocumentRow = {
   title: string;
   related_case_number: string | null;
   related_order_number: string | null;
+  /** Optional additive field (PROPOSED, platform-contracts plan C0c): the invoice the row settles. */
+  invoice_number?: string | null;
 };
 
 /** The display state that replaces the provisional slip once a real receipt exists. */
@@ -214,12 +216,15 @@ function documentCoversReceipt(
   invoiceNumber: string,
   record: Pick<ProvisionalReceiptRecord, "order_number" | "case_number">,
 ): boolean {
+  // The strongest link, when the documents contract grows the additive invoice field.
+  const invoice = (doc.invoice_number ?? "").trim().toUpperCase();
+  if (invoice && invoice === invoiceNumber) return true;
   const order = (record.order_number ?? "").trim().toUpperCase();
   if (order && (doc.related_order_number ?? "").trim().toUpperCase() === order) return true;
   const kase = (record.case_number ?? "").trim().toUpperCase();
   if (kase && (doc.related_case_number ?? "").trim().toUpperCase() === kase) return true;
-  // The frozen documents shape has no invoice field. Generated receipt rows name the invoice
-  // in their title (`Official Receipt — INV-…`), which is the only recorded link left.
+  // Until that field freezes, generated receipt rows name the invoice in their title
+  // (`Official Receipt — INV-…`), which is the only recorded link left.
   return doc.title.trim().toUpperCase().includes(invoiceNumber);
 }
 

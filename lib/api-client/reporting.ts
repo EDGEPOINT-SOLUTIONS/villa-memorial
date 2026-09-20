@@ -33,6 +33,7 @@
  * flag per half) and the page renders an honest unavailable state — never an empty chart.
  */
 import { ApiError } from "@/lib/api-client/api-error";
+import { liveModeEnabled } from "@/lib/live-mode";
 import { listCases } from "@/lib/api-client/operations";
 import { listLots } from "@/lib/api-client/property";
 import { billingLiveModeEnabled, listInvoices } from "@/lib/api-client/finance";
@@ -52,6 +53,15 @@ import {
   type LotRollupRow,
   type ReportPeriod,
 } from "@/lib/reports";
+
+/**
+ * reporting-analytics is unbuilt, so the switch is declared but cannot be entered
+ * (lib/live-mode.ts, state "none"): this module aggregates the same clients the
+ * screens use in every mode and has no live branch to select.
+ */
+export function reportingLiveModeEnabled(): boolean {
+  return liveModeEnabled("reporting");
+}
 
 export type CaseSummary = {
   total: number;

@@ -257,6 +257,13 @@ function toLivePayment(
 
   const receiptSource =
     candidate.receipt_document ?? candidate.receipt ?? candidate.document ?? null;
+  // PROPOSED additive field (platform-contracts plan C13): a `payment.recorded`-era
+  // service may name the payer. Read only when the service actually sent one — an
+  // absent payer stays absent, so the receipt falls back to the invoice's customer.
+  const payer =
+    typeof candidate.payer === "string" && candidate.payer.trim() !== ""
+      ? candidate.payer.trim()
+      : null;
 
   return {
     id,
@@ -270,6 +277,7 @@ function toLivePayment(
     recorded_at: typeof candidate.recorded_at === "string" ? candidate.recorded_at : at,
     recorded_by: actor,
     receipt_document: toLiveReceiptDocument(receiptSource),
+    ...(payer ? { payer } : {}),
   };
 }
 
