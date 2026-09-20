@@ -4,6 +4,9 @@
  * Tenant switcher — villa-memorial parity: a quiet, compact select in the top
  * bar (label only via aria, no chrome). Cosmetic demo control only — it never
  * changes the signed-in tenant context (see lib/demo-tenants.ts).
+ *
+ * It renders nothing while the demo list holds a single tenant: the product
+ * carries Villa Memorial only, so there is nothing to switch between.
  */
 import { useEffect, useState } from "react";
 import { DEMO_TENANTS } from "@/lib/demo-tenants";
@@ -34,6 +37,10 @@ export function TenantSwitcher() {
   }, [tenantId, ready]);
 
   const tenant = DEMO_TENANTS.find((t) => t.id === tenantId) ?? DEMO_TENANTS[0];
+
+  // A one-entry list is not a switch (the product carries Villa Memorial only).
+  // Placed after the hooks so the hook order never changes.
+  if (DEMO_TENANTS.length < 2) return null;
 
   return (
     <select

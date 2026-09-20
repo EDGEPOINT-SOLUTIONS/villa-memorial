@@ -1,8 +1,10 @@
 "use client";
 
 /**
- * Park maps store — 3 demo parks (Villa Memorial · Loyola Gardens · Golden
- * Haven), each with an image and NON-OVERLAPPING plot areas.
+ * Park maps store — Villa Memorial Park, with an image and NON-OVERLAPPING plot
+ * areas. This product carries ONE park: the demo Loyola Gardens / Golden Haven
+ * records were removed 2026-09-21, and the store is data-driven from
+ * `lib/fixtures/property/parks.json` (add a row there and it appears).
  *
  * Staff can draw/edit plot areas; customers see the SAME data (one store).
  * The Villa park additionally carries the PLACEHOLDER lot inventory the 3D park

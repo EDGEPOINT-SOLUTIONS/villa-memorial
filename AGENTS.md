@@ -995,8 +995,9 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   react-three-fiber). The 3D mode owns the whole screen: entering requests full screen from
   the switch gesture (graceful where the browser refuses) and every control — exit, camera,
   zoom/frame, section/search/filter list, settings, details — lives inside the experience,
-  never in the page chrome. The other parks (Loyola, Golden Haven) keep their own images and
-  are untouched by the 3D world.
+  never in the page chrome. The product carries ONE park — Villa Memorial Park; the
+demo Loyola Gardens / Golden Haven records were removed 2026-09-21 and no surface
+renders a park switcher (`tests/unit/single-park.test.tsx`).
 - **`lib/park-maps.ts` is the single plot store for both modes** (image-space coordinates,
   shapes, status, type, section/block, linked lot, demo-local localStorage — never claim
   multi-user sync). The ONE image↔world conversion is `lib/park-3d/coords.ts` (store frame

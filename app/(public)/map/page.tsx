@@ -61,7 +61,7 @@ export const dynamic = "force-dynamic";
 const FALLBACK_HERO: PageHero = {
   eyebrow: "Interactive park map",
   headline: "Villa Memorial Park",
-  lead: "Walk the grounds of every Villa-affiliated park — zoom, pan and click any plot to see its type, status and asking price where published.",
+  lead: "Walk the grounds of Villa Memorial Park — zoom, pan and click any plot to see its type, status and asking price where published.",
   image: null,
   background: null,
   backgroundTransparency: 100,
@@ -78,7 +78,7 @@ export default async function PublicMapPage({
   searchParams: Promise<{ park?: string; plot?: string; tab?: string }>;
 }) {
   const sp = await searchParams;
-  const initialPark = sp.park && ["villa", "loyola", "golden"].includes(sp.park) ? sp.park : undefined;
+  const initialPark = sp.park === "villa" ? "villa" : undefined;
   const initialPlot = sp.plot?.trim() || undefined;
   const activeTab = sp.tab === "lots" ? "lots" : "view";
 
@@ -138,19 +138,10 @@ export default async function PublicMapPage({
             <h1 className="hero-premium__title">{hero.headline || "Villa Memorial Park"}</h1>
             <p className="hero-premium__lead">{hero.lead}</p>
             <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
-              {lots.length} lots · 3 parks · deep-link any plot, e.g.{" "}
+              {lots.length} lots · deep-link any plot, e.g.{" "}
               <Link href="/map?park=villa&plot=A-001">/map?park=villa&amp;plot=A-001</Link>
             </p>
-            <nav className="hero-chips" aria-label="Jump to a park">
-              {[
-                { id: "villa", name: "Villa Memorial" },
-                { id: "loyola", name: "Loyola Gardens" },
-                { id: "golden", name: "Golden Haven" },
-              ].map((p) => (
-                <Link key={p.id} href={`/map?park=${p.id}`}>
-                  {p.name}
-                </Link>
-              ))}
+            <nav className="hero-chips" aria-label="Explore the park">
               <Link href="/lots">Browse all plots</Link>
               <Link href="/gallery">Photos of the park</Link>
             </nav>

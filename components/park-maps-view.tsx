@@ -1,8 +1,9 @@
 "use client";
 
 /**
- * ParkMapsView — multi-park map with a SIMPLE admin editor:
- *  - switch parks (Villa Memorial · Loyola Gardens · Golden Haven)
+ * ParkMapsView — the Villa Memorial Park map with a SIMPLE admin editor:
+ *  - (a park switcher appears only when the store carries more than one park;
+ *    this product carries ONE, so it does not render)
  *  - IMAGE: upload · resize slider · lock image
  *  - PLOTS (CIRCLES): “+ Add plot” → just CLICK on the map to place a circle;
  *    set radius first; “Move plots” → click-drag a plot; delete selected demo
@@ -262,20 +263,24 @@ export function ParkMapsView({
       {/* Sections below are drawn on the map image, so the outline needs one
           heading before the legend/editor sub-headings (h1 → h3 would skip). */}
       <h2 className="visually-hidden">Park map</h2>
-      <div className="row row--wrap" style={{ justifyContent: "space-between" }}>
-        <nav className="row row--wrap" aria-label="Choose park map">
-          {parks.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              className={`pill-toggle${p.id === park.id ? " pill-toggle--active" : ""}`}
-              onClick={() => choosePark(p.id)}
-            >
-              {p.name}
-            </button>
-          ))}
-        </nav>
-      </div>
+      {/* The park switcher exists only for a real multi-park store. This product
+          carries Villa Memorial Park alone, so there is nothing to switch. */}
+      {parks.length > 1 ? (
+        <div className="row row--wrap" style={{ justifyContent: "space-between" }}>
+          <nav className="row row--wrap" aria-label="Choose park map">
+            {parks.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={`pill-toggle${p.id === park.id ? " pill-toggle--active" : ""}`}
+                onClick={() => choosePark(p.id)}
+              >
+                {p.name}
+              </button>
+            ))}
+          </nav>
+        </div>
+      ) : null}
 
       <p className="text-sm text-muted" style={{ marginBottom: 0 }}>
         {park.name} · {park.branch} — click a plot to inspect

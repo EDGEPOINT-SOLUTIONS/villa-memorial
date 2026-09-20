@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { listLots, type Lot } from "@/lib/api-client/property";
-import { buildLotListing, SEED_PARKS } from "@/lib/lot-listing-data";
+import { buildLotListing } from "@/lib/lot-listing-data";
 import { parseLotFilters, parseLotsSort } from "@/lib/lot-listing";
 import { pageMetadata } from "@/lib/seo";
 import { LotListing } from "./lot-listing";
@@ -78,7 +78,7 @@ export default async function LotsPage({
           Every plot, pictured — with its type, status and price where published.
         </p>
         <p className="lot-hero__facts">
-          {availableCount} available · {items.length} plots · {SEED_PARKS.length} parks
+          {availableCount} available · {items.length} plots
         </p>
         <div className="lot-hero__actions">
           <Link href="/map" className="btn btn--primary">

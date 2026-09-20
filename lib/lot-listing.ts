@@ -14,9 +14,9 @@
  * which is the standard refine-panel behaviour. Zero-count options stay in the
  * panel — visibly dead, never hidden.
  *
- * THE AREA + SECTION groups are honest about absence: a map plot carries no
- * published area and the other parks' plots carry no section, so picking either
- * excludes them. No range is guessed for a value the record does not have.
+ * THE AREA + SECTION groups are honest about absence: a map-only plot carries
+ * neither a published area nor a section, so picking either excludes it. No
+ * range is guessed for a value the record does not have.
  */
 import { formatMinorUnits } from "@/lib/money";
 

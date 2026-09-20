@@ -47,7 +47,7 @@ function item(overrides: Partial<LotListingItem> = {}): LotListingItem {
   };
 }
 
-const PARKS = ["villa", "loyola"] as const;
+const PARKS = ["villa", "second-park"] as const;
 const STATUSES = ["available", "reserved", "sold", "occupied"] as const;
 const TYPES = ["lt-primary", "lt-premium", "lt-mausoleum"] as const;
 const SECTIONS = ["A", "B"] as const;
@@ -64,10 +64,10 @@ describe("parsing the listing's query string", () => {
 
   it("reads multi-select groups from comma lists and repeated params", () => {
     const filters = parseLotFilters(
-      { park: "villa,loyola", status: ["available", "sold"], type: "lt-primary" },
+      { park: "villa,second-park", status: ["available", "sold"], type: "lt-primary" },
       OPTIONS,
     );
-    expect(filters.parks).toEqual(["villa", "loyola"]);
+    expect(filters.parks).toEqual(["villa", "second-park"]);
     expect(filters.statuses).toEqual(["available", "sold"]);
     expect(filters.types).toEqual(["lt-primary"]);
   });
@@ -135,11 +135,11 @@ describe("parsing the listing's query string", () => {
 
 describe("matching a plot against the panel", () => {
   const garden = item({
-    key: "loyola-G-1",
+    key: "second-park-G-1",
     code: "G-1",
     status: "sold",
     typeId: "lt-garden",
-    parkId: "loyola",
+    parkId: "second-park",
     section: null,
     areaSqm: null,
     priceCents: null,
@@ -149,13 +149,13 @@ describe("matching a plot against the panel", () => {
   it("ORs inside a group and ANDs across groups", () => {
     expect(matchesListingFilters(garden, { ...EMPTY_LOT_FILTERS })).toBe(true);
     expect(
-      matchesListingFilters(garden, { ...EMPTY_LOT_FILTERS, parks: ["loyola", "villa"] }),
+      matchesListingFilters(garden, { ...EMPTY_LOT_FILTERS, parks: ["second-park", "villa"] }),
     ).toBe(true);
     expect(matchesListingFilters(garden, { ...EMPTY_LOT_FILTERS, parks: ["villa"] })).toBe(false);
     expect(
       matchesListingFilters(garden, {
         ...EMPTY_LOT_FILTERS,
-        parks: ["loyola"],
+        parks: ["second-park"],
         statuses: ["sold"],
         types: ["lt-garden"],
       }),
@@ -198,9 +198,9 @@ describe("facet counts", () => {
     item({ key: "villa-B", code: "B-001", parkId: "villa", typeId: "lt-premium", status: "reserved", section: "B" }),
     item({ key: "villa-C", code: "C-001", parkId: "villa", typeId: "lt-primary", status: "sold", section: "A" }),
     item({
-      key: "loyola-G",
+      key: "second-park-G",
       code: "G-1",
-      parkId: "loyola",
+      parkId: "second-park",
       typeId: "lt-primary",
       status: "available",
       section: null,
@@ -213,7 +213,7 @@ describe("facet counts", () => {
   it("counts an option under every OTHER group's selections", () => {
     const counts = facetCounts(items, { ...EMPTY_LOT_FILTERS, parks: ["villa"] }, OPTIONS);
     // Picking a park must not collapse the park group's own counts.
-    expect(counts.parks).toEqual({ villa: 3, loyola: 1 });
+    expect(counts.parks).toEqual({ villa: 3, "second-park": 1 });
     // …while every other group is scoped by it.
     expect(counts.statuses).toEqual({ available: 1, reserved: 1, sold: 1, occupied: 0 });
     expect(counts.sections).toEqual({ A: 2, B: 1 });

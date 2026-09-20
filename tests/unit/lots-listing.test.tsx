@@ -64,7 +64,7 @@ function renderPanel(apply: boolean): string {
       onClear={() => {}}
       onPriceApply={() => {}}
       onQuickRange={() => {}}
-      {...(apply ? { onApply: () => {}, applyLabel: "Show 56 lots" } : {})}
+      {...(apply ? { onApply: () => {}, applyLabel: "Show 16 lots" } : {})}
     />,
   );
 }
@@ -104,7 +104,7 @@ describe("the /lots product listing", () => {
   it("renders every plot as a card with a photograph and a caption", async () => {
     const html = await renderPage();
     const cards = cardsOf(html);
-    expect(cards.length).toBe(56);
+    expect(cards.length).toBe(16);
     for (const card of cards) {
       expect(card).toContain('class="shop-card__media"');
       expect(card).toMatch(/<img src="\/media\/[^"]+"/);
@@ -161,9 +161,9 @@ describe("the /lots product listing", () => {
     const cards = cardsOf(await renderPage());
     const a001 = cards.find((c) => titleOf(c) === "A-001");
     expect(a001).toContain('href="/lots/00000000-0000-4000-8000-000000000D01"');
-    const mapPlot = cards.find((c) => c.includes('href="/map?park=golden'));
+    const mapPlot = cards.find((c) => c.includes('href="/map?park=villa'));
     expect(mapPlot).toBeDefined();
-    expect(mapPlot!).toMatch(/href="\/map\?park=golden&amp;plot=GH-/);
+    expect(mapPlot!).toMatch(/href="\/map\?park=villa&amp;plot=D-/);
     expect(mapPlot!).toContain("Price on request");
   });
 
@@ -190,10 +190,9 @@ describe("the /lots product listing", () => {
   it("paints the view a shared URL describes (initial state from the query)", async () => {
     const cases: Array<[Record<string, string>, number]> = [
       [{ park: "villa" }, 16],
-      [{ park: "loyola" }, 20],
-      [{ status: "available" }, 34],
-      [{ type: "lt-premium" }, 11],
-      [{ type: "lt-premium", status: "available" }, 9],
+      [{ status: "available" }, 10],
+      [{ type: "lt-premium" }, 4],
+      [{ type: "lt-premium", status: "available" }, 4],
       [{ section: "D" }, 4],
       [{ area: "up-to-5" }, 8],
       [{ min: "200000", max: "600000" }, 4],
@@ -202,21 +201,21 @@ describe("the /lots product listing", () => {
       const html = await renderPage(params);
       expect(cardsOf(html).length, JSON.stringify(params)).toBe(expected);
       expect(html, JSON.stringify(params)).toContain(
-        `<strong>${expected}</strong> of 56 plots`,
+        `<strong>${expected}</strong> of 16 plots`,
       );
     }
     // The chosen option renders as a checked checkbox.
-    const villa = await renderPage({ park: "villa" });
-    expect(optionRow(villa, "Villa Memorial")).toContain('type="checkbox" checked=""');
+    const sectionA = await renderPage({ section: "A" });
+    expect(optionRow(sectionA, "Section A")).toContain('type="checkbox" checked=""');
     // …and an unknown id is dropped rather than guessed.
-    expect(cardsOf(await renderPage({ park: "atlantis" })).length).toBe(56);
-    expect(
-      optionRow(await renderPage({ park: "atlantis" }), "Villa Memorial"),
-    ).not.toContain("checked");
+    expect(cardsOf(await renderPage({ park: "atlantis" })).length).toBe(16);
+    expect(optionRow(await renderPage({ park: "atlantis" }), "Section A")).not.toContain(
+      "checked",
+    );
   });
 
   it("answers a no-match query with the way back", async () => {
-    const html = await renderPage({ park: "loyola", status: "sold", type: "lt-mausoleum" });
+    const html = await renderPage({ status: "reserved", type: "lt-premium" });
     expect(cardsOf(html)).toHaveLength(0);
     expect(html).toContain("No plots match those filters");
     expect(html).toContain("Clear all filters");
@@ -225,12 +224,15 @@ describe("the /lots product listing", () => {
   it("renders the Refine panel's groups, counts and price range", async () => {
     const html = await renderPage();
     expect(html).toContain("Refine lots by");
-    for (const group of ["Park", "Section", "Availability", "Lot type", "Area", "Price"]) {
+    // ONE park means no one-option Park group; the band header names it instead.
+    expect(html).not.toContain('lot-filter__group">Park<');
+    expect(html).toContain("Villa Memorial");
+    for (const group of ["Section", "Availability", "Lot type", "Area", "Price"]) {
       expect(html, group).toContain(`lot-filter__group">${group}<`);
     }
     // Every option carries its live result count; a zero-count option stays in
     // the panel, dimmed rather than hidden.
-    expect(optionRow(html, "Villa Memorial")).toContain('class="lot-filter__count">16</span>');
+    expect(html).toContain("16 plots · 10 available · Isabela City");
     expect(optionRow(html, "Over 15 sqm")).toContain('class="lot-filter__count">0</span>');
     expect(optionRow(html, "Over 15 sqm")).toContain('data-empty="true"');
     // Price is a min/max pair plus quick ranges read from the published figures.
@@ -261,7 +263,7 @@ describe("the /lots product listing", () => {
 describe("one control ladder for /lots", () => {
   it("dresses every card's action in the catalogue's primary (accent) rung", async () => {
     const actions = [...(await renderPage()).matchAll(/class="(btn [^"]*)"[^>]*>(View[^<]+)</g)];
-    expect(actions.length).toBe(56);
+    expect(actions.length).toBe(16);
     for (const [, cls, label] of actions) {
       expect(cls, label).toBe("btn btn--accent btn--sm");
     }
@@ -285,7 +287,7 @@ describe("one control ladder for /lots", () => {
     const railClear = withFilter.match(/class="([^"]*)"[^>]*>\s*Clear\s*</)?.[1] ?? "";
     expect(railClear).toBe("btn btn--secondary btn--sm");
     // The no-results recovery is the same act, so the same control.
-    const noMatch = await renderPage({ park: "loyola", status: "sold", type: "lt-mausoleum" });
+    const noMatch = await renderPage({ status: "reserved", type: "lt-premium" });
     const emptyClear =
       noMatch.match(/class="([^"]*)"[^>]*>\s*Clear all filters\s*</)?.[1] ?? "";
     expect(emptyClear).toBe("btn btn--secondary btn--sm");
