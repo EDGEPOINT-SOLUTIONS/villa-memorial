@@ -293,26 +293,28 @@ export function LandingFooter({ content }: { content: LandingContent }) {
             </p>
           </div>
 
-          {/* Quick links */}
+          {/* Quick links — the browse destinations. ONE entry per location:
+              the plan lives in “Care & planning” (below) and the park has its
+              one clear entry in the contact block's “Visit the park / Map &
+              directions”, so neither repeats here (captain, 2026-09-21). */}
           <FooterColumn
             title="Explore"
             links={[
               { label: "Home", href: "/" },
               { label: "Funeraria Memorial Services", href: "/services" },
               { label: "Smart Service Builder", href: "/builder" },
-              { label: "Villa Memorial Plan", href: "/plans" },
-              { label: "Browse the lots", href: "/lots" },
-              { label: "Products & caskets", href: "/products" },
+              { label: "Memorial lots", href: "/lots" },
+              { label: "Coffins & caskets", href: "/products" },
               { label: "Facilities", href: "/facilities" },
               { label: "Transport", href: "/transport" },
-              { label: "Villa Memorial Park", href: "/map" },
               { label: "Photo gallery & virtual tour", href: "/gallery" },
               { label: "Digital memorial search", href: "/memorials" },
               { label: "Find my loved one", href: "/memorials/find" },
             ]}
           />
 
-          {/* Services & plans links */}
+          {/* Services & plans links — the planning products, the guide pages
+              and the published prices. This is the plan's ONE footer entry. */}
           <FooterColumn
             title="Care & planning"
             links={[

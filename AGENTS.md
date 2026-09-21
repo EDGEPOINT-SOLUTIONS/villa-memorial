@@ -530,7 +530,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   it lands everywhere automatically. The three catalogue page names are the
   captain's full forms — `/services` "Funeraria Memorial Services", `/plans`
   "Villa Memorial Plan", `/map` "Villa Memorial Park" — in the bar, the mobile
-  flyout, the footer and the pages' own titles/h1s; don't shorten them. Because
+  flyout, the footer and the pages' own titles/h1s; don't shorten them. The
+  footer itself carries ONE entry per destination (captain, 2026-09-21): the
+  plan lives in Care & planning, the park's one entry is the contact block's
+  `Map & directions →` against the brand wordmark (never a second
+  "Villa Memorial Park" link), and the labels are the live page names
+  (`Coffins & caskets`, `Memorial lots`). `tests/unit/landing-view.test.tsx`
+  pins the de-duplicated list and every href; record + 1440/390 shots:
+  `docs/08-delivery/footer-cleanup-design/`. Because
   those labels are wide, the CSS block tightens `.anchored-header__nav` chip
   padding below 85rem so the phone chip and "Sign in" never wrap; keep both.
   The rails hide their scrollbar until hovered (.anchored-rail). Blog posts
@@ -1167,7 +1174,7 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   screen ends on the office — the staff-editable 24/7 number plus the existing `/contact`
   request path (`buildRequestHref`, with the arrangement written into the note).
 - **Nav/SEO**: `Builder` in the grouped "Explore more" menu (`EXPLORE_MORE_LINKS`),
-  the footer's Care & planning column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
+  the footer's Explore column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
   (indexable — a selling surface, unlike the memorial pages).
 - Evidence: `tests/unit/service-builder.test.ts` (sheet figures, store-read rates, the senior
   rules, the covered total, the request note), `tests/unit/service-builder-page.test.tsx`
