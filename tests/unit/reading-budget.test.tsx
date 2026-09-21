@@ -181,7 +181,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/gallery",
     render: async () =>
       renderToStaticMarkup(createElement(CartProvider, null, await GalleryPage())),
-    openingLead: /<p class="gal-hero__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/memorials (search)",

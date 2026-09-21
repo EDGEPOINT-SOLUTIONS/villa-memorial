@@ -18,6 +18,7 @@
  */
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { PublicDisclosure } from "@/components/public";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import type { LotCategory, LotPriceRow } from "@/lib/pricing-model";
 import { php } from "@/lib/villa-pricing";
@@ -31,11 +32,24 @@ function lotRequestHref(category: string, row: LotPriceRow): string {
   });
 }
 
-export function PriceList2026Tables({ categories }: { categories: ReadonlyArray<LotCategory> }) {
+export function PriceList2026Tables({
+  categories,
+  disclose = false,
+}: {
+  categories: ReadonlyArray<LotCategory>;
+  /**
+   * Collapse all but the first family behind a "Show …" disclosure. The
+   * public /lots/price-list-2026 opens on it (plan §5.5: never all four tables
+   * at once); the staff pricing preview passes false so an editor sees the whole
+   * document it is editing.
+   */
+  disclose?: boolean;
+}) {
   return (
     <>
-      {categories.map((cat) => (
-        <Card key={cat.title} header={<h3>{cat.title} — 6 years amortization</h3>}>
+      {categories.map((cat, index) => {
+        const card = (
+          <Card key={cat.title} header={<h3>{cat.title} — 6 years amortization</h3>}>
           <div className="table-wrapper" tabIndex={0}>
             <table className="table price-table">
               <thead>
@@ -94,8 +108,20 @@ export function PriceList2026Tables({ categories }: { categories: ReadonlyArray<
               </tbody>
             </table>
           </div>
-        </Card>
-      ))}
+          </Card>
+        );
+        return disclose ? (
+          <PublicDisclosure
+            key={cat.title}
+            summary={`${cat.title} — 6 years amortization`}
+            defaultOpen={index === 0}
+          >
+            {card}
+          </PublicDisclosure>
+        ) : (
+          card
+        );
+      })}
     </>
   );
 }

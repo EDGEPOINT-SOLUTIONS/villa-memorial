@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ProductCard, ResultsGrid } from "@/components/kit";
+import { ProductCard, PublicDisclosure, ResultsGrid } from "@/components/kit";
+import { lotVisibleCount } from "@/lib/public-layout";
 import type { LotStatus } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
@@ -223,13 +224,36 @@ export function LotListing({
                       available · {parkItems[0]?.parkBranch}
                     </span>
                   </header>
+                  {/* The card caption travels with every photograph, but on a
+                      phone it is one template repeated 16 times. The honesty
+                      line prints ONCE per band there and the per-card caption
+                      (the same words, per plot) steps out — see the catalogue
+                      block of styles/components.css. */}
+                  <p className="lot-grid__note">
+                    Photographs show the section, not the individual plot — the park map marks it.
+                  </p>
                   <ResultsGrid
-                    items={parkItems}
+                    items={parkItems.slice(0, lotVisibleCount(parkItems.length))}
                     itemKey={(item) => item.key}
                     emptyTitle="No plots to show"
                     className="lot-grid"
                     renderItem={(item) => <LotCard item={item} />}
                   />
+                  {/* Above the plan's 6–8-tile window the rest sit in one
+                      "Show all N" disclosure, so a phone reaches the next band
+                      without scrolling every plot. Filtering re-renders the
+                      window, so the label always counts what the view matches. */}
+                  {parkItems.length > lotVisibleCount(parkItems.length) ? (
+                    <PublicDisclosure count={parkItems.length}>
+                      <ResultsGrid
+                        items={parkItems.slice(lotVisibleCount(parkItems.length))}
+                        itemKey={(item) => item.key}
+                        emptyTitle="No plots to show"
+                        className="lot-grid"
+                        renderItem={(item) => <LotCard item={item} />}
+                      />
+                    </PublicDisclosure>
+                  ) : null}
                 </section>
               );
             })}

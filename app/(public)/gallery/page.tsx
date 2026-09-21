@@ -7,8 +7,9 @@ import {
   GALLERY_MASTERPLAN,
   GALLERY_PROVENANCE_NOTE,
   GALLERY_TOUR_LINE,
-  type GalleryPhoto,
 } from "@/lib/gallery";
+import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
+import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -24,57 +25,22 @@ export const dynamic = "force-dynamic";
 
 /**
  * Public gallery & virtual-tour entry (screen-inventory "Gallery" / "Virtual
- * Tour", F-03).
+ * Tour", F-03) — rebuilt on the Phase 0 grammar (lane 2 of the public design
+ * plan).
  *
- * The page shows the park with the client's own uploaded photography — the real
- * park photos, the uploaded viewing set-up and the client sheet's sample
- * photographs (kept labelled "illustration purposes only", exactly as /services
- * labels them). It never rebuilds the walk-through: the one CTA opens the
- * existing /map, where the plain map and the full-screen 3D park live, and the
- * line beside it says plainly which view is which.
- *
- * Every figure is a plain <img> with the generated WebP candidates, explicit
- * pixel dimensions and a reserved aspect ratio (styles/components.css, "gal-*"
- * block), so there is no layout shift and no multi-megabyte original is served.
- * The 24/7 number is read from the staff-editable contact content — never typed.
+ * The park in the client's own photographs, grouped into three bands whose heads
+ * are the shared `SectionHead`; the photographs render through `PublicImage`
+ * (role-sized, lazily loaded, every one reserving its box) inside the existing
+ * two-up/three-up card grid. The sheet samples keep their "illustration purposes
+ * only" label, the masterplan is captioned as a drawing, and the walk-through is
+ * the EXISTING `/map` linked once. The 24/7 number is read from the
+ * staff-editable contact content — never typed.
  */
-function GalleryFigure({
-  photo,
-  variant,
-}: {
-  photo: GalleryPhoto;
-  variant: "hero" | "feature" | "card" | "plan";
-}) {
-  const eager = variant === "hero";
-  return (
-    <figure className={`gal-figure gal-figure--${variant}`}>
-      <div className="gal-figure__media">
-        {/* eslint-disable-next-line @next/next/no-img-element -- generated client-media derivatives */}
-        <img
-          src={photo.src}
-          srcSet={photo.srcSet}
-          sizes={photo.sizes}
-          width={photo.width}
-          height={photo.height}
-          alt={photo.alt}
-          loading={eager ? "eager" : "lazy"}
-          decoding={eager ? "sync" : "async"}
-          fetchPriority={eager ? "high" : undefined}
-        />
-      </div>
-      <figcaption>
-        <span className="gal-figure__caption">{photo.caption}</span>
-        {photo.note ? <span className="gal-figure__note">{photo.note}</span> : null}
-      </figcaption>
-    </figure>
-  );
-}
-
 export default async function GalleryPage() {
   const { contact } = await listLandingContent();
 
   return (
-    <div className="gal-page">
+    <div className={`${containerClass("catalogue")} stack-5 catalogue-page gal-page`}>
       <nav className="gal-crumbs" aria-label="Breadcrumb">
         <ol>
           <li>
@@ -84,50 +50,56 @@ export default async function GalleryPage() {
         </ol>
       </nav>
 
-      <section className="gal-hero" aria-labelledby="gallery-title">
-        <div className="gal-hero__grid">
-          <div>
-            <p className="gal-hero__eyebrow">Villa Memorial Park · Gallery &amp; virtual tour</p>
-            <h1 className="gal-hero__title" id="gallery-title">
-              See the park before you visit
-            </h1>
-            {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
-            <p className="gal-hero__lead">Photographs of the park, and a way to walk it.</p>
-            <div className="gal-hero__actions">
-              <a className="btn btn--primary" href="#walk">
-                Walk the park
-              </a>
-              <Link className="btn btn--secondary" href="/contact">
-                Plan a visit
-              </Link>
-            </div>
-          </div>
-          <GalleryFigure photo={GALLERY_HERO} variant="hero" />
-        </div>
-      </section>
+      <PublicHero
+        variant="interior"
+        eyebrow="Villa Memorial Park · Gallery & virtual tour"
+        title="See the park before you visit"
+        lead="Photographs of the park, and a way to walk it."
+        primary={{ label: "Walk the park", href: "#walk" }}
+        secondary={{ label: "Plan a visit", href: "/contact" }}
+        image={{
+          src: GALLERY_HERO.src,
+          srcSet: GALLERY_HERO.srcSet,
+          sizes: GALLERY_HERO.sizes,
+          alt: GALLERY_HERO.alt,
+          width: GALLERY_HERO.width,
+          height: GALLERY_HERO.height,
+          priority: true,
+        }}
+      />
 
       {GALLERY_GROUPS.map((group) => {
         const single = group.photos.length === 1;
         return (
           <section
-            className="gal-group"
+            className="catalogue-band"
             id={group.id}
             key={group.id}
             aria-labelledby={`${group.id}-title`}
           >
-            <div className="gal-group__head">
-              <p className="gal-group__kicker">{group.kicker}</p>
-              <h2 className="gal-group__title" id={`${group.id}-title`}>
-                {group.heading}
-              </h2>
-              <p className="gal-group__intro">{group.intro}</p>
-            </div>
+            <SectionHead id={`${group.id}-title`} kicker={group.kicker} title={group.heading} lead={group.intro} />
             <div className={single ? "gal-feature" : "gal-cards"}>
               {group.photos.map((photo) => (
-                <GalleryFigure
+                <PublicImage
                   key={photo.src}
-                  photo={photo}
-                  variant={single ? "feature" : "card"}
+                  role={single ? "band-lead" : "gallery-tile"}
+                  src={photo.src}
+                  srcSet={photo.srcSet}
+                  sizes={photo.sizes}
+                  alt={photo.alt}
+                  width={photo.width}
+                  height={photo.height}
+                  caption={
+                    <>
+                      <span className="gal-cap__desc">{photo.caption}</span>
+                      {photo.note ? (
+                        <>
+                          {" "}
+                          <span className="gal-figure__note">{photo.note}</span>
+                        </>
+                      ) : null}
+                    </>
+                  }
                 />
               ))}
             </div>
@@ -137,6 +109,8 @@ export default async function GalleryPage() {
 
       <p className="gal-provenance">{GALLERY_PROVENANCE_NOTE}</p>
 
+      {/* Walk + visit are ONE closing band (the shell's NextSteps already
+          repeats the call): one map entry, one call, one request. */}
       <section className="gal-walk" id="walk" aria-labelledby="walk-title">
         <div className="gal-walk__grid">
           <div>
@@ -145,30 +119,32 @@ export default async function GalleryPage() {
               Walk the park
             </h2>
             <p className="gal-walk__line">{GALLERY_TOUR_LINE}</p>
+            <p className="gal-walk__line">Ask the office about a visit — any hour, every day.</p>
             <div className="gal-walk__actions">
               <Link className="btn btn--primary" href="/map">
                 Open the park map &amp; 3D walk-through
               </Link>
+              <a className="btn btn--secondary" href={contact.phoneHref}>
+                Call {contact.phoneDisplay}
+              </a>
             </div>
           </div>
-          <GalleryFigure photo={GALLERY_MASTERPLAN} variant="plan" />
-        </div>
-      </section>
-
-      <section className="gal-visit" aria-labelledby="visit-title">
-        <div>
-          <h2 className="gal-visit__title" id="visit-title">
-            Come and see the park
-          </h2>
-          <p className="gal-visit__text">Ask the office about a visit — any hour, every day.</p>
-        </div>
-        <div className="gal-visit__actions">
-          <a className="btn btn--primary" href={contact.phoneHref}>
-            Call {contact.phoneDisplay}
-          </a>
-          <Link className="btn btn--secondary" href="/contact">
-            Ask about a visit
-          </Link>
+          <PublicImage
+            role="map"
+            className="gal-walk__plan"
+            src={GALLERY_MASTERPLAN.src}
+            srcSet={GALLERY_MASTERPLAN.srcSet}
+            sizes={GALLERY_MASTERPLAN.sizes}
+            alt={GALLERY_MASTERPLAN.alt}
+            width={GALLERY_MASTERPLAN.width}
+            height={GALLERY_MASTERPLAN.height}
+            caption={
+              <>
+                <span className="gal-cap__desc">{GALLERY_MASTERPLAN.caption}</span>{" "}
+                <span className="gal-figure__note">{GALLERY_MASTERPLAN.note}</span>
+              </>
+            }
+          />
         </div>
       </section>
     </div>

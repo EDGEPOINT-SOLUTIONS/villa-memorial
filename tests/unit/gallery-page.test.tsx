@@ -177,7 +177,7 @@ describe("the gallery is one clean entry to the walk-through", () => {
   it("renders exactly one h1 and the page's opening answer", async () => {
     const html = await renderGallery();
     expect((html.match(/<h1[\s>]/g) ?? []).length).toBe(1);
-    expect(html).toContain('class="gal-hero__lead"');
+    expect(html).toContain('class="public-hero__lead"');
   });
 });
 

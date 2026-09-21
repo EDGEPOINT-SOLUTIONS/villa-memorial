@@ -74,8 +74,8 @@ type ContentHeroProps = {
   textColour?: string | null;
   primary?: PublicHeroAction;
   secondary?: PublicHeroAction;
-  /** An optional 16:9 banner photograph. */
-  image?: PublicImageSource & { alt: string; width: number; height: number };
+  /** An optional 16:9 banner photograph. `priority` marks it the LCP image. */
+  image?: PublicImageSource & { alt: string; width: number; height: number; priority?: boolean };
   /** Anything the page wants under the lead (facts, a form, a call button). */
   children?: ReactNode;
 };
@@ -229,6 +229,7 @@ function ContentHero({
             alt={image.alt}
             width={image.width}
             height={image.height}
+            priority={image.priority}
           />
         ) : null}
       </div>

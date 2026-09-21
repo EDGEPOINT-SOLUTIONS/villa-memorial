@@ -15,6 +15,7 @@ import {
   SECTION_RHYTHM,
   containerClass,
   ctaClass,
+  gridVisibleCount,
   hiddenCount,
   isDisclosureNeeded,
   showAllLabel,
@@ -182,6 +183,15 @@ describe("the catalogue grid and the Show all N disclosure (plan §3 R4/R8)", ()
     expect(isDisclosureNeeded(GRID.disclosureAfter)).toBe(false);
     expect(isDisclosureNeeded(GRID.disclosureAfter + 1)).toBe(true);
     expect(showAllLabel(24)).toBe("Show all 24");
+  });
+
+  it("a card grid shows the plan's 6–8 tiles, a list up to the 12-row window", () => {
+    // Plan §3 R8: "a browsable rail shows 6–8 tiles, a list shows ≤ 12 rows".
+    expect(GRID.gridVisible).toBeGreaterThanOrEqual(6);
+    expect(GRID.gridVisible).toBeLessThanOrEqual(8);
+    expect(gridVisibleCount(4)).toBe(4);
+    expect(gridVisibleCount(24)).toBe(GRID.gridVisible);
+    expect(gridVisibleCount(24)).toBeLessThan(visibleCount(24));
   });
 
   it("the phone keeps one card per row for the wide card grid", () => {

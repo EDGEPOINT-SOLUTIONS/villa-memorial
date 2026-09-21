@@ -88,6 +88,9 @@ export function PublicImage({
         height={height}
         alt={alt}
         loading={priority ? "eager" : "lazy"}
+        // The LCP image is fetched at high priority; everything else stays lazy
+        // (the gallery hero rides this flag, lane 2).
+        fetchPriority={priority ? "high" : undefined}
         decoding="async"
       />
       {caption ? <figcaption className="public-image__caption">{caption}</figcaption> : null}

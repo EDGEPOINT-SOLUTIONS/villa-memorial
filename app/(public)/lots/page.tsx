@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
+import { PublicHero } from "@/components/kit";
 import { listLots, type Lot } from "@/lib/api-client/property";
 import { buildLotListing } from "@/lib/lot-listing-data";
 import { parseLotFilters, parseLotsSort } from "@/lib/lot-listing";
@@ -68,27 +69,22 @@ export default async function LotsPage({
 
   return (
     <>
-      {/* A compact head, not a photographic hero: the listing's own cards carry
-          every picture, and a 660px hero pushed the filters and results below
-          the fold ("answer at a glance", captain 2026-09-18). */}
-      <section className="page-hero lot-hero">
-        <p className="eyebrow-label">Memorial lots</p>
-        <h1 className="page-hero__title">Find a place of rest</h1>
-        <p className="page-hero__lead">
-          Every plot, pictured — with its type, status and price where published.
-        </p>
-        <p className="lot-hero__facts">
+      {/* An interior hero from the shared grammar — one sentence, the real
+          count, one commitment (the park map) and one support action. The
+          listing's own cards carry every picture, so no photographic band pushes
+          the filters and results below the fold ("answer at a glance"). */}
+      <PublicHero
+        variant="interior"
+        eyebrow="Memorial lots"
+        title="Find a place of rest"
+        lead="Every plot, pictured — with its type, status and price where published."
+        primary={{ label: "Walk the park map", href: "/map" }}
+        secondary={{ label: "2026 price list", href: "/lots/price-list-2026" }}
+      >
+        <p className="catalogue-hero__facts">
           {availableCount} available · {items.length} plots
         </p>
-        <div className="lot-hero__actions">
-          <Link href="/map" className="btn btn--primary">
-            Walk the park map
-          </Link>
-          <Link href="/lots/price-list-2026" className="btn btn--secondary">
-            2026 price list
-          </Link>
-        </div>
-      </section>
+      </PublicHero>
 
       <LotListing
         items={items}

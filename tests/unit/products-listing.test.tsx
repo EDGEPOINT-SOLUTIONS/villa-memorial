@@ -74,12 +74,15 @@ describe("/products reads as one compact card listing", () => {
     );
   });
 
-  it("is ONE grid of every model, not a band per collection", () => {
+  it("is ONE grid flow of every model, not a band per collection", () => {
     const all = cards(html);
     expect(all.length).toBe(CASKET_MODELS.length);
-    // One grid container (the classes the kit emits), not four collection grids.
-    expect(occurrences(html, 'class="shop-grid casket-grid"')).toBe(1);
+    // The whole catalogue renders in the SAME card grid; the over-threshold
+    // models sit in one "Show all N" disclosure (lane 2 density pass), never in
+    // a grid per collection.
+    expect(occurrences(html, 'class="shop-grid casket-grid"')).toBe(2);
     expect(occurrences(html, 'class="shop-grid"')).toBe(0);
+    expect(html).toContain('class="public-disclosure');
   });
 
   it("summarises the four collections above the grid without adding a second control", () => {
@@ -130,10 +133,11 @@ describe("/products reads as one compact card listing", () => {
   });
 
   it("opens with one plain sentence and an action, then the catalogue", () => {
-    const lead = html.match(/<p class="page-hero__lead">([\s\S]*?)<\/p>/);
+    const lead = html.match(/<p class="public-hero__lead">([\s\S]*?)<\/p>/);
     expect(lead).toBeTruthy();
     expect(wordsOf(textOf(lead![1])), "hero lead words").toBeLessThanOrEqual(12);
     const hero = html.slice(0, html.indexOf("</section>"));
+    expect(hero).toContain('data-public-hero="interior"');
     expect(hero).toMatch(/class="[^"]*\bbtn\b[^"]*"/);
   });
 

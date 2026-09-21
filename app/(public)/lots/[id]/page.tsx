@@ -3,12 +3,14 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ErrorState } from "@/components/ui/states";
+import { PublicHero, PublicImage } from "@/components/kit";
 import { getLot } from "@/lib/api-client/property";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { formatMinorUnits } from "@/lib/money";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { lotPhoto } from "@/lib/lot-imagery";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
+import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
 
 type LotDetailParams = { params: Promise<{ id: string }> };
@@ -60,7 +62,7 @@ export default async function PublicLotDetailPage({
     lot = await getLot(id);
   } catch {
     return (
-      <div className="stack-4">
+      <div className={`${containerClass("catalogue")} stack-4 catalogue-page`}>
         <h1>Lot not found</h1>
         <ErrorState message="We couldn't find that lot. It may have been removed from public listings." />
         <Link href="/lots" className="btn btn--secondary btn--sm">
@@ -73,32 +75,38 @@ export default async function PublicLotDetailPage({
   const photo = lotPhoto({ plotCode: lot.lot_number, section: lot.section });
 
   return (
-    <div className="stack-4">
-      <div className="page-header">
-        <div>
-          <p className="page-header__eyebrow">Memorial lots</p>
-          <h1>{lot.lot_number}</h1>
-        </div>
-        <div className="page-header__actions">
-          <Link href="/lots" className="btn btn--secondary btn--sm">
-            Back to lots
-          </Link>
-        </div>
-      </div>
+    <div className={`${containerClass("catalogue")} stack-4 catalogue-page`}>
+      {/* The shared interior hero: the lot number is the page's one h1, the lead
+          is what a family reads first (type · section, block · area), and the
+          office call is the page's commitment. */}
+      <PublicHero
+        variant="interior"
+        eyebrow="Memorial lots"
+        title={lot.lot_number}
+        lead={`${TYPE_LABEL[lot.type] ?? lot.type} · ${lot.section}, block ${lot.block} · ${lot.area_sqm} sqm`}
+        primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
+        secondary={{ label: "Back to lots", href: "/lots" }}
+      />
 
-      <div className="landing__grid landing__grid--pair" >
+      <div className="landing__grid landing__grid--pair">
         {/* The picture comes from the ONE imagery rule home the listing uses
             (lib/lot-imagery.ts), so a lot cannot show one photograph in the
-            grid and another on its own page. media-block--natural: the photo
-            sets the box height instead of being cropped by a fixed 16:10
-            frame. The caption is the honesty line — it is a photograph of the
-            section, never of this plot. */}
+            grid and another on its own page. PublicImage reserves the 4:3 box,
+            carries the derivative's `sizes` (D5) and prints the honesty line as
+            its caption — it is a photograph of the section, never this plot. */}
         <div>
-          <div className="media-block product-layout__media media-block--natural">
-            {/* eslint-disable-next-line @next/next/no-img-element -- client lot photograph */}
-            <img src={photo.src} srcSet={photo.srcSet} alt={photo.caption} />
-          </div>
-          <p className="text-xs text-muted">{photo.caption}</p>
+          <PublicImage
+            role="pdp-main"
+            src={photo.src}
+            srcSet={photo.srcSet}
+            sizes="(max-width: 48rem) 92vw, 36rem"
+            alt={photo.caption}
+            width={photo.width ?? 720}
+            height={photo.height ?? 540}
+          />
+          <p className="text-xs text-muted" style={{ marginTop: "var(--space-2)" }}>
+            {photo.caption}
+          </p>
         </div>
 
         <div className="detail-sticky">
@@ -141,11 +149,8 @@ export default async function PublicLotDetailPage({
             office holds the lot for you and confirms the terms.
           </p>
           <div className="row row--wrap">
-            <a className="btn btn--primary" href={contact.phoneHref}>
-              Call {contact.phoneDisplay}
-            </a>
             <Link
-              className="btn btn--secondary"
+              className="btn btn--accent"
               href={buildRequestHref({
                 item: `Lot ${lot.lot_number} (${lot.section}, block ${lot.block})`,
                 price: lot.price_cents > 0 ? formatMinorUnits(lot.price_cents, lot.currency) : undefined,

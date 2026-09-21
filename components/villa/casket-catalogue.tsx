@@ -90,10 +90,27 @@ function coverLine(model: CasketModel): string {
   return coffinCover(model.model) ?? "Cover confirmed by the office";
 }
 
-export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
+/**
+ * The model grid, with the optional collection index above it. The index is
+ * rendered ONCE per page: the first (visible) grid prints it and the
+ * "Show all N" disclosure passes `showIndex={false}`, so the count/entry-price
+ * legend never repeats inside the disclosure.
+ */
+export function CasketModelCards({
+  caskets,
+  showIndex = true,
+  indexCaskets = caskets,
+}: {
+  caskets: SellableCasket[];
+  showIndex?: boolean;
+  /** The list the collection index summarises — the FULL catalogue when the
+   *  grid is a "Show all N" window, so the legend never shrinks to the visible
+   *  rows. */
+  indexCaskets?: SellableCasket[];
+}) {
   const collections = CASKET_COLLECTIONS.map((collection) => ({
     collection,
-    models: caskets.filter((c) => c.model.collection === collection),
+    models: indexCaskets.filter((c) => c.model.collection === collection),
   })).filter((entry) => entry.models.length > 0);
 
   return (
@@ -101,19 +118,21 @@ export function CasketModelCards({ caskets }: { caskets: SellableCasket[] }) {
       {/* The lightweight collection index: the four collections with their model
           count and entry price, so the whole catalogue's shape is read before
           the grid. No filter, no second control — the grid below is one flow. */}
-      <ul className="casket-index" aria-label="Collections in the 2026 catalogue">
-        {collections.map(({ collection, models }) => {
-          const from = Math.min(...models.map((c) => c.model.srp));
-          return (
-            <li className="casket-index__item" key={collection}>
-              <span className="casket-index__name">{collection}</span>
-              <span className="casket-index__meta">
-                {models.length} model{models.length === 1 ? "" : "s"} · from {amount(from)}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      {showIndex ? (
+        <ul className="casket-index" aria-label="Collections in the 2026 catalogue">
+          {collections.map(({ collection, models }) => {
+            const from = Math.min(...models.map((c) => c.model.srp));
+            return (
+              <li className="casket-index__item" key={collection}>
+                <span className="casket-index__name">{collection}</span>
+                <span className="casket-index__meta">
+                  {models.length} model{models.length === 1 ? "" : "s"} · from {amount(from)}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
       {/* One continuous grid instead of a grid per collection: the old bands
           stranded the single Lumina card in a row of its own (measured
           2026-09-21), and a flat grid fills even rows at every width. */}
@@ -159,7 +178,7 @@ function CasketCard({ model, item }: SellableCasket) {
             prefill={casketRequest(model)}
             secondaryAsLink
           />
-          <Link href={href} className="catalogue-actions__link">
+          <Link href={href} className="catalogue-actions__link catalogue-actions__link--detail">
             View details
           </Link>
         </>

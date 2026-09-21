@@ -21196,3 +21196,147 @@ a.plan-advisor__phone:hover {
     padding-bottom: var(--space-4);
   }
 }
+
+/* ============================================================================
+ * public: catalogue block
+ *
+ * LANE 2 of Wave A of the captain's public design plan
+ * (`data/villa-public-design-plan/report.md`, approved 2026-09-21) — the
+ * catalogue and grounds pages: /products + the PDPs, /lots + detail + the 2026
+ * lot price list, /gallery, /map.
+ *
+ * This block is OWNED by this lane. It consumes the Phase 0 grammar block
+ * above (never edits it) and the numbers in lib/public-layout.ts. The four page
+ * families each append their own rules here; the guard suites
+ * (tests/unit/catalogue-minimal-pages.test.tsx + phone-layout) read them back.
+ * ========================================================================== */
+
+/* --- nested envelopes (plan §4.1) ---------------------------------------
+   `.public-main` is already the shared `.container` (the 99rem folio) and owns
+   the horizontal gutter, so a page that narrows to the catalogue/reading
+   envelope applies the modifier only — the parent stays the padding owner.
+   Without this reset a nested `.container` would double the gutter and squeeze
+   a 390px phone to ~294px of content. */
+.public-main .container--catalogue,
+.public-main .container--reading {
+  padding-inline: 0;
+}
+
+/* --- the catalogue band + hero facts ------------------------------------ */
+.catalogue-band {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+}
+
+.catalogue-hero__facts {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-sm);
+  color: var(--hero-text-colour, var(--color-text-secondary));
+}
+
+/* The band-level honesty line is phone-only: the desktop card carries its own
+   caption, so the note is hidden until the per-card copy steps out. */
+.lot-grid__note {
+  display: none;
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* --- /products: two model cards per phone row (plan §5.3) ----------------
+   The measured defect was one coffin per phone screen (23.5 screens). Inside
+   the 75rem catalogue envelope a phone's content box splits in two, so a
+   shopper compares models instead of scrolling. The card furniture steps down
+   a rung (the price from the 2xl rung to xl; the caption to micro) so a ~165px
+   column stays legible — the same step-down discipline the token map uses. */
+@media (max-width: 40rem) {
+  .catalogue-page .casket-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-3);
+    row-gap: var(--space-5);
+  }
+
+  .catalogue-page .casket-grid .shop-card__title {
+    font-size: var(--text-body);
+  }
+
+  .catalogue-page .casket-grid .shop-card__price {
+    font-size: var(--text-xl);
+  }
+
+  /* Two-up a card is a compact tile: the photograph, the name, the figure and
+     the two working actions stay. The repeated per-card illustration caption
+     and the "View details" link (the photograph and title are already that
+     link) step out — the section lead above the grid carries the honesty line
+     and the sample chip stays on every picture. */
+  .catalogue-page .casket-grid .shop-card__caption,
+  .catalogue-page .casket-grid .shop-card__meta,
+  .catalogue-page .casket-grid .shop-card__unit,
+  .catalogue-page .casket-grid .catalogue-actions__link--detail {
+    display: none;
+  }
+
+  /* /lots: a 1-up plot card carries a full-width photograph (a 342×257 4:3 box
+     at 390). Capping it to a shallower landscape crop and tightening the body
+     keeps the honesty caption and every fact while letting six plots (the
+     plan's window) fit the phone ceiling. The picture still leads, is never
+     upscaled and is never the plot itself. */
+  .lot-grid .shop-card__media img {
+    max-height: 7rem;
+  }
+
+  .lot-grid {
+    row-gap: var(--space-3);
+  }
+
+  .lot-grid .shop-card__body {
+    padding-top: var(--space-2);
+  }
+
+  .lot-grid .shop-card__actions {
+    padding-top: var(--space-2);
+  }
+
+  /* The caption is the same "section, not this plot" line on every card; on a
+     phone the band prints it once (above) and the per-card copy steps out so
+     six plots fit the ceiling. It returns with the rail at ≥64rem. */
+  .lot-grid .shop-card__caption {
+    display: none;
+  }
+
+  .lot-grid__note {
+    display: block;
+  }
+
+  /* /gallery: the closing plan is a supporting figure, not a second map — cap
+     it so the walk band stays a band. */
+  .gal-walk__plan {
+    max-height: 12rem;
+  }
+
+  /* /gallery: a phone shows the photo wall, not 11 one-line descriptions. The
+     descriptive caption steps out; the honesty label ("Illustration purposes
+     only.") and the group provenance line stay. A photo with no sample label
+     drops its whole caption rather than printing an empty line. */
+  .gal-page .gal-cap__desc {
+    display: none;
+  }
+
+  .gal-page .public-image__caption:not(:has(.gal-figure__note)) {
+    display: none;
+  }
+
+  /* /lots/price-list-2026: the four family photographs pair up on a phone so
+     the grids do not push the rate tables below the fold. */
+  .catalogue-photos {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-3);
+  }
+
+  /* /map: the leaflet frame is 62vh (523px on a 844px phone) on desktop; a
+     phone gets a shorter viewport so the plot-details panel and the page below
+     it are reachable without a screen of map. Scoped to the park page's own
+     `.map-shell` — the home band's map keeps its 4:3 rule. */
+  .map-shell .geo-map {
+    height: min(44vh, 20rem);
+  }
+}
