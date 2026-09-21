@@ -261,6 +261,42 @@ describe("the price-list hero logo row — a class whose rule was deleted", () =
   });
 });
 
+describe("the public layout contract's phone ceilings (Phase 0)", () => {
+  it("caps the phone home hero at 42 vh so content starts above the fold", () => {
+    const hero = PHONE.find((r) => r.selector === ".hero-home");
+    expect(hero, "the phone .hero-home rule exists").toBeDefined();
+    expect(declares(hero, "max-height", /42vh/)).toBe(true);
+    // The compact phone hero hides the desktop-only brand row and eyebrow.
+    const hidden = PHONE.filter(
+      (r) =>
+        selectors(r).some((s) => s === ".hero-home__brand" || s === ".hero-home__eyebrow") &&
+        declares(r, "display", /none/),
+    );
+    expect(hidden.length).toBeGreaterThanOrEqual(1);
+    expect(selectors(hidden[0])).toEqual(
+      expect.arrayContaining([".hero-home__brand", ".hero-home__eyebrow"]),
+    );
+  });
+
+  it("caps the phone-shrunk image roles", () => {
+    const shrunk = PHONE.filter(
+      (r) =>
+        selectors(r).some((s) => s.startsWith(".public-image--")) &&
+        declares(r, "max-height", /14rem/),
+    );
+    expect(shrunk.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("declares the 4-across catalogue grid inside the catalogue envelope", () => {
+    expect(declares(ruleFor(RULES, ".public-grid"), "grid-template-columns", /repeat/)).toBe(true);
+    expect(ruleFor(RULES, ".public-grid--cards")?.body).toMatch(/21rem/);
+    expect(ruleFor(RULES, ".container--catalogue")?.body).toMatch(
+      /var\(--layout-catalogue-w\)/,
+    );
+    expect(ruleFor(RULES, ".container--reading")?.body).toMatch(/var\(--layout-reading-w\)/);
+  });
+});
+
 /** A tiny guard on this file itself: the style source must be the real one. */
 describe("the gates read the shipped stylesheets", () => {
   it("found the phone media query and enough rules to be meaningful", () => {

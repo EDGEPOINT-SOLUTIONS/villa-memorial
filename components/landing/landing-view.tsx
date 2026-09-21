@@ -26,7 +26,9 @@ import { NextSteps } from "@/components/landing/next-steps";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
-import { heroBackgroundLayer, heroTextColourStyle } from "@/lib/landing/hero-background";
+import { PublicDisclosure } from "@/components/public/public-disclosure";
+import { PublicHero } from "@/components/public/public-hero";
+import { SectionHead } from "@/components/public/section-head";
 import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet, serviceCardPhoto } from "@/lib/media";
 import {
   lotCategoryFromPriceOf,
@@ -122,37 +124,9 @@ function RailItemLink({ item }: { item: RailItem }) {
  * Left rail carries the always-reachable 24/7 call card above its items; it
  * stays pinned while the rail list scrolls.
  */
-export function RailPanel({
-  config,
-  side,
-  contact,
-}: {
-  config: RailConfig;
-  side: "left" | "right";
-  contact: LandingContent["contact"];
-}) {
-  const phoneFirst = side === "left";
+export function RailPanel({ config }: { config: RailConfig }) {
   return (
-    <div className={`rail-panel ${phoneFirst ? "rail-panel--phone" : ""}`.trim()}>
-      {phoneFirst ? (
-        <div className="rail-call">
-          <a className="rail-call__line" href={contact.phoneHref}>
-            <span className="rail-call__top">
-              <span className="rail-call__pulse" aria-hidden="true" />
-              <span className="rail-call__label">{contact.phoneLabel}</span>
-            </span>
-            <span className="rail-call__number">{contact.phoneDisplay}</span>
-            <span className="rail-call__hint">
-              {contact.location} · every hour, every day
-            </span>
-          </a>
-          {/* The home assistance card's one door to the Immediate Assistance
-              screen (F-01): the number above stays the one-tap call. */}
-          <a className="rail-call__assist" href="/immediate-assistance">
-            What to do right now →
-          </a>
-        </div>
-      ) : null}
+    <div className="rail-panel">
       <h2 className="rail-heading">{config.heading}</h2>
       {config.items.length === 0 ? (
         <p className="rail-empty">Nothing pinned here yet.</p>
@@ -467,62 +441,37 @@ export function LandingFooter({ content }: { content: LandingContent }) {
 
 function HeroSection({ content }: { content: LandingContent }) {
   const { hero, logo, contact } = content;
-  // Staff-chosen background colour (hero zone of the Landing Page editor): one
-  // dedicated layer over the photo and under every copy block. Absent (null)
-  // when no colour is set or transparency is 100% — the photograph is clear
-  // (the old constant readability scrim was removed, captain 2026-09-21).
-  const wash = heroBackgroundLayer(hero);
-  // Image-only hero: a photograph and no authored copy. It renders the raw
-  // photo — no brand, no buttons, no scrim, no gradient, no colour layer.
-  const imageOnly =
-    Boolean(hero.image) &&
-    !hero.eyebrow.trim() &&
-    !hero.headline.trim() &&
-    !hero.subline.trim();
+  // The home hero is the shared PublicHero primitive (Phase 0 proof surface).
+  // It carries the hero-flexible base: an image-only document renders the raw
+  // photograph (no wash/scrim/gradient), 100 % transparency is the clear photo,
+  // the author's text colour paints through --hero-text-colour, and the phone
+  // band is capped at 42 vh by the shared grammar block. The page shell ALSO
+  // sets the colour property (below) so the left rail's 24/7 card stays synced.
   return (
-    <section
-      className={`hero-home${hero.image ? " hero-home--photo" : ""}${imageOnly ? " hero-home--image-only" : ""}`}
-      aria-label={imageOnly ? logo.wordmark : undefined}
-      aria-labelledby={imageOnly ? undefined : "hero-home-title"}
-    >
-      {hero.image ? (
-        <figure className="hero-home__photo" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element -- staff-attached hero photo */}
-          <img src={hero.image} alt="" />
-        </figure>
-      ) : null}
-      {wash && !imageOnly ? <div className="hero-home__wash" aria-hidden="true" style={wash} /> : null}
-      {imageOnly ? (
-        // A pure photo hero still names the page for assistive tech.
-        <h1 className="visually-hidden">{logo.wordmark}</h1>
-      ) : (
+    <PublicHero
+      variant="home"
+      brandName={logo.wordmark}
+      brand={
+        <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
+      }
+      eyebrow={hero.eyebrow}
+      headline={hero.headline}
+      subline={hero.subline}
+      image={hero.image}
+      background={hero.background}
+      backgroundTransparency={hero.backgroundTransparency}
+      textColour={hero.textColour}
+      primary={{ label: hero.primaryCta.label, href: hero.primaryCta.href }}
+      secondary={{ label: hero.secondaryCta.label, href: hero.secondaryCta.href }}
+      careline={
         <>
-          <div className="hero-home__brand">
-            <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
-            <span className="hero-home__wordmark">{logo.wordmark}</span>
-          </div>
-          {hero.eyebrow.trim() ? <p className="hero-home__eyebrow">{hero.eyebrow}</p> : null}
-          <h1 id="hero-home-title" className="hero-home__title">
-            {hero.headline}
-          </h1>
-          {hero.subline.trim() ? <p className="hero-home__lead">{hero.subline}</p> : null}
-          <div className="hero-home__actions">
-            <a className="btn btn--accent btn--lg" href={hero.primaryCta.href}>
-              {hero.primaryCta.label}
-            </a>
-            <a className="btn btn--secondary btn--lg" href={hero.secondaryCta.href}>
-              {hero.secondaryCta.label}
-            </a>
-          </div>
-          <p className="hero-home__careline">
-            <a href={contact.phoneHref}>
-              {contact.phoneLabel}: {contact.phoneDisplay}
-            </a>{" "}
-            — {contact.location}
-          </p>
+          <a href={contact.phoneHref}>
+            {contact.phoneLabel}: {contact.phoneDisplay}
+          </a>{" "}
+          — {contact.location}
         </>
-      )}
-    </section>
+      }
+    />
   );
 }
 
@@ -532,19 +481,28 @@ function AboutSection({ content }: { content: LandingContent }) {
     <section className="mid-section" aria-labelledby="about-title">
       <div className="about-grid">
         <div>
-          <p className="mid-kicker">Our story</p>
-          <h2 id="about-title">{about.heading}</h2>
-          <p className="about-story">{about.story}</p>
-          <div className="about-cols">
-            <div>
-              <h3>Mission</h3>
-              <p>{about.mission}</p>
+          {/* The shared SectionHead (Phase 0 primitive) replaces the hand-rolled
+              kicker/h2/story; the mission + vision now sit behind the shared
+              disclosure so the band answers first and keeps the words available
+              (captain call 5, public design plan). */}
+          <SectionHead
+            id="about-title"
+            kicker="Our story"
+            title={about.heading}
+            lead={about.story}
+          />
+          <PublicDisclosure summary="Mission and vision">
+            <div className="about-cols">
+              <div>
+                <h3>Mission</h3>
+                <p>{about.mission}</p>
+              </div>
+              <div>
+                <h3>Vision</h3>
+                <p>{about.vision}</p>
+              </div>
             </div>
-            <div>
-              <h3>Vision</h3>
-              <p>{about.vision}</p>
-            </div>
-          </div>
+          </PublicDisclosure>
         </div>
         {about.image ? (
           <figure className="about-media">
@@ -686,16 +644,16 @@ function MapSection({
 /* --------------------------------- the view --------------------------------- */
 
 export function LandingView({ content, planPricing, lotCategories, mapNode, mapLive, sectionCount }: LandingViewProps) {
-  // Author-settable hero copy colour: ONE custom property on the page shell, so
-  // both the hero copy rules and the left rail's 24/7 call card read the same
-  // ink (captain's 2026-09-21 direction). null keeps the shipped token ink.
-  const heroTextStyle = heroTextColourStyle(content.hero);
+  // The author-settable hero text colour is now owned by the PublicHero
+  // primitive (Phase 0), which paints `--hero-text-colour` on the hero root.
+  // The page shell no longer needs the property: the rail's 24/7 card that used
+  // to read it was removed (captain 2026-09-21).
   return (
-    <div className="anchored-page has-phonebar" style={heroTextStyle ?? undefined}>
+    <div className="anchored-page has-phonebar">
       <LandingHeader content={content} />
       <div className="anchored-grid">
         <aside className="anchored-rail anchored-rail--left" aria-label="Care and services">
-          <RailPanel config={content.rails.left} side="left" contact={content.contact} />
+          <RailPanel config={content.rails.left} />
         </aside>
 
         <main id="main" className="anchored-mid">
@@ -717,7 +675,7 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
         </main>
 
         <aside className="anchored-rail anchored-rail--right" aria-label="Plans and lots">
-          <RailPanel config={content.rails.right} side="right" contact={content.contact} />
+          <RailPanel config={content.rails.right} />
         </aside>
       </div>
       {/* The home ends on the same three options every public page ends on

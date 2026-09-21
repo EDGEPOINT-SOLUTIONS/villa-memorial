@@ -627,8 +627,40 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `currentSrc` file width and confirm it is ≥ the rendered width.
 - **Hero type is a treatment, not a second face.** Inter stays the product's one
   face (`styles/tokens.css`); the home hero uses a lighter display weight, tight
-  leading and `text-wrap: balance` at `--text-hero`. Introducing an actual second
-  face means updating `tests/unit/typography-system.test.ts` in the same PR.
+  leading and `text-wrap: balance` at `--text-hero` (which steps down one rung on
+  a phone through the token map). Introducing an actual second face means updating
+  `tests/unit/typography-system.test.ts` in the same PR.
+
+## The public layout contract — Phase 0 (read before touching any public hero, section, image or grid)
+
+- **`lib/public-layout.ts` is the ONE home for the public grammar's numbers** — the
+  contract the four lanes of `data/villa-public-design-plan/report.md` build on
+  (captain released the plan 2026-09-21). It carries the **three envelopes** (folio
+  99 rem · **catalogue 75 rem** · **reading 60 rem** + `66ch`; tokens
+  `--layout-catalogue-w` / `--layout-reading-w` / `--measure-prose`), the image/hero
+  **ceilings** (phone hero **42 vh**; card 4:3, band lead 3:2, PDP 4:3, map 1:1, …),
+  the **3-rung CTA grammar** (sky page-commitment `btn--primary` · gold per-item
+  `btn--accent` · outline `btn--secondary`), the **4-across grid** with **"Show all
+  N"** (render 12, then disclose), the section rhythm and the per-page height
+  ceilings. `tests/unit/public-layout.test.ts` parses the stylesheets and fails on
+  drift; the guards `public-image-rules` / `public-cta-contract` / `public-page-budget`
+  extend the same contract. Never type a number the contract already carries.
+- **The four primitives live in `components/public/*` and are re-exported from
+  `components/kit`**: `PublicHero` (`home` / `interior` / `call-first`; carries the
+  hero-flexible base — image-only raw photo, 100 % = the clear photo, author text
+  colour via `--hero-text-colour`), `SectionHead`, `PublicDisclosure`,
+  `PublicImage` (role ratio+ceiling, required `width`/`height`, `sizes` whenever
+  `srcSet`). New public screens render these instead of a bespoke head/card/`<img>`;
+  the home is the Phase 0 proof surface.
+- **The shared grammar block is the tail of `styles/components.css`** (marked
+  "public layout grammar — Phase 0"). Phase 0 owns it; each rollout lane appends its
+  OWN named block and never edits it. Design record + before/after shots:
+  `docs/08-delivery/public-layout-phase0-design/`.
+- **The left rail carries NO 24/7 call card** (captain removed it 2026-09-21). The
+  number stays reachable in the header call chip, the footer and
+  `/immediate-assistance`; do not re-add a rail card or a replacement.
+  `.rail-call*` and the `rail-pulse` keyframe are retired (`landing-view.test.tsx`
+  fails their return).
 
 ## Package page — `/plans/[sku]` (design target — read before touching it)
 
