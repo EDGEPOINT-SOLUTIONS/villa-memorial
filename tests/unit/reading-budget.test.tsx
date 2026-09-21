@@ -189,18 +189,18 @@ const PAGES: ReadonlyArray<BudgetPage> = [
       renderToStaticMarkup(
         await MemorialSearchPage({ searchParams: Promise.resolve({}) }),
       ),
-    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/memorials/find (find my loved one)",
     render: async () => renderToStaticMarkup(await FindMyLovedOnePage()),
-    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/memorials/[id] (not available)",
     render: async () =>
       renderToStaticMarkup(await MemorialPage({ params: Promise.resolve({ id: "not-published" }) })),
-    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/agent/prospects/[id] (lead record)",

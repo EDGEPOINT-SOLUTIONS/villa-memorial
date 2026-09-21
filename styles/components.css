@@ -17863,10 +17863,10 @@ a.ia-alt:hover {
  * ========================================================================= */
 
 .mem-page {
-  max-width: 76rem;
+  max-width: var(--layout-reading-w);
   margin-inline: auto;
   display: grid;
-  gap: var(--space-6);
+  gap: clamp(2rem, 4vw, 3.5rem);
 }
 
 /* Senior-first floor (the services-page rule on the most sensitive surface):
@@ -21072,5 +21072,127 @@ a.plan-advisor__phone:hover {
 
   .plan-tier__list {
     gap: var(--space-1);
+  }
+}
+
+/* ============================================================================
+ * public: identity block — the memorial pages and the identity doors (lane 4)
+ *
+ * Lane 4 of the captain's public design plan (`data/villa-public-design-plan`,
+ * approved 2026-09-21). Every page here renders the Phase 0 primitives
+ * (`PublicHero` · `SectionHead` · `PublicDisclosure` · `PublicImage`); THIS
+ * block carries only the identity pages' own deltas, so no other lane edits it
+ * and this lane edits no other lane's block. The Phase 0 grammar block above is
+ * untouched.
+ *
+ * The measured worsts this pass fixes: `/memorials/find` 6.9 phone screens,
+ * `/memorials` 6.2, the unavailable memorial 3.8 — the memorials family's
+ * ceiling is ≤4 phone / ≤3.5 desktop (lib/public-layout.ts).
+ * ========================================================================== */
+
+/* --- the memorial pages: a reading envelope, a calm interior head ---------- */
+.mem-page .public-hero {
+  margin-bottom: 0;
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+/* An interior page's h1 is the page-title rung, never the home's fluid display
+   size — the "large labels feel cheap" fix (plan §4.3). */
+.mem-page .public-hero__title {
+  font-size: var(--text-page-title);
+}
+
+/* These heroes carry no banner photograph, so the desktop two-column track
+   would strand an empty 30rem column beside the copy. */
+.mem-page .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mem-page .section-head {
+  margin-bottom: var(--space-4);
+}
+
+/* --- the steps read as hairline rows, not four equal boxes ----------------- */
+.mem-page .mem-steps {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mem-page .mem-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  padding: var(--space-3) 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mem-page .mem-step:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.mem-page .mem-step__num {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: var(--text-sm);
+}
+
+/* --- the "family's decision" cards read as hairline rows too -------------- */
+.mem-page .mem-ask__grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+.mem-page .mem-ask {
+  padding: var(--space-4) 0;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mem-page .mem-ask:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* The office-line foot on the memorial search page. */
+.mem-service-note--foot {
+  margin-top: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+/* --- the identity doors: one card grammar, left-aligned head --------------- */
+.signin-shell--premium .signin-card__head {
+  text-align: left;
+}
+
+.signin-shell--premium .signin-card__title {
+  margin-bottom: var(--space-1);
+}
+
+.signin-shell--premium .signin-card__blurb {
+  font-size: var(--text-md);
+}
+
+.signin-shell--premium .signin-card__foot {
+  justify-content: flex-start;
+}
+
+.signin-shell--premium .signin-card__route-note,
+.signin-shell--premium .signin-card__help {
+  text-align: left;
+}
+
+@media (max-width: 40rem) {
+  .mem-page .public-hero {
+    padding-bottom: var(--space-4);
   }
 }

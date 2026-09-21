@@ -935,6 +935,17 @@ enters `app/sitemap.ts`; `/memorials?…` is `noindex` + `Disallow: /memorials?`
 not-available detail state; `tests/unit/memorials.test.ts`, `memorials-pages.test.tsx`,
 `memorials-published-page.test.tsx` and `tests/fixture-contract/memorials.test.ts` pin the rules.
 Evidence: `docs/08-delivery/memorials-design/`.
+- **Public-minimal identity pass (lane 4 of `data/villa-public-design-plan`).** The
+  three memorial routes render the Phase 0 primitives — `PublicHero` (`interior`),
+  `SectionHead`, `PublicDisclosure` — inside the **reading envelope**
+  (`.mem-page` = `--layout-reading-w`, 60 rem); long vocabulary and the family's
+  choices sit behind the shared disclosure. The new CSS is the
+  `/* public: identity block */` at the tail of `styles/components.css` (never
+  edit it from another lane). `/register` renders on the same
+  `signin-shell--premium` / `signin-card` grammar as the three sign-in doors, so
+  the identity surface is one design. Full-page shots + the measured audit table:
+  `docs/08-delivery/identity-minimal-design/`; the section blueprint for
+  `/memorials` and `/memorials/find` is in `tests/unit/public-page-budget.test.tsx`.
 - Honest gaps that must stay honest: the client's own public search/privacy rules are still an
 open question (`docs/07-client-villa/open-questions.md`) and are named on `/memorials/find`.
 

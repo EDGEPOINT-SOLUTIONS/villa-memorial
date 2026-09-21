@@ -83,7 +83,7 @@ export function SignInCard({
   }
 
   return (
-    <main className="signin-shell" id="main">
+    <main className="signin-shell signin-shell--premium" id="main">
       <div className="signin-card">
         <div className="signin-card__head">
           <p className="signin-card__eyebrow">{SIGN_IN_BLURBS[door].eyebrow}</p>

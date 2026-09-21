@@ -26,6 +26,12 @@ const { default: PriceListPage } = await import("@/app/(public)/price-list/page"
 const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlanDetailPage } = await import("@/app/(public)/plans/[sku]/page");
 
+// The four rollout lanes append their own route here on the PR that sweeps it.
+// Lane 4 (identity): the digital-memorial pages (plan §5.9).
+const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
+const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
+const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
+
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
  *
@@ -127,6 +133,33 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       "tribute-strip",
     ],
     requires: ["data-public-disclosure"],
+  },
+  {
+    // plan §5.9: hero → the privacy rules (one line + the shared disclosure) →
+    // the search. The rules keep `id="rules"` before the form (the test's pin).
+    name: "/memorials (digital memorial search)",
+    render: async () =>
+      renderToStaticMarkup(await MemorialSearchPage({ searchParams: Promise.resolve({}) })),
+    sections: ['data-public-hero="interior"', 'id="rules"', 'id="search"'],
+    requires: ["data-section-head", "data-public-disclosure"],
+  },
+  {
+    // plan §5.9: hero → the office's steps → the family's decision, with what to
+    // have ready and the privacy promises behind the shared disclosure.
+    name: "/memorials/find (find my loved one)",
+    render: async () => renderToStaticMarkup(await FindMyLovedOnePage()),
+    sections: ['data-public-hero="interior"', 'id="steps-title"', 'id="ask-title"'],
+    requires: ["data-section-head", "data-public-disclosure"],
+  },
+  {
+    // plan §5.9: the single uniform unavailable state (absent AND unpublished).
+    name: "/memorials/[id] (unavailable)",
+    render: async () =>
+      renderToStaticMarkup(
+        await MemorialPage({ params: Promise.resolve({ id: "not-published" }) }),
+      ),
+    sections: ['data-public-hero="interior"', 'id="memorial-why-title"'],
+    requires: ["data-section-head", "data-public-disclosure"],
   },
 ];
 

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EyeOff, Lock, Search } from "lucide-react";
+import { EyeOff, Search } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
-import { listLandingContent, type ContactInfo } from "@/lib/api-client/landing";
+import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPublishedMemorials } from "@/lib/api-client/memorials";
 import {
   MEMORIAL_FIND_HREF,
@@ -57,6 +58,12 @@ export const dynamic = "force-dynamic";
  * it may exist — including a private memorial — without confirming anything,
  * and the demo store publishes no one at all, which the page says plainly.
  *
+ * Public-minimal identity pass (lane 4, Phase 0 contract): the page opens on the
+ * shared `PublicHero`, answers the privacy question in ONE line, and keeps the
+ * full rules + the three visibility choices behind the shared `PublicDisclosure`
+ * — the six-paragraph rules wall and the "five things a family decides" band are
+ * gone. A reading envelope, a calm label scale; no bespoke hero family.
+ *
  * No person is ever fabricated here: every name comes from a record whose
  * visibility is `published` (lib/api-client/memorials.ts drops every other
  * record), and `tests/unit/memorials-pages.test.tsx` asserts the unavailable
@@ -92,75 +99,64 @@ export default async function MemorialSearchPage({
         </ol>
       </nav>
 
-      <section className="hero-premium mem-hero" aria-labelledby="memorials-title">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">Digital memorial search</p>
-            <h1 className="hero-premium__title" id="memorials-title">
-              Find a memorial
-            </h1>
-            {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
-            <p className="hero-premium__lead">
-              Search the memorials families have published.
-            </p>
-            <div className="hero-premium__actions">
-              <a className="btn btn--primary" href="#search">
-                Search by name
-              </a>
-              <Link className="btn btn--secondary" href={MEMORIAL_FIND_HREF}>
-                Find my loved one
-              </Link>
+      <PublicHero
+        variant="interior"
+        id="memorials-title"
+        eyebrow="Digital memorial search"
+        title="Find a memorial"
+        lead="Search the memorials families have published."
+        primary={{ label: "Search by name", href: "#search" }}
+        secondary={{ label: "Find my loved one", href: MEMORIAL_FIND_HREF }}
+      />
+
+      {/* The rules come first (id="rules"), and they answer in one line; the
+          full vocabulary and the family's three choices sit behind the shared
+          disclosure so the search is the next thing a visitor reaches. */}
+      <section id="rules" aria-labelledby="rules-title">
+        <SectionHead
+          id="rules-title"
+          kicker="Before you search"
+          title="What this search can show"
+          lead="Only what a family publishes appears — private and family-only memorials never show."
+        />
+        <PublicDisclosure summary="What is searchable, and what is never shown">
+          <div className="mem-rules__grid">
+            <div className="mem-rule-card">
+              <div className="mem-rule-card__head">
+                <Search size={18} aria-hidden="true" />
+                <h3>Searchable</h3>
+              </div>
+              <ul className="mem-list">
+                {MEMORIAL_SEARCHABLE.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="mem-rule-card mem-rule-card--never">
+              <div className="mem-rule-card__head">
+                <EyeOff size={18} aria-hidden="true" />
+                <h3>Never shown</h3>
+              </div>
+              <ul className="mem-list">
+                {MEMORIAL_NEVER_SHOWN.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
             </div>
           </div>
-          <div className="mem-hero__card">
-            <Lock size={22} aria-hidden="true" />
-            <h2 className="mem-hero__card-title">Only what a family publishes</h2>
-            <p className="mem-hero__card-line">
-              Nothing appears here by default, and the family can change or close it at any time.
-            </p>
-          </div>
-        </div>
+          {/* The three choices the family portal names, in a visitor's terms —
+              so a visitor understands why they may not find someone. */}
+          <VisibilityChoices />
+        </PublicDisclosure>
       </section>
 
-      <section className="mem-rules" id="rules" aria-labelledby="rules-title">
-        <p className="mem-kicker">Before you search</p>
-        <h2 className="mem-section-title" id="rules-title">
-          What this search can show
-        </h2>
-        <p className="mem-intro">These rules apply to every search on this page.</p>
-        <div className="mem-rules__grid">
-          <div className="mem-rule-card">
-            <div className="mem-rule-card__head">
-              <Search size={18} aria-hidden="true" />
-              <h3>Searchable</h3>
-            </div>
-            <ul className="mem-list">
-              {MEMORIAL_SEARCHABLE.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-          <div className="mem-rule-card mem-rule-card--never">
-            <div className="mem-rule-card__head">
-              <EyeOff size={18} aria-hidden="true" />
-              <h3>Never shown</h3>
-            </div>
-            <ul className="mem-list">
-              {MEMORIAL_NEVER_SHOWN.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        {/* The three choices the family portal names, in a visitor's terms — so a
-            visitor understands why they may not find someone. */}
-        <VisibilityChoices />
-      </section>
-
-      <section className="mem-search" id="search" aria-labelledby="search-title">
-        <h2 className="mem-section-title" id="search-title">
-          Search by name and dates
-        </h2>
+      <section id="search" aria-labelledby="search-title">
+        <SectionHead
+          id="search-title"
+          kicker="Search"
+          title="Search by name and dates"
+          lead="Enter what you know; every field is optional."
+        />
         <form className="mem-search__form" method="get" action="/memorials" role="search">
           <div className="field-grid field-grid--3">
             <div className="field">
@@ -261,61 +257,13 @@ export default async function MemorialSearchPage({
         </div>
       </section>
 
-      <section className="mem-shape" aria-labelledby="shape-title">
-        <p className="mem-kicker">What a published memorial shows</p>
-        <h2 className="mem-section-title" id="shape-title">
-          The five things a family decides
-        </h2>
-        <p className="mem-intro">The shape below is an example — no real person is shown.</p>
-        <dl className="mem-shape__facts">
-          <div>
-            <dt>Name</dt>
-            <dd>The name the family published</dd>
-          </div>
-          <div>
-            <dt>Life dates</dt>
-            <dd>The years on the office record</dd>
-          </div>
-          <div>
-            <dt>Photograph</dt>
-            <dd>Only if the family shared one</dd>
-          </div>
-          <div>
-            <dt>The family&rsquo;s words</dt>
-            <dd>The remembrance they wrote</dd>
-          </div>
-          <div>
-            <dt>Where they rest</dt>
-            <dd>The park, section and lot</dd>
-          </div>
-        </dl>
-      </section>
-
-      <section className="mem-find" aria-labelledby="mem-find-title">
-        <div>
-          <h2 className="mem-find__title" id="mem-find-title">
-            Cannot find them?
-          </h2>
-          <p className="mem-find__line">
-            Private and family-only memorials never appear here.
-          </p>
-        </div>
-        <div className="mem-find__actions">
-          <Link className="btn btn--primary" href={MEMORIAL_FIND_HREF}>
-            Find my loved one
-          </Link>
-          <CallAction contact={contact} />
-        </div>
-      </section>
+      {/* The office line is the page's own end note; the shared closing band
+          (PublicShell → NextSteps) is the one action layer above the footer. */}
+      <p className="mem-service-note mem-service-note--foot">
+        The office only ever confirms a memorial a family has published. Call{" "}
+        <a href={contact.phoneHref}>{contact.phoneDisplay}</a> and a person will
+        look with you.
+      </p>
     </div>
-  );
-}
-
-/** The office's own line — the only contact any memorial surface publishes. */
-function CallAction({ contact }: { contact: ContactInfo }) {
-  return (
-    <a className="btn btn--secondary" href={contact.phoneHref}>
-      Call {contact.phoneDisplay}
-    </a>
   );
 }
