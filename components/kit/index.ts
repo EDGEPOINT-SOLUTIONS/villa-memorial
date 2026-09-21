@@ -30,3 +30,18 @@ export {
   type PriceBounds,
   type SelectedFilters,
 } from "./filter-rail-model";
+
+/* The public layout primitives (Phase 0 consistency contract) live in
+ * components/public/ but are re-exported here so a lane has ONE import surface
+ * for the shared grammar. Their numbers are lib/public-layout.ts. */
+export {
+  PublicHero,
+  SectionHead,
+  PublicDisclosure,
+  PublicImage,
+  type PublicHeroAction,
+  type PublicHeroProps,
+  type PublicImageProps,
+  type PublicImageSource,
+  type PublicImageRole,
+} from "@/components/public";

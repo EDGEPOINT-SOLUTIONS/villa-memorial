@@ -11565,120 +11565,6 @@ a.card:hover {
   padding: var(--space-1) 0;
 }
 
-/* 24/7 call card pinned atop the left rail (not one of the picks). Rides above
-   the rail list: once the (now unlimited) pinned items scroll inside the rail,
-   the call card stays visible at the top — always reachable, every hour. */
-.rail-panel--phone .rail-call {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  box-shadow: 0 10px 22px -14px rgb(10 30 52 / 0.55);
-}
-
-.rail-call {
-  display: grid;
-  gap: 0.2rem;
-  text-decoration: none;
-  /* Captain (2026-09-17): the 24/7 assistance line is a SKY-BLUE card — the
-     brand's daylight-sky surface, never navy/dark blue. Composition pass
-     (2026-09-18): flat sky-300 in place of the three-stop sheen; navy ink and
-     the dark gold label stay AA (gold-800 4.6:1, number 11.7:1). */
-  background: var(--sky-300);
-  border: 1px solid var(--sky-300);
-  border-radius: var(--radius-md);
-  padding: var(--space-3);
-  /* Synced with the staff-chosen hero text colour (captain's 2026-09-21
-     direction): the call card carries the same ink as the hero copy. Absent
-     setting keeps the shipped navy ink. */
-  color: var(--hero-text-colour, var(--color-text-primary));
-  position: relative;
-  overflow: hidden;
-}
-
-.rail-call::after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
-}
-
-.rail-call__line {
-  display: grid;
-  gap: 0.2rem;
-  text-decoration: none;
-  color: inherit;
-}
-
-/* The card's one door to the Immediate Assistance screen (F-01): the number
-   above stays the one-tap call; this link is the quieter second intent. */
-.rail-call__assist {
-  margin-top: var(--space-2);
-  padding-top: var(--space-2);
-  border-top: 1px solid color-mix(in srgb, var(--navy-900) 18%, transparent);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  color: var(--hero-text-colour, var(--color-text-accent)); /* 4.6:1 min on the sky gradient — AA */
-  text-decoration: none;
-}
-
-.rail-call__assist:hover {
-  text-decoration: underline;
-}
-
-.rail-call__line:hover .rail-call__number {
-  color: var(--hero-text-colour, var(--color-text-accent));
-}
-
-.rail-call__top {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.rail-call__pulse {
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--sage-500);
-  box-shadow: 0 0 0 0 rgb(111 143 106 / 0.5);
-  animation: rail-pulse 2.4s ease-out infinite;
-}
-
-@keyframes rail-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgb(111 143 106 / 0.45);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgb(111 143 106 / 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgb(111 143 106 / 0);
-  }
-}
-
-.rail-call__label {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--hero-text-colour, var(--color-text-accent));
-}
-
-.rail-call__number {
-  font-family: var(--font-serif);
-  font-weight: 800;
-  font-size: var(--text-xl);
-  color: var(--hero-text-colour, var(--color-text-primary));
-  transition: color var(--motion-fast);
-}
-
-.rail-call__hint {
-  font-size: var(--text-xs);
-  /* Navy ink on the light-sky call card: AA at every stop of the gradient. */
-  color: var(--hero-text-colour, var(--color-text-primary));
-}
-
 /* ---- hero (top of the scrollable middle) ---- */
 .hero-home {
   position: relative;
@@ -11824,10 +11710,6 @@ a.card:hover {
   flex-wrap: wrap;
   gap: var(--space-3);
   margin-top: var(--space-6);
-}
-
-.hero-home__actions .btn--accent {
-  color: var(--color-text-primary);
 }
 
 .hero-home__careline {
@@ -12945,10 +12827,6 @@ a.card:hover {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rail-call__pulse {
-    animation: none;
-  }
-
   .svc-card,
   .svc-card:hover {
     box-shadow: var(--shadow-card-rest);
@@ -20473,4 +20351,299 @@ a.plan-advisor__phone:hover {
   display: inline-block;
   min-width: 8rem;
   overflow-wrap: anywhere;
+}
+
+/* ============================================================================
+ * public layout grammar — Phase 0 consistency contract
+ *
+ * THE CONTRACT (lib/public-layout.ts) is the numbers; THIS BLOCK is their one
+ * CSS home. It is owned by Phase 0; each rollout lane appends its OWN named
+ * block (`/* public: story block *​/`, `/* public: catalogue block *​/`, …) and
+ * MUST NOT edit these declarations. The four primitives in components/public/*
+ * emit these classes; the guard suites
+ * (tests/unit/public-layout.test.ts + public-image-rules / public-cta-contract /
+ * phone-layout) read them back and fail on drift.
+ *
+ * Nothing here duplicates the existing public classes (`.hero-home`, `.mid-*`,
+ * `.shop-card`): the primitives reuse the home's proven hero skin and only the
+ * NEW shared shapes (envelopes · image frames · section head · disclosure ·
+ * 4-across grid) are declared here.
+ * ========================================================================== */
+
+/* --- content envelopes (plan §4.1) -------------------------------------- */
+.container--catalogue {
+  max-width: var(--layout-catalogue-w);
+}
+
+.container--reading {
+  max-width: var(--layout-reading-w);
+}
+
+/* --- PublicImage — the role frames (plan §4.4) -------------------------- */
+.public-image {
+  margin: 0;
+  min-width: 0;
+}
+
+.public-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.public-image__caption {
+  margin-top: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.public-image--home-hero {
+  aspect-ratio: 16 / 9;
+  max-height: 26rem;
+}
+
+.public-image--interior-hero {
+  aspect-ratio: 16 / 9;
+  max-height: 18rem;
+}
+
+.public-image--band-lead {
+  aspect-ratio: 3 / 2;
+  max-height: 22rem;
+}
+
+.public-image--card {
+  aspect-ratio: 4 / 3;
+  max-height: 16rem;
+}
+
+.public-image--pdp-main {
+  aspect-ratio: 4 / 3;
+  max-height: 26rem;
+}
+
+.public-image--gallery-tile {
+  aspect-ratio: 3 / 2;
+  max-height: 16rem;
+}
+
+.public-image--map {
+  aspect-ratio: 1 / 1;
+  max-height: 32rem;
+}
+
+/* --- SectionHead — kicker · heading · one lead · one action (plan §6.1) -- */
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-5);
+  margin: 0 0 var(--space-5);
+}
+
+.section-head__text {
+  flex: 1 1 18rem;
+  min-width: 0;
+}
+
+.section-head__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.section-head__title {
+  margin: var(--space-1) 0 var(--space-2);
+  font-family: var(--font-serif);
+  font-size: var(--text-section-title);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+}
+
+.section-head__lead {
+  margin: var(--space-1) 0 0;
+  max-width: var(--measure-prose);
+  color: var(--color-text-secondary);
+  font-size: var(--text-body);
+  line-height: 1.6;
+}
+
+.section-head__action {
+  flex: 0 0 auto;
+}
+
+/* --- PublicDisclosure — the "Show all N" control (plan §3 R8) ----------- */
+.public-disclosure {
+  margin: var(--space-4) 0 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.public-disclosure__summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem; /* 44px touch target */
+  padding: var(--space-3) 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--color-text-accent);
+}
+
+.public-disclosure__summary::-webkit-details-marker {
+  display: none;
+}
+
+/* A CSS caret (never a glyph — the product's one face carries no emoji). */
+.public-disclosure__summary::after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform var(--motion-fast);
+}
+
+.public-disclosure[open] > .public-disclosure__summary::after {
+  transform: rotate(-135deg);
+}
+
+.public-disclosure__body {
+  padding: var(--space-2) 0 var(--space-4);
+}
+
+/* --- the 4-across catalogue grid (plan §3 R4, §5.3) --------------------- */
+.public-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, var(--public-grid-floor, 16.5rem)), 1fr)
+  );
+  column-gap: var(--space-5);
+  row-gap: var(--space-6);
+}
+
+/* The lot/product card keeps the wider floor (a full-width figure under it). */
+.public-grid--cards {
+  --public-grid-floor: 21rem;
+}
+
+/* --- PublicHero interior / call-first variants (the home keeps .hero-home) */
+.public-hero {
+  position: relative;
+  margin: 0 0 var(--space-6);
+}
+
+.public-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: center;
+}
+
+.public-hero__eyebrow {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--hero-text-colour, var(--color-text-accent));
+}
+
+.public-hero__title {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-hero);
+  line-height: 1.12;
+  color: var(--hero-text-colour, var(--color-text-primary));
+}
+
+.public-hero__lead {
+  margin: var(--space-3) 0 0;
+  max-width: var(--measure-prose);
+  color: var(--hero-text-colour, var(--color-text-secondary));
+}
+
+.public-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.public-hero--call-first .public-hero__title {
+  font-size: var(--text-page-title);
+}
+
+.public-hero--call-first .public-hero__actions .btn {
+  font-size: var(--text-xl);
+  padding: var(--space-4) var(--space-6);
+}
+
+/* A hero is a band, not a page: the banner sits beside the copy from 64rem. */
+@media (min-width: 64rem) {
+  .public-hero__inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+  }
+}
+
+/* --- phone (plan §3 R3, captain call 2): ≤ 42 vh ------------------------ */
+@media (max-width: 40rem) {
+  /* The home hero on a phone is a BAND: headline + action inside 42 vh
+     (≈340 px of an 844 px first screen), so the page's content starts above the
+     fold. The sticky header already carries the brand and the eyebrow is a
+     desktop flourish, so both step out on a phone; the buttons share one row. */
+  .hero-home {
+    max-height: 42vh;
+    padding: var(--space-5);
+  }
+
+  .hero-home__brand,
+  .hero-home__eyebrow {
+    display: none;
+  }
+
+  .hero-home__title {
+    max-width: 20ch;
+  }
+
+  .hero-home__lead {
+    max-width: none;
+  }
+
+  .hero-home__actions {
+    flex-wrap: nowrap;
+    margin-top: var(--space-4);
+  }
+
+  .hero-home__actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .hero-home__careline {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+  }
+
+  .public-image--home-hero {
+    aspect-ratio: 3 / 2;
+    max-height: 42vh;
+  }
+
+  .public-image--band-lead,
+  .public-image--pdp-main {
+    max-height: 14rem;
+  }
 }

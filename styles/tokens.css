@@ -246,6 +246,14 @@
      package-page prototype; the rails stay fixed at 17rem. */
   --layout-folio-w: 99rem;
 
+  /* Public content envelopes (Phase 0 consistency contract, 2026-09-22).
+     The storefront's browsable + reading content is narrower than the home's
+     trio; lib/public-layout.ts carries the same numbers and
+     tests/unit/public-layout.test.ts parses this file and fails on drift. */
+  --layout-catalogue-w: 75rem; /* 1200px — grids and catalogue tables */
+  --layout-reading-w: 60rem;   /* 960px — prose, forms, PDP-below, support */
+  --measure-prose: 66ch;       /* the reading column's line length */
+
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 10px;
@@ -323,6 +331,11 @@
    one place — no per-class phone overrides to keep in sync. */
 @media (max-width: 48rem) {
   :root {
+    /* The display roles step down one rung on a phone. `--text-hero` joins the
+       map here (Phase 0) so every public hero headline is a phone-sized band
+       instead of the 36–52px fluid display, which is what pushed the home hero
+       past the 42vh cap. */
+    --text-hero: var(--text-2xl);
     --text-page-title: var(--text-2xl);
     --text-section-title: var(--text-xl);
     --text-card-title: var(--text-lg);

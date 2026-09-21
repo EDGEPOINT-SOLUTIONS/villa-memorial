@@ -115,19 +115,16 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
   });
 
-  it("the home's assistance card keeps the one-tap call and opens Immediate assistance (F-01)", async () => {
+  it("the left rail carries no 24/7 call card (captain removed it, 2026-09-21)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    // The rail's 24/7 card: the number stays a one-tap `tel:` link...
-    expect(html).toContain('class="rail-call"');
-    expect(html).toContain(
-      `class="rail-call__line" href="${content.contact.phoneHref}"`,
-    );
-    // ...and the card's quieter second intent opens the assistance screen.
-    expect(html).toContain('class="rail-call__assist" href="/immediate-assistance"');
-    expect(html).toContain("What to do right now");
+    // The card and its styles/behaviour are gone; the rail keeps its pinned items.
+    expect(html).not.toContain("rail-call");
+    expect(html).toContain("rail-heading");
+    // The number stays reachable where it already is — the header call chip.
+    expect(html).toContain(content.contact.phoneDisplay);
   });
 
   it("middle sections render in order: about, service cards, plan board, live map, then blog feed", async () => {
@@ -369,7 +366,7 @@ describe("an image-only hero renders the raw photograph", () => {
 });
 
 describe("the hero text colour is author-settable", () => {
-  it("re-inks the hero and the 24/7 rail call card through one custom property", async () => {
+  it("paints the hero copy through the --hero-text-colour custom property", async () => {
     const content = await listLandingContent();
     const inked = cloneDoc(content);
     inked.hero.textColour = "#ffffff";
@@ -377,7 +374,7 @@ describe("the hero text colour is author-settable", () => {
       view({ content: inked, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     expect(html).toContain("--hero-text-colour:#ffffff");
-    expect(html).toContain('class="rail-call"');
+    expect(html).toContain("hero-home__title");
   });
 
   it("never paints an invalid content text colour", async () => {
@@ -392,7 +389,7 @@ describe("the hero text colour is author-settable", () => {
   });
 });
 
-describe("the rails fit without a vertical scrollbar and the call card stays synced", () => {
+describe("the rails fit without a vertical scrollbar", () => {
   it("caps the lead image so the default rail list fits its viewport height", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
     const block = /\.rail-item--lead \.rail-thumb \{[^}]*\}/.exec(css)?.[0] ?? "";
@@ -400,10 +397,10 @@ describe("the rails fit without a vertical scrollbar and the call card stays syn
     expect(block).not.toContain("height: 14rem");
   });
 
-  it("inks the 24/7 call card with the same --hero-text-colour as the hero", () => {
+  it("retired the 24/7 call card and its styles entirely", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
-    expect(css).toContain("color: var(--hero-text-colour, var(--color-text-primary));");
-    expect(css).toContain("color: var(--hero-text-colour, var(--color-text-accent));");
+    expect(css).not.toContain(".rail-call");
+    expect(css).not.toContain("rail-pulse");
   });
 });
 
