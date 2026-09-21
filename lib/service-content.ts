@@ -37,6 +37,14 @@ export type ServiceEntryDef = {
   /** The title the page falls back to when the entry is missing. */
   fallbackTitle: string;
   fallbackSummary: string;
+  /**
+   * The guide hero's ONE short answer (≤ 12 words) — the reading-budget
+   * opening line. The entry's editable `summary` stays published behind the
+   * step section's disclosure (story-lane pass, 2026-09-22).
+   */
+  fallbackLead: string;
+  /** The three steps every guide answers with (plan §5.2). */
+  steps: ReadonlyArray<{ title: string; body: string }>;
   /** The guide page's own secondary action (the primary is Immediate assistance). */
   secondaryHref: string;
   secondaryLabel: string;
@@ -54,7 +62,13 @@ export const SERVICE_ENTRY_DEFS: ReadonlyArray<ServiceEntryDef> = [
     eyebrow: "Services · At home",
     fallbackTitle: "Death at home",
     fallbackSummary:
-      "When a loved one passes at home, you should not have to manage the next steps alone. Our coordinators arrange transport, dignified preparation, and guide you through the service options that fit your family — at your pace, with no pressure.",
+      "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
+    fallbackLead: "One call starts everything — we come to you.",
+    steps: [
+      { title: "Call us", body: "Any hour — a coordinator answers and stays with you." },
+      { title: "We come to you", body: "Our team brings your loved one into our care." },
+      { title: "We handle the rest", body: "Transport, preparation and the service, at your pace." },
+    ],
     secondaryHref: "/plans",
     secondaryLabel: "Memorial plans",
   },
@@ -64,7 +78,13 @@ export const SERVICE_ENTRY_DEFS: ReadonlyArray<ServiceEntryDef> = [
     eyebrow: "Services · In care",
     fallbackTitle: "Death at hospital",
     fallbackSummary:
-      "When a loved one passes in a hospital or care facility, we liaise directly with the facility so you can focus on family. We handle the logistics of transfer, preparation, and coordination with the service venue.",
+      "When a loved one passes in hospital, we liaise with the facility, handle the transfer and preparation, and coordinate with the venue.",
+    fallbackLead: "We liaise with the hospital, so you can be with family.",
+    steps: [
+      { title: "Call us", body: "Any hour — a coordinator answers and stays with you." },
+      { title: "We handle the ward", body: "Our team arranges the transfer and the paperwork." },
+      { title: "We bring them into our care", body: "Preparation and the service follow, arranged with you." },
+    ],
     secondaryHref: "/plans",
     secondaryLabel: "Memorial plans",
   },
@@ -74,7 +94,13 @@ export const SERVICE_ENTRY_DEFS: ReadonlyArray<ServiceEntryDef> = [
     eyebrow: "Services · Transport",
     fallbackTitle: "Transport",
     fallbackSummary:
-      "Dignified transport for your loved one — from home or hospital to the service venue, and onward when the time comes. Coordinated by our team as part of your arrangement.",
+      "Dignified transport from home or hospital to the service venue, and onward when the time comes. Our team coordinates it for you.",
+    fallbackLead: "Dignified transport, coordinated for you door to door.",
+    steps: [
+      { title: "Call us", body: "Any hour — a coordinator answers and stays with you." },
+      { title: "We set the route", body: "From home or hospital to the venue we agree." },
+      { title: "We make the trip", body: "The carriage and staff arrive when you need them." },
+    ],
     secondaryHref: "/price-list",
     secondaryLabel: "Villa Memorial Plan",
   },
@@ -163,6 +189,10 @@ export type ServiceEntryView = {
   eyebrow: string;
   title: string;
   summary: string;
+  /** The hero's one short answer (≤ 12 words) — the reading-budget opening. */
+  lead: string;
+  /** The three steps the guide answers with (plan §5.2). */
+  steps: ReadonlyArray<{ title: string; body: string }>;
   heroSrc: string | null;
   heroAlt: string;
   heroCaption: string | null;
@@ -188,6 +218,8 @@ export function serviceEntryView(
     eyebrow: entry?.group?.trim() || def.eyebrow,
     title: entry?.title?.trim() || def.fallbackTitle,
     summary: entry?.summary?.trim() || def.fallbackSummary,
+    lead: def.fallbackLead,
+    steps: def.steps,
     heroSrc,
     heroAlt: heroImage?.alt?.trim() || def.fallbackTitle,
     heroCaption: heroImage?.caption ?? null,

@@ -661,6 +661,17 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `/immediate-assistance`; do not re-add a rail card or a replacement.
   `.rail-call*` and the `rail-pulse` keyframe are retired (`landing-view.test.tsx`
   fails their return).
+- **Wave A lane 1 (story · service · support) rebuilt eight routes on this grammar**
+  (`/services` + the three guides, `/facilities`, `/immediate-assistance`, `/faq`,
+  `/contact`). Its two shared page shapes live in `components/villa/story-ui.tsx`
+  (`StoryHelpBand` · `StorySteps`); everything else is the Phase 0 primitives. The
+  lane's CSS is the appended `/* public: story block */` at the tail of
+  `styles/components.css` — other lanes must not edit it and new story shapes belong
+  inside it. Per-route blueprint, measured before/after (phone/desktop screens, prose
+  budget, image caps) and the phone-height open item (the shared masthead/footer/closing
+  band dominates the budget) live in `docs/08-delivery/story-minimal-design/README.md`;
+  the pinned guards are `tests/unit/{villa-services-premium,facilities-page,faq-page,
+  immediate-assistance,service-entry-page,reading-budget}`.
 
 ## Package page — `/plans/[sku]` (design target — read before touching it)
 

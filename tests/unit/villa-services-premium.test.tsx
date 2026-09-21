@@ -21,6 +21,7 @@ import {
 } from "@/lib/villa-pricing";
 import {
   CHAPEL_SAMPLE_NOTE,
+  SERVICE_SAMPLE_NOTE,
   casketSamplePhoto,
 } from "@/lib/media";
 import { clientPhotoCard, clientPhotoWide } from "@/lib/client-photos";
@@ -109,12 +110,12 @@ describe("/services reads as the approved senior-first service page", () => {
     expect(html).toContain("Embalming — priced by the day");
     expect(html).toContain('id="chapel-title"');
     expect(html).toContain("Chapel — check the dates and book online");
-    // Each block is an .sv-section (the senior-first section grammar).
-    expect((html.match(/class="sv-section"/g) ?? []).length).toBeGreaterThanOrEqual(3);
+    // Each block is a .story-band (the story-lane section grammar).
+    expect((html.match(/class="story-band"/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 
   it("renders one icon card per at-need service with both actions", () => {
-    expect((html.match(/class="sv-price-card__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
+    expect((html.match(/class="story-rate__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
       ALACARTE_LINES.length,
     );
     for (const line of ALACARTE_LINES) {
@@ -122,7 +123,7 @@ describe("/services reads as the approved senior-first service page", () => {
       expect(html, `${line.service} amount`).toContain(php(line.amount));
     }
     // The sheet's own bottom line stays published in its own band.
-    expect(html).toContain('class="sv-total"');
+    expect(html).toContain('class="story-total"');
     expect(html).toContain(php(19500));
     expect(html).toContain("send the whole set as one request");
   });
@@ -132,7 +133,7 @@ describe("/services reads as the approved senior-first service page", () => {
     // for the common chapel, a decorated viewing room for the private one.
     expect(html).toContain(clientPhotoWide("chapel-hall-candle-pedestals").src);
     expect(html).toContain(clientPhotoWide("wake-setup-lamp-alcove").src);
-    expect((html.match(/class="sv-chapel"/g) ?? []).length).toBe(2);
+    expect((html.match(/class="story-chapel"/g) ?? []).length).toBe(2);
     expect(html).toContain("Common chapel");
     expect(html).toContain("Private chapel");
     // The photographs carry descriptive alt text…
@@ -143,18 +144,18 @@ describe("/services reads as the approved senior-first service page", () => {
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("keeps the embalming aside and drops the guide section (captain 2026-09-21)", () => {
-    // The embalming aside shows the client's own finished set-up in flowers,
-    // which replaced a 297 KB stock JPEG rendered at 350 px (imagery pass).
-    expect(html).toContain(clientPhotoWide("wake-setup-flower-bank").src);
+  it("keeps the hero's sample label and drops the guide section (captain 2026-09-21)", () => {
+    // The hero photograph is one of the client's own wake set-ups and is
+    // published under the sheet's sample discipline (lib/client-photos.ts marks
+    // it `illustration-only`), so the label must stay beside it.
+    expect(html).toContain(clientPhotoWide("wake-setup-casket-draped").src);
+    expect(html).toContain(SERVICE_SAMPLE_NOTE);
     // The three guide pages stay as service entries at their own routes, but
     // the "Guides for what comes next" section left /services.
     expect(html).not.toContain('id="guides"');
     expect(html).not.toContain("Guides for what comes next");
     expect(html).not.toContain("/services/death-at-home");
     expect(html).not.toContain("/services/death-at-hospital");
-    // Both prepared set-ups say what they are.
-    expect(html).toContain("A wake set-up the office prepared — illustration purposes only.");
   });
 
   it("keeps the chapel cards' per-day rate and 3-day columns", () => {
@@ -192,11 +193,12 @@ describe("/services reads as the approved senior-first service page", () => {
     // and the "what happens after you call" steps are gone.
     expect(html).not.toContain('class="sv-subnav"');
     expect(html).not.toContain('id="first-steps"');
-    expect(html).toContain('class="sv-hero__actions"');
+    expect(html).toContain('class="public-hero__actions"');
     expect(html).toContain('href="#services"');
     // The 24/7 call stays one thumb away — the client's own line (2026 purchase
-    // application form), read from the seeded content document.
-    expect(html).toContain('class="sv-callbar"');
+    // application form), read from the seeded content document, and it is the
+    // hero's one page-commitment rung.
+    expect(html).toContain('class="btn btn--primary btn--lg"');
     expect(html).toMatch(/href="tel:\+639176178489"/);
   });
 
@@ -358,8 +360,8 @@ describe("/services reads the 24/7 line from the landing content document", () =
     const telLinks = [
       ...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g),
     ].filter((m) => m[1].startsWith("tel:"));
-    // Hero call panel, embalming helper, help band and the phone call bar.
-    expect(telLinks.length).toBeGreaterThanOrEqual(4);
+    // The hero call, the embalming helper and the closing help band.
+    expect(telLinks.length).toBeGreaterThanOrEqual(3);
     for (const [, href] of telLinks) {
       expect(href).toBe(content.contact.phoneHref);
     }

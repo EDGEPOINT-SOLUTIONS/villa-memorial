@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
-import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
+import { SERVICE_SAMPLE_NOTE } from "@/lib/media";
 import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
+import { StoryHelpBand } from "@/components/villa/story-ui";
+import { PublicHero } from "@/components/kit";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
-import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
 import {
@@ -77,8 +78,15 @@ export default async function ServicesPage() {
   // the client's own 2026 set-up photograph the page always published.
   const defaultHero = clientPhotoWide("wake-setup-casket-draped");
   const heroVariant = serviceHeroVariant(page?.hero.image ?? null, "wide") ?? defaultHero;
-  const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
   const heroHeadline = page?.hero.headline.trim() ?? "";
+  const heroPhoto = {
+    src: heroVariant.src,
+    srcSet: heroVariant.srcSet,
+    sizes: "(max-width: 48rem) 92vw, 30rem",
+    alt: "A white casket with gold handles in a purple-draped viewing room the office prepared, under garlands of white flowers",
+    width: 960,
+    height: 640,
+  };
 
   // The service descriptions are consumed by the rate cards above; any other
   // block staff add still renders through the shared block renderer.
@@ -89,49 +97,31 @@ export default async function ServicesPage() {
   return (
     <div className="sv-page">
       <div className="sv-main">
-        <section
-          className="sv-hero"
-          id="top"
-          aria-labelledby="services-title"
-          style={heroTextStyle ?? undefined}
+        <nav className="sv-breadcrumb" aria-label="Breadcrumb">
+          <ol>
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li aria-current="page">Funeraria Memorial Services</li>
+          </ol>
+        </nav>
+
+        {/* The page opens on one sentence and one action (plan §4.7). */}
+        <PublicHero
+          variant="interior"
+          eyebrow={page?.hero.eyebrow.trim() || undefined}
+          title={heroHeadline || "Funeraria Memorial Services"}
+          lead={page?.hero.lead.trim() || undefined}
+          textColour={page?.hero.textColour ?? null}
+          primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
+          secondary={{ label: "See the 2026 prices", href: "#services" }}
+          image={heroPhoto}
         >
-          <nav className="sv-breadcrumb" aria-label="Breadcrumb">
-            <ol>
-              <li>
-                <Link href="/">Home</Link>
-              </li>
-              <li aria-current="page">Funeraria Memorial Services</li>
-            </ol>
-          </nav>
-          <div className="sv-hero__grid">
-            <div>
-              {page?.hero.eyebrow.trim() ? (
-                <p className="sv-hero__eyebrow">{page.hero.eyebrow}</p>
-              ) : null}
-              <h1 className={`sv-hero__title${heroHeadline ? "" : " visually-hidden"}`} id="services-title">
-                {heroHeadline || "Funeraria Memorial Services"}
-              </h1>
-              {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
-              {page?.hero.lead.trim() ? <p className="sv-hero__lead">{page.hero.lead}</p> : null}
-              <div className="sv-hero__actions">
-                <a className="btn btn--primary" href={contact.phoneHref}>
-                  Call {contact.phoneDisplay}
-                </a>
-                <a className="btn btn--secondary" href="#services">
-                  See the 2026 services
-                </a>
-              </div>
-            </div>
-            <figure className="sv-hero__media">
-              {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
-              <img src={heroVariant.src} srcSet={heroVariant.srcSet} alt="A white casket with gold handles in a purple-draped viewing room the office prepared, under garlands of white flowers" />
-              <figcaption>
-                A wake set-up the office prepared — shown larger on the{" "}
-                <Link href="/gallery">photo gallery</Link>. {CHAPEL_SAMPLE_NOTE}
-              </figcaption>
-            </figure>
-          </div>
-        </section>
+          {/* The hero photograph is one of the client's own wake set-ups and is
+              published under the sheet's sample discipline (`illustration-only`
+              in lib/client-photos.ts), so the note must stay beside it. */}
+          <p className="story-hero-note">{SERVICE_SAMPLE_NOTE}</p>
+        </PublicHero>
 
         {/* Straight to the services: the a-la-carte lines, embalming per day and
             the chapel options, with their descriptions and prices. */}
@@ -144,33 +134,21 @@ export default async function ServicesPage() {
         />
 
         {otherBlocks.length > 0 ? (
-          <section className="sv-section" aria-labelledby="services-more-title">
-            <h2 className="sv-section__title" id="services-more-title">
-              More about the service
-            </h2>
+          <section className="story-band" aria-labelledby="services-more-title">
+            <h2 id="services-more-title">More about the service</h2>
             <ContentBlocks blocks={otherBlocks} priceOf={priceOf} />
           </section>
         ) : null}
 
-        <section className="sv-help" aria-labelledby="help-title">
-          <div>
-            <h2 id="help-title">Talk to a person, any hour</h2>
-            <p>Price questions, chapel dates, or the whole arrangement — by phone.</p>
-          </div>
-          <div className="sv-help__actions">
-            <a className="btn btn--primary" href={contact.phoneHref}>
-              Call {contact.phoneDisplay}
-            </a>
+        <StoryHelpBand
+          contact={contact}
+          text="Price questions, chapel dates or the whole arrangement — by phone."
+          secondary={
             <Link className="btn btn--secondary" href="/contact">
               Message us
             </Link>
-          </div>
-        </section>
-      </div>
-
-      <div className="sv-callbar" role="region" aria-label="Call the park">
-        <span>Someone has died?</span>
-        <a href={contact.phoneHref}>Call {contact.phoneDisplay}</a>
+          }
+        />
       </div>
     </div>
   );

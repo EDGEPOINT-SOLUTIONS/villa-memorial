@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Phone } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
+import { PublicHero, SectionHead } from "@/components/kit";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
@@ -16,18 +16,19 @@ export const metadata: Metadata = pageMetadata({
 /**
  * The public contact surface (F-17): ONE place for the office's published
  * facts — both hotlines from the client's own letterhead, the main office and
- * the park, and the hours the 24/7 line keeps — all read from the
- * staff-editable LandingPage document, never typed here. The two call actions
- * are real `tel:` links at the top of the page, so a visitor can simply phone
- * before reading anything else.
+ * the park, and the availability the 24/7 line keeps — all read from the
+ * staff-editable LandingPage document, never typed here.
+ *
+ * Story-lane pass (2026-09-22, plan §5.7): the page opens on the shared
+ * `PublicHero` and lists the published facts as a compact `.story-contact-facts`
+ * grid before the form. The page keeps exactly ONE filled primary — the form's
+ * Send — so the 24/7 Call is the outline support rung (settles D8: the page used
+ * to show a gold Call and a sky Send as two equal primaries).
  *
  * This is also the storefront's "Request order" landing: a link carrying
  * `?item=&sku=&price=` (lib/public-forms/request-prefill.ts) is parsed HERE and
  * handed to the form as a prop, so the banner and the pre-written message echo
- * exactly what the visitor clicked — an enquiry, never a reservation. The form
- * itself is the shared capture shell; no records service exists, so a
- * submission is kept demo-locally and the confirmation says plainly that
- * nothing was sent. The inquiries board on the staff side reads the same store.
+ * exactly what the visitor clicked — an enquiry, never a reservation.
  */
 export default async function Page({
   searchParams,
@@ -43,71 +44,80 @@ export default async function Page({
     contact.secondPhoneDisplay.trim().length > 0 && contact.secondPhoneHref.trim().length > 0;
 
   return (
-    <div className="stack-4">
-      <div className="page-header">
-        <div>
-          <p className="page-header__eyebrow">Reach us</p>
-          <h1>{prefill ? "Request an order" : "Contact us"}</h1>
-          <p className="text-sm text-muted">
-            {prefill
-              ? "Tell us how to reach you; the office confirms availability, the final price and the next steps."
-              : "Call any hour, or send a message and a coordinator will guide you."}
-          </p>
-          <nav aria-label="Back" style={{ marginTop: "var(--space-3)" }}>
-            <Link href="/" className="back-link">← Back to home</Link>
-          </nav>
-        </div>
-      </div>
+    <div className="story-page container--reading">
+      <PublicHero
+        variant="interior"
+        eyebrow="Reach us"
+        title={prefill ? "Request an order" : "Contact us"}
+        lead={
+          prefill
+            ? "The office confirms availability, the final price and the next steps."
+            : "Call any hour, or send a message a coordinator answers."
+        }
+      />
 
       {/* The published facts first (F-17): numbers, addresses and availability
-          before the form — a caller never has to scroll to find the phone. */}
-      <section className="contact-facts" aria-labelledby="contact-facts-title">
-        <h2 className="contact-facts__title" id="contact-facts-title">
-          Reach the office
-        </h2>
-        <div className="contact-facts__grid">
-          <div className="contact-fact contact-fact--call">
-            <span className="contact-fact__label">{contact.phoneLabel}</span>
-            <a className="btn btn--accent btn--lg" href={contact.phoneHref}>
-              <Phone size={18} aria-hidden="true" />
-              Call {contact.phoneDisplay}
-            </a>
-            <span className="contact-fact__meta">Answered every hour, every day.</span>
-          </div>
-          {hasSecondLine ? (
-            <div className="contact-fact">
-              <span className="contact-fact__label">Second line</span>
-              <a className="contact-fact__number" href={contact.secondPhoneHref}>
-                Call {contact.secondPhoneDisplay}
+          before the form — a caller never has to scroll for the phone. */}
+      <section className="story-band" aria-labelledby="contact-facts-title">
+        <SectionHead
+          id="contact-facts-title"
+          title="Reach the office"
+          lead="Both lines answer any hour, every day."
+        />
+        <ul className="story-contact-facts">
+          <li className="story-contact-fact">
+            <span className="story-contact-fact__label">{contact.phoneLabel}</span>
+            <span className="story-contact-fact__value">
+              <a className="story-contact-fact__call" href={contact.phoneHref}>
+                Call {contact.phoneDisplay}
               </a>
-            </div>
+            </span>
+          </li>
+          {hasSecondLine ? (
+            <li className="story-contact-fact">
+              <span className="story-contact-fact__label">Second line</span>
+              <span className="story-contact-fact__value">
+                <a href={contact.secondPhoneHref}>Call {contact.secondPhoneDisplay}</a>
+              </span>
+            </li>
           ) : null}
           {contact.officeAddress.trim() ? (
-            <div className="contact-fact">
-              <span className="contact-fact__label">Main office</span>
-              <span className="contact-fact__value">{contact.officeAddress}</span>
-            </div>
+            <li className="story-contact-fact">
+              <span className="story-contact-fact__label">Main office</span>
+              <span className="story-contact-fact__value">{contact.officeAddress}</span>
+            </li>
           ) : null}
           {contact.parkAddress.trim() ? (
-            <div className="contact-fact">
-              <span className="contact-fact__label">The park</span>
-              <span className="contact-fact__value">{contact.parkAddress}</span>
-              <Link className="contact-fact__link" href="/map">
+            <li className="story-contact-fact">
+              <span className="story-contact-fact__label">The park</span>
+              <span className="story-contact-fact__value">{contact.parkAddress}</span>
+              <Link className="back-link" href="/map">
                 Map &amp; directions →
               </Link>
-            </div>
+            </li>
           ) : null}
-        </div>
-        <nav className="contact-facts__doors" aria-label="Other ways to reach us">
-          <a href="#contact-message">Send a message</a>
-          <Link href="/quote">Request a quote</Link>
-          <Link href="/appointments">Book a visit</Link>
+        </ul>
+
+        <nav className="story-actions" aria-label="Other ways to reach us">
+          <a className="btn btn--secondary" href="#contact-message">
+            Send a message
+          </a>
+          <Link className="btn btn--secondary" href="/quote">
+            Request a quote
+          </Link>
+          <Link className="btn btn--secondary" href="/appointments">
+            Book a visit
+          </Link>
         </nav>
       </section>
 
-      <div className="page-section" id="contact-message" style={{ maxWidth: "46rem" }}>
+      <div className="story-band" id="contact-message">
         <ContactForm prefill={prefill} />
       </div>
+
+      <nav className="story-back" aria-label="Back to home">
+        <Link href="/" className="back-link">← Back to home</Link>
+      </nav>
     </div>
   );
 }

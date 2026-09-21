@@ -3,7 +3,8 @@ import { ChapelBookingButton, type ChapelCatalogueItem } from "@/components/chap
 import { CatalogueActions } from "@/components/villa/catalogue-actions";
 import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
 import { InCartNotice } from "@/components/villa/in-cart-notice";
-import { ServiceIcons, IconChapel, IconEmbalming } from "@/components/villa/service-icons";
+import { ServiceIcons, IconChapel } from "@/components/villa/service-icons";
+import { PublicDisclosure, PublicImage, SectionHead } from "@/components/kit";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { CHAPEL_CLASS_LABEL, CHAPEL_CLASS_ORDER, type ChapelClass } from "@/lib/chapel-booking";
 import type { ChapelScheduleResource } from "@/lib/api-client/chapel-reservations";
@@ -25,12 +26,8 @@ import {
   EMBALMING_RATES,
   php,
 } from "@/lib/villa-pricing";
-import {
-  CHAPEL_SAMPLE_NOTE,
-  PARK_PLACE_PHOTOS,
-  WAKESETUP_ALCOVE_IMAGE,
-} from "@/lib/media";
-import { clientPhotoCard, clientPhotoWide, type ClientPhotoId } from "@/lib/client-photos";
+import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
+import { clientPhotoWide } from "@/lib/client-photos";
 
 /**
  * Funeraria memorial services — the client's 2026 service prices, in the
@@ -93,11 +90,14 @@ function LineActions({
   prefill,
   quantity,
   addLabel,
+  secondaryAsLink = false,
 }: {
   item: CatalogItem | undefined;
   prefill?: { price?: string; note?: string };
   quantity?: number;
   addLabel?: string;
+  /** Keep ONE gold action per ledger row (plan §5.2): Request order is a link. */
+  secondaryAsLink?: boolean;
 }) {
   const cartItem = cartItemOf(item);
   if (!item || !cartItem) {
@@ -110,6 +110,7 @@ function LineActions({
       quantity={quantity}
       addLabel={addLabel}
       displayPrice={item.display_price}
+      secondaryAsLink={secondaryAsLink}
     />
   );
 }
@@ -118,61 +119,7 @@ function LineActions({
 const ALACARTE_REQUEST_NOTE =
   "A-la-carte 2026 rate — applies when the family does not take a package.";
 
-/**
- * The photograph beside each a-la-carte line (2026-09-19 imagery pass).
- *
- * Every one is the client's OWN material: a casket in their care, the karwahe
- * that delivers, the alcove lights/curtains/carpets they build, and the park the
- * interment runs to. `alts` describes the picture; nothing here claims a
- * specific model, a specific room or a fixed set-up. Retrieval deliberately
- * shows a DIFFERENT photograph from the hero above it (the hero is the draped
- * set-up; this is the office's own bier) so one page never prints one picture
- * twice. Card sizing is the catalogue's 4:3 crop, with both published widths so
- * a phone never loads the desktop file.
- */
-function alacartePhoto(id: ClientPhotoId, alt: string) {
-  const card = clientPhotoCard(id);
-  return { src: card.src, srcSet: card.srcSet, alt };
-}
-
-const ALACARTE_PHOTOS: Readonly<Record<string, { src: string; srcSet?: string; alt: string }>> = {
-  Retrieval: alacartePhoto(
-    "casket-white-open-lid",
-    "A casket resting on a bier in the office's own hall, its lid raised — the office's care before a viewing",
-  ),
-  Delivery: alacartePhoto(
-    "hearse-carriage-gold-side",
-    "The office's funeral carriage (karwahe) with its gold casket compartment and white flowers",
-  ),
-  "Viewing equipment": alacartePhoto(
-    "wake-setup-lamp-alcove",
-    "A prepared viewing alcove — purple and white drapes, hanging flowers and lit lamp stands",
-  ),
-  "ORD coffin": alacartePhoto(
-    "casket-white-closed",
-    "A sample plain white casket with silver ornaments, closed on its bier",
-  ),
-  Interment: {
-    src: PARK_PLACE_PHOTOS.mausoleum,
-    alt: "The park's mausoleum and its lawn, where the graveside trip ends",
-  },
-};
-
-/** One legend per priced section: what the two storefront actions mean. */
-function ActionsLegend() {
-  return (
-    <div className="sv-howto">
-      <span>
-        <b>Add to cart</b> — reserves now; pay nothing here.
-      </span>
-      <span>
-        <b>Request order</b> — a message; nothing reserved.
-      </span>
-    </div>
-  );
-}
-
-/** The at-need services block: five sellable cards, the sheet's total. */
+/** The at-need services block: the five a-la-carte lines as a compact ledger. */
 export function AlacarteServiceRates({
   items,
   notes,
@@ -184,55 +131,45 @@ export function AlacarteServiceRates({
   const lookup = catalogueLookup(items);
 
   return (
-    <section className="sv-section" id="services" aria-labelledby="services-rates-title">
-      <p className="sv-section__kicker">{ALACARTE_SCOPE}</p>
-      <h2 className="sv-section__title" id="services-rates-title">
-        Services and prices
-      </h2>
-      <ActionsLegend />
+    <section className="story-band" id="services" aria-labelledby="services-rates-title">
+      <SectionHead
+        id="services-rates-title"
+        kicker={ALACARTE_SCOPE}
+        title="Services and prices"
+        lead="Five priced lines — add each, or send the whole set as one request."
+        action={<span className="text-sm text-muted">Add to cart reserves nothing; pay only at the office.</span>}
+      />
 
-      <div className="sv-prices sv-prices--photos">
+      <ul className="story-rates">
         {ALACARTE_LINES.map((fee) => {
           const item = lookup(fee.sku);
           const IconShape = ServiceIcons[fee.service] ?? IconChapel;
-          const photo = ALACARTE_PHOTOS[fee.service];
           return (
-            <article className="sv-price-card sv-price-card--photo" key={fee.service}>
-              {photo ? (
-                <figure className="sv-price-card__media">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
-                  <img
-                    src={photo.src}
-                    srcSet={photo.srcSet}
-                    sizes="(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 22rem"
-                    alt={photo.alt}
-                    loading="lazy"
-                  />
-                </figure>
-              ) : null}
-              <h3 className="sv-price-card__head">
-                <span className="sv-price-card__icon" aria-hidden="true">
-                  <IconShape />
-                </span>
-                {fee.service}
-              </h3>
+            <li className="story-rate" key={fee.service}>
+              <span className="story-rate__icon" aria-hidden="true">
+                <IconShape />
+              </span>
+              <span className="story-rate__text">
+                <span className="story-rate__name">{fee.service}</span>
+                <span className="story-rate__desc">{notes[fee.service]}</span>
+              </span>
               {/* A price block, not prose (structure over sentences). */}
-              <div className="sv-price-card__amount">
-                {money(fee.amount)} <span className="sv-price-card__unit">per service</span>
-              </div>
-              <p className="sv-price-card__plain">{notes[fee.service]}</p>
-              <div className="sv-price-card__actions">
-                <LineActions item={item} prefill={{ note: ALACARTE_REQUEST_NOTE }} />
+              <span className="story-rate__price">
+                {money(fee.amount)}
+                <span className="story-rate__unit">per service</span>
+              </span>
+              <span className="story-rate__actions">
+                <LineActions item={item} prefill={{ note: ALACARTE_REQUEST_NOTE }} secondaryAsLink />
                 <InCartNotice sku={fee.sku} />
-              </div>
-            </article>
+              </span>
+            </li>
           );
         })}
-      </div>
+      </ul>
 
-      <div className="sv-total">
-        <span className="sv-total__label">All five services — the sheet&rsquo;s own total</span>
-        <span className="sv-total__amount">{money(ALACARTE_SERVICE_TOTAL)}</span>
+      <div className="story-total">
+        <span className="story-total__label">All five services — the sheet&rsquo;s own total</span>
+        <span className="story-total__amount">{money(ALACARTE_SERVICE_TOTAL)}</span>
         <p>
           Add each in the cart, or{" "}
           <Link
@@ -266,87 +203,64 @@ export function EmbalmingRates({
   const lookup = catalogueLookup(items);
 
   return (
-    <section className="sv-section" id="embalming" aria-labelledby="embalming-title">
-      <p className="sv-section__kicker">{ALACARTE_SCOPE}</p>
-      <h2 className="sv-section__title" id="embalming-title">
-        Embalming — priced by the day
-      </h2>
-      <ActionsLegend />
+    <section className="story-band" id="embalming" aria-labelledby="embalming-title">
+      <SectionHead
+        id="embalming-title"
+        kicker={ALACARTE_SCOPE}
+        title="Embalming — priced by the day"
+        lead="Includes make-up and dressing; the office confirms the day count."
+      />
 
-      <div className="sv-split">
-        <div>
-          <EmbalmingDayPicker items={items} />
+      <EmbalmingDayPicker items={items} />
 
-          <details className="sv-disclosure">
-            <summary>See every day count, 3 to 9 days (and each price)</summary>
-            <div className="sv-disclosure__body">
-              <ul className="sv-stays" aria-label="Embalming prices by day">
-                {EMBALMING_RATES.map((row) => {
-                  const item = lookup(embalmingDaySku(row.days));
-                  return (
-                    <li className="sv-stay" key={row.days}>
-                      <span className="sv-stay__days">{row.days} days</span>
-                      <span className="sv-stay__prices">
-                        <span>
-                          Embalming <b>{money(row.amount)}</b> for {row.days} days
-                        </span>
-                      </span>
-                      <span className="sv-stay__actions">
-                        <LineActions
-                          item={item}
-                          prefill={{ note: `${ALACARTE_REQUEST_NOTE} ${row.days} days' embalming.` }}
-                          addLabel={`Add ${row.days} days`}
-                        />
-                      </span>
-                    </li>
-                  );
-                })}
-                <li className="sv-stay">
-                  <span className="sv-stay__days">More than 9</span>
-                  <span className="sv-stay__prices">
-                    <span>
-                      Embalming <b>+{money(EMBALMING_PER_DAY_BEYOND_9)}</b> per extra day
-                    </span>
+      <PublicDisclosure summary="See every day count, 3 to 9 days">
+        <ul className="sv-stays" aria-label="Embalming prices by day">
+          {EMBALMING_RATES.map((row) => {
+            const item = lookup(embalmingDaySku(row.days));
+            return (
+              <li className="sv-stay" key={row.days}>
+                <span className="sv-stay__days">{row.days} days</span>
+                <span className="sv-stay__prices">
+                  <span>
+                    Embalming <b>{money(row.amount)}</b> for {row.days} days
                   </span>
-                  <span className="sv-stay__actions">
-                    <LineActions
-                      item={lookup(EMBALMING_EXTRA_DAY_SKU)}
-                      prefill={{
-                        price: `${money(EMBALMING_PER_DAY_BEYOND_9)} / day`,
-                        note: `${ALACARTE_REQUEST_NOTE} Additional embalming beyond nine days.`,
-                      }}
-                    />
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </details>
-        </div>
+                </span>
+                <span className="sv-stay__actions">
+                  <LineActions
+                    item={item}
+                    prefill={{ note: `${ALACARTE_REQUEST_NOTE} ${row.days} days' embalming.` }}
+                    addLabel={`Add ${row.days} days`}
+                    secondaryAsLink
+                  />
+                </span>
+              </li>
+            );
+          })}
+          <li className="sv-stay">
+            <span className="sv-stay__days">More than 9</span>
+            <span className="sv-stay__prices">
+              <span>
+                Embalming <b>+{money(EMBALMING_PER_DAY_BEYOND_9)}</b> per extra day
+              </span>
+            </span>
+            <span className="sv-stay__actions">
+              <LineActions
+                item={lookup(EMBALMING_EXTRA_DAY_SKU)}
+                prefill={{
+                  price: `${money(EMBALMING_PER_DAY_BEYOND_9)} / day`,
+                  note: `${ALACARTE_REQUEST_NOTE} Additional embalming beyond nine days.`,
+                }}
+                secondaryAsLink
+              />
+            </span>
+          </li>
+        </ul>
+      </PublicDisclosure>
 
-        <div className="sv-aside">
-          <figure className="sv-figure">
-            {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
-            <img
-              src={clientPhotoWide("wake-setup-flower-bank").src}
-              srcSet={clientPhotoWide("wake-setup-flower-bank").srcSet}
-              sizes="(max-width: 60rem) 92vw, 22rem"
-              alt="A finished wake set-up — a white casket banked in white flowers under purple drapes the office prepared"
-              loading="lazy"
-            />
-            <figcaption>A wake set-up the office prepared — illustration purposes only.</figcaption>
-          </figure>
-          <div className="sv-helper">
-            <p>
-              <strong>Not sure how many days?</strong> Most families choose 3 days — call{" "}
-              <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
-            </p>
-          </div>
-          <div className="sv-fact">
-            <IconEmbalming />
-            <p>Includes make-up and dressing. The office confirms the day count.</p>
-          </div>
-        </div>
-      </div>
+      <p className="story-note">
+        Not sure how many days? Most families choose 3 — call{" "}
+        <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
+      </p>
     </section>
   );
 }
@@ -409,17 +323,15 @@ export function ChapelRates({
    * client's material carries no room name or capacity — the name now comes from the
    * park's record and the photo stays an illustrative sample.
    */
-  const classPhoto: Record<ChapelClass, { src: string; srcSet: string; alt: string }> = {
-    common: {
-      src: clientPhotoWide("chapel-hall-candle-pedestals").src,
-      srcSet: clientPhotoWide("chapel-hall-candle-pedestals").srcSet,
-      alt: "The chapel hall in the client's own photograph — a draped side table and tall candle pedestals on a green carpet",
-    },
-    private: {
-      src: WAKESETUP_ALCOVE_IMAGE,
-      srcSet: clientPhotoWide("wake-setup-lamp-alcove").srcSet,
-      alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
-    },
+  const classPhoto = {
+    common: clientPhotoWide("chapel-hall-candle-pedestals"),
+    private: clientPhotoWide("wake-setup-lamp-alcove"),
+  } as const;
+  const classPhotoAlt: Record<ChapelClass, string> = {
+    common:
+      "The chapel hall in the client's own photograph — a draped side table and tall candle pedestals on a green carpet",
+    private:
+      "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
   };
 
   // One card per class the park's record carries, in the sheet's class order.
@@ -429,74 +341,73 @@ export function ChapelRates({
   });
 
   return (
-    <section className="sv-section" id="chapel" aria-labelledby="chapel-title">
-      <p className="sv-section__kicker">{CHAPEL_NOTES.scope}</p>
-      <h2 className="sv-section__title" id="chapel-title">
-        Chapel — check the dates and book online
-      </h2>
-      <p className="sv-section__intro">
-        3–9 day stays, priced per day. <Link href="/facilities#rooms">See both rooms</Link>.
-      </p>
-      <ActionsLegend />
+    <section className="story-band" id="chapel" aria-labelledby="chapel-title">
+      <SectionHead
+        id="chapel-title"
+        kicker={CHAPEL_NOTES.scope}
+        title="Chapel — check the dates and book online"
+        lead="Three to nine day stays, priced per day."
+        action={<Link href="/facilities#rooms">See both rooms</Link>}
+      />
 
       {cards.length === 0 ? (
-        <p className="sv-note">
+        <p className="story-note">
           The park has not published an active chapel right now — call the office for dates.
         </p>
       ) : (
-        <div className="sv-chapels">
+        <div className="story-chapels">
           {cards.map(({ chapelClass, record }) => {
             const photo = classPhoto[chapelClass];
             const item = itemByClass[chapelClass];
             const perDay = CHAPEL_PER_DAY[chapelClass];
             const threeDay = CHAPEL_RATES[0][chapelClass];
             return (
-              <article className="sv-chapel" key={record.id}>
-                <figure className="sv-chapel__media">
-                  {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
-                  <img
+              <article className="story-chapel" key={record.id}>
+                <div className="story-figure">
+                  <PublicImage
+                    role="card"
+                    className="story-chapel__media"
                     src={photo.src}
                     srcSet={photo.srcSet}
-                    sizes="(max-width: 60rem) 92vw, 38rem"
-                    alt={photo.alt}
-                    loading="lazy"
+                    sizes="(max-width: 60rem) 92vw, 28rem"
+                    alt={classPhotoAlt[chapelClass]}
+                    width={photo.width}
+                    height={photo.height}
                   />
-                </figure>
-                <div className="sv-chapel__body">
-                  <h3 className="sv-chapel__name">{record.name}</h3>
-                  <p className="text-sm text-muted">{CHAPEL_CLASS_LABEL[chapelClass]}</p>
-                  <div className="sv-chapel__rate">
-                    {money(perDay)} <span className="sv-chapel__unit">per day</span>
+                  <p className="public-image__caption">{CHAPEL_SAMPLE_NOTE}</p>
+                </div>
+                <h3 className="story-chapel__name">{record.name}</h3>
+                <p className="story-chapel__class text-sm text-muted">{CHAPEL_CLASS_LABEL[chapelClass]}</p>
+                <p className="story-chapel__rate">
+                  {money(perDay)} <span className="story-chapel__unit">per day</span>
+                </p>
+                <p className="story-chapel__what">{chapelNotes[chapelClass]}</p>
+                <dl className="story-facts">
+                  <div>
+                    <dt>Room fits about</dt>
+                    <dd>{record.capacity} people</dd>
                   </div>
-                  <p className="sv-chapel__what">{chapelNotes[chapelClass]}</p>
-                  <dl className="sv-chapel__facts">
-                    <div>
-                      <dt>Room fits about</dt>
-                      <dd>{record.capacity} people</dd>
-                    </div>
-                    <div>
-                      <dt>3 days — regular</dt>
-                      <dd>{money(threeDay.regular)}</dd>
-                    </div>
-                    <div>
-                      <dt>3 days — senior citizen</dt>
-                      <dd>{money(threeDay.senior)}</dd>
-                    </div>
-                  </dl>
-                  <div className="sv-chapel__actions">
-                    {item ? (
-                      <ChapelBookingButton
-                        chapelClass={chapelClass}
-                        items={chapelItems}
-                        label="Check dates & price"
-                      />
-                    ) : null}
-                    <Link href={chapelRequest(record, item, perDay)} className="btn btn--secondary btn--block">
-                      Request order
-                    </Link>
-                    <InCartNotice sku={item?.sku ?? ""} unit="stay" />
+                  <div>
+                    <dt>3 days — regular</dt>
+                    <dd>{money(threeDay.regular)}</dd>
                   </div>
-                  <p className="sv-chapel__illus">{CHAPEL_SAMPLE_NOTE}</p>
+                  <div>
+                    <dt>3 days — senior citizen</dt>
+                    <dd>{money(threeDay.senior)}</dd>
+                  </div>
+                </dl>
+                <div className="story-actions">
+                  {item ? (
+                    <ChapelBookingButton
+                      chapelClass={chapelClass}
+                      items={chapelItems}
+                      label="Check dates & price"
+                    />
+                  ) : null}
+                  <Link href={chapelRequest(record, item, perDay)} className="catalogue-actions__link">
+                    Request order
+                  </Link>
+                  <InCartNotice sku={item?.sku ?? ""} unit="stay" />
                 </div>
               </article>
             );

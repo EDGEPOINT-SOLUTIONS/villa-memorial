@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
+import { StoryHelpBand, StorySteps } from "@/components/villa/story-ui";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { getServiceEntry } from "@/lib/api-client/content-entries";
 import { serviceEntryDef, serviceEntryView, serviceHeroVariant } from "@/lib/service-content";
 
@@ -10,61 +13,82 @@ import { serviceEntryDef, serviceEntryView, serviceHeroVariant } from "@/lib/ser
  *
  * The three guide routes (death at home · death at hospital · transport) stay as
  * routes, but their title, lead, photograph and content blocks are the editable
- * service entries in Pages & content → Funeraria Memorial Services. The primary
- * action stays Immediate assistance; the secondary action and the back link are
- * the page's own structure, not content.
+ * service entries in Pages & content → Funeraria Memorial Services.
+ *
+ * The story-lane pass (2026-09-22, plan §5.2) rebuilt the page on the Phase 0
+ * grammar: a `PublicHero` with ONE ≤12-word answer and one Call action, then the
+ * THREE numbered steps (`StorySteps`) a family actually takes, then the shared
+ * 24/7 band. The entry's longer summary and any staff-authored blocks stay
+ * published behind the "More about …" disclosure, so the editable content is
+ * never dropped — it just stops being the first thing a grieving reader scrolls.
+ * The old hero paragraph (41 words on death-at-home) was the measured defect D4.
  */
 export async function ServiceGuidePage({ entryKey }: { entryKey: string }) {
   const def = serviceEntryDef(entryKey);
   if (!def) notFound();
 
-  const [entry, items] = await Promise.all([
+  const [entry, items, content] = await Promise.all([
     getServiceEntry(def.key).catch(() => null),
     listCatalogItems().catch(() => []),
+    listLandingContent(),
   ]);
   const view = serviceEntryView(entry, def);
   const hero = serviceHeroVariant(view.heroSrc, "wide");
+  const { contact } = content;
   const priceBySku = new Map(items.map((item) => [item.sku, item.display_price]));
   const priceOf = (sku: string): string | null => priceBySku.get(sku) ?? null;
 
+  const heroPhoto = hero
+    ? {
+        src: hero.src,
+        srcSet: hero.srcSet,
+        sizes: "(max-width: 48rem) 92vw, 30rem",
+        alt: view.heroAlt,
+        width: 960,
+        height: 640,
+      }
+    : undefined;
+
   return (
-    <div className="stack-4">
-      <section className="hero-premium">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">{view.eyebrow}</p>
-            <h1 className="hero-premium__title">{view.title}</h1>
-            <p className="hero-premium__lead">{view.summary}</p>
-            <div className="hero-premium__actions">
-              <Link href="/immediate-assistance" className="btn btn--accent">Immediate assistance</Link>
-              <Link href={def.secondaryHref} className="btn btn--secondary">{def.secondaryLabel}</Link>
-            </div>
-            <nav aria-label="Back to Funeraria Memorial Services" style={{ marginTop: "var(--space-4)" }}>
-              <Link href="/services" className="back-link">
-                ← Back to Funeraria Memorial Services
-              </Link>
-            </nav>
-          </div>
-          {hero ? (
-            <figure className="hero-premium__media">
-              {/* eslint-disable-next-line @next/next/no-img-element -- client/library photograph */}
-              <img src={hero.src} srcSet={hero.srcSet} alt={view.heroAlt} />
-              {view.heroCaption ? (
-                <figcaption>
-                  {view.heroCaption}
-                  {view.heroSample ? " Illustration purposes only." : ""}
-                </figcaption>
-              ) : null}
-            </figure>
-          ) : null}
-        </div>
+    <div className="story-page container--reading">
+      <PublicHero
+        variant="interior"
+        eyebrow={view.eyebrow}
+        title={view.title}
+        lead={view.lead}
+        primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
+        secondary={{ label: def.secondaryLabel, href: def.secondaryHref }}
+        image={heroPhoto}
+      />
+
+      <nav className="story-back" aria-label="Back to Funeraria Memorial Services">
+        <Link href="/services" className="back-link">
+          ← Back to Funeraria Memorial Services
+        </Link>
+      </nav>
+
+      <section className="story-band" aria-labelledby="guide-steps-title">
+        <SectionHead id="guide-steps-title" kicker="What to do now" title="Three steps, handled with you" />
+        <StorySteps id="guide-steps-title" steps={view.steps} />
       </section>
 
-      {view.blocks.length > 0 ? (
-        <section aria-label={`About ${view.title}`}>
-          <ContentBlocks blocks={view.blocks} priceOf={priceOf} />
+      {view.summary || view.blocks.length > 0 ? (
+        <section className="story-band">
+          <PublicDisclosure summary={`More about ${view.title}`}>
+            {view.summary ? <p>{view.summary}</p> : null}
+            {view.blocks.length > 0 ? <ContentBlocks blocks={view.blocks} priceOf={priceOf} /> : null}
+          </PublicDisclosure>
         </section>
       ) : null}
+
+      <StoryHelpBand
+        contact={contact}
+        secondary={
+          <Link className="btn btn--secondary" href="/immediate-assistance">
+            Immediate assistance
+          </Link>
+        }
+      />
     </div>
   );
 }
