@@ -19,23 +19,19 @@ import type {
   MediaItem,
   RailConfig,
   RailItem,
-  ServiceCard,
 } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
 import { NextSteps } from "@/components/landing/next-steps";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
-import { serviceCardIcon } from "@/components/landing/service-icons";
+import { ProductCard } from "@/components/kit/product-card";
+import { ResultsGrid } from "@/components/kit/results-grid";
 import { PublicDisclosure } from "@/components/public/public-disclosure";
 import { PublicHero } from "@/components/public/public-hero";
 import { SectionHead } from "@/components/public/section-head";
-import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet, serviceCardPhoto } from "@/lib/media";
-import {
-  lotCategoryFromPriceOf,
-  type LotCategory,
-  type PlanPricing,
-} from "@/lib/pricing-model";
-import { php } from "@/lib/villa-pricing";
+import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet, planLotCardPhoto } from "@/lib/media";
+import { planLotCardFigures, planLotKindLabel } from "@/lib/landing/plan-lots";
+import { type LotCategory, type PlanPricing } from "@/lib/pricing-model";
 
 export type LandingViewProps = {
   content: LandingContent;
@@ -208,7 +204,7 @@ function PostMediaGrid({ media, href }: { media: MediaItem[]; href?: string | nu
   );
 }
 
-function BlogPostCard({ post, brand, lead = false }: { post: BlogPost; brand: string; lead?: boolean }) {
+function BlogPostCard({ post, brand }: { post: BlogPost; brand: string }) {
   const author = post.author || brand;
   // A post may carry the route/link staff configured in the "/" editor — when
   // set, the photo AND the caption become the door to that page; without one
@@ -224,7 +220,7 @@ function BlogPostCard({ post, brand, lead = false }: { post: BlogPost; brand: st
     )
   ) : null;
   return (
-    <article className={lead ? "post-card post-card--lead" : "post-card"}>
+    <article className="post-card">
       <header className="post-card__head">
         <span className="post-card__avatar" aria-hidden="true">
           {(author.trim().charAt(0) || "V").toUpperCase()}
@@ -239,56 +235,6 @@ function BlogPostCard({ post, brand, lead = false }: { post: BlogPost; brand: st
         <PostMediaGrid media={post.media} href={linked} />
       </div>
     </article>
-  );
-}
-
-function ServiceCardLink({
-  card,
-  lotCategories,
-  lead = false,
-}: {
-  card: ServiceCard;
-  lotCategories: LotCategory[];
-  /** The band's dominant card — the one that carries the photograph. */
-  lead?: boolean;
-}) {
-  // The prototype's meta line ("from ₱75,000 · ₱1,125 / month, 6 yrs") is
-  // DERIVED from the card's 2026 lot family — no amount is ever authored in
-  // content (lib/pricing-model.ts is the one derivation home).
-  const from = lotCategoryFromPriceOf(lotCategories, card.category);
-  // …and so is the lead's photograph: the card stores a lot family + an icon
-  // key, and those two name a REAL place in the park, so the lead shows the
-  // client's own picture of it rather than an icon standing in for it
-  // (lib/media.ts serviceCardPhoto — the same discipline as the price above).
-  // Only the lead carries it: a picture repeated four times does not become four
-  // pictures, it becomes wallpaper.
-  const photo = lead ? serviceCardPhoto(card.icon) : null;
-  return (
-    <a className="svc-card" href={card.href}>
-      {photo ? (
-        // Decorative: the card's title already names the thing, so an alt text
-        // here would only repeat the link's own words to a screen reader.
-        <span className="svc-card__media" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element -- client park photo */}
-          <img src={photo} alt="" loading="lazy" width={720} height={480} />
-        </span>
-      ) : null}
-      <span className="svc-card__body">
-        <span className="svc-card__title">
-          <span className="svc-card__icon" aria-hidden="true">
-            {serviceCardIcon(card.icon)}
-          </span>
-          {card.title}
-        </span>
-        <span className="svc-card__text">{card.text}</span>
-        {from ? (
-          <span className="svc-card__meta">
-            <span className="svc-card__from">from {php(from.selling)}</span>
-            <span>· {php(from.monthly)} / month, 6 yrs</span>
-          </span>
-        ) : null}
-      </span>
-    </a>
   );
 }
 
@@ -521,36 +467,57 @@ function AboutSection({ content }: { content: LandingContent }) {
   );
 }
 
-function ServicesSection({ content, lotCategories }: { content: LandingContent; lotCategories: LotCategory[] }) {
-  const { services } = content;
-  // The band's composition (captain 2026-09-18): the first card leads with the
-  // client's photograph of the place it sells, the rest follow as
-  // hairline-separated entries. Four equal boxes became one dominant element and
-  // three supporting ones — the eye can no longer count the band as a grid.
-  const [lead, ...rest] = services.items;
+function PlansLotsSection({
+  content,
+  lotCategories,
+  planPricing,
+}: {
+  content: LandingContent;
+  lotCategories: LotCategory[];
+  planPricing: PlanPricing;
+}) {
+  const { plansLots } = content;
   return (
-    <section className="mid-section" aria-labelledby="services-title">
-      <p className="mid-kicker">{services.kicker}</p>
-      <h2 id="services-title">{services.heading}</h2>
-      <p className="mid-sub">{services.intro}</p>
-      {services.items.length === 0 || !lead ? (
-        <p className="mid-empty">Service cards will appear here once staff publishes them.</p>
-      ) : (
-        <div className="svc-grid">
-          <div className="svc-band__lead">
-            <ServiceCardLink card={lead} lotCategories={lotCategories} lead />
-          </div>
-          {rest.length > 0 ? (
-            <ul className="svc-band__list">
-              {rest.map((card) => (
-                <li className="svc-band__entry" key={card.id}>
-                  <ServiceCardLink card={card} lotCategories={lotCategories} />
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      )}
+    <section className="mid-section" aria-labelledby="plans-lots-title">
+      <p className="mid-kicker">{plansLots.kicker}</p>
+      <h2 id="plans-lots-title">{plansLots.heading}</h2>
+      <p className="mid-intro">{plansLots.intro}</p>
+      {/* The kit grid + card (AGENTS "new screens render the kit"): `.plan-lot-grid`
+          only narrows the shared column floor so five cards read three-across in
+          the home's railed middle column. Every figure is a live read from the
+          editable pricing store through lib/landing/plan-lots.ts — never typed. */}
+      <ResultsGrid
+        items={plansLots.items}
+        itemKey={(card) => card.id}
+        className="plan-lot-grid"
+        emptyTitle="Plans and lots will appear here once staff publishes them."
+        renderItem={(card) => {
+          const figures = planLotCardFigures(card, lotCategories, planPricing);
+          const src = card.image ?? planLotCardPhoto(card.kind, card.product);
+          const href = card.href || "/lots";
+          return (
+            <ProductCard
+              href={href}
+              photo={
+                src
+                  ? { src, width: 720, height: 540, alt: "" }
+                  : undefined
+              }
+              eyebrow={planLotKindLabel(card.kind)}
+              title={card.title}
+              supporting={figures?.supporting}
+              price={figures?.price ?? "Ask the office"}
+              priceNote={figures?.unit ?? undefined}
+              actions={
+                <a className="btn btn--secondary btn--sm" href={href}>
+                  {card.kind === "plan" ? "See the plan" : "View the lots"}
+                </a>
+              }
+            />
+          );
+        }}
+      />
+      {plansLots.note ? <p className="mid-note">{plansLots.note}</p> : null}
     </section>
   );
 }
@@ -583,21 +550,20 @@ function PlansSection({ content, planPricing }: { content: LandingContent; planP
 
 function BlogSection({ content }: { content: LandingContent }) {
   const { blog, logo } = content;
-  // Newsfeed composition: the newest story leads the band at full width, the
-  // rest sit two-up beneath it. Four identical stacked cards became a feed with
-  // a clear first item — the same "one dominant element" rule as the bands.
-  const [lead, ...rest] = blog.posts;
+  // Newsfeed composition (captain 2026-09-21): ONE post per column. The feed is
+  // a single row of equal columns — each story its own column — instead of a
+  // spanning lead over a two-up grid that left two posts stacked in one column.
+  // On a phone it becomes one column (one post per row).
   return (
     <section className="mid-section" aria-labelledby="blog-title">
       <p className="mid-kicker">Newsfeed</p>
       <h2 id="blog-title">{blog.heading}</h2>
       <p className="mid-intro">{blog.intro}</p>
-      {blog.posts.length === 0 || !lead ? (
+      {blog.posts.length === 0 ? (
         <p className="mid-empty">Stories will appear here once staff publishes the first post.</p>
       ) : (
         <div className="blog-feed">
-          <BlogPostCard post={lead} brand={logo.wordmark} lead />
-          {rest.map((post) => (
+          {blog.posts.map((post) => (
             <BlogPostCard key={post.id} post={post} brand={logo.wordmark} />
           ))}
         </div>
@@ -660,7 +626,7 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
           <div className="anchored-mid__inner">
             <HeroSection content={content} />
             <AboutSection content={content} />
-            <ServicesSection content={content} lotCategories={lotCategories} />
+            <PlansLotsSection content={content} lotCategories={lotCategories} planPricing={planPricing} />
             <PlansSection content={content} planPricing={planPricing} />
             <MapSection
               content={content}

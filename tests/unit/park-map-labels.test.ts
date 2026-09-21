@@ -1,37 +1,42 @@
 /**
- * Park map plot labels — overview density (type-voice decision, 2026-09-18).
+ * Park map plot labels — overview density (captain's home review, 2026-09-21).
  *
- * The product raised every label to the 12px ladder floor; at the whole-park
- * overview that made the legend-type line (repeated on every plot, and already
- * named by the legend below the map) bury the lot codes. The rule lives in
- * lib/park-maps.ts so the canvas and this test share it: the type line is
- * hidden at the overview and one step out, and returns when the visitor zooms
- * in. The lot code and owner always stay.
+ * The captain called the home preview's plot names "text that are so not good in
+ * the eye". The placeholder inventory puts ~140 plots on the Villa masterplan,
+ * and the home draws them a few pixels apart, so a code on every plot smeared
+ * into an unreadable wall. A label is now painted only once its OWN plot is wide
+ * enough to carry one (rule in lib/park-maps.ts `labelDensityFor`) — so the
+ * canvas, the CSS and this test share one rule.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { labelsTightAt } from "@/lib/park-maps";
+import { LABEL_FULL_PLOT_PX, LABEL_MIN_PLOT_PX, labelDensityFor } from "@/lib/park-maps";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const read = (p: string) => readFileSync(path.join(ROOT, p), "utf8");
 
-describe("labelsTightAt", () => {
-  it("is tight at the overview and one zoom step out", () => {
-    expect(labelsTightAt(3, 3)).toBe(true); // whole-park overview
-    expect(labelsTightAt(2, 3)).toBe(true); // one step out
-    expect(labelsTightAt(4, 3)).toBe(true); // one step in — still no room
+describe("labelDensityFor", () => {
+  it("paints nothing for a plot too small to carry a label", () => {
+    expect(labelDensityFor(0)).toBe("off");
+    expect(labelDensityFor(LABEL_MIN_PLOT_PX - 1)).toBe("off");
+    expect(labelDensityFor(Number.NaN)).toBe("off");
   });
 
-  it("shows the full label once the visitor zooms past the overview", () => {
-    expect(labelsTightAt(5, 3)).toBe(false);
-    expect(labelsTightAt(8, 3)).toBe(false);
+  it("shows the code alone once the plot has room for it", () => {
+    expect(labelDensityFor(LABEL_MIN_PLOT_PX)).toBe("code");
+    expect(labelDensityFor(LABEL_FULL_PLOT_PX - 1)).toBe("code");
   });
 
-  it("keeps working at fractional zoom levels", () => {
-    expect(labelsTightAt(3.5, 3)).toBe(true);
-    expect(labelsTightAt(4.5, 3)).toBe(false);
+  it("shows the full label (type line + owner) once the plot is wide enough", () => {
+    expect(labelDensityFor(LABEL_FULL_PLOT_PX)).toBe("full");
+    expect(labelDensityFor(400)).toBe("full");
+  });
+
+  it("keeps the thresholds in a useful order", () => {
+    expect(LABEL_MIN_PLOT_PX).toBeGreaterThan(0);
+    expect(LABEL_FULL_PLOT_PX).toBeGreaterThan(LABEL_MIN_PLOT_PX);
   });
 });
 
@@ -39,16 +44,19 @@ describe("the canvas + stylesheet wiring", () => {
   const canvas = read("components/parks-canvas.tsx");
   const css = read("styles/components.css");
 
-  it("lets the canvas set the tight state and refresh it on zoom", () => {
-    expect(canvas).toContain('data-label-density');
-    expect(canvas).toContain('map.on("zoomend", updateLabelDensity)');
-    expect(canvas).toContain("labelsTightAt(map.getZoom(), overview)");
+  it("computes a per-plot density and refreshes it on zoom and after a redraw", () => {
+    expect(canvas).toContain("labelDensityFor(set.widthUnits * pxPerUnit)");
+    expect(canvas).toContain('map.on("zoomend", applyLabelDensity)');
+    expect(canvas).toContain("plotWidthUnits(area)");
+    expect(canvas).toContain("applyLabelDensity();\n  }, [areas, selectedCode, parkId, mode, legendById, applyLabelDensity]);");
   });
 
-  it("hides only the type line in the tight state (code + owner stay)", () => {
+  it("hides the whole label when off, and trims it to the code in code mode", () => {
     expect(css).toMatch(
-      /\.geo-map\[data-label-density="tight"\] \.plot-label__type \{[\s\S]*?display: none;/,
+      /\.plot-label-marker\[data-label-density="off"\] \{[\s\S]*?display: none !important;/,
     );
-    expect(css).not.toMatch(/data-label-density="tight"\] \.plot-label__(code|owner)/);
+    expect(css).toMatch(
+      /\.plot-label-marker\[data-label-density="code"\] \.plot-label__type,[\s\S]*?\{[\s\S]*?display: none;/,
+    );
   });
 });

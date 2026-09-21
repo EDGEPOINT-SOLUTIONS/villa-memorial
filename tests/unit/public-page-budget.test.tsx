@@ -79,12 +79,13 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
         LandingView({ ...props, planPricing: { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS }, lotCategories: LOT_PRICE_CATEGORIES }),
       );
     },
-    // plan §5.1: hero → the four ways → the plan board → the live map → one
-    // news story → the closing band (the band is rendered by NextSteps).
+    // plan §5.1: hero → the captain's plans & lots band → the plan board → the
+    // live map → the newsfeed → the closing band (the band is rendered by
+    // NextSteps).
     sections: [
       'data-public-hero="home"',
       "about-grid",
-      "svc-grid",
+      "plan-lot-grid",
       "plan-board",
       "mid-section--map",
       "blog-feed",

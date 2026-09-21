@@ -173,44 +173,68 @@
       "vision": "Serene grounds, honest planning and a community that honors every life.",
       "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg"
     },
-    "services": {
-      "kicker": "What we do",
-      "heading": "Services we offer",
-      "intro": "Four ways to be served — priced on the official 2026 list.",
+    "plansLots": {
+      "kicker": "Plans & lots",
+      "heading": "Memorial plans & garden lots",
+      "intro": "Choose what fits your family — every card shows a real photo, a name and an honest price from the 2026 list.",
       "items": [
         {
-          "id": "svc-lot-only",
-          "icon": "lot",
-          "title": "Lot only",
-          "text": "Garden niche, prime, premium or mausoleum plots.",
-          "href": "/lots",
-          "category": "1. Lot Only"
+          "id": "plc-premium-lot",
+          "kind": "lot",
+          "title": "Premium Lot",
+          "image": "/media/composition/premium-lot-720.webp",
+          "category": "1. Lot Only",
+          "product": "Premium Lots",
+          "tier": "",
+          "text": "",
+          "href": "/lots"
         },
         {
-          "id": "svc-lot-interment",
-          "icon": "interment",
-          "title": "Lot + interment",
-          "text": "First burial only — includes a coffin and grave digging.",
-          "href": "/plans",
-          "category": "2. Lot + Interment (1st Burial Only)"
+          "id": "plc-prime-lot",
+          "kind": "lot",
+          "title": "Prime Lot",
+          "image": "/media/composition/prime-lot-720.webp",
+          "category": "1. Lot Only",
+          "product": "Prime Lots",
+          "tier": "",
+          "text": "",
+          "href": "/lots"
         },
         {
-          "id": "svc-lot-interment-vmp",
-          "icon": "plan",
-          "title": "Lot + interment + VMP",
-          "text": "Complete care, with the Villa Memorial Plan.",
-          "href": "/price-list",
-          "category": "3. Lot + Interment + VMP"
+          "id": "plc-garden-niches",
+          "kind": "structure",
+          "title": "Garden Niches",
+          "image": "/media/composition/garden-niches-720.webp",
+          "category": "1. Lot Only",
+          "product": "Garden Niches",
+          "tier": "",
+          "text": "",
+          "href": "/lots"
         },
         {
-          "id": "svc-mausoleum",
-          "icon": "mausoleum",
-          "title": "Mausoleum + construction",
-          "text": "A private, enduring sanctuary — up to life-plan coverage.",
-          "href": "/lots/mausoleum",
-          "category": "4. Mausoleum + Construction"
+          "id": "plc-mausoleum",
+          "kind": "structure",
+          "title": "Mausoleum",
+          "image": "/media/composition/mausoleum-720.webp",
+          "category": "1. Lot Only",
+          "product": "Mausoleum",
+          "tier": "",
+          "text": "",
+          "href": "/lots"
+        },
+        {
+          "id": "plc-vmp",
+          "kind": "plan",
+          "title": "Villa Memorial Plan",
+          "image": "/media/gallery/wake-viewing-840.webp",
+          "category": "",
+          "product": "",
+          "tier": "bronze1",
+          "text": "Complete memorial service, assignable & transferable.",
+          "href": "/plans"
         }
-      ]
+      ],
+      "note": "Prices shown are the regular 'lot only' selling prices and the Villa Memorial Plan monthly rate from the 2026 price list. Senior, installment and interment options are on each plan page."
     },
     "plans": {
       "kicker": "Plan ahead",

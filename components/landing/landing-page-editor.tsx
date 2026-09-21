@@ -38,7 +38,6 @@ import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import { MediaPicker, RailPicker } from "@/components/landing/editor-pickers";
 import { HeroBackgroundField } from "@/components/landing/hero-background-field";
-import { SERVICE_CARD_ICONS } from "@/components/landing/service-icons";
 import type { CatalogueEntry } from "@/lib/landing/catalogue";
 import {
   type AboutSection,
@@ -48,14 +47,16 @@ import {
   type FaqSection,
   type LandingContent,
   type MediaItem,
+  type PlanLotCard,
+  type PlanLotKind,
+  type PlansLotsSection,
   type PlansSection,
-  type ServiceCard,
-  type ServicesSection,
 } from "@/lib/api-client/landing";
 import { mediaLabel } from "@/lib/media";
 import { isValidCssColor } from "@/lib/landing/hero-background";
-import { lotCategoryFromPriceOf, type LotCategory, type PlanPricing } from "@/lib/pricing-model";
-import { LOT_PRICE_CATEGORIES, php } from "@/lib/villa-pricing";
+import { planLotCardFigures } from "@/lib/landing/plan-lots";
+import { type LotCategory, type PlanPricing } from "@/lib/pricing-model";
+import { LOT_PRICE_CATEGORIES, PLAN_TIERS, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 function uid(prefix: string): string {
@@ -464,25 +465,35 @@ function PlanBoardEditor({
   );
 }
 
-/* --------------------------- service card editor -------------------------- */
+/* --------------------------- plans & lots editor -------------------------- */
 
 /**
- * "What we do" — the four real-2026 service cards. Staff own every word and the
- * destination; the card's price line is DERIVED: its “price family” picks one of
- * the four 2026 lot families and the home prints that family's entry-level
- * “from ₱X · ₱Y / month, 6 yrs” through lib/villa-pricing.ts.
+ * "Memorial plans & garden lots" — the home band's cards. Staff own the name,
+ * the photo, the link, the type word and a plan's supporting line; every figure
+ * is DERIVED from a live price source the card binds to (a 2026 lot family +
+ * product row, or one of the five plan tiers) through lib/landing/plan-lots.ts.
+ * No amount is ever typed in this editor.
  */
-function ServicesEditor({
+const PLAN_LOT_KIND_OPTIONS: ReadonlyArray<{ value: PlanLotKind; label: string }> = [
+  { value: "lot", label: "Garden lot" },
+  { value: "structure", label: "Structure" },
+  { value: "plan", label: "Life plan" },
+];
+
+function PlansLotsEditor({
   section,
   lotCategories,
+  planPricing,
   onChange,
 }: {
-  section: ServicesSection;
-  /** LIVE lot families from the pricing store — the card's price line reads these. */
+  section: PlansLotsSection;
+  /** LIVE lot families from the pricing store — every lot card's price reads these. */
   lotCategories: ReadonlyArray<LotCategory>;
-  onChange: (next: ServicesSection) => void;
+  /** LIVE plan tables — every plan card's monthly rate reads these. */
+  planPricing: PlanPricing;
+  onChange: (next: PlansLotsSection) => void;
 }) {
-  function patchCard(id: string, patch: Partial<ServiceCard>) {
+  function patchCard(id: string, patch: Partial<PlanLotCard>) {
     onChange({ ...section, items: section.items.map((c) => (c.id === id ? { ...c, ...patch } : c)) });
   }
   function move(id: string, delta: -1 | 1) {
@@ -494,84 +505,140 @@ function ServicesEditor({
     items.splice(to, 0, card);
     onChange({ ...section, items });
   }
+  /** Switching a card's type word keeps its live binding valid (a lot card can
+   * never point at a plan tier, and vice versa). */
+  function changeKind(card: PlanLotCard, kind: PlanLotKind) {
+    if (kind === "plan") {
+      patchCard(card.id, {
+        kind,
+        tier: PLAN_TIERS.some((t) => t.id === card.tier) ? card.tier : PLAN_TIERS[0].id,
+        href: card.href || "/plans",
+      });
+      return;
+    }
+    const family = lotCategories.find((c) => c.title === card.category) ?? lotCategories[0];
+    patchCard(card.id, {
+      kind,
+      category: family?.title ?? "",
+      product: family?.rows.some((r) => r.product === card.product)
+        ? card.product
+        : family?.rows[0]?.product ?? "",
+      href: card.href || "/lots",
+    });
+  }
+  function addCard() {
+    const family = lotCategories[0];
+    onChange({
+      ...section,
+      items: [
+        ...section.items,
+        {
+          id: uid("plc"),
+          kind: "lot",
+          title: "",
+          image: null,
+          category: family?.title ?? "",
+          product: family?.rows[0]?.product ?? "",
+          tier: PLAN_TIERS[0].id,
+          text: "",
+          href: "/lots",
+        },
+      ],
+    });
+  }
   return (
     <div className="stack">
-      <div className="field-grid field-grid--3">
-        <TextField label="Section kicker" htmlFor="services-kicker" value={section.kicker} onChange={(v) => onChange({ ...section, kicker: v })} hint="The small line above the heading." />
-        <TextField label="Section heading" htmlFor="services-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
-        <TextField label="Section intro" htmlFor="services-intro" value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} />
+      <div className="field-grid field-grid--2">
+        <TextField label="Section kicker" htmlFor="planslots-kicker" value={section.kicker} onChange={(v) => onChange({ ...section, kicker: v })} hint="The small line above the heading." />
+        <TextField label="Section heading" htmlFor="planslots-heading" value={section.heading} onChange={(v) => onChange({ ...section, heading: v })} />
       </div>
+      <TextAreaField label="One-line lead" htmlFor="planslots-intro" rows={2} value={section.intro} onChange={(v) => onChange({ ...section, intro: v })} hint="The captain's one sentence under the heading." />
+      <TextAreaField label="Closing price note" htmlFor="planslots-note" rows={2} value={section.note ?? ""} onChange={(v) => onChange({ ...section, note: v.trim() ? v : null })} hint="What the figures on these cards are. An empty note hides the line." />
 
       <div className="row row--space" style={{ margin: "var(--space-1) 0" }}>
         <p className="ed-subhead">
-          Service cards <Badge tone="info">{section.items.length}</Badge>
-          <span className="ed-muted"> — each card&rsquo;s price line is read from the 2026 list.</span>
+          Home cards <Badge tone="info">{section.items.length}</Badge>
+          <span className="ed-muted"> — each card&rsquo;s price is read live from the 2026 list.</span>
         </p>
-        <Button
-          variant="accent"
-          size="sm"
-          onClick={() =>
-            onChange({
-              ...section,
-              items: [
-                ...section.items,
-                {
-                  id: uid("svc"),
-                  icon: SERVICE_CARD_ICONS[0].key,
-                  title: "",
-                  text: "",
-                  href: "/lots",
-                  category: lotCategories[0]?.title ?? "",
-                },
-              ],
-            })
-          }
-        >
-          <Plus size={15} aria-hidden="true" /> Add a service card
+        <Button variant="accent" size="sm" onClick={addCard}>
+          <Plus size={15} aria-hidden="true" /> Add a card
         </Button>
       </div>
 
       {section.items.length === 0 ? (
-        <p className="ed-hint">No service cards yet — the home shows an empty-state note until you add one.</p>
+        <p className="ed-hint">No cards yet — the home shows an empty-state note until you add one.</p>
       ) : (
         <div className="ed-services">
           {section.items.map((card, i) => {
-            const from = lotCategoryFromPriceOf(lotCategories, card.category);
+            const figures = planLotCardFigures(card, lotCategories, planPricing);
+            const family = lotCategories.find((c) => c.title === card.category);
+            const productOptions = (family?.rows ?? []).map((r) => ({
+              value: r.product,
+              label: `${r.product} · ${r.area} sqm`,
+            }));
             return (
               <div className="ed-row" key={card.id}>
               <details className="ed-service" open={!card.title}>
                 <summary className="ed-service__summary">
                   <span className="ed-service__num">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="ed-service__name">{card.title || "Untitled service card"}</span>
+                  <span className="ed-service__name">{card.title || "Untitled card"}</span>
                   <span className="ed-price">
-                    {from ? `from ${php(from.selling)} · ${php(from.monthly)} / mo` : "no price family"}
+                    {figures ? `${figures.price}${figures.unit ? ` ${figures.unit}` : ""}` : "no price source"}
                   </span>
                 </summary>
                 <div className="ed-service__fields">
                   <div className="field-grid field-grid--3">
-                    <TextField label="Card title" htmlFor={`svc-title-${card.id}`} value={card.title} onChange={(v) => patchCard(card.id, { title: v })} placeholder="e.g. Lot only" />
+                    <TextField label="Card name" htmlFor={`plc-title-${card.id}`} value={card.title} onChange={(v) => patchCard(card.id, { title: v })} placeholder="e.g. Premium Lot" />
                     <SelectField
-                      label="Icon"
-                      htmlFor={`svc-icon-${card.id}`}
-                      value={card.icon}
-                      onChange={(v) => patchCard(card.id, { icon: v })}
-                      options={SERVICE_CARD_ICONS.map((o) => ({ value: o.key, label: o.label }))}
+                      label="Type word"
+                      htmlFor={`plc-kind-${card.id}`}
+                      value={card.kind}
+                      onChange={(v) => changeKind(card, v as PlanLotKind)}
+                      options={PLAN_LOT_KIND_OPTIONS}
+                      hint="Garden lot, Structure or Life plan."
                     />
-                    <TextField label="Link destination" htmlFor={`svc-href-${card.id}`} value={card.href} onChange={(v) => patchCard(card.id, { href: v })} hint="Where the card takes visitors, e.g. /lots." />
+                    <TextField label="Link destination" htmlFor={`plc-href-${card.id}`} value={card.href} onChange={(v) => patchCard(card.id, { href: v })} hint="Where the card takes visitors, e.g. /lots or /plans." />
                   </div>
-                  <TextAreaField label="One line of copy" htmlFor={`svc-text-${card.id}`} rows={2} value={card.text} onChange={(v) => patchCard(card.id, { text: v })} hint="A single sentence, as the card prints it." />
-                  <SelectField
-                    label="Price family (2026 list)"
-                    htmlFor={`svc-category-${card.id}`}
-                    value={card.category}
-                    onChange={(v) => patchCard(card.id, { category: v })}
-                    options={lotCategories.map((c) => ({ value: c.title, label: c.caption }))}
-                    hint="The “from …” line is read from the client's 2026 sheet for this family — the amount is never typed here."
-                  />
+                  <ImageField label="Card photo" htmlFor={`plc-image-${card.id}`} value={card.image} onChange={(v) => patchCard(card.id, { image: v })} />
+                  {card.kind === "plan" ? (
+                    <div className="field-grid field-grid--2">
+                      <SelectField
+                        label="Plan tier (2026 list)"
+                        htmlFor={`plc-tier-${card.id}`}
+                        value={card.tier}
+                        onChange={(v) => patchCard(card.id, { tier: v })}
+                        options={PLAN_TIERS.map((t) => ({ value: t.id, label: t.name }))}
+                        hint="The card prints this tier's regular monthly rate. The amount is never typed here."
+                      />
+                      <TextField label="Supporting line" htmlFor={`plc-text-${card.id}`} value={card.text} onChange={(v) => patchCard(card.id, { text: v })} hint="The one line under the plan's name, e.g. what the plan covers." />
+                    </div>
+                  ) : (
+                    <div className="field-grid field-grid--2">
+                      <SelectField
+                        label="Lot family (2026 list)"
+                        htmlFor={`plc-category-${card.id}`}
+                        value={card.category}
+                        onChange={(v) => {
+                          const next = lotCategories.find((c) => c.title === v);
+                          patchCard(card.id, { category: v, product: next?.rows[0]?.product ?? "" });
+                        }}
+                        options={lotCategories.map((c) => ({ value: c.title, label: c.caption }))}
+                        hint="The family the card prices from — the amount is read from the sheet, never typed."
+                      />
+                      <SelectField
+                        label="Product in that family"
+                        htmlFor={`plc-product-${card.id}`}
+                        value={card.product}
+                        onChange={(v) => patchCard(card.id, { product: v })}
+                        options={productOptions}
+                        hint="The row whose regular selling price and area the card prints."
+                      />
+                    </div>
+                  )}
                 </div>
               </details>
               <span className="ed-row__tools">
-                <MoveRowButtons label={card.title || "service card"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(card.id, -1)} onDown={() => move(card.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((c) => c.id !== card.id) })} />
+                <MoveRowButtons label={card.title || "card"} first={i === 0} last={i === section.items.length - 1} onUp={() => move(card.id, -1)} onDown={() => move(card.id, 1)} onRemove={() => onChange({ ...section, items: section.items.filter((c) => c.id !== card.id) })} />
               </span>
               </div>
             );
@@ -1011,7 +1078,7 @@ const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: strin
   { id: "ed-hero", num: "02", label: "Hero", hint: "The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead." },
   { id: "ed-rails", num: "03", label: "Fixed rails", hint: "The pinned side columns that stay frozen beside the scrolling home — any number of items each." },
   { id: "ed-about", num: "04", label: "About · Mission · Vision", hint: "The family-run soul of the park, with a real photo — the trust section." },
-  { id: "ed-services", num: "05", label: "What we do · service cards", hint: "The four 2026 service cards — you write every word; each card's “from …” line is read from the price list for the family you pick." },
+  { id: "ed-plans-lots", num: "05", label: "Plans & lots · home cards", hint: "The home band's cards — a real photo, a name, a type word and a live figure from the 2026 list. You pick the family + product (or the plan tier); the amount is never typed." },
   { id: "ed-plans", num: "06", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
   { id: "ed-map", num: "07", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
   { id: "ed-blog", num: "08", label: "Blog & newsfeed", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
@@ -1043,6 +1110,7 @@ export function LandingPageEditor({
   planPricing?: PlanPricing;
 }) {
   const categories = lotCategories ?? LOT_PRICE_CATEGORIES;
+  const pricing = planPricing ?? { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS };
   const [content, setContent] = useState<LandingContent>(() => clone(initialContent));
   const savedJson = useRef(JSON.stringify(initialContent));
   const [busy, setBusy] = useState(false);
@@ -1065,15 +1133,15 @@ export function LandingPageEditor({
 
   // Live attention flags per zone, shown in the navigator and card headers.
   const flags = useMemo(() => {
-    const services = content.services.items.filter(
-      (c) => !c.title.trim() || !c.text.trim() || !c.href.trim(),
+    const plansLots = content.plansLots.items.filter(
+      (c) => !c.title.trim() || !c.href.trim(),
     ).length;
     const media = content.blog.posts.reduce((n, p) => n + p.media.filter((m) => !m.src.trim()).length, 0);
     const posts = content.blog.posts.filter((p) => !p.caption.trim() && p.media.length === 0).length;
     const faq =
       content.faq.items.filter((item) => !item.question.trim() || !item.answer.trim()).length +
       content.faq.links.filter((link) => !link.label.trim() || !link.href.trim()).length;
-    return { services, media, posts, faq };
+    return { plansLots, media, posts, faq };
   }, [content]);
 
   // Scroll-spy: keep the navigator's active zone in step with what's on screen.
@@ -1127,9 +1195,19 @@ export function LandingPageEditor({
         "The hero text colour must be a valid CSS colour — like #ffffff, rgb(…), hsl(…) or a named colour.",
       );
     }
-    content.services.items.forEach((card, i) => {
-      if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
-        issues.push(`Service card ${i + 1} needs a title, a line of copy and a link before publishing.`);
+    content.plansLots.items.forEach((card, i) => {
+      if (!card.title.trim() || !card.href.trim()) {
+        issues.push(`Home card ${i + 1} needs a name and a link before publishing.`);
+      }
+      if (card.kind === "plan") {
+        if (!PLAN_TIERS.some((t) => t.id === card.tier)) {
+          issues.push(`Home card ${i + 1} must price from one of the five 2026 plan tiers.`);
+        }
+      } else {
+        const family = categories.find((c) => c.title === card.category);
+        if (!family || !family.rows.some((r) => r.product === card.product)) {
+          issues.push(`Home card ${i + 1} must name a 2026 lot family and a product in it.`);
+        }
       }
     });
     content.blog.posts.forEach((post) => {
@@ -1197,8 +1275,8 @@ export function LandingPageEditor({
     setNotice(null);
   }
 
-  const { logo, contact, hero, rails, about, services, plans, blog, map, faq } = content;
-  const attention = flags.services + flags.media + flags.faq;
+  const { logo, contact, hero, rails, about, plansLots, plans, blog, map, faq } = content;
+  const attention = flags.plansLots + flags.media + flags.faq;
 
   const statusLine = busy
     ? "Publishing to the content store…"
@@ -1262,15 +1340,15 @@ export function LandingPageEditor({
             const count =
               zone.id === "ed-rails"
                 ? rails.left.items.length + rails.right.items.length
-                : zone.id === "ed-services"
-                  ? services.items.length
+                : zone.id === "ed-plans-lots"
+                  ? plansLots.items.length
                   : zone.id === "ed-blog"
                     ? blog.posts.length
                     : zone.id === "ed-faq"
                       ? faq.items.length
                       : null;
             const warn =
-              (zone.id === "ed-services" && flags.services > 0) ||
+              (zone.id === "ed-plans-lots" && flags.plansLots > 0) ||
               (zone.id === "ed-blog" && (flags.media > 0 || flags.posts > 0)) ||
               (zone.id === "ed-faq" && flags.faq > 0);
             return (
@@ -1400,22 +1478,23 @@ export function LandingPageEditor({
       </EdSection>
 
       <EdSection
-        id="ed-services"
+        id="ed-plans-lots"
         num="05"
-        title="What we do — service cards"
-        hint="The four 2026 service cards, exactly as the prototype prints them: pick an icon, write the one-line copy and the destination — the “from ₱… · ₱… / month, 6 yrs” line is read from the price list for the family you choose (never typed)."
+        title="Memorial plans & garden lots"
+        hint="The home band that replaced “What we do”: pick each card's 2026 lot family + product (or the plan tier), set its photo and link, and write the plan's supporting line — every figure is read live from the 2026 list, never typed."
         badge={
-          flags.services > 0 ? (
-            <span className="ed-chip ed-chip--warn">{flags.services} need attention</span>
+          flags.plansLots > 0 ? (
+            <span className="ed-chip ed-chip--warn">{flags.plansLots} need attention</span>
           ) : (
-            <CountChip count={services.items.length} />
+            <CountChip count={plansLots.items.length} />
           )
         }
       >
-        <ServicesEditor
-          section={services}
+        <PlansLotsEditor
+          section={plansLots}
           lotCategories={categories}
-          onChange={(next) => patch((d) => void (d.services = next))}
+          planPricing={pricing}
+          onChange={(next) => patch((d) => void (d.plansLots = next))}
         />
       </EdSection>
 

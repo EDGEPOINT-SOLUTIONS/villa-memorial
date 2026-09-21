@@ -125,10 +125,9 @@ describe("2026 price list structure", () => {
     expect(content.packageInclusions[4].label).toMatch(/flowers/i);
   });
 
-  it("derives each family's entry-level “from …” figures for the home service cards", () => {
-    // The home page's four “Services we offer” cards publish exactly these
-    // (prototype: home.html SERVICES WE OFFER) — the lowest regular selling
-    // price of each family plus that row's monthly installment.
+  it("derives each family's entry-level “from …” figures (static seed helper)", () => {
+    // The static derivation the recorded seed is pinned through; the live home
+    // cards read the editable store instead (lib/landing/plan-lots.ts).
     expect(LOT_PRICE_CATEGORIES.map((c) => [php(lotCategoryFromPrice(c.title)!.selling), php(lotCategoryFromPrice(c.title)!.monthly)])).toEqual([
       ["₱75,000", "₱1,125"],
       ["₱97,000", "₱1,455"],

@@ -63,10 +63,11 @@ const {
   LIBRARY_THUMB_WIDTHS,
   MEDIA_LIBRARY,
   PARK_PLACE_PHOTOS,
-  SERVICE_CARD_PHOTOS,
+  PLAN_CARD_PHOTO,
+  PLAN_LOT_CARD_PHOTOS,
   libraryThumb,
   libraryThumbSet,
-  serviceCardPhoto,
+  planLotCardPhoto,
 } = await import("@/lib/media");
 
 describe("decorative sheen is gone from the public buttons", () => {
@@ -155,7 +156,7 @@ describe("bands are separated by rules and space, not by a shadow on every box",
   });
 });
 
-describe("the home's service band leads instead of counting", () => {
+describe("the home's plans & lots band renders the kit, one card per column", () => {
   async function home(): Promise<string> {
     const content = await listLandingContent();
     const doc = await loadPricingDocument();
@@ -171,48 +172,39 @@ describe("the home's service band leads instead of counting", () => {
     );
   }
 
-  it("one dominant card carries the client's photograph; the rest are entries", async () => {
+  it("renders the kit ProductCard grid with a real photograph and a live figure", async () => {
     const html = await home();
     const content = await listLandingContent();
-    // One lead block, one entry list — not four peers in a grid.
-    expect((html.match(/svc-band__lead/g) ?? []).length).toBe(1);
-    expect((html.match(/svc-band__entry/g) ?? []).length).toBe(
-      content.services.items.length - 1,
-    );
-    // The lead carries a REAL client photograph derived from the card's own lot
-    // family + icon key (lib/media.ts serviceCardPhoto), never a line glyph
-    // standing in for a place the client has photographed.
-    const leadPhoto = serviceCardPhoto(content.services.items[0].icon);
-    expect(leadPhoto).toBeTruthy();
-    expect(html).toContain(leadPhoto!);
-    // Photographs lead ONCE: the four cards no longer repeat one picture as
-    // wallpaper (and the entries carry no picture at all).
-    expect((html.match(/class="svc-card__media"/g) ?? []).length).toBe(1);
-    // Every card still carries the staff-chosen glyph as a small marker, so the
-    // content document's icon field keeps a purpose.
-    expect((html.match(/svc-card__icon/g) ?? []).length).toBe(content.services.items.length);
-  });
-
-  it("every service card maps to a real client asset that is actually shipped", () => {
-    for (const [key, src] of Object.entries(SERVICE_CARD_PHOTOS)) {
-      expect(src, key).toMatch(/^\/media\//);
-      expect(existsSync(path.join(ROOT, "public", src)), `${key} → ${src}`).toBe(true);
+    // One kit card per plan/lot card — the new band owns the grid.
+    expect((html.match(/class="shop-card"/g) ?? []).length).toBe(content.plansLots.items.length);
+    expect(html).toContain("plan-lot-grid");
+    // Every card carries a photograph of a real, shipped client asset.
+    for (const card of content.plansLots.items) {
+      const src = card.image ?? planLotCardPhoto(card.kind, card.product);
+      expect(src, card.title).toBeTruthy();
+      expect(html, card.title).toContain(src!);
     }
-    // An unknown key degrades to "no picture", never to a crash or a wrong one.
-    expect(serviceCardPhoto("not-a-key")).toBeNull();
   });
 
-  it("the newsfeed leads with the newest story instead of stacking four cards", async () => {
+  it("maps every known lot product to a shipped client photograph", () => {
+    for (const [product, src] of Object.entries(PLAN_LOT_CARD_PHOTOS)) {
+      expect(src, product).toMatch(/^\/media\//);
+      expect(existsSync(path.join(ROOT, "public", src)), `${product} → ${src}`).toBe(true);
+    }
+    expect(existsSync(path.join(ROOT, "public", PLAN_CARD_PHOTO))).toBe(true);
+    // An unknown product degrades to "no picture", never a crash or a wrong one.
+    expect(planLotCardPhoto("lot", "not-a-product")).toBeNull();
+  });
+
+  it("the newsfeed lays ONE post per column — no full-width spanning lead", async () => {
     const html = await home();
-    expect((html.match(/post-card--lead/g) ?? []).length).toBe(1);
-    // The lead is the first post in the document (newest first).
     const content = await listLandingContent();
-    const leadCaption = content.blog.posts[0].caption;
-    const leadPos = html.indexOf("post-card--lead");
-    const otherPos = html.indexOf("post-card ", leadPos + 1);
-    if (leadCaption && otherPos > leadPos) {
-      expect(html.indexOf(leadCaption)).toBeLessThan(otherPos);
-    }
+    expect((html.match(/class="post-card"/g) ?? []).length).toBe(content.blog.posts.length);
+    expect(html).not.toContain("post-card--lead");
+    // The feed is a single row of equal columns, not a wrapping 2-up grid.
+    const feed = /\n\.blog-feed \{[^}]*\}/.exec(cssRules)?.[0] ?? "";
+    expect(feed).toContain("grid-auto-flow: column");
+    expect(feed).not.toContain("grid-template-columns: repeat(2");
   });
 });
 

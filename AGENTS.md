@@ -54,7 +54,8 @@ on backend services.
   NOT Inter — it keeps the client's own faces (`lib/export/paper-profile.ts`).
   `tests/unit/typography-system.test.ts` fails a raw/off-ladder size, a sub-12px value, a second
   typeface, a gold-as-text rule, or a mapped role class moved off its step;
-  `tests/unit/park-map-labels.test.ts` pins the overview map label density rule. **The face carries
+  `tests/unit/park-map-labels.test.ts` pins the map's per-plot label density rule (a label paints
+  only once its plot is wide enough — see the park-map section). **The face carries
   no emoji**, so a published one is not an emoji but a missing glyph — an empty box on the page,
   which the home's newsfeed lead caption shipped (U+1F33F). `unrenderableGlyphs()` in
   `lib/api-client/landing.ts` is the one rule and the content publish gate refuses them by name.
@@ -174,18 +175,20 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `.ledger__list`/`.ledger__entry` (supporting entries separated by HAIRLINES, two columns) ·
   `.ledger__row` (what it is · its figure · its actions) · `.band-head` (group name + real count +
   one action, replacing a prose intro). Hierarchy comes from scale, position and a rule — not from
-  a border and a shadow applied to every tile. `.svc-band__lead`/`.svc-band__list` are the same
-  grammar for the home band under its own names because `landing-view.test.tsx` pins `a.svc-card`.
+  a border and a shadow applied to every tile. The home's "Memorial plans & garden lots" band is
+  the deliberate exception: it is a kit `ResultsGrid` + `ProductCard` card grid (`plan-lot-grid`,
+  three across at 1440), because the captain asked for equal cards there — do not force the ledger
+  grammar on it.
   Evidence + measured before/after (gradients, shadows, page heights):
   `docs/08-delivery/composition-pass-design/README.md`.
-- **One class, one declaration.** `.svc-grid`/`.svc-card*` were declared twice (a dead block in the
-  `/services` section and the live home block), and the dead declarations silently re-templated the
-  home band into a 13.5rem card grid. Before adding a rule, `grep "^\.<class> {"` the file — the
-  same trap AGENTS.md already records for `.chapel-month` vs `.chapel-grid`, and the one that hit
+- **One class, one declaration.** Before adding a rule, `grep "^\.<class> {"` the file — the
+  same trap AGENTS.md records for `.chapel-month` vs `.chapel-grid`, and the one that hit
   `.tier-row` (the package page's tier × term segmented control is the older owner; `/products`'
   tier ledger row had re-used the name and inherited `repeat(5, …)` plus its box chrome — it is
   `.tier-ledger__*` now). Six classes are still declared twice at top level; `tests/unit/
-  broken-pages.test.ts` walks them and fails a collision that re-templates another component.
+  broken-pages.test.ts` walks them and fails a collision that re-templates another component
+  (the retired home services band was that same collision: a dead `.svc-grid`/`.svc-card*` block
+  re-templated a later same-name block).
 - **A stated `aspect-ratio` on an `<img>` is not enough — reset `height: auto`.** A `width`/`height`
   attribute is a presentational hint: it supplies a *definite* height, and a definite height makes
   `aspect-ratio` a no-op, so the picture renders at the attribute's height. Every `img`-level ratio
@@ -250,16 +253,18 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `styles/components.css`; below 75rem the rails collapse into the
   MobileQuickMenu flyout.
 - The two mid sections are the approved prototype's, NOT hand-written:
-  **"What we do" / Services we offer** (four cards) and **"Plan ahead" / Villa
+  **"Memorial plans & garden lots"** and **"Plan ahead" / Villa
   Memorial Plan** (promo figure + payment-mode switch + tier × term board) come
-  from `docs/prototypes/villa-home-ui/home.html`. A card stores only a
-  `LOT_PRICE_CATEGORIES` family key — the view prints "from ₱X · ₱Y / month,
-  6 yrs" through `lotCategoryFromPrice()`; the board holds NO items (its copy is
-  kicker/heading/intro/note) and reads its 5 × 4 figures through `planRate()`,
-  with the footnote's `{seniorMonthly}` / `{packagePage}` tokens resolved from
-  the same module. Never author an amount in the fixture, the copy or a view,
-  and keep the board's `.plan-scroll` pan frame + the `.plan-band` stack below
-  88rem (the five columns do not fit the railed middle column otherwise).
+  from the captain's 2026-09-21 direction (the band replaced `docs/prototypes/villa-home.html`'s
+  "What we do / Services we offer"). Each plans-and-lots card binds to a LIVE price source — a
+  `lotCategories` family + product row, or a `PlanTier` — and the view prints the regular selling
+  price + area, or the plan's monthly rate, through `lib/landing/plan-lots.ts`
+  (`tests/unit/landing-view.test.tsx` + `tests/fixture-contract/landing.test.ts` pin the
+  bindings); the board holds NO items (its copy is kicker/heading/intro/note) and reads its 5 × 4
+  figures through `planRate()`, with the footnote's `{seniorMonthly}` / `{packagePage}` tokens
+  resolved from the same module. Never author an amount in the fixture, the copy or a view, and
+  keep the board's `.plan-scroll` pan frame + the `.plan-band` stack below 88rem (the five columns
+  do not fit the railed middle column otherwise).
 - The staff editor is the premium `app/(staff)/staff/landing/home` page (Pages
   & content → Home; scope
   catalog:write, reused provisionally); its rail picker catalogue in
@@ -621,7 +626,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - **The middle column is ONE sheet, sections are hairlines.** `.anchored-mid__inner`
   is the raised sheet; `.mid-section` is transparent with a top hairline (no box,
   no shadow, no per-section radius). Keep the section classes (`about-grid`,
-  `svc-grid`/`svc-band__*`, `plan-board`, `mid-section--map`, `blog-feed`) and their
+  `plan-lot-grid`, `plan-board`, `mid-section--map`, `blog-feed`) and their
   order — `tests/unit/landing-view.test.tsx` + `composition-pass.test.tsx` pin them.
 - **Imagery is right-sized, never upscaled.** A gallery/figure is bounded to its
   sensible column (the PDP `.pdp-layout` caps the media at 40rem / 64.5rem total)
@@ -1258,6 +1263,13 @@ renders a park switcher (`tests/unit/single-park.test.tsx`).
   skipped after the visitor pans/zooms). The home band renders the same canvas in a narrow
   column, so `.mid-section--map .map-embed .geo-map` drops the shared 540px height for the
   park frame's own 4:3 — keep both rules together.
+- **Plot labels paint only once their own plot is wide enough** (captain's home review,
+  2026-09-21: the ~140 placeholder plots each painted a code in a few pixels, an unreadable smear).
+  `lib/park-maps.ts` `labelDensityFor(plotWidthPx)` is the one rule — `off` below
+  `LABEL_MIN_PLOT_PX`, `code` only, `full` (legend type + owner) above `LABEL_FULL_PLOT_PX`; the
+  canvas sets a per-marker `data-label-density` from the plot's own width (circle diameter / bbox)
+  times `pxPerUnit`, refreshed on `zoomend` and after each redraw, and the CSS hides/trims the
+  marker. The legend below the map is what names types at the overview.
 - **3D internals**: scene/blockout `components/park3d/scene.tsx`, real raycast plot picking +
   instanced slabs `components/park3d/plots-3d.tsx`, vegetation instancing
   `components/park3d/vegetation.tsx`, UI/store state `lib/park-3d/view-store.ts` (zustand),

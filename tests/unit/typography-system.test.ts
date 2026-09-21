@@ -233,7 +233,6 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".rich-text h3",
         ".rte__host h3",
         ".shop-card__title",
-        ".svc-card__title",
         ".casket-collection__title",
         ".ag-state__title",
         ".ag-work__title",

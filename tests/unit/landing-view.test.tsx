@@ -1,19 +1,34 @@
 import { readFileSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
 import { PLAN_PACKAGES_IMAGE, libraryThumb } from "@/lib/media";
+import { planLotCardFigures } from "@/lib/landing/plan-lots";
 import {
   LOT_PRICE_CATEGORIES,
   PLAN_TERMS,
   PLAN_TIERS,
   SENIOR_PAYMENTS,
   VMP_PAYMENTS,
-  lotCategoryFromPrice,
   php,
   planRate,
 } from "@/lib/villa-pricing";
+
+// LandingView's cards render through the kit ProductCard, which uses next/link;
+// under the node test runner Link is a plain anchor.
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+    ...rest
+  }: { href?: string; children?: ReactNode } & AnchorHTMLAttributes<HTMLAnchorElement>) => (
+    <a href={href} {...rest}>
+      {children}
+    </a>
+  ),
+}));
 
 /**
  * Public-interface render tests for the anchored catalogue home (executed through
@@ -127,21 +142,21 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).toContain(content.contact.phoneDisplay);
   });
 
-  it("middle sections render in order: about, service cards, plan board, live map, then blog feed", async () => {
+  it("middle sections render in order: about, plans & lots, plan board, live map, then blog feed", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     const heroPos = html.indexOf("hero-home__title");
     const aboutPos = html.indexOf("about-grid");
-    const servicesPos = html.indexOf("svc-grid");
+    const plansLotsPos = html.indexOf("plan-lot-grid");
     const plansPos = html.indexOf("plan-board");
     const mapPos = html.indexOf("mid-section--map");
     const blogPos = html.indexOf("blog-feed");
     expect(heroPos).toBeGreaterThanOrEqual(0);
     expect(aboutPos).toBeGreaterThan(heroPos);
-    expect(servicesPos).toBeGreaterThan(aboutPos);
-    expect(plansPos).toBeGreaterThan(servicesPos);
+    expect(plansLotsPos).toBeGreaterThan(aboutPos);
+    expect(plansPos).toBeGreaterThan(plansLotsPos);
     // The captain-approved order puts the live park map BEFORE the newsfeed.
     expect(mapPos).toBeGreaterThan(plansPos);
     expect(blogPos).toBeGreaterThan(mapPos);
@@ -151,39 +166,43 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).not.toContain('aria-label="Like"');
   });
 
-  it("renders the prototype's four “Services we offer” cards with their derived 2026 from-prices", async () => {
+  it("renders the captain's “Memorial plans & garden lots” cards with live 2026 figures", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    expect(html).toContain("What we do");
-    expect(html).toContain("Services we offer");
-    // Four cards, each a real door to a real page (the prototype's own routes).
-    expect((html.match(/class="svc-card"/g) ?? []).length).toBe(4);
-    for (const [href, title] of [
-      ["/lots", "Lot only"],
-      ["/plans", "Lot + interment"],
-      ["/price-list", "Lot + interment + VMP"],
-      ["/lots/mausoleum", "Mausoleum + construction"],
-    ] as const) {
-      expect(html).toContain(`<a class="svc-card" href="${href}">`);
-      expect(html).toContain(title);
+    expect(html).toContain("Plans &amp; lots");
+    expect(html).toContain("Memorial plans &amp; garden lots");
+    expect(html).toContain("Choose what fits your family");
+    // The retired band is gone.
+    expect(html).not.toContain("What we do");
+    expect(html).not.toContain("Services we offer");
+    // Five cards, each the kit card.
+    expect((html.match(/class="shop-card"/g) ?? []).length).toBe(5);
+    // The three type words the captain named.
+    expect(html).toContain("Garden lot");
+    expect(html).toContain("Structure");
+    expect(html).toContain("Life plan");
+    // Every figure is DERIVED from the live pricing document through the one
+    // helper — the captain's ₱114,000 / ₱128,000 / ₱567,000 / ₱1,073,000 and
+    // the plan's entry monthly rate (regular table).
+    for (const card of content.plansLots.items) {
+      const figures = planLotCardFigures(card, LOT_PRICE_CATEGORIES, SEED_PLANS);
+      expect(figures, card.title).not.toBeNull();
+      expect(html).toContain(figures!.price);
     }
-    // Every meta line is DERIVED from the 2026 sheet through the one helper —
-    // "from ₱X · ₱Y / month, 6 yrs" (6-year amortization is the sheet's own).
-    for (const card of content.services.items) {
-      const from = lotCategoryFromPrice(card.category);
-      expect(from).not.toBeNull();
-      expect(html).toContain(`from ${php(from!.selling)}`);
-      expect(html).toContain(`· ${php(from!.monthly)} / month, 6 yrs`);
-    }
-    // The prototype's published figures reach the markup verbatim.
-    for (const line of ["from ₱75,000", "from ₱97,000", "from ₱126,000", "from ₱1,573,000"]) {
+    for (const line of ["₱114,000", "₱128,000", "₱567,000", "₱1,073,000", "2.5 sqm · lot only · regular", "12 sqm · lot only · regular", "24 sqm · lot only · regular"]) {
       expect(html).toContain(line);
     }
-    // Each card carries one of the prototype's inline glyphs.
-    expect((html.match(/svc-card__icon/g) ?? []).length).toBe(4);
-    expect((html.match(/<svg /g) ?? []).length).toBeGreaterThanOrEqual(4);
+    // The plan card prints the live entry monthly rate (Bronze 1, regular).
+    expect(html).toContain(`from ${php(planRate("bronze1", "monthly"))}`);
+    expect(html).toContain("/ month");
+    expect(html).toContain("Complete memorial service, assignable &amp; transferable.");
+    // The captain's closing note prints verbatim (React escapes the apostrophes).
+    expect(html).toContain(
+      "Prices shown are the regular &#x27;lot only&#x27; selling prices and the Villa Memorial Plan monthly rate from the 2026 price list.",
+    );
+    expect(html).toContain("Senior, installment and interment options are on each plan page.");
   });
 
   it("renders the Villa Memorial Plan board from the 2026 payment-mode tables", async () => {
@@ -405,16 +424,16 @@ describe("the rails fit without a vertical scrollbar", () => {
 });
 
 describe("the home degrades gracefully on sparse content", () => {
-  it("an empty service-card list renders an empty-state note, not a crash", async () => {
+  it("an empty plans-and-lots list renders an empty-state note, not a crash", async () => {
     const content = await listLandingContent();
     const sparse = cloneDoc(content);
-    sparse.services.items = [];
+    sparse.plansLots.items = [];
     const html = renderToStaticMarkup(
       view({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    expect(html).not.toContain('class="svc-card"');
-    expect(html).toContain("Service cards will appear here once staff publishes them.");
-    // The plan board is derived content — it still renders with no service cards.
+    expect(html).not.toContain('class="shop-card"');
+    expect(html).toContain("Plans and lots will appear here once staff publishes them.");
+    // The plan board is derived content — it still renders with no cards.
     expect(html).toContain("plan-board");
   });
 
