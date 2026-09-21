@@ -124,7 +124,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/services",
     render: async () =>
       renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
-    openingLead: /<p class="sv-hero__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/builder",
@@ -146,7 +146,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/immediate-assistance",
     render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
-    openingLead: /<p class="ia-hero__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     // The Amazon-structure PDP (P3): the gallery leads, the buy box answers at a
@@ -168,7 +168,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     // The rooms page has no cart action (its next step is the 24/7 call), so it
     // renders without the cart context.
     render: async () => renderToStaticMarkup(await FacilitiesPage()),
-    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/gallery",

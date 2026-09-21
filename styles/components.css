@@ -20452,3 +20452,558 @@ a.plan-advisor__phone:hover {
     max-height: 14rem;
   }
 }
+
+/* ============================================================================
+ * public: story block — Lane 1 of Wave A (`villa-public-minimal-story-pages`).
+ *
+ * Scope: /services + the three guides, /facilities, /immediate-assistance,
+ * /faq and /contact. The grammar comes from the Phase 0 primitives
+ * (components/public/*) and the numbers from lib/public-layout.ts; this block
+ * adds ONLY the shapes these routes need. It never edits the Phase 0 grammar
+ * block above and never another lane's block. The five shapes:
+ *
+ *   · .story-page / .story-band      the reading column and the band rhythm
+ *   · .story-rates / .story-rate     the a-la-carte ledger (one gold action
+ *                                    per row; the plan §5.2 "table/ledger")
+ *   · .story-chapels / .story-chapel the two rooms, one action each
+ *   · .story-steps / .story-step      a guide's three numbered steps
+ *   · .story-help                    the shared 24/7 closing band
+ *   · .story-rooms / .story-grounds  the facilities rooms + grounds list
+ * ========================================================================== */
+
+/* --- the reading column and the band rhythm (plan §4.2, §5) -------------- */
+.story-page {
+  margin-inline: auto;
+}
+
+.story-band {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  padding-top: clamp(1.25rem, 2.6vw, 2.5rem);
+  border-top: 1px solid var(--color-rule);
+}
+
+.story-band:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.story-note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* The hero photograph's own sample label (an `illustration-only` client photo
+   in lib/client-photos.ts) — the shared `PublicHero` has no caption slot, so the
+   story lane carries the note under the hero copy. */
+.story-hero-note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* --- services · the a-la-carte ledger (plan §5.2) ------------------------ */
+.story-rates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.story-rate {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.story-rate__icon {
+  grid-row: span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: var(--radius-md);
+  background: var(--gold-wash-soft);
+  color: var(--gold-700);
+}
+
+.story-rate__text {
+  min-width: 0;
+}
+
+.story-rate__name {
+  display: block;
+  font-size: var(--text-card-title);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.story-rate__desc {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.story-rate__price {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}
+
+.story-rate__unit {
+  display: block;
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.story-rate__actions {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (min-width: 48rem) {
+  .story-rate {
+    grid-template-columns: auto minmax(0, 1fr) 9rem auto;
+    align-items: center;
+  }
+
+  .story-rate__icon {
+    grid-row: auto;
+  }
+
+  .story-rate__actions {
+    grid-column: auto;
+  }
+}
+
+.story-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-4);
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 2px solid var(--color-rule-strong);
+}
+
+.story-total__label {
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.story-total__amount {
+  margin-left: auto;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.story-total p {
+  flex-basis: 100%;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* --- services · the two rooms, one action each (plan §5.2) --------------- */
+.story-chapels {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+@media (min-width: 60rem) {
+  .story-chapels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.story-chapel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.story-chapel__name {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-card-title);
+  line-height: var(--leading-tight);
+}
+
+.story-chapel__class {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.story-chapel__rate {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.story-chapel__unit {
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.story-chapel__what {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.story-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.story-facts > div {
+  min-width: 0;
+}
+
+.story-facts dt {
+  font-size: var(--text-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.story-facts dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.story-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+/* --- the guides' three numbered steps (plan §5.2) ------------------------ */
+.story-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-5);
+}
+
+.story-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+}
+
+.story-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--gold-wash-soft);
+  color: var(--gold-700);
+  font-size: var(--text-ui);
+  font-weight: 700;
+}
+
+.story-step__title {
+  margin: 0;
+  font-size: var(--text-card-title);
+  line-height: var(--leading-tight);
+}
+
+.story-step p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+}
+
+/* --- the shared 24/7 closing band (plan §5.2/§5.7) ----------------------- */
+.story-help {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  padding-top: clamp(1.25rem, 2.6vw, 2rem);
+  border-top: 1px solid var(--color-rule);
+}
+
+.story-help h2 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-section-title);
+  line-height: var(--leading-tight);
+}
+
+.story-help p {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.story-help__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* --- facilities · the rooms a family chooses between (plan §5.8) --------- */
+.story-rooms {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+@media (min-width: 60rem) {
+  .story-rooms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.story-room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.story-room__name {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-card-title);
+  line-height: var(--leading-tight);
+}
+
+.story-room__rate {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.story-room__unit {
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.story-room__suits {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.story-room__action {
+  margin-top: var(--space-3);
+}
+
+/* --- facilities · the grounds list (plan §5.8) --------------------------- */
+.story-grounds {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+@media (min-width: 60rem) {
+  .story-grounds {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.story-areas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.story-area {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: 999px;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.story-ground-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.story-ground {
+  margin: 0;
+}
+
+.story-ground__label {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-card-title);
+  line-height: var(--leading-tight);
+}
+
+/* --- the contact facts band (plan §5.7) ---------------------------------- */
+.story-contact-facts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 40rem) {
+  .story-contact-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.story-contact-fact {
+  min-width: 0;
+}
+
+.story-contact-fact__label {
+  display: block;
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.story-contact-fact__value {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.story-contact-fact__value a {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+/* --- the guides' / support pages' back link (story lane) ----------------- */
+.story-back {
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+/* --- story lane · density compaction (plan §3 R3/R6, §5) ----------------- */
+.story-page .public-image--band-lead {
+  max-height: 13rem;
+}
+
+@media (max-width: 40rem) {
+  .story-page .public-image--interior-hero {
+    max-height: 11rem;
+  }
+
+  .story-page .public-image--band-lead {
+    max-height: 11rem;
+  }
+
+  .story-page .story-chapel,
+  .story-page .story-room {
+    gap: var(--space-1);
+  }
+
+  .story-page .story-facts {
+    gap: var(--space-1) var(--space-4);
+    padding-top: var(--space-2);
+  }
+
+  .story-help {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .story-help__actions {
+    width: 100%;
+  }
+
+  .story-help__actions .btn {
+    flex: 1 1 auto;
+  }
+
+  /* /immediate-assistance — the call-first screen keeps its order and its
+     classes, but its steps and alternatives read as hairline rows instead of
+     three stacked boxes (the eye-friendly grammar). */
+  .story-page .ia-steps {
+    padding: var(--space-5) 0 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .story-page .ia-step {
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .story-page .ia-step__num {
+    background: var(--gold-wash-soft);
+    color: var(--gold-700);
+  }
+
+  .story-page .ia-alts__grid {
+    gap: var(--space-2);
+  }
+
+  .story-page .ia-alt {
+    padding: var(--space-3) 0;
+    border: 0;
+    border-top: 1px solid var(--color-rule);
+    border-radius: 0;
+    background: transparent;
+  }
+}
+
+/* --- story lane · the contact facts list (plan §5.7) --------------------- */
+.story-contact-facts {
+  gap: var(--space-3) var(--space-5);
+}
+
+.story-contact-fact__call {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+/* --- story lane · the captioned figure -----------------------------------
+   The Phase 0 `PublicImage` frame fixes its box with `aspect-ratio` and gives
+   the picture `height: 100%`, so a caption CHILD would overflow the frame and
+   the next sibling would overlap it (measured on /services' chapel cards in the
+   first pass). The story lane therefore keeps the caption OUTSIDE the frame in
+   `.story-figure`; the frame's ratio is untouched, so `public-image-rules`
+   still sees the pinned declarations. */
+.story-figure {
+  margin: 0;
+}

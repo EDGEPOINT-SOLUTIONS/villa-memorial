@@ -56,9 +56,9 @@ describe("the FAQ page renders the shipped content document", () => {
     for (const item of content.faq.items) {
       expect(html).toContain(item.question);
       expect(html).toContain(item.answer);
-      expect(html).toContain('class="card"');
+      expect(html).toContain('class="public-disclosure"');
     }
-    expect((html.match(/class="card"/g) ?? []).length).toBe(3);
+    expect((html.match(/class="public-disclosure"/g) ?? []).length).toBe(3);
     // The page-links row and the back link stay page chrome.
     expect(html).toContain('class="page-links"');
     for (const link of content.faq.links) {
@@ -75,7 +75,7 @@ describe("the FAQ page renders the shipped content document", () => {
     expect(saved.faq.items).toEqual([]);
 
     const html = await renderFaq();
-    expect(html).not.toContain('class="card"');
+    expect(html).not.toContain('class="public-disclosure"');
     expect(html).toContain("No questions published yet");
 
     // Restore the recorded seed for any later test in this file.

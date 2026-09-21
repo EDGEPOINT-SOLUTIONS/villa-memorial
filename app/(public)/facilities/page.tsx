@@ -2,12 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { listLandingContent } from "@/lib/api-client/landing";
 import {
-  CHAPEL_HALL_PEDESTALS_IMAGE,
   CHAPEL_SAMPLE_NOTE,
   HERO_IMAGE,
   PARK_PLACE_PHOTOS,
   VILLA_PARK_AERIAL,
-  WAKESETUP_ALCOVE_IMAGE,
   libraryThumb,
   libraryThumbSet,
 } from "@/lib/media";
@@ -15,6 +13,8 @@ import { clientPhotoWide } from "@/lib/client-photos";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
 import { CHAPEL_NOTES, CHAPEL_RATES, php } from "@/lib/villa-pricing";
 import { pageMetadata } from "@/lib/seo";
+import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
+import { StoryHelpBand } from "@/components/villa/story-ui";
 
 export const metadata: Metadata = pageMetadata({
   title: "Chapels & grounds — Villa Memorial",
@@ -59,12 +59,15 @@ export const dynamic = "force-dynamic";
  * list is unconfirmed. It publishes no chapel count, no room name and no
  * capacity figure. The park map and the 3D walk-through are NOT duplicated
  * here: the page links to them.
+ *
+ * Story-lane pass (2026-09-22, plan §5.8): the page moved onto the Phase 0
+ * grammar (`PublicHero` · `SectionHead` · `PublicImage`) and the compact
+ * `.story-*` room/ground shapes, so the two rooms, the areas and the two ground
+ * photographs read at a glance instead of four phone screens.
  */
 
-/**
- * The sheet's own per-day chapel rates (row 1 of the 3–9 day schedule carries
- * the per-day figure). Read, never typed — the same source `/services` uses.
- */
+/** The sheet's own per-day chapel rates (row 1 of the 3–9 day schedule carries
+ *  the per-day figure). Read, never typed — the same source `/services` uses. */
 const CHAPEL_PER_DAY = {
   common: CHAPEL_RATES[0].common.ratePerDay,
   private: CHAPEL_RATES[0].private.ratePerDay,
@@ -79,7 +82,7 @@ const ROOMS = [
   {
     key: "common",
     name: "Common chapel",
-    image: CHAPEL_HALL_PEDESTALS_IMAGE,
+    photo: clientPhotoWide("chapel-hall-candle-pedestals"),
     alt: "The chapel hall in the client's own photograph — a draped side table, tall candle pedestals on a green carpet, the hall's platform behind",
     suitedTo: "A large visitation",
     sharedWith: "Other families",
@@ -88,7 +91,7 @@ const ROOMS = [
   {
     key: "private",
     name: "Private chapel",
-    image: WAKESETUP_ALCOVE_IMAGE,
+    photo: clientPhotoWide("wake-setup-lamp-alcove"),
     alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
     suitedTo: "An intimate gathering",
     sharedWith: "Your family only",
@@ -107,12 +110,11 @@ const PARK_AREAS: ReadonlyArray<string> = POINTS_OF_INTEREST.filter(
 
 /**
  * The client's own product imagery for the two areas a family asks about.
- *
  * Composition pass (2026-09-18): these are the PHOTOGRAPH-ONLY derivatives of the
  * client's lot tiles (scripts/build-composition-images.mjs) rather than the tiles
- * themselves. A tile carries the group's logo lock-up and its family name set
- * large, so publishing it inside a figure that already has a caption printed a
- * second title in baked-in marketing type.
+ * themselves — a tile carries the group's logo lock-up and its family name set
+ * large, so publishing it inside a captioned figure printed a second, baked-in
+ * title.
  */
 const GROUND_AREAS = [
   { src: PARK_PLACE_PHOTOS.niches, label: "Garden niches" },
@@ -123,99 +125,68 @@ export default async function FacilitiesPage() {
   const { contact } = await listLandingContent();
 
   return (
-    <div className="fac-page">
-      <section className="hero-premium" aria-labelledby="facilities-title">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">Facilities</p>
-            <h1 className="hero-premium__title" id="facilities-title">
-              The chapels and the grounds
-            </h1>
-            {/* The page's one-line answer (reading budget, captain 2026-09-18).
-                No chapel COUNT is claimed — the park's real list is an open
-                client question, so the page sells the sheet's two classes. */}
-            <p className="hero-premium__lead">Where the wake is held — and the 2026 rates.</p>
-            <div className="hero-premium__actions">
-              <a className="btn btn--primary" href={contact.phoneHref}>
-                Call {contact.phoneDisplay}
-              </a>
-              <Link className="btn btn--secondary" href="#rooms">
-                See the rooms
-              </Link>
-            </div>
-          </div>
-          <figure className="hero-premium__media">
-            {/* eslint-disable-next-line @next/next/no-img-element -- uploaded park photo */}
-            <img
-              src={libraryThumb(HERO_IMAGE, 640)}
-              srcSet={libraryThumbSet(HERO_IMAGE)}
-              sizes="(max-width: 60rem) 90vw, 30rem"
-              alt="The park's gated entrance and roadside sign, seen from the road"
-            />
-            <figcaption>The park&rsquo;s front gate on the road in.</figcaption>
-          </figure>
-        </div>
-      </section>
+    <div className="story-page container--catalogue">
+      <PublicHero
+        variant="interior"
+        eyebrow="Facilities"
+        title="The chapels and the grounds"
+        lead="Where the wake is held — and the 2026 rates."
+        primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
+        secondary={{ label: "See the rooms", href: "#rooms" }}
+        image={{
+          src: libraryThumb(HERO_IMAGE, 640),
+          srcSet: libraryThumbSet(HERO_IMAGE),
+          sizes: "(max-width: 48rem) 92vw, 30rem",
+          alt: "The park's gated entrance and roadside sign, seen from the road",
+          width: 960,
+          height: 640,
+        }}
+      />
 
-      <section className="fac-section" id="rooms" aria-labelledby="rooms-title">
-        <p className="fac-section__kicker">The rooms</p>
-        <h2 className="fac-section__title" id="rooms-title">
-          Common chapel, private chapel
-        </h2>
-        <p className="fac-section__intro">Booked by the day, three to nine days.</p>
+      <section className="story-band" id="rooms" aria-labelledby="rooms-title">
+        <SectionHead
+          id="rooms-title"
+          kicker="The rooms"
+          title="Common chapel, private chapel"
+          lead="Booked by the day, three to nine days."
+        />
 
-        <div className="fac-rooms">
+        <div className="story-rooms">
           {ROOMS.map((room) => (
-            <article className="fac-room" key={room.key}>
-              <figure className="fac-room__media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- the client's own 2026 photograph */}
-                <img
-                  src={room.image}
-                  srcSet={clientPhotoWide(
-                    room.key === "common" ? "chapel-hall-candle-pedestals" : "wake-setup-lamp-alcove",
-                  ).srcSet}
-                  sizes="(max-width: 60rem) 92vw, 40rem"
+            <article className="story-room" key={room.key}>
+              <div className="story-figure">
+                <PublicImage
+                  role="band-lead"
+                  src={room.photo.src}
+                  srcSet={room.photo.srcSet}
+                  sizes="(max-width: 60rem) 92vw, 28rem"
                   alt={room.alt}
-                  loading="lazy"
+                  width={room.photo.width}
+                  height={room.photo.height}
                 />
-                {/* The client's own photograph of a room and of a set-up they
-                    built — the office confirms which room a family is given. */}
-                <figcaption>{CHAPEL_SAMPLE_NOTE}</figcaption>
-              </figure>
-              <div className="fac-room__body">
-                <h3 className="fac-room__name">{room.name}</h3>
-                <p className="fac-room__rate">
-                  {php(room.perDay)} <span className="fac-room__unit">per day</span>
-                </p>
-                <dl className="fac-room__facts">
-                  <div>
-                    <dt>Suited to</dt>
-                    <dd>{room.suitedTo}</dd>
-                  </div>
-                  <div>
-                    <dt>Shared with</dt>
-                    <dd>{room.sharedWith}</dd>
-                  </div>
-                  <div>
-                    <dt>Stay</dt>
-                    <dd>3&ndash;9 days</dd>
-                  </div>
-                </dl>
-                {/* One next step per room: ask the office. The number is the
-                    staff-editable 24/7 line — never typed into this page. */}
-                <a className="btn btn--primary btn--block fac-room__action" href={contact.phoneHref}>
-                  <span className="visually-hidden">Ask about the {room.name}: </span>
-                  Call {contact.phoneDisplay} — ask about dates
-                </a>
+                <p className="public-image__caption">{CHAPEL_SAMPLE_NOTE}</p>
               </div>
+              <h3 className="story-room__name">{room.name}</h3>
+              <p className="story-room__rate">
+                {php(room.perDay)} <span className="story-room__unit">per day</span>
+              </p>
+              <p className="story-room__suits">
+                {room.suitedTo} · shared with {room.sharedWith.toLowerCase()}
+              </p>
+              {/* One next step per room: ask the office. The number is the
+                  staff-editable 24/7 line — never typed into this page. */}
+              <a className="btn btn--primary story-room__action" href={contact.phoneHref}>
+                <span className="visually-hidden">Ask about the {room.name}: </span>
+                Call {contact.phoneDisplay} — ask about dates
+              </a>
             </article>
           ))}
         </div>
 
-        <ul className="fac-facts">
-          <li>{CHAPEL_NOTES.scope}</li>
-          <li>{CHAPEL_NOTES.miscFee}</li>
-          <li>{CHAPEL_NOTES.privateChapelOnly}</li>
+        <ul className="story-areas" aria-label="Chapel conditions">
+          <li className="story-area">{CHAPEL_NOTES.scope}</li>
+          <li className="story-area">{CHAPEL_NOTES.miscFee}</li>
+          <li className="story-area">{CHAPEL_NOTES.privateChapelOnly}</li>
         </ul>
 
         <p className="fac-placeholder">
@@ -224,64 +195,59 @@ export default async function FacilitiesPage() {
         </p>
       </section>
 
-      <section className="fac-section" id="grounds" aria-labelledby="grounds-title">
-        <p className="fac-section__kicker">The park and the grounds</p>
-        <h2 className="fac-section__title" id="grounds-title">
-          Gardens, niches and open lawns
-        </h2>
-        <p className="fac-section__intro">Every area the client&rsquo;s own masterplan labels.</p>
+      <section className="story-band" id="grounds" aria-labelledby="grounds-title">
+        <SectionHead
+          id="grounds-title"
+          kicker="The park and the grounds"
+          title="Gardens, niches and open lawns"
+          lead="Every area the client&rsquo;s own masterplan labels."
+        />
 
-        <div className="fac-grounds">
-          <figure className="fac-grounds__media">
-            {/* eslint-disable-next-line @next/next/no-img-element -- client park photo */}
-            <img
+        <div className="story-grounds">
+          <div className="story-figure">
+            <PublicImage
+              role="band-lead"
               src={libraryThumb(VILLA_PARK_AERIAL, 960)}
               srcSet={libraryThumbSet(VILLA_PARK_AERIAL)}
-              sizes="(max-width: 60rem) 90vw, 45rem"
+              sizes="(max-width: 60rem) 92vw, 45rem"
               alt="The park's pavilion and grounds, with the client's own banner text over the picture"
-              loading="lazy"
+              width={960}
+              height={640}
             />
-            <figcaption>The pavilion and the grounds — the client&rsquo;s own photo.</figcaption>
-          </figure>
-          <div className="fac-areas">
-            <h3 className="fac-areas__heading">On the masterplan</h3>
-            <ul className="fac-areas__list">
-              {PARK_AREAS.map((area) => (
-                <li className="fac-area" key={area}>
-                  {area}
-                </li>
-              ))}
-            </ul>
+            <p className="public-image__caption">The pavilion and the grounds — the client&rsquo;s own photo.</p>
           </div>
+          <ul className="story-areas" aria-label="Areas on the masterplan">
+            {PARK_AREAS.map((area) => (
+              <li className="story-area" key={area}>
+                {area}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <div className="fac-grounds__grid">
+        <div className="story-ground-grid">
           {GROUND_AREAS.map((area) => (
-            <figure className="fac-ground" key={area.label}>
-              <div className="fac-ground__media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- client lot photograph */}
-                <img
-                  src={area.src.replace("-720", "-480")}
-                  srcSet={`${area.src.replace("-720", "-480")} 480w, ${area.src} 720w`}
-                  /* Two columns inside the folio at desktop: each figure is ~48vw
-                     (measured 628px at 1440). The old 22rem hint made the browser
-                     fetch the 480 file for a 628px slot and upscale it. */
-                  sizes="(max-width: 46rem) 92vw, 48vw"
-                  alt={area.label}
-                  loading="lazy"
-                />
-              </div>
-              <figcaption className="fac-ground__body">
-                <h3>{area.label}</h3>
-              </figcaption>
-            </figure>
+            <div className="story-ground" key={area.label}>
+              <PublicImage
+                role="gallery-tile"
+                src={area.src.replace("-720", "-480")}
+                srcSet={`${area.src.replace("-720", "-480")} 480w, ${area.src} 720w`}
+                /* Two columns on a phone and inside the catalogue envelope:
+                   each figure is ~46vw. The hint must match that box. */
+                sizes="(max-width: 46rem) 46vw, 24vw"
+                alt={area.label}
+                width={480}
+                height={320}
+              />
+              <p className="story-ground__label">{area.label}</p>
+            </div>
           ))}
         </div>
 
         {/* The map and the 3D park already exist — this page links to them
             instead of drawing a second one (a plot's own status and geometry
             stay on /map). */}
-        <div className="row row--wrap">
+        <div className="story-actions">
           <Link className="btn btn--primary" href="/map">
             Open the park map &amp; 3D view
           </Link>
@@ -291,20 +257,16 @@ export default async function FacilitiesPage() {
         </div>
       </section>
 
-      <section className="fac-help" aria-labelledby="ask-title">
-        <div>
-          <h2 id="ask-title">Ask the office for availability</h2>
-          <p>Any hour, any day — the park holds the dates.</p>
-        </div>
-        <div className="fac-help__actions">
-          <a className="btn btn--primary" href={contact.phoneHref}>
-            Call {contact.phoneDisplay}
-          </a>
+      <StoryHelpBand
+        contact={contact}
+        title="Ask the office for availability"
+        text="Any hour, any day — the park holds the dates."
+        secondary={
           <Link className="btn btn--secondary" href="/services#chapel">
             Chapel dates &amp; booking
           </Link>
-        </div>
-      </section>
+        }
+      />
     </div>
   );
 }

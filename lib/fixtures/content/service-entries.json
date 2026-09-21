@@ -4,7 +4,7 @@
     "date": "2026-09-21",
     "sources": [
       "The captain's §10 answer 3: the three guide pages stay as SERVICE ENTRIES under Funeraria Memorial Services.",
-      "Every string here is the CURRENT PAGE COPY transcribed from the live guide pages, so the entry starts as what visitors already read — never new marketing copy:",
+      "Every string here is the CURRENT PAGE COPY transcribed from the live guide pages, so the entry starts as what visitors already read — never new marketing copy. The story-lane pass (2026-09-22) COMPRESSED each summary to the captain's ≤30-word paragraph budget; the wording keeps the same meaning:",
       "  · death-at-home   ← app/(public)/services/death-at-home/page.tsx (title / lead / figcaption / photo)",
       "  · death-at-hospital ← app/(public)/services/death-at-hospital/page.tsx",
       "  · transport       ← app/(public)/transport/page.tsx (the client's own karwahe photograph)",
@@ -22,7 +22,7 @@
       "sku": null,
       "key": "death-at-home",
       "title": "Death at home",
-      "summary": "When a loved one passes at home, you should not have to manage the next steps alone. Our coordinators arrange transport, dignified preparation, and guide you through the service options that fit your family — at your pace, with no pressure.",
+      "summary": "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
       "group": "Services · At home",
       "media": {
         "hero": "/media/death_at_home.jpg",
@@ -47,7 +47,7 @@
       "sku": null,
       "key": "death-at-hospital",
       "title": "Death at hospital",
-      "summary": "When a loved one passes in a hospital or care facility, we liaise directly with the facility so you can focus on family. We handle the logistics of transfer, preparation, and coordination with the service venue.",
+      "summary": "When a loved one passes in hospital, we liaise with the facility, handle the transfer and preparation, and coordinate with the venue.",
       "group": "Services · In care",
       "media": {
         "hero": "/media/death_at_hospital.jpg",
@@ -72,7 +72,7 @@
       "sku": null,
       "key": "transport",
       "title": "Transport",
-      "summary": "Dignified transport for your loved one — from home or hospital to the service venue, and onward when the time comes. Coordinated by our team as part of your arrangement.",
+      "summary": "Dignified transport from home or hospital to the service venue, and onward when the time comes. Our team coordinates it for you.",
       "group": "Services · Transport",
       "media": {
         "hero": "/media/client/hearse-carriage-gold-side-wide-960.webp",

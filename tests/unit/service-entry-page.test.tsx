@@ -56,7 +56,7 @@ describe("the service guide entries drive their routes and the /services cards",
   it("renders the guide page from its entry", () => {
     expect(before).toContain("Death at home");
     expect(before).toContain(
-      "When a loved one passes at home, you should not have to manage the next steps alone.",
+      "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
     );
     // The route keeps its structure: the immediate-assistance primary action.
     expect(before).toContain('href="/immediate-assistance"');
@@ -101,7 +101,7 @@ describe("the service guide entries drive their routes and the /services cards",
   it("keeps the transport route on its own entry", async () => {
     const html = await renderGuide(TransportPage);
     expect(html).toContain("Transport");
-    expect(html).toContain("Dignified transport for your loved one");
+    expect(html).toContain("Dignified transport from home or hospital to the service venue");
     expect(html).toContain('href="/price-list"');
   });
 });

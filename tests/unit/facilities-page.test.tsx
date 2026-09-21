@@ -66,7 +66,7 @@ describe("/facilities shows the rooms a family is choosing between", () => {
   it("renders one card per chapel class with the client's sample photograph", async () => {
     const html = await renderFacilities();
 
-    expect((html.match(/class="fac-room"/g) ?? []).length).toBe(2);
+    expect((html.match(/class="story-room"/g) ?? []).length).toBe(2);
     expect(html).toContain("Common chapel");
     expect(html).toContain("Private chapel");
     // 2026-09-19: the two classes show the client's OWN 2026 photographs — the
@@ -84,14 +84,14 @@ describe("/facilities shows the rooms a family is choosing between", () => {
 
     expect(html).toContain(php(CHAPEL_RATES[0].common.ratePerDay));
     expect(html).toContain(php(CHAPEL_RATES[0].private.ratePerDay));
-    expect((html.match(/class="fac-room__unit">per day</g) ?? []).length).toBe(2);
+    expect((html.match(/class="story-room__unit">per day</g) ?? []).length).toBe(2);
   });
 
   it("reads the same figures /services publishes — the two pages cannot drift", async () => {
     const [facilities, services] = await Promise.all([renderFacilities(), renderServices()]);
 
-    const onFacilities = perDayAmounts(facilities, /class="fac-room__rate">([\s\S]*?)<\/p>/g);
-    const onServices = perDayAmounts(services, /class="sv-chapel__rate">([\s\S]*?)<\/div>/g);
+    const onFacilities = perDayAmounts(facilities, /class="story-room__rate">([\s\S]*?)<\/p>/g);
+    const onServices = perDayAmounts(services, /class="story-chapel__rate">([\s\S]*?)<\/p>/g);
 
     expect(onFacilities).toHaveLength(2);
     expect(onFacilities).toEqual(onServices);
@@ -103,7 +103,7 @@ describe("/facilities shows the rooms a family is choosing between", () => {
     const { contact } = await listLandingContent();
     const html = await renderFacilities();
 
-    expect((html.match(/class="btn btn--primary btn--block fac-room__action"/g) ?? []).length).toBe(2);
+    expect((html.match(/class="btn btn--primary story-room__action"/g) ?? []).length).toBe(2);
     // Two identical-visible call buttons would be ambiguous to a screen reader:
     // the visually hidden span names the room first.
     expect(html).toContain("Ask about the Common chapel:");
@@ -120,7 +120,7 @@ describe("/facilities shows the rooms a family is choosing between", () => {
       CHAPEL_NOTES.miscFee,
       CHAPEL_NOTES.privateChapelOnly,
     ]) {
-      expect(html).toContain(`<li>${note}</li>`);
+      expect(html).toContain(`class="story-area">${note}</li>`);
     }
   });
 });
@@ -157,7 +157,7 @@ describe("/facilities shows the grounds without re-drawing the map", () => {
     const areas = POINTS_OF_INTEREST.filter((p) => p.id !== "future-development");
     expect(areas.length).toBeGreaterThanOrEqual(4);
     for (const area of areas) {
-      expect(html, area.label).toContain(`<li class="fac-area">${area.label}</li>`);
+      expect(html, area.label).toContain(`<li class="story-area">${area.label}</li>`);
     }
   });
 
@@ -260,8 +260,8 @@ describe("/facilities is reachable from the public chrome and stays one page", (
     // No inline styles on this page: colour, size and space come from the
     // token-driven classes in styles/components.css.
     expect(html).not.toContain('style="');
-    expect(html).toContain('class="eyebrow-label"');
-    expect(html).toContain('class="fac-room"');
+    expect(html).toContain('class="public-hero__eyebrow"');
+    expect(html).toContain('class="story-room"');
   });
 });
 

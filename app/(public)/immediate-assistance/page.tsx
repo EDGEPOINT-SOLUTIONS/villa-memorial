@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LogIn, Mail, MapPin, Phone } from "lucide-react";
+import { LogIn, Mail, MapPin } from "lucide-react";
 import { pageMetadata } from "@/lib/seo";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { PublicHero } from "@/components/kit";
 
 export const metadata: Metadata = pageMetadata({
   title: "Immediate assistance — Villa Memorial",
@@ -34,27 +35,21 @@ export default async function ImmediateAssistancePage() {
   const { contact } = await listLandingContent();
 
   return (
-    <div className="ia-page">
-      {/* 1. The call — the only thing this screen needs the visitor to do. */}
-      <section className="ia-hero" aria-labelledby="ia-title">
-        <p className="ia-hero__eyebrow">Immediate assistance</p>
-        <h1 className="ia-hero__title" id="ia-title">
-          Someone has died.
-        </h1>
-        <p className="ia-hero__lead">
-          Call the office now — we answer any hour, day or night.
-        </p>
-        <a className="btn ia-call" href={contact.phoneHref}>
-          <Phone size={30} aria-hidden="true" />
-          <span className="ia-call__text">
-            <span className="ia-call__kicker">Call now</span>
-            <span className="ia-call__number">{contact.phoneDisplay}</span>
-          </span>
-        </a>
+    <div className="ia-page story-page container--reading">
+      {/* 1. The call — the only thing this screen needs the visitor to do. The
+             call-first PublicHero is the documented F-01 exemption from the
+             closing band: the enormous call leads and nothing competes. */}
+      <PublicHero
+        variant="call-first"
+        eyebrow="Immediate assistance"
+        title="Someone has died."
+        lead="Call the office now — we answer any hour, day or night."
+        primary={{ label: `Call now — ${contact.phoneDisplay}`, href: contact.phoneHref }}
+      >
         <p className="ia-hero__note">
           {contact.phoneLabel} · {contact.location}
         </p>
-      </section>
+      </PublicHero>
 
       {/* 2. What to do right now — numbered steps, not prose. */}
       <section className="ia-steps" aria-labelledby="ia-steps-title">

@@ -56,11 +56,14 @@ describe("/immediate-assistance leads with the one call that matters", () => {
     expect(html).toContain("Someone has died.");
 
     // The call target: the document's own href + display text, rendered as the
-    // page's `.ia-call` (the enormous button), before the steps section.
-    expect(html).toContain('class="btn ia-call"');
+    // hero's enormous primary button, before the steps section.
+    expect(html).toContain('class="public-hero__actions"');
+    expect(html).toContain('class="btn btn--primary btn--lg"');
     expect(html).toContain(`href="${content.contact.phoneHref}"`);
     expect(unescaped(html)).toContain(content.contact.phoneDisplay);
-    expect(html.indexOf('class="btn ia-call"')).toBeLessThan(html.indexOf('class="ia-steps"'));
+    expect(html.indexOf('class="public-hero__actions"')).toBeLessThan(
+      html.indexOf('class="ia-steps"'),
+    );
 
     // The 24/7 label and location are printed from the same document.
     expect(html).toContain(content.contact.phoneLabel);
