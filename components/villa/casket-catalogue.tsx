@@ -140,7 +140,6 @@ function CasketCard({ model, item }: SellableCasket) {
   return (
     <ProductCard
       href={href}
-      chip="Sample photograph"
       eyebrow={`${model.family} family`}
       title={item.name}
       supporting={coverLine(model)}

@@ -15,11 +15,11 @@ import { LandingFooter } from "@/components/landing/landing-view";
  * header/footer so both stay in sync — see AGENTS.md "anchored catalogue").
  *
  * The header here is the SAME SiteHeaderBar + LandingFooter the home uses,
- * fed from the same landing content document (logo wordmark + uploaded mark,
- * 24/7 line). Interior pages add two client-only niceties the framework-free
+ * fed from the same landing content document (logo wordmark + uploaded mark).
+ * Interior pages add two client-only niceties the framework-free
  * home can't: an active-link highlight (aria-current via usePathname) and the
- * live cart count. Everything else — brand row, page links, grouped Plan
- * ahead, cart icon, phone bottom action bar — is identical on every public
+ * live cart count. Everything else — brand row, page links, grouped Explore
+ * more, cart icon, phone bottom action bar — is identical on every public
  * page, so the navigation never changes while navigating between pages.
  *
  * Pass flush for full-bleed heroes: the page supplies its own containers.
@@ -31,7 +31,6 @@ function PublicChromeHeader({ content }: { content: LandingContent }) {
   return (
     <SiteHeaderBar
       brand={content.logo}
-      contact={content.contact}
       currentPath={pathname}
       cartCount={count > 0 ? count : undefined}
     />

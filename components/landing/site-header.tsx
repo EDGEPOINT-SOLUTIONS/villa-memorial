@@ -1,21 +1,21 @@
 /**
  * SiteHeaderBar — the ONE public navigation bar (anchored grammar, blue/gold
- * folio), now in TWO layers (captain-approved 2026-09-17 — Lavish review
- * "Public navigation", reference under docs/08-delivery/public-nav-design):
+ * folio), now a SINGLE row (captain 2026-09-21: the utility row was removed as
+ * "so cheap" — its location, hours, Immediate Assistance link and the 24/7
+ * number are carried by the footer, /contact and /immediate-assistance, and the
+ * phone keeps its permanent bottom action bar):
  *
- *   utility row   location · hours on the left, the 24/7 number as a real
- *                 call button on the right — the trust facts, always visible;
  *   main row      brand · the top-level page links (Home · Funeraria Memorial
  *                 Services · Villa Memorial Plan · Villa Memorial Park ·
  *                 Contact) · the grouped "Explore more" menu (Builder ·
- *                 Facilities · Gallery · Memorials) · quiet Sign in · cart icon
- *                 + count.
+ *                 Facilities · Gallery · Memorials · Price list) · quiet
+ *                 Sign in · cart icon + count.
  *
  * Rendered by BOTH the premium home (LandingView, framework-free under the
  * repo's node tests) and every other public page (PublicShell). One component
  * + one class set is what keeps the bar identical when a visitor navigates:
  * same brand row, same destinations (Home first, Cart never a text link among
- * the pages), same 24/7 number.
+ * the pages).
  *
  * Framework-free on purpose (plain <a>/<button>, no next/link, no router): the
  * bar is also rendered by react-dom/server in unit tests and must never
@@ -26,8 +26,8 @@
  * matching link gets aria-current; the home renders the same bar unhighlighted.
  */
 /* eslint-disable @next/next/no-html-link-for-pages -- shared framework-free public bar (see landing-view.tsx rationale) */
-import { ChevronDown, Clock, LifeBuoy, MapPin, Phone, ShoppingCart } from "lucide-react";
-import type { ContactInfo, LogoConfig } from "@/lib/api-client/landing";
+import { ChevronDown, ShoppingCart } from "lucide-react";
+import type { LogoConfig } from "@/lib/api-client/landing";
 import { BrandMark } from "@/components/landing/brand-mark";
 import { HeaderBehavior } from "@/components/landing/header-behavior";
 
@@ -61,13 +61,6 @@ export const EXPLORE_MORE_LINKS: ReadonlyArray<{ title: string; note: string; hr
   { title: "Price list", note: "Every published 2026 amount in one place", href: "/price-list" },
 ];
 
-/**
- * The utility row's hours line — a plain restatement of the client's own 24/7
- * label (lib/fixtures/landing/content.json contact.phoneLabel), shown beside
- * the real location. Nothing here invents a schedule.
- */
-export const UTILITY_HOURS = "every hour, every day";
-
 function isCurrent(pathname: string, href: string): boolean {
   if (href === "/") return pathname === "/";
   return pathname === href || pathname.startsWith(href + "/");
@@ -75,12 +68,10 @@ function isCurrent(pathname: string, href: string): boolean {
 
 export function SiteHeaderBar({
   brand,
-  contact,
   currentPath,
   cartCount,
 }: {
   brand: LogoConfig;
-  contact: ContactInfo;
   /** Pathname of the rendered page; omit to render with no active link (home). */
   currentPath?: string;
   /** Live cart line count (client surfaces only); shown as the cart badge. */
@@ -98,39 +89,6 @@ export function SiteHeaderBar({
         Skip to content
       </a>
       <header className="anchored-header">
-        {/* Utility row — location · hours, then the 24/7 number as a real
-            call button. On phones the button moves to the bottom action bar
-            so the number is never shown twice. */}
-        <div className="anchored-header__utility">
-          <div className="anchored-header__utility-bar">
-            <p className="anchored-header__utility-meta">
-              <MapPin size={14} aria-hidden="true" />
-              <span>{contact.location}</span>
-              <span className="anchored-header__utility-sep" aria-hidden="true">
-                ·
-              </span>
-              <Clock size={14} aria-hidden="true" />
-              <span>{UTILITY_HOURS}</span>
-            </p>
-            <div className="anchored-header__utility-actions">
-              {/* The way into the Immediate Assistance screen (F-01). Desktop
-                  only — on phones the same target lives in the bottom phone
-                  bar, never twice on one screen. */}
-              <a className="anchored-header__assist" href="/immediate-assistance">
-                <LifeBuoy size={15} aria-hidden="true" />
-                <span>Immediate assistance</span>
-              </a>
-              <a className="anchored-header__call" href={contact.phoneHref}>
-                <Phone size={17} aria-hidden="true" />
-                <span className="anchored-header__call-text">
-                  <span className="anchored-header__call-label">{contact.phoneLabel}</span>
-                  <span className="anchored-header__call-number">{contact.phoneDisplay}</span>
-                </span>
-              </a>
-            </div>
-          </div>
-        </div>
-
         {/* Main row — brand · page links · grouped Explore more · actions. */}
         <div className="anchored-header__bar">
           <a className="anchored-header__brand" href="/">

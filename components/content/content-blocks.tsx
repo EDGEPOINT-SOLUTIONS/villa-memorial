@@ -124,7 +124,6 @@ function Block({
                 {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
                 <img src={image.src} alt={image.alt} loading="lazy" />
                 <figcaption>
-                  {image.sample ? <span className="casket-sample__mini">Sample photograph</span> : null}
                   {image.caption ? <span>{image.caption}</span> : null}
                 </figcaption>
               </figure>

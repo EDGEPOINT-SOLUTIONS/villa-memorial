@@ -46,12 +46,11 @@ describe("kit ProductCard", () => {
     expect(html).toContain("Ask about this lot");
   });
 
-  it("renders the status chip and the sample marker together", () => {
+  it("renders the status chip and the illustration caption", () => {
     const html = renderToStaticMarkup(
       <ProductCard
         href="/products/lumina"
         photo={photo}
-        chip="Sample photograph"
         title="Lumina"
         price="₱33,000"
         status={{ tone: "success", label: "Available" }}
@@ -59,11 +58,12 @@ describe("kit ProductCard", () => {
         actions={<span />}
       />,
     );
-    expect(html).toContain("casket-sample__chip");
-    expect(html).toContain("Sample photograph");
     expect(html).toContain("badge--success");
     expect(html).toContain("Available");
     expect(html).toContain("Illustration purposes only.");
+    // The picture no longer carries a redundant "sample" badge.
+    expect(html).not.toContain("casket-sample__chip");
+    expect(html).not.toContain("Sample photograph");
   });
 
   it("prints the status chip UNDER the figure — the /lots card's second read", () => {

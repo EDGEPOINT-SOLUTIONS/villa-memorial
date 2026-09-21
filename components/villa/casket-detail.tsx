@@ -10,9 +10,9 @@ import type { CasketModel } from "@/lib/villa-pricing";
  * this model (cover variant + collection band). The client's photograph set is
  * not reconciled with the sheet's model names — an open client question
  * (lib/client-photos.ts) — so this view captions the photograph with the record's
- * own short label, chips it "Sample photograph" and prints the sheet's one-line
- * illustration label. The long substitution sentence (COFFIN_TIER_NOTE) stays on
- * /products; the PDP's editable description carries the office's own words.
+ * own short label and prints the sheet's one-line illustration label. The long
+ * substitution sentence (COFFIN_TIER_NOTE) stays on /products; the PDP's editable
+ * description carries the office's own words.
  */
 export function CasketSampleFigure({ model }: { model: CasketModel }) {
   const sample = casketSamplePhoto(model);
@@ -31,7 +31,6 @@ export function CasketSampleFigure({ model }: { model: CasketModel }) {
           sizes="(max-width: 64rem) 92vw, 40rem"
           alt={`Illustrative sample coffin — ${sample.alt}`}
         />
-        <span className="casket-sample__chip">Sample photograph</span>
       </div>
       <figcaption className="casket-sample__caption">
         <strong>{sample.label}.</strong> {COFFIN_SAMPLE_NOTE}

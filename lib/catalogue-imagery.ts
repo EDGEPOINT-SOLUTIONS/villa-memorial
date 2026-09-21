@@ -21,9 +21,9 @@ import { COFFIN_TIER_PHOTO_IDS, PLAN_TIERS } from "@/lib/villa-pricing";
  * THE HONESTY RULES, in the order they apply:
  *  1. a photograph that IS the thing named is published plainly (the client's
  *     karwahe, their chapel hall, the park) — no chip, no sample note;
- *  2. a photograph that stands in for something else carries the sample chip AND
- *     a caption saying what it actually shows (the casket samples, the office's
- *     staff at work). The client's photographs are not reconciled with the 2026
+ *  2. a photograph that stands in for something else is marked `sample` and
+ *     carries a caption saying what it actually shows (the casket samples, the
+ *     office's staff at work). The client's photographs are not reconciled with the 2026
  *     sheet model names — lib/client-photos.ts carries that open question and
  *     `casketShopPhoto` reuses lib/media.ts's own 24-row table;
  *  3. an item the client's material does not cover at all gets NO photograph
@@ -46,9 +46,9 @@ export type CatalogueItemPhoto = {
   width?: number;
   height?: number;
   alt: string;
-  /** The sample marker. Set exactly when `caption` is. */
-  chip?: string;
-  /** What the photograph actually is. Set exactly when `chip` is. */
+  /** True when the photograph stands in for something it does not show. */
+  sample?: boolean;
+  /** What the photograph actually is. Set exactly when `sample` is. */
   caption?: string;
 };
 
@@ -89,7 +89,7 @@ function clientPhotoOf(id: ClientPhotoId, alt?: string): CatalogueItemPhoto {
 function sampleOf(id: ClientPhotoId, caption: string): CatalogueItemPhoto {
   return {
     ...clientPhotoOf(id),
-    chip: "Sample photograph",
+    sample: true,
     caption: `${caption} Sample only.`,
   };
 }
@@ -104,7 +104,7 @@ function casketShopPhoto(model: string): CatalogueItemPhoto {
     width: sample.card.width,
     height: sample.card.height,
     alt: `Illustrative sample coffin — ${sample.alt}`,
-    chip: "Sample photograph",
+    sample: true,
     // The short form of the sheet's note: /plans budgets every list item to thirty
     // words (see sampleOf above). /products and the detail page print the sheet's
     // full substitution sentence.
@@ -133,14 +133,14 @@ const SERVICE_PHOTOS: Readonly<Record<string, CatalogueItemPhoto>> = {
     id: "at-need-services",
     src: libraryThumb("/media/at_need_services.jpg", 960),
     alt: "A funeral attendant holding a single rose beside a casket",
-    chip: "Illustration only",
+    sample: true,
     caption: "The office&rsquo;s at-need call. Illustration only.",
   },
   "SRV-DELIVERY": {
     id: "transport",
     src: libraryThumb("/media/transport.jpg", 960),
     alt: "A hearse carrying a floral arrangement",
-    chip: "Illustration only",
+    sample: true,
     caption: "A hearse in service. Illustration only.",
   },
   "SRV-VIEWING": sampleOf("wake-setup-lamp-alcove", "The office&rsquo;s own viewing set-up."),

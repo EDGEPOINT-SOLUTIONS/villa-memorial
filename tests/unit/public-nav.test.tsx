@@ -8,10 +8,10 @@ import { listLandingContent } from "@/lib/api-client/landing";
 /**
  * The approved public-navigation contract (captain, 2026-09-17 — Lavish review
  * "Public navigation", reference under docs/08-delivery/public-nav-design;
- * updated by the captain's 2026-09-21 direction: the bar keeps the five
- * top-level destinations and the grouped "Explore more" menu holds Builder ·
- * Facilities · Gallery · Memorials · Price list): the two-layer bar, the cart
- * icon + count, and the permanent phone action bar.
+ * updated by the captain's 2026-09-21 direction: the utility row was removed
+ * and the bar keeps the five top-level destinations plus the grouped "Explore
+ * more" menu — Builder · Facilities · Gallery · Memorials · Price list): the
+ * single-row bar, the cart icon + count, and the permanent phone action bar.
  * Executed through react-dom/server like the rest of the repo's UI tests; the
  * interactive behaviour (scroll compression, disclosure, dialog) is client-only
  * and pinned structurally here.
@@ -20,26 +20,24 @@ async function chrome() {
   return listLandingContent();
 }
 
-describe("the two-layer public bar", () => {
-  it("renders the utility row with the client's real location and 24/7 number", async () => {
-    const { logo, contact } = await chrome();
-    const html = renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo, contact }));
-    expect(html).toContain(contact.location);
-    expect(html).toContain("every hour, every day");
-    expect(html).toContain(`href="${contact.phoneHref}"`);
-    expect(html).toContain(contact.phoneDisplay);
-    expect(html).toContain(contact.phoneLabel);
-    // The F-01 door to the Immediate Assistance screen (captain, 2026-09-18)
-    // rides the same utility row, quieter than the call button.
-    expect(html).toContain('class="anchored-header__assist"');
-    expect(html).toContain('href="/immediate-assistance"');
-    expect(html).toContain("Immediate assistance");
+describe("the public bar", () => {
+  it("no longer carries a utility row — the 24/7 number lives elsewhere", async () => {
+    const { logo } = await chrome();
+    const html = renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo }));
+    // The captain's 2026-09-21 cleanup: location, hours, Immediate assistance
+    // and the call button are gone from the bar; the footer, /contact and
+    // /immediate-assistance carry the number, and the phone action bar keeps
+    // its own call target.
+    expect(html).not.toContain("anchored-header__utility");
+    expect(html).not.toContain("anchored-header__assist");
+    expect(html).not.toContain("anchored-header__call");
+    expect(html).not.toContain("every hour, every day");
   });
 
   it("carries the five top-level pages, marks only the current page and groups the rest under Explore more", async () => {
-    const { logo, contact } = await chrome();
+    const { logo } = await chrome();
     const html = renderToStaticMarkup(
-      createElement(SiteHeaderBar, { brand: logo, contact, currentPath: "/plans", cartCount: 2 }),
+      createElement(SiteHeaderBar, { brand: logo, currentPath: "/plans", cartCount: 2 }),
     );
     // The captain's 2026-09-21 top-level bar: Home first, the full page names,
     // plus Contact. Lots is gone (it lives inside Villa Memorial Park).
@@ -94,9 +92,9 @@ describe("the two-layer public bar", () => {
   });
 
   it("renders the cart as an icon with its count, never a text link", async () => {
-    const { logo, contact } = await chrome();
+    const { logo } = await chrome();
     const html = renderToStaticMarkup(
-      createElement(SiteHeaderBar, { brand: logo, contact, cartCount: 3 }),
+      createElement(SiteHeaderBar, { brand: logo, cartCount: 3 }),
     );
     expect(html).toContain('class="anchored-header__cart"');
     expect(html).toContain('aria-label="Cart, 3 items"');
@@ -105,8 +103,8 @@ describe("the two-layer public bar", () => {
   });
 
   it("places the skip link before the header and targets the main content", async () => {
-    const { logo, contact } = await chrome();
-    const html = renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo, contact }));
+    const { logo } = await chrome();
+    const html = renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo }));
     const skip = html.indexOf('class="anchored-skip"');
     const header = html.indexOf("<header");
     expect(skip).toBeGreaterThanOrEqual(0);

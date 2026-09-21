@@ -31,9 +31,9 @@
  * line's shared rows print for every model and a variant authors only its deltas.
  *
  * IMAGERY FALLBACK, in priority order (the report's §5): the variant's own
- * authored gallery; otherwise the rule-derived sample photograph with its
- * "Sample photograph" chip and the sheet's short illustration label; otherwise an
- * honest text placeholder — never another variant's photograph silently.
+ * authored gallery; otherwise the rule-derived sample photograph with the sheet's
+ * short illustration label; otherwise an honest text placeholder — never another
+ * variant's photograph silently.
  *
  * MONEY IS ALWAYS THE SELECTED VARIANT'S LIVE CATALOGUE PRICE — never authored,
  * never carried across the swap.
