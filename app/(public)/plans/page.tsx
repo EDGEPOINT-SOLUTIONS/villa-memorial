@@ -7,6 +7,7 @@ import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
 import { planRequestAction } from "@/lib/plan-selection";
 import { planRateOf } from "@/lib/pricing-model";
+import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -45,19 +46,21 @@ export default async function PlansPage() {
     loadPricingDocument(),
   ]);
   const plan = planContentFromDocument(page);
+  const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
+  const heroHeadline = page?.hero.headline.trim() ?? "";
 
   return (
     <>
-      <section className="hero-premium">
+      <section className="hero-premium" style={heroTextStyle ?? undefined}>
         <div className="hero-premium__grid">
           <div>
-            <p className="eyebrow-label">{page?.hero.eyebrow || "Memorial plans"}</p>
-            <h1 className="hero-premium__title">{page?.hero.headline || "Villa Memorial Plan"}</h1>
+            {page?.hero.eyebrow.trim() ? <p className="eyebrow-label">{page.hero.eyebrow}</p> : null}
+            <h1 className={`hero-premium__title${heroHeadline ? "" : " visually-hidden"}`}>
+              {heroHeadline || "Villa Memorial Plan"}
+            </h1>
             {/* The page's one-line answer + one primary action (reading budget,
                 captain 2026-09-18). */}
-            <p className="hero-premium__lead">
-              {page?.hero.lead || "The park's memorial plan — five tiers, four ways to pay."}
-            </p>
+            {page?.hero.lead.trim() ? <p className="hero-premium__lead">{page.hero.lead}</p> : null}
             <div className="hero-premium__actions">
               <Link href="/price-list" className="btn btn--primary">
                 See the 2026 rates

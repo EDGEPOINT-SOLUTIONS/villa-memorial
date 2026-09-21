@@ -40,6 +40,7 @@ function parkDocument(overrides: Record<string, unknown> = {}) {
       image: null,
       background: null,
       backgroundTransparency: 100,
+      textColour: null,
     },
     tabs: [
       { id: "tab-view", label: "Park view", href: "/map", note: null },
@@ -98,13 +99,36 @@ describe("validatePageDocument", () => {
     expect(verdict.ok).toBe(true);
   });
 
-  it("refuses an empty hero headline", () => {
+  it("accepts an image-only hero (no eyebrow, headline or lead)", () => {
     const verdict = validatePageDocument(
-      parkDocument({ hero: { ...parkDocument().hero, headline: "  " } }),
+      parkDocument({
+        hero: {
+          ...parkDocument().hero,
+          eyebrow: "",
+          headline: "",
+          lead: "",
+          image: "/media/hero-1.jpg",
+        },
+      }),
       CONTEXT,
     );
-    expect(verdict.ok).toBe(false);
-    if (!verdict.ok) expect(verdict.errors.join(" ")).toContain("headline");
+    expect(verdict.ok).toBe(true);
+    if (verdict.ok) expect(verdict.value.hero.image).toBe("/media/hero-1.jpg");
+  });
+
+  it("accepts a hero text colour and refuses a value that is not a CSS colour", () => {
+    const good = validatePageDocument(
+      parkDocument({ hero: { ...parkDocument().hero, textColour: "#ffffff" } }),
+      CONTEXT,
+    );
+    expect(good.ok).toBe(true);
+
+    const bad = validatePageDocument(
+      parkDocument({ hero: { ...parkDocument().hero, textColour: "url(https://evil.test/x.png)" } }),
+      CONTEXT,
+    );
+    expect(bad.ok).toBe(false);
+    if (!bad.ok) expect(bad.errors.join(" ")).toContain("text colour");
   });
 
   it("refuses a tab whose destination is not a route", () => {

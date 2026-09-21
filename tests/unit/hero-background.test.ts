@@ -6,7 +6,9 @@ import {
   HERO_BACKGROUND_TRANSPARENT,
   heroBackgroundLayer,
   heroBackgroundPick,
+  heroTextColourStyle,
   isValidCssColor,
+  readHeroTextColour,
   readHeroTransparency,
 } from "@/lib/landing/hero-background";
 
@@ -120,6 +122,34 @@ describe("heroBackgroundLayer", () => {
       background: "#3f97d1",
       opacity: 0.75,
     });
+  });
+});
+
+describe("readHeroTextColour", () => {
+  it("keeps a trimmed authored colour and reads a missing field as null", () => {
+    expect(readHeroTextColour("  #ffffff ")).toBe("#ffffff");
+    expect(readHeroTextColour("white")).toBe("white");
+    expect(readHeroTextColour("")).toBeNull();
+    expect(readHeroTextColour("   ")).toBeNull();
+    expect(readHeroTextColour(null)).toBeNull();
+    expect(readHeroTextColour(undefined)).toBeNull();
+    expect(readHeroTextColour(42)).toBeNull();
+  });
+});
+
+describe("heroTextColourStyle", () => {
+  it("emits the --hero-text-colour custom property for a valid colour", () => {
+    expect(heroTextColourStyle({ textColour: "#ffffff" })).toEqual({ "--hero-text-colour": "#ffffff" });
+    expect(heroTextColourStyle({ textColour: "  rgb(13 44 66) " })).toEqual({
+      "--hero-text-colour": "rgb(13 44 66)",
+    });
+  });
+
+  it("renders nothing for a legacy document and never trusts an invalid value", () => {
+    expect(heroTextColourStyle({ textColour: null })).toBeNull();
+    expect(heroTextColourStyle({ textColour: "   " })).toBeNull();
+    expect(heroTextColourStyle({ textColour: "url(https://evil.test/x.png)" })).toBeNull();
+    expect(heroTextColourStyle({ textColour: "var(--sky-500)" })).toBeNull();
   });
 });
 

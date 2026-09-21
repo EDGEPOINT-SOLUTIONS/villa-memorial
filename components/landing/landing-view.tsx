@@ -26,7 +26,7 @@ import { NextSteps } from "@/components/landing/next-steps";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
 import { serviceCardIcon } from "@/components/landing/service-icons";
-import { heroBackgroundLayer } from "@/lib/landing/hero-background";
+import { heroBackgroundLayer, heroTextColourStyle } from "@/lib/landing/hero-background";
 import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet, serviceCardPhoto } from "@/lib/media";
 import {
   lotCategoryFromPriceOf,
@@ -468,13 +468,22 @@ export function LandingFooter({ content }: { content: LandingContent }) {
 function HeroSection({ content }: { content: LandingContent }) {
   const { hero, logo, contact } = content;
   // Staff-chosen background colour (hero zone of the Landing Page editor): one
-  // dedicated layer over the photo + its scrim and under every copy block.
-  // Absent (null) when no colour is set or transparency is 100% — today's look.
+  // dedicated layer over the photo and under every copy block. Absent (null)
+  // when no colour is set or transparency is 100% — the photograph is clear
+  // (the old constant readability scrim was removed, captain 2026-09-21).
   const wash = heroBackgroundLayer(hero);
+  // Image-only hero: a photograph and no authored copy. It renders the raw
+  // photo — no brand, no buttons, no scrim, no gradient, no colour layer.
+  const imageOnly =
+    Boolean(hero.image) &&
+    !hero.eyebrow.trim() &&
+    !hero.headline.trim() &&
+    !hero.subline.trim();
   return (
     <section
-      className={`hero-home${hero.image ? " hero-home--photo" : ""}`}
-      aria-labelledby="hero-home-title"
+      className={`hero-home${hero.image ? " hero-home--photo" : ""}${imageOnly ? " hero-home--image-only" : ""}`}
+      aria-label={imageOnly ? logo.wordmark : undefined}
+      aria-labelledby={imageOnly ? undefined : "hero-home-title"}
     >
       {hero.image ? (
         <figure className="hero-home__photo" aria-hidden="true">
@@ -482,30 +491,37 @@ function HeroSection({ content }: { content: LandingContent }) {
           <img src={hero.image} alt="" />
         </figure>
       ) : null}
-      {wash ? <div className="hero-home__wash" aria-hidden="true" style={wash} /> : null}
-      <div className="hero-home__brand">
-        <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
-        <span className="hero-home__wordmark">{logo.wordmark}</span>
-      </div>
-      <p className="hero-home__eyebrow">{hero.eyebrow}</p>
-      <h1 id="hero-home-title" className="hero-home__title">
-        {hero.headline}
-      </h1>
-      <p className="hero-home__lead">{hero.subline}</p>
-      <div className="hero-home__actions">
-        <a className="btn btn--accent btn--lg" href={hero.primaryCta.href}>
-          {hero.primaryCta.label}
-        </a>
-        <a className="btn btn--secondary btn--lg" href={hero.secondaryCta.href}>
-          {hero.secondaryCta.label}
-        </a>
-      </div>
-      <p className="hero-home__careline">
-        <a href={contact.phoneHref}>
-          {contact.phoneLabel}: {contact.phoneDisplay}
-        </a>{" "}
-        — {contact.location}
-      </p>
+      {wash && !imageOnly ? <div className="hero-home__wash" aria-hidden="true" style={wash} /> : null}
+      {imageOnly ? (
+        // A pure photo hero still names the page for assistive tech.
+        <h1 className="visually-hidden">{logo.wordmark}</h1>
+      ) : (
+        <>
+          <div className="hero-home__brand">
+            <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
+            <span className="hero-home__wordmark">{logo.wordmark}</span>
+          </div>
+          {hero.eyebrow.trim() ? <p className="hero-home__eyebrow">{hero.eyebrow}</p> : null}
+          <h1 id="hero-home-title" className="hero-home__title">
+            {hero.headline}
+          </h1>
+          {hero.subline.trim() ? <p className="hero-home__lead">{hero.subline}</p> : null}
+          <div className="hero-home__actions">
+            <a className="btn btn--accent btn--lg" href={hero.primaryCta.href}>
+              {hero.primaryCta.label}
+            </a>
+            <a className="btn btn--secondary btn--lg" href={hero.secondaryCta.href}>
+              {hero.secondaryCta.label}
+            </a>
+          </div>
+          <p className="hero-home__careline">
+            <a href={contact.phoneHref}>
+              {contact.phoneLabel}: {contact.phoneDisplay}
+            </a>{" "}
+            — {contact.location}
+          </p>
+        </>
+      )}
     </section>
   );
 }
@@ -670,8 +686,12 @@ function MapSection({
 /* --------------------------------- the view --------------------------------- */
 
 export function LandingView({ content, planPricing, lotCategories, mapNode, mapLive, sectionCount }: LandingViewProps) {
+  // Author-settable hero copy colour: ONE custom property on the page shell, so
+  // both the hero copy rules and the left rail's 24/7 call card read the same
+  // ink (captain's 2026-09-21 direction). null keeps the shipped token ink.
+  const heroTextStyle = heroTextColourStyle(content.hero);
   return (
-    <div className="anchored-page has-phonebar">
+    <div className="anchored-page has-phonebar" style={heroTextStyle ?? undefined}>
       <LandingHeader content={content} />
       <div className="anchored-grid">
         <aside className="anchored-rail anchored-rail--left" aria-label="Care and services">

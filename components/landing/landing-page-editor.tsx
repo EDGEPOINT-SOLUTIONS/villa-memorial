@@ -1122,6 +1122,11 @@ export function LandingPageEditor({
     ) {
       issues.push("The hero background transparency must be a whole number from 0 to 100.");
     }
+    if (content.hero.textColour !== null && !isValidCssColor(content.hero.textColour)) {
+      issues.push(
+        "The hero text colour must be a valid CSS colour — like #ffffff, rgb(…), hsl(…) or a named colour.",
+      );
+    }
     content.services.items.forEach((card, i) => {
       if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
         issues.push(`Service card ${i + 1} needs a title, a line of copy and a link before publishing.`);
@@ -1340,7 +1345,7 @@ export function LandingPageEditor({
         <div className="field-grid field-grid--2">
           <TextField label="Eyebrow" htmlFor="hero-eyebrow" value={hero.eyebrow} onChange={(v) => patch((d) => void (d.hero.eyebrow = v))} />
         </div>
-        <TextField label="Headline" htmlFor="hero-headline" value={hero.headline} onChange={(v) => patch((d) => void (d.hero.headline = v))} hint="Warm, dignified, short — this is the anchor line." />
+        <TextField label="Headline" htmlFor="hero-headline" value={hero.headline} onChange={(v) => patch((d) => void (d.hero.headline = v))} hint="Warm, dignified, short — this is the anchor line. Leave it (with the eyebrow and subline) empty for a pure photo hero." />
         <TextAreaField label="Subline" htmlFor="hero-subline" rows={2} value={hero.subline} onChange={(v) => patch((d) => void (d.hero.subline = v))} />
         <ImageField
           label="Background photo"

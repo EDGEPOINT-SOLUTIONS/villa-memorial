@@ -10,7 +10,7 @@ import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { buildLotListing } from "@/lib/lot-listing-data";
 import { EMPTY_LOT_FILTERS } from "@/lib/lot-listing";
-import { heroBackgroundLayer } from "@/lib/landing/hero-background";
+import { heroBackgroundLayer, heroTextColourStyle } from "@/lib/landing/hero-background";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { pageMetadata } from "@/lib/seo";
 import type { PageHero, PageTab } from "@/lib/content-catalog";
@@ -65,6 +65,7 @@ const FALLBACK_HERO: PageHero = {
   image: null,
   background: null,
   backgroundTransparency: 100,
+  textColour: null,
 };
 
 const FALLBACK_TABS: PageTab[] = [
@@ -123,6 +124,11 @@ export default async function PublicMapPage({
   const hero = document?.hero ?? FALLBACK_HERO;
   const tabs = document?.tabs.length ? document.tabs : FALLBACK_TABS;
   const wash = heroBackgroundLayer({ background: hero.background, backgroundTransparency: hero.backgroundTransparency });
+  const heroTextStyle = heroTextColourStyle(hero);
+  // An image-only hero (a photo and no eyebrow/headline/lead) renders the raw
+  // photograph: no wash, no copy, no effect.
+  const heroHasCopy = Boolean(hero.eyebrow.trim() || hero.headline.trim() || hero.lead.trim());
+  const imageOnly = Boolean(hero.image) && !heroHasCopy;
   const priceBySku = new Map(catalogItems.map((item) => [item.sku, item.display_price]));
 
   const isLotsTab = (tab: PageTab) => tab.href.includes("tab=lots");
@@ -130,22 +136,30 @@ export default async function PublicMapPage({
 
   return (
     <div className="stack-4">
-      <section className="hero-premium park-hero">
-        {wash ? <div className="park-hero__wash" aria-hidden="true" style={{ background: wash.background, opacity: wash.opacity }} /> : null}
+      <section
+        className={`hero-premium park-hero${imageOnly ? " hero-premium--image-only" : ""}`}
+        style={heroTextStyle ?? undefined}
+      >
+        {wash && !imageOnly ? <div className="park-hero__wash" aria-hidden="true" style={{ background: wash.background, opacity: wash.opacity }} /> : null}
         <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">{hero.eyebrow || "Interactive park map"}</p>
-            <h1 className="hero-premium__title">{hero.headline || "Villa Memorial Park"}</h1>
-            <p className="hero-premium__lead">{hero.lead}</p>
-            <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
-              {lots.length} lots · deep-link any plot, e.g.{" "}
-              <Link href="/map?park=villa&plot=A-001">/map?park=villa&amp;plot=A-001</Link>
-            </p>
-            <nav className="hero-chips" aria-label="Explore the park">
-              <Link href="/lots">Browse all plots</Link>
-              <Link href="/gallery">Photos of the park</Link>
-            </nav>
-          </div>
+          {imageOnly ? (
+            // A pure photo hero still names the page for assistive tech.
+            <h1 className="visually-hidden">Villa Memorial Park</h1>
+          ) : (
+            <div>
+              {hero.eyebrow.trim() ? <p className="eyebrow-label">{hero.eyebrow}</p> : null}
+              <h1 className="hero-premium__title">{hero.headline || "Villa Memorial Park"}</h1>
+              {hero.lead.trim() ? <p className="hero-premium__lead">{hero.lead}</p> : null}
+              <p className="text-sm text-muted" style={{ margin: "var(--space-2) 0 0" }}>
+                {lots.length} lots · deep-link any plot, e.g.{" "}
+                <Link href="/map?park=villa&plot=A-001">/map?park=villa&amp;plot=A-001</Link>
+              </p>
+              <nav className="hero-chips" aria-label="Explore the park">
+                <Link href="/lots">Browse all plots</Link>
+                <Link href="/gallery">Photos of the park</Link>
+              </nav>
+            </div>
+          )}
           {hero.image ? (
             <figure className="hero-premium__media park-hero__media">
               {/* eslint-disable-next-line @next/next/no-img-element -- staff-chosen hero photo */}

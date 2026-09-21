@@ -12,6 +12,7 @@ import {
   type SellableCasket,
 } from "@/components/villa/casket-catalogue";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -68,6 +69,7 @@ export default async function ProductsPage() {
     );
   }
   const page = await getPageDocument("coffins").catch(() => null);
+  const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
 
   const caskets = bindCaskets(items);
   const [leadTier, ...higherTiers] = COFFINS;
@@ -76,13 +78,12 @@ export default async function ProductsPage() {
 
   return (
     <div className="stack-5">
-      <section className="page-hero">
-        <p className="eyebrow-label">{page?.hero.eyebrow || "Coffins & caskets"}</p>
-        <h1 className="page-hero__title">{page?.hero.headline || "Coffin options"}</h1>
-        <p className="page-hero__lead">
-          {page?.hero.lead ||
-            "Every 2026 coffin, with its published price."}
-        </p>
+      <section className="page-hero" style={heroTextStyle ?? undefined}>
+        {page?.hero.eyebrow.trim() ? <p className="eyebrow-label">{page.hero.eyebrow}</p> : null}
+        <h1 className={`page-hero__title${page?.hero.headline.trim() ? "" : " visually-hidden"}`}>
+          {page?.hero.headline.trim() || "Coffin options"}
+        </h1>
+        {page?.hero.lead.trim() ? <p className="page-hero__lead">{page.hero.lead}</p> : null}
         <div className="page-hero__actions">
           <a className="btn btn--primary" href="#catalogue-title">
             See the catalogue

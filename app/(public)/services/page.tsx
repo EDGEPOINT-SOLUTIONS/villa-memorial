@@ -8,6 +8,7 @@ import { ContentBlocks } from "@/components/content/content-blocks";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
 import {
@@ -76,6 +77,8 @@ export default async function ServicesPage() {
   // the client's own 2026 set-up photograph the page always published.
   const defaultHero = clientPhotoWide("wake-setup-casket-draped");
   const heroVariant = serviceHeroVariant(page?.hero.image ?? null, "wide") ?? defaultHero;
+  const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
+  const heroHeadline = page?.hero.headline.trim() ?? "";
 
   // The service descriptions are consumed by the rate cards above; any other
   // block staff add still renders through the shared block renderer.
@@ -86,7 +89,12 @@ export default async function ServicesPage() {
   return (
     <div className="sv-page">
       <div className="sv-main">
-        <section className="sv-hero" id="top" aria-labelledby="services-title">
+        <section
+          className="sv-hero"
+          id="top"
+          aria-labelledby="services-title"
+          style={heroTextStyle ?? undefined}
+        >
           <nav className="sv-breadcrumb" aria-label="Breadcrumb">
             <ol>
               <li>
@@ -97,14 +105,14 @@ export default async function ServicesPage() {
           </nav>
           <div className="sv-hero__grid">
             <div>
-              <p className="sv-hero__eyebrow">
-                {page?.hero.eyebrow || "Funeraria Memorial Services · 2026 prices"}
-              </p>
-              <h1 className="sv-hero__title" id="services-title">
-                {page?.hero.headline || "Funeral services, and what they cost in 2026"}
+              {page?.hero.eyebrow.trim() ? (
+                <p className="sv-hero__eyebrow">{page.hero.eyebrow}</p>
+              ) : null}
+              <h1 className={`sv-hero__title${heroHeadline ? "" : " visually-hidden"}`} id="services-title">
+                {heroHeadline || "Funeraria Memorial Services"}
               </h1>
               {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
-              <p className="sv-hero__lead">{page?.hero.lead || "At-need funeral care, any hour — with 2026 prices."}</p>
+              {page?.hero.lead.trim() ? <p className="sv-hero__lead">{page.hero.lead}</p> : null}
               <div className="sv-hero__actions">
                 <a className="btn btn--primary" href={contact.phoneHref}>
                   Call {contact.phoneDisplay}

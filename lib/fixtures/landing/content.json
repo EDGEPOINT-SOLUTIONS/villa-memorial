@@ -49,6 +49,7 @@
       "image": "/media/hero-1.jpg",
       "background": null,
       "backgroundTransparency": 100,
+      "textColour": null,
       "primaryCta": { "label": "I need help now", "href": "/services" },
       "secondaryCta": { "label": "Plan ahead", "href": "/plans" }
     },

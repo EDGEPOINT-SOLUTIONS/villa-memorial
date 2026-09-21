@@ -228,14 +228,24 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   hold UNLIMITED items per side — an empty service-card or blog list is legal).
   The hero also carries a staff-chosen background colour + transparency
   (`hero.background` / `hero.backgroundTransparency`; palette, colour validation
-  and the layer helper live in `lib/landing/hero-background.ts`): the colour
-  paints as ONE `.hero-home__wash` layer ABOVE the photo + its scrim and BELOW
-  all hero copy, transparency 0 = solid and 100 = fully see-through — the
-  default, so documents that never touched the fields render today's look
-  untouched. The editor control is
+  and the layer helpers live in `lib/landing/hero-background.ts`), an optional
+  `hero.textColour`, and OPTIONAL copy: when `eyebrow`/`headline`/`subline` are
+  all empty the home renders the RAW photograph (`.hero-home--image-only`) with
+  no wash, scrim or gradient, and the park hero does the same
+  (`.hero-premium--image-only`). There is **no constant readability scrim** —
+  100% transparency = the clear photo (`heroBackgroundLayer` returns null); 0% =
+  the ONE `.hero-home__wash` layer solid, BELOW all hero copy. `hero.textColour`
+  paints through the `--hero-text-colour` custom property set on the page shell
+  (`lib/landing/hero-background.ts` → `heroTextColourStyle`); every hero copy
+  rule reads `var(--hero-text-colour, <token>)`, so absent = the shipped ink.
+  The left rail's 24/7 call card (`.rail-call*`) reads the SAME variable — the
+  two are synced when the author sets it. The editor control is
   `components/landing/hero-background-field.tsx` (palette · free input · live
-  preview · 0–100% slider). The left rail's 24/7 call card is a sky-blue
-  surface (navy ink, gold-800 label) — never navy.
+  preview · 0–100% slider · the free text colour). The rail's oversized lead
+  image `.rail-item--lead .rail-thumb` is height-capped
+  (`clamp(5.5rem, 7vw, 6.5rem)`) so the default rail list fits without a
+  vertical scrollbar — evidence + measured heights in
+  `docs/08-delivery/hero-flexible-design/`.
   The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
   the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the
