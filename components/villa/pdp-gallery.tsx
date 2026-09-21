@@ -23,6 +23,7 @@
 import { useState } from "react";
 import type { ContentImage } from "@/lib/content-catalog";
 import { COFFIN_SAMPLE_NOTE } from "@/lib/villa-pricing";
+import { libraryThumb, libraryThumbSet } from "@/lib/media";
 import { useModalFocus } from "@/components/ui/use-modal-focus";
 
 export function PdpGallery({ images, label }: { images: ContentImage[]; label: string }) {
@@ -37,9 +38,15 @@ export function PdpGallery({ images, label }: { images: ContentImage[]; label: s
   return (
     <figure className="pdp-gallery">
       <div className="pdp-gallery__main">
+        {/* A library photograph is served from its sized WebP derivatives so a
+            640px slot never asks for (or upscales) a print-sized original; an
+            asset the thumbnail pass does not know (a device upload, a URL)
+            passes through unchanged (lib/media.ts is the one rule). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
         <img
-          src={active.src}
+          src={libraryThumb(active.src, 960)}
+          srcSet={libraryThumbSet(active.src)}
+          sizes="(max-width: 64rem) 92vw, 40rem"
           alt={active.alt}
           loading={index === 0 ? "eager" : "lazy"}
           decoding="async"

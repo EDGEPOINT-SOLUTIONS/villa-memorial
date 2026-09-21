@@ -45,7 +45,7 @@
     "hero": {
       "eyebrow": "Memorial & funeral services · Isabela City, Basilan",
       "headline": "Honoring every life with dignity and light.",
-      "subline": "Whatever brings you here today, you are not alone — we will guide every step with care, honestly and at your pace.",
+      "subline": "You are not alone — we will guide every step, honestly.",
       "image": "/media/hero-1.jpg",
       "background": null,
       "backgroundTransparency": 100,
@@ -167,21 +167,21 @@
     },
     "about": {
       "heading": "About Villa Memorial Park",
-      "story": "A family-run memorial park in Isabela City, Basilan — founded on the belief that every life deserves a resting place of beauty and peace, and that the families who love them deserve honesty, warmth and time.",
-      "mission": "To walk beside every family with honesty and warmth — clear guidance, dignified care and no hidden costs, whether the need is today or years from now.",
-      "vision": "A park where remembrance becomes a source of comfort — serene grounds, honest planning and a community that honors every life.",
+      "story": "A family-run memorial park in Isabela City, Basilan — the first in the province, built so every life rests in beauty and peace.",
+      "mission": "Honest guidance, dignified care and no hidden costs — today or years from now.",
+      "vision": "Serene grounds, honest planning and a community that honors every life.",
       "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg"
     },
     "services": {
       "kicker": "What we do",
       "heading": "Services we offer",
-      "intro": "Four ways a family can be served — priced on the official 2026 price list, with 6-year amortization at Annual, Semi-Annual, Quarterly and Monthly terms (extendable to 8 or 10 years).",
+      "intro": "Four ways to be served — priced on the official 2026 list.",
       "items": [
         {
           "id": "svc-lot-only",
           "icon": "lot",
           "title": "Lot only",
-          "text": "A memorial lot for your loved ones — garden niches, prime, premium or mausoleum plots.",
+          "text": "Garden niche, prime, premium or mausoleum plots.",
           "href": "/lots",
           "category": "1. Lot Only"
         },
@@ -197,7 +197,7 @@
           "id": "svc-lot-interment-vmp",
           "icon": "plan",
           "title": "Lot + interment + VMP",
-          "text": "A complete memorial plan with assistance through the Villa Memorial Plan.",
+          "text": "Complete care, with the Villa Memorial Plan.",
           "href": "/price-list",
           "category": "3. Lot + Interment + VMP"
         },
@@ -205,7 +205,7 @@
           "id": "svc-mausoleum",
           "icon": "mausoleum",
           "title": "Mausoleum + construction",
-          "text": "A complete solution for a private and enduring sanctuary — up to life-plan coverage.",
+          "text": "A private, enduring sanctuary — up to life-plan coverage.",
           "href": "/lots/mausoleum",
           "category": "4. Mausoleum + Construction"
         }
@@ -214,12 +214,12 @@
     "plans": {
       "kicker": "Plan ahead",
       "heading": "Villa Memorial Plan",
-      "intro": "“An affordable life plan for all” — a life plan that assures complete memorial services, assignable, transferable and with limited contestability and no forfeiture.",
+      "intro": "“An affordable life plan for all” — assignable, transferable, no forfeiture.",
       "note": "Standard Villa Memorial Plan rates. Senior-citizen rates (from {seniorMonthly} / month) are on the {packagePage}. Powered by Eternal Plans, Inc. — “Your future is our concern.”"
     },
     "blog": {
       "heading": "News from the park",
-      "intro": "A newsfeed of moments, guides and stories from Villa Memorial Park — no noise, just the park.",
+      "intro": "Moments, guides and stories from the park.",
       "posts": [
         {
           "id": "post-golden-hour",
@@ -274,7 +274,7 @@
     },
     "map": {
       "heading": "Browse the grounds, live",
-      "intro": "Zoom, pan and click every plot — walk the park before you visit, or share any plot deep link with your family."
+      "intro": "Zoom, pan and click every plot — walk the park before you visit."
     },
     "faq": {
       "eyebrow": "Help",

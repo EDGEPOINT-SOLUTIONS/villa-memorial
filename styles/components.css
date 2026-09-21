@@ -7820,9 +7820,12 @@ because the shared `.ag-appt` rule comes later in this file. */
   aspect-ratio: 16 / 9;
 }
 
-/* The one wide photograph of the grounds, kept near its native width. */
+/* The one wide photograph of the grounds, kept AT its native width: the largest
+   published derivative is 940px, so the box is capped at 58.75rem (940px). At
+   60rem the door photo widened to 958 and upscaled a 940px file by ~2%
+   (eye-friendly pass, 2026-09-21). */
 .gal-feature {
-  max-width: 60rem;
+  max-width: 58.75rem;
 }
 
 .gal-figure--feature .gal-figure__media {
@@ -8414,12 +8417,19 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .pdp-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(19rem, 24rem);
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 22rem);
   grid-template-areas:
     "media buy"
     "below below";
   gap: clamp(1.5rem, 3vw, 2.5rem);
   align-items: start;
+  /* The gallery is bounded to 40rem (640px) so a sample photograph that was
+     painted 966px wide (upscaled past its 960px source) now sits at a sensible
+     size beside the buy box. 64.5rem = 640 + 352 + the 40px gap; same rule the
+     eye-friendly pass applied to the home bands — imagery fits its column, it
+     never becomes the page (captain, 2026-09-21). */
+  max-width: 64.5rem;
+  margin-inline: auto;
 }
 
 .pdp-media {
@@ -11269,12 +11279,20 @@ a.card:hover {
 /* The middle is an explicit single column capped at the track: sections are
    grid items in a minmax(0, 1fr) track so they can never grow past the column
    (the old implicit auto track sized to the widest section's min-content and
-   spilled 270px+ into the right-rail zone). */
+   spilled 270px+ into the right-rail zone).
+
+   Eye-friendly pass (captain, 2026-09-21): the middle is ONE raised sheet and
+   its sections are separated by hairlines + space, not by six competing boxes.
+   Fewer borders, fewer shadows, a calmer reading column. */
 .anchored-mid__inner {
   width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
+  gap: 0;
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.25rem, 2.6vw, 2.5rem);
 }
 
 /* Fixed side rails — sticky under the header, independent internal scroll.
@@ -11417,10 +11435,24 @@ a.card:hover {
 }
 
 .rail-item--lead .rail-thumb {
+  display: block;
+  position: relative;
   width: 100%;
   height: 14rem;
   border: 0;
   border-radius: 0;
+}
+
+/* The lead picture is absolutely placed in its 14rem frame. In the base grid
+   (`place-items: center`) an in-flow `height: 100%` resolved against an
+   auto-sized track and the image stood 399px tall inside a 224px box, clipped —
+   the picture (and its object-fit) never lined up with the lead card. */
+.rail-item--lead .rail-thumb img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .rail-item--lead .rail-item__text {
@@ -11627,8 +11659,11 @@ a.card:hover {
     radial-gradient(420px circle at -8% 110%, rgb(241 204 94 / 0.16), transparent 55%),
     linear-gradient(165deg, var(--sky-200), var(--sky-500));
   color: var(--color-text-primary);
-  padding: clamp(2rem, 4.5vw, 3.5rem);
-  box-shadow: var(--shadow-card-hover);
+  /* Generous but bounded: the hero opens the sheet and hands straight over to
+     the content (eye-friendly pass, 2026-09-21). It is a band, not a floating
+     card — no elevation. */
+  padding: clamp(2rem, 4vw, 3.25rem);
+  margin: 0 0 clamp(1.75rem, 3.2vw, 3rem);
 }
 
 .hero-home::before {
@@ -11665,13 +11700,15 @@ a.card:hover {
   inset: 0;
   z-index: 1;
   /* Sky theme: a daylight-sky scrim keeps the photo visible while the navy
-     headline copy keeps AA contrast over it. */
+     headline copy keeps AA contrast over it. The copy side is near-opaque so a
+     busy upload stays a calm backdrop behind the words; the photo opens up on
+     the right edge (eye-friendly pass, 2026-09-21). */
   background: linear-gradient(
-    100deg,
-    rgb(242 249 254 / 0.95) 0%,
-    rgb(226 242 252 / 0.9) 36%,
-    rgb(196 230 248 / 0.74) 68%,
-    rgb(152 210 241 / 0.4) 100%
+    105deg,
+    rgb(246 251 255 / 0.98) 0%,
+    rgb(238 248 254 / 0.95) 46%,
+    rgb(205 234 249 / 0.72) 78%,
+    rgb(168 216 243 / 0.46) 100%
   );
 }
 
@@ -11727,18 +11764,25 @@ a.card:hover {
   margin: 0;
   font-family: var(--font-serif);
   font-size: var(--text-hero);
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  /* Hero type treatment (eye-friendly pass): Inter kept deliberately — the
+     product owns ONE face — so the premium voice comes from a lighter display
+     weight, tight leading and balanced wrapping around the one fluid size. */
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
   color: var(--color-text-primary);
-  max-width: 22ch;
+  max-width: 24ch;
+  text-wrap: balance;
 }
 
 .hero-home__lead {
   margin: var(--space-4) 0 0;
   font-size: var(--text-lg);
-  line-height: 1.6;
+  line-height: 1.55;
   color: var(--color-text-primary);
-  max-width: 40rem;
+  /* One short line, measured to stay a line: the eye-friendly pass trims the
+     old 40rem paragraph to a calm sentence. */
+  max-width: 30rem;
 }
 
 .hero-home__actions {
@@ -11770,12 +11814,14 @@ a.card:hover {
 .mid-section {
   min-width: 0;
   overflow-wrap: break-word;
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  /* No shadow: four stacked bands each casting one was the home page's biggest
-     single source of "decorative sheen standing in for hierarchy". */
-  padding: clamp(1.5rem, 3vw, 2.5rem);
+  /* The sheet owns the surface; a section is only a hairline + breathing room
+     (eye-friendly pass, 2026-09-21). No box, no shadow — hierarchy is scale,
+     position and one rule. */
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--color-rule);
+  border-radius: 0;
+  padding: clamp(1.75rem, 3.2vw, 3rem) 0;
 }
 
 .mid-section > h2 {
@@ -11880,7 +11926,9 @@ a.card:hover {
   display: block;
   width: 100%;
   height: auto;
-  max-height: 24rem;
+  /* The About figure is a supporting portrait, not a band: capped so it never
+     out-weighs the words beside it (eye-friendly pass, 2026-09-21). */
+  max-height: 20rem;
   object-fit: cover;
   border-radius: calc(var(--radius-lg) - 0.3rem);
 }
@@ -11940,9 +11988,11 @@ a.card:hover {
   min-width: 0;
 }
 
-/* The lead: photograph left, the offer right. */
+/* The lead: photograph left, the offer right. The photo keeps a supporting
+   share of the row (0.8fr) so the figure — the thing a family compares — stays
+   the dominant element at a glance (eye-friendly pass, 2026-09-21). */
 .svc-band__lead .svc-card {
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
   gap: clamp(var(--space-4), 3vw, var(--space-6));
   align-items: center;
   padding-bottom: var(--space-5);

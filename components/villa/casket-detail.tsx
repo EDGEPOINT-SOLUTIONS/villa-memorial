@@ -19,13 +19,16 @@ export function CasketSampleFigure({ model }: { model: CasketModel }) {
   return (
     <figure className="casket-sample">
       <div className="casket-sample__media">
+        {/* The PDP gallery column is bounded to 40rem (`.pdp-layout`), so the
+            browser picks the 960px wide derivative for a 640px slot — never an
+            upscale (the old 57rem hint asked for more than the column gave). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- client sample photo */}
         <img
           src={sample.wide.src}
           srcSet={sample.wide.srcSet}
           width={sample.wide.width}
           height={sample.wide.height}
-          sizes="(max-width: 64rem) 92vw, 57rem"
+          sizes="(max-width: 64rem) 92vw, 40rem"
           alt={`Illustrative sample coffin — ${sample.alt}`}
         />
         <span className="casket-sample__chip">Sample photograph</span>

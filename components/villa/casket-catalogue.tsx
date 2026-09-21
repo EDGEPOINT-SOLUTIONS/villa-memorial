@@ -170,7 +170,11 @@ function CasketCard({ model, item }: SellableCasket) {
         srcSet: photo.card.srcSet,
         width: photo.card.width,
         height: photo.card.height,
-        sizes: "(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 26rem",
+        // /products' one grid is ~28rem a column at 1440 (`.casket-grid`),
+        // so the hint matches the real box and the browser picks the 880w
+        // derivative — never the 440w one stretched past its pixels
+        // (eye-friendly pass, 2026-09-21).
+        sizes: "(max-width: 40rem) 92vw, (max-width: 70rem) 45vw, 28rem",
         alt: `Illustrative sample coffin — ${photo.alt}`,
       }}
     />

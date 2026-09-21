@@ -594,6 +594,32 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   pinned by `tests/unit/villa-pricing.test.ts`; the crop/provenance detail lives in
   `lib/media.ts` comments, not on the customer page.
 
+## Eye-friendly public surfaces — the minimalist grammar (captain, 2026-09-21)
+
+- **The home is the reference pattern; the captain's `public/media/frontend-home.png`
+  guides proportion and rhythm only.** The settled grammar (evidence + measured
+  before/after: `docs/08-delivery/eye-friendly-sizing-design/`): a hero of one
+  display headline + one ≤12-word lead + one primary action; `kicker · heading ·
+  one-line intro` per section; the live figure leads its band (`from ₱X`) with the
+  words as one supporting line; detail behind progressive disclosure; and the same
+  public word budget as the reading-budget guard. Follow-ups carry this grammar to
+  the rest of the public site; do not invent a second visual language.
+- **The middle column is ONE sheet, sections are hairlines.** `.anchored-mid__inner`
+  is the raised sheet; `.mid-section` is transparent with a top hairline (no box,
+  no shadow, no per-section radius). Keep the section classes (`about-grid`,
+  `svc-grid`/`svc-band__*`, `plan-board`, `mid-section--map`, `blog-feed`) and their
+  order — `tests/unit/landing-view.test.tsx` + `composition-pass.test.tsx` pin them.
+- **Imagery is right-sized, never upscaled.** A gallery/figure is bounded to its
+  sensible column (the PDP `.pdp-layout` caps the media at 40rem / 64.5rem total)
+  and every `sizes` hint must match the real box — an underestimated hint makes the
+  browser stretch the next-smaller derivative (`CasketCard`, `.gal-feature` were
+  both fixed this way). Run the audit before/after: resolve each page's
+  `currentSrc` file width and confirm it is ≥ the rendered width.
+- **Hero type is a treatment, not a second face.** Inter stays the product's one
+  face (`styles/tokens.css`); the home hero uses a lighter display weight, tight
+  leading and `text-wrap: balance` at `--text-hero`. Introducing an actual second
+  face means updating `tests/unit/typography-system.test.ts` in the same PR.
+
 ## Package page — `/plans/[sku]` (design target — read before touching it)
 
 - Package items render the CLIENT's approved layout, not a generic hero. Authority:
