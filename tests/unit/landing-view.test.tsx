@@ -1,8 +1,12 @@
 import { readFileSync } from "node:fs";
-import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
+import {
+  LandingFooter,
+  LandingView,
+  type LandingViewProps,
+} from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
 import { PLAN_PACKAGES_IMAGE, libraryThumb } from "@/lib/media";
 import { planLotCardFigures } from "@/lib/landing/plan-lots";
@@ -124,10 +128,41 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(menu).toContain("Memorials");
     expect(nav).not.toContain('href="/lots"');
     expect(nav.slice(0, nav.indexOf("anchored-header__explore"))).not.toContain('href="/builder"');
-    // Footer "Explore" column keeps the same destinations verbatim.
+    // The footer keeps the same destinations, de-duplicated (captain,
+    // 2026-09-21): the plan has ONE entry (Care & planning), and the park's
+    // one clear entry is the contact block's map link, never a second
+    // "Villa Memorial Park" beside the brand wordmark.
     expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
     expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');
-    expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
+    expect(html).toContain('<a href="/map">Map &amp; directions →</a>');
+    // The park's ONE footer entry is the contact block's map link — never a
+    // second "Villa Memorial Park" beside the brand wordmark. (The header bar
+    // legitimately carries the top-level name; scope this to the footer.)
+    const footer = html.slice(html.indexOf('<footer class="anchored-footer"'));
+    expect(footer).not.toContain('<a href="/map">Villa Memorial Park</a>');
+  });
+
+  it("the footer lists one entry per destination and uses the live page names", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(createElement(LandingFooter, { content }));
+    // Pull the two link columns (the brand column and the contact block are
+    // separate grammars) and assert no destination or label repeats.
+    const columns = [...html.matchAll(/<ul class="anchored-footer__links">([\s\S]*?)<\/ul>/g)].map(
+      (m) => m[1],
+    );
+    expect(columns).toHaveLength(2);
+    const links = columns
+      .flatMap((column) => [...column.matchAll(/<a href="([^"]+)">([^<]+)<\/a>/g)])
+      .map(([, href, label]) => ({ href, label: label.replace(/&amp;/g, "&") }));
+    const hrefs = links.map((link) => link.href);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
+    const labels = links.map((link) => link.label);
+    expect(new Set(labels).size).toBe(labels.length);
+    // Labels match the live pages, not the retired wording.
+    expect(labels).toContain("Coffins & caskets");
+    expect(labels).toContain("Memorial lots");
+    expect(labels).not.toContain("Products & caskets");
+    expect(labels).not.toContain("Browse the lots");
   });
 
   it("the left rail carries no 24/7 call card (captain removed it, 2026-09-21)", async () => {
