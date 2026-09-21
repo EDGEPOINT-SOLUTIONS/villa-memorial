@@ -156,8 +156,12 @@ export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Pro
       <p className="plan-note">
         {action.kind === "cart"
           ? "The cart takes the published monthly amortization; the office confirms the plan and the first payment date."
-          : "The office confirms this term and the final price — the request opens with everything you chose, and nothing is reserved."}{" "}
+          : "The office confirms this term and the final price — the request opens with everything you chose, and nothing is reserved."}
+      </p>
+      <p className="plan-note">
         No. of months — Monthly 12 payments/yr · Quarterly 4 · Semi-Annual 2 · Annual 1.
+      </p>
+      <p className="plan-note">
         Inception date is 30 days after initial payment; contestability 7 months after
         payment. Plan is assignable/transferable (₱1,000 fee).
       </p>

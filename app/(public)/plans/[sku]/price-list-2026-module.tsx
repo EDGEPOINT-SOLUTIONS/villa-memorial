@@ -179,8 +179,10 @@ export function PriceList2026Module({ categories }: { categories: ReadonlyArray<
 
       <p className="plan-note">
         Source: PRICE LIST FOR 2026 (Sanctuario de Mercedes y Gloria) — reproduced exactly.
-        Senior-citizen amortization is 50% of the standard table for high-value products and 11/12
-        for the smallest, as printed.
+      </p>
+      <p className="plan-note">
+        Senior-citizen amortization is 50% of the standard table for high-value products and
+        11/12 for the smallest, as printed.
       </p>
     </>
   );

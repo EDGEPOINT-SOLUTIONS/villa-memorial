@@ -21007,3 +21007,70 @@ a.plan-advisor__phone:hover {
 .story-figure {
   margin: 0;
 }
+
+/* ============================================================================
+ * public: plan block (Lane 3 — plan, purchase & checkout pages)
+ *
+ * Appended by the Lane-3 sweep of the captain's public design plan
+ * (`data/villa-public-design-plan`). It owns ONLY the declarations the plan
+ * family needs and never edits the Phase 0 grammar block above. Every value
+ * consumes a contract token (`lib/public-layout.ts` / `styles/tokens.css`),
+ * never a literal the contract already carries.
+ * ========================================================================== */
+
+/* The lane's content envelope: catalogue width for tables, reading width for
+   forms/single columns. The Phase 0 tokens, consumed by variable. */
+.plan-flow {
+  max-width: var(--layout-catalogue-w);
+  margin-inline: auto;
+}
+
+.plan-flow--reading {
+  max-width: var(--layout-reading-w);
+  margin-inline: auto;
+}
+
+/* Branches & affiliated locations — one wrapping row of facts, not a stacked
+   card (blueprint §5.5 "compressed to one row"). */
+.plan-branch-row {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  color: var(--color-text-secondary);
+  font-size: var(--text-ui);
+}
+
+.plan-branch-row li {
+  position: relative;
+  padding-left: var(--space-4);
+}
+
+.plan-branch-row li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--color-text-accent);
+}
+
+/* The plan tier cards compact one step on a phone so the captain's five-card
+   comparison does not run one full screen per card. The card is still the
+   single vertical stack the layout guard pins; only the padding and list gap
+   tighten (blueprint §5.5). */
+@media (max-width: 40rem) {
+  .plan-tier__intro,
+  .plan-tier__features {
+    padding: var(--space-4);
+    gap: var(--space-1);
+  }
+
+  .plan-tier__list {
+    gap: var(--space-1);
+  }
+}

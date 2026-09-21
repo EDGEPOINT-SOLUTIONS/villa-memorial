@@ -18,7 +18,7 @@ export const metadata: Metadata = pageMetadata({
  */
 export default function Page() {
   return (
-    <div className="stack-4">
+    <div className="plan-flow--reading stack-4">
       <div className="page-header">
         <div>
           <p className="page-header__eyebrow">Reach us</p>
