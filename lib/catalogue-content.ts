@@ -81,7 +81,7 @@ export function catalogueEntryDefaults(item: ItemIdentity): CatalogueEntry {
   const photo = catalogueItemPhoto(item.sku);
   // An admin's own catalogue photo wins; otherwise the one imagery rule home.
   const hero = item.image ?? photo?.src ?? null;
-  const sample = !item.image && Boolean(photo?.chip);
+  const sample = !item.image && Boolean(photo?.sample);
   const gallery = hero
     ? [
         {

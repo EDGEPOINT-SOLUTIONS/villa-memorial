@@ -230,9 +230,9 @@ describe("/facilities reads the staff-editable 24/7 line", () => {
 
 describe("/facilities is reachable from the public chrome and stays one page", () => {
   it("is linked from the public bar and the footer", async () => {
-    const { logo, contact } = await listLandingContent();
+    const { logo } = await listLandingContent();
     const chrome = [
-      renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo, contact, currentPath: "/facilities" })),
+      renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo, currentPath: "/facilities" })),
       renderToStaticMarkup(createElement(LandingFooter, { content: await listLandingContent() })),
     ];
     for (const html of chrome) {

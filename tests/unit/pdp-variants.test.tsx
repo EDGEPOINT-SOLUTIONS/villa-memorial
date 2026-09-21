@@ -8,6 +8,7 @@ import { CartProvider } from "@/lib/cart/cart-context";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { getProductLine, saveProductLine } from "@/lib/api-client/product-lines";
 import { activeVariant, ProductDetail, type PdpVariant } from "@/components/villa/product-detail";
+import { COFFIN_SAMPLE_NOTE } from "@/lib/villa-pricing";
 import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { coffinModelForSku } from "@/lib/catalogue-skus";
@@ -224,7 +225,8 @@ describe("the imagery fallback", () => {
   it("shows the rule-derived sample photograph with its label when a variant authors none", async () => {
     const html = await renderDetail(SKU_FULL);
     expect(html).toContain("casket-sample__media");
-    expect(html).toContain("Sample photograph");
+    expect(html).toContain(COFFIN_SAMPLE_NOTE);
+    expect(html).not.toContain("casket-sample__chip");
     // The authored viewer is absent until the office adds photographs.
     expect(html).not.toContain("pdp-gallery__main");
   });

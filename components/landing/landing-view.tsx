@@ -298,7 +298,7 @@ function ServiceCardLink({
  * so navigating between the home and /services, /plans, /lots, /map never
  * changes the navigation. Framework-free: no active highlight here. */
 function LandingHeader({ content }: { content: LandingContent }) {
-  return <SiteHeaderBar brand={content.logo} contact={content.contact} />;
+  return <SiteHeaderBar brand={content.logo} />;
 }
 
 /* ------------------------- professional landing footer ------------------------- */

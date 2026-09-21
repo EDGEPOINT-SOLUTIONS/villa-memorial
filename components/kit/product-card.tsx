@@ -21,9 +21,10 @@ import { StatusChip, type StatusTone } from "@/components/kit/status-chip";
  * ONE STATUS ROW, UNDER THE FIGURE. The item's availability / sample state is a
  * `StatusChip` (`status.tone` + `status.label`), printed directly under the
  * price — the second thing a shopper reads after the figure, which is where the
- * /lots listing's availability chip has always sat. A sample photograph also
- * carries `chip` — the marker the storefront's substitution note requires
- * (`COFFIN_TIER_NOTE`) — and its `caption` says what the picture really is.
+ * /lots listing's availability chip has always sat. A sample photograph carries
+ * its `caption` saying what the picture really is; the storefront's substitution
+ * note (`COFFIN_TIER_NOTE`) supplies the honesty line, so the picture no longer
+ * needs a redundant "sample" badge.
  *
  * THE SENIOR LINE. A casket carries a second published figure (the senior-
  * citizen price and discount); `senior` is that line, under the status row. It is
@@ -48,7 +49,6 @@ export type ProductCardPhoto = {
 export function ProductCard({
   href,
   photo,
-  chip,
   eyebrow,
   title,
   supporting,
@@ -62,8 +62,6 @@ export function ProductCard({
   /** The item's detail page — the photograph and the title both lead to it. */
   href: string;
   photo?: ProductCardPhoto;
-  /** The sample marker ("Sample photograph") — required wherever the picture is one. */
-  chip?: ReactNode;
   /** A short line above the name: the family, the group, the plot. */
   eyebrow?: ReactNode;
   title: string;
@@ -77,7 +75,7 @@ export function ProductCard({
   status?: { tone?: StatusTone; label: ReactNode };
   /** The senior-citizen line, when the item has one. */
   senior?: ReactNode;
-  /** What the photograph is. Required wherever `chip` is set. */
+  /** What the photograph is. Required wherever the picture is a sample. */
   caption?: ReactNode;
   /** The card's action slot (the shared View / Add / Request grammar). */
   actions: ReactNode;
@@ -99,7 +97,6 @@ export function ProductCard({
               alt=""
               loading="lazy"
             />
-            {chip ? <span className="casket-sample__chip">{chip}</span> : null}
           </Link>
           {caption ? <figcaption className="shop-card__caption">{caption}</figcaption> : null}
         </figure>

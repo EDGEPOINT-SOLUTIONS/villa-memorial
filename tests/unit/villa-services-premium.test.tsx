@@ -233,12 +233,13 @@ describe("/products cards offer a real detail view", () => {
       const photo = casketSamplePhoto(model);
       expect(html, `${model.model} photograph`).toContain(clientPhotoCard(photo.id).src);
     }
-    // The card's photograph is a sample and says so twice: the chip on the
-    // picture, and the caption under it carrying the record's own label. The
-    // picture's own link is aria-hidden (the titled link below is the one a
-    // screen reader uses), so the alt is empty BY DESIGN — the description a
-    // reader gets is the caption, which is real text on the page.
-    expect(html).toContain("Sample photograph");
+    // The card's photograph is a sample and says so the honest way: the caption
+    // under the picture carries the record's own label. The picture's own link is
+    // aria-hidden (the titled link below is the one a screen reader uses), so the
+    // alt is empty BY DESIGN — the description a reader gets is the caption,
+    // which is real text on the page. The redundant "Sample photograph" badge is
+    // gone (captain 2026-09-21).
+    expect(html).not.toContain("Sample photograph");
     for (const model of CASKET_MODELS) {
       const chosen = casketSamplePhoto(model);
       expect(html, `${model.model} caption`).toContain(chosen.label);
@@ -293,7 +294,6 @@ describe("the casket detail view renders the model's own data", () => {
     // photograph; the catalogue rows take the 4:3 card crop.
     expect(html).toContain(clientPhotoWide(sample.id).src);
     expect(html).toContain(sample.label);
-    expect(html).toContain("Sample photograph");
     expect(html).toContain("Illustration purposes only.");
     expect(html).toMatch(/alt="Illustrative sample coffin/);
   });

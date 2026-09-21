@@ -204,7 +204,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `tests/unit/composition-pass.test.tsx` fails on both, naming the rule.
 - **A photograph printed many times is not many photographs.** The sheet photographs five sample
   coffins and binds none to a named model, so a per-model card could only reprint its collection's
-  one picture; the catalogue now publishes it once, chipped, and lists the collection's models as
+  one picture; the catalogue now publishes it once, captioned as a sample, and lists the collection's models as
   priced rows. `/plans` carries 42 catalogue items and **no** item image — it is a price index.
 - **A tile is never a page's picture — not even in a card.** The craft pass (2026-09-18) found
   the last two surfaces still printing the marketing tiles: `/lots/[id]` (cropped to the tile's
@@ -238,8 +238,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   paints through the `--hero-text-colour` custom property set on the page shell
   (`lib/landing/hero-background.ts` → `heroTextColourStyle`); every hero copy
   rule reads `var(--hero-text-colour, <token>)`, so absent = the shipped ink.
-  The left rail's 24/7 call card (`.rail-call*`) reads the SAME variable — the
-  two are synced when the author sets it. The editor control is
+  The editor control is
   `components/landing/hero-background-field.tsx` (palette · free input · live
   preview · 0–100% slider · the free text colour). The rail's oversized lead
   image `.rail-item--lead .rail-thumb` is height-capped
@@ -369,7 +368,12 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   plus the grouped "Explore more" menu carrying exactly Builder · Facilities ·
   Gallery · Memorials · Price list.** The standalone Lots chip is deliberately gone (lots
   live inside Villa Memorial Park); the phone bar's third target and its sheet
-  are "Explore more" too. `SITE_NAV_LINKS`/`EXPLORE_MORE_LINKS` in
+  are "Explore more" too. **The captain removed the whole utility row
+  (`anchored-header__utility`) on 2026-09-21** — location · hours, the
+  "Immediate assistance" chip and the 24/7 call button. The bar is one row; the
+  number stays reachable in the footer, `/contact`, `/immediate-assistance` and
+  the phone action bar, and `SiteHeaderBar` no longer takes a `contact` prop.
+  `SITE_NAV_LINKS`/`EXPLORE_MORE_LINKS` in
   `components/landing/site-header.tsx` are the authority. Pinned by
   `tests/unit/public-nav.test.tsx` + `tests/unit/landing-view.test.tsx`.
 - **Phase 2 — the Plans page (`/plans`) and the consolidated Price list
@@ -489,7 +493,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   selector is a labelled `role="radiogroup"` with `aria-checked` + an
   `aria-live` line, and `history.replaceState` keeps the per-SKU URL (canonical
   stays per-SKU). Imagery fallback: the variant's own gallery → the rule-derived
-  sample (chip + sheet note) → an honest text placeholder; a line-level shared
+  sample (caption + sheet note) → an honest text placeholder; a line-level shared
   gallery is NOT in the P0 `ProductLine` type. Evidence + 1440/390 shots:
   `docs/08-delivery/pdp-variants-design/`; tests `product-line`, `pdp-variants`.
 - **Phase P3 has LANDED — the PDP is the Amazon structure in our tokens** (plan
@@ -657,8 +661,8 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   OWN named block and never edits it. Design record + before/after shots:
   `docs/08-delivery/public-layout-phase0-design/`.
 - **The left rail carries NO 24/7 call card** (captain removed it 2026-09-21). The
-  number stays reachable in the header call chip, the footer and
-  `/immediate-assistance`; do not re-add a rail card or a replacement.
+  number stays reachable in the footer, `/contact`, `/immediate-assistance` and
+  the phone action bar's "Call 24/7"; do not re-add a rail card or a replacement.
   `.rail-call*` and the `rail-pulse` keyframe are retired (`landing-view.test.tsx`
   fails their return).
 
@@ -713,8 +717,9 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   Flexi = the raised cover the sheet's convertible line describes) and the collection's price
   band. The client's photographs are NOT named after the 2026 sheet models — that
   reconciliation is an OPEN CLIENT QUESTION — so no page may name a photograph as a model, and
-  **every** published sample carries the chip and the sheet's substitution note
-  (`COFFIN_TIER_NOTE`). Six photographs cannot be twenty-four coffins: the PR that owns this
+  **every** published sample carries its caption and the sheet's substitution note
+  (`COFFIN_TIER_NOTE`) — never a redundant "Sample photograph" chip (captain
+  2026-09-21). Six photographs cannot be twenty-four coffins: the PR that owns this
   pass names the models that still have no picture of their own.
 - **One rule home for a catalogue item's photograph: `lib/catalogue-imagery.ts`**
   (`catalogueItemPhoto(sku)`) — used by `/plans`; the caskets delegate to the table above, the
@@ -830,13 +835,13 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   belongs to the call; nothing else asks for a decision. One `h1`, no motion, tokens only.
   Honest states: the content document carries no street address and no office hours, so they
   are omitted — never invent a second number or a schedule.
-- Entry points are exactly three render sites, one per surface: the header's
-  `anchored-header__assist` chip (desktop, hidden < 75rem), the phone bar's
-  `anchored-phonebar__btn--help` target (mobile; the approved D3 bar now carries three
-  targets — recorded in `docs/08-delivery/public-nav-design/README.md` §4), and the home
-  rail's `rail-call__assist` link under the 24/7 card (`RailPanel`, landing-view.tsx). The
-  rail card's number stays the one-tap call; the guide pages' "Immediate assistance"
-  buttons point at this route too. Never add a fourth nav menu entry.
+- Entry points are the phone bar's `anchored-phonebar__btn--help` target (mobile;
+  the approved D3 bar carries three targets — recorded in
+  `docs/08-delivery/public-nav-design/README.md` §4) and the guide pages'
+  "Immediate assistance" buttons. The retired header utility row's
+  `anchored-header__assist` chip and the home rail's `rail-call__assist` link are
+  both gone (captain 2026-09-21); the phone bar's "Call 24/7" is the one-tap call.
+  Never add a nav menu entry.
 - It is a reading-budget page: `tests/unit/reading-budget.test.tsx` renders it (paragraphs
   ≤ 30 words, opening sentence ≤ 12, list items ≤ 30) and the phone number + step 1 must
   stay above the fold at 390 px (evidence + screenshots under

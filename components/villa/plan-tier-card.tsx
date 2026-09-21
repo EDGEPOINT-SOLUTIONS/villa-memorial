@@ -43,10 +43,9 @@ export function PlanTierCard({
             alt={image.alt}
             loading="lazy"
           />
-          {image.sample || image.caption ? (
+          {image.caption ? (
             <figcaption className="plan-tier__caption">
-              {image.sample ? <span className="casket-sample__mini">Sample photograph</span> : null}
-              {image.caption ? <span>{image.caption}</span> : null}
+              <span>{image.caption}</span>
             </figcaption>
           ) : null}
         </figure>

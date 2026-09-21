@@ -8,11 +8,12 @@ import { CartProvider } from "@/lib/cart/cart-context";
 import { PdpGallery } from "@/components/villa/pdp-gallery";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { richTextToHtml } from "@/lib/richtext";
+import { COFFIN_SAMPLE_NOTE } from "@/lib/villa-pricing";
 import type { ContentImage } from "@/lib/content-catalog";
 
 /**
  * The product-detail gallery (report §6): the main viewer with its thumbnail
- * rail, the lead-eager / rest-lazy loading, the sample honesty chip, and the
+ * rail, the lead-eager / rest-lazy loading, the sample honesty caption, and the
  * page's fallback to the rule-derived sample figure when no gallery is authored.
  */
 
@@ -86,13 +87,15 @@ describe("the product-detail gallery viewer", () => {
     expect(thumbs.length).toBe(2);
   });
 
-  it("keeps the sample chip and the sheet's substitution note", () => {
+  it("keeps the sheet's substitution note and captions without a badge", () => {
     const html = renderGallery([
       image("a", { sample: true, caption: "Illustrative sample." }),
       image("b", { sample: true, caption: "Another sample." }),
     ]);
-    expect(html).toContain("Sample photograph");
-    expect(html).toContain("Sample");
+    expect(html).toContain(COFFIN_SAMPLE_NOTE);
+    expect(html).toContain("Illustrative sample.");
+    expect(html).not.toContain("casket-sample__chip");
+    expect(html).not.toContain("casket-sample__mini");
   });
 
   it("renders no rail when a single photograph is authored", () => {

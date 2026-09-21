@@ -18,8 +18,8 @@ import { CASKET_MODEL_PHOTOS, casketModelPhotoId } from "@/lib/media";
  *
  *   · every recorded catalogue item resolves to a published file (a missing
  *     file is a 404 image on a live page, not a design choice);
- *   · a photograph stands in for a model only when the card says so — a sample
- *     chip and its caption travel together, never one without the other;
+ *   · a photograph stands in for a model only when the card says so — the sample
+ *     flag and its caption travel together, never one without the other;
  *   · a casket's photograph is the SAME photograph lib/media.ts's 24-row table
  *     chooses, so /products, /plans and /packages cannot drift;
  *   · a picture two items share is always a labelled sample — two products may
@@ -59,15 +59,15 @@ describe("catalogue imagery — every item photographed, every sample labelled",
     expect(unphotographed, `no photograph for: ${unphotographed.join(", ")}`).toEqual([]);
   });
 
-  it("pairs every sample chip with its caption (and never a chip without one)", async () => {
+  it("pairs every sample flag with its caption (and never a flag without one)", async () => {
     for (const item of await listCatalogItems()) {
       const photo = catalogueItemPhoto(item.sku);
       if (!photo) continue;
-      if (photo.chip) {
+      if (photo.sample) {
         expect(photo.caption, `${item.sku} is a sample with no caption`).toBeTruthy();
       }
       if (photo.caption) {
-        expect(photo.chip, `${item.sku} carries a caption but no sample chip`).toBeTruthy();
+        expect(photo.sample, `${item.sku} carries a caption but no sample flag`).toBeTruthy();
       }
     }
   });
@@ -92,7 +92,7 @@ describe("catalogue imagery — every item photographed, every sample labelled",
     for (const [src, skus] of shared) {
       for (const sku of skus) {
         const photo = catalogueItemPhoto(sku);
-        expect(photo?.chip, `${sku} shares ${src} without a sample chip`).toBeTruthy();
+        expect(photo?.sample, `${sku} shares ${src} without a sample flag`).toBeTruthy();
         expect(photo?.caption, `${sku} shares ${src} without a caption`).toBeTruthy();
       }
     }

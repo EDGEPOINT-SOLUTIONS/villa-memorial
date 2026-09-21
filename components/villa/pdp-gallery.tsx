@@ -7,9 +7,9 @@
  * The office's authored `entry.gallery` (an ordered, uncapped list). The lead
  * photograph loads eagerly; the main viewer swaps locally with no navigation, and
  * every other image (the rail and any non-lead main photo) is `loading="lazy"`.
- * A sample photograph keeps its honesty chip and the client's short illustration
- * label ("Illustration purposes only."), exactly as the rule-derived sample
- * figure does — the long substitution sentence stays on /products.
+ * A sample photograph keeps the client's short illustration label
+ * ("Illustration purposes only."), exactly as the rule-derived sample figure does
+ * — the long substitution sentence stays on /products.
  *
  * ZOOM. The main viewer's magnifier button opens a `useModalFocus` dialog: focus
  * moves in, Tab is trapped, Escape closes, the page behind cannot scroll and focus
@@ -51,7 +51,6 @@ export function PdpGallery({ images, label }: { images: ContentImage[]; label: s
           loading={index === 0 ? "eager" : "lazy"}
           decoding="async"
         />
-        {active.sample ? <span className="casket-sample__chip">Sample photograph</span> : null}
         <button
           type="button"
           className="pdp-gallery__zoom"
@@ -101,7 +100,6 @@ export function PdpGallery({ images, label }: { images: ContentImage[]; label: s
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
                 <img src={image.src} alt="" loading="lazy" decoding="async" />
-                {image.sample ? <span className="casket-sample__mini">Sample</span> : null}
               </button>
             </li>
           ))}
