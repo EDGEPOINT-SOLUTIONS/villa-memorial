@@ -1,8 +1,30 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
+import { CartProvider } from "@/lib/cart/cart-context";
+
+// The lane's pages are server components that render next/link + next/navigation;
+// the home proof surface does not, so the harness supplies the same mocks the
+// other page tests use.
+vi.mock("next/link", () => ({
+  default: ({ href, children, ...rest }: { href?: string; children?: React.ReactNode } & Record<string, unknown>) =>
+    createElement("a", { href, ...rest }, children),
+}));
+vi.mock("next/navigation", () => ({
+  notFound: () => {
+    throw new Error("NEXT_NOT_FOUND");
+  },
+  usePathname: () => "/",
+  useRouter: () => ({ push: () => {} }),
+}));
+
+const { default: PlansPage } = await import("@/app/(public)/plans/page");
+const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
+const { default: BuilderPage } = await import("@/app/(public)/builder/page");
+const { default: PlanDetailPage } = await import("@/app/(public)/plans/[sku]/page");
 
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
@@ -56,6 +78,55 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       "next-steps",
     ],
     requires: ['data-section-head', 'data-public-disclosure'],
+  },
+  {
+    name: "plans (/plans)",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await PlansPage())),
+    // The Lane-3 blueprint: the shared interior hero, then the five-card tier row.
+    sections: ['data-public-hero="interior"', 'class="plan-tiers"'],
+    requires: ["data-section-head"],
+  },
+  {
+    name: "price list (/price-list)",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage())),
+    // Hero, then the four disclosed bands in the blueprint's order.
+    sections: [
+      'data-public-hero="interior"',
+      'id="packages"',
+      'id="coffins"',
+      'id="senior"',
+      'id="vmp"',
+      'id="prices"',
+    ],
+    requires: ["data-section-head", "data-public-disclosure"],
+  },
+  {
+    name: "builder (/builder)",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await BuilderPage())),
+    sections: ['data-public-hero="interior"', 'class="sb-layout"'],
+  },
+  {
+    name: "package detail (/plans/PKG-BASIC)",
+    render: async () =>
+      renderToStaticMarkup(
+        createElement(
+          CartProvider,
+          null,
+          await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-BASIC" }) }),
+        ),
+      ),
+    // The approved package prototype, with the reference detail disclosed.
+    sections: [
+      'class="plan-page"',
+      'class="public-disclosure"',
+      "pkg-inclusions",
+      'class="mid-section price-module"',
+      "tribute-strip",
+    ],
+    requires: ["data-public-disclosure"],
   },
 ];
 

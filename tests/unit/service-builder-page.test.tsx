@@ -102,7 +102,7 @@ describe("the builder is an estimate, and says so", () => {
   it("has one h1 and answers in one short sentence", async () => {
     const html = await renderBuilder();
     expect(html.match(/<h1\b/g)).toHaveLength(1);
-    const lead = html.match(/<p class="sb-hero__lead">([\s\S]*?)<\/p>/);
+    const lead = html.match(/<p class="public-hero__lead">([\s\S]*?)<\/p>/);
     expect(lead).toBeTruthy();
     expect(textOf(lead![1])).toBe(
       "What you already have, what you need, and the running total.",

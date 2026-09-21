@@ -660,6 +660,18 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   "public layout grammar — Phase 0"). Phase 0 owns it; each rollout lane appends its
   OWN named block and never edits it. Design record + before/after shots:
   `docs/08-delivery/public-layout-phase0-design/`.
+- **Lane 3 (plan, purchase & checkout) owns the `/* public: plan block */`** — the
+  tail of `styles/components.css` after the Phase 0 block. It carries
+  `.plan-flow` / `.plan-flow--reading` (the catalogue/reading envelope as a
+  page wrapper, so a page inside the shelled `.container` does not double-pad),
+  `.plan-branch-row` and the phone `.plan-tier` compaction. `/plans`,
+  `/plans/[sku]` (package branch), `/price-list` and `/builder` now render
+  `PublicHero` / `SectionHead` / `PublicDisclosure`; `/price-list`'s four
+  reference sets and the package page's inclusions/price-list/source-sheet
+  blocks are disclosed. `/plans` stays >its ceiling because the captain's five
+  printed card checklists are pinned (`plans-page-content` fails any `<details>`
+  there) and `/builder`'s seven-question body is unchanged (no blueprint).
+  Record + table: `docs/08-delivery/plan-minimal-design/`.
 - **The left rail carries NO 24/7 call card** (captain removed it 2026-09-21). The
   number stays reachable in the footer, `/contact`, `/immediate-assistance` and
   the phone action bar's "Call 24/7"; do not re-add a rail card or a replacement.

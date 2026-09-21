@@ -80,6 +80,7 @@ vi.mock("@/lib/auth/guard", async (importOriginal) => {
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
+const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku]/page");
 const { default: ImmediateAssistancePage } = await import(
   "@/app/(public)/immediate-assistance/page"
@@ -129,7 +130,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/builder",
     render: async () => renderToStaticMarkup(await BuilderPage()),
-    openingLead: /<p class="sb-hero__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/plans",
@@ -141,7 +142,13 @@ const PAGES: ReadonlyArray<BudgetPage> = [
           await PlansPage(),
         ),
       ),
-    openingLead: /<p class="hero-premium__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/price-list",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage())),
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/immediate-assistance",

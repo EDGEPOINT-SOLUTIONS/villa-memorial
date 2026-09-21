@@ -5,6 +5,7 @@ import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { ServiceBuilder } from "@/components/builder/service-builder";
+import { PublicHero } from "@/components/public/public-hero";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -57,29 +58,15 @@ export default async function BuilderPage() {
   const { contact } = content;
 
   return (
-    <div className="sb-page">
-      <section className="hero-premium" aria-labelledby="builder-title">
-        <div className="hero-premium__grid">
-          <div>
-            <p className="eyebrow-label">Smart Service Builder · 2026 prices</p>
-            <h1 className="hero-premium__title" id="builder-title">
-              Build the service you need
-            </h1>
-            {/* The one-line answer (reading budget, captain 2026-09-18). */}
-            <p className="sb-hero__lead">
-              What you already have, what you need, and the running total.
-            </p>
-            <div className="hero-premium__actions">
-              <a className="btn btn--primary" href={contact.phoneHref}>
-                Call {contact.phoneDisplay}
-              </a>
-              <a className="btn btn--secondary" href="#sb-step-situation">
-                Start with your situation
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+    <div className="sb-page plan-flow">
+      <PublicHero
+        variant="interior"
+        eyebrow="Smart Service Builder · 2026 prices"
+        title="Build the service you need"
+        lead="What you already have, what you need, and the running total."
+        primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
+        secondary={{ label: "Start with your situation", href: "#sb-step-situation" }}
+      />
 
       <ServiceBuilder catalog={catalog} contact={contact} />
     </div>

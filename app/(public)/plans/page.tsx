@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet } from "@/lib/media";
+import { PublicHero } from "@/components/public/public-hero";
+import { SectionHead } from "@/components/public/section-head";
 import { PlanTierCard } from "@/components/villa/plan-tier-card";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
 import { planRequestAction } from "@/lib/plan-selection";
 import { planRateOf } from "@/lib/pricing-model";
-import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -46,46 +46,24 @@ export default async function PlansPage() {
     loadPricingDocument(),
   ]);
   const plan = planContentFromDocument(page);
-  const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
   const heroHeadline = page?.hero.headline.trim() ?? "";
 
   return (
-    <>
-      <section className="hero-premium" style={heroTextStyle ?? undefined}>
-        <div className="hero-premium__grid">
-          <div>
-            {page?.hero.eyebrow.trim() ? <p className="eyebrow-label">{page.hero.eyebrow}</p> : null}
-            <h1 className={`hero-premium__title${heroHeadline ? "" : " visually-hidden"}`}>
-              {heroHeadline || "Villa Memorial Plan"}
-            </h1>
-            {/* The page's one-line answer + one primary action (reading budget,
-                captain 2026-09-18). */}
-            {page?.hero.lead.trim() ? <p className="hero-premium__lead">{page.hero.lead}</p> : null}
-            <div className="hero-premium__actions">
-              <Link href="/price-list" className="btn btn--primary">
-                See the 2026 rates
-              </Link>
-            </div>
-            <p className="text-sm text-muted" style={{ margin: "var(--space-3) 0 0" }}>
-              Five tiers · four payment terms · 2026 rates.
-            </p>
-            <nav className="hero-chips" aria-label="Related plan pages">
-              <Link href="/plans/PKG-BASIC">View packages</Link>
-              <Link href="/products">Coffins &amp; caskets</Link>
-            </nav>
-          </div>
-          <figure className="hero-premium__media">
-            {/* eslint-disable-next-line @next/next/no-img-element -- uploaded photo */}
-            <img
-              src={libraryThumb(PLAN_PACKAGES_IMAGE, 640)}
-              srcSet={libraryThumbSet(PLAN_PACKAGES_IMAGE)}
-              sizes="(max-width: 60rem) 90vw, 30rem"
-              alt="Comprehensive memorial packages for your peace of mind"
-            />
-            <figcaption>Plan ahead — complete, caring arrangements.</figcaption>
-          </figure>
-        </div>
-      </section>
+    <div className="plan-flow stack-4">
+      <PublicHero
+        variant="interior"
+        eyebrow={page?.hero.eyebrow.trim() || undefined}
+        title={heroHeadline || "Villa Memorial Plan"}
+        lead={page?.hero.lead.trim() || undefined}
+        textColour={page?.hero.textColour ?? null}
+        primary={{ label: "See the 2026 rates", href: "/price-list" }}
+        secondary={{ label: "View packages", href: "/plans/PKG-BASIC" }}
+      >
+        <nav className="hero-chips" aria-label="Related plan pages">
+          <Link href="/products">Coffins &amp; caskets</Link>
+        </nav>
+        <p className="text-sm text-muted">Five tiers · four payment terms · 2026 rates.</p>
+      </PublicHero>
 
       {/* The five tiers — the page's content home. ONE ROW of five premium tier
           cards on desktop (captain 2026-09-21: "the five tier plan make it 5
@@ -97,9 +75,7 @@ export default async function PlansPage() {
           optional staff-attached photo leads the card; without one it stays
           premium and text-only. */}
       <section id="tiers" className="stack-4" aria-labelledby="tiers-title">
-        <h2 className="section-title" id="tiers-title">
-          The five tiers — what each one includes
-        </h2>
+        <SectionHead id="tiers-title" title="The five tiers — what each one includes" />
         {plan.tiers.length === 0 ? (
           <p className="text-sm text-muted">
             The tier details are being prepared — the 2026 rates are on the Price list.
@@ -126,6 +102,6 @@ export default async function PlansPage() {
           </div>
         )}
       </section>
-    </>
+    </div>
   );
 }

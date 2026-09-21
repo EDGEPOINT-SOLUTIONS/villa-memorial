@@ -7,6 +7,7 @@ import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
 import { getItemEntry } from "@/lib/api-client/content-entries";
 import { itemEntryView } from "@/lib/catalogue-content";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { PublicDisclosure } from "@/components/public/public-disclosure";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
@@ -219,7 +220,8 @@ export default async function PlanDetailPage({
 
             <h2 className="plan-section-title">Complete Memorial Package</h2>
 
-            <section className="pkg-inclusions" aria-label="What the package includes">
+            <PublicDisclosure summary="Show what the package includes and the conditions">
+              <section className="pkg-inclusions" aria-label="What the package includes">
               {plan.packageInclusions.map((inc, i) => {
                 const IncIcon = INCLUSION_ICONS[i];
                 return (
@@ -283,12 +285,16 @@ export default async function PlanDetailPage({
                 </div>
               </div>
             </section>
+            </PublicDisclosure>
 
-            <section className="mid-section price-module" aria-labelledby="pl-title">
-              <PriceList2026Module categories={pricing.lotCategories} />
-            </section>
+            <PublicDisclosure summary="Show the Official 2026 price list">
+              <section className="mid-section price-module" aria-labelledby="pl-title">
+                <PriceList2026Module categories={pricing.lotCategories} />
+              </section>
+            </PublicDisclosure>
 
-            <section className="mid-section" aria-labelledby="sheet-title">
+            <PublicDisclosure summary="Show the client’s source sheets">
+              <section className="mid-section" aria-labelledby="sheet-title">
               <p className="mid-kicker">From the client’s own sheets</p>
               <h2 id="sheet-title">The package at a glance</h2>
               <div className="tribute-strip">
@@ -340,7 +346,8 @@ export default async function PlanDetailPage({
                   </figcaption>
                 </figure>
               </div>
-            </section>
+              </section>
+            </PublicDisclosure>
           </div>
 
           <aside className="plan-side">
