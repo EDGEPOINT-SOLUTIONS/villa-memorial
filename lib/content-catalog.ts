@@ -15,9 +15,11 @@
  * components/content/*.
  *
  * THE RULES THIS MODULE ENFORCES
- *  - A page document's hero is staff copy; its image and background reuse the
- *    home hero's own rules (the CSS colour check lives in lib/landing/hero-background.ts,
- *    the transparency is 0–100 with 100 = absent).
+ *  - A page document's hero is staff copy; its image, background and text colour
+ *    reuse the home hero's own rules (the CSS colour check lives in
+ *    lib/landing/hero-background.ts, the transparency is 0–100 with 100 = the
+ *    clear photograph). The copy (eyebrow · headline · lead) is OPTIONAL: with
+ *    none set the page renders the raw photo — no wash, scrim or gradient.
  *  - A price block NEVER carries an amount: `priceTable` / `priceList` bind to a
  *    catalogue SKU or a pricing-store rate row, and the validator refuses a
  *    binding that does not resolve against the stores it is handed.
@@ -36,6 +38,7 @@
  * photographs remain unpublished.
  */
 
+import { isValidCssColor } from "@/lib/landing/hero-background";
 import { unrenderableGlyphs } from "@/lib/text-gate";
 
 /* ------------------------------ page documents ----------------------------- */
@@ -170,6 +173,12 @@ export type PageHero = {
   image: string | null;
   background: string | null;
   backgroundTransparency: number;
+  /**
+   * Author-settable hero copy colour (any CSS colour isValidCssColor accepts).
+   * null = the shipped token ink, so legacy documents are untouched. Rendered as
+   * the `--hero-text-colour` custom property the hero copy rules read.
+   */
+  textColour: string | null;
 };
 
 export type PageTab = {
@@ -607,6 +616,7 @@ export function readPageDocument(raw: unknown): PageDocument {
       image: readNullableStr(heroRaw.image),
       background: readNullableStr(heroRaw.background),
       backgroundTransparency: readNum(heroRaw.backgroundTransparency, 100),
+      textColour: readNullableStr(heroRaw.textColour),
     },
     tabs: readArray(r.tabs)
       .map((tab): PageTab | null => {
@@ -1243,7 +1253,8 @@ export function validatePageDocument(
     errors.push(`“${keyRaw || "This document"}” is not one of the page documents.`);
   }
   if (!document.title.trim()) errors.push("The page title can't be empty.");
-  if (!document.hero.headline.trim()) errors.push("The hero headline can't be empty.");
+  // The hero copy is optional: an image-only hero (a photo and no eyebrow,
+  // headline or lead) is a legal document — the page renders the raw photo.
   const lead = tooLong(document.hero.lead, CONTENT_LEAD_MAX, "The hero lead");
   if (lead) errors.push(lead);
   const eyebrow = tooLong(document.hero.eyebrow, CONTENT_HEADING_MAX, "The hero eyebrow");
@@ -1263,6 +1274,9 @@ export function validatePageDocument(
     !Number.isInteger(document.hero.backgroundTransparency)
   ) {
     errors.push("The hero background transparency must be a whole number from 0 to 100.");
+  }
+  if (document.hero.textColour !== null && !isValidCssColor(document.hero.textColour)) {
+    errors.push("The hero text colour must be a valid CSS colour like #ffffff.");
   }
   if (document.tabs.length > CONTENT_TABS_MAX) errors.push(`The page keeps at most ${CONTENT_TABS_MAX} tabs.`);
   document.tabs.forEach((tab, i) => {

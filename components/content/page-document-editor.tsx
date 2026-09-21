@@ -199,6 +199,7 @@ export function PageDocumentEditor({
               label="Headline"
               value={doc.hero.headline}
               onChange={(value) => patchDocument({ hero: { ...doc.hero, headline: value } })}
+              hint="Optional — with no eyebrow, headline or lead the page renders a pure hero photo."
             />
           </div>
           <AreaField

@@ -19,6 +19,7 @@ const hero = (patch: Partial<HeroSection> = {}): HeroSection => ({
   image: null,
   background: null,
   backgroundTransparency: 100,
+  textColour: null,
   ...patch,
 });
 
@@ -48,6 +49,21 @@ describe("the hero background colour changer", () => {
     expect(html).toContain("25%");
     expect(html).toContain("Previewing #3f97d1 at 25% transparency");
     expect(html).toContain('value="#3f97d1"');
+  });
+
+  it("offers the hero text colour input and shows the chosen ink", () => {
+    const html = renderToStaticMarkup(
+      <HeroBackgroundField hero={hero({ textColour: "#ffffff" })} onChange={() => {}} />,
+    );
+    expect(html).toContain("Hero text colour");
+    expect(html).toContain('value="#ffffff"');
+    expect(html).toContain("The hero copy prints in #ffffff");
+    expect(html).toContain("Default ink");
+  });
+
+  it("says 100% transparency leaves the photograph untouched", () => {
+    const html = renderToStaticMarkup(<HeroBackgroundField hero={hero()} onChange={() => {}} />);
+    expect(html).toContain("the photograph is clear");
   });
 
   it("shows a clear message and marks the field invalid for a colour that isn't CSS", () => {

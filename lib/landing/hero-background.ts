@@ -13,14 +13,22 @@
  *    (components/landing/landing-view.tsx) share.
  *
  * LAYERING CONTRACT (also stated in the PR): the chosen colour paints as ONE
- * dedicated layer ABOVE the background photo and its readability scrim, and
- * BELOW every hero copy block (`.hero-home__wash` in styles/components.css).
- * Transparency 0 = the colour is solid; 100 = the layer is fully see-through
- * and therefore absent. 100 is the default, so a document that never touched
- * these fields renders today's shipped sky gradient exactly as before.
+ * dedicated layer ABOVE the background photo and BELOW every hero copy block
+ * (`.hero-home__wash` in styles/components.css). Transparency 0 = the colour is
+ * solid; 100 = the layer is fully see-through and therefore absent, so the
+ * photograph itself is UNTOUCHED. 100 is the default, so a document that never
+ * touched these fields shows the clear photograph (the old constant readability
+ * scrim was removed by the captain's 2026-09-21 direction). An image-only hero
+ * — a photo and no eyebrow/headline/lead — renders no layer at all.
+ *
+ * The same module owns the AUTHOR-SETTABLE HERO TEXT COLOUR: the hero carries
+ * one optional CSS colour that re-inks its copy through the
+ * `--hero-text-colour` custom property the hero rules read. Absent = the
+ * shipped token ink, so legacy documents are untouched.
  */
+import type { CSSProperties } from "react";
 
-/** 100% = fully transparent = the shipped hero look (legacy-document default). */
+/** 100% = fully transparent = the clear photograph (legacy-document default). */
 export const HERO_BACKGROUND_TRANSPARENT = 100;
 
 /**
@@ -40,6 +48,9 @@ export type HeroBackgroundFields = {
   background: string | null;
   backgroundTransparency: number;
 };
+
+/** Any hero that carries the text-colour field (the landing hero or a page document's). */
+export type HeroTextColourFields = { textColour: string | null };
 
 export type HeroBackgroundPatch = {
   background: string | null;
@@ -134,6 +145,17 @@ export function readHeroTransparency(value: unknown): number {
   return Math.min(100, Math.max(0, Math.round(value)));
 }
 
+/**
+ * Tolerant read of the author's hero text colour: a trimmed, non-empty string
+ * kept as written (the validator names a bad value; the view never trusts it).
+ * Legacy documents lack the field entirely and read as null = the token ink.
+ */
+export function readHeroTextColour(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
 /* ------------------------------- rendering ------------------------------- */
 
 /**
@@ -148,6 +170,20 @@ export function heroBackgroundLayer(fields: HeroBackgroundFields): HeroBackgroun
   const transparency = readHeroTransparency(fields.backgroundTransparency);
   if (transparency >= HERO_BACKGROUND_TRANSPARENT) return null;
   return { background: colour, opacity: (100 - transparency) / 100 };
+}
+
+/**
+ * The CSS custom property that re-inks a hero's copy, or null when the document
+ * carries no valid colour (every hero copy rule falls back to its token ink).
+ * Painted on the hero container; the copy rules read
+ * `var(--hero-text-colour, <token>)`, so a legacy document is untouched.
+ */
+export function heroTextColourStyle(fields: HeroTextColourFields): CSSProperties | null {
+  const colour = (fields.textColour ?? "").trim();
+  if (!isValidCssColor(colour)) return null;
+  // The custom property is the one React.CSSProperties does not model for this
+  // @types/react version; cast once here so every call site stays typed.
+  return { "--hero-text-colour": colour } as CSSProperties;
 }
 
 /**

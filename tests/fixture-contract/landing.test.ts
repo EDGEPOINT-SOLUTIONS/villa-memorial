@@ -258,18 +258,34 @@ describe("the save path accepts unlimited rail items", () => {
     expect(reread.rails.left.items.length).toBe(10);
   });
 
-  it("rejects empty hero headline / empty rail item titles", async () => {
+  it("accepts an image-only hero but rejects empty rail item titles", async () => {
     const content = await listLandingContent();
-    const badHero = cloneDoc(content);
-    badHero.hero.headline = "   ";
-    const verdict = validateLandingContent(badHero, LOT_PRICE_CATEGORIES);
-    expect(verdict.ok).toBe(false);
-    if (!verdict.ok) expect(verdict.error).toMatch(/headline/);
+    // An image-only hero (a photo, no eyebrow/headline/subline) is legal — the
+    // page renders the raw photograph (captain 2026-09-21).
+    const imageOnly = cloneDoc(content);
+    imageOnly.hero.eyebrow = "   ";
+    imageOnly.hero.headline = "   ";
+    imageOnly.hero.subline = "";
+    const verdict = validateLandingContent(imageOnly, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(true);
 
     const badItem = cloneDoc(content);
     badItem.rails.right.items = [{ ...badItem.rails.right.items[0], title: " " }];
     const verdict2 = validateLandingContent(readLandingContent(badItem), LOT_PRICE_CATEGORIES);
     expect(verdict2.ok).toBe(false);
+  });
+
+  it("accepts a hero text colour and refuses a value that is not a CSS colour", async () => {
+    const content = await listLandingContent();
+    const good = cloneDoc(content);
+    good.hero.textColour = "#ffffff";
+    expect(validateLandingContent(good, LOT_PRICE_CATEGORIES).ok).toBe(true);
+
+    const bad = cloneDoc(content);
+    bad.hero.textColour = "url(https://evil.test/x.png)";
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/text colour/i);
   });
 
   it("saves a valid edited document and the public read returns it", async () => {

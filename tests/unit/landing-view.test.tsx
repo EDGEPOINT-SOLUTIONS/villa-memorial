@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
@@ -338,6 +339,71 @@ describe("the hero renders the staff-chosen background colour layer", () => {
     );
     expect(html).not.toContain("hero-home__wash");
     expect(html).not.toContain("evil.test");
+  });
+});
+
+describe("an image-only hero renders the raw photograph", () => {
+  it("renders the photo with no copy, no wash and no overlay markup", async () => {
+    const content = await listLandingContent();
+    const imageOnly = cloneDoc(content);
+    imageOnly.hero.image = "/media/hero-1.jpg";
+    imageOnly.hero.eyebrow = "";
+    imageOnly.hero.headline = "";
+    imageOnly.hero.subline = "";
+    const html = renderToStaticMarkup(
+      view({ content: imageOnly, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("hero-home--image-only");
+    expect(html).toContain("/media/hero-1.jpg");
+    expect(html).not.toContain("hero-home__wash");
+    expect(html).not.toContain("hero-home__actions");
+    // Still one h1 for assistive tech, just not painted over the photo.
+    expect(html).toContain("visually-hidden");
+  });
+
+  it("leaves the stylesheet free of a constant photo scrim", () => {
+    const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
+    expect(css).not.toContain(".hero-home--photo::after");
+    expect(css).toContain(".hero-home--image-only");
+  });
+});
+
+describe("the hero text colour is author-settable", () => {
+  it("re-inks the hero and the 24/7 rail call card through one custom property", async () => {
+    const content = await listLandingContent();
+    const inked = cloneDoc(content);
+    inked.hero.textColour = "#ffffff";
+    const html = renderToStaticMarkup(
+      view({ content: inked, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).toContain("--hero-text-colour:#ffffff");
+    expect(html).toContain('class="rail-call"');
+  });
+
+  it("never paints an invalid content text colour", async () => {
+    const content = await listLandingContent();
+    const hostile = cloneDoc(content);
+    hostile.hero.textColour = "url(https://evil.test/x.png)";
+    const html = renderToStaticMarkup(
+      view({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    expect(html).not.toContain("--hero-text-colour");
+    expect(html).not.toContain("evil.test");
+  });
+});
+
+describe("the rails fit without a vertical scrollbar and the call card stays synced", () => {
+  it("caps the lead image so the default rail list fits its viewport height", () => {
+    const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
+    const block = /\.rail-item--lead \.rail-thumb \{[^}]*\}/.exec(css)?.[0] ?? "";
+    expect(block).toContain("height: clamp(");
+    expect(block).not.toContain("height: 14rem");
+  });
+
+  it("inks the 24/7 call card with the same --hero-text-colour as the hero", () => {
+    const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
+    expect(css).toContain("color: var(--hero-text-colour, var(--color-text-primary));");
+    expect(css).toContain("color: var(--hero-text-colour, var(--color-text-accent));");
   });
 });
 

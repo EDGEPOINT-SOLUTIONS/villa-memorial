@@ -21,7 +21,7 @@
  */
 import { ApiError } from "@/lib/api-client/api-error";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { isValidCssColor, readHeroTransparency } from "@/lib/landing/hero-background";
+import { isValidCssColor, readHeroTextColour, readHeroTransparency } from "@/lib/landing/hero-background";
 import type { LotCategory } from "@/lib/pricing-model";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
@@ -78,25 +78,32 @@ export type HeroSection = {
   secondaryCta: Cta;
   /**
    * Background photo for the hero (captain's home-page review): when set, the
-   * hero renders the photo under a navy readability scrim instead of the plain
-   * gradient. null keeps the shipped gradient.
+   * hero renders the photo behind the copy. null keeps the shipped gradient.
+   * With no eyebrow/headline/subline the page renders the RAW photograph — no
+   * scrim, gradient, colour layer or filter (captain's 2026-09-21 direction).
    */
   image: string | null;
   /**
    * Staff-chosen hero background colour ("colour changer" on the Landing Page
    * editor, captain's brief 2026-09-17). null = no layer at all, so a document
-   * that never touched the field renders the shipped gradient exactly as
-   * before. When set, the colour paints as ONE layer ABOVE the background
-   * photo + its readability scrim and BELOW every hero copy block; the layer's
-   * alpha comes from `backgroundTransparency`.
+   * that never touched the field shows the clear photograph / shipped gradient.
+   * When set, the colour paints as ONE layer ABOVE the background photo and
+   * BELOW every hero copy block; the layer's alpha comes from
+   * `backgroundTransparency`.
    */
   background: string | null;
   /**
    * Transparency of the background colour layer, 0–100. 0 = the colour is
-   * solid; 100 = fully see-through (the layer is absent). Legacy documents
-   * without this field read as 100, i.e. today's untouched look.
+   * solid; 100 = fully see-through (the layer is absent, the photograph
+   * untouched). Legacy documents without this field read as 100.
    */
   backgroundTransparency: number;
+  /**
+   * Author-settable hero copy colour (any CSS colour isValidCssColor accepts).
+   * null = the shipped token ink. Rendered as the `--hero-text-colour` custom
+   * property the hero copy rules read, so a legacy document is untouched.
+   */
+  textColour: string | null;
 };
 
 export type AboutSection = {
@@ -504,6 +511,7 @@ export function readLandingContent(raw: unknown): LandingContent {
       backgroundTransparency: readHeroTransparency(
         (heroRaw as Record<string, unknown>).backgroundTransparency,
       ),
+      textColour: readHeroTextColour((heroRaw as Record<string, unknown>).textColour),
     },
     rails: {
       left: readRailConfig((railsRaw as Record<string, unknown>).left),
@@ -565,9 +573,11 @@ export function readLandingContent(raw: unknown): LandingContent {
  *    both halves, and every next-step link needs a label and a destination
  *    (the reader drops rows with no words at all, so an emptied editor row
  *    leaves the document instead of publishing a blank card);
- *  - the hero's optional background colour must be a valid CSS colour literal
- *    (lib/landing/hero-background.ts owns the check) and its transparency a
- *    number from 0 to 100.
+ *  - the hero's optional background colour AND text colour must be valid CSS
+ *    colour literals (lib/landing/hero-background.ts owns the check) and its
+ *    transparency a number from 0 to 100;
+ *  - the hero copy (eyebrow / headline / subline) is optional — an image-only
+ *    hero is legal (the page renders the raw photograph).
  * Displayed prices are free content strings — no money validation (prices are
  * never computed here).
  */
@@ -575,7 +585,8 @@ export function validateLandingContent(
   content: LandingContent,
   lotCategories: ReadonlyArray<LotCategory>,
 ): { ok: true } | { ok: false; error: string } {
-  if (!content.hero.headline.trim()) return { ok: false, error: "The hero headline can't be empty." };
+  // The hero copy is optional: an image-only hero (a photo and no eyebrow /
+  // headline / subline) is a legal document — the page renders the raw photo.
   if (!content.hero.primaryCta.label.trim() || !content.hero.primaryCta.href.trim()) {
     return { ok: false, error: "The primary call-to-action needs a label and a destination." };
   }
@@ -595,6 +606,12 @@ export function validateLandingContent(
     content.hero.backgroundTransparency > 100
   ) {
     return { ok: false, error: "The hero background transparency must be a number from 0 to 100." };
+  }
+  if (content.hero.textColour !== null && !isValidCssColor(content.hero.textColour)) {
+    return {
+      ok: false,
+      error: `The hero text colour must be a valid CSS colour like #ffffff — “${content.hero.textColour}” isn't one.`,
+    };
   }
   if (!content.logo.wordmark.trim()) return { ok: false, error: "The wordmark can't be empty." };
   if (!content.contact.phoneDisplay.trim() || !content.contact.phoneHref.trim()) {

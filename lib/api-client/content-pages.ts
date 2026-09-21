@@ -70,6 +70,7 @@ async function homeDocument(): Promise<PageDocument> {
       image: hero.image,
       background: hero.background,
       backgroundTransparency: hero.backgroundTransparency,
+      textColour: hero.textColour,
     },
     tabs: [],
     blocks: [],
