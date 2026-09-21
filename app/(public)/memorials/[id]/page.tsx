@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Lock } from "lucide-react";
+import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
 import { ErrorState } from "@/components/ui/states";
 import { listLandingContent, type ContactInfo } from "@/lib/api-client/landing";
 import { findPublishedMemorial } from "@/lib/api-client/memorials";
@@ -25,10 +25,12 @@ type MemorialParams = { params: Promise<{ id: string }> };
  * ONE URL SHAPE, ONE UNIFORM ANSWER. A published memorial renders
  * `MemorialProfile`; an id that does not exist, and an id whose family has kept
  * the memorial private or family-only, render the SAME `UnavailableMemorial`
- * block. The page never confirms that an unpublished person exists, and its head
- * is noindex unless the family published it — `app/robots.ts` cannot express
- * "noindex only while unpublished" because the same path serves both, so the
- * page's own metadata carries the rule.
+ * block built on the shared `PublicHero` + `SectionHead` + `PublicDisclosure`
+ * grammar (public-minimal identity pass, lane 4). The page never confirms that
+ * an unpublished person exists, and its head is noindex unless the family
+ * published it — `app/robots.ts` cannot express "noindex only while
+ * unpublished" because the same path serves both, so the page's own metadata
+ * carries the rule.
  *
  * The store (`lib/api-client/memorials.ts`) only ever returns published records
  * — no fabricated memorial, no placeholder person, and no name that looks real
@@ -77,7 +79,6 @@ export default async function MemorialPage({ params }: MemorialParams) {
     return (
       <div className="mem-page">
         <ErrorState message="This memorial could not be read just now. Call the office and a person will look for you." />
-        <ClosingBand contact={contact} />
       </div>
     );
   }
@@ -126,53 +127,28 @@ export default async function MemorialPage({ params }: MemorialParams) {
  */
 function UnavailableMemorial({ contact }: { contact: ContactInfo }) {
   return (
-    <section className="mem-unavailable" aria-labelledby="memorial-title">
-      <div className="mem-unavailable__head">
-        <span className="mem-unavailable__mark" aria-hidden="true">
-          <Lock size={26} />
-        </span>
-        <div>
-          <p className="eyebrow-label">Digital memorial</p>
-          <h1 className="hero-premium__title" id="memorial-title">
-            {MEMORIAL_UNAVAILABLE_TITLE}
-          </h1>
-          {/* The page's one-line answer (reading budget, captain 2026-09-18). */}
-          <p className="hero-premium__lead">{MEMORIAL_UNAVAILABLE_LEAD}</p>
-          <p className="mem-intro">{MEMORIAL_UNAVAILABLE_HINT}</p>
-          <div className="hero-premium__actions">
-            <Link className="btn btn--primary" href={MEMORIAL_FIND_HREF}>
-              Find my loved one
-            </Link>
-            <a className="btn btn--secondary" href={contact.phoneHref}>
-              Call {contact.phoneDisplay}
-            </a>
-          </div>
-        </div>
-      </div>
-      <VisibilityChoices title="Why a memorial may not appear" />
-      <p className="mem-service-note">{MEMORIAL_SERVICE_NOTE}</p>
-    </section>
-  );
-}
-
-/** The one closing action on the error state. */
-function ClosingBand({ contact }: { contact: ContactInfo }) {
-  return (
-    <section className="mem-find" aria-labelledby="memorial-help-title">
-      <div>
-        <h2 className="mem-find__title" id="memorial-help-title">
-          Talk to the office
-        </h2>
-        <p className="mem-find__line">Any hour, any day — a person will answer.</p>
-      </div>
-      <div className="mem-find__actions">
-        <a className="btn btn--primary" href={contact.phoneHref}>
-          Call {contact.phoneDisplay}
-        </a>
-        <Link className="btn btn--secondary" href="/memorials">
-          Search memorials
-        </Link>
-      </div>
-    </section>
+    <>
+      <PublicHero
+        variant="interior"
+        id="memorial-title"
+        eyebrow="Digital memorial"
+        title={MEMORIAL_UNAVAILABLE_TITLE}
+        lead={MEMORIAL_UNAVAILABLE_LEAD}
+        primary={{ label: "Find my loved one", href: MEMORIAL_FIND_HREF }}
+        secondary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
+      />
+      <section aria-labelledby="memorial-why-title">
+        <SectionHead
+          id="memorial-why-title"
+          kicker="Why a memorial may not appear"
+          title="Why this memorial is not shown here"
+          lead={MEMORIAL_UNAVAILABLE_HINT}
+        />
+        <PublicDisclosure summary="See the family’s three choices">
+          <VisibilityChoices title="What a family can choose" />
+        </PublicDisclosure>
+        <p className="mem-service-note">{MEMORIAL_SERVICE_NOTE}</p>
+      </section>
+    </>
   );
 }

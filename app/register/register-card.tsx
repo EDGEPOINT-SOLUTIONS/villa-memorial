@@ -12,6 +12,15 @@ type FieldErrors = {
   email?: string;
 };
 
+/**
+ * Create-your-account card — the register half of the one identity grammar.
+ *
+ * It renders the same `.signin-card` shell as the three sign-in doors (public-
+ * minimal identity pass, lane 4): one card, one commit action, labelled fields.
+ * The form is fully wired UX-side, but no provisioning endpoint exists yet, so
+ * submission completes with the honest demo success state and never implies an
+ * account was created.
+ */
 export function RegisterCard() {
   const [form, setForm] = useState({
     first_name: "",
@@ -43,93 +52,102 @@ export function RegisterCard() {
   }
 
   return (
-    <div className="auth-card">
-      <div className="auth-card__brand">
-        <h1>Villa Memorial</h1>
-        <p>Create your family account</p>
+    <div className="signin-card">
+      <div className="signin-card__head">
+        <p className="signin-card__eyebrow">Villa Memorial · Family</p>
+        <h1 className="signin-card__title">Create your account</h1>
+        <p className="signin-card__blurb">
+          One account keeps your family&rsquo;s arrangement, papers and updates in one place.
+        </p>
       </div>
 
-      <div className="auth-card__body">
-        {submitted ? (
-          <div className="stack-4">
-            <Alert tone="success" title={`Thank you, ${form.first_name}.`}>
-              Your registration request has been received. Our staff will contact
-              you at <strong>{form.email}</strong> to complete setup.
-            </Alert>
-            <Link href="/login" className="btn btn--secondary">
-              Back to sign in
-            </Link>
-          </div>
-        ) : (
-          <form onSubmit={onSubmit} className="stack" noValidate>
-            <div className="field-grid field-grid--2">
-              <Field label="First name" htmlFor="reg-first" error={fieldErrors.first_name}>
-                <input
-                  id="reg-first"
-                  autoComplete="given-name"
-                  value={form.first_name}
-                  onChange={(e) => {
-                    setForm({ ...form, first_name: e.target.value });
-                    setFieldErrors((prev) => ({ ...prev, first_name: undefined }));
-                  }}
-                  disabled={submitting}
-                />
-              </Field>
-              <Field label="Last name" htmlFor="reg-last" error={fieldErrors.last_name}>
-                <input
-                  id="reg-last"
-                  autoComplete="family-name"
-                  value={form.last_name}
-                  onChange={(e) => {
-                    setForm({ ...form, last_name: e.target.value });
-                    setFieldErrors((prev) => ({ ...prev, last_name: undefined }));
-                  }}
-                  disabled={submitting}
-                />
-              </Field>
-            </div>
-            <Field
-              label="Email"
-              htmlFor="reg-email"
-              hint="We'll use this to reach you about your account."
-              error={fieldErrors.email}
-            >
+      {submitted ? (
+        <div className="stack-4">
+          <Alert tone="success" title={`Thank you, ${form.first_name}.`}>
+            Your registration request has been received. Our staff will contact
+            you at <strong>{form.email}</strong> to complete setup.
+          </Alert>
+          <Link href="/login" className="btn btn--secondary btn--block">
+            Back to sign in
+          </Link>
+        </div>
+      ) : (
+        <form onSubmit={onSubmit} className="stack" noValidate>
+          <div className="field-grid field-grid--2">
+            <Field label="First name" htmlFor="reg-first" error={fieldErrors.first_name}>
               <input
-                id="reg-email"
-                type="email"
-                autoComplete="email"
-                value={form.email}
+                id="reg-first"
+                className="input"
+                autoComplete="given-name"
+                value={form.first_name}
                 onChange={(e) => {
-                  setForm({ ...form, email: e.target.value });
-                  setFieldErrors((prev) => ({ ...prev, email: undefined }));
+                  setForm({ ...form, first_name: e.target.value });
+                  setFieldErrors((prev) => ({ ...prev, first_name: undefined }));
                 }}
                 disabled={submitting}
               />
             </Field>
-            <Field
-              label="Mobile number"
-              htmlFor="reg-phone"
-              hint="Optional — only if you want SMS updates from the park office."
-            >
+            <Field label="Last name" htmlFor="reg-last" error={fieldErrors.last_name}>
               <input
-                id="reg-phone"
-                type="tel"
-                autoComplete="tel"
-                placeholder="+63 …"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                id="reg-last"
+                className="input"
+                autoComplete="family-name"
+                value={form.last_name}
+                onChange={(e) => {
+                  setForm({ ...form, last_name: e.target.value });
+                  setFieldErrors((prev) => ({ ...prev, last_name: undefined }));
+                }}
                 disabled={submitting}
               />
             </Field>
-            <Button type="submit" className="btn--block" disabled={submitting}>
-              {submitting ? "Sending…" : "Create my account"}
-            </Button>
-          </form>
-        )}
-      </div>
+          </div>
+          <Field
+            label="Email"
+            htmlFor="reg-email"
+            hint="We'll use this to reach you about your account."
+            error={fieldErrors.email}
+          >
+            <input
+              id="reg-email"
+              className="input"
+              type="email"
+              autoComplete="email"
+              value={form.email}
+              onChange={(e) => {
+                setForm({ ...form, email: e.target.value });
+                setFieldErrors((prev) => ({ ...prev, email: undefined }));
+              }}
+              disabled={submitting}
+            />
+          </Field>
+          <Field
+            label="Mobile number"
+            htmlFor="reg-phone"
+            hint="Optional — only if you want SMS updates from the park office."
+          >
+            <input
+              id="reg-phone"
+              className="input"
+              type="tel"
+              autoComplete="tel"
+              placeholder="+63 …"
+              value={form.phone}
+              onChange={(e) => {
+                setForm({ ...form, phone: e.target.value });
+              }}
+              disabled={submitting}
+            />
+          </Field>
+          <Button type="submit" className="btn--block" disabled={submitting}>
+            {submitting ? "Creating…" : "Create my account"}
+          </Button>
+        </form>
+      )}
 
-      <div className="auth-card__footer">
-        Already registered? <Link href="/login">Sign in</Link>
+      <div className="signin-card__foot">
+        <p className="text-sm text-muted">
+          Already registered? <Link href="/login">Sign in</Link>
+        </p>
       </div>
     </div>
   );

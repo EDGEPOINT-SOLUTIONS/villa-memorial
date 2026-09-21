@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectionHead } from "@/components/kit";
 import type { ContactInfo } from "@/lib/api-client/landing";
 import { monogram } from "@/lib/family/family-view";
 import {
@@ -15,6 +16,10 @@ import {
  * family-portal design already uses), and the resting place from the office
  * record. The living are never shown: the only contact on the page is the office
  * line, and no relative, address or date of birth appears anywhere.
+ *
+ * Public-minimal identity pass (lane 4, Phase 0 contract): the portrait leads the
+ * record, then the shared `SectionHead` grammar carries the family's words, the
+ * resting place and the publish note — no bespoke section heads.
  *
  * `tests/unit/memorials-pages.test.tsx` renders this component directly with a
  * test record — the fixture store publishes no one (nothing may be fabricated),
@@ -72,10 +77,11 @@ export function MemorialProfile({
 
       {more.length > 0 ? (
         <section className="mem-profile__words" aria-labelledby="memorial-words-title">
-          <p className="mem-kicker">Their family&rsquo;s words</p>
-          <h2 className="mem-section-title" id="memorial-words-title">
-            The remembrance
-          </h2>
+          <SectionHead
+            id="memorial-words-title"
+            kicker="Their family’s words"
+            title="The remembrance"
+          />
           {more.map((line, index) => (
             <p className="mem-profile__word" key={index}>
               {line}
@@ -85,10 +91,7 @@ export function MemorialProfile({
       ) : null}
 
       <section className="mem-profile__place" aria-labelledby="memorial-place-title">
-        <p className="mem-kicker">Resting place</p>
-        <h2 className="mem-section-title" id="memorial-place-title">
-          Where they rest
-        </h2>
+        <SectionHead id="memorial-place-title" kicker="Resting place" title="Where they rest" />
         <p className="mem-profile__place-line">
           {place ?? "The family has not published a resting place."}
         </p>
@@ -98,9 +101,7 @@ export function MemorialProfile({
       </section>
 
       <section className="mem-profile__published" aria-labelledby="memorial-published-title">
-        <h2 className="mem-section-title" id="memorial-published-title">
-          Published by the family
-        </h2>
+        <SectionHead id="memorial-published-title" title="Published by the family" />
         <p className="mem-profile__published-line">
           {memorial.published_on ? `Published on ${memorial.published_on}. ` : ""}
           The family can change or close this memorial at any time.
