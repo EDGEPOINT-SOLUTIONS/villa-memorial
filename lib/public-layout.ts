@@ -280,8 +280,21 @@ export const GRID = {
   columnsPhoneCompact: 2,
   columnGapRem: 1.5,
   rowGapRem: 2,
-  /** Render at most this many, then disclose the rest. */
+  /** Render at most this many rows, then disclose the rest (a list). */
   defaultVisible: 12,
+  /**
+   * A card GRID of product tiles shows fewer than a list: the plan's §3 R8
+   * reads "a browsable rail shows 6–8 tiles, a list shows ≤ 12 rows". A tile
+   * carries a photograph and several figures, so eight keeps a page hands-and-
+   * eyes short where twelve would scroll it a screen past its ceiling
+   * (`/products`, lane 2). */
+  gridVisible: 8,
+  /**
+   * A 1-up card grid (a lot plot: a full-width photograph and its facts) is
+   * taller per tile than a 2-up product tile, so it opens on the low end of the
+   * plan's 6–8-tile window (`/lots`, lane 2) — six plots, then "Show all N".
+   */
+  lotVisible: 6,
   /** Do not draw a "Show all" control until the list exceeds this. */
   disclosureAfter: 12,
 } as const;
@@ -289,6 +302,16 @@ export const GRID = {
 /** How many rows render before the "Show all N" control. */
 export function visibleCount(total: number): number {
   return Math.min(Math.max(0, total), GRID.defaultVisible);
+}
+
+/** How many product tiles render before the "Show all N" control. */
+export function gridVisibleCount(total: number): number {
+  return Math.min(Math.max(0, total), GRID.gridVisible);
+}
+
+/** How many 1-up lot tiles render before the "Show all N" control. */
+export function lotVisibleCount(total: number): number {
+  return Math.min(Math.max(0, total), GRID.lotVisible);
 }
 
 /** How many rows the disclosure holds back. */

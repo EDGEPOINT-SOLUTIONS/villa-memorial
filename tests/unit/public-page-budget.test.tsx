@@ -32,6 +32,13 @@ const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/p
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
 
+// Lane 2 (catalogue & grounds): /products, /lots, the 2026 lot price list,
+// /gallery (plan §5.3/§5.5/§5.8).
+const { default: ProductsPage } = await import("@/app/(public)/products/page");
+const { default: LotsPage } = await import("@/app/(public)/lots/page");
+const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
+const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
+
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
  *
@@ -160,6 +167,51 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       ),
     sections: ['data-public-hero="interior"', 'id="memorial-why-title"'],
     requires: ["data-section-head", "data-public-disclosure"],
+  },
+  {
+    // plan §5.3: hero → collection index → grid → "Show all N" → the reference
+    // band → the inclusions → the closing band. Lane 2's catalogue envelope.
+    name: "/products (coffins & caskets)",
+    render: async () =>
+      renderToStaticMarkup(createElement(CartProvider, null, await ProductsPage())),
+    sections: [
+      'data-public-hero="interior"',
+      "casket-index",
+      'class="shop-grid casket-grid"',
+      "coffin-tiers-title",
+      "casket-inclusions-title",
+    ],
+    requires: ["data-section-head", "data-public-disclosure"],
+  },
+  {
+    // plan §5.3: hero → the sticky rail / phone sheet → the plot bands, each
+    // band's over-threshold plots behind one "Show all N".
+    name: "/lots (memorial lots)",
+    render: async () =>
+      renderToStaticMarkup(await LotsPage({ searchParams: Promise.resolve({}) })),
+    sections: ['data-public-hero="interior"', "lot-layout", "cat-band", "public-disclosure"],
+    requires: ["data-public-disclosure"],
+  },
+  {
+    // plan §5.8: hero → three grouped photograph grids → the one /map entry.
+    name: "/gallery (grounds)",
+    render: async () => renderToStaticMarkup(await GalleryPage()),
+    sections: [
+      'data-public-hero="interior"',
+      'id="park"',
+      'id="care"',
+      'id="chapels"',
+      'id="walk"',
+    ],
+    requires: ["data-section-head", "data-public-image"],
+  },
+  {
+    // plan §5.3/§5.5: hero → the family photographs → the four rate tables, the
+    // first open and the rest disclosed.
+    name: "/lots/price-list-2026 (lot price list)",
+    render: async () => renderToStaticMarkup(await LotPriceListPage()),
+    sections: ['data-public-hero="interior"', "lot-rates-title", "public-disclosure", "price-table"],
+    requires: ["data-public-image", "data-public-disclosure"],
   },
 ];
 
