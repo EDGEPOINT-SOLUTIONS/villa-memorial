@@ -22,7 +22,7 @@
 import { ApiError } from "@/lib/api-client/api-error";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { isValidCssColor, readHeroTextColour, readHeroTransparency } from "@/lib/landing/hero-background";
-import type { LotCategory } from "@/lib/pricing-model";
+import { PLAN_TIER_IDS, type LotCategory, type PlanTier } from "@/lib/pricing-model";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
 export type RailItemKind = "product" | "service" | "plan" | "link";
@@ -115,31 +115,47 @@ export type AboutSection = {
 };
 
 /**
- * One "Services we offer" card (home.html · SERVICES WE OFFER — the client's
- * four-families sheet, one card each).
+ * One "Memorial plans & garden lots" card (captain 2026-09-21, replacing the
+ * retired "What we do / Services we offer" band).
  *
- * NO AMOUNT IS AUTHORED HERE: `category` names a LIVE lot family from the
- * editable pricing store (`lib/api-client/pricing.ts`), and the view derives the
- * prototype's meta line ("from ₱75,000 · ₱1,125 / month, 6 yrs") through
- * lotCategoryFromPriceOf() — no amount is typed. `icon` names one of the four prototype glyphs
- * (components/landing/service-icons.tsx); an unknown key degrades to the
- * generic glyph rather than breaking the card.
+ * NO AMOUNT IS AUTHORED HERE. `kind` is the card's own type word (the captain's
+ * vocabulary): "lot" → Garden lot, "structure" → Structure, "plan" → Life plan.
+ * A lot/structure card binds to a LIVE lot family + product row in the editable
+ * pricing store (`category`/`product`), and the view prints that row's regular
+ * selling price, its area and the family's own caption ("2.5 sqm · lot only ·
+ * regular"). A plan card binds to a live plan tier and prints its monthly rate
+ * ("from ₱600 / month", the regular table). The figures are read at render
+ * through `lib/landing/plan-lots.ts` — never typed.
+ *
+ * `image` is the card's own client photograph (library asset, staff URL or
+ * device upload); null falls back to the rule in lib/media.ts
+ * (`planLotCardPhoto`).
  */
-export type ServiceCard = {
+export type PlanLotKind = "lot" | "structure" | "plan";
+
+export type PlanLotCard = {
   id: string;
-  icon: string;
+  kind: PlanLotKind;
   title: string;
+  image: string | null;
+  /** lot/structure: a live lot-family title from the editable pricing store. */
+  category: string;
+  /** lot/structure: a product row inside that family. */
+  product: string;
+  /** plan: the plan tier whose live monthly rate the card prints. */
+  tier: string;
+  /** plan: the card's one supporting line (lot lines derive from the row). */
   text: string;
   href: string;
-  /** A live lot-family title from the editable pricing store. */
-  category: string;
 };
 
-export type ServicesSection = {
+export type PlansLotsSection = {
   kicker: string;
   heading: string;
   intro: string;
-  items: ServiceCard[];
+  items: PlanLotCard[];
+  /** The closing price note (staff copy — no amount is authored in it). */
+  note: string | null;
 };
 
 /**
@@ -218,7 +234,7 @@ export type LandingContent = {
   hero: HeroSection;
   rails: { left: RailConfig; right: RailConfig };
   about: AboutSection;
-  services: ServicesSection;
+  plansLots: PlansLotsSection;
   plans: PlansSection;
   blog: BlogSection;
   map: MapSection;
@@ -230,6 +246,7 @@ const SEED = (contentFile as unknown as ContentStore).content;
 
 const RAIL_KINDS: RailItemKind[] = ["product", "service", "plan", "link"];
 const MEDIA_KINDS: MediaKind[] = ["photo", "video"];
+const PLAN_LOT_KINDS: PlanLotKind[] = ["lot", "structure", "plan"];
 
 /**
  * The publish gate for staff-typed text — ONE home in lib/text-gate.ts so the
@@ -274,10 +291,11 @@ function authoredText(content: LandingContent): string[] {
   push(content.about.story);
   push(content.about.mission);
   push(content.about.vision);
-  push(content.services.kicker);
-  push(content.services.heading);
-  push(content.services.intro);
-  for (const card of content.services.items) {
+  push(content.plansLots.kicker);
+  push(content.plansLots.heading);
+  push(content.plansLots.intro);
+  push(content.plansLots.note);
+  for (const card of content.plansLots.items) {
     push(card.title);
     push(card.text);
   }
@@ -361,16 +379,22 @@ function readRailConfig(raw: unknown): RailConfig {
   };
 }
 
-function readServiceCard(raw: unknown): ServiceCard | null {
+function readPlanLotCard(raw: unknown): PlanLotCard | null {
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
   if (!str(r.title)) return null;
+  const kind = str(r.kind);
   return {
-    id: str(r.id) || `svc-${Math.random().toString(36).slice(2, 8)}`,
-    icon: str(r.icon),
+    id: str(r.id) || `plc-${Math.random().toString(36).slice(2, 8)}`,
+    // An unknown/legacy kind degrades to a garden lot rather than dropping the
+    // card (the view then reads its live lot family as every lot card does).
+    kind: (PLAN_LOT_KINDS.includes(kind as PlanLotKind) ? kind : "lot") as PlanLotKind,
     title: str(r.title),
-    text: str(r.text),
-    href: str(r.href, "/services"),
+    image: nullableStr(r.image),
     category: str(r.category),
+    product: str(r.product),
+    tier: str(r.tier),
+    text: str(r.text),
+    href: str(r.href, "/lots"),
   };
 }
 
@@ -445,7 +469,7 @@ export function readLandingContent(raw: unknown): LandingContent {
   const heroRaw = r.hero ?? {};
   const railsRaw = r.rails ?? {};
   const aboutRaw = r.about ?? {};
-  const servicesRaw = r.services ?? {};
+  const plansLotsRaw = r.plansLots ?? {};
   const plansRaw = r.plans ?? {};
   const blogRaw = r.blog ?? {};
   const mapRaw = r.map ?? {};
@@ -524,13 +548,16 @@ export function readLandingContent(raw: unknown): LandingContent {
       vision: readStr(aboutRaw as Record<string, unknown>, "vision"),
       image: readNullable(aboutRaw as Record<string, unknown>, "image"),
     },
-    services: {
-      kicker: readStr(servicesRaw as Record<string, unknown>, "kicker") || "What we do",
-      heading: readStr(servicesRaw as Record<string, unknown>, "heading") || "Services we offer",
-      intro: readStr(servicesRaw as Record<string, unknown>, "intro"),
-      items: arr((servicesRaw as Record<string, unknown>).items)
-        .map(readServiceCard)
-        .filter((x): x is ServiceCard => x !== null),
+    plansLots: {
+      kicker: readStr(plansLotsRaw as Record<string, unknown>, "kicker") || "Plans & lots",
+      heading:
+        readStr(plansLotsRaw as Record<string, unknown>, "heading") ||
+        "Memorial plans & garden lots",
+      intro: readStr(plansLotsRaw as Record<string, unknown>, "intro"),
+      items: arr((plansLotsRaw as Record<string, unknown>).items)
+        .map(readPlanLotCard)
+        .filter((x): x is PlanLotCard => x !== null),
+      note: nullableStr((plansLotsRaw as Record<string, unknown>).note),
     },
     plans: {
       kicker: readStr(plansRaw as Record<string, unknown>, "kicker") || "Plan ahead",
@@ -642,14 +669,33 @@ export function validateLandingContent(
   if (content.plans.note !== null && content.plans.note.trim().length === 0) {
     return { ok: false, error: "The plan footnote can't be blank — leave it out entirely instead." };
   }
-  for (const card of content.services.items) {
-    if (!card.title.trim() || !card.text.trim() || !card.href.trim()) {
-      return { ok: false, error: `“${card.title || "A service card"}” needs a title, a line of copy and a link.` };
+  // Every plans-and-lots card must name a LIVE price source: a lot family +
+  // product row, or one of the five 2026 plan tiers. The card's figure is read
+  // from that source at render — an amount is never authored here.
+  for (const card of content.plansLots.items) {
+    if (!card.title.trim() || !card.href.trim()) {
+      return { ok: false, error: `“${card.title || "A plans-and-lots card"}” needs a name and a link.` };
     }
-    if (!lotCategories.some((c) => c.title === card.category)) {
+    if (card.kind === "plan") {
+      if (!PLAN_TIER_IDS.includes(card.tier as PlanTier)) {
+        return {
+          ok: false,
+          error: `“${card.title}” must price from one of the five 2026 plan tiers.`,
+        };
+      }
+      continue;
+    }
+    const family = lotCategories.find((c) => c.title === card.category);
+    if (!family) {
       return {
         ok: false,
         error: `“${card.title}” must price from one of the 2026 lot families in the pricing store.`,
+      };
+    }
+    if (!family.rows.some((r) => r.product === card.product)) {
+      return {
+        ok: false,
+        error: `“${card.title}” must name a product in the 2026 lot family “${family.caption}”.`,
       };
     }
   }

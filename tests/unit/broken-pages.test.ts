@@ -104,12 +104,15 @@ describe("defect 1 — a ratio declared on an img must reset the height attribut
     expect(offenders).toEqual([]);
   });
 
-  it("the home service-band lead is one of them, and the view still reserves its box", () => {
-    expect(imgRatioRules.some((r) => r.selector === ".svc-card__media img")).toBe(true);
+  it("the kit card's media is one of them, and the card reserves its box", () => {
+    // The home's plans & lots cards (and every catalogue grid) render through
+    // the kit ProductCard, whose `.shop-card__media img` carries the 4:3 ratio.
+    expect(imgRatioRules.some((r) => r.selector === ".shop-card__media img")).toBe(true);
     // The reservation stays (it is what stops the layout shifting); the CSS is
     // what has to cooperate with it.
-    const view = read("components/landing/landing-view.tsx");
-    expect(view).toMatch(/<img src=\{photo\} alt="" loading="lazy" width=\{720\} height=\{480\} \/>/);
+    const kit = read("components/kit/product-card.tsx");
+    expect(kit).toMatch(/width=\{photo\.width\}/);
+    expect(kit).toMatch(/height=\{photo\.height\}/);
   });
 });
 

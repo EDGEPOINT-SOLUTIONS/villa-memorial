@@ -353,17 +353,34 @@ export function circleOverlapsAny(x: number, y: number, r: number, areas: PlotAr
 }
 
 /**
- * Plot labels at map scale (type-voice decision, 2026-09-18).
+ * Plot labels at map scale (captain's home review, 2026-09-21).
  *
- * Every plot draws a label; in the overview the plots sit a few pixels apart,
- * so the label's legend-type line repeats the legend and buries the lot codes
- * beside it. The type line is redundant while the visitor is at (or one step
- * out from) the whole-park overview — the legend below the map already names
- * the types — and returns once they zoom in past it. The lot code and owner
- * always stay. Pure so the canvas, the CSS and the tests share one rule.
+ * The placeholder inventory puts ~140 plots on the Villa masterplan and the
+ * home's preview draws them a few pixels apart, so a code on every plot piled
+ * into an unreadable smear — "there are text that are so not good in the eye,
+ * the lot names". A label is now painted only once its OWN plot is wide enough
+ * to carry one, so the overview is a plan and the codes arrive as the visitor
+ * zooms in:
+ *
+ *   off   — the plot is too small; paint nothing
+ *   code  — room for the lot code alone (the code is the one piece of text a
+ *           plot must keep; owner + legend type would overflow)
+ *   full  — room for the legend type line and the owner name too
+ *
+ * Pure so the canvas, the CSS and the tests share one rule.
  */
-export function labelsTightAt(zoom: number, overviewZoom: number): boolean {
-  return zoom <= overviewZoom + 1;
+export type LabelDensity = "off" | "code" | "full";
+
+/** A plot narrower than this cannot legibly carry a label. */
+export const LABEL_MIN_PLOT_PX = 30;
+/** At/above this width the full label (type line + owner) fits. */
+export const LABEL_FULL_PLOT_PX = 120;
+
+/** The label density for a plot rendered `plotWidthPx` wide (pure, unit-tested). */
+export function labelDensityFor(plotWidthPx: number): LabelDensity {
+  if (!Number.isFinite(plotWidthPx) || plotWidthPx < LABEL_MIN_PLOT_PX) return "off";
+  if (plotWidthPx < LABEL_FULL_PLOT_PX) return "code";
+  return "full";
 }
 
 export function nextAreaCode(areas: PlotArea[], parkName: string): string {

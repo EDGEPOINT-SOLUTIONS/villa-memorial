@@ -352,30 +352,36 @@ export function mediaLabel(src: string): string {
 }
 
 /**
- * The "Services we offer" band's photograph per card (the home's zone-05 cards).
+ * The home "Memorial plans & garden lots" band's photograph per card.
  *
- * The card stores a lot family plus an icon key, both staff-edited; neither is a
- * picture. Rather than leave four identical glyph tiles on the busiest band of
- * the site, each card shows the client's OWN photograph of the thing it sells —
- * derived from the card's icon key through this one map, never typed into a view
- * or into the content document (exactly how the card's "from ₱X" line is derived
- * from its lot family through lib/pricing-model.ts).
+ * A card stores a live lot family + product row (or a plan tier); neither is a
+ * picture. Rather than leave a glyph where the client has a real photograph of
+ * the place, each card falls back to this ONE map — keyed by the bound lot
+ * product, never by the card's title — so the picture is derived exactly as the
+ * figure is (lib/landing/plan-lots.ts). A staff-set photo on the card still wins
+ * (lib/api-client/landing.ts `PlanLotCard.image`).
  *
- * `alt` is empty on purpose: the photograph repeats the card's own title, so the
- * link's accessible name stays the words a customer reads.
+ * The values are the PHOTOGRAPH-ONLY composition derivatives, never the lot
+ * marketing tiles (a tile's baked-in logo/type is not a page picture).
  */
-export const SERVICE_CARD_PHOTOS: Readonly<Record<string, string>> = {
-  lot: PARK_PLACE_PHOTOS.prime,
-  // The interment card used a stock photograph (a rose on a casket) until the
-  // client's own 2026 set arrived; it now shows their carriage on the way out.
-  interment: HEARSE_CARRIAGE_REAR_IMAGE,
-  plan: "/media/gallery/wake-viewing-840.webp",
-  mausoleum: PARK_PLACE_PHOTOS.mausoleum,
+export const PLAN_LOT_CARD_PHOTOS: Readonly<Record<string, string>> = {
+  "Premium Lots": PARK_PLACE_PHOTOS.premium,
+  "Prime Lots": PARK_PLACE_PHOTOS.prime,
+  "Garden Niches": PARK_PLACE_PHOTOS.niches,
+  Mausoleum: PARK_PLACE_PHOTOS.mausoleum,
 };
 
-/** The card's photograph, or null when the staff chose a key with no photo yet. */
-export function serviceCardPhoto(icon: string): string | null {
-  return SERVICE_CARD_PHOTOS[icon] ?? null;
+/** The plan card's own photograph — the client's wake/viewing set-up, not artwork. */
+export const PLAN_CARD_PHOTO = "/media/gallery/wake-viewing-840.webp";
+
+/**
+ * The fallback photograph for a plans-and-lots card, or null when the bound
+ * product has no photographed place (the card then renders text-only — it never
+ * borrows a wrong picture).
+ */
+export function planLotCardPhoto(kind: string, product: string): string | null {
+  if (kind === "plan") return PLAN_CARD_PHOTO;
+  return PLAN_LOT_CARD_PHOTOS[product] ?? null;
 }
 
 /* ---------------------------------------------------------------------------

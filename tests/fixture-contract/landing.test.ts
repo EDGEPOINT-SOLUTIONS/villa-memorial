@@ -11,11 +11,11 @@ import {
 } from "@/lib/api-client/landing";
 import contentFile from "@/lib/fixtures/landing/content.json";
 import { buildRailCatalogue, flattenCatalogue } from "@/lib/landing/catalogue";
-import { LOT_PRICE_CATEGORIES, lotCategoryFromPrice, php, planRate } from "@/lib/villa-pricing";
+import { LOT_PRICE_CATEGORIES, php, planRate } from "@/lib/villa-pricing";
 
-// The landing save path validates service-card families against the pricing
-// store; point it at a path that does not exist so the recorded seed is used and
-// a developer's local .data store cannot leak into these fixtures.
+// The landing save path validates plans-and-lots card families against the
+// pricing store; point it at a path that does not exist so the recorded seed is
+// used and a developer's local .data store cannot leak into these fixtures.
 process.env.PRICING_STORE_PATH = path.join(os.tmpdir(), "villa-landing-contract-no-store.json");
 
 /**
@@ -35,7 +35,7 @@ function cloneDoc(doc: LandingContent): LandingContent {
 }
 
 describe("landing fixture follows the approved content model", () => {
-  it("seed reads into a full document: brand, hero, rails, about, services, plans, blog, map", async () => {
+  it("seed reads into a full document: brand, hero, rails, about, plans & lots, plans, blog, map", async () => {
     const content = await listLandingContent();
     expect(content.version).toBe(1);
     expect(content.logo.wordmark.length).toBeGreaterThan(0);
@@ -46,8 +46,8 @@ describe("landing fixture follows the approved content model", () => {
     expect(content.about.mission.length).toBeGreaterThan(0);
     expect(content.about.vision.length).toBeGreaterThan(0);
     expect(content.about.image).toMatch(/^\/media\//);
-    expect(content.services.items.length).toBeGreaterThan(0);
-    expect(content.services.kicker.length).toBeGreaterThan(0);
+    expect(content.plansLots.items.length).toBeGreaterThan(0);
+    expect(content.plansLots.kicker.length).toBeGreaterThan(0);
     expect(content.plans.heading.length).toBeGreaterThan(0);
     expect(content.blog.posts.length).toBeGreaterThan(0);
     expect(content.map.heading.length).toBeGreaterThan(0);
@@ -101,29 +101,32 @@ describe("landing fixture follows the approved content model", () => {
     }
   });
 
-  it("the four service cards price from the REAL 2026 lot families, never an invented figure", async () => {
+  it("the plans & lots cards bind to REAL 2026 sources — no authored figure", async () => {
     const content = await listLandingContent();
-    // The prototype's "Services we offer" cards are the sheet's four families,
-    // in the sheet's own order.
-    expect(content.services.items.map((c) => c.category)).toEqual(
-      LOT_PRICE_CATEGORIES.map((c) => c.title),
+    // The captain's five cards (2026-09-21): four lot-only figures + the plan.
+    const byTitle = Object.fromEntries(content.plansLots.items.map((c) => [c.title, c]));
+    expect(Object.keys(byTitle).sort()).toEqual(
+      ["Garden Niches", "Mausoleum", "Premium Lot", "Prime Lot", "Villa Memorial Plan"].sort(),
     );
-    for (const card of content.services.items) {
+    // Every lot card binds family + product to a real row on the sheet, and its
+    // type word is one of the captain's three.
+    for (const card of content.plansLots.items) {
+      expect(["lot", "structure", "plan"]).toContain(card.kind);
+      if (card.kind === "plan") {
+        expect(["bronze1", "bronze2", "silver1", "silver2", "gold"]).toContain(card.tier);
+        continue;
+      }
       const family = LOT_PRICE_CATEGORIES.find((c) => c.title === card.category);
-      expect(family).toBeDefined();
-      const from = lotCategoryFromPrice(card.category);
-      expect(from).not.toBeNull();
-      expect(from?.selling).toBe(Math.min(...(family as { rows: Array<{ regular: { selling: number } }> }).rows.map((r) => r.regular.selling)));
-      expect(from?.monthly).toBeGreaterThan(0);
+      expect(family, card.title).toBeDefined();
+      expect(family!.rows.some((r) => r.product === card.product), card.title).toBe(true);
     }
-    // The prototype's published meta lines (home.html) are exactly what the
-    // sheet-derived helper produces — ₱75,000 / ₱97,000 / ₱126,000 / ₱1,573,000.
-    expect(
-      content.services.items.map((c) => php(lotCategoryFromPrice(c.category)!.selling)),
-    ).toEqual(["₱75,000", "₱97,000", "₱126,000", "₱1,573,000"]);
-    expect(
-      content.services.items.map((c) => php(lotCategoryFromPrice(c.category)!.monthly)),
-    ).toEqual(["₱1,125", "₱1,455", "₱1,890", "₱23,595"]);
+    // The figures the band prints are exactly the sheet's regular lot-only
+    // selling prices + the plan's entry monthly (module below drives the view).
+    expect(byTitle["Premium Lot"].product).toBe("Premium Lots");
+    expect(byTitle["Premium Lot"].category).toBe("1. Lot Only");
+    expect(byTitle["Villa Memorial Plan"].tier).toBe("bronze1");
+    // An amount is never authored in the document's copy.
+    expect(content.plansLots.note).not.toMatch(/₱\s?\d/);
   });
 
   it("the plan board's copy is staff content and carries no authored amount", async () => {
@@ -141,16 +144,16 @@ describe("landing fixture follows the approved content model", () => {
     expect(content.plans.note).toContain("Eternal Plans");
   });
 
-  it("service cards keep their icon key and drop cards without a title", async () => {
+  it("plans & lots cards keep their live binding and drop cards without a title", async () => {
     const content = await listLandingContent();
     const doc = cloneDoc(content);
-    doc.services.items = [
-      { ...doc.services.items[0], id: "keep", icon: "mausoleum" },
-      { ...doc.services.items[0], id: "dropped", title: "" },
+    doc.plansLots.items = [
+      { ...doc.plansLots.items[0], id: "keep", product: "Mausoleum" },
+      { ...doc.plansLots.items[0], id: "dropped", title: "" },
     ];
     const read = readLandingContent(doc);
-    expect(read.services.items.map((c) => c.id)).toEqual(["keep"]);
-    expect(read.services.items[0].icon).toBe("mausoleum");
+    expect(read.plansLots.items.map((c) => c.id)).toEqual(["keep"]);
+    expect(read.plansLots.items[0].product).toBe("Mausoleum");
   });
 
   it("tolerant reader keeps every valid rail item (rails are unlimited) and drops unknown kinds", async () => {
@@ -190,30 +193,51 @@ describe("landing fixture follows the approved content model", () => {
     expect(read.rails.left.items.some((item) => item.id.startsWith("unknown-"))).toBe(false);
   });
 
-  it("an empty service-card list, empty blog list and caption-only posts read and validate cleanly", async () => {
+  it("an empty plans-and-lots list, empty blog list and caption-only posts read and validate cleanly", async () => {
     const content = await listLandingContent();
     const sparse = cloneDoc(content);
-    sparse.services.items = [];
+    sparse.plansLots.items = [];
     sparse.blog.posts = [
       { ...content.blog.posts[0], id: "caption-only", media: [] },
       { ...content.blog.posts[0], id: "media-post", media: content.blog.posts[0].media },
     ];
     const read = readLandingContent(sparse);
-    expect(read.services.items).toEqual([]);
+    expect(read.plansLots.items).toEqual([]);
     expect(read.blog.posts.length).toBe(2);
     expect(read.blog.posts[0].media).toEqual([]);
     expect(validateLandingContent(read, LOT_PRICE_CATEGORIES).ok).toBe(true);
   });
 
-  it("rejects a service card whose price family is not on the 2026 sheet", async () => {
+  it("rejects a plans-and-lots card whose live price source is not on the 2026 sheet", async () => {
     const content = await listLandingContent();
     const bad = cloneDoc(content);
-    bad.services.items = [{ ...bad.services.items[0], category: "5. Invented Family" }];
-    const read = readLandingContent(bad);
-    expect(lotCategoryFromPrice(read.services.items[0].category)).toBeNull();
-    const verdict = validateLandingContent(read, LOT_PRICE_CATEGORIES);
+    bad.plansLots.items = [
+      { ...bad.plansLots.items[0], category: "5. Invented Family", product: "Imaginary Lot" },
+    ];
+    const verdict = validateLandingContent(readLandingContent(bad), LOT_PRICE_CATEGORIES);
     expect(verdict.ok).toBe(false);
     if (!verdict.ok) expect(verdict.error).toMatch(/2026 lot families/);
+
+    // A real family with an unknown product is refused too.
+    const badProduct = cloneDoc(content);
+    badProduct.plansLots.items = [
+      { ...badProduct.plansLots.items[0], category: "1. Lot Only", product: "Not A Row" },
+    ];
+    const verdict2 = validateLandingContent(
+      readLandingContent(badProduct),
+      LOT_PRICE_CATEGORIES,
+    );
+    expect(verdict2.ok).toBe(false);
+    if (!verdict2.ok) expect(verdict2.error).toMatch(/product in the 2026 lot family/);
+
+    // A plan card must name a real tier.
+    const badTier = cloneDoc(content);
+    badTier.plansLots.items = [
+      { ...badTier.plansLots.items[4], tier: "platinum" },
+    ];
+    const verdict3 = validateLandingContent(readLandingContent(badTier), LOT_PRICE_CATEGORIES);
+    expect(verdict3.ok).toBe(false);
+    if (!verdict3.ok) expect(verdict3.error).toMatch(/2026 plan tiers/);
   });
 });
 
@@ -500,7 +524,7 @@ describe("landing copy stays inside the product typeface", () => {
       ["a rail heading", (d) => void (d.rails.left.heading = "Hello 🌿")],
       ["a rail item", (d) => void (d.rails.left.items[0].title = "Hello 🌿")],
       ["the about story", (d) => void (d.about.story = "Hello 🌿")],
-      ["a service card", (d) => void (d.services.items[0].text = "Hello 🌿")],
+      ["a home plans-and-lots card", (d) => void (d.plansLots.items[0].title = "Hello 🌿")],
       ["the plan footnote", (d) => void (d.plans.note = "Hello 🌿")],
       ["the map intro", (d) => void (d.map.intro = "Hello 🌿")],
       ["the newsfeed intro", (d) => void (d.blog.intro = "Hello 🌿")],

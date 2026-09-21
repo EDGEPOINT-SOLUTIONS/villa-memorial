@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import type { LegendEntry, PlotArea } from "@/lib/park-maps";
-import { labelsTightAt } from "@/lib/park-maps";
+import { labelDensityFor } from "@/lib/park-maps";
 
 const W = 100;
 const H = 75;
@@ -44,7 +44,9 @@ function statusColor(status: PlotArea["status"]): string {
 }
 
 type Mode = "view" | "place" | "move";
-type LayerSet = { shape: L.Path; label: L.Marker };
+/** `widthUnits` is the plot's own width in frame units — the density rule needs
+ * it to decide whether the plot can carry a label at the current zoom. */
+type LayerSet = { shape: L.Path; label: L.Marker; widthUnits: number };
 type DragState = {
   id: string;
   startX: number;
@@ -59,6 +61,14 @@ function centerOf(outline: Array<[number, number]>): [number, number] {
   const lats = outline.map((p) => p[1]); // outline stores [x, y]
   const lngs = outline.map((p) => p[0]);
   return [(Math.min(...lats) + Math.max(...lats)) / 2, (Math.min(...lngs) + Math.max(...lngs)) / 2];
+}
+
+/** The plot's own width in frame units (a circle's diameter, a polygon's bbox). */
+function plotWidthUnits(area: PlotArea): number {
+  if (area.circle) return area.circle.r * 2;
+  const xs = (area.outline ?? []).map((p) => p[0]);
+  if (xs.length === 0) return 0;
+  return Math.max(...xs) - Math.min(...xs);
 }
 
 function escapeHtml(value: string): string {
@@ -117,7 +127,6 @@ export function ParksCanvas({
   const scaleRef = useRef(scale);
   scaleRef.current = scale;
   const overlayUnitsRef = useRef({ w: W, h: H });
-  const overviewZoomRef = useRef<number | null>(null);
 
   const updateCrisp = useCallback(() => {
     const map = mapRef.current;
@@ -132,19 +141,22 @@ export function ParksCanvas({
     img.classList.toggle("geo-image-pixelated", displayWidth > img.naturalWidth * 1.05);
   }, []);
 
-  /* Overview label density: at the whole-park view the legend-type line on
-     every plot label repeats the legend below the map and buries the lot
-     codes. The type line returns once the visitor zooms past the overview;
-     the code and owner stay at every zoom (rule in lib/park-maps.ts). */
-  const updateLabelDensity = useCallback(() => {
-    const el = holder.current;
+  /* Overview label density (captain's review, 2026-09-21): ~140 plots share the
+     masterplan, so a code on every one of them smears into unreadable noise at
+     the overview. Each marker gets a per-plot density from its rendered width
+     (lib/park-maps.ts labelDensityFor); the CSS hides the label entirely below
+     the threshold and trims it to the code until the type line + owner fit. */
+  const applyLabelDensity = useCallback(() => {
     const map = mapRef.current;
-    if (!el || !map) return;
-    const overview = overviewZoomRef.current ?? map.getZoom();
-    el.setAttribute(
-      "data-label-density",
-      labelsTightAt(map.getZoom(), overview) ? "tight" : "full",
-    );
+    if (!map) return;
+    const a = map.latLngToContainerPoint(L.latLng(0, 0));
+    const b = map.latLngToContainerPoint(L.latLng(0, 100));
+    const pxPerUnit = Math.abs(b.x - a.x) / 100;
+    for (const set of layersRef.current.values()) {
+      const el = set.label.getElement();
+      if (!el) continue;
+      el.setAttribute("data-label-density", labelDensityFor(set.widthUnits * pxPerUnit));
+    }
   }, []);
 
   // Fit the image by its NATURAL aspect ratio (contain, centered, no stretch).
@@ -199,7 +211,6 @@ export function ParksCanvas({
       [0, 0],
       [H, W],
     ]);
-    overviewZoomRef.current = map.getZoom();
     mapRef.current = map;
     groupRef.current = L.layerGroup().addTo(map);
 
@@ -207,7 +218,7 @@ export function ParksCanvas({
     map.on("mouseup", onMapUp);
     map.on("click", onMapClick);
     map.on("zoomend", updateCrisp);
-    map.on("zoomend", updateLabelDensity);
+    map.on("zoomend", applyLabelDensity);
     map.on("resize", updateCrisp);
 
     // Initial framing: the map is built before layout settles, so the first
@@ -231,9 +242,8 @@ export function ParksCanvas({
         [0, 0],
         [H, W],
       ]);
-      overviewZoomRef.current = current.getZoom();
       updateCrisp();
-      updateLabelDensity();
+      applyLabelDensity();
     };
     const observer = new ResizeObserver(refit);
     observer.observe(box);
@@ -380,9 +390,11 @@ export function ParksCanvas({
         keyboard: false,
       });
       label.addTo(group);
-      layersRef.current.set(area.id, { shape, label });
+      layersRef.current.set(area.id, { shape, label, widthUnits: plotWidthUnits(area) });
     }
-  }, [areas, selectedCode, parkId, mode, legendById]);
+    // The labels were just (re)built — apply the current zoom's density at once.
+    applyLabelDensity();
+  }, [areas, selectedCode, parkId, mode, legendById, applyLabelDensity]);
 
   // ---- Smooth drag: update geometry LIVE, commit on mouseup ----
   function applyDragToShape(d: DragState) {

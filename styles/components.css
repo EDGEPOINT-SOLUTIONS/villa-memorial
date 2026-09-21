@@ -5570,8 +5570,19 @@ because the shared `.ag-appt` rule comes later in this file. */
   image-rendering: pixelated;
 }
 
-/* Plot labels (lot number + owner when sold/occupied) */
+/* Plot labels (lot code + owner + legend type when there is room).
+   The captain's home review (2026-09-21) called the overview a jumble: ~140
+   plots each painting a code in a few pixels. A label now appears ONLY once its
+   plot is large enough to carry one (lib/park-maps.ts labelDensityFor), and it
+   sits on a translucent plate so it reads against the masterplan. */
 .plot-label {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.08rem 0.28rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg-surface) 82%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-rule) 55%, transparent);
   text-align: center;
   line-height: 1.15;
   user-select: none;
@@ -5582,15 +5593,14 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: block;
   font-size: var(--text-xs);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
-  text-shadow: 0 0 3px var(--color-bg-surface), 0 0 3px var(--color-bg-surface);
 }
 
 .plot-label__owner {
   display: block;
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  text-shadow: 0 0 3px var(--color-bg-surface), 0 0 3px var(--color-bg-surface);
   max-width: 10rem;
   white-space: nowrap;
   overflow: hidden;
@@ -5598,11 +5608,25 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 /* Plot label markers: transparent, zero-size anchor, content centered on the
-   plot's exact center point. */
+   plot's exact center point. The canvas sets `data-label-density` per marker
+   from the plot's rendered width (off · code · full). */
 .plot-label-marker {
   background: transparent !important;
   border: none !important;
   overflow: visible !important;
+}
+
+/* Too small to carry a label — paint nothing (the overview is a plan, not a
+   wall of text). */
+.plot-label-marker[data-label-density="off"] {
+  display: none !important;
+}
+
+/* Room for the code only; the legend type line and the owner name return once
+   the plot is wide enough to hold them. */
+.plot-label-marker[data-label-density="code"] .plot-label__type,
+.plot-label-marker[data-label-density="code"] .plot-label__owner {
+  display: none;
 }
 
 .plot-label-marker .plot-label {
@@ -5613,7 +5637,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: block;
   font-size: var(--text-xs);
   color: var(--color-text-muted);
-  text-shadow: 0 0 3px var(--color-bg-surface), 0 0 3px var(--color-bg-surface);
 }
 
 /* Natural (uncropped) image rendering for real photography */
@@ -5723,16 +5746,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   flex: none;
   background: var(--plt, var(--color-border-strong));
   box-shadow: 0 0 2px var(--color-bg-surface);
-}
-
-/* Overview label density (type-voice decision, 2026-09-18): at the whole-park
-   view every plot label would repeat the legend's type name on top of its
-   neighbours — the legend below the map already names the types. The canvas
-   sets data-label-density="tight" at/one step out from the overview
-   (lib/park-maps.ts labelsTightAt) and the type line returns once the visitor
-   zooms in; the lot code and owner stay at every zoom. */
-.geo-map[data-label-density="tight"] .plot-label__type {
-  display: none;
 }
 
 /* ---------------------------------------------------------------------------
@@ -7505,12 +7518,11 @@ because the shared `.ag-appt` rule comes later in this file. */
   }
 }
 
-/* The dead `.svc-grid` / `.svc-card*` declarations that used to sit here were
-   removed in the composition pass: nothing rendered them, and because they
-   shared a class name with the home band's own `.svc-card` they silently
-   re-templated it (a 13.5rem card grid, a gold disc on every glyph). The home
-   block further down the file is now the ONLY declaration of `.svc-card` — the
-   same "one home per class" rule the chapel month grid follows. */
+/* The home's old "What we do · Services we offer" band (`.svc-grid` /
+   `.svc-band*` / `.svc-card*`) was RETIRED 2026-09-21 and replaced by the
+   "Memorial plans & garden lots" band (`.shop-grid.plan-lot-grid`). These
+   `.svc-*` classes are the /services page's own layout only — one class, one
+   home; the home band declared here was the collision trap this file records. */
 
 .svc-aside {
   display: grid;
@@ -11677,190 +11689,27 @@ a.card:hover {
   border-radius: calc(var(--radius-lg) - 0.3rem);
 }
 
-/* What we do — the “Services we offer” band.
-   Composition pass (captain 2026-09-18): the four equal glyph cards became a
-   ledger band. The FIRST card leads with the client's own photograph of the
-   place it sells and the band's loudest figure; the other three follow as
-   hairline-separated entries whose photograph is a small factual swatch. The
-   glyph stays — it is the staff-editable field and a legitimate small marker —
-   but it is no longer a substitute for a picture of the thing. */
-.svc-grid {
-  display: grid;
-  gap: var(--space-5);
+/* Memorial plans & garden lots — the home band that replaced “What we do”.
+   The kit's ProductCard carries the card grammar (photograph first, figures
+   under it); `.plan-lot-grid` only narrows the shared `.shop-grid` column floor
+   so the five cards read THREE across at 1440, two on a tablet and one at 390
+   inside the home's railed middle column (the shared 26rem floor would give
+   one). Every figure is a live read (lib/landing/plan-lots.ts) — never typed. */
+.shop-grid.plan-lot-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5) var(--space-4);
 }
 
-.svc-band__lead {
-  display: grid;
-}
-
-.svc-band__list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: var(--space-6);
-  border-top: 1px solid var(--color-rule);
-}
-
-@media (max-width: 40rem) {
-  .svc-band__list {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 74.999rem) {
+  .shop-grid.plan-lot-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.svc-band__entry {
-  min-width: 0;
-  border-bottom: 1px solid var(--color-rule);
-}
-
-/* An odd tail spans the row — a half-empty second column reads as a mistake,
-   not as a composition. */
-.svc-band__entry:last-child:nth-child(odd) {
-  grid-column: 1 / -1;
-}
-
-/* One card, two presentations — lead and entry — so both keep the exact
-   `a.svc-card` door the landing tests pin. */
-.svc-card {
-  display: grid;
-  gap: var(--space-3);
-  padding: 0;
-  border: 0;
-  background: transparent;
-  text-decoration: none;
-  min-width: 0;
-}
-
-/* The lead: photograph left, the offer right. The photo keeps a supporting
-   share of the row (0.8fr) so the figure — the thing a family compares — stays
-   the dominant element at a glance (eye-friendly pass, 2026-09-21). */
-.svc-band__lead .svc-card {
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr);
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
-  align-items: center;
-  padding-bottom: var(--space-5);
-  border-bottom: 1px solid var(--color-rule);
-}
-
-.svc-card__media {
-  display: block;
-  min-width: 0;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--marble-100);
-}
-
-.svc-card__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-}
-
-.svc-card__body {
-  display: grid;
-  gap: var(--space-2);
-  align-content: start;
-  min-width: 0;
-}
-
-.svc-card:hover .svc-card__title {
-  color: var(--color-text-accent);
-}
-
-/* An entry is a text row — the glyph marks it, no photograph. */
-.svc-band__entry .svc-card {
-  display: block;
-  padding: var(--space-4) 0;
-}
-
-/* The entry's figure is the whole point, so it owns the row's second column and
-   the words take the first. */
-.svc-band__entry .svc-card__body {
-  grid-template-columns: minmax(0, 1fr) auto;
-  column-gap: var(--space-5);
-  align-items: baseline;
-}
-
-.svc-band__entry .svc-card__meta {
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  align-self: center;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: var(--space-1);
-  text-align: right;
-  margin: 0;
-}
-
-.svc-band__entry .svc-card__from {
-  font-size: var(--text-xl);
-  line-height: 1.1;
-}
-
-.svc-band__entry .svc-card__title,
-.svc-band__entry .svc-card__text {
-  grid-column: 1;
-}
-
-/* The staff-chosen glyph, kept as a small marker beside the title. */
-.svc-card__icon {
-  width: 1.15rem;
-  height: 1.15rem;
-  display: inline-block;
-  vertical-align: -0.18em;
-  margin-right: var(--space-2);
-  color: var(--color-text-accent);
-}
-
-.svc-card__icon svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.svc-card__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  line-height: 1.2;
-  color: var(--color-text-primary);
-}
-
-.svc-band__lead .svc-card__title {
-  font-size: var(--text-2xl);
-}
-
-.svc-card__text {
-  margin: 0;
-  font-size: var(--text-sm);
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
-
-/* The derived 2026 line, promoted from a whisper to a real figure block. */
-.svc-card__meta {
-  margin-top: var(--space-1);
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
-
-.svc-card__from {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-.svc-band__lead .svc-card__from {
-  font-size: var(--text-2xl);
+@media (max-width: 40rem) {
+  .shop-grid.plan-lot-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Plan ahead — the prototype's Villa Memorial Plan band: the promo figure
@@ -12006,30 +11855,30 @@ a.card:hover {
   color: var(--color-text-muted);
 }
 
-@media (max-width: 56rem) {
-  .svc-band__lead .svc-card,
-  .plan-band {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 /* Blog — newsfeed-style rich posts, no like/share row.
-   Composition pass: the feed is no longer four identical stacked cards. The
-   newest story leads at full width with room for its photographs; the rest sit
-   two-up and denser beneath it. Separation is a top hairline, not a card. */
+   Captain 2026-09-21: ONE post per column. The feed is a single row of equal
+   columns (each story its own column) inside its own pan frame; below 40rem it
+   becomes one column, one post per row. Separation is a top hairline, not a
+   card. */
 .blog-feed {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(15rem, 1fr);
   gap: var(--space-5);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+  scroll-snap-type: x proximity;
 }
 
-.blog-feed > .post-card--lead {
-  grid-column: 1 / -1;
+.blog-feed > .post-card {
+  scroll-snap-align: start;
 }
 
-@media (max-width: 52rem) {
+@media (max-width: 40rem) {
   .blog-feed {
+    grid-auto-flow: row;
     grid-template-columns: minmax(0, 1fr);
+    overflow-x: visible;
   }
 }
 
@@ -12038,23 +11887,14 @@ a.card:hover {
   gap: var(--space-3);
 }
 
-/* The lead story's photographs are the band's biggest picture; the follow-ups'
-   are read at a glance. Capping both keeps the feed scannable instead of
-   letting one 2×2 gallery own a whole screen. */
-.post-card--lead .post-media__cell img {
-  max-height: 15rem;
-}
-
-.post-card--lead .post-media__cell--span img {
-  max-height: 18rem;
-}
-
-.post-card:not(.post-card--lead) .post-media__cell img {
+/* Every feed photograph is read at a glance; capping keeps one 2×2 gallery from
+   owning a whole screen. */
+.post-card .post-media__cell img {
   max-height: 11rem;
 }
 
-.post-card--lead .post-card__caption {
-  font-size: var(--text-lg);
+.post-card .post-media__cell--span img {
+  max-height: 13rem;
 }
 
 .post-card {
@@ -12629,13 +12469,6 @@ a.card:hover {
 .quick-item__caption {
   font-size: var(--text-xs);
   color: var(--color-text-muted);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .svc-card,
-  .svc-card:hover {
-    box-shadow: var(--shadow-card-rest);
-  }
 }
 
 /* ===========================================================================
