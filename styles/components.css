@@ -678,7 +678,7 @@ input[type="checkbox"] {
 .badge--warning { background: var(--color-status-warning-bg); color: var(--color-status-warning-ink); }
 .badge--danger  { background: var(--color-status-danger-bg); color: var(--color-status-danger-ink); }
 .badge--info    { background: var(--color-status-info-bg); color: var(--color-status-info-ink); }
-.badge--accent  { background: var(--marble-200); color: var(--color-text-accent); }
+.badge--accent  { background: var(--gold-wash-soft); color: var(--color-text-accent); }
 
 /* --- Alerts / feedback ----------------------------------------------------------- */
 .alert {
@@ -787,9 +787,9 @@ input[type="checkbox"] {
   border-radius: var(--radius-sm);
   background: linear-gradient(
     90deg,
-    var(--navy-100) 25%,
-    var(--navy-50) 50%,
-    var(--navy-100) 75%
+    var(--granite-100) 25%,
+    var(--granite-50) 50%,
+    var(--granite-100) 75%
   );
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.4s ease infinite;
@@ -1055,8 +1055,7 @@ input[type="checkbox"] {
   max-height: 30rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background:
-    linear-gradient(180deg, var(--marble-100), var(--marble-200));
+  background: var(--color-bg-subtle);
   overflow: hidden;
 }
 
@@ -1251,7 +1250,7 @@ input[type="checkbox"] {
   min-width: 0;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 /* A chipped photograph (the client's sample sheet) needs the chip anchored to
@@ -1539,7 +1538,7 @@ a.ledger__row:hover .ledger__row-title {
   margin: 0;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .tier-ledger__media img {
@@ -1619,7 +1618,7 @@ a.ledger__row:hover .ledger__row-title {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .model-photo__label {
@@ -1770,7 +1769,7 @@ a.ledger__row:hover .ledger__row-title {
   display: block;
   overflow: hidden;
   border-radius: var(--radius-md);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 /* The height reset every img-level ratio in this file carries: a reserved
@@ -2224,7 +2223,7 @@ a.ledger__row:hover .ledger__row-title {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius-md);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .day-ladder__caption {
@@ -2298,7 +2297,7 @@ a.ledger__row:hover .ledger__row-title {
   height: auto;
   aspect-ratio: 3 / 2;
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
   border-bottom: 0;
   border-radius: var(--radius-md);
   position: relative;
@@ -2806,9 +2805,7 @@ a.ledger__row:hover .ledger__row-title {
   position: relative;
   aspect-ratio: 4 / 3;
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(120% 90% at 20% 10%, var(--marble-50) 0%, transparent 55%),
-    linear-gradient(160deg, var(--marble-200) 0%, var(--marble-300) 100%);
+  background: var(--color-bg-subtle);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-raised);
   overflow: hidden;
@@ -6392,9 +6389,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(560px circle at 96% 0%, rgba(168, 135, 63, 0.10), transparent 55%),
-    linear-gradient(165deg, var(--color-bg-surface), var(--color-bg-subtle));
+  background: var(--color-bg-surface);
   padding: clamp(1.75rem, 5vw, 3.5rem);
   margin-bottom: var(--space-6);
 }
@@ -6601,7 +6596,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   padding: var(--space-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
   font-size: var(--text-lg);
   text-align: center;
@@ -7409,7 +7404,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   min-width: 0;
   overflow: hidden;
   aspect-ratio: 16 / 9;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .plan-tier__media img {
@@ -7667,7 +7662,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .chapel-card__media {
   margin: 0;
   border-bottom: 1px solid var(--color-rule);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .chapel-card__media img {
@@ -7810,7 +7805,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   overflow: hidden;
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .gal-figure__media img {
@@ -7892,8 +7887,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.14), transparent 55%),
-    var(--color-bg-surface-raised);
+  background: var(--color-bg-surface);
 }
 
 .gal-hero::before {
@@ -8114,7 +8108,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   aspect-ratio: 4 / 3;
   overflow: hidden;
   border-bottom: 1px solid var(--color-border);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .casket-card__media img {
@@ -8126,7 +8120,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .casket-sample__media {
   position: relative;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .casket-sample__media img {
@@ -8170,7 +8164,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius-md);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .tribute-figure figcaption {
@@ -8241,7 +8235,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .pdp-gallery__main img {
@@ -8277,7 +8271,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
   cursor: pointer;
 }
 
@@ -8364,7 +8358,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   width: 100%;
   border-radius: var(--radius-sm);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .pdp-variant__thumb img {
@@ -8400,7 +8394,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   padding: var(--space-6) var(--space-4);
   border: 1px dashed var(--color-rule);
   border-radius: var(--radius-lg);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-muted);
   text-align: center;
 }
@@ -8632,7 +8626,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: grid;
   place-items: center;
   border-radius: var(--radius-lg);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .pdp-zoom__frame img {
@@ -11277,9 +11271,10 @@ a.card:hover {
   overflow: hidden;
   border: 1px solid var(--color-rule);
   /* A missing catalogue thumbnail is an ABSENT picture, not a blue-chip graphic:
-     the initial sits on plain marble so it reads as "no image yet" instead of as
-     decoration standing in for one (composition pass, 2026-09-18). */
-  background: var(--marble-100);
+     the initial sits on the plain neutral wash so it reads as "no image yet"
+     instead of as decoration standing in for one (composition pass, 2026-09-18;
+     white grounds, 2026-09-25). */
+  background: var(--color-bg-subtle);
   display: grid;
   place-items: center;
 }
@@ -16088,7 +16083,7 @@ a.card:hover {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border-radius: var(--radius-md);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .sv-price-card--photo .sv-price-card__head,
@@ -16350,7 +16345,7 @@ a.card:hover {
 .sv-chapel__media {
   margin: 0;
   border-bottom: 1px solid var(--color-border);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .sv-chapel__media img {
@@ -16874,7 +16869,7 @@ a.card:hover {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .sv-card-media img {
@@ -16980,8 +16975,7 @@ a.card:hover {
   padding: clamp(1.5rem, 4vw, 2.75rem);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: radial-gradient(420px circle at 100% 0%, var(--gold-wash), transparent 62%),
-    var(--color-bg-surface-raised);
+  background: var(--color-bg-surface);
   color: var(--color-text-primary);
   box-shadow: var(--shadow-card-hover);
   text-align: center;
@@ -17405,7 +17399,7 @@ a.ia-alt:hover {
 .fac-room__media {
   margin: 0;
   border-bottom: 1px solid var(--color-border);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .fac-room__media img {
@@ -17597,7 +17591,7 @@ a.ia-alt:hover {
 .fac-ground__media {
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .fac-ground__media img {
@@ -17847,7 +17841,7 @@ a.ia-alt:hover {
 
 .mem-rule-card--never {
   border-color: var(--granite-300);
-  background: var(--marble-100);
+  background: var(--color-bg-subtle);
 }
 
 .mem-rule-card__head {
@@ -18226,8 +18220,7 @@ a.ia-alt:hover {
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.14), transparent 55%),
-    var(--color-bg-surface-raised);
+  background: var(--color-bg-surface);
   box-shadow: var(--shadow-card-rest);
 }
 
@@ -18271,8 +18264,7 @@ a.ia-alt:hover {
   padding: clamp(1.5rem, 4vw, 2.5rem);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: radial-gradient(520px circle at 4% -6%, rgb(241 204 94 / 0.16), transparent 55%),
-    linear-gradient(165deg, var(--color-bg-surface-raised), var(--color-bg-surface));
+  background: var(--color-bg-surface);
   box-shadow: var(--shadow-card-rest);
 }
 
@@ -18290,7 +18282,7 @@ a.ia-alt:hover {
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--marble-50), var(--marble-200));
+  background: var(--color-bg-subtle);
   display: grid;
   place-items: center;
 }
@@ -18949,8 +18941,7 @@ a.ia-alt:hover {
 
 .next-steps {
   border-top: 2px solid var(--gold-500);
-  background: radial-gradient(700px 240px at 100% -40px, rgb(241 204 94 / 0.16), transparent 60%),
-    linear-gradient(180deg, var(--color-bg-surface-raised), var(--color-bg-subtle));
+  background: var(--color-bg-surface);
   color: var(--color-text-primary);
 }
 
@@ -19019,9 +19010,7 @@ a.ia-alt:hover {
 .contact-facts {
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(600px 200px at 0% -60px, rgb(241 204 94 / 0.14), transparent 60%),
-    var(--color-bg-surface);
+  background: var(--color-bg-surface);
   padding: var(--space-5);
   display: grid;
   gap: var(--space-4);
