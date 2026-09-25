@@ -467,6 +467,15 @@ input[type="checkbox"] {
 
 /* --- Tables ----------------------------------------------------------------- */
 .table-wrapper {
+  /* position: relative makes the scroll wrapper the containing block for
+     absolutely-positioned descendants (it already clips them via
+     overflow-x). Without it a .visually-hidden (position: absolute !important)
+     span at the far right of a wide table is positioned against the initial
+     containing block and escapes the clip — its 1px box sat at x≈1873 on
+     /staff/pricing and panned the whole page 434px sideways (round-2 broken
+     pages). Keep this line: the wrapper is the one containing block the
+     clipped table needs. */
+  position: relative;
   overflow-x: auto;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
