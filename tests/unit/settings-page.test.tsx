@@ -68,7 +68,7 @@ describe("this park's configuration", () => {
     signIn(["tenancy:tenants:manage"]);
     const html = await render();
     for (const value of [
-      "Villa Memorial Park",
+      "Villa Funeraria",
       "24/7 Assistance Line",
       "0917 617 8489",
       "0917 183 9262",

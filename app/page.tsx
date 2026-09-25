@@ -9,7 +9,7 @@ import { listLots } from "@/lib/api-client/property";
 import { SITE_DESCRIPTION, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Villa Memorial Park — Memorial & funeral services, Isabela City, Basilan",
+  title: "Villa Funeraria — Memorial & funeral services, Isabela City, Basilan",
   description: SITE_DESCRIPTION,
   path: "/",
 });

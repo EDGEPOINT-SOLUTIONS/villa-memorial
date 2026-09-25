@@ -489,7 +489,7 @@ export function readLandingContent(raw: unknown): LandingContent {
     version: 1,
     updated_at: nullableStr(r.updated_at),
     logo: {
-      wordmark: readStr(logoRaw as Record<string, unknown>, "wordmark") || "Villa Memorial Park",
+      wordmark: readStr(logoRaw as Record<string, unknown>, "wordmark") || "Villa Funeraria",
       markImage: readNullable(logoRaw as Record<string, unknown>, "markImage"),
     },
     contact: {
