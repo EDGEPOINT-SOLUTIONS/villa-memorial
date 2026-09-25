@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { LocationBlock } from "@/components/public/location-block";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { PublicParkMap } from "@/components/public-park-map";
 import { LotListing } from "@/app/(public)/lots/lot-listing";
@@ -117,10 +119,11 @@ export default async function PublicMapPage({
   // Page content (hero, tabs, blocks) + the sellable lines a price block may
   // resolve against. A content read failure falls back to the recorded words;
   // it must never take the map down.
-  const [document, catalogItems, pricing] = await Promise.all([
+  const [document, catalogItems, pricing, landing] = await Promise.all([
     getPageDocument("park").catch(() => null),
     listCatalogItems().catch(() => []),
     loadPricingDocument().catch(() => null),
+    listLandingContent().catch(() => null),
   ]);
   const hero = document?.hero ?? FALLBACK_HERO;
   const tabs = document?.tabs.length ? document.tabs : FALLBACK_TABS;
@@ -202,6 +205,16 @@ export default async function PublicMapPage({
           <PublicParkMap lots={lots} initialPark={initialPark} initialPlot={initialPlot} enable3d />
         </div>
       )}
+
+      {/* Where the park is and how to get there (client's minutes 2026-09-21,
+          item 6) — the one directions action on the park page, below the plot
+          layout and above the page's editable content. */}
+      {landing ? (
+        <LocationBlock
+          contact={landing.contact}
+          titleId="park-location-title"
+        />
+      ) : null}
 
       {document && document.blocks.length > 0 ? (
         <ContentBlocks

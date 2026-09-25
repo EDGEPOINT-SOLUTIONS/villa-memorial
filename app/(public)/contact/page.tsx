@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContactForm } from "@/components/public-forms/contact-form";
+import { LocationBlock } from "@/components/public/location-block";
 import { PublicHero, SectionHead } from "@/components/kit";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
@@ -110,6 +111,11 @@ export default async function Page({
           </Link>
         </nav>
       </section>
+
+      {/* Where the office and the park actually are, with directions (client's
+          minutes 2026-09-21, item 6). Sits with the published facts, before the
+          form, so someone travelling finds it without scrolling. */}
+      <LocationBlock contact={contact} className="story-band" />
 
       <div className="story-band" id="contact-message">
         <ContactForm prefill={prefill} />

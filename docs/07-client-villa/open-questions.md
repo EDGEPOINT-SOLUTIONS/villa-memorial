@@ -62,6 +62,16 @@ From blueprint §72 + gaps found during corpus review:
 - [ ] Commission rules and rates
 - [ ] Environmental/community programs to activate (memorial tree program etc.)
 
+## Track D (location map) — raised by the map-integration build (minutes 2026-09-21, item 6)
+- [ ] **The exact park pin / coordinates, and whether a live embed is wanted.** The site publishes a
+      STATIC location card (`lib/location-map.ts`, `components/public/location-block.tsx`) built from
+      the recorded letterhead addresses, with "Get directions" opening the address in Google Maps or
+      Apple Maps. The minutes ask for a location that is "accurate and approved by the client": please
+      confirm (a) the exact pin/coordinates (or that the free-text recorded address is the approved
+      one), and (b) whether an embedded interactive map is desired — an embed needs either an approved
+      lat/long (OpenStreetMap) or a Google Maps API key and a consent decision. No coordinates were
+      invented; the card is labelled static meanwhile.
+
 ## Process rule
 Never mark a feature "not needed" by developer preference. If business clarification is required,
 create a clearly identified decision item for Villa Memorial (owner: JBR as product owner).

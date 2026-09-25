@@ -21589,3 +21589,143 @@ a.plan-advisor__phone:hover {
   padding: 0;
   margin: var(--space-3) 0 0;
 }
+
+/* ============================================================================
+ * public: location block — where Villa Memorial is (client minutes 2026-09-21,
+ * item 6)
+ *
+ * The static location card + directions actions
+ * (`components/public/location-block.tsx`). It renders the Phase 0
+ * `SectionHead` and nothing bespoke; THIS block carries only the location
+ * card's own deltas, so no other lane edits it. Tokens only: the card is the
+ * neutral quiet wash, the pin is the gold accent (a decorative mark, never
+ * text), and every type size is a ladder/role token. No gradient, no shadow,
+ * no third-party map — `LOCATION_MAP_NOTE` says the card is static.
+ * ========================================================================== */
+
+.location-block {
+  /* `.story-band` supplies the band rhythm on /contact; the block itself is
+     transparent so it composes anywhere. */
+  display: block;
+}
+
+.location-block__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 40rem) {
+  .location-block__body {
+    /* The card leads; the actions ride beside it. */
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+}
+
+.location-map {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.location-map__pin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--gold-wash);
+  color: var(--gold-700);
+}
+
+.location-map__text {
+  min-width: 0;
+}
+
+.location-map__name {
+  margin: 0;
+  font-size: var(--text-card-title);
+  line-height: 1.25;
+  color: var(--color-text-primary);
+}
+
+.location-map__address {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.location-block__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.location-block__other {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.location-other {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-1);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+@media (min-width: 40rem) {
+  .location-other {
+    grid-template-columns: 8rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+}
+
+.location-other__label {
+  font-size: var(--text-micro);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.location-other__address {
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.location-other__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.location-other__link {
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.location-block__note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* A phone keeps the 44px touch targets (the actions already carry `.btn`'s
+   phone min-height); the map card's pin is decorative and may shrink. */
+@media (max-width: 40rem) {
+  .location-map {
+    padding: var(--space-3);
+  }
+}

@@ -34,6 +34,7 @@ import { PublicHero } from "@/components/public/public-hero";
 import { SectionHead } from "@/components/public/section-head";
 import { PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet, planLotCardPhoto } from "@/lib/media";
 import { planLotCardFigures, planLotKindLabel } from "@/lib/landing/plan-lots";
+import { directionsUrl } from "@/lib/location-map";
 import { type LotCategory, type PlanPricing } from "@/lib/pricing-model";
 
 export type LandingViewProps = {
@@ -429,6 +430,13 @@ export function LandingFooter({ content }: { content: LandingContent }) {
                 <span className="anchored-footer__contact-value">
                   {contact.parkAddress}
                   <br />
+                  <a
+                    href={directionsUrl("google", contact.parkAddress)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Get directions
+                  </a>{" · "}
                   <a href="/map">Map &amp; directions →</a>
                 </span>
               </div>
