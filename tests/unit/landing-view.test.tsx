@@ -166,36 +166,57 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(labels).not.toContain("Browse the lots");
   });
 
-  it("the left rail carries no 24/7 call card (captain removed it, 2026-09-21)", async () => {
+  it("the left rail leads with the always-reachable help card (captain, 2026-09-25)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    // The card and its styles/behaviour are gone; the rail keeps its pinned items.
+    // The retired 2026-09-21 rail-call class stays retired, but the captain's
+    // 2026-09-25 storefront pass reintroduces the help card under a new name.
+    expect(html).toContain("rail-assist");
+    expect(html).toContain("Need help now?");
     expect(html).not.toContain("rail-call");
     expect(html).toContain("rail-heading");
-    // The number stays reachable where it already is — the header call chip.
+    // The number is read from the content document, never typed.
     expect(html).toContain(content.contact.phoneDisplay);
+    expect(html).toContain(`href="${content.contact.phoneHref}"`);
   });
 
-  it("middle sections render in order: about, plans & lots, plan board, live map, then blog feed", async () => {
+  it("the right rail leads with the four quick actions (captain, 2026-09-25)", async () => {
+    const content = await listLandingContent();
+    const html = renderToStaticMarkup(
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
+    );
+    for (const [href, label] of [
+      ["/price-list", "Price list"],
+      ["/quote", "Request a quote"],
+      ["/builder", "Plan finder"],
+      ["/map", "Directions &amp; park map"],
+    ] as const) {
+      expect(html, label).toContain(`class="rail-action" href="${href}"`);
+      expect(html, label).toContain(label);
+    }
+  });
+
+  it("middle sections render products first, story after (Amazon order, captain 2026-09-25)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
     const heroPos = html.indexOf("hero-home__title");
-    const aboutPos = html.indexOf("about-grid");
     const plansLotsPos = html.indexOf("plan-lot-grid");
     const plansPos = html.indexOf("plan-board");
     const mapPos = html.indexOf("mid-section--map");
+    const aboutPos = html.indexOf("about-grid");
     const blogPos = html.indexOf("blog-feed");
     expect(heroPos).toBeGreaterThanOrEqual(0);
-    expect(aboutPos).toBeGreaterThan(heroPos);
-    expect(plansLotsPos).toBeGreaterThan(aboutPos);
+    // The shelf leads: plans & lots → the plan board → the live park map.
+    expect(plansLotsPos).toBeGreaterThan(heroPos);
     expect(plansPos).toBeGreaterThan(plansLotsPos);
-    // The captain-approved order puts the live park map BEFORE the newsfeed.
     expect(mapPos).toBeGreaterThan(plansPos);
-    expect(blogPos).toBeGreaterThan(mapPos);
+    // The About/mission band and the newsfeed close the column.
+    expect(aboutPos).toBeGreaterThan(mapPos);
+    expect(blogPos).toBeGreaterThan(aboutPos);
     // Seed blog captions render, and no like/share action row is rendered.
     expect(html).toContain("golden hour");
     expect(html).not.toContain("like");
@@ -213,8 +234,11 @@ describe("the home renders the anchored catalogue shell", () => {
     // The retired band is gone.
     expect(html).not.toContain("What we do");
     expect(html).not.toContain("Services we offer");
-    // Five cards, each the kit card.
+    // Five cards, each the kit card, and the band carries ONE "see all" door.
     expect((html.match(/class="shop-card"/g) ?? []).length).toBe(5);
+    expect(html).toContain('class="section-head__link" href="/lots"');
+    // The card's one action wears the per-item gold rung.
+    expect(html).toContain('class="btn btn--accent btn--sm" href="/lots"');
     // The three type words the captain named.
     expect(html).toContain("Garden lot");
     expect(html).toContain("Structure");
@@ -461,10 +485,12 @@ describe("the rails fit without a vertical scrollbar", () => {
     expect(block).not.toContain("height: 14rem");
   });
 
-  it("retired the 24/7 call card and its styles entirely", () => {
+  it("keeps the retired 24/7 call card CSS out while the new help card ships", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
     expect(css).not.toContain(".rail-call");
     expect(css).not.toContain("rail-pulse");
+    expect(css).toContain(".rail-assist");
+    expect(css).toContain(".rail-action");
   });
 });
 

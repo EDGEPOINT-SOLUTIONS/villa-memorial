@@ -44,7 +44,9 @@ on backend services.
   `app/globals.css`); `--font-serif` and `--font-sans` both resolve to it (hierarchy comes from
   weight + the role steps, not a second typeface). Every readable text size is one of the seven
   ladder steps in `styles/tokens.css` (12px hard floor; the public hero is the one fluid
-  `--text-display`) chosen through the **role→step map** there (`--text-hero` · `--text-page-title`
+  `--text-display`, except the home, which scopes the display roles down inside `.anchored-page`
+  — hero 36px, section heads 22px, card titles/prices 18px — per the 2026-09-25 storefront pass)
+  chosen through the **role→step map** there (`--text-hero` · `--text-page-title`
   · `--text-section-title` · `--text-card-title` · `--text-body` · `--text-ui` · `--text-caption`
   · `--text-micro`; the display roles step down one rung below 48rem through the same aliases).
   A role class must not ride a raw rung: consume the alias. Text ink is pure black (`--color-text-primary` /
@@ -702,11 +704,13 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   printed card checklists are pinned (`plans-page-content` fails any `<details>`
   there) and `/builder`'s seven-question body is unchanged (no blueprint).
   Record + table: `docs/08-delivery/plan-minimal-design/`.
-- **The left rail carries NO 24/7 call card** (captain removed it 2026-09-21). The
-  number stays reachable in the footer, `/contact`, `/immediate-assistance` and
-  the phone action bar's "Call 24/7"; do not re-add a rail card or a replacement.
-  `.rail-call*` and the `rail-pulse` keyframe are retired (`landing-view.test.tsx`
-  fails their return).
+- **The left rail's help card is `.rail-assist`** (captain: removed the
+  2026-09-21 `rail-call` card, then reinstated an always-reachable help card in
+  the 2026-09-25 storefront pass). It reads the staff-editable number from the
+  landing document; the number also stays reachable in the footer, `/contact`,
+  `/immediate-assistance` and the phone action bar's "Call 24/7". `.rail-call*`
+  and the `rail-pulse` keyframe stay retired (`landing-view.test.tsx` fails
+  their return).
 - **Wave A lane 1 (story · service · support) rebuilt eight routes on this grammar**
   (`/services` + the three guides, `/facilities`, `/immediate-assistance`, `/faq`,
   `/contact`). Its two shared page shapes live in `components/villa/story-ui.tsx`

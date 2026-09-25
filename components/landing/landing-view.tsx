@@ -13,8 +13,10 @@
  */
 /* eslint-disable @next/next/no-html-link-for-pages -- see note above: framework-free view */
 import type { ReactNode } from "react";
+import { ArrowRight, Calculator, FileText, MapPin, MessageCircle, Phone } from "lucide-react";
 import type {
   BlogPost,
+  ContactInfo,
   LandingContent,
   MediaItem,
   RailConfig,
@@ -115,15 +117,16 @@ function RailItemLink({ item }: { item: RailItem }) {
 }
 
 /**
- * One fixed rail: staff-editable heading + any number of pinned items (staff
- * can pin as many products/services/plans/links per rail as they want — the
- * rail scrolls internally, so an unlimited list never breaks the page).
- * Left rail carries the always-reachable 24/7 call card above its items; it
- * stays pinned while the rail list scrolls.
+ * One fixed rail: an optional fixed lead card (the help/call card on the left,
+ * the quick-actions card on the right) + a staff-editable heading and any
+ * number of pinned items (staff can pin as many products/services/plans/links
+ * per rail as they want — the rail scrolls internally, so an unlimited list
+ * never breaks the page).
  */
-export function RailPanel({ config }: { config: RailConfig }) {
+export function RailPanel({ config, lead }: { config: RailConfig; lead?: ReactNode }) {
   return (
     <div className="rail-panel">
+      {lead}
       <h2 className="rail-heading">{config.heading}</h2>
       {config.items.length === 0 ? (
         <p className="rail-empty">Nothing pinned here yet.</p>
@@ -137,6 +140,73 @@ export function RailPanel({ config }: { config: RailConfig }) {
         </ul>
       )}
     </div>
+  );
+}
+
+/**
+ * The left rail's always-reachable help card (captain, 2026-09-25): a grieving
+ * visitor should never have to hunt for the phone. The big call action leads,
+ * the office's own line and place sit under it. The number is read from the
+ * landing content document — never typed here.
+ */
+function RailAssist({ contact }: { contact: ContactInfo }) {
+  return (
+    <div className="rail-assist">
+      <p className="rail-assist__kicker">Need help now?</p>
+      <a className="rail-assist__call" href={contact.phoneHref}>
+        <Phone size={16} aria-hidden="true" />
+        Call {contact.phoneDisplay}
+      </a>
+      <p className="rail-assist__note">
+        Every hour, every day · {contact.location}
+      </p>
+    </div>
+  );
+}
+
+/**
+ * The right rail's quick actions (captain, 2026-09-25): four real doors — the
+ * published price list, a quote request, the plan finder and directions to the
+ * park — so the rail is useful from any scroll depth. App-authored, not
+ * content-pinned: these are the storefront's own destinations.
+ */
+const RAIL_ACTIONS = [
+  { href: "/price-list", label: "Price list", hint: "2026 coffins, services & plans", Icon: FileText },
+  { href: "/quote", label: "Request a quote", hint: "We reply with real figures", Icon: MessageCircle },
+  { href: "/builder", label: "Plan finder", hint: "Build an estimate in minutes", Icon: Calculator },
+  { href: "/map", label: "Directions & park map", hint: "Find your way to the park", Icon: MapPin },
+] as const;
+
+function RailActions() {
+  return (
+    <nav className="rail-actions" aria-label="Quick actions">
+      <h2 className="rail-heading">Quick actions</h2>
+      <ul className="rail-actions__list">
+        {RAIL_ACTIONS.map(({ href, label, hint, Icon }) => (
+          <li key={href}>
+            <a className="rail-action" href={href}>
+              <span className="rail-action__icon" aria-hidden="true">
+                <Icon size={16} />
+              </span>
+              <span className="rail-action__text">
+                <span className="rail-action__label">{label}</span>
+                <span className="rail-action__hint">{hint}</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+/** The section-head "see all" action — a quiet outline-free link with a caret. */
+function SeeAll({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a className="section-head__link" href={href}>
+      {children}
+      <ArrowRight size={16} aria-hidden="true" />
+    </a>
   );
 }
 
@@ -389,7 +459,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
 }
 
 function HeroSection({ content }: { content: LandingContent }) {
-  const { hero, logo, contact } = content;
+  const { hero, logo } = content;
   // The home hero is the shared PublicHero primitive (Phase 0 proof surface).
   // It carries the hero-flexible base: an image-only document renders the raw
   // photograph (no wash/scrim/gradient), 100 % transparency is the clear photo,
@@ -412,14 +482,6 @@ function HeroSection({ content }: { content: LandingContent }) {
       textColour={hero.textColour}
       primary={{ label: hero.primaryCta.label, href: hero.primaryCta.href }}
       secondary={{ label: hero.secondaryCta.label, href: hero.secondaryCta.href }}
-      careline={
-        <>
-          <a href={contact.phoneHref}>
-            {contact.phoneLabel}: {contact.phoneDisplay}
-          </a>{" "}
-          — {contact.location}
-        </>
-      }
     />
   );
 }
@@ -482,9 +544,15 @@ function PlansLotsSection({
   const { plansLots } = content;
   return (
     <section className="mid-section" aria-labelledby="plans-lots-title">
-      <p className="mid-kicker">{plansLots.kicker}</p>
-      <h2 id="plans-lots-title">{plansLots.heading}</h2>
-      <p className="mid-intro">{plansLots.intro}</p>
+      {/* Amazon-familiar band head (captain, 2026-09-25): kicker · answer · ONE
+          "see all" action on the right, so the shelf never reads as a dead end. */}
+      <SectionHead
+        id="plans-lots-title"
+        kicker={plansLots.kicker}
+        title={plansLots.heading}
+        lead={plansLots.intro}
+        action={<SeeAll href="/lots">See all lots &amp; plans</SeeAll>}
+      />
       {/* The kit grid + card (AGENTS "new screens render the kit"): `.plan-lot-grid`
           only narrows the shared column floor so five cards read three-across in
           the home's railed middle column. Every figure is a live read from the
@@ -513,8 +581,8 @@ function PlansLotsSection({
                 figures ? <MonthlyPriceBlock price={figures.monthly} /> : "Ask the office"
               }
               actions={
-                <a className="btn btn--secondary btn--sm" href={href}>
-                  {card.kind === "plan" ? "See the plan" : "View the lots"}
+                <a className="btn btn--accent btn--sm" href={href}>
+                  {card.kind === "plan" ? "View the plan" : "View lots"}
                 </a>
               }
             />
@@ -533,9 +601,13 @@ function PlansSection({ content, planPricing }: { content: LandingContent; planP
   const { plans } = content;
   return (
     <section className="mid-section" aria-labelledby="vmp-title">
-      <p className="mid-kicker">{plans.kicker}</p>
-      <h2 id="vmp-title">{plans.heading}</h2>
-      <p className="mid-sub">{plans.intro}</p>
+      <SectionHead
+        id="vmp-title"
+        kicker={plans.kicker}
+        title={plans.heading}
+        lead={plans.intro}
+        action={<SeeAll href="/plans">See the full plan</SeeAll>}
+      />
       <div className="plan-band">
         <figure className="promo-figure">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded promo art */}
@@ -560,9 +632,7 @@ function BlogSection({ content }: { content: LandingContent }) {
   // On a phone it becomes one column (one post per row).
   return (
     <section className="mid-section" aria-labelledby="blog-title">
-      <p className="mid-kicker">Newsfeed</p>
-      <h2 id="blog-title">{blog.heading}</h2>
-      <p className="mid-intro">{blog.intro}</p>
+      <SectionHead id="blog-title" kicker="Newsfeed" title={blog.heading} lead={blog.intro} />
       {blog.posts.length === 0 ? (
         <p className="mid-empty">Stories will appear here once staff publishes the first post.</p>
       ) : (
@@ -588,25 +658,24 @@ function MapSection({
   sectionCount?: number;
 }) {
   const { map } = content;
+  const lead =
+    mapLive && sectionCount !== undefined && sectionCount > 0
+      ? `${map.intro} Explore all ${sectionCount} sections.`
+      : map.intro;
   return (
     <section className="mid-section mid-section--map" aria-labelledby="map-title">
-      <p className="mid-kicker">Interactive map</p>
-      <h2 id="map-title">{map.heading}</h2>
-      <p className="mid-intro">
-        {map.intro}
-        {mapLive && sectionCount !== undefined && sectionCount > 0
-          ? ` Explore all ${sectionCount} sections — click any plot to see its type, status and asking price.`
-          : ""}
-      </p>
+      <SectionHead
+        id="map-title"
+        kicker="Villa Memorial Park"
+        title={map.heading}
+        lead={lead}
+        action={<SeeAll href="/map">Open the full map</SeeAll>}
+      />
       <div className="map-embed">
         {mapNode ?? (
           <p className="mid-empty">The live park map is momentarily unavailable — open the full map directly.</p>
         )}
       </div>
-      <p className="mid-note">
-        Tip: the same map lives at <a href="/map">/map</a> — share any plot deep link, e.g.{" "}
-        <a href="/map?park=villa&amp;plot=A-001">/map?park=villa&amp;plot=A-001</a>.
-      </p>
     </section>
   );
 }
@@ -622,14 +691,18 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
     <div className="anchored-page has-phonebar">
       <LandingHeader content={content} />
       <div className="anchored-grid">
-        <aside className="anchored-rail anchored-rail--left" aria-label="Care and services">
-          <RailPanel config={content.rails.left} />
+        {/* Amazon-familiar storefront (captain, 2026-09-25): the left rail is
+            the departments list, led by the always-reachable help card. */}
+        <aside className="anchored-rail anchored-rail--left" aria-label="Departments">
+          <RailPanel config={content.rails.left} lead={<RailAssist contact={content.contact} />} />
         </aside>
 
         <main id="main" className="anchored-mid">
           <div className="anchored-mid__inner">
             <HeroSection content={content} />
-            <AboutSection content={content} />
+            {/* Products first, story after (the Amazon order): the plans & lots
+                shelf, then the plan board, then the park map a visitor can walk.
+                The About/mission band and the newsfeed close the column. */}
             <PlansLotsSection content={content} lotCategories={lotCategories} planPricing={planPricing} />
             <PlansSection content={content} planPricing={planPricing} />
             <MapSection
@@ -638,14 +711,15 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
               mapLive={mapLive}
               sectionCount={sectionCount}
             />
-            {/* The live park map sits BEFORE the newsfeed — visitors see the
-                grounds they can walk, then the park's stories. */}
+            <AboutSection content={content} />
             <BlogSection content={content} />
           </div>
         </main>
 
-        <aside className="anchored-rail anchored-rail--right" aria-label="Plans and lots">
-          <RailPanel config={content.rails.right} />
+        {/* The right rail is the short, useful action list (price list, quote,
+            plan finder, directions) above the staff-pinned plans & lots. */}
+        <aside className="anchored-rail anchored-rail--right" aria-label="Quick actions">
+          <RailPanel config={content.rails.right} lead={<RailActions />} />
         </aside>
       </div>
       {/* The home ends on the same three options every public page ends on
