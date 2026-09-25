@@ -740,13 +740,12 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   "1 day"/"7 days" in package/pay-plan copy. The client's "2026 price FV website A"
   sheet prices embalming per day (3 days ₱6,000 … 9 days ₱15,000, ₱1,500/day beyond)
   and applies that table only when a family does NOT take a package.
-- Theme: the public brand colour is **sky blue** (captain 2026-09-16), applied through
+- Theme: the brand colour is **sky blue** (captain 2026-09-16), applied through
   the `--sky-*` primitives + remapped semantic roles in `styles/tokens.css`. `--navy-*`
-  stays the ink/structure ladder. The staff sidebar is sky blue too (captain
-  2026-09-17 — the `.app-shell` premium block paints a sky-200→sky-400 gradient with
-  navy ink and gold-800 accents; the staff content chrome keeps its navy/gold buttons).
-  Home, footer, hero and public surfaces paint
-  `--sky-*` with navy ink; gold/brass accents are unchanged.
+  stays the ink/structure ladder; gold/brass accents are unchanged. Captain 2026-09-25:
+  page and surface grounds are **white** product-wide and the blue is confined to controls
+  (buttons, selected states, call actions) and the footer — the staff rail is a white
+  sidebar with a sky active edge, and `tests/unit/page-backgrounds.test.ts` enforces it.
 - Styles live in the "package page" block of `styles/components.css`
   (`.plan-layout` / `.plan-main` / `.plan-side` / `.pkg-*`); the feature icons are
   route-local in `app/(public)/plans/[sku]/package-icons.tsx`. `.plan-main` needs
@@ -1318,8 +1317,9 @@ renders a park switcher (`tests/unit/single-park.test.tsx`).
 - The family and agent portals render the SAME chrome and page grammar (captain, 2026-09-17):
   both use `components/portal-frame.tsx`, the shared kit `components/portal/portal-ui.tsx`
   (hero · action band · section · card · row · figure · progress · calm note), and the `ag-*`
-  block in `styles/components.css` — its sky theme scope covers `[data-portal="agent"]` and
-  `[data-portal="family"]`. The agent portal is the visual reference
+  block in `styles/components.css` — its portal theme scope covers `[data-portal="agent"]` and
+  `[data-portal="family"]` (white grounds; the sky lives on controls). The agent portal is the
+  visual reference
   (`docs/08-delivery/agent-portal-design`); the family-only frame/bar was deleted, so never
   reintroduce a second family shell. Nav groups/tabs: `components/portal-nav.ts`
   (`FAMILY_PORTAL_GROUPS`, `FAMILY_PORTAL_TABS`); the phone top bar keeps the Call button.

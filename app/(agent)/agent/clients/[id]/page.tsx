@@ -110,7 +110,7 @@ export default async function AgentClientPage({
           </div>
           <div className="ag-card__body">
             {client.next_amount ? (
-              <div className="ag-money ag-money--due" style={{ boxShadow: "none", border: "1px solid var(--sky-200)" }}>
+              <div className="ag-money ag-money--due" style={{ boxShadow: "none", border: "1px solid var(--color-border)" }}>
                 <p className="ag-money__label">Next amount due</p>
                 <p className="ag-money__value">{money(client.next_amount.amount_cents)}</p>
                 <p className="ag-money__note">

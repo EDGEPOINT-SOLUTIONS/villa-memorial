@@ -36,17 +36,17 @@
   --brass-500: #c79b1e;
   --brass-600: #7a5c00;
 
-  /* --- Sky blue theme — the public site's surface family -------------------
+  /* --- Sky blue theme — the brand's control colour --------------------------
      Captain (2026-09-16): "the theme colour should be sky blue, like the blue
-     colour when you look up at the sky" — replacing the deep navy as the
-     PUBLIC brand colour. The navy/granite scales above stay the ink and
-     structure ladder (body text, headings, hairlines, the staff portal's
-     premium navy/gold direction); every sky primitive below is a brand
-     SURFACE: hero, public footer, primary buttons, selected pills, table
-     captions and headers. Gold/brass accents pair with it unchanged.
-     Ladder: 50–300 pale daylight sky (backgrounds, borders, washes),
-     400–600 clear daytime sky (surfaces, selected states, headers),
-     700–950 deep sky (text-on-white ink tints + white-text surfaces). */
+     colour when you look up at the sky"; refined 2026-09-25: the blue is
+     confined to CONTROLS and the footer — primary buttons, selected/active
+     states, the phone call actions, the public footer. It is no longer a page,
+     section or table surface (that wash was the "cheap / AI template" tell).
+     The navy/granite scales above stay the ink and structure ladder; gold/brass
+     accents pair with the blue unchanged.
+     Ladder: 50–200 pale washes for selected states; 300–600 clear daytime sky
+     for button fills, active edges and selected pills; 700–950 deep sky for
+     white-text controls and dark functional labels. */
   --sky-50: #f2f9fe;
   --sky-100: #e2f2fc;
   --sky-200: #c4e6f8;
@@ -100,12 +100,19 @@
   --scene-plot-line: #ece7d8;
   --scene-marker: #c79b1e;
 
-  /* --- Semantic roles ----------------------------------------------------- */
-  --color-bg-page: var(--sky-50);
-  --color-bg-surface: #fbfdff;
+  /* --- Semantic roles -----------------------------------------------------
+     White grounds, product-wide (captain, 2026-09-25: "all background color
+     should be white, sky blue theme is for buttons only and footer"). The sky
+     wash that used to sit under every page was the "cheap / AI template" tell;
+     the brand blue is now a CONTROL colour (buttons, selected states) and the
+     footer surface. `--color-bg-desk` (staff/public desk) is white too, so no
+     shell paints a tinted page. */
+  --color-bg-page: #ffffff;
+  --color-bg-surface: #ffffff;
   --color-bg-surface-raised: #ffffff;
   --color-bg-inverse: var(--sky-900);
-  --color-bg-subtle: var(--sky-100);
+  /* Quiet neutral hover wash — a state, never a brand surface. */
+  --color-bg-subtle: var(--granite-50);
 
   --color-text-primary: #000000;
   /* Secondary/muted/figure are NEUTRAL greys, not navy tints (captain,
@@ -116,8 +123,11 @@
   --color-text-inverse: var(--marble-100);
   --color-text-inverse-muted: var(--navy-200);
 
-  --color-border: var(--sky-200);
-  --color-border-strong: var(--sky-300);
+  /* Hairlines are neutral, not sky-tinted: the blue border everywhere was the
+     other half of the template look. Blue stays on controls; separation comes
+     from one crisp grey rule (Apple-inspired). */
+  --color-border: var(--granite-200);
+  --color-border-strong: var(--granite-300);
   --color-border-inverse: var(--navy-700);
 
   /* Sky theme roles — the brand-blue family public surfaces paint with.
@@ -234,6 +244,7 @@
   --space-6: 2rem;
   --space-7: 3rem;
   --space-8: 4rem;
+  --space-9: 6rem; /* page-foot breathing room (used by the portal content column) */
 
   /* --- Public folio layout -------------------------------------------------
      ONE centred content envelope shared by the anchored nav bar, the home's
@@ -254,13 +265,17 @@
   --layout-reading-w: 60rem;   /* 960px — prose, forms, PDP-below, support */
   --measure-prose: 66ch;       /* the reading column's line length */
 
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
+  /* Radii ladder — modern Apple-proportioned corners: small chrome, medium
+     controls/rows, large cards/sheets. Pills stay 999px where the grammar
+     calls for one. */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 
-  /* Whisper-subtle shadows — "paper on marble"; borders carry separation */
-  --shadow-card: 0 1px 2px rgb(29 33 38 / 0.05), 0 1px 6px rgb(29 33 38 / 0.04);
-  --shadow-raised: 0 2px 4px rgb(29 33 38 / 0.07), 0 4px 14px rgb(29 33 38 / 0.06);
+  /* Two-layer whisper shadows — crisp, low-opacity elevation (a card lifts a
+     hair off the page); borders carry most separation. */
+  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 2px 6px -1px rgb(15 23 42 / 0.06);
+  --shadow-raised: 0 1px 3px rgb(15 23 42 / 0.06), 0 10px 28px -8px rgb(15 23 42 / 0.12);
 
   /* --- Radiant Compassion (staff premium) — COO blue/gold ------------------
      The captain's requested premium direction for the staff portal: the COO
@@ -290,15 +305,12 @@
   --gold-700: #7a5c00;
   --gold-800: #574300;
 
-  /* Cool paper + sky-tinted desk light for the staff content area. */
-  --color-bg-desk:
-    radial-gradient(1100px 460px at 50% -160px, rgb(255 255 255 / 0.95), transparent 60%),
-    radial-gradient(760px 320px at 92% -140px, rgb(196 230 248 / 0.55), transparent 60%),
-    #f5f8fb;
+  /* The staff/public content desk is plain white — no sky radial wash. */
+  --color-bg-desk: #ffffff;
 
-  /* Hairline + rule ladder — cool hairlines under the blue/gold direction. */
-  --color-rule: #d6eaf8;
-  --color-rule-strong: #b4d9f0;
+  /* Hairline + rule ladder — one neutral grey rule, the sharpened grammar. */
+  --color-rule: var(--granite-200);
+  --color-rule-strong: var(--granite-300);
   --color-rule-inverse: rgb(255 255 255 / 0.09);
 
   /* Gold containment: washes stay translucent so gold never floods a surface. */
@@ -307,14 +319,14 @@
   --gold-wash-strong: color-mix(in srgb, var(--gold-300) 40%, transparent);
   --gold-hairline: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 
-  /* Elevation ladder — paper on a cool desk, refined for hover/pop layers. */
-  --shadow-paper: 0 1px 1px rgb(10 30 52 / 0.05), 0 1px 3px rgb(10 30 52 / 0.06);
+  /* Elevation ladder — crisp, low-opacity, layered (paper on a white desk). */
+  --shadow-paper: 0 1px 2px rgb(15 23 42 / 0.04);
   --shadow-card-rest:
-    0 1px 2px rgb(10 30 52 / 0.06),
-    0 3px 10px -2px rgb(10 30 52 / 0.08);
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 4px 12px -4px rgb(15 23 42 / 0.08);
   --shadow-card-hover:
-    0 2px 5px rgb(10 30 52 / 0.1),
-    0 16px 32px -10px rgb(10 30 52 / 0.24);
+    0 2px 4px rgb(15 23 42 / 0.06),
+    0 12px 28px -8px rgb(15 23 42 / 0.16);
 
   /* Display figure colour for the staff portal (titles, headline numerals) —
      pure black, like every text ink, never the navy tint. */

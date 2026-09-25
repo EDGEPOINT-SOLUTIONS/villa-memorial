@@ -500,7 +500,7 @@ input[type="checkbox"] {
 }
 
 .table tbody tr:hover td {
-  background: color-mix(in srgb, var(--sky-100) 55%, transparent);
+  background: var(--color-bg-subtle);
 }
 
 .table__numeric {
@@ -801,9 +801,7 @@ input[type="checkbox"] {
   align-items: center;
   justify-content: center;
   padding: var(--space-5);
-  background:
-    radial-gradient(1200px 500px at 50% -10%, var(--marble-200), transparent 60%),
-    var(--color-bg-page);
+  background: var(--color-bg-surface-raised);
 }
 
 .auth-card {
@@ -994,8 +992,8 @@ input[type="checkbox"] {
     font-size: var(--text-sm);
     font-weight: 600;
     color: var(--color-text-primary);
-    background: rgb(255 255 255 / 0.55);
-    border: 1px solid color-mix(in srgb, var(--sky-600) 38%, transparent);
+    background: var(--color-bg-surface-raised);
+    border: 1px solid var(--color-border-strong);
     border-radius: var(--radius-md);
     cursor: pointer;
   }
@@ -3586,7 +3584,7 @@ a.ledger__row:hover .ledger__row-title {
    paragraph. No motion on open; the summary is a real control. */
 .fv-gap {
   margin-top: var(--space-5);
-  border-top: 1px solid var(--sky-200);
+  border-top: 1px solid var(--color-border);
   padding-top: var(--space-3);
 }
 
@@ -3628,7 +3626,7 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-3);
   margin-top: var(--space-5);
   padding-top: var(--space-4);
-  border-top: 1px solid var(--sky-200);
+  border-top: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   flex-wrap: wrap;
 }
@@ -3658,7 +3656,7 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   border-radius: 999px;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
@@ -3673,8 +3671,8 @@ a.ledger__row:hover .ledger__row-title {
 }
 
 .fv-chain__now {
-  background: var(--sky-100);
-  border-color: var(--sky-300);
+  background: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
   color: var(--color-figure);
   font-weight: 700;
 }
@@ -3697,7 +3695,7 @@ a.ledger__row:hover .ledger__row-title {
   display: grid;
   gap: 2px;
   padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--sky-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .fv-when li:last-child {
@@ -3755,11 +3753,10 @@ where they fit. Presentation only — the page passes recorded values. */
   gap: var(--space-4);
   padding: var(--space-5);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
-  background:
-    radial-gradient(
+  border: 1px solid var(--color-border);
+  background: radial-gradient(
       420px 180px at 92% -60px,
-      color-mix(in srgb, var(--sky-100) 85%, transparent),
+      color-mix(in srgb, var(--color-bg-subtle) 85%, transparent),
       transparent 70%
     ),
     var(--color-bg-surface-raised);
@@ -3774,7 +3771,7 @@ where they fit. Presentation only — the page passes recorded values. */
   width: 4.5rem;
   height: 5.75rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: linear-gradient(180deg, var(--marble-50), var(--marble-200));
   color: var(--color-text-secondary);
   font-family: var(--font-serif);
@@ -3812,7 +3809,7 @@ where they fit. Presentation only — the page passes recorded values. */
 .fv-record__grid {
   margin-top: var(--space-4);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--sky-100);
+  border-top: 1px solid var(--color-border);
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: var(--space-3) var(--space-5);
@@ -3862,8 +3859,8 @@ above the value, so a long value never crowds its label. */
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 999px;
-  background: var(--sky-100);
-  border: 1px solid var(--sky-200);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   display: inline-flex;
   align-items: center;
@@ -3938,7 +3935,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--sky-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .fv-toggle-row:last-of-type {
@@ -3987,8 +3984,8 @@ because the shared `.ag-appt` rule comes later in this file. */
   width: 3.5rem;
   height: 2rem;
   border-radius: 999px;
-  background: var(--sky-100);
-  border: 1.5px solid var(--sky-300);
+  background: var(--color-bg-subtle);
+  border: 1.5px solid var(--color-border-strong);
   flex: none;
 }
 
@@ -4040,8 +4037,8 @@ because the shared `.ag-appt` rule comes later in this file. */
 [data-fv-reading~="contrast"] .fv-body {
   --color-text-secondary: var(--navy-950);
   --color-text-muted: var(--navy-800);
-  --color-border: var(--sky-300);
-  --color-border-strong: var(--sky-400);
+  --color-border: var(--granite-300);
+  --color-border-strong: var(--granite-400);
 }
 
 [data-fv-reading~="calm"] .fv-body * {
@@ -4071,21 +4068,19 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 /* --- family sign-in (scoped; the staff and agent doors are untouched) -------- */
 .fv-signin-scope .signin-shell {
-  background:
-    radial-gradient(110% 60% at 50% -10%, var(--sky-100) 0%, transparent 60%),
-    var(--color-bg-page);
+  background: var(--color-bg-surface-raised);
 }
 
 .fv-signin-scope .signin-shell::before {
-  background: linear-gradient(90deg, transparent, var(--sky-500), transparent);
+  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 }
 
 .fv-signin-scope .signin-card {
   max-width: 30rem;
-  border-radius: 1.1rem;
+  border-radius: var(--radius-lg);
   padding: 1.75rem 1.5rem;
   gap: 1.25rem;
-  border-color: var(--sky-200);
+  border-color: var(--color-border);
 }
 
 .fv-signin-scope .signin-card__head {
@@ -4122,7 +4117,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .fv-signin-scope .input {
   min-height: 3.25rem;
   font-size: var(--text-lg);
-  border-color: var(--sky-300);
+  border-color: var(--color-border-strong);
 }
 
 .fv-signin-scope .signin-card__route-note {
@@ -4184,9 +4179,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: grid;
   place-items: center;
   padding: var(--space-6) var(--space-4);
-  background:
-    radial-gradient(90% 70% at 50% -10%, var(--marble-50) 0%, transparent 60%),
-    var(--color-bg-page);
+  background: var(--color-bg-surface-raised);
 }
 
 .signin-shell::before {
@@ -6597,9 +6590,9 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .plan-statement {
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--sky-100), var(--sky-200));
+  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
   color: var(--color-text-primary);
   font-size: var(--text-lg);
   text-align: center;
@@ -6845,7 +6838,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .term-btn {
   position: relative;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: #fff;
   padding: 0.5rem 0.4rem;
@@ -6857,7 +6850,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .term-btn:hover {
-  border-color: var(--sky-400);
+  border-color: var(--color-border-strong);
 }
 
 .term-btn[aria-pressed="true"] {
@@ -7010,7 +7003,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   caption-side: top;
   text-align: left;
   padding: var(--space-3) var(--space-4);
-  background: var(--sky-500);
+  background: var(--color-bg-subtle);
   color: var(--color-on-sky);
   font-family: var(--font-sans);
   font-size: var(--text-sm);
@@ -7028,7 +7021,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .pl-table th {
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
   font-weight: 700;
   text-align: right;
@@ -7040,7 +7033,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .pl-table thead tr:first-child th {
-  background: var(--sky-300);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
   text-align: center;
   font-size: var(--text-xs);
@@ -7051,12 +7044,12 @@ because the shared `.ag-appt` rule comes later in this file. */
 .pl-table thead tr:first-child th:first-child,
 .pl-table thead tr:first-child th:nth-child(2),
 .pl-table thead tr:first-child th:nth-child(3) {
-  background: var(--sky-400);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
 .pl-table tbody tr:nth-child(even) {
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .pl-table td.num,
@@ -7598,9 +7591,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-2);
   margin-top: var(--space-5);
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--sky-100), var(--sky-200));
+  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
 }
 
 .svc-total > div {
@@ -7720,9 +7713,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: grid;
   gap: 2px;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .chapel-card__facts dt {
@@ -7888,11 +7881,10 @@ because the shared `.ag-appt` rule comes later in this file. */
   position: relative;
   overflow: hidden;
   padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.22), transparent 55%),
-    linear-gradient(165deg, var(--sky-100), var(--color-bg-surface));
+  background: radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.14), transparent 55%),
+    var(--color-bg-surface-raised);
 }
 
 .gal-hero::before {
@@ -7993,9 +7985,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: grid;
   gap: var(--space-5);
   padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  background: var(--color-bg-surface-raised);
 }
 
 .gal-walk__grid {
@@ -8059,9 +8051,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-4);
   align-items: center;
   padding: var(--space-6);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--sky-100), var(--sky-200));
+  background: var(--color-bg-surface-raised);
 }
 
 @media (max-width: 62rem) {
@@ -8349,7 +8341,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .pdp-variant:hover {
-  border-color: var(--sky-400);
+  border-color: var(--color-border-strong);
 }
 
 .pdp-variant--active {
@@ -8599,7 +8591,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .pdp-gallery__zoom:hover {
-  border-color: var(--sky-400);
+  border-color: var(--color-border-strong);
 }
 
 .pdp-zoom {
@@ -8734,7 +8726,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .specs-editor thead th {
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .specs-editor__head {
@@ -9158,15 +9150,17 @@ a.card:hover {
 
 
 /* The staff portal keeps the documented COO "Radiant Compassion" navy/gold
-   direction; the sky theme is the PUBLIC brand (captain 2026-09-16). */
+   direction; the sky theme is the PUBLIC brand (captain 2026-09-16).
+   Captain 2026-09-25 (sharpening pass): the buttons are FLAT fills like the
+   public grammar — a button is a control, not a lit object; the hover step
+   carries the affordance, no sheen (gradients read as "AI template"). */
 .app-shell .btn--primary {
-  background: linear-gradient(180deg, var(--navy-700) 0%, var(--navy-900) 100%);
+  background: var(--navy-800);
   color: #ffffff;
 }
 
 .app-shell .btn--primary:hover:not(:disabled) {
-  background: var(--navy-800);
-  filter: brightness(1.14);
+  background: var(--navy-700);
 }
 
 .app-shell .btn--secondary {
@@ -9174,13 +9168,13 @@ a.card:hover {
 }
 
 .app-shell .btn--accent {
-  background: linear-gradient(180deg, var(--gold-400) 0%, var(--gold-600) 100%);
+  background: var(--gold-400);
   color: var(--color-text-primary);
   font-weight: 600;
 }
 
 .app-shell .btn--accent:hover:not(:disabled) {
-  filter: brightness(1.06);
+  background: var(--gold-300);
 }
 
 
@@ -9206,23 +9200,19 @@ a.card:hover {
   background: var(--gold-hairline);
 }
 
-/* --- Sky sidebar: the captain's sky-blue admin nav ---------------------------
-   Captain (2026-09-17): "the admin nav bar should also be sky blue" — the
-   standing brand rule, never dark blue/navy. A daylight-sky gradient carrying
-   navy ink; gold keeps its accent role (brand eyebrow, active edge). Every
-   ink and gold value below holds ≥ 4.5:1 on the gradient's darkest stop
-   (--sky-400), so all staff screens read the same. */
+/* --- White admin rail ---------------------------------------------------------
+   Captain (2026-09-25): page and surface grounds go white product-wide; the
+   sky-blue brand now rides only the ACTIVE item's edge (a selected control),
+   never the rail's surface. Navy ink + the gold brand eyebrow carry identity. */
 .app-shell .app-sidebar {
-  background:
-    radial-gradient(560px 220px at 24% -60px, rgb(255 255 255 / 0.45), transparent 70%),
-    linear-gradient(180deg, var(--sky-200) 0%, var(--sky-300) 52%, var(--sky-400) 100%);
+  background: var(--color-bg-surface-raised);
   color: var(--color-text-primary);
-  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--sky-600) 38%, transparent);
+  box-shadow: inset -1px 0 0 var(--color-rule);
 }
 
 .app-shell .app-sidebar__brand {
   border-bottom: none;
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--sky-600) 30%, transparent);
+  box-shadow: inset 0 -1px 0 var(--color-rule);
   padding-bottom: var(--space-4);
 }
 
@@ -9249,19 +9239,19 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar__link:hover {
-  background: rgb(255 255 255 / 0.55);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
-  transform: translateX(2px);
 }
 
 .app-shell .app-sidebar__link--active {
-  background: var(--sky-700);
-  color: #ffffff;
-  box-shadow: inset 2px 0 0 var(--gold-300);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--sky-600);
 }
 
 .app-shell .app-sidebar__link--active:hover {
-  background: var(--sky-800);
+  background: var(--granite-100);
 }
 
 .app-shell .app-sidebar__label {
@@ -9270,7 +9260,7 @@ a.card:hover {
 
 .app-shell .app-sidebar__footer {
   border-top: none;
-  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--sky-600) 30%, transparent);
+  box-shadow: inset 0 1px 0 var(--color-rule);
 }
 
 .app-shell .app-sidebar__footer .btn--ghost {
@@ -9278,7 +9268,7 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar__footer .btn--ghost:hover:not(:disabled) {
-  background: rgb(255 255 255 / 0.55);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
@@ -9293,7 +9283,7 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar .portal-switch--inverse a:hover {
-  background: rgb(255 255 255 / 0.55);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
@@ -9473,12 +9463,12 @@ a.card:hover {
 }
 
 .app-shell .app-main .table tbody tr:hover td {
-  background: var(--navy-50);
+  background: var(--color-bg-subtle);
 }
 
 /* --- Stacked status bars ------------------------------------------------------ */
 .app-shell .app-main .stackbar {
-  background: color-mix(in srgb, var(--navy-200) 55%, transparent);
+  background: var(--granite-100);
 }
 
 /* --- Accent badge: gold chip --------------------------------------------------- */
@@ -9494,7 +9484,7 @@ a.card:hover {
 }
 
 .app-shell .app-main .details-card summary:hover {
-  background: var(--navy-50);
+  background: var(--color-bg-subtle);
 }
 
 /* --- Small refinements shared by every staff page ------------------------------ */
@@ -10125,9 +10115,9 @@ a.card:hover {
 /* --- "You are asking about" banner (storefront request links) ----------------- */
 .request-context {
   padding: var(--space-5);
-  background: var(--sky-50);
-  border: 1px solid color-mix(in srgb, var(--sky-300) 55%, transparent);
-  border-left: 4px solid var(--sky-500);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid color-mix(in srgb, var(--color-border-strong) 55%, transparent);
+  border-left: 4px solid var(--gold-500);
   border-radius: var(--radius-lg);
 }
 
@@ -10315,7 +10305,7 @@ a.card:hover {
   padding: var(--space-5);
   border: 1px solid color-mix(in srgb, var(--gold-400) 45%, transparent);
   border-radius: var(--radius-lg);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
 }
 
@@ -11059,7 +11049,7 @@ a.card:hover {
     background: color-mix(in srgb, var(--color-bg-surface-raised) 97%, transparent);
     -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    border-top: 1px solid var(--sky-200);
+    border-top: 1px solid var(--color-border);
     box-shadow: 0 -10px 26px -18px rgb(8 28 49 / 0.35);
   }
 
@@ -11086,7 +11076,7 @@ a.card:hover {
   }
 
   .anchored-phonebar__btn--explore {
-    border: 1px solid var(--sky-300);
+    border: 1px solid var(--color-border-strong);
     background: var(--color-bg-surface-raised);
     color: var(--color-text-primary);
   }
@@ -11257,7 +11247,7 @@ a.card:hover {
 }
 
 .rail-item:hover {
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   border-color: var(--color-rule-strong);
 }
 
@@ -11425,11 +11415,11 @@ a.card:hover {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  /* Sky theme: clear-daylight-sky gradient carrying navy ink. */
-  background:
-    radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.34), transparent 55%),
-    radial-gradient(420px circle at -8% 110%, rgb(241 204 94 / 0.16), transparent 55%),
-    linear-gradient(165deg, var(--sky-200), var(--sky-500));
+  /* White ground (captain 2026-09-25): the sky fill is gone; two restrained
+     gold blooms keep the band warm without a tinted page. */
+  background: radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.16), transparent 55%),
+    radial-gradient(420px circle at -8% 110%, rgb(241 204 94 / 0.08), transparent 55%),
+    var(--color-bg-surface-raised);
   color: var(--color-text-primary);
   /* Generous but bounded: the hero opens the sheet and hands straight over to
      the content (eye-friendly pass, 2026-09-21). It is a band, not a floating
@@ -11799,7 +11789,7 @@ a.card:hover {
 }
 
 .plan-table thead th {
-  background: var(--sky-400);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
   font-weight: 600;
   font-size: var(--text-xs);
@@ -11813,7 +11803,7 @@ a.card:hover {
 }
 
 .plan-table tbody tr:nth-child(even) {
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .plan-table td.num,
@@ -13842,10 +13832,9 @@ a.card:hover {
   border: 1px solid var(--color-rule-strong);
   border-radius: var(--radius-md);
   overflow: hidden;
-  /* The hero's shipped sky gradient, so the preview shows the real backdrop. */
-  background:
-    radial-gradient(260px circle at 96% -6%, color-mix(in srgb, var(--gold-300) 34%, transparent), transparent 55%),
-    linear-gradient(165deg, var(--sky-200), var(--sky-500));
+  /* The hero's shipped white ground + gold bloom, so the preview matches. */
+  background: radial-gradient(260px circle at 96% -6%, color-mix(in srgb, var(--gold-300) 26%, transparent), transparent 55%),
+    var(--color-bg-surface-raised);
 }
 
 .ed-hero-bg__preview-fill {
@@ -13888,9 +13877,9 @@ a.card:hover {
 /* ---------------------------------------------------------------------------
  * Agent portal (Sales Agent / Lot Sales Officer) — approved design, 2026-09-16
  * Source: docs/08-delivery/agent-portal-design (Lavish review artifact, pages
- * 1–13). Theme: the captain's SKY BLUE — light-sky brand surfaces carrying
- * navy ink (the public site's treatment), never a navy/dark-blue surface.
- * Every value below is a token from tokens.css. Blocks: the sky shell, the
+ * 1–13). Theme: white grounds with the captain's SKY BLUE confined to controls
+ * (primary actions, selected states) and accent edges — never a page wash.
+ * Every value below is a token from tokens.css. Blocks: the shell, the
  * dominant hero + single action band, the priority work list, big quick
  * actions, figures, the commission shape, people, the agenda, pipeline
  * cards/lanes, lot availability, material tiles and the capture form.
@@ -13901,22 +13890,20 @@ a.card:hover {
  * ------------------------------------------------------------------------- */
 /* The foundation for this block is recorded in the design README. Namespaced
    `ag-*` so the shared kit stays free of agent-domain vocabulary. */
-/* --- Sky theme scope --------------------------------------------------------
-   Scoped to the sky portals (agent + family) so the staff chrome is untouched.
-   The family portal carries the same treatment by design — the captain's
-   one-house-style call, 2026-09-17. */
+/* --- Portal theme scope ------------------------------------------------------
+   Captain (2026-09-25): the agent + family portals get the same white-ground
+   treatment as every other surface — the light-sky rail/content wash read as a
+   template. Brand blue stays on the ACTIVE rail item's edge (a selected
+   control) and the actions inside; every ground is white. */
 .portal-frame[data-portal="agent"],
 .portal-frame[data-portal="family"] {
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
-/* Brand colour is the captain's SKY BLUE — light-sky brand surfaces carrying
-   navy ink (the public site's own treatment), never a navy/dark-blue surface.
-   The active rail item is a sky wash + a strong sky edge, so it stays AA. */
 .portal-frame[data-portal="agent"] .portal-sidebar,
 .portal-frame[data-portal="family"] .portal-sidebar {
-  background: linear-gradient(180deg, var(--sky-100) 0%, var(--sky-50) 100%);
-  border-right: 1px solid var(--sky-200);
+  background: var(--color-bg-surface-raised);
+  border-right: 1px solid var(--color-border);
 }
 
 .portal-frame[data-portal="agent"] .portal-sidebar__brand,
@@ -13946,7 +13933,7 @@ a.card:hover {
 
 .portal-frame[data-portal="agent"] .portal-nav__item:hover,
 .portal-frame[data-portal="family"] .portal-nav__item:hover {
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
@@ -13954,7 +13941,7 @@ a.card:hover {
 .portal-frame[data-portal="family"] .portal-nav__item--active,
 .portal-frame[data-portal="agent"] .portal-nav__item--active:hover,
 .portal-frame[data-portal="family"] .portal-nav__item--active:hover {
-  background: var(--sky-200);
+  background: var(--color-bg-subtle);
   color: var(--color-figure);
   font-weight: 700;
   box-shadow: inset 3px 0 0 var(--sky-600);
@@ -13962,7 +13949,7 @@ a.card:hover {
 
 .portal-frame[data-portal="agent"] .portal-sidebar__foot,
 .portal-frame[data-portal="family"] .portal-sidebar__foot {
-  border-top-color: var(--sky-200);
+  border-top-color: var(--color-border);
 }
 
 .portal-frame[data-portal="agent"] .portal-sidebar__logout,
@@ -13972,7 +13959,7 @@ a.card:hover {
 
 .portal-frame[data-portal="agent"] .portal-sidebar__logout:hover,
 .portal-frame[data-portal="family"] .portal-sidebar__logout:hover {
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
@@ -13983,21 +13970,19 @@ a.card:hover {
 
 .portal-frame[data-portal="agent"] .portal-switch--inverse a:hover,
 .portal-frame[data-portal="family"] .portal-switch--inverse a:hover {
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
 }
 
 .portal-frame[data-portal="agent"] .portal-topbar,
 .portal-frame[data-portal="family"] .portal-topbar {
   background: var(--color-bg-surface);
-  border-bottom: 1px solid var(--sky-200);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .portal-frame[data-portal="agent"] .portal-content,
 .portal-frame[data-portal="family"] .portal-content {
-  background:
-    radial-gradient(900px 320px at 88% -120px, var(--sky-100), transparent 62%),
-    var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .portal-frame[data-portal="agent"] .portal-content__inner,
@@ -14015,8 +14000,8 @@ a.card:hover {
 
 .portal-frame[data-portal="agent"] .portal-sidebar__help,
 .portal-frame[data-portal="family"] .portal-sidebar__help {
-  background: var(--sky-50);
-  border-color: var(--sky-200);
+  background: var(--color-bg-subtle);
+  border-color: var(--color-border);
   color: var(--color-text-secondary);
 }
 
@@ -14123,12 +14108,11 @@ a.card:hover {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   padding: var(--space-6) var(--space-6) var(--space-5);
   color: var(--color-text-primary);
-  background:
-    radial-gradient(560px 240px at 92% -60px, color-mix(in srgb, var(--gold-300) 22%, transparent), transparent 62%),
-    linear-gradient(140deg, var(--sky-50) 0%, var(--sky-100) 55%, var(--sky-200) 100%);
+  background: radial-gradient(560px 240px at 92% -60px, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 62%),
+    var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
 }
 
@@ -14170,7 +14154,7 @@ a.card:hover {
   padding: var(--space-1) var(--space-3);
   border-radius: 999px;
   background: var(--color-bg-surface-raised);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -14187,7 +14171,7 @@ a.card:hover {
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   color: var(--color-text-primary);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   box-shadow: var(--shadow-card);
 }
 
@@ -14235,7 +14219,7 @@ a.card:hover {
   align-items: center;
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
 }
@@ -14252,7 +14236,7 @@ a.card:hover {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: var(--radius-lg);
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
   flex-shrink: 0;
 }
@@ -14321,7 +14305,7 @@ a.card:hover {
   padding: var(--space-4);
   min-height: 6.5rem;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
   text-decoration: none;
@@ -14329,7 +14313,7 @@ a.card:hover {
 }
 
 .ag-quick:hover {
-  border-color: var(--sky-400);
+  border-color: var(--color-border-strong);
   box-shadow: var(--shadow-card-hover);
 }
 
@@ -14340,7 +14324,7 @@ a.card:hover {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: var(--radius-md);
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
 }
 
@@ -14365,16 +14349,15 @@ a.card:hover {
 .ag-money {
   padding: var(--space-4) var(--space-5);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
 }
 
 .ag-money--hero {
-  background:
-    radial-gradient(420px 200px at 88% -60px, color-mix(in srgb, var(--sky-200) 70%, transparent), transparent 70%),
+  background: radial-gradient(420px 200px at 88% -60px, color-mix(in srgb, var(--color-bg-subtle) 70%, transparent), transparent 70%),
     var(--color-bg-surface-raised);
-  border-color: var(--sky-300);
+  border-color: var(--color-border-strong);
 }
 
 .ag-money__label {
@@ -14407,7 +14390,7 @@ a.card:hover {
 /* --- Commission shape -------------------------------------------------------- */
 .ag-commission {
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
   overflow: hidden;
@@ -14415,8 +14398,8 @@ a.card:hover {
 
 .ag-commission__head {
   padding: var(--space-4) var(--space-5);
-  background: linear-gradient(135deg, var(--sky-100), var(--sky-50));
-  border-bottom: 1px solid var(--sky-200);
+  background: linear-gradient(135deg, var(--color-bg-subtle), var(--color-bg-surface-raised));
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ag-commission__rows {
@@ -14430,7 +14413,7 @@ a.card:hover {
   gap: var(--space-3);
   align-items: center;
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--sky-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ag-commission__row:last-child { border-bottom: none; }
@@ -14470,8 +14453,8 @@ a.card:hover {
   align-items: flex-start;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
-  border: 1px solid var(--sky-100);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-border);
 }
 
 .ag-rule__key {
@@ -14499,7 +14482,7 @@ a.card:hover {
 .ag-target__bar {
   height: 0.875rem;
   border-radius: 999px;
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   overflow: hidden;
 }
 
@@ -14533,8 +14516,8 @@ a.card:hover {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 999px;
-  background: var(--sky-100);
-  border: 1px solid var(--sky-200);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
   font-weight: 700;
   flex-shrink: 0;
@@ -14573,7 +14556,7 @@ a.card:hover {
   align-items: center;
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
 }
@@ -14630,7 +14613,7 @@ a.card:hover {
   align-items: center;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
 }
 
@@ -14638,7 +14621,7 @@ a.card:hover {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 999px;
-  border: 2px solid var(--sky-400);
+  border: 2px solid var(--color-border-strong);
   background: var(--color-bg-surface-raised);
   display: inline-flex;
   align-items: center;
@@ -14684,7 +14667,7 @@ a.card:hover {
   padding: var(--space-2) var(--space-3);
   min-height: 2.5rem;
   border-radius: 999px;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   font-size: var(--text-sm);
   font-weight: 600;
@@ -14714,7 +14697,7 @@ a.card:hover {
   padding: var(--space-3);
   border-radius: var(--radius-lg);
   background: var(--color-bg-subtle);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
 }
 
 .ag-lane__head {
@@ -14745,7 +14728,7 @@ a.card:hover {
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
 }
@@ -14781,8 +14764,8 @@ a.card:hover {
   border-radius: 999px;
   font-size: var(--text-xs);
   font-weight: 700;
-  background: var(--sky-100);
-  border: 1px solid var(--sky-200);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
 }
 
@@ -14795,7 +14778,7 @@ a.card:hover {
 
 .ag-card {
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
   overflow: hidden;
@@ -14807,7 +14790,7 @@ a.card:hover {
   justify-content: space-between;
   gap: var(--space-3);
   padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--sky-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .ag-card__title {
@@ -14863,7 +14846,7 @@ a.card:hover {
   top: 0.4rem;
   bottom: -1rem;
   width: 2px;
-  background: var(--sky-200);
+  background: var(--color-bg-subtle);
 }
 
 .ag-tl:last-child::before { display: none; }
@@ -14961,7 +14944,7 @@ a.card:hover {
 .ag-map {
   position: relative;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
@@ -14997,7 +14980,7 @@ a.card:hover {
   padding: var(--space-3) var(--space-4);
   font-size: var(--text-xs);
   color: var(--color-text-muted);
-  border-top: 1px solid var(--sky-100);
+  border-top: 1px solid var(--color-border);
 }
 
 .ag-lot {
@@ -15007,7 +14990,7 @@ a.card:hover {
   align-items: center;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
 }
 
@@ -15056,7 +15039,7 @@ a.card:hover {
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
   overflow: hidden;
@@ -15066,7 +15049,7 @@ a.card:hover {
   aspect-ratio: 16 / 10;
   width: 100%;
   object-fit: cover;
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
 }
 
 .ag-material__body {
@@ -15137,7 +15120,7 @@ a.card:hover {
   min-height: 3rem;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   background: var(--color-bg-surface-raised);
   font: inherit;
   font-size: var(--text-lg);
@@ -15157,7 +15140,7 @@ a.card:hover {
   padding: var(--space-3);
   min-height: 4.5rem;
   border-radius: var(--radius-md);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
   font-size: var(--text-md);
   font-weight: 600;
@@ -15167,7 +15150,7 @@ a.card:hover {
 
 .ag-choice--on {
   border-color: var(--sky-600);
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   box-shadow: inset 0 0 0 1px var(--sky-600);
 }
 
@@ -15189,8 +15172,8 @@ a.card:hover {
   gap: var(--space-4);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
-  border: 1.5px dashed var(--sky-400);
-  background: var(--sky-50);
+  border: 1.5px dashed var(--color-border-strong);
+  background: var(--color-bg-surface-raised);
 }
 
 .ag-photo__icon {
@@ -15200,7 +15183,7 @@ a.card:hover {
   width: 3rem;
   height: 3rem;
   border-radius: var(--radius-md);
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
 }
 
@@ -15224,7 +15207,7 @@ a.card:hover {
   gap: var(--space-3);
   padding: var(--space-7) var(--space-5);
   border-radius: var(--radius-lg);
-  border: 1px dashed var(--sky-300);
+  border: 1px dashed var(--color-border-strong);
   background: var(--color-bg-surface-raised);
   text-align: center;
 }
@@ -15236,7 +15219,7 @@ a.card:hover {
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 999px;
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
 }
 
@@ -15256,7 +15239,7 @@ a.card:hover {
 
 .ag-skeleton {
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, var(--sky-100), var(--sky-50), var(--sky-100));
+  background: linear-gradient(90deg, var(--color-bg-subtle), var(--color-bg-surface-raised), var(--color-bg-subtle));
   background-size: 200% 100%;
   animation: ag-shimmer 1.4s ease-in-out infinite;
 }
@@ -15380,12 +15363,11 @@ a.card:hover {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   padding: var(--space-7) var(--space-6);
   color: var(--color-text-primary);
-  background:
-    radial-gradient(560px 260px at 90% -50px, color-mix(in srgb, var(--gold-300) 22%, transparent), transparent 62%),
-    linear-gradient(145deg, var(--sky-50) 0%, var(--sky-100) 55%, var(--sky-200) 100%);
+  background: radial-gradient(560px 260px at 90% -50px, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 62%),
+    var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
 }
 
@@ -15447,8 +15429,8 @@ a.card:hover {
   gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
-  border: 1px solid var(--sky-200);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-border);
   font-size: var(--text-sm);
 }
 
@@ -15501,7 +15483,7 @@ a.card:hover {
   font-size: var(--text-lg); /* 18px */
   line-height: 1.65;
   color: var(--color-text-primary);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .sv-page p,
@@ -15656,7 +15638,7 @@ a.card:hover {
 
 .sv-hero__media {
   margin: 0;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
@@ -15689,10 +15671,9 @@ a.card:hover {
   align-items: center;
   margin-top: var(--space-5);
   padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background:
-    linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  background: var(--color-bg-surface-raised);
 }
 
 .sv-call__title {
@@ -15742,7 +15723,7 @@ a.card:hover {
   display: grid;
   gap: var(--space-2);
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -15755,8 +15736,8 @@ a.card:hover {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 50%;
-  background: var(--sky-100);
-  border: 1px solid var(--sky-300);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-strong);
   color: var(--color-text-secondary);
   font-family: var(--font-serif);
   font-size: var(--text-xl);
@@ -15786,7 +15767,7 @@ a.card:hover {
   margin: 0 calc(-1 * var(--space-5)) var(--space-5);
   padding: var(--space-3) var(--space-5);
   background: color-mix(in srgb, var(--color-bg-surface-raised) 94%, transparent);
-  border-block: 1px solid var(--sky-200);
+  border-block: 1px solid var(--color-border);
   backdrop-filter: blur(6px);
 }
 
@@ -15826,9 +15807,9 @@ a.card:hover {
   align-items: center;
   min-height: 2.75rem;
   padding: 0 var(--space-4);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   color: var(--color-text-secondary);
   font-size: var(--text-md);
   font-weight: 600;
@@ -15893,7 +15874,7 @@ a.card:hover {
 /* --- Section shell ---------------------------------------------------------- */
 .sv-section {
   padding: var(--space-7) 0;
-  border-top: 1px solid var(--sky-200);
+  border-top: 1px solid var(--color-border);
 }
 
 .sv-section__kicker {
@@ -15915,7 +15896,7 @@ a.card:hover {
 }
 
 .sv-section--plain {
-  border-top: 1px solid var(--sky-200);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Labelled facts — structure, not prose (reading budget, captain 2026-09-18). */
@@ -15930,9 +15911,9 @@ a.card:hover {
 
 .sv-factlist li {
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: 999px;
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   color: var(--color-text-primary);
   font-size: var(--text-md);
 }
@@ -16129,9 +16110,9 @@ a.card:hover {
   gap: var(--space-3) var(--space-5);
   margin: 0 0 var(--space-5);
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   font-size: var(--text-md);
   color: var(--color-text-primary);
 }
@@ -16148,9 +16129,9 @@ a.card:hover {
   gap: var(--space-3) var(--space-5);
   margin-top: var(--space-5);
   padding: var(--space-5);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--sky-100), var(--sky-200));
+  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
 }
 
 .sv-total__label {
@@ -16180,9 +16161,9 @@ a.card:hover {
 
 .sv-helper {
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
@@ -16219,7 +16200,7 @@ a.card:hover {
 
 .sv-figure {
   margin: 0;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
@@ -16252,7 +16233,7 @@ a.card:hover {
   min-width: 4.5rem;
   min-height: 3.25rem;
   padding: 0 var(--space-4);
-  border: 2px solid var(--sky-200);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-surface-raised);
   color: var(--color-text-primary);
@@ -16269,7 +16250,7 @@ a.card:hover {
 
 .sv-picker {
   padding: var(--space-5);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -16310,7 +16291,7 @@ a.card:hover {
 /* Full table behind a disclosure — the long-content case. */
 .sv-disclosure {
   margin-top: var(--space-4);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -16327,7 +16308,7 @@ a.card:hover {
 }
 
 .sv-disclosure[open] > summary {
-  border-bottom: 1px solid var(--sky-200);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .sv-disclosure__body {
@@ -16351,7 +16332,7 @@ a.card:hover {
 .sv-chapel {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
@@ -16359,7 +16340,7 @@ a.card:hover {
 
 .sv-chapel__media {
   margin: 0;
-  border-bottom: 1px solid var(--sky-200);
+  border-bottom: 1px solid var(--color-border);
   background: var(--marble-100);
 }
 
@@ -16417,9 +16398,9 @@ a.card:hover {
 
 .sv-chapel__facts > div {
   padding: var(--space-3);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .sv-chapel__facts dt {
@@ -16476,7 +16457,7 @@ a.card:hover {
   gap: var(--space-4);
   align-items: center;
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -16532,9 +16513,9 @@ a.card:hover {
   align-items: flex-start;
   margin-top: var(--space-4);
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: var(--sky-100);
+  background: var(--color-bg-subtle);
   color: var(--color-text-primary);
 }
 
@@ -16593,7 +16574,7 @@ a.card:hover {
   display: grid;
   gap: var(--space-3);
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -16628,7 +16609,7 @@ a.card:hover {
   display: block;
   height: 1.5rem;
   border-radius: var(--radius-md);
-  background: linear-gradient(90deg, var(--sky-100), var(--sky-200), var(--sky-100));
+  background: linear-gradient(90deg, var(--color-bg-subtle), var(--color-bg-subtle), var(--color-bg-subtle));
   background-size: 200% 100%;
   animation: sv-shimmer 1.6s linear infinite;
 }
@@ -16712,10 +16693,9 @@ a.card:hover {
   align-items: center;
   margin-top: var(--space-6);
   padding: var(--space-6);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background-color: var(--sky-100); /* explicit fallback so contrast tools can read it */
-  background-image: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  background: var(--color-bg-subtle); /* a flat neutral band — no sky wash */
   color: var(--color-text-primary);
 }
 
@@ -16738,7 +16718,7 @@ a.card:hover {
 
 .sv-help .btn--secondary {
   background: var(--color-bg-surface-raised);
-  border-color: var(--sky-400);
+  border-color: var(--color-border-strong);
 }
 
 @media (max-width: 62rem) {
@@ -16804,9 +16784,9 @@ a.card:hover {
 /* --- Sources block ----------------------------------------------------------- */
 .sv-sources {
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .sv-sources h2 {
@@ -16832,9 +16812,9 @@ a.card:hover {
   margin: var(--space-4) auto 0;
   max-width: 76rem;
   padding: var(--space-3) var(--space-5);
-  border: 1px dashed var(--sky-300);
+  border: 1px dashed var(--color-border-strong);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   color: var(--color-text-secondary);
   font-size: var(--text-md);
 }
@@ -16882,7 +16862,7 @@ a.card:hover {
 
 .sv-card-media {
   margin: var(--space-2) 0;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--marble-100);
@@ -16901,7 +16881,7 @@ a.card:hover {
   gap: var(--space-3);
   align-items: flex-start;
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -16989,11 +16969,10 @@ a.card:hover {
 /* --- the call hero --- */
 .ia-hero {
   padding: clamp(1.5rem, 4vw, 2.75rem);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(420px circle at 100% 0%, var(--gold-wash), transparent 62%),
-    linear-gradient(150deg, var(--sky-200), var(--sky-400));
+  background: radial-gradient(420px circle at 100% 0%, var(--gold-wash), transparent 62%),
+    var(--color-bg-surface-raised);
   color: var(--color-text-primary);
   box-shadow: var(--shadow-card-hover);
   text-align: center;
@@ -17082,7 +17061,7 @@ a.card:hover {
 /* --- what to do right now --- */
 .ia-steps {
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -17106,9 +17085,9 @@ a.card:hover {
   display: flex;
   gap: var(--space-3);
   padding: var(--space-3);
-  border: 1px solid var(--sky-100);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .ia-step__num {
@@ -17151,7 +17130,7 @@ a.card:hover {
 
 .ia-ready li {
   padding: 0.2rem 0.65rem;
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: 999px;
   background: var(--color-bg-surface-raised);
   color: var(--color-text-primary);
@@ -17191,7 +17170,7 @@ a.card:hover {
   gap: 0.2rem;
   align-content: start;
   padding: var(--space-4);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-surface-raised);
   color: inherit;
@@ -17408,7 +17387,7 @@ a.ia-alt:hover {
 .fac-room {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
@@ -17416,7 +17395,7 @@ a.ia-alt:hover {
 
 .fac-room__media {
   margin: 0;
-  border-bottom: 1px solid var(--sky-200);
+  border-bottom: 1px solid var(--color-border);
   background: var(--marble-100);
 }
 
@@ -17431,8 +17410,8 @@ a.ia-alt:hover {
 /* The sheet's "Illustration purposes only" label stays attached to the photo. */
 .fac-room__media figcaption {
   padding: var(--space-2) var(--space-5);
-  border-top: 1px solid var(--sky-200);
-  background: var(--sky-50);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-surface-raised);
   color: var(--color-text-secondary);
 }
 
@@ -17480,9 +17459,9 @@ a.ia-alt:hover {
   justify-content: space-between;
   gap: var(--space-2) var(--space-4);
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .fac-room__facts dt {
@@ -17553,7 +17532,7 @@ a.ia-alt:hover {
 
 .fac-grounds__media {
   margin: 0;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
@@ -17576,7 +17555,7 @@ a.ia-alt:hover {
   gap: var(--space-3);
   align-content: start;
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
 }
@@ -17637,9 +17616,9 @@ a.ia-alt:hover {
 
 .fac-areas__list .fac-area {
   padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -17652,9 +17631,9 @@ a.ia-alt:hover {
   align-items: center;
   margin-top: var(--space-7);
   padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  background: var(--color-bg-surface-raised);
 }
 
 @media (max-width: 60rem) {
@@ -17761,7 +17740,7 @@ a.ia-alt:hover {
   gap: var(--space-2);
   align-content: start;
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -17851,7 +17830,7 @@ a.ia-alt:hover {
   gap: var(--space-3);
   align-content: start;
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -17946,10 +17925,10 @@ a.ia-alt:hover {
   display: grid;
   gap: var(--space-1);
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-left-width: 3px;
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .mem-choice--private {
@@ -17957,7 +17936,7 @@ a.ia-alt:hover {
 }
 
 .mem-choice--family {
-  border-left-color: var(--sky-400);
+  border-left-color: var(--color-border-strong);
 }
 
 .mem-choice--published {
@@ -17981,7 +17960,7 @@ a.ia-alt:hover {
   display: grid;
   gap: var(--space-4);
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -18019,7 +17998,7 @@ a.ia-alt:hover {
   gap: var(--space-3) var(--space-4);
   align-items: center;
   padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -18082,9 +18061,9 @@ a.ia-alt:hover {
   gap: 2px;
   align-content: start;
   padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .mem-shape__facts dt {
@@ -18108,9 +18087,9 @@ a.ia-alt:hover {
   gap: var(--space-4);
   align-items: center;
   padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-lg);
-  background: linear-gradient(120deg, var(--sky-100), var(--color-bg-surface-raised) 65%);
+  background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
 }
 
@@ -18160,7 +18139,7 @@ a.ia-alt:hover {
   display: flex;
   gap: var(--space-4);
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -18174,8 +18153,8 @@ a.ia-alt:hover {
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background: var(--sky-100);
-  border: 1px solid var(--sky-300);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-strong);
   font-family: var(--font-serif);
   font-size: var(--text-xl);
   color: var(--sky-800);
@@ -18211,7 +18190,7 @@ a.ia-alt:hover {
   gap: var(--space-2);
   align-content: start;
   padding: var(--space-5);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -18236,11 +18215,10 @@ a.ia-alt:hover {
   display: grid;
   gap: var(--space-5);
   padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.18), transparent 55%),
-    linear-gradient(165deg, var(--sky-100), var(--color-bg-surface));
+  background: radial-gradient(520px circle at 96% -6%, rgb(241 204 94 / 0.14), transparent 55%),
+    var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
 }
 
@@ -18264,7 +18242,7 @@ a.ia-alt:hover {
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  border: 1px solid var(--sky-300);
+  border: 1px solid var(--color-border-strong);
   background: var(--color-bg-surface-raised);
   color: var(--sky-700);
   box-shadow: var(--shadow-card-rest);
@@ -18282,11 +18260,10 @@ a.ia-alt:hover {
   gap: clamp(var(--space-5), 4vw, var(--space-7));
   align-items: start;
   padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  background:
-    radial-gradient(520px circle at 4% -6%, rgb(241 204 94 / 0.16), transparent 55%),
-    linear-gradient(165deg, var(--sky-50), var(--color-bg-surface));
+  background: radial-gradient(520px circle at 4% -6%, rgb(241 204 94 / 0.16), transparent 55%),
+    linear-gradient(165deg, var(--color-bg-surface-raised), var(--color-bg-surface));
   box-shadow: var(--shadow-card-rest);
 }
 
@@ -18302,7 +18279,7 @@ a.ia-alt:hover {
   max-width: 20rem;
   aspect-ratio: 4 / 5;
   overflow: hidden;
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: linear-gradient(180deg, var(--marble-50), var(--marble-200));
   display: grid;
@@ -18366,7 +18343,7 @@ a.ia-alt:hover {
   display: grid;
   gap: var(--space-3);
   padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--sky-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card-rest);
@@ -18540,7 +18517,7 @@ a.ia-alt:hover {
 
 .sb-choice:hover {
   border-color: var(--color-border-strong);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .sb-choice:has(input:checked) {
@@ -18658,7 +18635,7 @@ a.ia-alt:hover {
   padding: var(--space-4);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .sb-picked__title {
@@ -18843,7 +18820,7 @@ a.ia-alt:hover {
   padding: var(--space-3) var(--space-4);
   border: 1px solid color-mix(in srgb, var(--gold-400) 40%, transparent);
   border-radius: var(--radius-md);
-  background: var(--sky-50);
+  background: var(--color-bg-surface-raised);
 }
 
 .sb-estimate__monthly-label {
@@ -18963,9 +18940,8 @@ a.ia-alt:hover {
 
 .next-steps {
   border-top: 2px solid var(--gold-500);
-  background:
-    radial-gradient(700px 240px at 100% -40px, rgb(241 204 94 / 0.16), transparent 60%),
-    linear-gradient(180deg, var(--sky-50), var(--sky-200));
+  background: radial-gradient(700px 240px at 100% -40px, rgb(241 204 94 / 0.16), transparent 60%),
+    linear-gradient(180deg, var(--color-bg-surface-raised), var(--color-bg-subtle));
   color: var(--color-text-primary);
 }
 
