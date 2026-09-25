@@ -3,12 +3,13 @@
 **Last updated:** 2026-09-19 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
 ([readable artifact](./prd-alignment-audit/prd-alignment-audit.html)).
 
-This is the standing short list after the audit: four items. **Items 1, 2 and 4 are closed** —
-item 1 by the captain's 2026-09-18 decision, items 2 and 4 by the front end's completion (the
-delivered record is [front-end complete](./frontend-complete.md)). **Item 3 is the open list:**
-the five answers only Villa can give. Each item says what it is, why it matters, the options (or
-the decision/outcome), the reason and who can act. It is a signpost, not a report — every claim
-links to the document that owns it.
+This is the standing short list after the audit: four items, plus one platform contract ask the
+PDP media pass raised ([§5](#5-platform-ask--the-media-upload-object-store-c12)). **Items 1, 2
+and 4 are closed** — item 1 by the captain's 2026-09-18 decision, items 2 and 4 by the front
+end's completion (the delivered record is [front-end complete](./frontend-complete.md)). **Item
+3 is the open list:** the five answers only Villa can give. Each item says what it is, why it
+matters, the options (or the decision/outcome), the reason and who can act. It is a signpost,
+not a report — every claim links to the document that owns it.
 
 **Contents**
 
@@ -154,6 +155,30 @@ content half, and the completion settled the rest.
 
 **Who can act.** Nobody on this item — it is closed. Inventory's live half is with the platform
 (see [front-end complete](./frontend-complete.md#what-remains--with-its-owner)).
+
+## 5. Platform ask — the media upload object store (C12)
+
+**Status: OPEN — platform-owned.** P4 of the editable-PDP plan hardened the editors' photo
+storage: an editor's device upload is downscaled in the browser and written by the app-authored
+`POST /api/content/media` under `MEDIA_UPLOAD_DIR` (default `.data/media-uploads`), and the
+content document stores the short `/api/media/<id>.<ext>` path rather than a base64 data URL
+(`lib/media-upload.ts` · `lib/media-url.ts`; evidence in the PR). That interim store is the
+honest demo home, not the platform's object store.
+
+**What the platform owns.** The frozen `documents-api-v1` names `POST /api/v1/documents` upload
+as **Deferred** (no object store), and the post-audit contract list records it as **C12** —
+document upload / object store / versioning / e-signature
+(`data/villa-platform-contracts-plan/report.md` C12; `docs/08-delivery/contracts/documents-api-v1.md`).
+The staff documents screen keeps its upload button disabled for the same reason.
+
+**How the seam is built for it.** The document field is the route path, unchanged by the swap:
+when C12 freezes, only `lib/media-upload.ts`'s backing store changes to S3/CDN, and
+`MEDIA_PUBLIC_BASE_URL` is the optional prefix for a separate media origin. No public URL, no
+saved document and no editor flow has to change — a no-op migration. The build never claims the
+object store exists: the route writes local files and names that plainly.
+
+**Who can act.** The platform (freeze the C12 upload/object-store contract). Nothing in this
+repo can close it; the local store stays until the contract lands.
 
 ---
 

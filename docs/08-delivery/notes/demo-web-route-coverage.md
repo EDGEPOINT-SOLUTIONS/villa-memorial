@@ -138,6 +138,15 @@ the governance boundary and the not-connected state printed on the page — and 
 generated there, because attaching a model waits on an AI-governance contract the client has
 not answered (`docs/07-client-villa/open-questions.md` §Operations & governance).
 
+The editor's **photo upload is app-authored and shipped** (P4 of the PDP plan):
+`POST /api/content/media` (gated `catalog:write`, the content-save seam) writes the
+already-downscaled bytes under `MEDIA_UPLOAD_DIR` (default `.data/media-uploads`, inside the
+production `.data` volume) and `GET /api/media/[...path]` streams them with long cache headers;
+the content document stores the short `/api/media/<id>.<ext>` path, never a base64 data URL.
+What waits on the platform is the **object store behind it — C12** (`documents-api-v1` upload
+Deferred; `data/villa-platform-contracts-plan/report.md`): when it freezes, only
+`lib/media-upload.ts`'s backing store swaps to S3/CDN and the document field is unchanged.
+
 ## Standing rules
 
 - ✅ means real data and RBAC — not just "the route exists".

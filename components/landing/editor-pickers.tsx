@@ -4,8 +4,8 @@
  * Editor pickers — modal pickers shared by the Landing Page editor.
  *  - MediaPicker: attach a photo from THREE sources — the real uploaded media
  *    library, a REAL device upload (components/landing/device-uploader.tsx,
- *    stored through the fixture store like every edit), or any public URL —
- *    for logos, about photos, plan cards, blog media and more.
+ *    uploaded to the office's media store and stored as a short path), or any
+ *    public URL — for logos, about photos, plan cards, blog media and more.
  *  - RailPicker: choose what to pin to a fixed rail from the REAL catalogue
  *    (services/plans/products/links, priced from lib/villa-pricing.ts) — never an
  *    invented offer.
@@ -134,8 +134,9 @@ export function MediaPicker({
       {tab === "device" ? (
         <div>
           <p className="ed-hint">
-            Pick a local image file from this device — a logo, a park photo, anything. No
-            backend needed: it is stored with the document like every other edit here.
+            Pick a local image file from this device — a logo, a park photo, anything. It is
+            resized here, uploaded to the office&apos;s media store, and the page keeps a short link
+            to it.
           </p>
           <DeviceUploader
             onPick={(src) => {

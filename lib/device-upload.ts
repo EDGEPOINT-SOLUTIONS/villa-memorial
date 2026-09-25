@@ -1,26 +1,29 @@
 /**
- * Device image upload helper — client-only. The staff Landing Page editor has
- * NO backend upload service (front-end CMS seam, zero backend by design), so a
- * "real device upload" stores the chosen image as a data URL inside the same
- * content document the editor already persists through the BFF save route —
- * the fixture store the public home renders from. Nothing leaves the browser
- * until Publish, exactly like every other edit on that screen.
- *
- * Large photos are downscaled on a canvas before they become data URLs so a
- * publish payload never balloons (max edge 1600px; PNG kept when the source
- * had transparency, JPEG for plain photos). Animated GIFs and SVG pass through
- * untouched (canvas would flatten them).
+ * Device image helper — client-only (P4 of data/villa-pdp-cms-plan/report.md
+ * §3.3). The staff editors attach a photo from this device through
+ * `components/landing/device-uploader.tsx`: the browser downscales it here
+ * (max edge 1600px; PNG kept when the source had transparency, JPEG q0.86 for
+ * plain photos; animated GIFs and SVG pass through untouched because a canvas
+ * would flatten them), then uploads the prepared bytes to `POST /api/content/media`
+ * and the document stores the short `/api/media/<id>.<ext>` path it returns —
+ * never a base64 `data:` URL, so an unlimited gallery cannot inflate every read.
  */
 export const DEVICE_UPLOAD_LIMIT_BYTES = 12 * 1024 * 1024; // 12 MB raw file cap
 export const DEVICE_UPLOAD_MAX_EDGE = 1600; // longest side, in px, after downscale
 const DEVICE_UPLOAD_JPEG_QUALITY = 0.86;
 
+export const DEVICE_UPLOAD_MEDIA_ROUTE = "/api/content/media";
+
 export type ProcessedDeviceImage = {
-  /** Ready-to-store image source (data URL). */
-  dataUrl: string;
+  /** The prepared bytes to upload (the original for GIF/SVG, a downscaled JPEG/PNG otherwise). */
+  blob: Blob;
+  /** A local object URL for the preview — the caller revokes it when done. */
+  previewUrl: string;
   width: number;
   height: number;
   mime: string;
+  /** The prepared byte count (for the picker hint). */
+  bytes: number;
 };
 
 /** Human-readable file size (for hints/errors). */
@@ -28,15 +31,6 @@ export function formatUploadBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}
-
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result ?? ""));
-    reader.onerror = () => reject(new Error("Could not read the file."));
-    reader.readAsDataURL(file);
-  });
 }
 
 function loadImage(src: string): Promise<HTMLImageElement> {
@@ -48,9 +42,19 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+function canvasToBlob(canvas: HTMLCanvasElement, mime: string, quality?: number): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => (blob ? resolve(blob) : reject(new Error("This browser can't prepare the image."))),
+      mime,
+      quality,
+    );
+  });
+}
+
 /**
- * Reads + (when sensible) downscales a chosen device image into a data URL.
- * Throws a readable Error when the file cannot be used.
+ * Reads + (when sensible) downscales a chosen device image into prepared bytes
+ * plus a local preview URL. Throws a readable Error when the file cannot be used.
  */
 export async function processDeviceImage(file: File): Promise<ProcessedDeviceImage> {
   if (!file.type.startsWith("image/")) {
@@ -62,38 +66,76 @@ export async function processDeviceImage(file: File): Promise<ProcessedDeviceIma
     );
   }
 
-  const raw = await readAsDataUrl(file);
+  const raw = URL.createObjectURL(file);
+  try {
+    // Keep animated GIFs and vector SVG as-is (canvas would flatten/lose them).
+    if (file.type === "image/gif" || file.type === "image/svg+xml") {
+      const probe = await loadImage(raw);
+      return {
+        blob: file,
+        previewUrl: raw,
+        width: probe.naturalWidth,
+        height: probe.naturalHeight,
+        mime: file.type,
+        bytes: file.size,
+      };
+    }
 
-  // Keep animated GIFs and vector SVG as-is (canvas would flatten/lose them).
-  if (file.type === "image/gif" || file.type === "image/svg+xml") {
-    const probe = await loadImage(raw);
-    return { dataUrl: raw, width: probe.naturalWidth, height: probe.naturalHeight, mime: file.type };
+    const img = await loadImage(raw);
+    const { naturalWidth: width, naturalHeight: height } = img;
+    const longest = Math.max(width, height);
+    if (longest <= DEVICE_UPLOAD_MAX_EDGE) {
+      return { blob: file, previewUrl: raw, width, height, mime: file.type, bytes: file.size };
+    }
+
+    // Downscale so a published gallery stays light.
+    const scale = DEVICE_UPLOAD_MAX_EDGE / longest;
+    const outW = Math.max(1, Math.round(width * scale));
+    const outH = Math.max(1, Math.round(height * scale));
+    const hasAlpha = file.type === "image/png" || file.type === "image/webp";
+    const mime = hasAlpha ? "image/png" : "image/jpeg";
+
+    const canvas = document.createElement("canvas");
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("This browser can't prepare the image.");
+    if (!hasAlpha) {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, outW, outH);
+    }
+    ctx.drawImage(img, 0, 0, outW, outH);
+    const blob = await canvasToBlob(canvas, mime, hasAlpha ? undefined : DEVICE_UPLOAD_JPEG_QUALITY);
+    URL.revokeObjectURL(raw);
+    return {
+      blob,
+      previewUrl: URL.createObjectURL(blob),
+      width: outW,
+      height: outH,
+      mime,
+      bytes: blob.size,
+    };
+  } catch (err) {
+    URL.revokeObjectURL(raw);
+    throw err;
   }
+}
 
-  const img = await loadImage(raw);
-  const { naturalWidth: width, naturalHeight: height } = img;
-  const longest = Math.max(width, height);
-  if (longest <= DEVICE_UPLOAD_MAX_EDGE) {
-    return { dataUrl: raw, width, height, mime: file.type };
+/** Uploads prepared bytes and returns the stored `/api/media/<id>.<ext>` path. */
+export async function uploadDeviceImage(blob: Blob, mime: string): Promise<{ url: string }> {
+  let response: Response;
+  try {
+    response = await fetch(DEVICE_UPLOAD_MEDIA_ROUTE, {
+      method: "POST",
+      headers: { "content-type": mime || blob.type || "application/octet-stream" },
+      body: blob,
+    });
+  } catch {
+    throw new Error("The image could not be uploaded. Check your connection and try again.");
   }
-
-  // Downscale so published documents stay light.
-  const scale = DEVICE_UPLOAD_MAX_EDGE / longest;
-  const outW = Math.max(1, Math.round(width * scale));
-  const outH = Math.max(1, Math.round(height * scale));
-  const hasAlpha = file.type === "image/png" || file.type === "image/webp";
-  const mime = hasAlpha ? "image/png" : "image/jpeg";
-
-  const canvas = document.createElement("canvas");
-  canvas.width = outW;
-  canvas.height = outH;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("This browser can't prepare the image.");
-  if (!hasAlpha) {
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, outW, outH);
+  const payload = (await response.json().catch(() => null)) as { url?: string; error?: string } | null;
+  if (!response.ok || !payload?.url) {
+    throw new Error(payload?.error ?? "The image could not be uploaded. Try again.");
   }
-  ctx.drawImage(img, 0, 0, outW, outH);
-  const dataUrl = canvas.toDataURL(mime, hasAlpha ? undefined : DEVICE_UPLOAD_JPEG_QUALITY);
-  return { dataUrl, width: outW, height: outH, mime };
+  return { url: payload.url };
 }

@@ -16,6 +16,7 @@ import { php } from "@/lib/villa-pricing";
 import { casketSamplePhoto } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { pageMetadata } from "@/lib/seo";
 
 /**
@@ -196,6 +197,7 @@ export default async function CasketDetailPage({ params }: CasketDetailParams) {
         variants={variants}
         pricesBySku={pricesBySku}
         contact={contact}
+        mediaBaseUrl={mediaPublicBaseUrl()}
         aside={
           <>
             {advisor}

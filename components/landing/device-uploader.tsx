@@ -2,19 +2,20 @@
 
 /**
  * DeviceUploader — the "Upload from this device" source in the editor's image
- * picker (MediaPicker). Staff choose a local image file (click the zone or
- * drop a file onto it); it is read + downscaled client-side (lib/device-upload)
- * into a data URL and previewed here before it is committed to the document.
- * No backend involved — the picked source is stored through the exact same
- * fixture-store save path as every other editor edit.
+ * picker (MediaPicker). Staff choose a local image file (click the zone or drop
+ * a file onto it); it is read + downscaled client-side (lib/device-upload) and
+ * previewed here, then uploaded to `POST /api/content/media` and the picker
+ * receives the stored `/api/media/<id>.<ext>` path — the document never embeds a
+ * base64 data URL (P4 of data/villa-pdp-cms-plan/report.md §3.3).
  */
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, FileImage, Loader2, RefreshCw, UploadCloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DEVICE_UPLOAD_LIMIT_BYTES,
   formatUploadBytes,
   processDeviceImage,
+  uploadDeviceImage,
   type ProcessedDeviceImage,
 } from "@/lib/device-upload";
 
@@ -22,20 +23,31 @@ type Phase =
   | { step: "idle" }
   | { step: "reading"; name: string }
   | { step: "preview"; name: string; image: ProcessedDeviceImage }
+  | { step: "uploading"; name: string; image: ProcessedDeviceImage }
   | { step: "error"; message: string };
 
-export function DeviceUploader({ onPick }: { onPick: (dataUrl: string) => void }) {
+export function DeviceUploader({ onPick }: { onPick: (src: string) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const previewUrlRef = useRef<string | null>(null);
   const [dragging, setDragging] = useState(false);
   const [phase, setPhase] = useState<Phase>({ step: "idle" });
   const [picked, setPicked] = useState(false);
 
+  function releasePreview() {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = null;
+  }
+
+  useEffect(() => releasePreview, []);
+
   async function handleFile(file: File | null | undefined) {
     if (!file) return;
     setPicked(false);
+    releasePreview();
     setPhase({ step: "reading", name: file.name });
     try {
       const image = await processDeviceImage(file);
+      previewUrlRef.current = image.previewUrl;
       setPhase({ step: "preview", name: file.name, image });
     } catch (err) {
       setPhase({
@@ -45,11 +57,31 @@ export function DeviceUploader({ onPick }: { onPick: (dataUrl: string) => void }
     }
   }
 
+  async function commit() {
+    if (phase.step !== "preview") return;
+    const current = phase;
+    setPhase({ step: "uploading", name: current.name, image: current.image });
+    try {
+      const { url } = await uploadDeviceImage(current.image.blob, current.image.mime);
+      setPicked(true);
+      onPick(url);
+    } catch (err) {
+      setPhase({
+        step: "error",
+        message: err instanceof Error ? err.message : "The image could not be uploaded.",
+      });
+    }
+  }
+
   function reset() {
+    releasePreview();
     setPhase({ step: "idle" });
     setPicked(false);
     if (inputRef.current) inputRef.current.value = "";
   }
+
+  const previewImage = phase.step === "preview" || phase.step === "uploading" ? phase.image : null;
+  const previewName = phase.step === "preview" || phase.step === "uploading" ? phase.name : "";
 
   return (
     <div className="ed-upload">
@@ -62,44 +94,41 @@ export function DeviceUploader({ onPick }: { onPick: (dataUrl: string) => void }
         aria-label="Choose an image from this device"
       />
 
-      {phase.step === "preview" && phase.image ? (
+      {previewImage ? (
         <div className="ed-upload__preview">
           <div className="ed-upload__preview-media">
             {/* eslint-disable-next-line @next/next/no-img-element -- staff's own uploaded preview */}
-            <img src={phase.image.dataUrl} alt={`Preview of ${phase.name}`} />
+            <img src={previewImage.previewUrl} alt={`Preview of ${previewName || "image"}`} />
           </div>
           <div className="ed-upload__preview-meta">
             <p className="ed-upload__file">
               <FileImage size={15} aria-hidden="true" />
               <span>
-                <strong>{phase.name}</strong>
+                <strong>{previewName}</strong>
                 <br />
                 <span className="ed-upload__file-sub">
-                  {phase.image.width} × {phase.image.height}px
-                  {phase.image.mime === "image/png" ? " · PNG keeps transparency" : ""}
+                  {previewImage.width} × {previewImage.height}px
+                  {previewImage.mime === "image/png" ? " · PNG keeps transparency" : ""}
                   {" · "}
-                  {Math.round(phase.image.dataUrl.length * 0.75 / 1024)} KB prepared
+                  {formatUploadBytes(previewImage.bytes)} prepared
                 </span>
               </span>
             </p>
             <div className="row" style={{ gap: "var(--space-2)", flexWrap: "wrap" }}>
-              {picked ? (
+              {phase.step === "uploading" ? (
+                <span className="ed-upload__done" role="status">
+                  <Loader2 size={15} aria-hidden="true" /> Uploading…
+                </span>
+              ) : picked ? (
                 <span className="ed-upload__done">
                   <Check size={15} aria-hidden="true" /> Added
                 </span>
               ) : (
-                <Button
-                  variant="accent"
-                  size="sm"
-                  onClick={() => {
-                    setPicked(true);
-                    onPick(phase.image!.dataUrl);
-                  }}
-                >
+                <Button variant="accent" size="sm" onClick={commit}>
                   <Check size={14} aria-hidden="true" /> Use this image
                 </Button>
               )}
-              <Button variant="ghost" size="sm" onClick={reset}>
+              <Button variant="ghost" size="sm" onClick={reset} disabled={phase.step === "uploading"}>
                 <RefreshCw size={14} aria-hidden="true" /> Choose another
               </Button>
             </div>
@@ -142,8 +171,8 @@ export function DeviceUploader({ onPick }: { onPick: (dataUrl: string) => void }
             </p>
           ) : (
             <p className="ed-hint" style={{ marginTop: "var(--space-2)" }}>
-              Photos over 1600px are resized automatically. The image is stored in the same
-              fixture store as every other edit on this page — no backend needed.
+              Photos over 1600px are resized automatically, then uploaded to the office&apos;s media
+              store. The page keeps a short link to the picture — never the whole file.
             </p>
           )}
         </div>

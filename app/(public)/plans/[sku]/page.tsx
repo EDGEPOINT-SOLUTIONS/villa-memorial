@@ -7,6 +7,7 @@ import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
 import { getItemEntry } from "@/lib/api-client/content-entries";
 import { itemEntryView } from "@/lib/catalogue-content";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { PublicDisclosure } from "@/components/public/public-disclosure";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { listLandingContent } from "@/lib/api-client/landing";
@@ -206,7 +207,11 @@ export default async function PlanDetailPage({
               <section className="mid-section" aria-labelledby="pkg-authored">
                 <p className="mid-kicker">From the office</p>
                 <h2 id="pkg-authored">More about this package</h2>
-                <ContentBlocks blocks={authored.blocks} priceOf={priceOf} />
+                <ContentBlocks
+                  blocks={authored.blocks}
+                  priceOf={priceOf}
+                  mediaBaseUrl={mediaPublicBaseUrl()}
+                />
               </section>
             ) : null}
 

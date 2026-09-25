@@ -161,7 +161,7 @@ export const CONTENT_RICHTEXT_NODES_MAX = 120;
  */
 export const CONTENT_ENTRY_GALLERY_BYTES_MAX = 40_000_000;
 
-const IMAGE_SRC_PATTERN = /^(?:data:image\/|\/|https?:\/\/)/i;
+const IMAGE_SRC_PATTERN = /^(?:\/|https?:\/\/)/i;
 const HREF_PATTERN = /^(?:\/|#|https?:\/\/|mailto:|tel:)/i;
 
 /* ------------------------------- primitives -------------------------------- */
@@ -805,8 +805,16 @@ function tooLong(value: string, max: number, what: string): string | null {
 }
 
 function imageSrcError(src: string, what: string): string | null {
+  // A stored document carries a reference, never the bytes (P4 of
+  // data/villa-pdp-cms-plan/report.md §3.3). An embedded data URL is an
+  // unmigrated device upload and is refused by name, not accepted as "a device
+  // upload" — the referenced-bytes guard (lib/media-upload.ts) then proves the
+  // short path it should carry really resolves to a file under MEDIA_UPLOAD_DIR.
+  if (/^data:/i.test(src)) {
+    return `${what} is stored as an embedded data URL. Upload it through the media route so it saves as a file.`;
+  }
   if (!IMAGE_SRC_PATTERN.test(src)) {
-    return `${what} must be a published /media path, an https URL or a device upload.`;
+    return `${what} must be a published /media path or an https URL.`;
   }
   if (src.length > CONTENT_IMAGE_MAX_LENGTH) {
     return `${what} is too large to store — choose a smaller file.`;
