@@ -26,7 +26,11 @@ export type QuoteValues = {
   full_name: string;
   email: string;
   phone: string;
-  interest: string;
+  /** The funeral service the quote is for (a Request-for-Quote link prefills it). */
+  service: string;
+  /** The family's preferred date, when one applies (optional). */
+  preferred_date: string;
+  /** Everything else the office should weigh (additional requirements). */
   notes: string;
   consent: boolean;
 };
@@ -41,7 +45,11 @@ export type AppointmentValues = {
   notes: string;
 };
 
-/** Interest list from the legacy mock-up (report row 5) — options only, no contract. */
+/**
+ * Suggested services for a quote request — the legacy mock-up's option list
+ * (report row 5), offered as hints. The field is free text because a
+ * Request-for-Quote link prefills the exact service a visitor clicked.
+ */
 export const QUOTE_INTERESTS = [
   "Pre-need memorial plan",
   "Memorial lot",
@@ -96,7 +104,11 @@ export function validateQuote(values: QuoteValues): FieldErrors {
   if (!values.full_name.trim()) errors.full_name = "Enter your name.";
   const email = emailIssue(values.email);
   if (email) errors.email = email;
-  // Phone, interest and notes stay optional — the office confirms the rest.
+  if (!values.service.trim()) errors.service = "Tell us which service the quote is for.";
+  // Phone, preferred date and notes stay optional — the office confirms the rest.
+  const date = values.preferred_date.trim();
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date))
+    errors.preferred_date = "Enter a valid date.";
   if (!values.consent) errors.consent = "Tick the consent box so the office may use these details for the quote.";
   return errors;
 }

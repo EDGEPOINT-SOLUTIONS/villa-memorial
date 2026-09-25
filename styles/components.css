@@ -16448,13 +16448,6 @@ a.card:hover {
   margin: 0 0 var(--space-2);
 }
 
-.sv-picker__amount {
-  font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
 .sv-picker__unit {
   font-size: var(--text-lg);
   color: var(--color-text-primary);
@@ -20579,7 +20572,9 @@ a.plan-advisor__phone:hover {
 
 @media (min-width: 48rem) {
   .story-rate {
-    grid-template-columns: auto minmax(0, 1fr) 9rem auto;
+    /* Request-for-Quote retired the price column (captain 2026-09-21): one
+       action per row, so the grid is icon · words · action. */
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
   }
 

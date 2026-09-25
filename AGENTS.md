@@ -810,28 +810,32 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - `/services` is the **captain-approved 2026-09-16 senior-first design** — the contract
   is `docs/08-delivery/services-design/` (artifact + 5 sample pages + `services-pages.css`),
   the implementation block is the "Services page" `sv-*` section of `styles/components.css`.
-  The page is **one hero → straight to the services**: the hero, then `Services and prices`
-  (`AlacarteServiceRates`), `Embalming — priced by the day`
+  The page is **one hero → straight to the services**: the hero, then `Services we provide`
+  (`AlacarteServiceRates`), `Embalming — quoted by the day`
   (`components/villa/embalming-day-picker.tsx`, full day counts behind a disclosure) and
-  `Chapel — check the dates and book online` (the park's own record → the Chapel A/B cards,
+  `Chapel — ask us for dates and a quote` (the park's own record → the chapel cards,
   `ChapelRates`), then the `Talk to a person, any hour` band. The pre-migration sticky subnav,
   the "what happens after you call" steps, the chapel placeholder disclaimer, the full 3–9 day
   chapel stay schedule, the "Guides for what comes next" section and the "Where these figures
   come from" provenance block are all RETIRED — the trim is recorded in
   `docs/08-delivery/services-trim-design/`. It all renders from
-  `components/villa/service-rates-2026.tsx`; figures stay in `lib/villa-pricing.ts`.
+  `components/villa/service-rates-2026.tsx`; the sheet's figures stay in `lib/villa-pricing.ts`
+  but are no longer displayed.
+  **Request-for-Quote (captain's minutes, 2026-09-21, item 5): the funeral-service surfaces
+  publish no price and offer no cart action.** Every service line — the five a-la-carte fees,
+  each embalming day count and each chapel class — carries ONE `Request a quote` action
+  (`lib/public-forms/request-prefill.ts` `buildQuoteHref`) that opens `/quote` with the service
+  prefilled; the quote capture records the name, contact details, requested service, preferred
+  date and additional requirements in the demo inquiry store
+  (`lib/demo-inquiry-captures.ts`) the staff board reads. The chapel booking dialog
+  (`components/chapel-booking-dialog.tsx`) is no longer linked from `/services`.
   The 24/7 number is staff-editable landing content (zone 01); the page reads it
   from the same document the header reads — `tests/unit/villa-services-premium.test.tsx`
   pins that an edit reaches every call action, so never type the number again.
-  The a-la-carte and embalming lines keep the shared Add-to-cart + Request-order pair
-  (`components/villa/catalogue-actions.tsx`); **chapel lines are the one documented
-  exception — they open the booking step** (`ChapelBookingButton`, "Check dates & price"
-  on the cards, whose accessible name carries the chapel), never a plain add-to-cart.
-  Every line shows its "In your cart" chip after an
-  add (`components/villa/in-cart-notice.tsx`). `tests/unit/price-surfacing.test.tsx` and
-  `tests/unit/villa-services-premium.test.tsx` both pin that split — keep them when
-  editing the layout. Senior-first is non-negotiable: 18 px body, nothing under 16 px in
-  page content, prices always with their unit, tap targets ≥ 44 px. The three guide ROUTES
+  `tests/unit/price-surfacing.test.tsx` and
+  `tests/unit/villa-services-premium.test.tsx` both pin the no-price / quote-action split — keep
+  them when editing the layout. Senior-first is non-negotiable: 18 px body, nothing under 16 px in
+  page content, tap targets ≥ 44 px. The three guide ROUTES
   (`/services/death-at-home`, `/services/death-at-hospital`, `/transport`) stay as editable
   service entries listed from `/staff/landing/services`, but `/services` no longer links them.
 - **Sample imagery is client material and is always labelled illustrative.** The chapel
@@ -857,8 +861,8 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   office", the long `COFFIN_COVER_UNSTATED` stays on the detail view) → the prominent SRP → one
   compact senior line → **ONE primary action** (the gold `Add to cart`), with `Request order` and
   `View details` as quiet `.catalogue-actions__link` links and the photograph/title as the detail
-  path. `CatalogueActions`' `secondaryAsLink` option is what demotes the pair on a card;
-  `/services` and the embalming picker keep two buttons. The card's caption is one short
+  path. `CatalogueActions`' `secondaryAsLink` option is what demotes the pair on a card.
+  The card's caption is one short
   `COFFIN_SAMPLE_NOTE` ("Illustration purposes only."); the full `COFFIN_TIER_NOTE` prints once
   below the tier band and on the detail view. Cards fell from a 50–73-word `<li>` (avg 54.8) to
   29–39 (avg 32.9). Evidence + 1440/390 shots + measured columns/overflow:
@@ -903,9 +907,10 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 - F-02's screen: `app/(public)/facilities/page.tsx` (`.fac-*` block in
   `styles/components.css`) shows the two chapel classes with the client's own sample
-  photographs, what each suits, and the sheet's per-day rate read from `CHAPEL_RATES` in
-  `lib/villa-pricing.ts` — `tests/unit/facilities-page.test.tsx` renders `/services` too
-  and fails if the two pages' amounts ever differ. The 24/7 number is the staff-editable
+  photographs, what each suits and one `Request a quote` action per room — the sheet's
+  per-day rate is no longer displayed (Request-for-Quote, captain's minutes 2026-09-21 item
+  5). `tests/unit/facilities-page.test.tsx` renders `/services` too and fails if either page
+  publishes a service rate. The 24/7 number is the staff-editable
   landing content, never typed. The grounds list is the client masterplan's own labels
   (`lib/park-3d/masterplan.ts`), and the map / 3D walk-through are linked, never redrawn.
 - **Its honest state deliberately differs from `/services`**: the park's real chapel
@@ -998,10 +1003,13 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
 
 ## Chapel bookings — customer flow (read before touching chapel actions or the cart)
 
-- A chapel is NOT a one-click cart item. Every chapel action on `/services` opens
+- **`/services` no longer books a chapel (Request-for-Quote, captain's minutes 2026-09-21
+  item 5):** each chapel card carries one `Request a quote` action to `/quote`, not the
+  booking step. The booking flow itself still lives here —
   `components/chapel-booking-dialog.tsx` (choose chapel → start date + 3–9 day stay →
-  per-day availability → exact range price → Add to cart). The prefilled **Request order**
-  stays beside it. Never re-add a direct chapel Add-to-cart button.
+  per-day availability → exact range price → Add to cart) — but nothing on a public service
+  page links it any more; re-linking it is a product decision. Never re-add a direct chapel
+  Add-to-cart button.
 - **One rules home: `lib/chapel-booking.ts`** (pure, client+server): the 3–9 day bound,
   UTC-midnight calendar windows, per-day occupancy (a range is bookable only when no
   confirmed booking and no blocked date touches any of its days), prices read through
@@ -1082,16 +1090,19 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `lib/villa-pricing.ts` for the rest.** The plan tables and lot families are the editable
   document described in the next section; coffins, inclusions, a-la-carte and chapel rates
   stay in `lib/villa-pricing.ts`. `tests/unit/villa-pricing.test.ts` pins every figure
-  (store seed included), and `tests/unit/price-surfacing.test.tsx` renders the real pages
-  and asserts each one is published. Never author or restate an amount in a view.
-- Sheet → page map (all four surfaces already render the full sheets):
+  (store seed included), and `tests/unit/price-surfacing.test.tsx` renders the real pages:
+  the plan/product/lot surfaces publish each figure, while the funeral-service surfaces
+  (`/services`, `/facilities`) publish NO figure (Request-for-Quote). Never author or
+  restate an amount in a view.
+- Sheet → page map (the product/plan/lot surfaces render the sheets; the service surfaces quote):
   `/products` = casket catalogue (`CASKET_MODELS` — SRP, senior SRP, discount,
   discounted price, grouped by collection) + per-family inclusions
   (`CASKET_INCLUSIONS`) via `components/villa/casket-catalogue.tsx`;
-  `/services` = embalming per day + the five a-la-carte fees (incl. the sheet's
-  unlabelled ₱19,500 total) + chapel use rates (the per-day rates and sample photos are
-  also the rooms page, `/facilities`), via
-  `components/villa/service-rates-2026.tsx`;
+  `/services` = the five a-la-carte fees + embalming per day + chapel use, rendered as a
+  Request-for-Quote list (NO amount and NO cart action — captain's minutes 2026-09-21
+  item 5; the sheet figures stay in `lib/villa-pricing.ts` as the office's quotation
+  source), via `components/villa/service-rates-2026.tsx`; `/facilities` shows the two
+  rooms with sample photographs and a quote action, not the per-day rate;
   `/price-list` = the five tiers ×
   four terms, regular + senior (moved off /plans), through ONE renderer
   (`components/villa/plan-payment-table.tsx`), fed the current pricing store document;
@@ -1116,9 +1127,10 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `WITHDRAWN_CATALOG_ITEMS` in that module records each SKU, its upstream placeholder and
   the office-arranged state; where one is really sold the public answer is "ask the
   office" (the cart's line fallback says so), never an invented figure.
-- Every sellable line pairs the same two actions: `components/villa/catalogue-actions.tsx`
-  (Add to cart with the row's exact catalogue SKU/price + the prefilled Request order).
-  Lots are never cart items — `components/villa/price-list-2026.tsx` gives each row
+- Every sellable product/plan/lot line pairs the same two actions:
+  `components/villa/catalogue-actions.tsx` (Add to cart with the row's exact catalogue
+  SKU/price + the prefilled Request order); the funeral-service lines are
+  Request-for-Quote only (no cart action). Lots are never cart items — `components/villa/price-list-2026.tsx` gives each row
   Request this lot + a `/map` link. Plan tier × term goes through `lib/plan-selection.ts`
   (cart only for a monthly, non-senior tier the catalogue carries; every other selection
   opens the request naming that term's sheet amount).

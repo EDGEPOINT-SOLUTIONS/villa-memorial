@@ -11,7 +11,9 @@ import {
 } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
-import { CHAPEL_NOTES, CHAPEL_RATES, php } from "@/lib/villa-pricing";
+import { CHAPEL_NOTES } from "@/lib/villa-pricing";
+import { CHAPEL_SKUS } from "@/lib/catalogue-skus";
+import { buildQuoteHref } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
 import { StoryHelpBand } from "@/components/villa/story-ui";
@@ -66,17 +68,12 @@ export const dynamic = "force-dynamic";
  * photographs read at a glance instead of four phone screens.
  */
 
-/** The sheet's own per-day chapel rates (row 1 of the 3–9 day schedule carries
- *  the per-day figure). Read, never typed — the same source `/services` uses. */
-const CHAPEL_PER_DAY = {
-  common: CHAPEL_RATES[0].common.ratePerDay,
-  private: CHAPEL_RATES[0].private.ratePerDay,
-} as const;
-
 /**
- * The two room classes the 2026 sheet prices. `suitedTo` and `sharedWith`
- * describe the class the sheet sells (a common/shared chapel vs a private one)
- * — no capacity and no room name is invented for either.
+ * The two room classes the park sells. `suitedTo` and `sharedWith` describe the
+ * class (a common/shared chapel vs a private one) — no capacity and no room name
+ * is invented for either. The 2026 rates are no longer displayed (captain's
+ * minutes 2026-09-21, item 5): each room asks the office for dates and a quote,
+ * and the rate lives with the office (lib/villa-pricing.ts).
  */
 const ROOMS = [
   {
@@ -86,7 +83,6 @@ const ROOMS = [
     alt: "The chapel hall in the client's own photograph — a draped side table, tall candle pedestals on a green carpet, the hall's platform behind",
     suitedTo: "A large visitation",
     sharedWith: "Other families",
-    perDay: CHAPEL_PER_DAY.common,
   },
   {
     key: "private",
@@ -95,7 +91,6 @@ const ROOMS = [
     alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
     suitedTo: "An intimate gathering",
     sharedWith: "Your family only",
-    perDay: CHAPEL_PER_DAY.private,
   },
 ] as const;
 
@@ -167,26 +162,35 @@ export default async function FacilitiesPage() {
                 <p className="public-image__caption">{CHAPEL_SAMPLE_NOTE}</p>
               </div>
               <h3 className="story-room__name">{room.name}</h3>
-              <p className="story-room__rate">
-                {php(room.perDay)} <span className="story-room__unit">per day</span>
-              </p>
               <p className="story-room__suits">
                 {room.suitedTo} · shared with {room.sharedWith.toLowerCase()}
               </p>
-              {/* One next step per room: ask the office. The number is the
-                  staff-editable 24/7 line — never typed into this page. */}
-              <a className="btn btn--primary story-room__action" href={contact.phoneHref}>
-                <span className="visually-hidden">Ask about the {room.name}: </span>
-                Call {contact.phoneDisplay} — ask about dates
-              </a>
+              {/* One next step per room: ask the office for dates and a quote.
+                  The 24/7 number is the staff-editable landing content — never
+                  typed into this page. */}
+              <div className="story-actions">
+                <Link
+                  className="btn btn--accent btn--sm"
+                  href={buildQuoteHref({
+                    item: `Chapel use — ${room.name}`,
+                    sku: CHAPEL_SKUS[room.key],
+                    note: "Chapel use when the service is not with Villa.",
+                  })}
+                >
+                  <span className="visually-hidden">Ask about the {room.name}: </span>
+                  Request a quote
+                </Link>
+                <a className="btn btn--secondary btn--sm" href={contact.phoneHref}>
+                  <span className="visually-hidden">Ask about the {room.name}: </span>
+                  Call {contact.phoneDisplay}
+                </a>
+              </div>
             </article>
           ))}
         </div>
 
         <ul className="story-areas" aria-label="Chapel conditions">
           <li className="story-area">{CHAPEL_NOTES.scope}</li>
-          <li className="story-area">{CHAPEL_NOTES.miscFee}</li>
-          <li className="story-area">{CHAPEL_NOTES.privateChapelOnly}</li>
         </ul>
 
         <p className="fac-placeholder">
@@ -263,7 +267,7 @@ export default async function FacilitiesPage() {
         text="Any hour, any day — the park holds the dates."
         secondary={
           <Link className="btn btn--secondary" href="/services#chapel">
-            Chapel dates &amp; booking
+            Chapel dates &amp; quotes
           </Link>
         }
       />

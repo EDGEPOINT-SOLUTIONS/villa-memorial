@@ -97,7 +97,11 @@ const PAGES: ReadonlyArray<PageCase> = [
     render: async () =>
       renderToStaticMarkup(await ContactPage({ searchParams: Promise.resolve({}) })),
   },
-  { name: "/quote", render: async () => renderToStaticMarkup(QuotePage()) },
+  {
+    name: "/quote",
+    render: async () =>
+      renderToStaticMarkup(await QuotePage({ searchParams: Promise.resolve({}) })),
+  },
   { name: "/appointments", render: async () => renderToStaticMarkup(AppointmentsPage()) },
   {
     name: "/immediate-assistance",

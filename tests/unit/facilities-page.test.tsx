@@ -57,11 +57,6 @@ async function renderServices(): Promise<string> {
   return renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage()));
 }
 
-/** The per-day amounts a page prints, in document order. */
-function perDayAmounts(html: string, block: RegExp): string[] {
-  return [...html.matchAll(block)].map((m) => (/₱[\d,]+/.exec(m[1]) ?? [""])[0]);
-}
-
 describe("/facilities shows the rooms a family is choosing between", () => {
   it("renders one card per chapel class with the client's sample photograph", async () => {
     const html = await renderFacilities();
@@ -79,32 +74,32 @@ describe("/facilities shows the rooms a family is choosing between", () => {
     expect((html.match(/alt="(The chapel hall in the client|A decorated private viewing room in the client)/g) ?? []).length).toBe(2);
   });
 
-  it("publishes the sheet's per-day rate for each room, with its unit", async () => {
+  it("publishes no per-day rate — each room requests a quote instead", async () => {
     const html = await renderFacilities();
 
-    expect(html).toContain(php(CHAPEL_RATES[0].common.ratePerDay));
-    expect(html).toContain(php(CHAPEL_RATES[0].private.ratePerDay));
-    expect((html.match(/class="story-room__unit">per day</g) ?? []).length).toBe(2);
+    expect(html).not.toContain(php(CHAPEL_RATES[0].common.ratePerDay));
+    expect(html).not.toContain(php(CHAPEL_RATES[0].private.ratePerDay));
+    expect(html).not.toContain('class="story-room__rate"');
+    expect(html).not.toMatch(/₱/);
   });
 
-  it("reads the same figures /services publishes — the two pages cannot drift", async () => {
+  it("keeps /services and /facilities consistent: neither publishes a service rate", async () => {
     const [facilities, services] = await Promise.all([renderFacilities(), renderServices()]);
 
-    const onFacilities = perDayAmounts(facilities, /class="story-room__rate">([\s\S]*?)<\/p>/g);
-    const onServices = perDayAmounts(services, /class="story-chapel__rate">([\s\S]*?)<\/p>/g);
-
-    expect(onFacilities).toHaveLength(2);
-    expect(onFacilities).toEqual(onServices);
-    // …and /services links here for the rooms, so the pair stays one story.
+    expect(facilities).not.toMatch(/₱/);
+    expect(services).not.toMatch(/₱/);
+    // …and /services still links here for the rooms, so the pair stays one story.
     expect(services).toContain('href="/facilities#rooms"');
   });
 
-  it("gives every room the one next step: ask the office", async () => {
+  it("gives every room the same next step: ask the office for dates and a quote", async () => {
     const { contact } = await listLandingContent();
     const html = await renderFacilities();
 
-    expect((html.match(/class="btn btn--primary story-room__action"/g) ?? []).length).toBe(2);
-    // Two identical-visible call buttons would be ambiguous to a screen reader:
+    // One Request-for-Quote action and one call per room.
+    expect((html.match(/Request a quote/g) ?? []).length).toBe(2);
+    expect(html).toContain('href="/quote?');
+    // Two identical-visible actions would be ambiguous to a screen reader:
     // the visually hidden span names the room first.
     expect(html).toContain("Ask about the Common chapel:");
     expect(html).toContain("Ask about the Private chapel:");
@@ -112,16 +107,13 @@ describe("/facilities shows the rooms a family is choosing between", () => {
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("keeps the sheet's own conditions as facts, not prose", async () => {
+  it("keeps the sheet's scope line as a fact, and publishes no fee figure", async () => {
     const html = await renderFacilities();
 
-    for (const note of [
-      CHAPEL_NOTES.scope,
-      CHAPEL_NOTES.miscFee,
-      CHAPEL_NOTES.privateChapelOnly,
-    ]) {
-      expect(html).toContain(`class="story-area">${note}</li>`);
-    }
+    expect(html).toContain(`class="story-area">${CHAPEL_NOTES.scope}</li>`);
+    expect(html).not.toContain(CHAPEL_NOTES.miscFee);
+    expect(html).not.toContain(CHAPEL_NOTES.privateChapelOnly);
+    expect(html).not.toMatch(/₱/);
   });
 });
 
