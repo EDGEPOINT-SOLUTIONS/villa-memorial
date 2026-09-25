@@ -199,10 +199,14 @@
   --text-sm: 0.875rem;   /* 14px — dense UI, caption, helper text */
   --text-md: 1rem;       /* 16px — body & UI base, tables, buttons, forms */
   --text-lg: 1.125rem;   /* 18px — reading body, leads, family portal scale */
-  --text-xl: 1.375rem;   /* 22px — card / section heading */
-  --text-2xl: 1.75rem;   /* 28px — page heading, stat figure */
+  --text-xl: 1.375rem;   /* 22px — card / section heading, totals & stat figures */
+  --text-2xl: 1.75rem;   /* 28px — page heading */
   --text-3xl: 2.25rem;   /* 36px — display heading */
-  --text-display: clamp(2.25rem, 2rem + 1.6vw, 3.25rem); /* 36→52px, public hero only */
+  /* The public hero is the one fluid display size, and it tops out at 40px —
+     the old 52px clamp read fake (captain, 2026-09-25: "nothing above ~40px on
+     any public page"). The home scopes its hero down to 36px (.anchored-page);
+     interior public pages paint at most this 40px ceiling. */
+  --text-display: clamp(2.25rem, 2rem + 1.6vw, 2.5rem); /* 36→40px, public hero only */
 
   /* Role → step map (consistency pass, 2026-09-22). ONE step per role, and no
      role uses two steps across surfaces — the drift the captain reported was
