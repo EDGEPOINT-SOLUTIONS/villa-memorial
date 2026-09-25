@@ -33,6 +33,13 @@ export type RequestPrefill = {
 /** The route that captures requests (it stores the enquiry for the staff board). */
 export const REQUEST_PATH = "/contact";
 
+/**
+ * The route that captures Request-for-Quote enquiries (the funeral-service
+ * surfaces send visitors here). Same prefill grammar as a storefront request,
+ * but no published amount: a service price is quoted, never shown.
+ */
+export const QUOTE_PATH = "/quote";
+
 const MAX_ITEM = 140;
 const MAX_SKU = 60;
 const MAX_PRICE = 60;
@@ -60,6 +67,16 @@ export function buildRequestHref(
   if (prefill.price) query.set("price", clamp(prefill.price, MAX_PRICE));
   if (prefill.note) query.set("note", clamp(prefill.note, MAX_NOTE));
   return `${base}?${query.toString()}`;
+}
+
+/**
+ * Build the Request-for-Quote URL for a funeral-service line. It carries WHAT
+ * the visitor asked about (the service, and its catalogue SKU when one exists)
+ * so the quote form opens on that service — never a price, because the office
+ * quotes the service.
+ */
+export function buildQuoteHref(prefill: Omit<RequestPrefill, "price">): string {
+  return buildRequestHref({ item: prefill.item, sku: prefill.sku, note: prefill.note }, QUOTE_PATH);
 }
 
 type SearchParamsLike =

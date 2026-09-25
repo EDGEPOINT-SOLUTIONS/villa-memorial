@@ -16,8 +16,8 @@
 | Route | What it serves |
 |---|---|
 | `/` | ✅ content-model home (editable LandingPage document; live park map in the middle column) |
-| `/services`, `/services/death-at-home`, `/services/death-at-hospital`, `/transport` | ✅ client's 2026 a-la-carte/embalming/chapel sheets; chapel lines open the booking dialog |
-| `/facilities` | ✅ the park's rooms (chapel classes + the sheet's per-day rates) and the masterplan's grounds list; no room name/capacity/count (an open client question, said on the page) |
+| `/services`, `/services/death-at-home`, `/services/death-at-hospital`, `/transport` | ✅ Request-for-Quote service list (captain's minutes 2026-09-21, item 5): no displayed price; the five a-la-carte fees, the embalming day counts and the chapel classes each carry ONE quote action to `/quote` |
+| `/facilities` | ✅ the park's rooms (chapel classes with sample photographs + a quote action, no displayed rate) and the masterplan's grounds list; no room name/capacity/count (an open client question, said on the page) |
 | `/products`, `/products/[sku]` | ✅ 24 casket models from the 2026 sheet; sample imagery labelled illustrative. The detail page renders the item entry's editable rich description, gallery viewer + thumbnail rail and specs table (durable `content-entries` store; no gallery falls back to the rule-derived sample figure) |
 | `/plans`, `/plans/[sku]`, `/plans/compare`, `/plans/senior-benefits`, `/plans/villa-memorial-plan`, `/packages` | ✅ plan tables + catalogue read the pricing/catalog stores |
 | `/lots`, `/lots/[id]`, `/lots/price-list-2026` | ✅ lot browse/filter, detail, 2026 lot families |
@@ -25,7 +25,7 @@
 | `/gallery` | ✅ grouped client photography (gate · pavilion & grounds · chapels/viewing/carriage) + the ONE entry to `/map` and the full-screen 3D walk-through; sheet samples labelled illustrative |
 | `/cart`, `/checkout`, `/orders/[number]` | ✅ cart and real order creation on the frozen commerce contract |
 | `/builder` | ✅ Smart Service Builder (F-05): an ESTIMATE over the client's published 2026 figures (casket/senior columns · a-la-carte · embalming · chapel schedule · the pricing store's plan tables); the plan amount is kept out of the one-time total; the office confirms |
-| `/quote`, `/appointments` | ⚠ real capture, nothing sent/stored server-side (no quotation/scheduling write contract); confirmation says so |
+| `/quote`, `/appointments` | `/quote` ✅ records name · contact details · requested service · preferred date · additional requirements in the browser-local demo inquiry store (no quotation service exists; the confirmation says nothing was sent); `/appointments` ⚠ real capture, nothing sent (no scheduling write contract), confirmation says so |
 | `/contact` | ✅ request landing; captures to the browser-local demo store the staff inquiries board reads (no CRM service) |
 | `/faq` | ✅ static content |
 | `/immediate-assistance` | ✅ the call-first screen (F-01): the 24/7 `tel:` action first, four numbered steps, then the secondary paths; the number is read from the landing content document |

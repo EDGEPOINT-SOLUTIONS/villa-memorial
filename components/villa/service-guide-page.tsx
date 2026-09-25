@@ -4,7 +4,6 @@ import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl, publicMediaUrl } from "@/lib/media-url";
 import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
 import { StoryHelpBand, StorySteps } from "@/components/villa/story-ui";
-import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getServiceEntry } from "@/lib/api-client/content-entries";
 import { serviceEntryDef, serviceEntryView, serviceHeroVariant } from "@/lib/service-content";
@@ -28,17 +27,18 @@ export async function ServiceGuidePage({ entryKey }: { entryKey: string }) {
   const def = serviceEntryDef(entryKey);
   if (!def) notFound();
 
-  const [entry, items, content] = await Promise.all([
+  const [entry, content] = await Promise.all([
     getServiceEntry(def.key).catch(() => null),
-    listCatalogItems().catch(() => []),
     listLandingContent(),
   ]);
   const view = serviceEntryView(entry, def);
   const hero = serviceHeroVariant(view.heroSrc, "wide");
   const mediaBase = mediaPublicBaseUrl();
   const { contact } = content;
-  const priceBySku = new Map(items.map((item) => [item.sku, item.display_price]));
-  const priceOf = (sku: string): string | null => priceBySku.get(sku) ?? null;
+  // A service guide publishes no price (Request-for-Quote, captain 2026-09-21):
+  // a staff-authored price block resolves to no amount, so the page never
+  // becomes a price list.
+  const priceOf = (): string | null => null;
 
   const heroPhoto = hero
     ? {

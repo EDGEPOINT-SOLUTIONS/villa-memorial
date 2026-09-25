@@ -10,6 +10,7 @@ import {
 import {
   captureDemoInquiry,
   contactInquiryInput,
+  quoteInquiryInput,
   readDemoInquiries,
 } from "@/lib/demo-inquiry-captures";
 
@@ -56,25 +57,32 @@ describe("quote submit gate", () => {
     full_name: "Paolo Mendoza",
     email: "paolo@example.com",
     phone: "+63 918 220 7714",
-    interest: QUOTE_INTERESTS[0],
+    service: "Embalming — 3 days",
+    preferred_date: "",
     notes: "",
     consent: true,
   };
 
-  it("passes a complete request with empty notes", () => {
+  it("passes a complete request with empty notes and no preferred date", () => {
     expect(validateQuote(valid)).toEqual({});
   });
 
-  it("requires name, email and consent — phone and notes stay optional", () => {
+  it("requires the name, email, requested service and consent", () => {
     const errors = validateQuote({
       full_name: "",
       email: "",
       phone: "",
-      interest: QUOTE_INTERESTS[0],
+      service: "",
+      preferred_date: "",
       notes: "",
       consent: false,
     });
-    expect(Object.keys(errors).sort()).toEqual(["consent", "email", "full_name"]);
+    expect(Object.keys(errors).sort()).toEqual(["consent", "email", "full_name", "service"]);
+  });
+
+  it("accepts an empty preferred date but rejects a malformed one", () => {
+    expect(validateQuote({ ...valid, preferred_date: "" })).toEqual({});
+    expect(validateQuote({ ...valid, preferred_date: "next Tuesday" }).preferred_date).toBeTruthy();
   });
 });
 
@@ -113,6 +121,42 @@ describe("appointment submit gate", () => {
 
   it("rejects a malformed preferred date", () => {
     expect(validateAppointment({ ...valid, preferred_date: "next Tuesday" }).preferred_date).toBeTruthy();
+  });
+});
+
+describe("a quote capture records every field the client asked for", () => {
+  it("records the name, contact details, requested service, date and requirements", () => {
+    const input = quoteInquiryInput({
+      full_name: "  Maria Dela Cruz ",
+      email: " maria@example.com ",
+      phone: " +63 917 000 0000 ",
+      service: " Embalming — 5 days ",
+      preferred_date: "2026-10-04",
+      notes: "Wants the viewing to start in the afternoon.",
+      consent: true,
+    });
+    expect(input.source).toBe("website");
+    expect(input.full_name).toBe("Maria Dela Cruz");
+    expect(input.email).toBe("maria@example.com");
+    expect(input.phone).toBe("+63 917 000 0000");
+    expect(input.topic).toBe("Embalming — 5 days");
+    expect(input.message).toContain("Quote request for: Embalming — 5 days");
+    expect(input.message).toContain("Preferred date: 2026-10-04");
+    expect(input.message).toContain("Wants the viewing to start in the afternoon.");
+  });
+
+  it("drops the preferred-date line when the visitor leaves it empty", () => {
+    const input = quoteInquiryInput({
+      full_name: "A",
+      email: "a@b.co",
+      phone: "",
+      service: "Retrieval",
+      preferred_date: "",
+      notes: "",
+      consent: true,
+    });
+    expect(input.message).not.toContain("Preferred date:");
+    expect(input.message).not.toContain("Additional requirements:");
   });
 });
 

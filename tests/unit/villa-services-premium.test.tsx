@@ -92,7 +92,7 @@ function escapeRe(value: string): string {
  * chapel add) — against the approved DOM: .sv-section blocks, .sv-price-card
  * cards, .sv-chapel cards, .sv-stay rows and the sticky .sv-subnav anchors.
  */
-describe("/services reads as the approved senior-first service page", () => {
+describe("/services is a Request-for-Quote page, not a price list", () => {
   let html: string;
   const chapelName: Partial<Record<ChapelClass, string>> = {};
 
@@ -103,29 +103,30 @@ describe("/services reads as the approved senior-first service page", () => {
     }
   });
 
-  it("groups the 2026 rates into the three priced sections", () => {
+  it("groups the services into the three quote sections", () => {
     expect(html).toContain('id="services-rates-title"');
-    expect(html).toContain("Services and prices");
+    expect(html).toContain("Services we provide");
     expect(html).toContain('id="embalming-title"');
-    expect(html).toContain("Embalming — priced by the day");
+    expect(html).toContain("Embalming — quoted by the day");
     expect(html).toContain('id="chapel-title"');
-    expect(html).toContain("Chapel — check the dates and book online");
+    expect(html).toContain("Chapel — ask us for dates and a quote");
     // Each block is a .story-band (the story-lane section grammar).
     expect((html.match(/class="story-band"/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 
-  it("renders one icon card per at-need service with both actions", () => {
+  it("renders one icon card per at-need service, each requesting a quote", () => {
     expect((html.match(/class="story-rate__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
       ALACARTE_LINES.length,
     );
     for (const line of ALACARTE_LINES) {
       expect(html, line.service).toContain(line.service);
-      expect(html, `${line.service} amount`).toContain(php(line.amount));
+      // Request-for-Quote retired every amount (captain 2026-09-21 item 5).
+      expect(html, `${line.service} amount`).not.toContain(php(line.amount));
     }
-    // The sheet's own bottom line stays published in its own band.
-    expect(html).toContain('class="story-total"');
-    expect(html).toContain(php(19500));
-    expect(html).toContain("send the whole set as one request");
+    expect(html).not.toContain('class="story-total"');
+    expect(html).not.toContain(php(19500));
+    expect(html).not.toContain("send the whole set as one request");
+    expect(html).toContain("Request a quote for all five");
   });
 
   it("gives the common and private chapel their own sample photograph", () => {
@@ -158,34 +159,20 @@ describe("/services reads as the approved senior-first service page", () => {
     expect(html).not.toContain("/services/death-at-hospital");
   });
 
-  it("keeps the chapel cards' per-day rate and 3-day columns", () => {
-    // Each card keeps the sheet's per-day rate and its 3-day regular/senior
-    // example; the full 3–9 day "See every stay" schedule left the section
-    // (captain 2026-09-21).
-    expect(html).toContain("3 days — regular");
-    expect(html).toContain("3 days — senior citizen");
-    const threeDay = CHAPEL_RATES[0];
-    expect(html).toContain(php(threeDay.common.regular));
-    expect(html).toContain(php(threeDay.common.senior));
-    expect(html).toContain(php(threeDay.private.regular));
-    expect(html).toContain(php(threeDay.private.senior));
-    // The removed schedule and its senior-rate footnote are gone.
-    expect(html).not.toContain('id="chapel-stays"');
-    expect(html).not.toContain("See every stay");
-  });
-
-  it("opens the chapel booking step instead of a straight add (main's booking intent)", () => {
-    // A chapel is never a one-click cart item: each card's "Check dates & price"
-    // opens the booking dialog, whose accessible name carries the chapel's OWN
-    // name (its staff-editable record) the dialog reads.
-    expect((html.match(/Check dates &amp; price/g) ?? []).length).toBe(2);
-    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(2);
-    // No plain chapel add-to-cart survived the senior-first redesign.
-    expect(html).not.toContain('aria-label="Add to cart: Chapel use — common chapel, per day"');
-    expect(html).not.toContain('aria-label="Add to cart: Chapel use — private chapel, per day"');
+  it("removes the chapel rates and the booking step from the page", () => {
+    // Request-for-Quote (captain 2026-09-21 item 5): the per-day rate, the 3-day
+    // regular/senior examples and the booking dialog's figures all left the page.
+    expect(html).not.toContain(php(CHAPEL_RATES[0].common.ratePerDay));
+    expect(html).not.toContain(php(CHAPEL_RATES[0].private.ratePerDay));
+    expect(html).not.toContain("3 days — regular");
+    expect(html).not.toContain("3 days — senior citizen");
+    expect(html).not.toContain("Check dates &amp; price");
+    expect(html).not.toContain('aria-haspopup="dialog"');
+    expect(html).not.toContain("Add to cart");
     // The card reads the park's own chapel record for its name and capacity.
     expect(html).toContain(chapelName.common);
     expect(html).toContain(chapelName.private);
+    expect(html).toContain("Request a quote");
   });
 
   it("leads with one hero and a call bar — no subnav or steps (captain 2026-09-21)", () => {
@@ -194,7 +181,8 @@ describe("/services reads as the approved senior-first service page", () => {
     expect(html).not.toContain('class="sv-subnav"');
     expect(html).not.toContain('id="first-steps"');
     expect(html).toContain('class="public-hero__actions"');
-    expect(html).toContain('href="#services"');
+    // The hero's supporting action opens the quote form.
+    expect(html).toContain('href="/quote?');
     // The 24/7 call stays one thumb away — the client's own line (2026 purchase
     // application form), read from the seeded content document, and it is the
     // hero's one page-commitment rung.
@@ -202,14 +190,15 @@ describe("/services reads as the approved senior-first service page", () => {
     expect(html).toMatch(/href="tel:\+639176178489"/);
   });
 
-  it("prices embalming through the day picker and the full day rows", () => {
+  it("keeps the embalming day picker and the full day ladder, without amounts", () => {
     expect(html).toContain("How many days will the viewing be open?");
     expect(html).toContain('class="sv-days"');
     for (const r of EMBALMING_RATES) {
       expect(html, `day button ${r.days}`).toContain(`>${r.days}</button>`);
       expect(html, `day row ${r.days}`).toContain(`${r.days} days`);
+      expect(html, `day amount ${r.days}`).not.toContain(php(r.amount));
     }
-    // The full sheet stays published behind the disclosure, one row per stay.
+    // The full ladder stays published behind the disclosure, one row per stay.
     expect(html).toContain('class="sv-stay"');
     expect(html).toMatch(/More than 9/);
   });

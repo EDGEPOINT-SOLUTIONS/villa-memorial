@@ -8,11 +8,10 @@ import { StoryHelpBand } from "@/components/villa/story-ui";
 import { PublicHero } from "@/components/kit";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
-import { ErrorState } from "@/components/ui/states";
-import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
+import { buildQuoteHref } from "@/lib/public-forms/request-prefill";
 import {
   isServiceCopyBlockId,
   servicePageContentFromDocument,
@@ -22,12 +21,12 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Funeraria Memorial Services — Villa Memorial",
   description:
-    "At-need funeral care day or night: 2026 a-la-carte service rates, embalming by the day and chapel bookings at Villa Memorial Park.",
+    "At-need funeral care day or night — a-la-carte services, embalming by the day and chapel bookings at Villa Memorial Park, each quoted for your family.",
   path: "/services",
 });
 
-// Reads the content document, the catalogue and the chapel record per request —
-// a staff edit must be what the NEXT visitor sees, never a build-time snapshot.
+// Reads the content document and the chapel record per request — a staff edit
+// must be what the NEXT visitor sees, never a build-time snapshot.
 export const dynamic = "force-dynamic";
 
 /**
@@ -35,43 +34,28 @@ export const dynamic = "force-dynamic";
  *
  * ONE HERO, THEN STRAIGHT TO THE SERVICES. The hero (eyebrow, headline, lead,
  * photograph) is editable in Pages & content, and its one primary action is the
- * client's 24/7 line — read from the landing content document, never typed. The
- * pre-migration steps section and sticky subnav are gone; the page leads into
- * the priced services immediately.
+ * client's 24/7 line — read from the landing content document, never typed.
+ *
+ * REQUEST-FOR-QUOTE (captain's minutes, 2026-09-21, item 5): the page no longer
+ * publishes a price. Every service line offers ONE "Request a quote" action,
+ * which opens the public quote form prefilled with the service the visitor
+ * asked about (components/villa/service-rates-2026.tsx · lib/public-forms/
+ * request-prefill.ts). The office prepares a customised quotation. No amount
+ * and no cart action lives on this page: plan and lot pricing are separate lanes.
  *
  * CONTENT HOMES:
  *  · the page document (Pages & content → Funeraria Memorial Services) holds the
  *    hero and the service descriptions (`lib/service-content.ts` is the ONE typed
  *    reading: the five a-la-carte notes and the two chapel-class copy lines);
  *  · the chapel NAMES and capacity are the park's own staff-editable record
- *    (`getChapelSchedule()`), so a rename on /staff/schedule reaches this card and
- *    the booking dialog together.
- *
- * TRIMMED (captain, 2026-09-21): the "Guides for what comes next" section and
- * the "Where these figures come from" provenance block left the page. The three
- * guide pages themselves remain at their routes (service entries, edited in
- * Pages & content); they are simply no longer linked from here.
- *
- * MONEY: every figure comes through `lib/villa-pricing.ts` / `lib/catalogue-skus.ts`
- * in the shared rate components. No amount is authored here or in the document.
+ *    (`getChapelSchedule()`), so a rename on /staff/schedule reaches this card.
  */
 export default async function ServicesPage() {
-  const [items, content, page, schedule] = await Promise.all([
-    listCatalogItems().catch(() => null),
+  const [content, page, schedule] = await Promise.all([
     listLandingContent(),
     getPageDocument("services").catch(() => null),
     getChapelSchedule().catch(() => null),
   ]);
-  if (!items) {
-    return (
-      <div className="stack-4">
-        <h1>Funeraria Memorial Services</h1>
-        <ErrorState
-          message={`The service catalogue is unavailable right now, so the 2026 rates cannot be ordered online. Please try again shortly or call ${content.contact.phoneDisplay}.`}
-        />
-      </div>
-    );
-  }
   const { contact } = content;
   const serviceContent = servicePageContentFromDocument(page);
 
@@ -89,11 +73,11 @@ export default async function ServicesPage() {
     height: 640,
   };
 
-  // The service descriptions are consumed by the rate cards above; any other
-  // block staff add still renders through the shared block renderer.
+  // The service descriptions are consumed by the rate cards below; any other
+  // block staff add still renders through the shared block renderer. Service
+  // pages publish no price, so a staff-authored price block resolves to no
+  // amount (the honest "ask the office" fallback in ContentBlocks).
   const otherBlocks = (page?.blocks ?? []).filter((block) => !isServiceCopyBlockId(block.id));
-  const priceBySku = new Map(items.map((item) => [item.sku, item.display_price]));
-  const priceOf = (sku: string): string | null => priceBySku.get(sku) ?? null;
 
   return (
     <div className="sv-page">
@@ -115,7 +99,7 @@ export default async function ServicesPage() {
           lead={page?.hero.lead.trim() || undefined}
           textColour={page?.hero.textColour ?? null}
           primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
-          secondary={{ label: "See the 2026 prices", href: "#services" }}
+          secondary={{ label: "Request a quote", href: buildQuoteHref({ item: "Funeral services" }) }}
           image={heroPhoto}
         >
           {/* The hero photograph is one of the client's own wake set-ups and is
@@ -125,9 +109,8 @@ export default async function ServicesPage() {
         </PublicHero>
 
         {/* Straight to the services: the a-la-carte lines, embalming per day and
-            the chapel options, with their descriptions and prices. */}
+            the chapel options, each carrying a Request-for-Quote action. */}
         <ServiceRates2026
-          items={items}
           contact={contact}
           alacarteNotes={serviceContent.alacarteNotes}
           chapelNotes={serviceContent.chapelNotes}
@@ -139,7 +122,7 @@ export default async function ServicesPage() {
             <h2 id="services-more-title">More about the service</h2>
             <ContentBlocks
               blocks={otherBlocks}
-              priceOf={priceOf}
+              priceOf={() => null}
               mediaBaseUrl={mediaPublicBaseUrl()}
             />
           </section>
@@ -147,7 +130,7 @@ export default async function ServicesPage() {
 
         <StoryHelpBand
           contact={contact}
-          text="Price questions, chapel dates or the whole arrangement — by phone."
+          text="Questions about a service, chapel dates or the whole arrangement — by phone."
           secondary={
             <Link className="btn btn--secondary" href="/contact">
               Message us

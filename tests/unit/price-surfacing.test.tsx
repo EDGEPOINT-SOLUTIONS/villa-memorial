@@ -79,6 +79,23 @@ function requestLinksBySku(html: string): Map<string, URLSearchParams> {
   return bySku;
 }
 
+/** Every Request-for-Quote link on a page, decoded into its params. */
+function quoteLinks(html: string): URLSearchParams[] {
+  return [...html.matchAll(/href="\/quote\?([^"]+)"/g)].map(
+    (m) => new URLSearchParams(m[1].replace(/&amp;/g, "&")),
+  );
+}
+
+/** Quote links indexed by the catalogue SKU they carry. */
+function quoteLinksBySku(html: string): Map<string, URLSearchParams> {
+  const bySku = new Map<string, URLSearchParams>();
+  for (const params of quoteLinks(html)) {
+    const sku = params.get("sku");
+    if (sku && !bySku.has(sku)) bySku.set(sku, params);
+  }
+  return bySku;
+}
+
 /** Server pages that render cart buttons need the cart context wrapper. */
 async function renderWithCart(page: ReactNode): Promise<string> {
   return renderToStaticMarkup(createElement(CartProvider, null, page));
@@ -158,93 +175,82 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
   });
 });
 
-describe("/services publishes the 2026 service rates as sellable lines", () => {
+describe("/services offers a Request for Quote instead of a service price", () => {
   let html: string;
 
   beforeAll(async () => {
     html = await renderWithCart(await ServicesPage());
   });
 
-  it("renders the embalming day counts and the per-day rate beyond nine", () => {
-    expect(html).toContain("Embalming — priced by the day");
-    for (const r of EMBALMING_RATES) {
-      expect(html, `day ${r.days}`).toContain(php(r.amount));
-    }
-    expect(html).toMatch(/More than 9/);
-    expect(html).toContain("+₱1,500");
-    expect(requestLinksBySku(html).get(EMBALMING_EXTRA_DAY_SKU)?.get("price")).toContain(
-      "₱1,500 / day",
-    );
-  });
-
-  it("renders the five a-la-carte fees and the sheet's total", () => {
+  it("renders no price for any funeral service", () => {
+    // Request-for-Quote (captain's minutes 2026-09-21, item 5): the page is not
+    // a price list. The a-la-carte, embalming and chapel figures live with the
+    // office now.
     for (const f of ALACARTE_SERVICE_FEES) {
-      expect(html, f.service).toContain(f.service);
-      expect(html, `${f.service} amount`).toContain(php(f.amount));
+      expect(html, `${f.service} amount`).not.toContain(php(f.amount));
     }
-    expect(html).toContain(php(19500));
-    expect(html).toMatch(/If they will not get the package/);
-  });
-
-  it("keeps the chapel cards' rates and drops the full schedule with its notes", () => {
-    // The cards keep the sheet's per-day rate and the 3-day regular/senior
-    // example; the full 3–9 day schedule and the senior-rate/fee notes left the
-    // section (captain 2026-09-21).
+    expect(html).not.toContain(php(19500));
+    for (const r of EMBALMING_RATES) {
+      expect(html, `embalming day ${r.days}`).not.toContain(php(r.amount));
+    }
+    expect(html).not.toContain(php(1500));
     for (const chapelClass of ["common", "private"] as const) {
-      expect(html, `${chapelClass} per day`).toContain(
+      expect(html, `${chapelClass} per day`).not.toContain(
         php(CHAPEL_RATES[0][chapelClass].ratePerDay),
       );
-      const threeDay = CHAPEL_RATES[0][chapelClass];
-      expect(html, `${chapelClass} 3-day regular`).toContain(php(threeDay.regular));
-      expect(html, `${chapelClass} 3-day senior`).toContain(php(threeDay.senior));
+      expect(html, `${chapelClass} 3-day regular`).not.toContain(
+        php(CHAPEL_RATES[0][chapelClass].regular),
+      );
+      expect(html, `${chapelClass} 3-day senior`).not.toContain(
+        php(CHAPEL_RATES[0][chapelClass].senior),
+      );
     }
-    // Both chapels are sellable requests, decoded from their contact links.
-    expect(
-      requestLinks(html).some((p) => p.get("item")?.startsWith("Chapel use")),
-    ).toBe(true);
-    expect(html).not.toContain('id="chapel-stays"');
-    expect(html).not.toContain("See every stay");
-    expect(html).not.toContain("Senior rate:");
+    // Nothing priced at all remains on the page.
+    expect(html).not.toMatch(/₱/);
+    expect(html).not.toContain("Add to cart");
+    expect(html).not.toContain("Request order");
   });
 
-  it("makes every service line actionable with its catalogue SKU and unit", () => {
-    const bySku = requestLinksBySku(html);
-    // Embalming per day: one catalogue entry per 3–9 day stay + the extra day.
-    for (const r of EMBALMING_RATES) {
-      const sku = embalmingDaySku(r.days);
-      expect(html, `embalming ${r.days} add`).toContain(`aria-label="Add ${r.days} days: Embalming — ${r.days} days"`);
-      expect(bySku.get(sku)?.get("price"), `embalming ${r.days} request`).toContain(php(r.amount));
-      expect(html).toContain(`${r.days} days`);
-    }
-    expect(html).toContain(`aria-label="Add to cart: Additional embalming day"`);
-    expect(bySku.get(EMBALMING_EXTRA_DAY_SKU)).toBeTruthy();
-    // The five a-la-carte fees.
+  it("keeps every service name and the day ladder", () => {
     for (const f of ALACARTE_SERVICE_FEES) {
-      const sku = ALACARTE_SKUS[f.service];
-      expect(html, `${f.service} add`).toContain(`aria-label="Add to cart: ${f.service}"`);
-      expect(bySku.get(sku)?.get("price"), `${f.service} request`).toContain(php(f.amount));
+      expect(html, f.service).toContain(f.service);
     }
-    expect(html).toContain("per service");
+    expect(html).toContain("Services we provide");
+    expect(html).toContain("Embalming — quoted by the day");
+    expect(html).toContain("Chapel — ask us for dates and a quote");
+    expect(html).toContain("How many days will the viewing be open?");
+    expect(html).toMatch(/More than 9/);
   });
 
-  it("opens the chapel booking step (never a straight add) and keeps the request path", () => {
-    // A chapel is not a one-click product: each card's “Check dates & price” is
-    // a dialog trigger. The full 3–9 day row schedule left the section (captain
-    // 2026-09-21), so the two cards are the booking entry points.
-    expect((html.match(/Check dates &amp; price/g) ?? []).length).toBe(2);
-    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBeGreaterThanOrEqual(2);
-    // None of them is the old straight Add-to-cart control.
-    expect(html).not.toContain('aria-label="Add to cart: Chapel use — common chapel, per day"');
-    expect(html).not.toContain('aria-label="Add to cart: Chapel use — private chapel, per day"');
-    expect(html).toContain("Request order");
-    // The two per-day products' card requests carry the sheet's own per-day rate.
-    const bySku = requestLinksBySku(html);
-    expect(bySku.get(CHAPEL_SKUS.common)?.get("price")).toContain(
-      php(CHAPEL_RATES[0].common.ratePerDay),
-    );
-    expect(bySku.get(CHAPEL_SKUS.private)?.get("price")).toContain(
-      php(CHAPEL_RATES[0].private.ratePerDay),
-    );
+  it("offers one Request-for-Quote action per line, day count and chapel", () => {
+    const bySku = quoteLinksBySku(html);
+    for (const f of ALACARTE_SERVICE_FEES) {
+      const link = bySku.get(ALACARTE_SKUS[f.service]);
+      expect(link, `${f.service} quote link`).toBeTruthy();
+      expect(link!.get("item")).toBe(f.service);
+    }
+    for (const r of EMBALMING_RATES) {
+      const link = bySku.get(embalmingDaySku(r.days));
+      expect(link, `embalming ${r.days} quote`).toBeTruthy();
+      expect(link!.get("item")).toContain(`${r.days} days`);
+    }
+    const extra = bySku.get(EMBALMING_EXTRA_DAY_SKU);
+    expect(extra).toBeTruthy();
+    expect(extra!.get("item")).toContain("beyond 9 days");
+    for (const chapelClass of ["common", "private"] as const) {
+      const link = bySku.get(CHAPEL_SKUS[chapelClass]);
+      expect(link, `${chapelClass} chapel quote`).toBeTruthy();
+      expect(link!.get("item")).toContain("Chapel use");
+    }
+    // The whole-set request exists, and no quote link carries a price.
+    expect(quoteLinks(html).some((p) => p.get("item") === "At-need services — all five")).toBe(true);
+    expect(quoteLinks(html).every((p) => p.get("price") === null)).toBe(true);
+  });
+
+  it("keeps the chapel cards' names, capacity and photos but no booking dialog", () => {
+    expect((html.match(/class="story-chapel"/g) ?? []).length).toBe(2);
+    expect(html).not.toContain("Check dates &amp; price");
+    expect(html).not.toContain('aria-haspopup="dialog"');
   });
 
   it("no longer lists the service guide cards on /services (captain 2026-09-21)", () => {

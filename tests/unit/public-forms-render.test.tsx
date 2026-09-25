@@ -69,15 +69,32 @@ describe("contact route renders the shared capture shell", () => {
 });
 
 describe("quote route renders the shared capture shell", () => {
-  it("carries every agreed field plus DPA consent and the interest list", () => {
-    const html = renderToStaticMarkup(QuotePage());
+  it("carries every agreed field plus DPA consent and the service suggestions", async () => {
+    const html = renderToStaticMarkup(await QuotePage({ searchParams: Promise.resolve({}) }));
     expectSharedShell(html, "Request quote");
-    for (const id of ["qr-name", "qr-email", "qr-phone", "qr-interest", "qr-notes", "qr-consent"]) {
+    for (const id of ["qr-name", "qr-email", "qr-phone", "qr-service", "qr-date", "qr-notes", "qr-consent"]) {
       expect(html).toContain(`id="${id}"`);
     }
-    expect(html).toContain("I’m interested in");
+    expect(html).toContain("Service you are asking about");
+    expect(html).toContain("Preferred date");
+    expect(html).toContain("Additional requirements");
+    // The interest list is offered as suggestions, not a fixed select.
     expect(html).toContain("Memorial lot");
     expect(html).toContain("Wake / funeral package");
+  });
+
+  it("prefills the requested service from a Request-for-Quote link", async () => {
+    const html = renderToStaticMarkup(
+      await QuotePage({
+        searchParams: Promise.resolve({
+          item: "Embalming — 5 days",
+          note: "A-la-carte service.",
+        }),
+      }),
+    );
+    expect(html).toContain('name="service"');
+    expect(html).toContain("Embalming — 5 days");
+    expect(html).toContain("A-la-carte service.");
   });
 });
 

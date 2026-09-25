@@ -15,7 +15,7 @@
  * Never hand this store to live-path reads: it is browser data, not records.
  */
 import type { Inquiry } from "@/lib/api-client/crm";
-import type { ContactValues } from "@/lib/public-forms/validation";
+import type { ContactValues, QuoteValues } from "@/lib/public-forms/validation";
 
 const STORAGE_KEY = "vm.demo.inquiries.v1";
 /** Keep the demo store bounded — it is a browser toy, not a ledger. */
@@ -112,6 +112,31 @@ export function contactInquiryInput(values: ContactValues): DemoInquiryInput {
     source: "website",
     topic: topic || "Website enquiry",
     message,
+    assigned_to: "Unassigned",
+  };
+}
+
+/**
+ * Map the Request-for-Quote form to the board's Inquiry row. A quote capture is
+ * the board's `topic` plus the four facts the client asked the form to record:
+ * the requested funeral service, the contact details, the preferred date (when
+ * one applies) and the additional requirements. The service is the topic so the
+ * board filters on what the family is asking about; the rest stays in `message`.
+ */
+export function quoteInquiryInput(values: QuoteValues): DemoInquiryInput {
+  const service = values.service.trim();
+  const preferred = values.preferred_date.trim();
+  const requirements = values.notes.trim();
+  const lines = [`Quote request for: ${service || "a funeral service"}`];
+  if (preferred) lines.push(`Preferred date: ${preferred}`);
+  if (requirements) lines.push("", "Additional requirements:", requirements);
+  return {
+    full_name: values.full_name.trim(),
+    email: values.email.trim(),
+    phone: values.phone.trim(),
+    source: "website",
+    topic: service || "Quote request",
+    message: lines.join("\n"),
     assigned_to: "Unassigned",
   };
 }
