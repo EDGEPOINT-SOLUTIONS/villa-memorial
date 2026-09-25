@@ -20,10 +20,10 @@ export default function Page() {
   return (
     <div className="plan-flow--reading stack-4">
       <div className="page-header">
-        <div>
+        <div className="page-header__text">
           <p className="page-header__eyebrow">Reach us</p>
           <h1>Book an appointment</h1>
-          <p className="text-sm text-muted">
+          <p className="page-header__lead">
             Sit down with a coordinator at the park office — at a time that suits
             your family.
           </p>

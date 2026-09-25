@@ -88,6 +88,7 @@ export default async function PropertyPage({
       <PageHeader
         eyebrow="Operations"
         title="Property map"
+        lead="The park map, its plots and each plot's recorded status."
         actions={
           <span className="text-sm text-muted">
             {lots.length} lots across {new Set(lots.map((l) => l.section)).size} sections

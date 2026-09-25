@@ -48,6 +48,7 @@ export default async function CustomersPage({
       <PageHeader
         eyebrow="Relationships"
         title="Customers"
+        lead="The families and customers the office serves."
         actions={
           <>
             <Link href="/staff/customers/new" className="btn btn--primary btn--sm">

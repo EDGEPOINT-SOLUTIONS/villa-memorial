@@ -105,11 +105,11 @@ export default async function SettingsPage() {
       <PageHeader
         eyebrow="Administration"
         title="Tenant settings"
+        lead="How this park is configured, and what only the platform can change."
         actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 
       <PageSection>
-        <p className="text-md">How this park is configured, and what only the platform can change.</p>
         <Alert tone="warning">
           <p>
             <strong>{SETTINGS_NOT_WIRED_TITLE}.</strong>

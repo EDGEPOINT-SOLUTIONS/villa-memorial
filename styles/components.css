@@ -20297,17 +20297,10 @@ a.plan-advisor__phone:hover {
  * Vehicle dispatch · Work orders · Notifications — the three designed
  * Operations screens (captain, 2026-09-19: three admin pages were twelve-line
  * stubs). One small block, tokens only:
- *   .ops-lead        the one-sentence answer under the page header
  *   .ops-filters     the filter bar above a board's table (fields + Show)
  *   .ops-list        the labelled-row list (the service-needs card)
  *   .dispatch-route  a trip's origin → destination, wrapping instead of crushing
  * ========================================================================= */
-.ops-lead {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-}
-
 .ops-filters {
   display: flex;
   flex-wrap: wrap;
@@ -20589,7 +20582,10 @@ a.plan-advisor__phone:hover {
 .public-hero__title {
   margin: var(--space-1) 0 0;
   font-family: var(--font-serif);
-  font-size: var(--text-hero);
+  /* An interior opening is a PAGE title, not the home's display hero: the shared
+     page-title step, the same role the Admin Portal and both portals use (the
+     captain's "no oversizing"). */
+  font-size: var(--text-page-title);
   line-height: 1.12;
   color: var(--hero-text-colour, var(--color-text-primary));
 }
@@ -21727,5 +21723,81 @@ a.plan-advisor__phone:hover {
 @media (max-width: 40rem) {
   .location-map {
     padding: var(--space-3);
+  }
+}
+
+/* ============================================================================
+ * page opening band — ONE designed first band for every page (captain, 2026-09-25).
+ *
+ * The captain: "every page titles or 1st page section is so basic and whack …
+ * not a bare title on white." The home's opening panel (`.hero-home__copy`)
+ * proved the pattern; this block gives the SAME designed band to every other
+ * page opening in the product — the public interior pages, the Admin Portal and
+ * both signed-in portals — so the product opens on one grammar:
+ *
+ *     eyebrow · headline · one short lead · the page's action
+ *
+ * It reuses the three opening roots the surfaces already render (`.public-hero`,
+ * `.page-header`, `.ag-hero`), so no view re-derives a header and the class names
+ * the surface tests pin stay intact. A band is a white surface with ONE hairline,
+ * the product's 2px gold rule on top, and deliberate whitespace — type-led, never
+ * a boxed wall and never a bare title on the ground. Numbers are tokens;
+ * tests/unit/page-opening.test.ts pins the grammar.
+ * ========================================================================== */
+
+.public-hero,
+.page-header,
+.ag-hero {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+/* The ceremonial mark the home hero and the gallery band already carry — one
+   restrained gold rule, never a wash or a shadow. */
+.public-hero::before,
+.page-header::before,
+.ag-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--gold-hairline);
+}
+
+/* Admin Portal opening: the title column leads, the page's action sits at its
+   end on desktop and stacks under it on a phone. */
+.page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.page-header__text {
+  min-width: 0;
+}
+
+.page-header__lead {
+  margin: var(--space-3) 0 0;
+  max-width: 46rem;
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.page-header__actions {
+  justify-content: flex-end;
+  align-items: center;
+}
+
+@media (max-width: 48rem) {
+  .page-header {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
   }
 }

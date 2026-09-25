@@ -260,11 +260,11 @@ export default async function DispatchPage({
       <PageHeader
         eyebrow="Operations"
         title="Vehicle dispatch"
+        lead="The fleet, its drivers and the recorded day's trips."
         actions={<Badge tone="warning">Records only</Badge>}
       />
 
       <PageSection>
-        <p className="ops-lead">The fleet, its drivers and the recorded day&rsquo;s trips.</p>
         <div className="row row--wrap">
           <a className="btn btn--primary" href="#dispatch-board">
             Open the day board

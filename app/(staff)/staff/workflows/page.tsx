@@ -156,11 +156,11 @@ export default async function WorkflowsPage() {
       <PageHeader
         eyebrow="Administration"
         title="Workflows"
+        lead="The office's four processes, and where each recorded job stands."
         actions={<StatusChip tone="warning">Engine not built</StatusChip>}
       />
 
       <PageSection>
-        <p className="text-md">The office&rsquo;s four processes, and where each recorded job stands.</p>
         <Alert tone="warning">
           <p>
             <strong>The workflow engine is not built.</strong>

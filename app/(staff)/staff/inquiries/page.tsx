@@ -47,7 +47,11 @@ export default async function InquiriesPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Relationships" title="Inquiries" />
+      <PageHeader
+        eyebrow="Relationships"
+        title="Inquiries"
+        lead="Every enquiry the storefront and the office recorded."
+      />
 
       <div className="kpi-grid" style={{ marginBottom: "var(--space-5)" }}>
         <StatCard label="Inquiries" value={inquiries.length} sub="total received" />

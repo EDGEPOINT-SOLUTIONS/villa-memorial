@@ -93,7 +93,7 @@ export default async function PublicMapPage({
     return (
       <div className="stack-4">
         <div className="page-header">
-          <div>
+          <div className="page-header__text">
             <p className="page-header__eyebrow">Sanctuario Memorial Park</p>
             <h1>Villa Memorial Park</h1>
           </div>

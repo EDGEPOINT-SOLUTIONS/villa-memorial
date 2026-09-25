@@ -105,6 +105,7 @@ export default async function OpsPage() {
       <PageHeader
         eyebrow="Operations"
         title="Operations board"
+        lead="Every case, in the stage it has reached today."
         actions={
           <>
             <Link href="/staff/schedule" className="btn btn--secondary btn--sm">

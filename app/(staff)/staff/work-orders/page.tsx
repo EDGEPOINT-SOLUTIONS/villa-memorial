@@ -153,11 +153,11 @@ export default async function WorkOrdersPage({
       <PageHeader
         eyebrow="Operations"
         title="Work orders"
+        lead="Maintenance and repairs, by asset, state and due date."
         actions={<Badge tone="warning">Records only</Badge>}
       />
 
       <PageSection>
-        <p className="ops-lead">Maintenance and repairs, by asset, state and due date.</p>
         <div className="row row--wrap">
           <a className="btn btn--primary" href="#work-orders">
             See the recorded list

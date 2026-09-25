@@ -219,17 +219,17 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/staff/users (Users & roles)",
     render: async () => renderToStaticMarkup(await UsersPage()),
-    openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/staff/workflows",
     render: async () => renderToStaticMarkup(await WorkflowsPage()),
-    openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/staff/settings (Tenant settings)",
     render: async () => renderToStaticMarkup(await SettingsPage()),
-    openingLead: /<p class="text-md">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
   // The three designed Operations screens joined the same PR that built them: an
   // operations answer is read at a glance too (tables and lists lead; the one lead
@@ -238,18 +238,18 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/staff/dispatch (vehicle dispatch)",
     render: async () =>
       renderToStaticMarkup(await DispatchPage({ searchParams: Promise.resolve({}) })),
-    openingLead: /<p class="ops-lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/staff/work-orders",
     render: async () =>
       renderToStaticMarkup(await WorkOrdersPage({ searchParams: Promise.resolve({}) })),
-    openingLead: /<p class="ops-lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/staff/notifications",
     render: async () => renderToStaticMarkup(await NotificationsPage()),
-    openingLead: /<p class="ops-lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
 ];
 

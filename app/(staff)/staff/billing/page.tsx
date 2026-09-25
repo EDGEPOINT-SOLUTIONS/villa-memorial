@@ -104,6 +104,7 @@ export default async function BillingPage({
       <PageHeader
         eyebrow="Finance"
         title="Billing & collections"
+        lead="Invoices, what is still owed, and the payments recorded against them."
         actions={
           <>
             <span className="text-sm text-muted">

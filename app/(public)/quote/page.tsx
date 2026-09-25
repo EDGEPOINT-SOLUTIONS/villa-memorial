@@ -34,10 +34,10 @@ export default async function Page({
   return (
     <div className="plan-flow--reading stack-4">
       <div className="page-header">
-        <div>
+        <div className="page-header__text">
           <p className="page-header__eyebrow">Reach us</p>
           <h1>Request a quote</h1>
-          <p className="text-sm text-muted">
+          <p className="page-header__lead">
             Tell us what you need and the park office prepares a written
             quotation — services are quoted, not priced on a page.
           </p>

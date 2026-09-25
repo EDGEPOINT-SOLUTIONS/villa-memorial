@@ -72,6 +72,7 @@ export default async function AuditPage({
       <PageHeader
         eyebrow="Administration"
         title="Audit trail"
+        lead="The recorded, append-only trail of who changed what."
         actions={
           <span className="text-sm text-muted">
             {events.length} entries · append-only

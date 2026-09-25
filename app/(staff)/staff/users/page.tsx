@@ -124,11 +124,11 @@ export default async function UsersPage() {
       <PageHeader
         eyebrow="Administration"
         title="Users & roles"
+        lead="Who works here, what each role may do, and how invites work."
         actions={<StatusChip tone="warning">Read-only</StatusChip>}
       />
 
       <PageSection>
-        <p className="text-md">Who works here, what each role may do, and how invites work.</p>
         <Alert tone="warning">
           <p>
             <strong>User provisioning is not wired.</strong>

@@ -125,6 +125,7 @@ export default async function OrdersPage({
       <PageHeader
         eyebrow="Commerce"
         title="Orders"
+        lead="Every order placed through the store, newest first."
         actions={
           <span className="text-sm text-muted">
             {filtered.length === orders.length

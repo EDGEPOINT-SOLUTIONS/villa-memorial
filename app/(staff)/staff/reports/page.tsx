@@ -543,6 +543,7 @@ export default async function ReportsPage({
       <PageHeader
         eyebrow="Overview"
         title="Reports"
+        lead="Collections, lots, chapel and case activity over one window."
         actions={<Badge tone="neutral">Read-only</Badge>}
       />
 

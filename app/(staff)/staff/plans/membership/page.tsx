@@ -81,6 +81,7 @@ export default async function MembershipsPage() {
       <PageHeader
         eyebrow="Commerce · Villa Memorial Plan"
         title="Membership applications"
+        lead="The recorded folios of the plan's published terms."
         actions={
           <Link href="/staff/plans/membership/new" className="btn btn--primary btn--sm">
             <Plus size={15} aria-hidden="true" />

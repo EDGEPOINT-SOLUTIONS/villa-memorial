@@ -4,6 +4,7 @@ import { use, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { OrderResponse } from "@/lib/api-client/commerce";
 
@@ -47,10 +48,15 @@ export default function OrderStatusPage({
 
   return (
     <>
-      <p className="page-header__eyebrow">Order status</p>
-      <h1>
-        Order <code>{decodeURIComponent(number)}</code>
-      </h1>
+      <PageHeader
+        eyebrow="Order status"
+        title={
+          <>
+            Order <code>{decodeURIComponent(number)}</code>
+          </>
+        }
+        lead="What the store recorded for this order — its status, lines and total."
+      />
 
       <div className="page-section" style={{ maxWidth: "42rem" }}>
         {state === "loading" ? <Skeleton lines={5} /> : null}
