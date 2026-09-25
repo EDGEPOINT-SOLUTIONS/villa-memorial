@@ -196,7 +196,7 @@ export default async function ClientDashboardPage() {
         </PortalFigures>
       </Section>
 
-      <WhatThisShows extra={<div style={{ marginTop: "var(--space-4)" }}><Chain /></div>}>
+      <WhatThisShows extra={<div className="fv-gap__extra"><Chain /></div>}>
         The funeral times and the memorial aren’t connected yet. Call {FAMILY_HELP.phone} and we’ll tell
         you.
       </WhatThisShows>

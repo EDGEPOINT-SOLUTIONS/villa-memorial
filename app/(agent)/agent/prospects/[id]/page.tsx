@@ -190,7 +190,7 @@ export default async function AgentLeadPage({
                 </div>
               ))
             )}
-            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <div className="ag-actions">
               <Link className="btn btn--primary btn--sm" href="/agent/marketing">
                 Send something else
               </Link>

@@ -87,7 +87,7 @@ export default async function AgentApplicationsPage() {
                     <dd>{a.promised_by}</dd>
                   </dl>
                 ) : null}
-                <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+                <div className="ag-actions">
                   <button className="btn btn--primary btn--sm" type="button" disabled title="Application writes wait on the crm/property contracts">
                     {a.action}
                   </button>
@@ -105,7 +105,7 @@ export default async function AgentApplicationsPage() {
           contract. Amounts shown come from the 2026 sheet; the office confirms every one before a family
           pays.
         </p>
-        <button className="btn btn--primary ag-btn-xl" type="button" disabled title="Starting an application waits on the crm/property contracts" style={{ alignSelf: "flex-start" }}>
+        <button className="btn btn--primary ag-btn-xl ag-self-start" type="button" disabled title="Starting an application waits on the crm/property contracts">
           Start a new application
         </button>
       </AgentSection>

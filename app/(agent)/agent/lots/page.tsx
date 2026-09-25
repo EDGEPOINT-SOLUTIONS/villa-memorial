@@ -134,7 +134,7 @@ export default async function AgentLotsPage() {
           </div>
         )}
 
-        <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+        <div className="ag-actions">
           <Link className="btn btn--primary" href="/agent/marketing">
             Share the park map &amp; prices
           </Link>
@@ -148,7 +148,7 @@ export default async function AgentLotsPage() {
 
         <div className="ag-card">
           <div className="ag-card__body">
-            <p className="ag-note" style={{ margin: 0 }}>
+            <p className="ag-note">
               <strong>Two honest limits.</strong> (1) Whether an agent can hold a lot is an open captain /
               client question — this design offers “ask the office to hold”, and the office confirms. (2)
               Prices are the client&apos;s own 2026 sheet, read from the same editable price list the office

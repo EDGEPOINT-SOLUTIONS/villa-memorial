@@ -93,7 +93,7 @@ export function LeadCaptureForm() {
                 ? `${displayName} is already in your queue with this number — we kept the first record rather than making a second one.`
                 : `${displayName} is queued on this device as “${NEED_OPTIONS.find((o) => o.value === saved.need)?.label.toLowerCase()}”. They will appear in your pipeline when the CRM write contract lands — nothing is sent to the office yet.`}
             </p>
-            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+            <div className="ag-actions">
               <Link className="btn btn--primary btn--sm" href="/agent/prospects">
                 Back to the pipeline
               </Link>
@@ -156,7 +156,7 @@ export function LeadCaptureForm() {
           </div>
 
           <div className="ag-field">
-            <p className="ag-field__label" style={{ margin: 0 }}>
+            <p className="ag-field__label">
               2 · What do they need?
             </p>
             <div className="ag-choice-row">
@@ -176,7 +176,7 @@ export function LeadCaptureForm() {
           </div>
 
           <div className="ag-field">
-            <p className="ag-field__label" style={{ margin: 0 }}>
+            <p className="ag-field__label">
               3 · Where did they come from?
             </p>
             <div className="ag-choice-row">
@@ -220,11 +220,11 @@ export function LeadCaptureForm() {
             <span className="ag-photo__icon" aria-hidden="true">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M4 8h3l2-3h6l2 3h3v12H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" /></svg>
             </span>
-            <div style={{ flex: 1 }}>
-              <p className="ag-field__label" style={{ margin: 0 }}>
+            <div className="ag-photo__body">
+              <p className="ag-field__label">
                 Photo of the form or a business card
               </p>
-              <p className="ag-field__hint" style={{ margin: "var(--space-1) 0 0" }}>
+              <p className="ag-field__hint">
                 {photoName ? `Attached: ${photoName}` : "Optional. The photo stays on this phone with the lead."}
               </p>
             </div>
@@ -242,7 +242,7 @@ export function LeadCaptureForm() {
           </div>
 
           {error ? (
-            <p className="ag-note" role="alert" style={{ color: "var(--color-status-danger-ink)" }}>
+            <p className="ag-note ag-note--error" role="alert">
               {error}
             </p>
           ) : null}
@@ -250,7 +250,7 @@ export function LeadCaptureForm() {
           <button className="btn btn--primary ag-btn-xl btn--block" type="submit">
             Save this lead
           </button>
-          <p className="ag-note" style={{ textAlign: "center" }}>
+          <p className="ag-note ag-note--center">
             Saved on this phone. Nothing is sent to the office yet — the CRM write contract is not built.
           </p>
         </div>

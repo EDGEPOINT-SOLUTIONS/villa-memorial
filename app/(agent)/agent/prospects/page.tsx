@@ -28,7 +28,7 @@ function filterProspects(prospects: Prospect[], filter: FilterKey): Prospect[] {
 function CardActions({ p }: { p: Prospect }) {
   const tel = `tel:${p.phone.replace(/\s/g, "")}`;
   return (
-    <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+    <div className="ag-actions">
       <a className="btn btn--primary btn--sm" href={tel}>
         Call
       </a>
@@ -140,7 +140,7 @@ export default async function AgentProspectsPage({
             </div>
             <div className="ag-card__body">
               {closing.map((p) => (
-                <div className="ag-deal" key={p.id} style={{ borderLeft: "4px solid var(--sage-500)" }}>
+                <div className="ag-deal" key={p.id}>
                   <p className="ag-deal__name">
                     {p.name} — {p.want.split("·")[0]?.trim()}
                   </p>
@@ -176,7 +176,7 @@ export default async function AgentProspectsPage({
         </div>
 
         {/* Phone: one sorted list, most urgent first. */}
-        <div className="ag-mobile-only" style={{ flexDirection: "column", gap: "var(--space-3)" }}>
+        <div className="ag-mobile-only ag-list">
           {mobileOrder.map((p) => (
             <article className="ag-work" key={p.id}>
               <span className="ag-work__icon" aria-hidden="true">
@@ -196,7 +196,7 @@ export default async function AgentProspectsPage({
           ))}
         </div>
 
-        <Link className="btn btn--primary ag-btn-xl" href="/agent/new" style={{ alignSelf: "flex-start" }}>
+        <Link className="btn btn--primary ag-btn-xl ag-self-start" href="/agent/new">
           New lead
         </Link>
         <p className="ag-note">

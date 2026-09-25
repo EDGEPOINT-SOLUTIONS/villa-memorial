@@ -10,9 +10,9 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 
 /**
  * Family portal layout — ONE HOUSE STYLE (captain, 2026-09-17): the same
- * PortalFrame chrome as the agent portal (grouped sky rail, sky content, phone
- * bottom tabs and drawer), carrying the family's own destinations and plain
- * words. The Call button stays in the phone top bar, so a person is still one
+ * PortalFrame chrome as the agent portal (grouped white rail with a sky active
+ * edge, white content, phone bottom tabs and drawer), carrying the family's own
+ * destinations and plain words. The Call button stays in the phone top bar, so a person is still one
  * tap away on every screen; the sidebar help block names the household and the
  * office line. Signed-out visitors get a slim brand bar; guarding happens
  * per-page via requirePortalSessionOrRedirect.

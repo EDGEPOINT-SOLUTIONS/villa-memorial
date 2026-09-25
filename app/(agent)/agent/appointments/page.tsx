@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AgentHero, AgentSection, AgendaCard, Chip, TaskRow, WeekRow } from "@/components/agent/agent-ui";
 import { listAgentAppointments } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Appointments & tasks — Villa Memorial agent portal" };
 
@@ -72,7 +73,7 @@ export default async function AgentAppointmentsPage() {
         title="Small promises"
         sub="Things you said you would do. One tap to finish, and the list gets shorter."
       >
-        <div className="ag-list" style={{ gap: "var(--space-2)" }}>
+        <div className="ag-list ag-list--tight">
           {tasks.map((t) => (
             <TaskRow key={t.id} task={t} />
           ))}
@@ -87,11 +88,11 @@ export default async function AgentAppointmentsPage() {
             ))}
           </div>
         </div>
-        <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+        <div className="ag-actions">
           <Link className="btn btn--primary" href="/agent/lots">
             Book a lot viewing
           </Link>
-          <a className="btn btn--secondary" href="tel:09176178489">
+          <a className="btn btn--secondary" href={FAMILY_HELP.phoneHref}>
             Ask the office for a slot
           </a>
         </div>
