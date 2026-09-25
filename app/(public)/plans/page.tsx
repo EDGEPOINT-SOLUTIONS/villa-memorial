@@ -7,7 +7,7 @@ import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
 import { planRequestAction } from "@/lib/plan-selection";
-import { planRateOf } from "@/lib/pricing-model";
+import { planMonthlyPrice } from "@/lib/monthly-pricing";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -38,7 +38,9 @@ export const dynamic = "force-dynamic";
  * so the price list, the package page and the staff screens print the same words.
  *
  * THE RATES STAY A LIVE READ: each tier's monthly figure comes through the
- * pricing store (`loadPricingDocument()` + `planRateOf`); no amount is authored.
+ * pricing store (`loadPricingDocument()` + `planMonthlyPrice`); no amount is
+ * authored. The monthly installment is the headline and the pending-term line
+ * names who still has to confirm the months (minutes item 8, 2026-09-21).
  */
 export default async function PlansPage() {
   const [page, pricing] = await Promise.all([
@@ -83,7 +85,7 @@ export default async function PlansPage() {
         ) : (
           <div className="plan-tiers">
             {plan.tiers.map((tier) => {
-              const monthly = planRateOf(pricing.plans, tier.tier, "monthly", false);
+              const price = planMonthlyPrice(pricing.plans, tier.tier, false);
               const request = planRequestAction({
                 pricing: pricing.plans,
                 tier: tier.tier,
@@ -94,7 +96,7 @@ export default async function PlansPage() {
                 <PlanTierCard
                   key={tier.tier}
                   tier={tier}
-                  monthly={monthly}
+                  price={price}
                   requestHref={request.href}
                 />
               );

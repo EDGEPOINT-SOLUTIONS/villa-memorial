@@ -90,7 +90,7 @@ function titleOf(card: string): string {
 }
 
 function priceOf(card: string): number | null {
-  const m = card.match(/class="shop-card__price">₱([\d,]+)/);
+  const m = card.match(/class="monthly-price__amount">₱([\d,]+)\./);
   return m ? Number(m[1].replace(/,/g, "")) : null;
 }
 
@@ -152,9 +152,13 @@ describe("the /lots product listing", () => {
     expect(at('class="shop-card__meta"')).toBeLessThan(at('class="shop-card__price"'));
     expect(at('class="shop-card__price"')).toBeLessThan(at('class="shop-card__status"'));
     expect(at('class="shop-card__status"')).toBeLessThan(at('class="shop-card__actions"'));
-    expect(a001).toContain("₱128,000.00");
     expect(a001).toContain("Section A · Block 1 · 2.5 sqm");
     expect(a001).toContain("Available");
+    // The monthly installment leads (minutes item 8, 2026-09-21), with its
+    // recorded 6-year term and the recorded total contract price under it.
+    expect(a001).toContain('class="monthly-price__amount">₱1,920.00');
+    expect(a001).toContain("Payment term: 6 years (72 months)");
+    expect(a001).toContain("Total contract price ₱128,000");
   });
 
   it("keeps every link the listing had: lot details and map deep links", async () => {

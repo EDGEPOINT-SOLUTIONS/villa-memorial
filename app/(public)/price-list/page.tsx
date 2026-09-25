@@ -7,11 +7,13 @@ import { SectionHead } from "@/components/public/section-head";
 import { PublicDisclosure } from "@/components/public/public-disclosure";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
+import { MonthlyPriceTable } from "@/components/villa/monthly-price-table";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
-import { CASH_ASSISTANCE, COFFINS, php } from "@/lib/villa-pricing";
+import { lotMonthlyPrice, planMonthlyPrice } from "@/lib/monthly-pricing";
+import { CASH_ASSISTANCE, COFFINS, PLAN_TIERS, php } from "@/lib/villa-pricing";
 
 import { pageMetadata } from "@/lib/seo";
 
@@ -56,6 +58,21 @@ export default async function PriceListPage() {
     listCatalogItems("package").catch(() => null),
   ]);
   const content = planContentFromDocument(page);
+
+  // The minutes' monthly-first summary (item 8, 2026-09-21): the monthly
+  // installment leads, with the term and the recorded total. The full published
+  // schedules stay below, unchanged.
+  const planMonthlyRows = PLAN_TIERS.map((tier) => ({
+    product: tier.name,
+    price: planMonthlyPrice(pricing.plans, tier.id, false),
+  }));
+  const lotMonthlyRows = pricing.lotCategories.flatMap((category) =>
+    category.rows.map((row) => ({
+      product: row.product,
+      family: category.caption,
+      price: lotMonthlyPrice(row.regular),
+    })),
+  );
 
   return (
     <div className="plan-flow stack-4">
@@ -233,6 +250,8 @@ export default async function PriceListPage() {
           <li>Annual = 2 × semi-annual = 4 × quarterly = 12 × monthly</li>
           <li>Amortization adjustable to 8 or 10 years</li>
         </ul>
+        <h3>Monthly installments at a glance</h3>
+        <MonthlyPriceTable rows={planMonthlyRows} />
         <PublicDisclosure summary="Show the package inclusions, conditions and payment schedule (PHP)">
           <div className="card">
             <div className="card__body stack-3">
@@ -314,6 +333,8 @@ export default async function PriceListPage() {
             </Link>
           }
         />
+        <h3>Monthly installments at a glance</h3>
+        <MonthlyPriceTable rows={lotMonthlyRows} />
         <PublicDisclosure summary={`Show the ${pricing.lotCategories.length} lot & mausoleum tables`}>
           {pricing.lotCategories.map((cat) => (
             <div className="card" key={cat.title}>

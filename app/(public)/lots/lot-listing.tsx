@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ProductCard, PublicDisclosure, ResultsGrid } from "@/components/kit";
+import { MonthlyPriceBlock } from "@/components/villa/monthly-price";
 import { lotVisibleCount } from "@/lib/public-layout";
 import type { LotStatus } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
@@ -268,6 +269,11 @@ export function LotListing({
  * One plot as a product card: photograph, number, facts, figure, status, one
  * action — the order the captain's brief names.
  *
+ * MONTHLY LEADS (Villa Memorial minutes, 2026-09-21, item 8). A linked lot prints
+ * its section family's monthly installment as the figure, with the recorded
+ * 72-month term and the recorded total contract price under it. A map-only plot
+ * the sheet does not price keeps the honest "Price on request" state.
+ *
  * ONE CARD ACTION (captain follow-up, 2026-09-21). Every card dresses its one
  * action in the shop grammar's PRIMARY rung — `.btn--accent` (the gold the
  * catalogue already gives a card's main action: `Add to cart` on /products,
@@ -297,11 +303,21 @@ function LotCard({ item }: { item: LotListingItem }) {
       title={item.code}
       supporting={item.facts}
       price={
-        item.priceCents !== null
-          ? formatMinorUnits(item.priceCents, item.currency)
-          : "Price on request"
+        item.monthly ? (
+          <MonthlyPriceBlock price={item.monthly} />
+        ) : item.priceCents !== null ? (
+          formatMinorUnits(item.priceCents, item.currency)
+        ) : (
+          "Price on request"
+        )
       }
-      priceNote={item.hasLot ? "published plot price" : "the office quotes per plot"}
+      priceNote={
+        item.monthly
+          ? undefined
+          : item.hasLot
+            ? "published plot price"
+            : "the office quotes per plot"
+      }
       status={{ tone: LOT_TONE[status] ?? "neutral", label: lotStatusLabel(status) }}
       caption={item.photo.caption}
       actions={

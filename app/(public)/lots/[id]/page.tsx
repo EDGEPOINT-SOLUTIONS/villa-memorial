@@ -6,7 +6,11 @@ import { ErrorState } from "@/components/ui/states";
 import { PublicHero, PublicImage } from "@/components/kit";
 import { getLot } from "@/lib/api-client/property";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { LOT_FAMILY_BY_SECTION } from "@/lib/catalog-sources";
+import { lotFamilyMonthlyPrice } from "@/lib/monthly-pricing";
 import { formatMinorUnits } from "@/lib/money";
+import { php, php2 } from "@/lib/villa-pricing";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { lotPhoto } from "@/lib/lot-imagery";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
@@ -74,6 +78,18 @@ export default async function PublicLotDetailPage({
 
   const photo = lotPhoto({ plotCode: lot.lot_number, section: lot.section });
 
+  // The monthly-first price (Villa Memorial minutes, 2026-09-21, item 8): the
+  // lot's section family figure from the CURRENT pricing store — the same
+  // binding the listing card and the price list print. Unknown family → null and
+  // the page falls back to the record's own published price.
+  const pricing = await loadPricingDocument().catch(() => null);
+  const family = LOT_FAMILY_BY_SECTION[lot.section.toUpperCase()];
+  const monthly =
+    family && pricing ? lotFamilyMonthlyPrice(pricing.lotCategories, family) : null;
+  const monthlyLead = monthly
+    ? `${TYPE_LABEL[lot.type] ?? lot.type} · ${lot.section}, block ${lot.block} · ${lot.area_sqm} sqm · ${php2(monthly.monthly)} / month`
+    : `${TYPE_LABEL[lot.type] ?? lot.type} · ${lot.section}, block ${lot.block} · ${lot.area_sqm} sqm`;
+
   return (
     <div className={`${containerClass("catalogue")} stack-4 catalogue-page`}>
       {/* The shared interior hero: the lot number is the page's one h1, the lead
@@ -83,7 +99,7 @@ export default async function PublicLotDetailPage({
         variant="interior"
         eyebrow="Memorial lots"
         title={lot.lot_number}
-        lead={`${TYPE_LABEL[lot.type] ?? lot.type} · ${lot.section}, block ${lot.block} · ${lot.area_sqm} sqm`}
+        lead={monthlyLead}
         primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
         secondary={{ label: "Back to lots", href: "/lots" }}
       />
@@ -133,10 +149,29 @@ export default async function PublicLotDetailPage({
               <span className="text-sm text-muted">Area</span>
               <span>{lot.area_sqm} sqm</span>
             </div>
-            <div className="row row--space">
-              <span className="text-sm text-muted">Price</span>
-              <strong>{formatMinorUnits(lot.price_cents, lot.currency)}</strong>
-            </div>
+            {monthly ? (
+              <>
+                <div className="row row--space">
+                  <span className="text-sm text-muted">Monthly payment</span>
+                  <strong>{php2(monthly.monthly)} / month</strong>
+                </div>
+                <div className="row row--space">
+                  <span className="text-sm text-muted">Payment term</span>
+                  <span>{monthly.term.label}</span>
+                </div>
+                {monthly.total !== null ? (
+                  <div className="row row--space">
+                    <span className="text-sm text-muted">Total contract price</span>
+                    <strong>{php(monthly.total)}</strong>
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <div className="row row--space">
+                <span className="text-sm text-muted">Price</span>
+                <strong>{formatMinorUnits(lot.price_cents, lot.currency)}</strong>
+              </div>
+            )}
           </div>
         </Card></div>
 
@@ -153,7 +188,11 @@ export default async function PublicLotDetailPage({
               className="btn btn--accent"
               href={buildRequestHref({
                 item: `Lot ${lot.lot_number} (${lot.section}, block ${lot.block})`,
-                price: lot.price_cents > 0 ? formatMinorUnits(lot.price_cents, lot.currency) : undefined,
+                price: monthly
+                  ? `${php2(monthly.monthly)} / month${monthly.total !== null ? ` · total contract price ${php(monthly.total)}` : ""}`
+                  : lot.price_cents > 0
+                    ? formatMinorUnits(lot.price_cents, lot.currency)
+                    : undefined,
                 note: "Hold request — nothing is reserved by this message.",
               })}
             >

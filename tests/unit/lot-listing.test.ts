@@ -41,6 +41,7 @@ function item(overrides: Partial<LotListingItem> = {}): LotListingItem {
     parkBranch: "Isabela City",
     section: "A",
     areaSqm: 2.5,
+    monthly: null,
     facts: "Section A · Block 1 · 2.5 sqm",
     photo: { src: "/media/composition/prime-lot-480.webp", caption: "A photograph" },
     ...overrides,

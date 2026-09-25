@@ -12,6 +12,7 @@ import {
   type PlanTier,
   type PlanTerm,
 } from "@/lib/pricing-model";
+import { PENDING_TERM_LABEL } from "@/lib/monthly-pricing";
 import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
 import { planTierPackageSku } from "@/lib/catalogue-skus";
 import { AddToCartControl } from "./add-to-cart";
@@ -79,6 +80,11 @@ export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Pro
         <div className="buy-card__price">
           {php2(amount)} <span>{termDef.per}</span>
         </div>
+        {/* The monthly installment leads and the contract's own term is named
+            honestly (minutes item 8, 2026-09-21): the plan sheet records the
+            payment modes but no month count, so it stays pending rather than
+            being guessed. */}
+        <p className="plan-note">{PENDING_TERM_LABEL}.</p>
       </div>
 
       <div>

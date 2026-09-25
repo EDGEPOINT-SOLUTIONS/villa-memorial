@@ -19,6 +19,7 @@
  * range is guessed for a value the record does not have.
  */
 import { formatMinorUnits } from "@/lib/money";
+import type { MonthlyPrice } from "@/lib/monthly-pricing";
 
 export type LotsSort = "" | "price-asc" | "price-desc";
 
@@ -42,6 +43,13 @@ export type LotListingItem = {
   /** The linked lot's section (A–D), or the plot's section block prefix. */
   section: string | null;
   areaSqm: number | null;
+  /**
+   * The monthly-first price (Villa Memorial minutes, 2026-09-21, item 8): the
+   * linked lot's section family figure from the pricing store — monthly
+   * installment, recorded 72-month term and recorded total contract price. Null
+   * for a map-only plot the sheet does not price (the card then says so).
+   */
+  monthly: MonthlyPrice | null;
   /** The supporting line the card prints (section · block · area, or map area). */
   facts: string;
   photo: { src: string; srcSet?: string; width?: number; height?: number; caption: string };

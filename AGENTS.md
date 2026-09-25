@@ -257,8 +257,10 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   Memorial Plan** (promo figure + payment-mode switch + tier × term board) come
   from the captain's 2026-09-21 direction (the band replaced `docs/prototypes/villa-home.html`'s
   "What we do / Services we offer"). Each plans-and-lots card binds to a LIVE price source — a
-  `lotCategories` family + product row, or a `PlanTier` — and the view prints the regular selling
-  price + area, or the plan's monthly rate, through `lib/landing/plan-lots.ts`
+  `lotCategories` family + product row, or a `PlanTier` — and, since the Villa Memorial minutes'
+  item 8 (2026-09-21), LEADS with the monthly installment + payment term (a lot's recorded
+  72 months and total contract price; a plan's pending-term wording) + area through
+  `lib/landing/plan-lots.ts` → `lib/monthly-pricing.ts`
   (`tests/unit/landing-view.test.tsx` + `tests/fixture-contract/landing.test.ts` pin the
   bindings); the board holds NO items (its copy is kicker/heading/intro/note) and reads its 5 × 4
   figures through `planRate()`, with the footnote's `{seniorMonthly}` / `{packagePage}` tokens

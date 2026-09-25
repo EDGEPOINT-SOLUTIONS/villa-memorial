@@ -1837,7 +1837,9 @@ a.ledger__row:hover .ledger__row-title {
   align-items: baseline;
   gap: var(--space-2);
   margin-top: var(--space-1);
-  font-size: var(--text-2xl);
+  /* Body size plus ONE step (captain 2026-09-25: 28px+ bold figures read fake).
+     Hierarchy comes from weight and colour, not size. */
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--color-text-primary);
 }
@@ -1877,6 +1879,61 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-2);
   margin-top: auto;
   padding-top: var(--space-3);
+}
+
+/* --- Monthly-first price (components/villa/monthly-price.tsx) ----------------
+   Villa Memorial minutes, 2026-09-21, item 8: the monthly installment leads a
+   plan/lot price, its payment term follows, and the total contract price prints
+   only where the approved data records one. The block is card furniture (divs),
+   so it never counts as paragraph prose in the reading budget. It inherits the
+   surrounding figure's size/weight (`.shop-card__price` / `.plan-tier__price`). */
+.monthly-price {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.monthly-price__installment {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.monthly-price__amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.monthly-price__unit,
+.monthly-price__term,
+.monthly-price__total {
+  font-size: var(--text-sm);
+  font-weight: 400;
+}
+
+.monthly-price__unit {
+  color: var(--color-text-muted);
+}
+
+.monthly-price__term {
+  color: var(--color-text-secondary);
+}
+
+.monthly-price__total {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The minutes' monthly-first summary table (components/villa/monthly-price-table.tsx).
+   A plain `.table` with the four columns; it deliberately does not carry the
+   `price-table` class the 2026 full schedules own. */
+.installment-table td,
+.installment-table th {
+  white-space: nowrap;
+}
+
+.installment-table {
+  min-width: 36rem;
 }
 
 /* --- The lot listing: a product page -----------------------------------------
@@ -6972,7 +7029,8 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .buy-card__price {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  /* Body size plus ONE step (captain 2026-09-25: 28px+ bold figures read fake). */
+  font-size: var(--text-lg);
   line-height: 1;
   color: var(--color-text-accent);
 }
@@ -7524,7 +7582,8 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-2);
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  /* Body size plus ONE step (captain 2026-09-25: 28px+ bold figures read fake). */
+  font-size: var(--text-lg);
   line-height: 1;
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
@@ -7535,6 +7594,14 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-size: var(--text-sm);
   font-weight: 400;
   color: var(--color-text-muted);
+}
+
+/* The payment-term line under the rate — supporting, smaller than the figure
+   (minutes item 8, 2026-09-21; sizing per captain 2026-09-25). */
+.plan-tier__term {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 
 .plan-tier__summary {
@@ -7636,13 +7703,10 @@ because the shared `.ag-appt` rule comes later in this file. */
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
-  /* Step the two display steps down one rung so the ~253px card stays legible. */
+  /* Step the card NAME down one rung so the ~253px five-row card stays
+     legible; the rate already sits at body+1 (captain 2026-09-25). */
   .plan-tier__name {
     font-size: var(--text-xl);
-  }
-
-  .plan-tier__price {
-    font-size: var(--text-2xl);
   }
 }
 
@@ -21243,9 +21307,10 @@ a.plan-advisor__phone:hover {
 /* --- /products: two model cards per phone row (plan §5.3) ----------------
    The measured defect was one coffin per phone screen (23.5 screens). Inside
    the 75rem catalogue envelope a phone's content box splits in two, so a
-   shopper compares models instead of scrolling. The card furniture steps down
-   a rung (the price from the 2xl rung to xl; the caption to micro) so a ~165px
-   column stays legible — the same step-down discipline the token map uses. */
+   shopper compares models instead of scrolling. The card furniture step-down is
+   now only the TITLE (to body); the figure keeps the capped body+1 rung it
+   carries everywhere (captain 2026-09-25: the old 2xl→xl price step-down no
+   longer applies) so a ~165px column stays legible. */
 @media (max-width: 40rem) {
   .catalogue-page .casket-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -21255,10 +21320,6 @@ a.plan-advisor__phone:hover {
 
   .catalogue-page .casket-grid .shop-card__title {
     font-size: var(--text-body);
-  }
-
-  .catalogue-page .casket-grid .shop-card__price {
-    font-size: var(--text-xl);
   }
 
   /* Two-up a card is a compact tile: the photograph, the name, the figure and

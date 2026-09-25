@@ -115,6 +115,18 @@ export const LOT_TERMS: ReadonlyArray<LotTerm> = [
 /** The sheet prints rounded schedules; six annuals may miss the selling price by this much. */
 export const LOT_AMORTIZATION_ROUNDING = 3;
 
+/**
+ * The lot sheet's recorded amortization term: SIX YEARS. Every lot family is
+ * priced so `annual × 6 ≈ selling` (the invariant checked below), and the sheet
+ * itself heads the columns "6 years amortization". This is the ONE source of the
+ * payment term the monthly-price surfaces print (Villa Memorial minutes,
+ * 2026-09-21, item 8) — a view reads it, never types "72".
+ */
+export const LOT_AMORTIZATION_YEARS = 6;
+
+/** The same term in months — what the minutes' "X months" column prints. */
+export const LOT_AMORTIZATION_MONTHS = LOT_AMORTIZATION_YEARS * 12;
+
 /* ------------------------------ the document ------------------------------ */
 
 /**
@@ -379,9 +391,9 @@ export function checkLotCategories(categories: LotCategory[]): string | null {
             return `“${row.product || "A row"}” · ${table} ${term}: every amount must be a whole number of pesos.`;
           }
         }
-        const drift = Math.abs(figures.annual * 6 - figures.selling);
+        const drift = Math.abs(figures.annual * LOT_AMORTIZATION_YEARS - figures.selling);
         if (drift > LOT_AMORTIZATION_ROUNDING) {
-          return `“${row.product}” · ${table}: ${pesos(figures.annual)} × 6 = ${pesos(figures.annual * 6)} but the selling price is ${pesos(figures.selling)} — the six-year amortization must agree within ${pesos(LOT_AMORTIZATION_ROUNDING)}.`;
+          return `“${row.product}” · ${table}: ${pesos(figures.annual)} × ${LOT_AMORTIZATION_YEARS} = ${pesos(figures.annual * LOT_AMORTIZATION_YEARS)} but the selling price is ${pesos(figures.selling)} — the six-year amortization must agree within ${pesos(LOT_AMORTIZATION_ROUNDING)}.`;
         }
       }
     }

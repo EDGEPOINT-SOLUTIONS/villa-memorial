@@ -24,6 +24,7 @@ import { SiteHeaderBar } from "@/components/landing/site-header";
 import { NextSteps } from "@/components/landing/next-steps";
 import { PhoneActionBar } from "@/components/landing/phone-action-bar";
 import { PlanBoard } from "@/components/landing/plan-board";
+import { MonthlyPriceBlock } from "@/components/villa/monthly-price";
 import { ProductCard } from "@/components/kit/product-card";
 import { ResultsGrid } from "@/components/kit/results-grid";
 import { PublicDisclosure } from "@/components/public/public-disclosure";
@@ -508,8 +509,9 @@ function PlansLotsSection({
               eyebrow={planLotKindLabel(card.kind)}
               title={card.title}
               supporting={figures?.supporting}
-              price={figures?.price ?? "Ask the office"}
-              priceNote={figures?.unit ?? undefined}
+              price={
+                figures ? <MonthlyPriceBlock price={figures.monthly} /> : "Ask the office"
+              }
               actions={
                 <a className="btn btn--secondary btn--sm" href={href}>
                   {card.kind === "plan" ? "See the plan" : "View the lots"}
