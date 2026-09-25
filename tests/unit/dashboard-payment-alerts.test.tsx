@@ -8,6 +8,7 @@ import {
   type PaymentAlertSource,
   type PaymentAlertSummary,
 } from "@/lib/payment-alerts";
+import { parseCss, readStyle, ruleFor } from "../helpers/css-rules";
 
 /**
  * The staff dashboard's payment alert band (client minute, 2026-09-21, item 4).
@@ -117,6 +118,11 @@ describe("the dashboard alert band", () => {
     expect(html).toContain("Liwayway Cruz");
     expect(html).toContain("Overdue");
     expect(html).toContain("overdue by 5 days");
+
+    // The right-sized type roles (captain feedback, 2026-09-25).
+    expect(html).toContain("payment-alerts__headline");
+    expect(html).toContain("payment-alerts__figure");
+    expect(html).toContain("payment-alerts__amount");
   });
 
   it("pairs red with text, never colour alone (role=alert + state words)", async () => {
@@ -141,6 +147,25 @@ describe("the dashboard alert band", () => {
 
     expect(html).toContain("7 payments need attention");
     expect(html).toContain("+2 more on the billing screen.");
+  });
+});
+
+describe("the band's type is right-sized (captain feedback, 2026-09-25)", () => {
+  const rules = parseCss(readStyle("styles/components.css"));
+
+  it("keeps the headline on the card-title role (22px; 18px on a phone)", () => {
+    const headline = ruleFor(rules, ".payment-alerts__headline");
+    expect(headline, ".payment-alerts__headline is declared").toBeDefined();
+    expect(headline!.body).toMatch(/font-size:\s*var\(--text-card-title\)/);
+  });
+
+  it("keeps the counts and amounts on the 18px ladder step", () => {
+    const figure = ruleFor(rules, ".payment-alerts__figure");
+    const amount = ruleFor(rules, ".payment-alerts__amount");
+    expect(figure, ".payment-alerts__figure is declared").toBeDefined();
+    expect(amount, ".payment-alerts__amount is declared").toBeDefined();
+    expect(figure!.body).toMatch(/font-size:\s*var\(--text-lg\)/);
+    expect(amount!.body).toMatch(/font-size:\s*var\(--text-lg\)/);
   });
 });
 

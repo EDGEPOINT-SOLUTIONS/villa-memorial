@@ -25,6 +25,13 @@ readable and accessible.
    `overdue · due within 2 days` split, up to five named rows (client · invoice number · amount ·
    state word · countdown) and a route to `/staff/billing`. When nothing is due or overdue the
    band does not render at all. It re-classifies no date.
+
+   **Type right-sized** (captain feedback, 2026-09-25): the headline rides the card-title role
+   (22px, stepping to 18px on a phone) and the count phrase + each amount ride the 18px ladder
+   step (`.payment-alerts__headline` / `__figure` / `__amount` in the “Dashboard payment
+   alerts” block of `styles/components.css`). The identification text (client, reference,
+   countdown) stays at 14/12px, so the figures lead without the band shouting past the KPI
+   tiles.
 4. **Red consistently, but never red alone.** The band is the red `Alert`, and both state
    `Badge`s use the same danger tone (the minute's UI note: red for payment alerts). The
    distinction rides the words — “Overdue” vs “Due soon” plus “overdue by N days” vs “due in N
@@ -51,6 +58,7 @@ readable and accessible.
 | Boundary at exactly `PAYMENT_DUE_SOON_DAYS` | +2 included, +3 excluded (unit test) |
 | Dashboard alert source | the same `listInvoices()` `/staff/billing` reads (reconciliation pinned) |
 | Focus ring / contrast | the shared `Alert` + `Badge` primitives; `accessibility-craft` (127 tests) green |
+| Band type (captain follow-up) | headline `--text-card-title` = **22px** (18px on a phone); counts + amounts `--text-lg` = **18px** — pinned by the dashboard test |
 
 ## Rules pinned by tests
 

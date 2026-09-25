@@ -18,6 +18,11 @@ import {
  * (F-16 accessibility rule). The counts come straight from the shared
  * two-day rule (`lib/payment-alerts.ts`) — the band never re-classifies a date.
  *
+ * The type is deliberately right-sized so the band stays a notice rather than
+ * shouting past the KPI tiles: a 22px headline (`.payment-alerts__headline`, the
+ * card-title role) over 18px figures (`.payment-alerts__figure` / `__amount`). The
+ * ladder lives in the "Dashboard payment alerts" block of `styles/components.css`.
+ *
  * The whole band links to the billing screen, where the office can open a payment
  * and record it; the rows name the client, the invoice number, what is owed and how
  * late or how near it is, so the detail is readable before the click.
@@ -36,7 +41,7 @@ function AlertRow({ alert }: { alert: PaymentAlert }) {
         </Link>
       </span>
       <span className="row nowrap">
-        <span className="text-sm">{alert.amount_label}</span>
+        <span className="payment-alerts__amount">{alert.amount_label}</span>
         {/* Red is the payment-alert colour consistently (minute UI note); the state
             word and the countdown carry upcoming-vs-overdue, never the hue alone. */}
         <Badge tone="danger">{alert.state_label}</Badge>
@@ -56,10 +61,13 @@ export function PaymentAlertBand({ summary }: { summary: PaymentAlertSummary }) 
 
   return (
     <PageSection>
-      <Alert tone="danger" title={`${summary.total} ${noun} attention`}>
+      <Alert tone="danger">
+        <p className="payment-alerts__headline">
+          {summary.total} {noun} attention
+        </p>
         <div className="row row--wrap">
-          <AlertTriangle size={16} aria-hidden="true" />
-          <span className="text-sm">
+          <AlertTriangle size={18} aria-hidden="true" />
+          <span className="payment-alerts__figure">
             <strong>{summary.overdue_count} overdue</strong>
             {" · "}
             <strong>
@@ -70,10 +78,7 @@ export function PaymentAlertBand({ summary }: { summary: PaymentAlertSummary }) 
             Review payments
           </Link>
         </div>
-        <ul
-          className="stack-2"
-          style={{ listStyle: "none", padding: 0, margin: "var(--space-3) 0 0" }}
-        >
+        <ul className="payment-alerts__list stack-2">
           {rows.map((alert) => (
             <AlertRow key={alert.id} alert={alert} />
           ))}
