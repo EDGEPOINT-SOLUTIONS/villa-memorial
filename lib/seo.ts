@@ -34,7 +34,7 @@ export const DEFAULT_SITE_URL = "https://in-memoriam.edgepoint-ai.com";
 
 /** The park's own logo mark stands in for a favicon (app/layout.tsx). */
 
-export const SITE_NAME = "Villa Memorial Park";
+export const SITE_NAME = "Villa Funeraria";
 
 /** The one description the home, the sitemap fallbacks and the LocalBusiness
  * record share — the same line the public home publishes. */
