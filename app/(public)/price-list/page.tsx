@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/ui/states";
 import { PublicHero } from "@/components/public/public-hero";
 import { SectionHead } from "@/components/public/section-head";
 import { PublicDisclosure } from "@/components/public/public-disclosure";
+import { ListingNav, ListingShell } from "@/components/kit";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { MonthlyPriceTable } from "@/components/villa/monthly-price-table";
@@ -94,15 +95,35 @@ export default async function PriceListPage() {
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
           <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
         </p>
-        <nav className="hero-chips" aria-label="Jump to a section">
-          <a href="#packages">Compare packages</a>
-          <a href="#coffins">Coffin options</a>
-          <a href="#senior">Senior citizen plan</a>
-          <a href="#vmp">Plan benefits</a>
-          <a href="#prices">2026 price list</a>
-        </nav>
+        <p className="logo-row">
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
+          <img src={LOGO_VILLA_AGENCY} alt="Villa Agency Insurance Services — Insure. Invest. Prosper." />
+          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
+          <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
+        </p>
       </PublicHero>
 
+      {/* ONE sticky section rail (captain 2026-09-25): the five bands, always in
+          view while scrolling, collapsing to a sheet on a phone. It replaces the
+          hero's jump chips, which did the same job once and then scrolled away. */}
+      <ListingShell
+        railLabel="Price list sections"
+        sheetLabel="Sections"
+        sheetIcon={false}
+        sheetAction={{ label: "Show the price list", onClick: () => {} }}
+        rail={
+          <ListingNav
+            label="Price list sections"
+            items={[
+              { id: "packages", label: "Compare packages" },
+              { id: "coffins", label: "Coffin options" },
+              { id: "senior", label: "Senior citizen plan" },
+              { id: "vmp", label: "Plan benefits" },
+              { id: "prices", label: "2026 price list" },
+            ]}
+          />
+        }
+      >
       {/* Package comparison — the retired /plans/compare table. REAL catalog
           data: the frozen contract carries name, description, type and price,
           and this compares exactly those fields and no invented ones. */}
@@ -396,6 +417,7 @@ export default async function PriceListPage() {
           ))}
         </PublicDisclosure>
       </section>
+      </ListingShell>
 
       {/* Footer nav — one short line (blueprint: no prose wall). */}
       <section>

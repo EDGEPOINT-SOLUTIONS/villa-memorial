@@ -208,7 +208,7 @@ describe("/products cards offer a real detail view", () => {
   let html: string;
 
   beforeAll(async () => {
-    html = await renderWithCart(await ProductsPage());
+    html = await renderWithCart(await ProductsPage({ searchParams: Promise.resolve({}) }));
   });
 
   it("links every model to its detail page and shows a sample photograph", () => {

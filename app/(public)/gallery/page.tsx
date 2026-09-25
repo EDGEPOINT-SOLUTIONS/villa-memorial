@@ -2,15 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { listLandingContent } from "@/lib/api-client/landing";
 import {
-  GALLERY_GROUPS,
   GALLERY_HERO,
   GALLERY_MASTERPLAN,
   GALLERY_PROVENANCE_NOTE,
   GALLERY_TOUR_LINE,
 } from "@/lib/gallery";
-import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
+import { PublicHero, PublicImage } from "@/components/kit";
 import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
+import { GalleryListing } from "./gallery-listing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Photo gallery & virtual tour — Villa Memorial",
@@ -68,44 +68,7 @@ export default async function GalleryPage() {
         }}
       />
 
-      {GALLERY_GROUPS.map((group) => {
-        const single = group.photos.length === 1;
-        return (
-          <section
-            className="catalogue-band"
-            id={group.id}
-            key={group.id}
-            aria-labelledby={`${group.id}-title`}
-          >
-            <SectionHead id={`${group.id}-title`} kicker={group.kicker} title={group.heading} lead={group.intro} />
-            <div className={single ? "gal-feature" : "gal-cards"}>
-              {group.photos.map((photo) => (
-                <PublicImage
-                  key={photo.src}
-                  role={single ? "band-lead" : "gallery-tile"}
-                  src={photo.src}
-                  srcSet={photo.srcSet}
-                  sizes={photo.sizes}
-                  alt={photo.alt}
-                  width={photo.width}
-                  height={photo.height}
-                  caption={
-                    <>
-                      <span className="gal-cap__desc">{photo.caption}</span>
-                      {photo.note ? (
-                        <>
-                          {" "}
-                          <span className="gal-figure__note">{photo.note}</span>
-                        </>
-                      ) : null}
-                    </>
-                  }
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+      <GalleryListing />
 
       <p className="gal-provenance">{GALLERY_PROVENANCE_NOTE}</p>
 
