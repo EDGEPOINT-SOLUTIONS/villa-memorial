@@ -144,13 +144,13 @@ export default async function NotificationsPage() {
       <PageHeader
         eyebrow="Overview"
         title="Notifications"
+        lead="The message types the platform will send, and their audiences."
         actions={
           <StatusChip tone="warning">{notWired ? "Not switched on" : "Connected"}</StatusChip>
         }
       />
 
       <PageSection>
-        <p className="ops-lead">What the office tells people, and what has actually gone out.</p>
         <div className="row row--wrap">
           <a className="btn btn--primary" href="#what-will-send">
             What will be sent

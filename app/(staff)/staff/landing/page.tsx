@@ -58,17 +58,13 @@ export default async function PagesAndContentPage() {
       <PageHeader
         eyebrow="Commerce · Pages & content"
         title="Pages & content"
+        lead="Every public page's content lives here — prices stay live references, never typed."
         actions={
           <Link href="/" target="_blank" rel="noreferrer" className="btn btn--secondary btn--sm">
             View live home
           </Link>
         }
       />
-      <p className="text-md" style={{ maxWidth: "46rem" }}>
-        Every public page&rsquo;s content lives in one of these documents. Open a page to edit its hero, its words and —
-        where its migration has landed — its content blocks. Prices are never typed here: a price block stores a live
-        reference to the catalogue or the pricing store.
-      </p>
 
       {documents.length === 0 ? (
         <EmptyState title="No page documents yet" hint="The seeded pages appear here." />

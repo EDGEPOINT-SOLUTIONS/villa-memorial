@@ -131,6 +131,7 @@ export default async function AccountingPage({
       <PageHeader
         eyebrow="Finance"
         title="Accounting"
+        lead="The recorded journal, its trial balance and the current period."
         actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 

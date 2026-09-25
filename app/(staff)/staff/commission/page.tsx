@@ -161,6 +161,7 @@ export default async function CommissionPage() {
       <PageHeader
         eyebrow="Finance"
         title="Commission"
+        lead="Recorded sales against the still-unconfigured commission engine."
         actions={<Badge tone="warning">Not configured</Badge>}
       />
 

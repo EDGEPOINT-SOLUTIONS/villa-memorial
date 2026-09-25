@@ -155,6 +155,7 @@ export default async function SchedulePage({
       <PageHeader
         eyebrow="Operations"
         title="Schedule"
+        lead="Chapel days, bookings and the day's board."
         actions={
           <span className="text-sm text-muted">
             {active} active · {conflicts.length} overlap{conflicts.length === 1 ? "" : "s"}

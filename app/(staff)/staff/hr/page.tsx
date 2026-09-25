@@ -77,6 +77,7 @@ export default async function HrPage({
       <PageHeader
         eyebrow="Operations"
         title="Staff directory"
+        lead="The office's staff records and who is active."
         actions={
           <span className="text-sm text-muted">
             {activeCount} active of {employees.length} total

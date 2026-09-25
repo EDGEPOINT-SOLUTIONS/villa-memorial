@@ -91,6 +91,7 @@ export default async function DocumentsPage({
       <PageHeader
         eyebrow="Operations"
         title="Documents"
+        lead="The office's recorded documents and their states."
         actions={
           <button className="btn btn--primary btn--sm" disabled>
             Upload (not wired yet)

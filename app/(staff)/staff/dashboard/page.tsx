@@ -81,6 +81,7 @@ export default async function StaffDashboardPage() {
       <PageHeader
         eyebrow="Overview"
         title={`Good day, ${firstName}`}
+        lead="Today's work across cases, lots, finance and the chapel."
         actions={
           <span className="text-sm text-muted">
             {today} ·{" "}

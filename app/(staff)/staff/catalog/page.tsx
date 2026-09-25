@@ -120,6 +120,7 @@ export default async function CatalogPage({
       <PageHeader
         eyebrow="Commerce"
         title="Catalog"
+        lead="Everything the storefront sells — models, packages and service lines."
         actions={
           <>
             <span className="text-sm text-muted">

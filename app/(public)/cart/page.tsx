@@ -54,7 +54,7 @@ export default function CartPage() {
     return (
       <div className="cart-page">
         <div className="page-header">
-          <div>
+          <div className="page-header__text">
             <p className="page-header__eyebrow">Memorial store</p>
             <h1>Your cart</h1>
           </div>
@@ -84,10 +84,10 @@ export default function CartPage() {
   return (
     <div className="cart-page">
       <div className="page-header">
-        <div>
+        <div className="page-header__text">
           <p className="page-header__eyebrow">Memorial store</p>
           <h1>Your cart</h1>
-          <p className="text-sm text-muted">
+          <p className="page-header__lead">
             {itemCount} {itemCount === 1 ? "item" : "items"} · prices are confirmed by the
             store at checkout.
           </p>

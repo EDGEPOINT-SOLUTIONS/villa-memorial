@@ -106,6 +106,7 @@ export default async function CasesPage({
       <PageHeader
         eyebrow="Operations"
         title="Cases"
+        lead="Every funeral case the office is handling."
         actions={
           <span className="row" style={{ gap: "var(--space-3)" }}>
             <span className="text-sm text-muted">{cases.length} total</span>

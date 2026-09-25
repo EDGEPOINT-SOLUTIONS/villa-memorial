@@ -235,6 +235,7 @@ export default async function CopilotPage({
       <PageHeader
         eyebrow="Intelligence"
         title="AI Copilot"
+        lead="Designed answers from recorded data — no model is wired yet."
         actions={
           <>
             <Badge tone="warning">{COPILOT_NOT_CONNECTED}</Badge>

@@ -60,17 +60,13 @@ export default async function PricingPage() {
       <PageHeader
         eyebrow="Commerce · 2026 price list"
         title="Pricing rules"
+        lead="One edited 2026 price document feeds every public price on the next request."
         actions={
           <Link href="/plans" target="_blank" rel="noreferrer" className="btn btn--secondary btn--sm">
             View live plans
           </Link>
         }
       />
-
-      <p className="text-md" style={{ maxWidth: "46rem" }}>
-        One edited 2026 price document feeds every public price: the plan tiers below, then the lot
-        families. A save here prints on the public pages on their next request.
-      </p>
 
       <PageSection>
         <section id="plan-rates" aria-labelledby="plan-rates-title" className="stack-3">

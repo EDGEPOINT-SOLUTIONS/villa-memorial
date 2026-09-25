@@ -53,23 +53,37 @@ describe("the portal grammar is type + hairlines on white", () => {
     for (const rule of portalRules) {
       for (const value of backgroundValues(rule.body)) {
         if (!/gradient\(/.test(value)) continue;
-        // The loading skeleton's shimmer is the one FUNCTIONAL gradient.
+        // Two FUNCTIONAL gradients, both sanctioned elsewhere: the loading
+        // skeleton's shimmer, and the shared opening band's 2px gold rule
+        // (`--gold-hairline`) that matches the home hero + gallery band.
         if (rule.selector.includes("ag-skeleton")) continue;
+        if (rule.selector.includes(".ag-hero::before")) continue;
         offenders.push(`${rule.selector} → ${value.trim().slice(0, 70)}`);
       }
     }
     expect(offenders, offenders.join("\n")).toEqual([]);
   });
 
-  it("the hero is a plain header, never a boxed card", () => {
-    const hero = find(".ag-hero");
-    expect(hero, "the .ag-hero rule exists").toBeDefined();
-    expect(hero!.body).not.toMatch(/(?<![-\w])background\s*:/);
-    expect(hero!.body).not.toMatch(/box-shadow/);
-    expect(hero!.body).not.toMatch(/(?<![-\w])border\s*:/);
-    expect(hero!.body).not.toMatch(/border-radius/);
-    // The decorative gold hairline that used to sit on top of it is gone.
-    expect(find(".ag-hero::before")).toBeUndefined();
+  it("the hero is the shared designed opening band — a surface + gold rule, never a shadow", () => {
+    // Captain, 2026-09-25: a page opening is a designed, familiar band, never a
+    // bare title on white. The portal hero renders the SAME band the public and
+    // admin openings render (the block lives in the "page opening band" section
+    // of components.css). It stays flat: one surface, one hairline, one 2px gold
+    // rule — no drop shadow, no lift, no decorative gradient on the field.
+    const heroRules = RULES.filter((rule) => selectors(rule).includes(".ag-hero"));
+    expect(heroRules.length, "the .ag-hero rules exist").toBeGreaterThan(0);
+    const body = heroRules.map((rule) => rule.body).join("\n");
+    expect(body, "the band paints its own surface").toMatch(/(?<![-\w])background\s*:\s*var\(--color-bg-surface\)/);
+    expect(body, "the band carries one hairline").toMatch(
+      /(?<![-\w])border\s*:\s*1px solid var\(--color-rule\)/,
+    );
+    expect(body, "the band takes the large radius").toMatch(
+      /border-radius:\s*var\(--radius-lg\)/,
+    );
+    expect(body).not.toMatch(/box-shadow/);
+    const hairline = find(".ag-hero::before");
+    expect(hairline, "the band's gold rule exists").toBeDefined();
+    expect(hairline!.body).toMatch(/var\(--gold-hairline\)/);
   });
 
   it("the action band is a hairline separator, not a second shadowed card", () => {

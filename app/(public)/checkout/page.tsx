@@ -88,10 +88,10 @@ export default function CheckoutPage() {
   return (
     <>
       <div className="page-header">
-        <div>
+        <div className="page-header__text">
           <p className="page-header__eyebrow">Memorial store</p>
           <h1>Checkout</h1>
-          <p className="text-sm text-muted">
+          <p className="page-header__lead">
             Review your details — the store confirms final pricing before you commit.
           </p>
           <nav aria-label="Back" style={{ marginTop: "var(--space-3)" }}>

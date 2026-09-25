@@ -36,7 +36,11 @@ export default async function PipelinePage() {
 
   return (
     <>
-      <PageHeader eyebrow="Relationships" title="Sales pipeline" />
+      <PageHeader
+        eyebrow="Relationships"
+        title="Sales pipeline"
+        lead="Recorded leads and the stage each one reached."
+      />
 
       <PageSection>
         <Alert tone="info" title="Leads and pipeline run on crm-families, which is unbuilt.">

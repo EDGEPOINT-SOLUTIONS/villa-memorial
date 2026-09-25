@@ -158,6 +158,7 @@ export default async function InventoryPage({
       <PageHeader
         eyebrow="Commerce"
         title="Inventory"
+        lead="Stock on hand and the recorded movements that changed it."
         actions={
           <span className="text-sm text-muted">
             {summary.tracked} items · {summary.units_on_hand} units on hand

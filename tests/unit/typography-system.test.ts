@@ -182,6 +182,7 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
       file: "styles/components.css",
       selectors: [
         ".page-hero__title",
+        ".public-hero__title",
         ".app-shell .app-main .page-header h1",
         ".paper-hero__title",
         ".ag-hero__title",
