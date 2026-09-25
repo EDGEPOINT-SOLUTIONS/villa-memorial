@@ -33,6 +33,17 @@ import { fileURLToPath } from "node:url";
  *      page's tier x term segmented control (the older owner) and this ledger
  *      row — so source order silently applied the segmented control's
  *      `repeat(5, minmax(0, 1fr))` plus its box chrome.
+ *
+ * Round 2 (captain, 2026-09-25 — "fix all the broken pages"). The public sweep
+ * was clean; one admin surface panned: `/staff/pricing` (and `/staff/plans`,
+ * which renders the same screen) overflowed by 434px at 1440. Cause: the lot
+ * price tables' far-right `<th>` carries a `.visually-hidden` span
+ * (`position: absolute !important`). The `.table-wrapper` it lives in was
+ * `position: static`, so the absolute 1px box was laid out against the initial
+ * containing block instead of the scroll container, landed at x≈1873 and
+ * escaped the `overflow-x: auto` clip — the whole document could pan sideways.
+ * `.table-wrapper { position: relative }` makes the wrapper the containing
+ * block the clipped table needs; the guard below pins it.
  */
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
@@ -135,6 +146,44 @@ describe("defect 3 — the guide cards own their layout, not the price ledger's"
     const artifact = read("docs/08-delivery/services-design/services-pages.css");
     const base = artifact.slice(artifact.indexOf(".sv-price-card {"));
     expect(base.slice(0, base.indexOf("}"))).not.toMatch(/grid-template-columns/);
+  });
+});
+
+describe("round 2 defect — a scroll wrapper must contain its absolute descendants", () => {
+  // `position: absolute` escapes an `overflow` clip unless the scroll container
+  // is also the positioned containing block. `.visually-hidden` is absolute, so
+  // the pair (.table-wrapper + wide table) turns a hidden label into page-level
+  // horizontal scroll. `position: relative` on the wrapper is the fix; a
+  // `.visually-hidden` that moved to `static` would lose its own hiding, so the
+  // wrapper stays the place to pin it.
+  const wrappers = declarationRules.filter((r) => r.selector === ".table-wrapper");
+
+  it("the house wide-table wrapper declares position: relative", () => {
+    expect(wrappers.length).toBeGreaterThanOrEqual(1);
+    const offenders = wrappers.filter((r) => !/position\s*:\s*relative\s*;/.test(r.body));
+    expect(offenders.map((r) => r.selector)).toEqual([]);
+  });
+
+  it("it still clips sideways (overflow-x: auto) — the scroll is not the bug", () => {
+    expect(wrappers.some((r) => /overflow-x\s*:\s*auto\s*;/.test(r.body))).toBe(true);
+  });
+
+  it("the escape is real: .visually-hidden is absolute, so it needs a positioned clip", () => {
+    const hidden = read("styles/base.css").replace(/\/\*[\s\S]*?\*\//g, "");
+    const rule = rules(hidden).find((r) => r.selector === ".visually-hidden");
+    expect(rule).toBeDefined();
+    expect(rule?.body).toMatch(/position\s*:\s*absolute\s*!important/);
+  });
+
+  it("the pricing editors render their tables through the wrapper", () => {
+    for (const file of [
+      "app/(staff)/staff/pricing/lot-prices-editor.tsx",
+      "app/(staff)/staff/plans/plan-rates-editor.tsx",
+    ]) {
+      const src = read(file);
+      expect(src).toContain('className="table-wrapper');
+      expect(src).toContain('className="table pricing-editor__table"');
+    }
   });
 });
 
