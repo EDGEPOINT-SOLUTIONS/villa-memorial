@@ -36,6 +36,12 @@ for (const name of STORE_PATH_ENV_VARS) {
   if (!process.env[name]) process.env[name] = path.join(dir, `${name.toLowerCase()}.json`);
 }
 
+// The editor's media store is a directory, not a journal file. Point it at the
+// same throwaway dir so a suite never reads/writes the dev `.data/media-uploads`.
+if (!process.env.MEDIA_UPLOAD_DIR) {
+  process.env.MEDIA_UPLOAD_DIR = path.join(dir, "media-uploads");
+}
+
 // In-memory content seams (landing content + the page documents) live on
 // globalThis; reset them before every test so one suite's save can never leak
 // into the next. The entry store is durable now (its own journal under

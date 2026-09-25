@@ -519,6 +519,22 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   shots + page weights: `docs/08-delivery/pdp-layout-design/`; tests
   `phone-layout`, `reading-budget`, `villa-services-premium`, `catalogue-entry-page`,
   `pdp-gallery`, `pdp-variants`.
+- **Phase P4 has LANDED — media storage is the server, not a base64 blob** (plan
+  §3.3/§8.2/§10; the captain's Q3). `POST /api/content/media` (`catalog:write`,
+  the content-save seam) takes the browser-downscaled bytes and writes them under
+  `MEDIA_UPLOAD_DIR` (default `.data/media-uploads`, gitignored, outside `public/`
+  and `media-sources/`); `GET /api/media/[...path]` streams them with a one-year
+  immutable cache; the document stores the short `/api/media/<id>.<ext>` path.
+  `lib/media-upload.ts` is the server store + the referenced-bytes guard (a save
+  refuses a `data:` URL or a path with no bytes) and `lib/media-url.ts` the pure
+  client-safe helpers incl. the optional `MEDIA_PUBLIC_BASE_URL` CDN prefix
+  (`ContentBlocks`/`PdpGallery`/`product-detail` take a serializable `mediaBaseUrl`
+  prop). `lib/device-upload.ts` keeps the downscale (max edge 1600, JPEG q0.86 /
+  PNG alpha) and uploads the bytes; never re-embed a data URL in a saved document.
+  The platform's object store is C12 (Deferred) — a no-op swap of the backing
+  store; ask recorded in `docs/08-delivery/open-items.md` §5. Evidence + the
+  captured upload/serve/document output: `docs/08-delivery/pdp-media-storage-design/`;
+  test `tests/unit/pdp-media-upload.test.ts`.
 - **Public chrome is ONE grammar** — every public page (the home AND all
   `(public)` routes) renders the same anchored navigation bar + footer
   (`components/landing/site-header.tsx` SiteHeaderBar + LandingFooter, fed by

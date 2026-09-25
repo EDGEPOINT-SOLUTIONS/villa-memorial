@@ -46,6 +46,7 @@ import {
   type CatalogueEntry,
   type ContentValidationContext,
 } from "@/lib/content-catalog";
+import { documentMediaIssues } from "@/lib/media-upload";
 import { SERVICE_ENTRY_DEFS, serviceEntryDef, serviceEntryView, type ServiceEntryView } from "@/lib/service-content";
 import {
   catalogueEntryDefaults,
@@ -230,6 +231,7 @@ export async function saveServiceEntry(
   if (verdict.value.key !== key) {
     throw new ApiError(`The entry says “${verdict.value.key}” but the save names “${key}”.`, 422);
   }
+  await assertStoredMediaExists(verdict.value);
   const saved: CatalogueEntry = {
     ...verdict.value,
     kind: "service",
@@ -238,6 +240,17 @@ export async function saveServiceEntry(
   };
   await appendEntry(saved);
   return saved;
+}
+
+/**
+ * The referenced-bytes guard on the save path: a document may only reference
+ * media whose bytes really exist under `MEDIA_UPLOAD_DIR` (the pure validator has
+ * already refused a `data:` URL). The guard is the store's, so every writer — the
+ * BFF route, the admin, a test — gets the same answer.
+ */
+async function assertStoredMediaExists(entry: CatalogueEntry): Promise<void> {
+  const issues = await documentMediaIssues(entry);
+  if (issues.length > 0) throw new ApiError(issues[0], 422);
 }
 
 /** Test helper: the seed as the store starts. */
@@ -295,6 +308,7 @@ export async function saveItemEntry(
   const context = await validationContext();
   const verdict = validateCatalogueEntry(candidate, context);
   if (!verdict.ok) throw new ApiError(firstContentError(verdict.errors), 422);
+  await assertStoredMediaExists(verdict.value);
   const saved: CatalogueEntry = {
     ...verdict.value,
     kind: "product",

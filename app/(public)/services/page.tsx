@@ -7,6 +7,7 @@ import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
 import { StoryHelpBand } from "@/components/villa/story-ui";
 import { PublicHero } from "@/components/kit";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { ErrorState } from "@/components/ui/states";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
@@ -136,7 +137,11 @@ export default async function ServicesPage() {
         {otherBlocks.length > 0 ? (
           <section className="story-band" aria-labelledby="services-more-title">
             <h2 id="services-more-title">More about the service</h2>
-            <ContentBlocks blocks={otherBlocks} priceOf={priceOf} />
+            <ContentBlocks
+              blocks={otherBlocks}
+              priceOf={priceOf}
+              mediaBaseUrl={mediaPublicBaseUrl()}
+            />
           </section>
         ) : null}
 

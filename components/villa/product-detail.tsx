@@ -90,6 +90,7 @@ export function ProductDetail({
   pricesBySku,
   contact,
   aside,
+  mediaBaseUrl = null,
 }: {
   lineName: string;
   selectedSku: string;
@@ -100,6 +101,8 @@ export function ProductDetail({
   contact: ContactInfo;
   /** The advisor card, rendered under the buy box. */
   aside?: ReactNode;
+  /** The optional CDN/origin prefix for stored media (lib/media-url.ts). */
+  mediaBaseUrl?: string | null;
 }) {
   const [selected, setSelected] = useState(selectedSku);
   const buttonRefs = useRef<Array<HTMLButtonElement | null>>([]);
@@ -154,7 +157,12 @@ export function ProductDetail({
       <div className="pdp-layout">
         <div className="pdp-media">
           {variant.gallery.length > 0 ? (
-            <PdpGallery key={variant.sku} images={variant.gallery} label={variant.name} />
+            <PdpGallery
+              key={variant.sku}
+              images={variant.gallery}
+              label={variant.name}
+              mediaBaseUrl={mediaBaseUrl}
+            />
           ) : model ? (
             <CasketSampleFigure model={model} />
           ) : (
@@ -316,7 +324,11 @@ export function ProductDetail({
               <h2 className="pdp-section__title" id="pdp-more">
                 More about this model
               </h2>
-              <ContentBlocks blocks={otherBlocks} priceOf={(sku) => pricesBySku[sku] ?? null} />
+              <ContentBlocks
+                blocks={otherBlocks}
+                priceOf={(sku) => pricesBySku[sku] ?? null}
+                mediaBaseUrl={mediaBaseUrl}
+              />
             </section>
           ) : null}
         </div>

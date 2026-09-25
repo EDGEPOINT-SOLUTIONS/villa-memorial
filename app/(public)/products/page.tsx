@@ -14,6 +14,7 @@ import {
   type SellableCasket,
 } from "@/components/villa/casket-catalogue";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import {
   containerClass,
@@ -115,7 +116,7 @@ export default async function ProductsPage() {
       </PublicHero>
 
       {page && page.blocks.length > 0 ? (
-        <ContentBlocks blocks={page.blocks} priceOf={priceOf} />
+        <ContentBlocks blocks={page.blocks} priceOf={priceOf} mediaBaseUrl={mediaPublicBaseUrl()} />
       ) : null}
 
       <section className="catalogue-band" aria-labelledby="catalogue-title">

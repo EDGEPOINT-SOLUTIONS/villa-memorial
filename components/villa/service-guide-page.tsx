@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { mediaPublicBaseUrl, publicMediaUrl } from "@/lib/media-url";
 import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
 import { StoryHelpBand, StorySteps } from "@/components/villa/story-ui";
 import { listCatalogItems } from "@/lib/api-client/commerce";
@@ -34,13 +35,14 @@ export async function ServiceGuidePage({ entryKey }: { entryKey: string }) {
   ]);
   const view = serviceEntryView(entry, def);
   const hero = serviceHeroVariant(view.heroSrc, "wide");
+  const mediaBase = mediaPublicBaseUrl();
   const { contact } = content;
   const priceBySku = new Map(items.map((item) => [item.sku, item.display_price]));
   const priceOf = (sku: string): string | null => priceBySku.get(sku) ?? null;
 
   const heroPhoto = hero
     ? {
-        src: hero.src,
+        src: publicMediaUrl(hero.src, mediaBase),
         srcSet: hero.srcSet,
         sizes: "(max-width: 48rem) 92vw, 30rem",
         alt: view.heroAlt,
@@ -76,7 +78,13 @@ export async function ServiceGuidePage({ entryKey }: { entryKey: string }) {
         <section className="story-band">
           <PublicDisclosure summary={`More about ${view.title}`}>
             {view.summary ? <p>{view.summary}</p> : null}
-            {view.blocks.length > 0 ? <ContentBlocks blocks={view.blocks} priceOf={priceOf} /> : null}
+            {view.blocks.length > 0 ? (
+              <ContentBlocks
+                blocks={view.blocks}
+                priceOf={priceOf}
+                mediaBaseUrl={mediaBase}
+              />
+            ) : null}
           </PublicDisclosure>
         </section>
       ) : null}

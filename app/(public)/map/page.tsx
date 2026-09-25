@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { ContentBlocks } from "@/components/content/content-blocks";
+import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { PublicParkMap } from "@/components/public-park-map";
 import { LotListing } from "@/app/(public)/lots/lot-listing";
 import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
@@ -206,6 +207,7 @@ export default async function PublicMapPage({
         <ContentBlocks
           blocks={document.blocks}
           priceOf={(sku) => priceBySku.get(sku) ?? null}
+          mediaBaseUrl={mediaPublicBaseUrl()}
           matrixOf={(ref) => {
             if (!pricing) return null;
             if (ref === "plans.regular") {

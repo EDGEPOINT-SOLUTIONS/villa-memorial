@@ -24,9 +24,19 @@ import { useState } from "react";
 import type { ContentImage } from "@/lib/content-catalog";
 import { COFFIN_SAMPLE_NOTE } from "@/lib/villa-pricing";
 import { libraryThumb, libraryThumbSet } from "@/lib/media";
+import { publicMediaUrl } from "@/lib/media-url";
 import { useModalFocus } from "@/components/ui/use-modal-focus";
 
-export function PdpGallery({ images, label }: { images: ContentImage[]; label: string }) {
+export function PdpGallery({
+  images,
+  label,
+  mediaBaseUrl = null,
+}: {
+  images: ContentImage[];
+  label: string;
+  /** The optional CDN/origin prefix for stored media (lib/media-url.ts). */
+  mediaBaseUrl?: string | null;
+}) {
   const [selected, setSelected] = useState(0);
   const [zoomed, setZoomed] = useState(false);
   const { panelRef } = useModalFocus<HTMLDivElement>(zoomed, () => setZoomed(false));
@@ -44,7 +54,7 @@ export function PdpGallery({ images, label }: { images: ContentImage[]; label: s
             passes through unchanged (lib/media.ts is the one rule). */}
         {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
         <img
-          src={libraryThumb(active.src, 960)}
+          src={publicMediaUrl(libraryThumb(active.src, 960), mediaBaseUrl)}
           srcSet={libraryThumbSet(active.src)}
           sizes="(max-width: 64rem) 92vw, 40rem"
           alt={active.alt}
@@ -99,7 +109,12 @@ export function PdpGallery({ images, label }: { images: ContentImage[]; label: s
                 onClick={() => setSelected(thumbnailIndex)}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
-                <img src={image.src} alt="" loading="lazy" decoding="async" />
+                <img
+                  src={publicMediaUrl(image.src, mediaBaseUrl)}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
               </button>
             </li>
           ))}
@@ -127,7 +142,7 @@ export function PdpGallery({ images, label }: { images: ContentImage[]; label: s
           </div>
           <div className="pdp-zoom__frame">
             {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
-            <img src={active.src} alt={active.alt} />
+            <img src={publicMediaUrl(active.src, mediaBaseUrl)} alt={active.alt} />
           </div>
           {active.caption ? <p className="pdp-zoom__caption">{active.caption}</p> : null}
         </div>

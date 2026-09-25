@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Alert } from "@/components/ui/alert";
 import type { ContentBlock } from "@/lib/content-catalog";
+import { publicMediaUrl } from "@/lib/media-url";
 
 /**
  * Content blocks → the public page (Phase 1 of the content-catalogue plan).
@@ -21,16 +22,26 @@ export function ContentBlocks({
   blocks,
   priceOf,
   matrixOf,
+  mediaBaseUrl = null,
 }: {
   blocks: ContentBlock[];
   priceOf: (sku: string) => string | null;
   matrixOf?: (ref: string) => ReactNode | null;
+  /** The optional CDN/origin prefix for stored media (lib/media-url.ts). Passed
+   * down from the server so a client hydration cannot disagree with the SSR URL. */
+  mediaBaseUrl?: string | null;
 }) {
   if (blocks.length === 0) return null;
   return (
     <div className="stack-4">
       {blocks.map((block) => (
-        <Block key={block.id} block={block} priceOf={priceOf} matrixOf={matrixOf} />
+        <Block
+          key={block.id}
+          block={block}
+          priceOf={priceOf}
+          matrixOf={matrixOf}
+          mediaBaseUrl={mediaBaseUrl}
+        />
       ))}
     </div>
   );
@@ -51,10 +62,12 @@ function Block({
   block,
   priceOf,
   matrixOf,
+  mediaBaseUrl,
 }: {
   block: ContentBlock;
   priceOf: (sku: string) => string | null;
   matrixOf?: (ref: string) => ReactNode | null;
+  mediaBaseUrl: string | null;
 }) {
   switch (block.type) {
     case "paragraph":
@@ -122,7 +135,7 @@ function Block({
             {block.images.map((image) => (
               <figure key={image.id} className="tribute-figure">
                 {/* eslint-disable-next-line @next/next/no-img-element -- staff/library photograph */}
-                <img src={image.src} alt={image.alt} loading="lazy" />
+                <img src={publicMediaUrl(image.src, mediaBaseUrl)} alt={image.alt} loading="lazy" />
                 <figcaption>
                   {image.caption ? <span>{image.caption}</span> : null}
                 </figcaption>
