@@ -10,9 +10,10 @@
  * own plain words, and the kit only decides rhythm, hierarchy and treatment.
  *
  * Rule of the house: one dominant hero with the day/page eyebrow, one action
- * band, sections with a serif heading, raised cards on sky hairlines, figures
- * that carry their meaning, rows with one action each, and the calm note for
- * a service that is not switched on. Never invent a figure or a fact here.
+ * band, sections with a heading, flat cards on neutral hairlines (white, no
+ * gradient, no drop shadow — the calm sweep, 2026-09-25), figures that carry
+ * their meaning, rows with one action each, and the calm note for a service
+ * that is not switched on. Never invent a figure or a fact here.
  */
 import type { ReactNode } from "react";
 

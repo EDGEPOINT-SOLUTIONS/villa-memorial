@@ -2,11 +2,12 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { PortalFrame } from "@/components/portal-frame";
 import { AGENT_PORTAL_GROUPS, AGENT_PORTAL_TABS } from "@/components/portal-nav";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 /**
  * Agent portal layout — the approved agent design (docs/08-delivery/
- * agent-portal-design) on the shipped PortalFrame: grouped sky rail, phone
- * bottom bar and the office number pinned in the sidebar.
+ * agent-portal-design) on the shipped PortalFrame: grouped white rail with a
+ * sky active edge, phone bottom bar and the office number pinned in the sidebar.
  */
 export default async function AgentLayout({ children }: { children: React.ReactNode }) {
   const jar = await cookies();
@@ -53,7 +54,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
         <p className="portal-sidebar__help">
           Need the office?
           <br />
-          <strong>0917 617 8489</strong>
+          <strong>{FAMILY_HELP.phone}</strong>
           <br />
           <span>Mon–Sat · 8am–6pm</span>
         </p>

@@ -4,6 +4,7 @@ import { AgentHero, Chip, money } from "@/components/agent/agent-ui";
 import { getAgentClient } from "@/lib/api-client/agent";
 import { manilaDay } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Client — Villa Memorial agent portal" };
 
@@ -60,14 +61,7 @@ export default async function AgentClientPage({
         </div>
       </AgentHero>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(min(20rem, 100%), 1fr))",
-          gap: "var(--space-5)",
-          alignItems: "start",
-        }}
-      >
+      <div className="ag-grid-2">
         <div className="ag-card">
           <div className="ag-card__head">
             <div>
@@ -110,7 +104,7 @@ export default async function AgentClientPage({
           </div>
           <div className="ag-card__body">
             {client.next_amount ? (
-              <div className="ag-money ag-money--due" style={{ boxShadow: "none", border: "1px solid var(--color-border)" }}>
+              <div className="ag-money ag-money--due">
                 <p className="ag-money__label">Next amount due</p>
                 <p className="ag-money__value">{money(client.next_amount.amount_cents)}</p>
                 <p className="ag-money__note">
@@ -125,8 +119,8 @@ export default async function AgentClientPage({
               Your login shows the next amount and its date — not the full payment history. That stays with
               the office, where the receipts and the official record live.
             </p>
-            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-              <a className="btn btn--secondary btn--sm" href="tel:09176178489">
+            <div className="ag-actions">
+              <a className="btn btn--secondary btn--sm" href={FAMILY_HELP.phoneHref}>
                 Ask the office about this balance
               </a>
             </div>
@@ -184,7 +178,7 @@ export default async function AgentClientPage({
         )}
         <div className="ag-card">
           <div className="ag-card__body">
-            <p className="ag-note" style={{ margin: 0 }}>
+            <p className="ag-note">
               <strong>The privacy line:</strong> you see what your work needs — the family&apos;s holdings, the
               next amount, and the dates. The full record, the payment history and the legal papers stay with
               the office (the PRD&apos;s sensitive-data principle, roles-permissions.md:13). If the family asks

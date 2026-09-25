@@ -58,7 +58,7 @@ export default async function AgentClientsPage({
             defaultValue={query}
             placeholder="Name, lot number, plan number, or phone"
           />
-          <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
+          <div className="ag-actions">
             <button className="btn btn--primary" type="submit">
               Search
             </button>
@@ -96,7 +96,7 @@ export default async function AgentClientsPage({
                 ? "Check the spelling, or search for the lot or plan number. A new person starts as a prospect."
                 : "Your first sale creates the client record — until then, build the pipeline."}
             </p>
-            <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap", justifyContent: "center" }}>
+            <div className="ag-actions ag-actions--center">
               {query ? (
                 <Link className="btn btn--secondary" href="/agent/clients">
                   See all clients

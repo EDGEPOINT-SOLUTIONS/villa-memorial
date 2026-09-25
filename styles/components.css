@@ -3098,16 +3098,6 @@ a.ledger__row:hover .ledger__row-title {
   background: var(--color-bg-surface);
 }
 
-.family-shell__header::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
-}
-
 /* Signed-out portal login bars keep the classic narrower header bar; the
    public-store folio token applies to the public shell container only. */
 .family-shell__header .container {
@@ -3143,12 +3133,9 @@ a.ledger__row:hover .ledger__row-title {
 .memorial-card {
   text-align: center;
   padding: var(--space-7) var(--space-6);
-  background:
-    radial-gradient(90% 120% at 50% -20%, var(--marble-50) 0%, transparent 65%),
-    linear-gradient(180deg, var(--color-bg-surface) 0%, var(--marble-200) 100%);
+  background: var(--color-bg-surface-raised);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-card);
 }
 
 .memorial-card__name {
@@ -3357,13 +3344,14 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-primary);
 }
 
-/* Optional sidebar help block (any portal that passes `help`). */
+/* Optional sidebar help block (any portal that passes `help`). Neutral, not a
+   gold ornament — the calm sweep keeps decorative brass out of the chrome. */
 .portal-sidebar__help {
   margin: 0;
   padding: var(--space-3);
   border-radius: var(--radius-md);
-  background: var(--gold-wash-soft);
-  border: 1px solid color-mix(in srgb, var(--gold-300) 40%, transparent);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
@@ -3623,6 +3611,8 @@ a.ledger__row:hover .ledger__row-title {
   margin-top: var(--space-3);
 }
 
+.fv-gap__extra { margin-top: var(--space-4); }
+
 /* --- money actions ------------------------------------------------------------ */
 /* The figure block's actions (Money): the same row as the hero action band. */
 .fv-money__actions {
@@ -3764,13 +3754,7 @@ where they fit. Presentation only — the page passes recorded values. */
   padding: var(--space-5);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  background: radial-gradient(
-      420px 180px at 92% -60px,
-      color-mix(in srgb, var(--color-bg-subtle) 85%, transparent),
-      transparent 70%
-    ),
-    var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
+  background: var(--color-bg-surface-raised);
 }
 
 .fv-record__mark {
@@ -3782,7 +3766,7 @@ where they fit. Presentation only — the page passes recorded values. */
   height: 5.75rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
-  background: linear-gradient(180deg, var(--marble-50), var(--marble-200));
+  background: var(--color-bg-subtle);
   color: var(--color-text-secondary);
   font-family: var(--font-serif);
   font-size: var(--text-xl);
@@ -4081,10 +4065,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: var(--color-bg-surface-raised);
 }
 
-.fv-signin-scope .signin-shell::before {
-  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
-}
-
 .fv-signin-scope .signin-card {
   max-width: 30rem;
   border-radius: var(--radius-lg);
@@ -4192,23 +4172,12 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: var(--color-bg-surface-raised);
 }
 
-.signin-shell::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
-}
-
 .signin-card {
   width: 100%;
   max-width: 26rem;
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-raised);
   padding: var(--space-7) var(--space-6);
   display: grid;
   gap: var(--space-5);
@@ -14103,6 +14072,9 @@ a.card:hover {
   color: var(--color-text-secondary);
 }
 
+.ag-note--error { color: var(--color-status-danger-ink); }
+.ag-note--center { text-align: center; }
+
 .ag-note--flag {
   display: block;
   padding: var(--space-2) var(--space-3);
@@ -14129,24 +14101,12 @@ a.card:hover {
 }
 
 /* --- Hero: the one headline and the one primary action ----------------------- */
+/* The page header is type, not a box (calm sweep, 2026-09-25): a plain
+   heading block on the page ground; the one action band below it is separated
+   by a hairline, so a portal screen never opens on a stack of shadowed cards. */
 .ag-hero {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  padding: var(--space-6) var(--space-6) var(--space-5);
+  padding: 0;
   color: var(--color-text-primary);
-  background: radial-gradient(560px 240px at 92% -60px, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 62%),
-    var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
-}
-
-.ag-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 2px;
-  background: var(--gold-hairline);
 }
 
 .ag-hero__title {
@@ -14192,12 +14152,9 @@ a.card:hover {
   align-items: center;
   gap: var(--space-3);
   margin-top: var(--space-5);
-  padding: var(--space-4);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border);
   color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-  box-shadow: var(--shadow-card);
 }
 
 .ag-action__body { flex: 1 1 18rem; min-width: 0; }
@@ -14221,6 +14178,26 @@ a.card:hover {
   gap: var(--space-2);
 }
 
+/* A plain row of actions or controls outside the hero band — the page-level
+   buttons, the office number, a footer-ish control row. One home for the
+   repeated inline flex row the portal pages used to carry. */
+.ag-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.ag-actions--center { justify-content: center; }
+.ag-self-start { align-self: flex-start; }
+
+/* A plain hairline between two groups inside a card. */
+.ag-divider {
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  margin: var(--space-4) 0;
+}
+
 /* Big primary button in the action band and other hero contexts. */
 .ag-btn-xl {
   min-height: 3.25rem;
@@ -14237,6 +14214,9 @@ a.card:hover {
   gap: var(--space-3);
 }
 
+/* One row per decision, on the page ground: a hairline, never a shadow (the
+   shadow-on-everything was the template tell). The status tone lives in the
+   icon disc and the stage word, so no heavy left edge is needed. */
 .ag-work {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -14246,13 +14226,7 @@ a.card:hover {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
 }
-
-.ag-work--overdue { border-left: 5px solid var(--clay-500); }
-.ag-work--today { border-left: 5px solid var(--sky-500); }
-.ag-work--waiting { border-left: 5px solid var(--amber-500); }
-.ag-work--done { border-left: 5px solid var(--sage-500); }
 
 .ag-work__icon {
   display: inline-flex;
@@ -14332,14 +14306,12 @@ a.card:hover {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
   text-decoration: none;
   color: var(--color-text-primary);
 }
 
 .ag-quick:hover {
   border-color: var(--color-border-strong);
-  box-shadow: var(--shadow-card-hover);
 }
 
 .ag-quick__icon {
@@ -14376,12 +14348,9 @@ a.card:hover {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
 }
 
 .ag-money--hero {
-  background: radial-gradient(420px 200px at 88% -60px, color-mix(in srgb, var(--color-bg-subtle) 70%, transparent), transparent 70%),
-    var(--color-bg-surface-raised);
   border-color: var(--color-border-strong);
 }
 
@@ -14417,13 +14386,11 @@ a.card:hover {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
 .ag-commission__head {
   padding: var(--space-4) var(--space-5);
-  background: linear-gradient(135deg, var(--color-bg-subtle), var(--color-bg-surface-raised));
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -14514,7 +14481,7 @@ a.card:hover {
 .ag-target__fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--sky-400), var(--sky-700));
+  background: var(--sky-600);
 }
 
 .ag-target__legend {
@@ -14583,7 +14550,6 @@ a.card:hover {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
 }
 
 /* Past appointments read as past without stacking opacity on their text:
@@ -14755,7 +14721,6 @@ a.card:hover {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
 }
 
 .ag-deal__name {
@@ -14800,12 +14765,12 @@ a.card:hover {
 
 /* Pipeline cards on phones: one column, actions full width. */
 .ag-list { display: flex; flex-direction: column; gap: var(--space-3); }
+.ag-list--tight { gap: var(--space-2); }
 
 .ag-card {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
@@ -14972,7 +14937,6 @@ a.card:hover {
   border: 1px solid var(--color-border);
   overflow: hidden;
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
 }
 
 .ag-map img {
@@ -15066,7 +15030,6 @@ a.card:hover {
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 
@@ -15126,12 +15089,14 @@ a.card:hover {
 }
 
 .ag-field__label {
+  margin: 0;
   font-size: var(--text-md);
   font-weight: 700;
   color: var(--color-figure);
 }
 
 .ag-field__hint {
+  margin: var(--space-1) 0 0;
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
@@ -15200,6 +15165,8 @@ a.card:hover {
   border: 1.5px dashed var(--color-border-strong);
   background: var(--color-bg-surface-raised);
 }
+
+.ag-photo__body { flex: 1; min-width: 0; }
 
 .ag-photo__icon {
   display: inline-flex;
@@ -15328,10 +15295,6 @@ a.card:hover {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .ag-hero {
-    padding: var(--space-5) var(--space-5) var(--space-4);
-  }
-
   .ag-action {
     align-items: stretch;
   }
@@ -15391,9 +15354,7 @@ a.card:hover {
   border: 1px solid var(--color-border);
   padding: var(--space-7) var(--space-6);
   color: var(--color-text-primary);
-  background: radial-gradient(560px 260px at 90% -50px, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 62%),
-    var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card);
+  background: var(--color-bg-surface-raised);
 }
 
 .ag-signin__eyebrow {

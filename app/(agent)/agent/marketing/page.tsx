@@ -10,6 +10,7 @@ import {
   VILLA_PARK_AERIAL,
 } from "@/lib/media";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Marketing & materials — Villa Memorial agent portal" };
 
@@ -53,7 +54,7 @@ export default async function AgentMarketingPage() {
         title="Share with a family"
         sub="Open a material and send the office's own page. Share links with open-tracking wait on a service — nothing here pretends to track yet."
         more={
-          <a className="btn btn--secondary btn--sm" href="tel:09176178489">
+          <a className="btn btn--secondary btn--sm" href={FAMILY_HELP.phoneHref}>
             Ask the office for something new
           </a>
         }
@@ -91,7 +92,7 @@ export default async function AgentMarketingPage() {
 
         <div className="ag-card">
           <div className="ag-card__body">
-            <p className="ag-note" style={{ margin: 0 }}>
+            <p className="ag-note">
               <strong>How sharing will work.</strong> A share opens the office&apos;s own public page — the
               family sees the same figure you do, and none of your other clients can see who else you sent it
               to. When the office updates a sheet, old links will show a short “updated on” note rather than

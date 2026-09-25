@@ -2,6 +2,7 @@ import { AgentHero, AgentSection, Chip, MoneyCard, money } from "@/components/ag
 import { getAgentCommission } from "@/lib/api-client/agent";
 import type { CommissionLine } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Sales & commissions — Villa Memorial agent portal" };
 
@@ -63,10 +64,8 @@ export default async function AgentSalesPage() {
 
         <div className="ag-commission">
           <div className="ag-commission__head">
-            <h3 className="ag-card__title" style={{ margin: 0 }}>
-              Statement — this month
-            </h3>
-            <p className="ag-card__sub" style={{ margin: "var(--space-1) 0 0" }}>
+            <h3 className="ag-card__title">Statement — this month</h3>
+            <p className="ag-card__sub">
               One line per sale, with the basis the office will configure.
             </p>
           </div>
@@ -148,7 +147,7 @@ export default async function AgentSalesPage() {
                   : "Progress against the target the office set."}
               </p>
             </div>
-            <hr style={{ border: "none", borderTop: "1px solid var(--color-border)", margin: "var(--space-4) 0" }} />
+            <hr className="ag-divider" />
             <dl className="ag-kv">
               <dt>People contacted this month</dt>
               <dd>{commission.conversion.contacted}</dd>
@@ -175,8 +174,8 @@ export default async function AgentSalesPage() {
             </p>
           </div>
         </div>
-        <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-          <a className="btn btn--primary" href="tel:09176178489">
+        <div className="ag-actions">
+          <a className="btn btn--primary" href={FAMILY_HELP.phoneHref}>
             Ask the office a commission question
           </a>
           <button
