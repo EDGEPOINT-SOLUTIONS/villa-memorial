@@ -6,13 +6,18 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { CancelBookingButton, NewBookingForm } from "@/components/schedule-actions";
+import { BurialCalendar, type BurialCalendarView, type BurialHrefFor } from "./burial-calendar";
 import { ChapelAvailability } from "./chapel-availability";
 import { ChapelBookings } from "./chapel-bookings";
 import { ChapelSettings } from "./chapel-settings";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
+import { ApiError } from "@/lib/api-client/api-error";
+import { loadBurialSchedule } from "@/lib/api-client/burial-schedule";
+import { listCases } from "@/lib/api-client/operations";
 import { getChapelAdminView } from "@/lib/api-client/chapel-admin";
 import { addDays, formatCalendarDay, isCalendarDate } from "@/lib/chapel-booking";
+import type { BurialSchedule } from "@/lib/burial-calendar";
 import { monthOf } from "@/lib/chapel-admin";
 import { listBookings, listResources, type Booking } from "@/lib/api-client/scheduling";
 import {
@@ -51,7 +56,7 @@ function backHref(date: string): string {
 export default async function SchedulePage({
   searchParams,
 }: {
-  searchParams: Promise<{ date?: string }>;
+  searchParams: Promise<{ date?: string; cal?: string; calDate?: string }>;
 }) {
   const session = await requireSessionOrRedirect();
   if (!hasAnyScope(session.scopes, ["scheduling:read"])) {
@@ -90,6 +95,45 @@ export default async function SchedulePage({
   const today = parkToday();
   const requested = typeof params.date === "string" ? params.date : "";
   const selectedDate = isCalendarDate(requested) ? requested : today;
+
+  // The burial calendar carries its own anchor (`calDate`) so moving it never moves
+  // the day board. It reads the office's recorded sheet; live mode answers 503 and
+  // the rest of the Schedule surface stays usable.
+  let burialBoard: BurialSchedule | null = null;
+  let burialError: string | null = null;
+  try {
+    burialBoard = await loadBurialSchedule();
+  } catch (error) {
+    burialError =
+      error instanceof ApiError ? error.message : "Unable to load the burial calendar.";
+  }
+
+  // Case links are best-effort: a failed case read leaves the name as plain text.
+  const caseHrefs = new Map<string, string>();
+  if (burialBoard) {
+    try {
+      for (const kase of await listCases()) {
+        caseHrefs.set(kase.case_number, `/staff/cases/${encodeURIComponent(kase.id)}`);
+      }
+    } catch {
+      // The burial rows fall back to the deceased name without a link.
+    }
+  }
+
+  const calView: BurialCalendarView = params.cal === "week" ? "week" : "month";
+  const requestedCal = typeof params.calDate === "string" ? params.calDate : "";
+  const burialAnchor = isCalendarDate(requestedCal)
+    ? requestedCal
+    : burialBoard && isCalendarDate(burialBoard.as_of)
+      ? burialBoard.as_of
+      : today;
+  const burialHrefFor: BurialHrefFor = (overrides) => {
+    const query = new URLSearchParams();
+    query.set("date", selectedDate);
+    if ((overrides.view ?? calView) === "week") query.set("cal", "week");
+    query.set("calDate", overrides.calDate ?? burialAnchor);
+    return `/staff/schedule?${query.toString()}`;
+  };
 
   const dayBookings = bookingsOnDay(bookings, selectedDate);
   const conflicts = conflictingBookings(bookings);
@@ -324,6 +368,32 @@ export default async function SchedulePage({
             )}
           </div>
         </div>
+      </PageSection>
+
+      {/* Burial calendar: the client's minutes item 2 — burial dates with each
+          burial's light pickup, and the recorded conflicts between them. */}
+      <PageSection>
+        {burialBoard ? (
+          <BurialCalendar
+            board={burialBoard}
+            view={calView}
+            anchor={burialAnchor}
+            today={today}
+            caseHrefs={caseHrefs}
+            hrefFor={burialHrefFor}
+          />
+        ) : (
+          <div className="card" id="burial-calendar">
+            <div className="card__header">
+              <h2>Burial calendar</h2>
+            </div>
+            <div className="card__body">
+              <Alert tone="warning" title="Burial calendar unavailable">
+                {burialError ?? "Unable to load the burial calendar."}
+              </Alert>
+            </div>
+          </div>
+        )}
       </PageSection>
 
       {canWrite ? (
