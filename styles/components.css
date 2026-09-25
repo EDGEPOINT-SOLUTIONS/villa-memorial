@@ -21144,3 +21144,33 @@ a.plan-advisor__phone:hover {
     height: min(44vh, 20rem);
   }
 }
+
+/* --- Dashboard payment alerts (client minute 2026-09-21, item 4) --------------
+   The red band's type ladder, so it reads as a notice and never shouts past the
+   KPI tiles: a 22px headline (the card-title role) over 18px figures (the count
+   phrase and each amount), with the identification text a step down. Tokens only;
+   no gradient, no lift. The phone step-down rides the card-title alias in tokens.css. */
+.payment-alerts__headline {
+  margin: 0;
+  font-size: var(--text-card-title);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.payment-alerts__figure {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.payment-alerts__amount {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--color-figure);
+}
+
+.payment-alerts__list {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+}

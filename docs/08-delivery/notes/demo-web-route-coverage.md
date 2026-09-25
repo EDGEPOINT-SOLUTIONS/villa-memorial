@@ -40,7 +40,7 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 
 | Route | What it serves |
 |---|---|
-| `/staff/dashboard` | ✅ scope-gated ops/finance/lots aggregation from the same clients as the screens |
+| `/staff/dashboard` | ✅ scope-gated ops/finance/lots aggregation from the same clients as the screens; a red payment alert band (client minute 2026-09-21, item 4) reports the invoices due within the shared two-day window and those already overdue, with the count and a route to `/staff/billing` |
 | `/staff/customers`, `/[id]`, `/staff/inquiries` | ✅ fixture-backed records (no crm-families contract yet); the Customers list also links the recorded lead records; `new` forms ⚠ (crm-families) |
 | `/staff/pipeline`, `/[id]` | ✅ the staff lead record (PRD S4 Lead Detail) + the recorded lead list, read-only over `lib/fixtures/crm/lead-records.json`; the pipeline's own stage moves/assignment ⚠ (crm-families unbuilt) |
 | `/staff/cases`, `/[id]`, `/new`, `/[id]/service-contract`, `/[id]/preparation`, `/[id]/instruments` | ✅ frozen case contract + capture/export; the preparation record is a PROVISIONAL recorded fixture (no preparation contract — live answers 503, and a case without one shows its task lines); the guarantee-instrument tracker is STATUS ONLY (no sub-ledger, no deduction math, no posting) |
