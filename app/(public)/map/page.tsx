@@ -133,7 +133,7 @@ export default async function PublicMapPage({
   const priceBySku = new Map(catalogItems.map((item) => [item.sku, item.display_price]));
 
   const isLotsTab = (tab: PageTab) => tab.href.includes("tab=lots");
-  const lotData = activeTab === "lots" ? buildLotListing(lots) : null;
+  const lotData = activeTab === "lots" ? buildLotListing(lots, pricing?.lotCategories ?? []) : null;
 
   return (
     <div className="stack-4">

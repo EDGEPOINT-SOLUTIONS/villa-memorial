@@ -14,6 +14,9 @@
 import type { Lot } from "@/lib/api-client/property";
 import { lotPhoto } from "@/lib/lot-imagery";
 import { lotStatusLabel } from "@/lib/lot-labels";
+import { LOT_FAMILY_BY_SECTION } from "@/lib/catalog-sources";
+import { lotFamilyMonthlyPrice } from "@/lib/monthly-pricing";
+import type { LotCategory } from "@/lib/pricing-model";
 import { sectionOf, type LotListingItem } from "@/lib/lot-listing";
 import { PARK_TYPES, parkType } from "@/lib/park-types";
 import parksFile from "@/lib/fixtures/property/parks.json";
@@ -47,8 +50,18 @@ export type LotListingData = {
   sections: string[];
 };
 
-/** Shapes every park plot + live lot record into the listing's rows and options. */
-export function buildLotListing(lots: Lot[]): LotListingData {
+/** Shapes every park plot + live lot record into the listing's rows and options.
+ *
+ * `lotCategories` is the CURRENT pricing store's lot families: every linked lot
+ * derives its monthly-first price from its section's family through
+ * lib/monthly-pricing.ts (the same sheet binding lib/catalog-sources.ts pins),
+ * so the card, the lot detail page and the price list can never print different
+ * numbers. An empty list leaves every `monthly` null — the cards then keep their
+ * honest fallback rather than a guessed figure. */
+export function buildLotListing(
+  lots: Lot[],
+  lotCategories: ReadonlyArray<LotCategory> = [],
+): LotListingData {
   const byLotId = new Map(lots.map((lot) => [lot.id, lot]));
 
   const rows = SEED_PARKS.flatMap((park) =>
@@ -70,6 +83,11 @@ export function buildLotListing(lots: Lot[]): LotListingData {
     const facts = lot
       ? `Section ${lot.section} · Block ${lot.block} · ${lot.area_sqm} sqm`
       : (plot.sectionBlock ?? "Map plot");
+    const family = section ? LOT_FAMILY_BY_SECTION[section.toUpperCase()] : undefined;
+    // Only a LINKED lot carries a published family price. A map-only plot has no
+    // Lot record (the office quotes per plot), so `monthly` stays null and the
+    // card keeps its honest "Price on request" state.
+    const monthly = lot && family ? lotFamilyMonthlyPrice(lotCategories, family) : null;
     return {
       key: `${park.id}-${plot.code}`,
       code: plot.code,
@@ -84,6 +102,7 @@ export function buildLotListing(lots: Lot[]): LotListingData {
       parkBranch: park.branch,
       section,
       areaSqm: lot?.area_sqm ?? null,
+      monthly,
       facts: lot?.owner_name
         ? `${facts} · Owner: ${lot.owner_name}`
         : plot.owner

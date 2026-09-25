@@ -6,17 +6,24 @@
  * derivation lives here once:
  *
  *   · a lot/structure card binds to a lot family + product row in the editable
- *     pricing store and prints that row's regular selling price, its area and the
- *     family's own caption ("2.5 sqm · lot only · regular") — the captain's line;
- *   · a plan card binds to a plan tier and prints its regular monthly rate
- *     ("from ₱600 / month"), with the card's authored supporting line under it.
+ *     pricing store and, since the minutes' item 8 (2026-09-21), LEADS with that
+ *     row's monthly installment, its six-year term and its recorded total
+ *     contract price — with the row's area and the family's own caption
+ *     ("2.5 sqm · lot only · regular") as the supporting line;
+ *   · a plan card binds to a plan tier and leads with its regular monthly rate
+ *     ("₱600.00 / month"), naming the term as pending Villa Funeraria
+ *     confirmation — the plan sheet records no month count.
  *
- * No amount is ever authored in the content document; a binding that no longer
- * resolves (a family/product/tier renamed away) returns null, and the card
- * renders its name with an honest "ask the office" figure instead of a stale one.
+ * The monthly-first derivation itself lives in lib/monthly-pricing.ts (the ONE
+ * home for the term and the total); this module only binds a card to its price
+ * source. No amount is ever authored in the content document; a binding that no
+ * longer resolves (a family/product/tier renamed away) returns null, and the
+ * card renders its name with an honest "ask the office" figure instead of a
+ * stale one.
  */
-import { planRateOf, type LotCategory, type PlanPricing } from "@/lib/pricing-model";
-import { PLAN_TIERS, php } from "@/lib/villa-pricing";
+import { type LotCategory, type PlanPricing } from "@/lib/pricing-model";
+import { lotMonthlyPrice, planMonthlyPrice, type MonthlyPrice } from "@/lib/monthly-pricing";
+import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
 import type { PlanLotCard, PlanLotKind } from "@/lib/api-client/landing";
 
 /** The card's type word (the captain's vocabulary: Garden lot / Structure / Life plan). */
@@ -27,12 +34,14 @@ export function planLotKindLabel(kind: PlanLotKind): string {
 }
 
 export type PlanLotCardFigures = {
-  /** The headline figure, formatted (e.g. "₱114,000" or "from ₱600"). */
+  /** The monthly installment, formatted — the card's headline (e.g. "₱600.00"). */
   price: string;
-  /** What the figure is ("/ month"), or null for a lot's selling price. */
-  unit: string | null;
+  /** What the headline is (always "/ month" — the monthly installment). */
+  unit: string;
   /** The one supporting line under the name. */
   supporting: string;
+  /** The full monthly-first price (term + recorded total) the card renders. */
+  monthly: MonthlyPrice;
 };
 
 /** Numbers print without a trailing ".0" (the sheet's 2.5 sqm stays 2.5). */
@@ -52,18 +61,17 @@ export function planLotCardFigures(
   if (card.kind === "plan") {
     const tier = PLAN_TIERS.find((t) => t.id === card.tier);
     if (!tier) return null;
-    return {
-      price: `from ${php(planRateOf(planPricing, tier.id, "monthly"))}`,
-      unit: "/ month",
-      supporting: card.text,
-    };
+    const monthly = planMonthlyPrice(planPricing, tier.id, false);
+    return { price: php2(monthly.monthly), unit: "/ month", supporting: card.text, monthly };
   }
   const family = lotCategories.find((c) => c.title === card.category);
   const row = family?.rows.find((r) => r.product === card.product);
   if (!family || !row) return null;
+  const monthly = lotMonthlyPrice(row.regular);
   return {
-    price: php(row.regular.selling),
-    unit: null,
+    price: php2(monthly.monthly),
+    unit: "/ month",
     supporting: `${formatArea(row.area)} sqm · ${family.caption.toLowerCase()} · regular`,
+    monthly,
   };
 }

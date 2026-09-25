@@ -1,4 +1,5 @@
 import { libraryThumb, libraryThumbSet } from "@/lib/media";
+import type { MonthlyPrice } from "@/lib/monthly-pricing";
 import type { PlanTierContent } from "@/lib/plan-content";
 import { php2 } from "@/lib/villa-pricing";
 
@@ -14,8 +15,12 @@ import { php2 } from "@/lib/villa-pricing";
  * `.plan-tiers` lays the five out as one comparison row on desktop (five across
  * from 86rem), so the card is a single vertical stack.
  *
- *  - The amount is passed in (read by the page through `planRateOf`), never
- *    authored here: this component prints a figure, it does not compute one.
+ *  - The amount is passed in (read by the page through `planMonthlyPrice`),
+ *    never authored here: this component prints a figure, it does not compute
+ *    one. The monthly installment LEADS and the payment term follows (Villa
+ *    Memorial minutes, 2026-09-21, item 8) — a plan carries no recorded term, so
+ *    the card prints the honest pending wording rather than a guessed month
+ *    count (`lib/monthly-pricing.ts`).
  *  - The optional `tier.image` leads the card when present; when absent the card
  *    stays premium and text-only — no placeholder hole.
  *  - The action is the existing enquiry path (a prefilled `/contact` request),
@@ -23,11 +28,11 @@ import { php2 } from "@/lib/villa-pricing";
  */
 export function PlanTierCard({
   tier,
-  monthly,
+  price,
   requestHref,
 }: {
   tier: PlanTierContent;
-  monthly: number;
+  price: MonthlyPrice;
   requestHref: string;
 }) {
   const image = tier.image;
@@ -55,8 +60,13 @@ export function PlanTierCard({
         <h3 className="plan-tier__name">{tier.heading}</h3>
         <p className="plan-tier__subtitle">Starting from</p>
         <p className="plan-tier__price">
-          {php2(monthly)}
+          {php2(price.monthly)}
           <span className="plan-tier__unit">per month · regular rate</span>
+        </p>
+        <p className="plan-tier__term">
+          {price.term.status === "recorded"
+            ? `Payment term: ${price.term.label}`
+            : price.term.label}
         </p>
         {tier.summary ? <p className="plan-tier__summary">{tier.summary}</p> : null}
         <div className="plan-tier__actions">

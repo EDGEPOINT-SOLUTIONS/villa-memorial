@@ -43,7 +43,10 @@ describe("the five plan tiers are one row on desktop", () => {
     expect(ruleFor(".plan-tier__list")?.body).not.toMatch(/repeat\(auto-fit/);
   });
 
-  it("steps the name and the rate down one ladder rung on the five-row", () => {
+  it("keeps the rate at body+1 and steps only the NAME down on the five-row", () => {
+    // The rate is right-sized everywhere (captain 2026-09-25: 28px+ bold figures
+    // read fake) — body + one step, no five-row override.
+    expect(ruleFor(".plan-tier__price")?.body).toMatch(/font-size:\s*var\(--text-lg\)/);
     const fiveRow = (selector: string, property: string) => {
       const body = RULES.find(
         (r) => r.selector === selector && r.media === "@media (min-width: 86rem)",
@@ -51,7 +54,7 @@ describe("the five plan tiers are one row on desktop", () => {
       return body?.match(new RegExp(`${property}:\\s*([^;]+);`))?.[1].trim();
     };
     expect(fiveRow(".plan-tier__name", "font-size")).toBe("var(--text-xl)");
-    expect(fiveRow(".plan-tier__price", "font-size")).toBe("var(--text-2xl)");
+    expect(fiveRow(".plan-tier__price", "font-size")).toBeUndefined();
   });
 
   it("bottom-aligns the feature blocks so the 'Key features:' headers line up", () => {

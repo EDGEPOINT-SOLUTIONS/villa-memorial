@@ -17,6 +17,7 @@ import {
   SENIOR_PAYMENTS,
   VMP_PAYMENTS,
   php,
+  php2,
   planRate,
 } from "@/lib/villa-pricing";
 
@@ -219,8 +220,8 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).toContain("Structure");
     expect(html).toContain("Life plan");
     // Every figure is DERIVED from the live pricing document through the one
-    // helper — the captain's ₱114,000 / ₱128,000 / ₱567,000 / ₱1,073,000 and
-    // the plan's entry monthly rate (regular table).
+    // helper — the monthly installments and, on the lot cards, the recorded total
+    // contract prices (₱114,000 / ₱128,000 / ₱567,000 / ₱1,073,000).
     for (const card of content.plansLots.items) {
       const figures = planLotCardFigures(card, LOT_PRICE_CATEGORIES, SEED_PLANS);
       expect(figures, card.title).not.toBeNull();
@@ -229,15 +230,24 @@ describe("the home renders the anchored catalogue shell", () => {
     for (const line of ["₱114,000", "₱128,000", "₱567,000", "₱1,073,000", "2.5 sqm · lot only · regular", "12 sqm · lot only · regular", "24 sqm · lot only · regular"]) {
       expect(html).toContain(line);
     }
-    // The plan card prints the live entry monthly rate (Bronze 1, regular).
-    expect(html).toContain(`from ${php(planRate("bronze1", "monthly"))}`);
+    // The monthly installment LEADS and the card names the term (minutes item 8,
+    // 2026-09-21): a lot records its six-year term, a plan names the pending one.
+    expect(html).toContain("class=\"monthly-price__amount\">₱1,920.00");
+    expect(html).toContain("Payment term: 6 years (72 months)");
+    expect(html).toContain("Total contract price ₱128,000");
+    // The plan card prints the live entry monthly rate (Bronze 1, regular) and
+    // the honest pending-term wording — the plan sheet records no month count.
+    expect(html).toContain(php2(planRate("bronze1", "monthly")));
+    expect(html).toContain("Payment term pending Villa Funeraria confirmation");
     expect(html).toContain("/ month");
     expect(html).toContain("Complete memorial service, assignable &amp; transferable.");
     // The captain's closing note prints verbatim (React escapes the apostrophes).
     expect(html).toContain(
-      "Prices shown are the regular &#x27;lot only&#x27; selling prices and the Villa Memorial Plan monthly rate from the 2026 price list.",
+      "Prices shown are the monthly installments from the 2026 price list.",
     );
-    expect(html).toContain("Senior, installment and interment options are on each plan page.");
+    expect(html).toContain(
+      "Senior rates, payment terms and interment options are on each plan and lot page.",
+    );
   });
 
   it("renders the Villa Memorial Plan board from the 2026 payment-mode tables", async () => {

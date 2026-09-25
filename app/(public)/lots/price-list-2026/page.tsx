@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PriceList2026Tables } from "@/components/villa/price-list-2026";
+import { MonthlyPriceTable } from "@/components/villa/monthly-price-table";
 import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
+import { lotMonthlyPrice } from "@/lib/monthly-pricing";
 import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
 import { PARK_PLACE_PHOTOS } from "@/lib/media";
@@ -46,6 +48,15 @@ export default async function PriceList2026Page() {
     getPageDocument("plans").catch(() => null),
   ]);
   const plan = planContentFromDocument(plansPage);
+  // The minutes' monthly-first summary (item 8, 2026-09-21): one row per lot
+  // product, the monthly installment leading and the 6-year term named.
+  const lotMonthlyRows = pricing.lotCategories.flatMap((category) =>
+    category.rows.map((row) => ({
+      product: row.product,
+      family: category.caption,
+      price: lotMonthlyPrice(row.regular),
+    })),
+  );
   return (
     <div className={`${containerClass("catalogue")} stack-4 catalogue-page`}>
       <PublicHero
@@ -80,6 +91,16 @@ export default async function PriceList2026Page() {
           </li>
         ))}
       </ul>
+
+      <section className="catalogue-band" aria-labelledby="installments-title">
+        <SectionHead
+          id="installments-title"
+          kicker="At a glance"
+          title="Monthly installments"
+          lead="The monthly installment with its six-year term and the total contract price."
+        />
+        <MonthlyPriceTable rows={lotMonthlyRows} />
+      </section>
 
       <section className="catalogue-band" aria-labelledby="lot-rates-title">
         <SectionHead

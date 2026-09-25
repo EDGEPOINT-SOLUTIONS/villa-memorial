@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ErrorState } from "@/components/ui/states";
 import { PublicHero } from "@/components/kit";
 import { listLots, type Lot } from "@/lib/api-client/property";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { buildLotListing } from "@/lib/lot-listing-data";
 import { parseLotFilters, parseLotsSort } from "@/lib/lot-listing";
 import { pageMetadata } from "@/lib/seo";
@@ -55,7 +56,10 @@ export default async function LotsPage({
     );
   }
 
-  const { items, parks, statuses, types, sections } = buildLotListing(lots);
+  const { items, parks, statuses, types, sections } = buildLotListing(
+    lots,
+    (await loadPricingDocument()).lotCategories,
+  );
 
   const initialFilters = parseLotFilters(params, {
     parks: parks.map((park) => park.id),
