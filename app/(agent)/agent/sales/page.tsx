@@ -148,7 +148,7 @@ export default async function AgentSalesPage() {
                   : "Progress against the target the office set."}
               </p>
             </div>
-            <hr style={{ border: "none", borderTop: "1px solid var(--sky-100)", margin: "var(--space-4) 0" }} />
+            <hr style={{ border: "none", borderTop: "1px solid var(--color-border)", margin: "var(--space-4) 0" }} />
             <dl className="ag-kv">
               <dt>People contacted this month</dt>
               <dd>{commission.conversion.contacted}</dd>
