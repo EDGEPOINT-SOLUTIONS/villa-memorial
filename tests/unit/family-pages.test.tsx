@@ -63,7 +63,9 @@ const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "Your lot", Page: LotPage, headline: "is your family’s place at the park" },
   { name: "Ask for a visit", Page: VisitPage, headline: "we will set a day" },
   { name: "Requests", Page: RequestsPage, headline: "with us right now" },
-  { name: "What we tell you about", Page: NoticesPage, headline: "Nothing has been sent" },
+  // The recorded plan has a due-soon instalment, so the page leads with its in-system
+  // payment reminder; the honest empty state is pinned in family-calm-state instead.
+  { name: "What we tell you about", Page: NoticesPage, headline: "payment reminder" },
   { name: "Privacy Center", Page: PrivacyPage, headline: "shared unless you say so" },
   { name: "Your family", Page: FamilyDashboardPage, headline: "everything your family holds" },
 ];

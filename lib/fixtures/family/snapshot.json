@@ -2,7 +2,7 @@
   "_provenance": {
     "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
     "recorded": "2026-09-16",
-    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree. `recent_documents[].kind` is the family-safe classification (service_contract / official_receipt / other): the first two are the family's own papers, the portal never asks them to request those, and `lib/api-client/family.ts::toFamilyDocument` drops every field a document record carries beyond title/status/kind/reference/issued_on/amount/covers."
+    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree. `recent_documents[].kind` is the family-safe classification (service_contract / official_receipt / other): the first two are the family's own papers, the portal never asks them to request those, and `lib/api-client/family.ts::toFamilyDocument` drops every field a document record carries beyond title/status/kind/reference/issued_on/amount/covers. `payment_schedule` is the family's own plan instalments (client minute 2026-09-21, item 1): it records the payment mode, the first due date and each instalment's amount/paid in integer minor units; `lib/payment-schedule.ts` DERIVES every due date and the due-soon/overdue state, and the two-days-before notice. The dates are recorded data and age with the clock exactly like the billing seed; tests pin the boundary with explicit clocks so they never rot."
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
   "family": {
@@ -18,7 +18,18 @@
     "plan_name": "Premium Lawn · Lawn A-01",
     "status": "Active",
     "term": "5 years",
-    "next_due": "Sep 15, 2026 · ₱12,000"
+    "next_due": "Sep 27, 2026 · ₱12,000"
+  },
+  "payment_schedule": {
+    "reference": "VM-PLAN-2026-0188",
+    "term": "monthly",
+    "first_due_on": "2026-07-27",
+    "installments": [
+      { "seq": 1, "amount_cents": 1000000, "paid_cents": 1000000 },
+      { "seq": 2, "amount_cents": 1000000, "paid_cents": 1000000 },
+      { "seq": 3, "amount_cents": 1200000, "paid_cents": 0 },
+      { "seq": 4, "amount_cents": 1000000, "paid_cents": 0 }
+    ]
   },
   "balance": {
     "total": "₱42,000",

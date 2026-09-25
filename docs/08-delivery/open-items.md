@@ -1,10 +1,12 @@
 # Open items — what is waiting on whom
 
-**Last updated:** 2026-09-19 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
+**Last updated:** 2026-09-25 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
 ([readable artifact](./prd-alignment-audit/prd-alignment-audit.html)).
 
-This is the standing short list after the audit: four items, plus one platform contract ask the
-PDP media pass raised ([§5](#5-platform-ask--the-media-upload-object-store-c12)). **Items 1, 2
+This is the standing short list after the audit: four items, plus two platform contract asks —
+the PDP media pass's object store ([§5](#5-platform-ask--the-media-upload-object-store-c12)) and
+the payment-due-notification pass's family payment schedule
+([§6](#6-platform-ask--the-family-payment-schedule)). **Items 1, 2
 and 4 are closed** — item 1 by the captain's 2026-09-18 decision, items 2 and 4 by the front
 end's completion (the delivered record is [front-end complete](./frontend-complete.md)). **Item
 3 is the open list:** the five answers only Villa can give. Each item says what it is, why it
@@ -17,6 +19,8 @@ not a report — every claim links to the document that owns it.
 2. [Which gap to build next — closed](#2-which-gap-to-build-next)
 3. [Client questions for Villa — OPEN](#3-client-questions-for-villa)
 4. [The queued final commerce phase — closed](#4-the-queued-final-commerce-phase)
+5. [Platform ask — the media upload object store (C12) — OPEN](#5-platform-ask--the-media-upload-object-store-c12)
+6. [Platform ask — the family payment schedule — OPEN](#6-platform-ask--the-family-payment-schedule)
 
 ---
 
@@ -180,8 +184,34 @@ object store exists: the route writes local files and names that plainly.
 **Who can act.** The platform (freeze the C12 upload/object-store contract). Nothing in this
 repo can close it; the local store stays until the contract lands.
 
+## 6. Platform ask — the family payment schedule
+
+**Status: OPEN — platform-owned.** The client's minute (2026-09-21, item 1) asks that clients be
+notified of upcoming payment due dates. The audit's family API ask has no frozen shape, so this
+pass records the family's plan instalments in the provisional family snapshot
+(`lib/fixtures/family/snapshot.json` → `payment_schedule`), read through the tolerant
+`parsePaymentSchedule` (`lib/payment-schedule.ts`), and DERIVES every due date, the state and the
+two-days-before reminder from it. The shape is app-authored until a contract freezes it.
+
+**What the platform owns.** The frozen `billing-list-api-v1` already carries the pieces the app
+needs on the staff side — `due_at` and, on `GET /:number`, `installments[]` (`seq`, `due_date`,
+`amount_cents`, `paid_cents`). It names no family-facing read, so the family portal cannot read a
+client's real schedule yet. A family-facing billing read (or the family contract exposing its
+plan's instalments) is the platform's to freeze.
+
+**How the seam is built for it.** `parsePaymentSchedule` already accepts the frozen field names
+(`seq`, `amount_cents`, `paid_cents`) plus a `first_due_on`/`term` pair; when the contract lands,
+only that reader's source changes to the service call, and every surface keeps calling
+`paymentDues` / `paymentDueNotices`. Amounts stay integer minor units formatted for display only
+(repo money rule), and the external channels are declared in `lib/payment-reminder-channels.ts`
+for the P4 notification service — not built here.
+
+**Who can act.** The platform (freeze the family billing read or the family contract's plan
+shape). Nothing in this repo can close it; the fixture schedule stays until the contract lands.
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
-as the decision record, item 3 the open list. The audit and the linked documents remain the
-authoritative record.*
+as the decision record, item 3 the open list. Updated 2026-09-25 — §6 added by the
+payment-due-notification pass. The audit and the linked documents remain the authoritative
+record.*

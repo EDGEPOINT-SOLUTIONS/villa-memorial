@@ -1,8 +1,15 @@
-import { Banknote, FileText, MessageCircle, Phone, Store } from "lucide-react";
+import { Banknote, CalendarClock, FileText, MessageCircle, Phone, Store } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
+import {
+  longDueDate,
+  paymentAmountLabel,
+  paymentDueCountdown,
+  paymentDueStateLabel,
+  unpaidPaymentDues,
+} from "@/lib/payment-schedule";
 import {
   Answer,
   PaidSoFar,
@@ -19,20 +26,28 @@ import { PortalChip } from "@/components/portal/portal-ui";
 export const metadata = { title: "Payments — Villa Memorial" };
 
 /**
- * Payments — the family's “My Payments” screen (PRD screen-inventory),
- * compressed to the family reading budget (2026-09-21): the figure leads, the
- * three ways are rows, and the history sits behind the ONE shared
- * `WhatThisShows` disclosure. The duplicate “official receipts” section is gone
- * (receipts live on Papers, linked here).
+ * Payments — the family's “My Payments” screen (PRD screen-inventory).
  *
- * Real today: the balance and the three ways a family can pay. The payment
- * history is not wired, and the disclosure says so in one line — never an empty
- * table that reads as if the family had never paid.
+ * The client's minute (2026-09-21, item 1) asks for payment-due notification: the
+ * client should see what is coming, so the plan's own instalments render as rows
+ * with the reference, what is still owed and the derived due date. The due-soon /
+ * overdue wording comes from `lib/payment-schedule.ts` — computed from the recorded
+ * plan against today, never a background timer the demo cannot run. `now` is the
+ * server's clock; the demo's own schedule ages with it exactly like the billing
+ * seed, and tests pin the two-days-before boundary with explicit clocks.
+ *
+ * The payment history still isn't wired, and the ONE shared `WhatThisShows`
+ * disclosure says so in a line — never an empty table that reads as if the family
+ * had never paid.
  */
 export default async function ClientPaymentsPage() {
   await requirePortalSessionOrRedirect("family");
   const snapshot = await getFamilySnapshot();
   const { balance, balance_cents, plan_summary } = snapshot;
+
+  const now = new Date();
+  const schedule = snapshot.payment_schedule;
+  const openPayments = schedule ? unpaidPaymentDues(schedule, now) : [];
 
   const hasBalance = (balance_cents?.remaining ?? 0) > 0;
   const percent =
@@ -78,6 +93,28 @@ export default async function ClientPaymentsPage() {
         percent={percent ?? undefined}
         words={percent === null ? "in all" : percentWords(percent)}
       />
+
+      {schedule && openPayments.length > 0 ? (
+        <Section
+          id="coming"
+          title="What’s coming"
+          sub="Every date still open on your plan."
+        >
+          <Rows>
+            {openPayments.map((due) => (
+              <Row
+                key={due.seq}
+                icon={<CalendarClock size={22} aria-hidden="true" />}
+                title={`${paymentAmountLabel(due.due_cents)} ${paymentDueCountdown(due.days_until_due)}`}
+                meta={`${due.reference} · payment ${due.seq} of ${schedule.installments.length} · ${longDueDate(due.due_on)}`}
+                state={paymentDueStateLabel(due.state)}
+                wait
+                action={<QuietAction href={FAMILY_HELP.phoneHref} label="Call about this" />}
+              />
+            ))}
+          </Rows>
+        </Section>
+      ) : null}
 
       <Section
         id="ways"
