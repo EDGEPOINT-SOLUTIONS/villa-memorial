@@ -13,7 +13,10 @@ that show the same thing look the same, and the honesty rules below apply on bot
 | `DataTable` | Every admin table: header, sortable columns, status chips, empty state, self-contained horizontal scroll. | `data-table.tsx` |
 | `ResultsGrid` | A responsive card grid (3 desktop / 2 tablet / 1 phone) with its own empty and no-match states. | `results-grid.tsx` |
 | `ProductCard` | One sellable item: photograph first, title, supporting line, price, status chip, one action slot. | `product-card.tsx` |
-| `FilterRail` | A sticky filter panel: grouped collapsible sections, per-option counts, a price-range group, a phone sheet. | `filter-rail.tsx` |
+| `ListingShell` | The frame around a storefront listing: a sticky left rail, a results/sort bar, and one Filters sheet on a phone. | `listing-shell.tsx` |
+| `RefinePanel` | The Amazon-familiar refine panel: collapsible groups, per-option live counts, a price range with quick bands. | `refine-panel.tsx` |
+| `ListingNav` | The rail for a listing that browses rather than filters (a price list's or gallery's own sections). | `listing-nav.tsx` |
+| `FilterRail` | A sticky filter panel for an admin result list: grouped collapsible sections, per-option counts, a price-range group, a phone sheet. | `filter-rail.tsx` |
 | `StatusChip` | One status word + colour (the six `Badge` tones, closed vocabulary). | `status-chip.tsx` |
 | `EmptyState` | The empty / no-match state for a list, table or grid. | `empty-state.tsx` |
 | `StatCard` | One KPI figure with its label and its basis (`kpi-card` tile). | `stat-card.tsx` |
@@ -49,13 +52,14 @@ that show the same thing look the same, and the honesty rules below apply on bot
   grammar reads `ProductCard` + `ResultsGrid`: `/lots`, `/plans`, `/packages` and `/products`
   (the casket catalogue). The duplicate `components/villa/shop-card.tsx` was deleted; its exact
   markup is now `ProductCard`'s (the availability chip under the figure, plus the casket's
-  `senior` line), so the swap is byte-identical. `FilterRail` is NOT adopted on `/lots`: the
-  captain-approved Amazon rail there is a different grammar (`<button>` group heads with chevron
-  carets, count pills, quick price ranges, an in-place sheet) from this rail's `<details>` /
-  min-max / modal-sheet shape, so moving it would be a restyle. It stays landed; promoting that
-  Amazon grammar into the kit is an open decision. `/services`, `/facilities` and `/gallery`
-  keep their captain-approved bespoke card grammars; `/map` and `/builder` have no kit-shaped
-  pattern.
+  `senior` line), so the swap is byte-identical.
+- **Adopted — the storefront listing grammar (2026-09-25):** the captain promoted the
+  `/lots` Amazon rail into the kit. `ListingShell` + `RefinePanel` are the one frame and
+  panel now: `/lots` and `/products` render them (Collection/Cover/Price, Section/
+  Availability/Lot type/Area/Price), and `/gallery` filters its photo sets through the same
+  pair; `/price-list` browses its bands through `ListingNav` in the same shell. The older
+  `FilterRail` stays for admin result lists; it is a different interaction (modal sheet,
+  `<details>` groups) and was not the grammar the storefront adopted.
 
 ## Adding a screen
 

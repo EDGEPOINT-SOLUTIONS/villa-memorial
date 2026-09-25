@@ -105,7 +105,7 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
   let html: string;
 
   beforeAll(async () => {
-    html = await renderWithCart(await ProductsPage());
+    html = await renderWithCart(await ProductsPage({ searchParams: Promise.resolve({}) }));
   });
 
   it("renders every model with its SRP, senior discount and discounted price", () => {

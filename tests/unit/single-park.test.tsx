@@ -54,7 +54,7 @@ describe("the product carries Villa Memorial Park alone", () => {
     expect(html.match(/class="cat-band"/g) ?? []).toHaveLength(1);
     expect(html).toContain('aria-label="Villa Memorial"');
     // The one-option Park refine group is gone with the other parks.
-    expect(html).not.toContain('lot-filter__group">Park<');
+    expect(html).not.toContain('refine-group__label">Park<');
     expect(html).not.toContain("Loyola Gardens");
     expect(html).not.toContain("Golden Haven");
   });

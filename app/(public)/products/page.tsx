@@ -6,21 +6,15 @@ import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
-import { COFFIN_SKUS } from "@/lib/catalogue-skus";
+import { buildCasketListing, casketFacetIds, parseCasketFilters, parseCasketsSort } from "@/lib/casket-listing";
 import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
-import {
-  CasketInclusionTable,
-  CasketModelCards,
-  type SellableCasket,
-} from "@/components/villa/casket-catalogue";
+import { CasketInclusionTable } from "@/components/villa/casket-catalogue";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { heroTextColourStyle } from "@/lib/landing/hero-background";
-import {
-  containerClass,
-  gridVisibleCount,
-} from "@/lib/public-layout";
+import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
+import { ProductsListing } from "./products-listing";
 
 export const metadata: Metadata = pageMetadata({
   title: "Coffins & caskets — Villa Memorial",
@@ -33,46 +27,34 @@ export const metadata: Metadata = pageMetadata({
 // what the NEXT visitor sees, never a build-time snapshot.
 export const dynamic = "force-dynamic";
 
-/** Bind each sheet model to its catalogue entry (SKU map: lib/catalogue-skus.ts). */
-function bindCaskets(
-  items: Awaited<ReturnType<typeof listCatalogItems>>,
-): SellableCasket[] {
-  const bySku = new Map(items.map((item) => [item.sku, item]));
-  return CASKET_MODELS.flatMap((model) => {
-    const sku = COFFIN_SKUS.find((entry) => entry.model === model.model)?.sku;
-    const item = sku ? bySku.get(sku) : undefined;
-    return item ? [{ model, item }] : [];
-  });
-}
-
 /**
  * Coffins & caskets — the client's full 2026 casket catalogue at published
  * prices, sold as a SHOP (catalogue page blueprint, plan §5.3 / lane 2 of the
- * public design plan, `data/villa-public-design-plan`).
+ * public design plan).
  *
- * THE STRUCTURE (Phase 0 contract). The page renders the shared grammar — an
- * interior `PublicHero` (one sentence + one commitment + the real count), a
- * `SectionHead`, the card grid through the kit, and `PublicDisclosure` above the
- * long lists — so a phone gets the catalogue's shape in a handful of screens
- * instead of the measured 23.5. The first eight models render; the rest sit in
- * one "Show all N" disclosure (plan §3 R8: a browsing rail shows 6–8 tiles);
- * the sheet's five-tier reference and
- * the per-family inclusions each sit behind their own disclosure. Every figure,
- * photograph, SKU and detail route is unchanged — this is a density pass, not a
- * content change.
+ * THE STRUCTURE (captain 2026-09-25, Amazon-familiar): the shared interior
+ * `PublicHero`, then a real product LISTING — a sticky left rail (Collection ·
+ * Cover · Price), a results count with a sort control, and an even picture-first
+ * grid of `ProductCard`s, the same grammar /lots uses. The first eight matches
+ * render; the rest sit in one "Show all N" disclosure (plan §3 R8).
  *
- * Cards stay the shared `ProductCard` grammar (photograph leads, one gold
- * per-item action, the quieter Request/View-details links), now two-up inside
- * the 75rem catalogue envelope on a phone (`.catalogue-page .casket-grid`), so
- * a reader compares models rather than scrolling one screen per coffin.
+ * The sheet's five-tier reference and the per-family inclusions each sit behind
+ * their own disclosure. Every figure, photograph, SKU and detail route is
+ * unchanged — the server half shapes the rows (`buildCasketListing`) and the
+ * client half (`./products-listing.tsx`) filters and sorts them in place.
  *
  * Provenance for every figure: lib/villa-pricing.ts; for every photograph:
  * lib/client-photos.ts + the 24-row table in lib/media.ts.
  */
-export default async function ProductsPage() {
-  let items: Awaited<ReturnType<typeof listCatalogItems>>;
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  let catalogItems: Awaited<ReturnType<typeof listCatalogItems>>;
   try {
-    items = await listCatalogItems();
+    catalogItems = await listCatalogItems();
   } catch {
     return (
       <div className="stack-4">
@@ -87,12 +69,12 @@ export default async function ProductsPage() {
   ]);
   const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
 
-  const caskets = bindCaskets(items);
-  const visibleModels = caskets.slice(0, gridVisibleCount(caskets.length));
-  const moreModels = caskets.slice(gridVisibleCount(caskets.length));
-  const moreNeeded = moreModels.length > 0;
+  const caskets = buildCasketListing(catalogItems);
+  const facetIds = casketFacetIds(caskets);
+  const initialFilters = parseCasketFilters(params, facetIds);
+  const initialSort = parseCasketsSort(typeof params.sort === "string" ? params.sort : undefined);
   const [leadTier, ...higherTiers] = COFFINS;
-  const priceBy = new Map(items.map((line) => [line.sku, line.display_price]));
+  const priceBy = new Map(catalogItems.map((line) => [line.sku, line.display_price]));
   const priceOf = (sku: string) => priceBy.get(sku) ?? null;
   const fromPrice = CASKET_MODELS.length
     ? php(Math.min(...CASKET_MODELS.map((model) => model.srp)))
@@ -132,14 +114,11 @@ export default async function ProductsPage() {
             hint="The five tiers are shown below; send a request and the office will confirm the model, its published 2026 price and availability."
           />
         ) : (
-          <>
-            <CasketModelCards caskets={visibleModels} indexCaskets={caskets} />
-            {moreNeeded && moreModels.length > 0 ? (
-              <PublicDisclosure count={caskets.length} summary={`Show all ${caskets.length} models`}>
-                <CasketModelCards caskets={moreModels} showIndex={false} />
-              </PublicDisclosure>
-            ) : null}
-          </>
+          <ProductsListing
+            items={caskets}
+            initialFilters={initialFilters}
+            initialSort={initialSort}
+          />
         )}
       </section>
 

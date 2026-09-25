@@ -174,10 +174,16 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // band → the inclusions → the closing band. Lane 2's catalogue envelope.
     name: "/products (coffins & caskets)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await ProductsPage())),
+      renderToStaticMarkup(
+        createElement(
+          CartProvider,
+          null,
+          await ProductsPage({ searchParams: Promise.resolve({}) }),
+        ),
+      ),
     sections: [
       'data-public-hero="interior"',
-      "casket-index",
+      "listing-layout",
       'class="shop-grid casket-grid"',
       "coffin-tiers-title",
       "casket-inclusions-title",
@@ -190,7 +196,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "/lots (memorial lots)",
     render: async () =>
       renderToStaticMarkup(await LotsPage({ searchParams: Promise.resolve({}) })),
-    sections: ['data-public-hero="interior"', "lot-layout", "cat-band", "public-disclosure"],
+    sections: ['data-public-hero="interior"', "listing-layout", "cat-band", "public-disclosure"],
     requires: ["data-public-disclosure"],
   },
   {

@@ -125,32 +125,29 @@ describe("wrapping capsule controls at 390", () => {
     expect(offenders).toEqual([]);
   });
 
-  it("the /lots listing replaced the capsule with full-width checkbox rows", () => {
-    // Captain 2026-09-20 rebuilt /lots as a product listing whose filter rail is
-    // a 17rem column of refine rows. A 999px capsule inside that column resolves
-    // to an ellipse as soon as the types wrap — so the listing stopped using
-    // `.seg-filter` entirely and declares its own 44px rows. The generic cap
-    // above still covers every surface that keeps the capsule (/plans).
-    const panelSource = readSource("app/(public)/lots/lot-filters.tsx");
+  it("the listing rail is a sticky column that becomes a phone sheet", () => {
+    // The shared kit panel and shell (promoted from /lots; adopted by /products
+    // on 2026-09-25) are the one grammar every storefront listing renders.
+    const panelSource = readSource("components/kit/refine-panel.tsx");
     expect(panelSource).not.toContain("seg-filter");
-    const row = ruleFor(RULES, ".lot-filter__row");
+    const row = ruleFor(RULES, ".refine-option");
     expect(declares(row, "min-height", /2\.75rem/)).toBe(true);
     // The rail is sticky on desktop and hidden below the rail breakpoint in
-    // favour of the phone sheet (the same rule pair that keeps results reachable
-    // at 390 without a column pushing them down).
+    // favour of the phone sheet (so results are reachable at 390 without a
+    // column pushing them down).
     const rail = RULES.find(
-      (r) => selectors(r).includes(".lot-rail") && declares(r, "display", /none/),
+      (r) => selectors(r).includes(".listing-rail") && declares(r, "display", /none/),
     );
     expect(rail, "the rail is hidden below its breakpoint").toBeDefined();
     const railDesktop = RULES.filter(
-      (r) => selectors(r).includes(".lot-rail") && /position:\s*sticky/.test(r.body),
+      (r) => selectors(r).includes(".listing-rail") && /position:\s*sticky/.test(r.body),
     );
     expect(railDesktop.length).toBe(1);
     const sheetHidden = RULES.find(
-      (r) => selectors(r).includes(".lot-sheet") && declares(r, "display", /none/),
+      (r) => selectors(r).includes(".listing-sheet") && declares(r, "display", /none/),
     );
     expect(sheetHidden, "the phone sheet is hidden on desktop").toBeDefined();
-    expect(readSource("app/(public)/lots/lot-listing.tsx")).toContain("lot-sheet__toggle");
+    expect(readSource("components/kit/listing-shell.tsx")).toContain("listing-sheet__toggle");
   });
 });
 

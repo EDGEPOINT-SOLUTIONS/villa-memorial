@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { type AnchorHTMLAttributes, type ReactNode } from "react";
@@ -43,28 +43,42 @@ vi.mock("next/navigation", () => ({
 
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { lotPhoto } = await import("@/lib/lot-imagery");
-const { RefinePanel } = await import("@/app/(public)/lots/lot-filters");
-const { EMPTY_LOT_FILTERS } = await import("@/lib/lot-listing");
+const { RefinePanel } = await import("@/components/kit");
 
-/** Render the refine panel on its own so the phone-only Apply action (mounted
- *  behind client state a server render never opens) can be inspected. */
-function renderPanel(apply: boolean): string {
+/** Render the shared kit refine panel on its own, so the controls the listing
+ *  builds around it can be inspected without the page's server half. */
+function renderPanel(): string {
   return renderToStaticMarkup(
     <RefinePanel
-      filters={{ ...EMPTY_LOT_FILTERS }}
-      counts={{ parks: {}, statuses: {}, types: {}, sections: {}, areas: {} }}
-      parks={[{ id: "villa", label: "Villa Memorial" }]}
-      statuses={[{ id: "available", label: "Available" }]}
-      types={[{ id: "lt-prime", label: "Prime lots" }]}
-      sections={["A"]}
-      priceRanges={[
-        { id: "up-to", label: "Up to ₱128,000.00", minCents: 0, maxCents: 12_800_000 },
+      title="Refine lots by"
+      groups={[
+        {
+          key: "statuses",
+          title: "Availability",
+          options: [{ id: "available", label: "Available" }],
+          counts: { available: 1 },
+          selected: [],
+        },
+        {
+          key: "types",
+          title: "Lot type",
+          options: [{ id: "lt-prime", label: "Prime lots" }],
+          counts: { "lt-prime": 1 },
+          selected: [],
+        },
       ]}
       onToggle={() => {}}
       onClear={() => {}}
-      onPriceApply={() => {}}
-      onQuickRange={() => {}}
-      {...(apply ? { onApply: () => {}, applyLabel: "Show 16 lots" } : {})}
+      activeCount={0}
+      price={{
+        minCents: null,
+        maxCents: null,
+        quickRanges: [
+          { id: "up-to", label: "Up to ₱128,000.00", minCents: 0, maxCents: 12_800_000 },
+        ],
+        onApply: () => {},
+        onQuickRange: () => {},
+      }}
     />,
   );
 }
@@ -96,7 +110,7 @@ function priceOf(card: string): number | null {
 
 /** The row for one refine option, so a test can read its checked state + count. */
 function optionRow(html: string, label: string): string {
-  const parts = html.split('<label class="lot-filter__row"');
+  const parts = html.split('<label class="refine-option"');
   return parts.find((p) => p.includes(`>${label}<`)) ?? "";
 }
 
@@ -229,15 +243,15 @@ describe("the /lots product listing", () => {
     const html = await renderPage();
     expect(html).toContain("Refine lots by");
     // ONE park means no one-option Park group; the band header names it instead.
-    expect(html).not.toContain('lot-filter__group">Park<');
+    expect(html).not.toContain('refine-group__label">Park<');
     expect(html).toContain("Villa Memorial");
     for (const group of ["Section", "Availability", "Lot type", "Area", "Price"]) {
-      expect(html, group).toContain(`lot-filter__group">${group}<`);
+      expect(html, group).toContain(`refine-group__label">${group}<`);
     }
     // Every option carries its live result count; a zero-count option stays in
     // the panel, dimmed rather than hidden.
     expect(html).toContain("16 plots · 10 available · Isabela City");
-    expect(optionRow(html, "Over 15 sqm")).toContain('class="lot-filter__count">0</span>');
+    expect(optionRow(html, "Over 15 sqm")).toContain('class="refine-option__count">0</span>');
     expect(optionRow(html, "Over 15 sqm")).toContain('data-empty="true"');
     // Price is a min/max pair plus quick ranges read from the published figures.
     expect(html).toContain("Min ₱");
@@ -248,11 +262,11 @@ describe("the /lots product listing", () => {
 
   it("puts the same panel behind the phone control, opened on demand", async () => {
     const html = await renderPage();
-    expect(html).toContain('class="lot-sheet__toggle"');
+    expect(html).toContain('class="listing-sheet__toggle"');
     expect(html).toContain("Filters");
     // Closed by default, so the results lead on a phone (the panel is mounted
     // only when the control is used — no hidden duplicate inputs).
-    expect(html).not.toContain('class="lot-sheet__panel"');
+    expect(html).not.toContain('class="listing-sheet__panel"');
   });
 });
 
@@ -297,16 +311,19 @@ describe("one control ladder for /lots", () => {
     expect(emptyClear).toBe("btn btn--secondary btn--sm");
   });
 
-  it("gives the desktop Go and the phone Apply the same commit rung", () => {
-    const html = renderPanel(true);
+  it("rides the commit rung: the panel's Go and the phone sheet's Apply", () => {
+    const html = renderPanel();
     expect(html).toContain('class="btn btn--primary">Go</button>');
-    expect(html).toContain('class="btn btn--primary lot-sheet__apply"');
     // The quick ranges stay subordinate, but ride the same `.btn` ladder (which
     // also gives them the phone 44px touch target the old chip never reached).
-    expect(html).toContain('class="btn btn--secondary btn--sm lot-filter__quick-link"');
-    expect(html).not.toMatch(/class="lot-filter__quick-link"/);
-    // Without an apply handler the rail renders no Apply button.
-    expect(renderPanel(false)).not.toContain("lot-sheet__apply");
+    expect(html).toContain('class="btn btn--secondary btn--sm refine-price__quick-link"');
+    expect(html).not.toMatch(/class="refine-price__quick-link"/);
+    // The phone sheet's Apply is the shell's, and rides the same commit rung.
+    const shell = readFileSync(
+      fileURLToPath(new URL("../../components/kit/listing-shell.tsx", import.meta.url)),
+      "utf8",
+    );
+    expect(shell).toContain("btn btn--primary listing-sheet__apply");
   });
 });
 

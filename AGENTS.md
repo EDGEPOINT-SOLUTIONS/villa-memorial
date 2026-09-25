@@ -95,9 +95,11 @@ on backend services.
 
 - **`components/kit/` is the one home for the repeated layouts.** `DataTable` (admin tables:
   header, sortable columns, status chips, empty state, self-panning), `ResultsGrid` +
-  `ProductCard` (the card grid and the photograph-first product card), `FilterRail` (sticky
-  grouped filter panel with counts, a price group and a phone sheet), `StatCard` (a KPI
-  figure), `StatusChip` and `EmptyState`. The kit's own `README.md` carries the rules it
+  `ProductCard` (the card grid and the photograph-first product card), `ListingShell` +
+  `RefinePanel` (the storefront listing frame: sticky rail, results/sort bar, phone sheet, and
+  the Amazon-familiar refine controls) with `ListingNav` for a browse rail, `FilterRail` (an
+  admin result list's sticky grouped filter panel), `StatCard` (a KPI figure), `StatusChip` and
+  `EmptyState`. The kit's own `README.md` carries the rules it
   encodes (tokens only; figures/labels/status lead; every list has an empty AND a no-match
   state; photographs lead; honest data only) and its adoption status.
 - **New screens render the kit; they do not invent a layout.** A table, chip, KPI tile or empty
@@ -113,11 +115,12 @@ on backend services.
   `/price-list`, `/products` (2026-09-21). The `components/villa/shop-card.tsx` duplicate is gone —
   kit `ProductCard` owns that grammar exactly (status under the figure, plus the casket `senior`
   line); `ResultsGrid.label` is optional so a grid inside a labelled band adds no `aria-label`.
-  `FilterRail` is deliberately NOT on `/lots`: the captain-approved Amazon rail there is a
-  different grammar (button group heads with carets, count pills, quick price ranges, an in-place
-  phone sheet), so forcing the kit rail would be a restyle. The delta, the byte-identical DOM and
-  the 1440/390 screenshot evidence are in
-  `docs/08-delivery/component-kit-public-adoption-design/`. Kit CSS lives in the
+  `FilterRail` stays for admin result lists; the captain promoted the `/lots` Amazon rail into
+  the kit on 2026-09-25 as `ListingShell` + `RefinePanel` (now rendered by `/lots`,
+  `/products` and `/gallery`), with `ListingNav` for a browse rail (`/price-list`). The
+  byte-identical DOM delta and the 1440/390 evidence for the 2026-09-21 adoption are in
+  `docs/08-delivery/component-kit-public-adoption-design/`; the 2026-09-25 listing grammar
+  record is `docs/08-delivery/storefront-listing-design/`. Kit CSS lives in the
   "Component kit" blocks of `styles/components.css` so the typography gate scans it.
 
 ## Self-check commands (before every PR)
@@ -856,13 +859,16 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   `coffinCover`): the sheet states lids per SAMPLE coffin, never per model. Lumina names
   no cover, so its detail view says the office confirms the cover
   (`COFFIN_COVER_UNSTATED`) rather than guessing.
-- **`/products` is ONE continuous card grid, not four collection bands (UI/UX pass, 2026-09-21).**
+- **`/products` is an Amazon-familiar product listing, not four collection bands (2026-09-25).**
   The single Lumina band stranded one card in a row of four; the page now renders a
-  static collection index (name · count · entry price, no filter — `lib/fixtures/content/pages.json`'s
-  `coffins` lead is the same one sentence the page falls back to) above a flat grid in the
-  sheet's collection order. `.casket-grid` (not the shared `.shop-grid`) owns the column floor:
-  **3 across at 1440/1280, 2 at 1024/900/768, 1 at ≤600** — `min(100%, 21rem)`, no extra media
-  query (the shared 26rem floor gave 2 × 604px at 1280 and 1 × 852px at 900). A card is
+  sticky left refine rail (Collection · Cover · Price — `lib/casket-listing.ts`,
+  `components/kit/listing-shell.tsx` + `refine-panel.tsx`) beside one even
+  picture-first grid in the sheet's collection order, with a results count and a
+  sort control. The old static collection index (name · count · entry price, no
+  filter) was removed — the rail's Collection group does that job and stays in
+  view. `.casket-grid` (not the shared `.shop-grid`) owns the column floor:
+  **3 across at 1440/1280, 2 at 1024 and below the rail breakpoint** —
+  `min(100%, 16.5rem)` beside the 17rem rail. A card is
   picture → family → name → ONE supporting line (the cover; Lumina reads "Cover confirmed by the
   office", the long `COFFIN_COVER_UNSTATED` stays on the detail view) → the prominent SRP → one
   compact senior line → **ONE primary action** (the gold `Add to cart`), with `Request order` and
@@ -871,9 +877,9 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   The card's caption is one short
   `COFFIN_SAMPLE_NOTE` ("Illustration purposes only."); the full `COFFIN_TIER_NOTE` prints once
   below the tier band and on the detail view. Cards fell from a 50–73-word `<li>` (avg 54.8) to
-  29–39 (avg 32.9). Evidence + 1440/390 shots + measured columns/overflow:
-  `docs/08-delivery/products-listing-design/`; the word/one-primary-action rules are pinned by
-  `tests/unit/products-listing.test.tsx`.
+  29–39 (avg 32.9). The listing restructure's record + structural inventory:
+  `docs/08-delivery/storefront-listing-design/`; the word/one-primary-action rules are pinned by
+  `tests/unit/products-listing.test.tsx`, the pure model by `tests/unit/casket-listing.test.ts`.
 - Casket details are a **route, not a dialog**: `/products/[sku]` (SKU from
   `coffinSku` in `lib/catalogue-skus.ts`; resolve with `coffinModelForSku`, anything
   else → 404). Every catalogue card carries "View details", and the detail page's
