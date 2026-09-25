@@ -3,6 +3,7 @@ import { getDashboardSummary } from "@/lib/api-client/reporting";
 import { listCases } from "@/lib/api-client/operations";
 import { listLots } from "@/lib/api-client/property";
 import { listInvoices } from "@/lib/api-client/finance";
+import { buildPaymentAlerts, type PaymentAlertSource } from "@/lib/payment-alerts";
 
 /**
  * Module I tests. The dashboard no longer has a fixture of its own — it aggregates the
@@ -76,6 +77,40 @@ describe("dashboard summary reconciles with the sources it summarises", () => {
     expect(summary.activity.orders_this_month).toBeNull();
   });
 
+  it("payment alerts reconcile with the invoices classified by the shared rule", async () => {
+    const now = new Date("2026-09-25T12:00:00Z");
+    const summary = await getDashboardSummary(now);
+    const invoices = await listInvoices(now);
+    const sources: PaymentAlertSource[] = invoices.map((invoice) => ({
+      id: invoice.id,
+      reference: invoice.invoice_number,
+      client: invoice.customer_name,
+      amount_cents: Math.max(0, invoice.total_cents - invoice.paid_cents),
+      due_at: invoice.due_at,
+    }));
+    const expected = buildPaymentAlerts(sources, now);
+
+    expect(summary.payment_alerts).not.toBeNull();
+    expect(summary.payment_alerts!.overdue_count).toBe(expected.overdue_count);
+    expect(summary.payment_alerts!.due_soon_count).toBe(expected.due_soon_count);
+    expect(summary.payment_alerts!.total).toBe(expected.total);
+    expect(summary.payment_alerts!.overdue_cents).toBe(expected.overdue_cents);
+  });
+
+  it("splits upcoming from overdue with an explicit clock (the two-day window)", async () => {
+    // At 2026-09-01 the recorded seed carries one payment due in exactly two days
+    // (INV-2026-00006, due 2026-09-03) and five already past their date.
+    const now = new Date("2026-09-01T00:00:00Z");
+    const summary = await getDashboardSummary(now);
+
+    expect(summary.payment_alerts!.due_soon_count).toBe(1);
+    expect(summary.payment_alerts!.due_soon[0].reference).toBe("INV-2026-00006");
+    expect(summary.payment_alerts!.due_soon[0].days_until_due).toBe(2);
+    expect(summary.payment_alerts!.overdue_count).toBe(5);
+    expect(summary.payment_alerts!.total).toBe(6);
+    expect(summary.payment_alerts!.overdue.every((a) => a.days_until_due < 0)).toBe(true);
+  });
+
   it("a failing source nulls only its own section", async () => {
     // listInvoices throws when a live base URL is set but the session is absent; the
     // dashboard must still return the sections it could read.
@@ -83,5 +118,6 @@ describe("dashboard summary reconciles with the sources it summarises", () => {
     expect(summary).toHaveProperty("cases");
     expect(summary).toHaveProperty("lots");
     expect(summary).toHaveProperty("finance");
+    expect(summary).toHaveProperty("payment_alerts");
   });
 });

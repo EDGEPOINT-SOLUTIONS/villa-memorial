@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState } from "@/components/ui/states";
+import { PaymentAlertBand } from "./payment-alert-band";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getDashboardSummary, type DashboardSummary } from "@/lib/api-client/reporting";
@@ -72,6 +73,7 @@ export default async function StaffDashboardPage() {
   const lots = summary?.lots;
   const cases = summary?.cases;
   const finance = summary?.finance;
+  const paymentAlerts = summary?.payment_alerts ?? null;
   const casesOther = cases ? cases.total - cases.active - cases.completed : 0;
 
   return (
@@ -86,6 +88,9 @@ export default async function StaffDashboardPage() {
           </span>
         }
       />
+
+      {/* Red payment alert — dues two days out and past, from the shared two-day rule */}
+      {canSeeFinance && paymentAlerts ? <PaymentAlertBand summary={paymentAlerts} /> : null}
 
       {/* KPI tiles — at-a-glance numbers */}
       <div className="kpi-grid">

@@ -34,6 +34,11 @@
  */
 import { ApiError } from "@/lib/api-client/api-error";
 import { liveModeEnabled } from "@/lib/live-mode";
+import {
+  buildPaymentAlerts,
+  type PaymentAlertSource,
+  type PaymentAlertSummary,
+} from "@/lib/payment-alerts";
 import { listCases } from "@/lib/api-client/operations";
 import { listLots } from "@/lib/api-client/property";
 import { billingLiveModeEnabled, listInvoices } from "@/lib/api-client/finance";
@@ -98,6 +103,11 @@ export type DashboardSummary = {
   cases: CaseSummary | null;
   lots: LotSummary | null;
   finance: FinanceSummary | null;
+  /**
+   * The dashboard's due-soon / overdue payments, derived through the shared two-day
+   * rule (`lib/payment-alerts.ts`). null when the billing source could not be read.
+   */
+  payment_alerts: PaymentAlertSummary | null;
   activity: ActivitySummary;
 };
 
@@ -149,6 +159,7 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
   }
 
   let finance: FinanceSummary | null = null;
+  let paymentAlerts: PaymentAlertSummary | null = null;
   if (invoicesResult.status === "fulfilled") {
     const all = invoicesResult.value;
     finance = {
@@ -161,12 +172,23 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
       collections_this_month_cents: null,
       currency: all[0]?.currency ?? "PHP",
     };
+    // The dashboard alert surface: the same invoices, classified by the shared
+    // two-day rule the family reminder runs on — never a second due-soon threshold.
+    const sources: PaymentAlertSource[] = all.map((invoice) => ({
+      id: invoice.id,
+      reference: invoice.invoice_number,
+      client: invoice.customer_name,
+      amount_cents: Math.max(0, invoice.total_cents - invoice.paid_cents),
+      due_at: invoice.due_at,
+    }));
+    paymentAlerts = buildPaymentAlerts(sources, now);
   }
 
   return {
     cases,
     lots,
     finance,
+    payment_alerts: paymentAlerts,
     activity: { new_inquiries_this_month: null, orders_this_month: null },
   };
 }
