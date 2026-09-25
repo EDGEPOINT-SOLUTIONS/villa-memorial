@@ -1,16 +1,7 @@
 "use client";
 
-import { ErrorState } from "@/components/ui/states";
+import { PageError } from "@/components/ui/page-error";
 
 export default function CustomersError({ reset }: { reset: () => void }) {
-  return (
-    <div className="stack-4">
-      <ErrorState message="We couldn't load the customer list just now." />
-      <div>
-        <button className="btn btn--secondary btn--sm" onClick={reset}>
-          Try again
-        </button>
-      </div>
-    </div>
-  );
+  return <PageError message="We couldn't load the customer list just now." reset={reset} />;
 }

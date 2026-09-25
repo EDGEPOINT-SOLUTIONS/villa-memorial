@@ -3,11 +3,11 @@ import { SidebarDisclosure } from "@/components/ui/sidebar-disclosure";
 import { SidebarNav } from "@/components/ui/sidebar-nav";
 
 /**
- * App shell: sky-blue sidebar (captain's 2026-09-17 brand call — the staff nav
- * is a light-sky surface carrying navy ink, styled by the .app-shell block in
- * styles/components.css) with brass accents on the active link; collapses to
- * stacked layout below 48rem (design-system.md). Generic by design — labels and
- * sections arrive as props.
+ * App shell: a white Admin Portal rail with a sky edge on the active item
+ * (captain's 2026-09-25 UI/UX renovation — grounds are white product-wide and
+ * the brand blue rides only controls), styled by the .app-shell block in
+ * styles/components.css; the rail collapses to a disclosed menu below 48rem
+ * (design-system.md). Generic by design — labels and sections arrive as props.
  */
 export function AppShell({
   brandEyebrow,

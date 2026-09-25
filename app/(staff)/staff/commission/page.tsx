@@ -1,9 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { ApiError } from "@/lib/api-client/api-error";
 import { loadCommissionAdmin } from "@/lib/api-client/commission";
 import {
@@ -163,55 +165,35 @@ export default async function CommissionPage() {
       />
 
       <PageSection>
-        <div className="alert alert--warning">
-          <div>
-            <p>
-              <strong>Rates and targets are not configured.</strong>
-            </p>
-            <p className="mb-0">
-              {data.placeholder_note} A blank here means &ldquo;{COMMISSION_NOT_CONFIGURED}&rdquo;,
-              never a zero — the figures the product does know are labelled as real records.
-            </p>
-          </div>
-        </div>
+        <Alert tone="warning">
+          <p>
+            <strong>Rates and targets are not configured.</strong>
+          </p>
+          <p className="mb-0">
+            {data.placeholder_note} A blank here means &ldquo;{COMMISSION_NOT_CONFIGURED}&rdquo;,
+            never a zero — the figures the product does know are labelled as real records.
+          </p>
+        </Alert>
       </PageSection>
 
       <PageSection>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Commission payable</span>
-              <span className="kpi-card__value">{COMMISSION_BLANK_AMOUNT}</span>
-              <span className="kpi-card__sub">{COMMISSION_NOT_CONFIGURED}</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Rate basis</span>
-              <span className="kpi-card__value">—</span>
-              <span className="kpi-card__sub">{COMMISSION_NOT_CONFIGURED}</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Target</span>
-              <span className="kpi-card__value">{COMMISSION_BLANK_AMOUNT}</span>
-              <span className="kpi-card__sub">No target set</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Sales on record</span>
-              <span className="kpi-card__value">
-                {pool.sales.length > 0 ? pool.sales.length : "—"}
-              </span>
-              <span className="kpi-card__sub">
-                {saleValueLabel
-                  ? `${saleValueLabel} · confirmed or fulfilled`
-                  : "No sale on record yet"}
-              </span>
-            </span>
-          </span>
+          <StatCard
+            label="Commission payable"
+            value={COMMISSION_BLANK_AMOUNT}
+            sub={COMMISSION_NOT_CONFIGURED}
+          />
+          <StatCard label="Rate basis" value="—" sub={COMMISSION_NOT_CONFIGURED} />
+          <StatCard label="Target" value={COMMISSION_BLANK_AMOUNT} sub="No target set" />
+          <StatCard
+            label="Sales on record"
+            value={pool.sales.length > 0 ? pool.sales.length : "—"}
+            sub={
+              saleValueLabel
+                ? `${saleValueLabel} · confirmed or fulfilled`
+                : "No sale on record yet"
+            }
+          />
         </div>
       </PageSection>
 

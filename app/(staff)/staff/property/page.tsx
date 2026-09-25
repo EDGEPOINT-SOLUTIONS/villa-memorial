@@ -1,6 +1,7 @@
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { PropertyExplorer } from "@/components/property-explorer";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
@@ -99,21 +100,18 @@ export default async function PropertyPage({
           {["available", "reserved", "sold", "occupied"]
             .filter((key) => (statusCounts[key] ?? 0) > 0)
             .map((key) => (
-              <span key={key} className="card kpi-card">
-                <span className="kpi-card__body">
-                  <span className="kpi-card__label">{key.replace(/_/g, " ")}</span>
-                  <span className="kpi-card__value">{statusCounts[key]}</span>
-                  <span className="kpi-card__sub">lots in this state</span>
-                </span>
-              </span>
+              <StatCard
+                key={key}
+                label={key.replace(/_/g, " ")}
+                value={statusCounts[key]}
+                sub="lots in this state"
+              />
             ))}
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Total lots</span>
-              <span className="kpi-card__value">{lots.length}</span>
-              <span className="kpi-card__sub">across {new Set(lots.map((l) => l.section)).size} sections</span>
-            </span>
-          </span>
+          <StatCard
+            label="Total lots"
+            value={lots.length}
+            sub={`across ${new Set(lots.map((l) => l.section)).size} sections`}
+          />
         </div>
 
         <PropertyExplorer

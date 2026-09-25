@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
@@ -249,14 +250,12 @@ export default async function CopilotPage({
       </p>
 
       <PageSection>
-        <div className="alert alert--warning">
-          <div>
-            <p>
-              <strong>No model is connected to this screen.</strong>
-            </p>
-            <p className="mb-0">{COPILOT_NOT_A_MODEL_NOTE}</p>
-          </div>
-        </div>
+        <Alert tone="warning">
+          <p>
+            <strong>No model is connected to this screen.</strong>
+          </p>
+          <p className="mb-0">{COPILOT_NOT_A_MODEL_NOTE}</p>
+        </Alert>
       </PageSection>
 
       <PageSection>

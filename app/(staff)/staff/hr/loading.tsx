@@ -1,13 +1,11 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export default function LoadingHr() {
   return (
-    <>
-      <PageHeader eyebrow="Operations" title="Staff directory" />
-      <PageSection>
-        <div className="skeleton skeleton--text" style={{ width: "22rem" }} />
-        <div className="skeleton" style={{ height: "10rem", marginTop: "var(--space-4)" }} />
-      </PageSection>
-    </>
+    <PageLoading
+      eyebrow="Operations"
+      title="Staff directory"
+      width="22rem"
+    />
   );
 }

@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader, PageSection } from "@/components/ui/page";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { DataTable, StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listEmployees } from "@/lib/api-client/hr";
@@ -85,10 +85,14 @@ export default async function HrPage({
       />
 
       <div className="kpi-grid" style={{ marginBottom: "var(--space-5)" }}>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Team</span><span className="kpi-card__value">{employees.length}</span><span className="kpi-card__sub">total staff</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Active</span><span className="kpi-card__value">{activeCount}</span><span className="kpi-card__sub">currently working</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">On leave</span><span className="kpi-card__value">{onLeave}</span><span className="kpi-card__sub">away today</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Departments</span><span className="kpi-card__value">{new Set(employees.map((e) => e.department)).size}</span><span className="kpi-card__sub">across the team</span></span></span>
+        <StatCard label="Team" value={employees.length} sub="total staff" />
+        <StatCard label="Active" value={activeCount} sub="currently working" />
+        <StatCard label="On leave" value={onLeave} sub="away today" />
+        <StatCard
+          label="Departments"
+          value={new Set(employees.map((e) => e.department)).size}
+          sub="across the team"
+        />
       </div>
 
       <PageSection>
@@ -122,56 +126,57 @@ export default async function HrPage({
           ) : null}
         </form>
 
-        {filtered.length === 0 ? (
-          <EmptyState
-            title={
-              query || statusFilter ? "No employees match your filter" : "No employees found"
+        <DataTable
+          columns={[
+            { key: "number", header: "Number" },
+            { key: "name", header: "Name" },
+            { key: "role", header: "Role", className: "text-sm" },
+            { key: "department", header: "Department", className: "text-sm" },
+            { key: "status", header: "Status" },
+            { key: "hire_date", header: "Hire date", className: "text-sm" },
+          ]}
+          rows={filtered}
+          rowKey={(emp) => emp.id}
+          emptyTitle={
+            query || statusFilter ? "No employees match your filter" : "No employees found"
+          }
+          emptyHint={
+            query || statusFilter
+              ? "Try a different search or clear the filter."
+              : "Employee records will appear here once the HR service is connected."
+          }
+          renderCell={(emp, column) => {
+            switch (column.key) {
+              case "number":
+                return <code>{emp.employee_number}</code>;
+              case "name":
+                return (
+                  <span className="name-cell">
+                    <span className="name-avatar" aria-hidden="true">
+                      {emp.first_name.charAt(0)}{emp.last_name.charAt(0)}
+                    </span>
+                    <Link href={`/staff/hr/${emp.id}`} className="name-cell__link">
+                      {emp.first_name} {emp.last_name}
+                    </Link>
+                  </span>
+                );
+              case "role":
+                return emp.role;
+              case "department":
+                return DEPT_LABEL[emp.department] ?? emp.department;
+              case "status":
+                return (
+                  <Badge tone={STATUS_TONE[emp.employment_status] ?? "neutral"}>
+                    {emp.employment_status.replace(/_/g, " ")}
+                  </Badge>
+                );
+              case "hire_date":
+                return emp.hire_date;
+              default:
+                return null;
             }
-            hint={
-              query || statusFilter
-                ? "Try a different search or clear the filter."
-                : "Employee records will appear here once the HR service is connected."
-            }
-          />
-        ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Number</th>
-                  <th scope="col">Name</th>
-                  <th scope="col">Role</th>
-                  <th scope="col">Department</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Hire date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((emp) => (
-                  <tr key={emp.id}>
-                    <td><code>{emp.employee_number}</code></td>
-                    <td>
-                      <span className="name-cell">
-                        <span className="name-avatar" aria-hidden="true">{emp.first_name.charAt(0)}{emp.last_name.charAt(0)}</span>
-                        <Link href={`/staff/hr/${emp.id}`} className="name-cell__link">
-                          {emp.first_name} {emp.last_name}
-                        </Link>
-                      </span>
-                    </td>
-                    <td className="text-sm">{emp.role}</td>
-                    <td className="text-sm">{DEPT_LABEL[emp.department] ?? emp.department}</td>
-                    <td>
-                      <Badge tone={STATUS_TONE[emp.employment_status] ?? "neutral"}>
-                        {emp.employment_status.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
-                    <td className="text-sm">{emp.hire_date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          }}
+        />
       </PageSection>
     </>
   );

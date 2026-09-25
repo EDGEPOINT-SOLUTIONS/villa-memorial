@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader, PageSection } from "@/components/ui/page";
-import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { DataTable, StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listDocuments } from "@/lib/api-client/documents";
@@ -99,10 +99,10 @@ export default async function DocumentsPage({
       />
 
       <div className="kpi-grid" style={{ marginBottom: "var(--space-5)" }}>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Documents</span><span className="kpi-card__value">{documents.length}</span><span className="kpi-card__sub">in repository</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Receipts</span><span className="kpi-card__value">{receipts}</span><span className="kpi-card__sub">official receipts</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Contracts</span><span className="kpi-card__value">{contracts}</span><span className="kpi-card__sub">agreements</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Certificates</span><span className="kpi-card__value">{certificates}</span><span className="kpi-card__sub">service certificates</span></span></span>
+        <StatCard label="Documents" value={documents.length} sub="in repository" />
+        <StatCard label="Receipts" value={receipts} sub="official receipts" />
+        <StatCard label="Contracts" value={contracts} sub="agreements" />
+        <StatCard label="Certificates" value={certificates} sub="service certificates" />
       </div>
 
       <PageSection>
@@ -144,77 +144,80 @@ export default async function DocumentsPage({
           ) : null}
         </form>
 
-        {filtered.length === 0 ? (
-          <EmptyState
-            title={typeFilter || statusFilter ? "No documents match your filter" : "No documents found"}
-            hint={
-              typeFilter || statusFilter
-                ? "Try a different filter."
-                : "Generated receipts and certificates appear here as they are issued."
+        <DataTable
+          columns={[
+            { key: "number", header: "Number" },
+            { key: "title", header: "Title" },
+            { key: "type", header: "Type" },
+            { key: "case", header: "Case", className: "text-sm" },
+            { key: "order", header: "Order", className: "text-sm" },
+            { key: "status", header: "Status" },
+            { key: "uploaded", header: "Uploaded by", className: "text-sm" },
+            { key: "date", header: "Date", className: "text-sm" },
+            { key: "size", header: "Size", className: "text-sm" },
+            { key: "artifact", header: "Artifact", className: "text-sm" },
+          ]}
+          rows={filtered}
+          rowKey={(doc) => doc.id}
+          emptyTitle={
+            typeFilter || statusFilter ? "No documents match your filter" : "No documents found"
+          }
+          emptyHint={
+            typeFilter || statusFilter
+              ? "Try a different filter."
+              : "Generated receipts and certificates appear here as they are issued."
+          }
+          renderCell={(doc, column) => {
+            switch (column.key) {
+              case "number":
+                return (
+                  <Link href={`/staff/documents/${doc.id}`}>
+                    <code>{doc.document_number}</code>
+                  </Link>
+                );
+              case "title":
+                return doc.title;
+              case "type":
+                return (
+                  <Badge tone={TYPE_TONE[doc.document_type] ?? "neutral"}>
+                    {doc.document_type}
+                  </Badge>
+                );
+              case "case":
+                return doc.related_case_number ?? "—";
+              case "order":
+                return doc.related_order_number ?? "—";
+              case "status":
+                return (
+                  <Badge tone={STATUS_TONE[doc.status] ?? "neutral"}>
+                    {doc.status.replace(/_/g, " ")}
+                  </Badge>
+                );
+              case "uploaded":
+                return doc.uploaded_by;
+              case "date":
+                return new Date(doc.uploaded_at).toLocaleDateString();
+              case "size":
+                return formatFileSize(doc.file_size_bytes);
+              case "artifact":
+                return doc.file_size_bytes > 0 ? (
+                  <a
+                    href={`/api/documents/${doc.id}/render`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    View
+                  </a>
+                ) : (
+                  // No artifact to open: an uploaded file has no body in v1, and the
+                  // service stores no binaries. Saying so beats a link that 404s.
+                  <span className="text-muted">not stored</span>
+                );
+              default:
+                return null;
             }
-          />
-        ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Number</th>
-                  <th scope="col">Title</th>
-                  <th scope="col">Type</th>
-                  <th scope="col">Case</th>
-                  <th scope="col">Order</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Uploaded by</th>
-                  <th scope="col">Date</th>
-                  <th scope="col">Size</th>
-                  <th scope="col">Artifact</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((doc) => (
-                  <tr key={doc.id}>
-                    <td>
-                      <Link href={`/staff/documents/${doc.id}`}>
-                        <code>{doc.document_number}</code>
-                      </Link>
-                    </td>
-                    <td>{doc.title}</td>
-                    <td>
-                      <Badge tone={TYPE_TONE[doc.document_type] ?? "neutral"}>
-                        {doc.document_type}
-                      </Badge>
-                    </td>
-                    <td className="text-sm">{doc.related_case_number ?? "—"}</td>
-                    <td className="text-sm">{doc.related_order_number ?? "—"}</td>
-                    <td>
-                      <Badge tone={STATUS_TONE[doc.status] ?? "neutral"}>
-                        {doc.status.replace(/_/g, " ")}
-                      </Badge>
-                    </td>
-                    <td className="text-sm">{doc.uploaded_by}</td>
-                    <td className="text-sm">{new Date(doc.uploaded_at).toLocaleDateString()}</td>
-                    <td className="text-sm">{formatFileSize(doc.file_size_bytes)}</td>
-                    <td className="text-sm">
-                      {doc.file_size_bytes > 0 ? (
-                        <a
-                          href={`/api/documents/${doc.id}/render`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          View
-                        </a>
-                      ) : (
-                        // No artifact to open: an uploaded file has no body in v1, and the
-                        // service stores no binaries. Saying so beats a link that 404s.
-                        <span className="text-muted">not stored</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          }}
+        />
       </PageSection>
     </>
   );

@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { ApiError } from "@/lib/api-client/api-error";
 import {
   loadCasesByStageReport,
@@ -116,12 +118,12 @@ function CollectionsPanel({
 }) {
   if (!report.available) {
     return (
-      <div className="alert alert--info">
+      <Alert tone="info">
         <p className="mb-0">
           Live mode cannot list payments: the frozen billing list contract names no payments
           endpoint, so this report stays empty until reporting-analytics supplies one.
         </p>
-      </div>
+      </Alert>
     );
   }
   if (report.count === 0) {
@@ -135,27 +137,17 @@ function CollectionsPanel({
   return (
     <>
       <div className="kpi-grid">
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Collected</span>
-            <span className="kpi-card__value">{formatterCurrency(report.total_cents)}</span>
-            <span className="kpi-card__sub">{periodLabel(period)}</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Payments</span>
-            <span className="kpi-card__value">{report.count}</span>
-            <span className="kpi-card__sub">recorded at the counter</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Months</span>
-            <span className="kpi-card__value">{report.months.length}</span>
-            <span className="kpi-card__sub">with a collection</span>
-          </span>
-        </span>
+        <StatCard
+          label="Collected"
+          value={formatterCurrency(report.total_cents)}
+          sub={periodLabel(period)}
+        />
+        <StatCard label="Payments" value={report.count} sub="recorded at the counter" />
+        <StatCard
+          label="Months"
+          value={report.months.length}
+          sub="with a collection"
+        />
       </div>
       <div className="table-wrapper mt-4" tabIndex={0}>
         <table className="table">
@@ -218,12 +210,12 @@ function CollectionsPanel({
 function SalesPanel({ report, period }: { report: SalesByAgentReport; period: DatePeriod }) {
   if (!report.available) {
     return (
-      <div className="alert alert--info">
+      <Alert tone="info">
         <p className="mb-0">
           The order admin is not wired in live mode (no order-admin contract), so this report
           stays empty until reporting-analytics supplies it.
         </p>
-      </div>
+      </Alert>
     );
   }
   if (report.orders.length === 0) {
@@ -237,31 +229,21 @@ function SalesPanel({ report, period }: { report: SalesByAgentReport; period: Da
   return (
     <>
       <div className="kpi-grid">
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Sales value</span>
-            <span className="kpi-card__value">
-              {formatterCurrency(report.total_cents, report.currency)}
-            </span>
-            <span className="kpi-card__sub">every order in the period, cancellations included</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Orders</span>
-            <span className="kpi-card__value">{report.orders.length}</span>
-            <span className="kpi-card__sub">
-              {report.cancelled} cancelled, kept visible
-            </span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Attributed sales</span>
-            <span className="kpi-card__value">0</span>
-            <span className="kpi-card__sub">no agent is recorded on an order</span>
-          </span>
-        </span>
+        <StatCard
+          label="Sales value"
+          value={formatterCurrency(report.total_cents, report.currency)}
+          sub="every order in the period, cancellations included"
+        />
+        <StatCard
+          label="Orders"
+          value={report.orders.length}
+          sub={`${report.cancelled} cancelled, kept visible`}
+        />
+        <StatCard
+          label="Attributed sales"
+          value="0"
+          sub="no agent is recorded on an order"
+        />
       </div>
       <p className="text-sm text-muted mt-4">
         Orders do not record which agent sold them. Attribution is the missing input, supplied
@@ -316,33 +298,25 @@ function OccupancyPanel({
   return (
     <>
       <div className="kpi-grid">
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Period</span>
-            <span className="kpi-card__value">{periodLabel(period)}</span>
-            <span className="kpi-card__sub">inclusive calendar days</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Lots on the books</span>
-            <span className="kpi-card__value">
-              {report.lots ? report.lots.reduce((sum, row) => sum + row.count, 0) : "—"}
-            </span>
-            <span className="kpi-card__sub">
-              {report.lots ? "all recorded statuses" : "property lots could not be read"}
-            </span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Chapels</span>
-            <span className="kpi-card__value">{report.chapels ? report.chapels.length : "—"}</span>
-            <span className="kpi-card__sub">
-              {report.chapels ? "on the scheduling books" : "the chapel calendar could not be read"}
-            </span>
-          </span>
-        </span>
+        <StatCard
+          label="Period"
+          value={periodLabel(period)}
+          sub="inclusive calendar days"
+        />
+        <StatCard
+          label="Lots on the books"
+          value={report.lots ? report.lots.reduce((sum, row) => sum + row.count, 0) : "—"}
+          sub={report.lots ? "all recorded statuses" : "property lots could not be read"}
+        />
+        <StatCard
+          label="Chapels"
+          value={report.chapels ? report.chapels.length : "—"}
+          sub={
+            report.chapels
+              ? "on the scheduling books"
+              : "the chapel calendar could not be read"
+          }
+        />
       </div>
 
       <h3 className="page-section-title mt-4">Lots</h3>
@@ -456,29 +430,20 @@ function CasesPanel({ report, period }: { report: CasesByStageReport; period: Da
   return (
     <>
       <div className="kpi-grid">
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Cases opened</span>
-            <span className="kpi-card__value">{report.total}</span>
-            <span className="kpi-card__sub">{periodLabel(period)}</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Completed</span>
-            <span className="kpi-card__value">
-              {report.rows.find((row) => row.stage === "completed")?.count ?? 0}
-            </span>
-            <span className="kpi-card__sub">of the cases opened in the period</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">On the board</span>
-            <span className="kpi-card__value">{report.total - (report.rows.find((row) => row.stage === "completed")?.count ?? 0)}</span>
-            <span className="kpi-card__sub">still in progress</span>
-          </span>
-        </span>
+        <StatCard label="Cases opened" value={report.total} sub={periodLabel(period)} />
+        <StatCard
+          label="Completed"
+          value={report.rows.find((row) => row.stage === "completed")?.count ?? 0}
+          sub="of the cases opened in the period"
+        />
+        <StatCard
+          label="On the board"
+          value={
+            report.total -
+            (report.rows.find((row) => row.stage === "completed")?.count ?? 0)
+          }
+          sub="still in progress"
+        />
       </div>
       <div className="table-wrapper mt-4" tabIndex={0}>
         <table className="table">

@@ -784,6 +784,10 @@ input[type="checkbox"] {
 
 /* --- Loading skeleton --------------------------------------------------------- */
 .skeleton {
+  /* Neutral shimmer (UI renovation, 2026-09-25): the loading state sat on the
+     navy ladder, so every staff screen flashed a blue tint while its data
+     loaded. Grounds are white and the neutral quiet wash is granite, so the
+     placeholder rides the same neutral ladder — a state, not a brand surface. */
   border-radius: var(--radius-sm);
   background: linear-gradient(
     90deg,
@@ -4412,14 +4416,15 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-3);
   transition:
     box-shadow var(--motion-base),
-    transform var(--motion-base),
     border-color var(--motion-base);
 }
 
+/* Sharpened (UI renovation, 2026-09-25): the hover lift was one more "lit
+   object" tell (buttons already lost their sheen). A tile reads as interactive
+   through its shadow + border step; it does not float. */
 .kpi-card:hover {
   box-shadow: var(--shadow-raised);
   border-color: var(--color-border-strong);
-  transform: translateY(-2px);
 }
 
 .kpi-card__body {
@@ -4896,6 +4901,14 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-status-danger-ink);
 }
 
+/* The board's page wrapper (referenced since /staff/ops shipped but never
+   defined — the alert and the board then sat flush together). One column with
+   the section rhythm keeps a task/notice alert clear of the lanes. */
+.ops-board-view {
+  display: grid;
+  gap: var(--space-4);
+}
+
 .ops-board__readonly,
 .ops-board__basis {
   margin: 0 0 var(--space-4);
@@ -5269,6 +5282,13 @@ because the shared `.ag-appt` rule comes later in this file. */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* The day-header label in the head row (referenced since the matrix shipped but
+   never defined — it inherited the head row by accident; the rule is now real
+   so a re-template cannot lose it). */
+.week-matrix__day {
+  white-space: nowrap;
 }
 
 .week-matrix__cell {
@@ -9137,18 +9157,19 @@ a.card:hover {
  * Phase 1 (captain's revision) of the admin premium pass: ONE coherent
  * direction applied to the staff portal chrome + the dashboard sample page.
  * Direction = the COO blue/gold "Radiant Compassion" palette adapted for
- * admin screens — deep navy sidebar with warm gold accents, cool paper
- * content, navy display titles, gold focus/active states. Token decisions
- * live in tokens.css (navy/gold primitives + staff roles). Everything here is
- * scoped to the staff shell (.app-shell / .app-main) so public, family and
- * agent surfaces keep their exact DOC granite/marble/brass look.
+ * admin screens, updated by the captain's 2026-09-25 UI/UX renovation: white
+ * grounds product-wide, sky confined to controls + the footer, a white rail
+ * with a sky active edge, and FLAT gold rules (no sheen gradients, no hover
+ * lifts). Token decisions live in tokens.css (navy/gold primitives + staff
+ * roles). Everything here is scoped to the staff shell (.app-shell /
+ * .app-main) so public, family and agent surfaces keep their own look.
  *
  * Motifs (see docs/02-architecture/premium-admin-direction.md):
- *  - deep navy side surface with a soft gold bloom and ivory type
- *  - gold hairline family: top edge of the staff top bar + page-header rules
- *  - display serif titles in navy ink; gold eyebrows on light content
- *  - cool paper desk-light content surface; hairlines carry separation
+ *  - white rail + white content desk; hairlines carry separation
+ *  - flat gold rule at the top bar edge and under a section title
+ *  - black display titles; gold eyebrows; a sky edge on the active nav item
  *  - navy primary interactions; gold reserved for ceremonial moments
+ *  - tiles step their shadow on hover; nothing floats
  */
 
 
@@ -9200,7 +9221,9 @@ a.card:hover {
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--gold-hairline);
+  /* Flat gold rule (UI renovation, 2026-09-25): the fade-out gradient was a
+     sheen, the same template tell the button pass removed. One crisp line. */
+  background: var(--gold-400);
 }
 
 /* --- White admin rail ---------------------------------------------------------
@@ -9220,7 +9243,7 @@ a.card:hover {
 }
 
 .app-shell .app-sidebar__eyebrow {
-  /* --gold-800 = the dark gold ink that holds AA on the light sky surface. */
+  /* --gold-800 = the dark gold ink that holds AA on the white rail. */
   color: var(--color-text-accent);
   letter-spacing: 0.18em;
 }
@@ -9275,8 +9298,8 @@ a.card:hover {
   color: var(--color-text-primary);
 }
 
-/* Portal switch on the light sky sidebar: the inverse variant's dark-surface
-   inks flip to navy ink; the current portal keeps its gold accent. */
+/* Portal switch on the white rail: the inverse variant's dark-surface inks
+   flip to the ink ladder; the current portal keeps its gold accent. */
 .app-shell .app-sidebar .portal-switch__label {
   color: var(--color-text-secondary);
 }
@@ -9346,10 +9369,10 @@ a.card:hover {
   width: 3rem;
   height: 2px;
   margin-top: var(--space-2);
-  background: linear-gradient(90deg, var(--gold-400), transparent);
+  background: var(--gold-400);
 }
 
-/* --- KPI tiles: navy display figures on paper, gold lift on hover -------------- */
+/* --- KPI tiles: navy display figures on paper, one gold rule on hover ---------- */
 .app-shell .app-main .kpi-card {
   background: var(--color-bg-surface-raised);
   padding: var(--space-5);
@@ -9359,8 +9382,7 @@ a.card:hover {
   transition:
     box-shadow var(--motion-base),
     border-color var(--motion-base),
-    border-top-color var(--motion-base),
-    transform var(--motion-base);
+    border-top-color var(--motion-base);
 }
 
 .app-shell .app-main .kpi-card::before {
@@ -9370,7 +9392,7 @@ a.card:hover {
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--gold-400), color-mix(in srgb, var(--gold-400) 30%, transparent));
+  background: var(--gold-400);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   opacity: 0;
   transition: opacity var(--motion-base);
@@ -9379,7 +9401,6 @@ a.card:hover {
 .app-shell .app-main .kpi-card:hover {
   border-color: color-mix(in srgb, var(--navy-300) 70%, var(--color-border));
   box-shadow: var(--shadow-card-hover);
-  transform: translateY(-2px);
 }
 
 .app-shell .app-main .kpi-card:hover::before {

@@ -6,6 +6,7 @@ import {
   type DataTableColumn,
 } from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
+import { Alert } from "@/components/ui/alert";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { ApiError } from "@/lib/api-client/api-error";
 import { INVENTORY_NOT_WIRED, loadInventory } from "@/lib/api-client/inventory";
@@ -165,9 +166,9 @@ export default async function InventoryPage({
       />
 
       <PageSection>
-        <div className="alert alert--warning">
+        <Alert tone="warning">
           <p className="mb-0">{INVENTORY_NOT_WIRED}</p>
-        </div>
+        </Alert>
       </PageSection>
 
       <PageSection>

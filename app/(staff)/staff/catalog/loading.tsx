@@ -1,13 +1,12 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export default function LoadingCatalog() {
   return (
-    <>
-      <PageHeader eyebrow="Commerce" title="Catalog" />
-      <PageSection>
-        <div className="skeleton skeleton--text" style={{ width: "22rem" }} />
-        <div className="skeleton" style={{ height: "12rem", marginTop: "var(--space-4)" }} />
-      </PageSection>
-    </>
+    <PageLoading
+      eyebrow="Commerce"
+      title="Catalog"
+      width="22rem"
+      height="12rem"
+    />
   );
 }
