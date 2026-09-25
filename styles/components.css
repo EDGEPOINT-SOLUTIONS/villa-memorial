@@ -1322,7 +1322,8 @@ input[type="checkbox"] {
 }
 
 /* The lead's figure is the band's loudest number — a real 2026 amount, read
-   through lib/villa-pricing.ts / the pricing store, never typed into a view. */
+   through lib/villa-pricing.ts / the pricing store, never typed into a view.
+   Right-sized (captain 2026-09-25): a total is 22px, never display type. */
 .ledger__figure {
   margin: 0;
   display: flex;
@@ -1330,7 +1331,7 @@ input[type="checkbox"] {
   align-items: baseline;
   gap: var(--space-2) var(--space-3);
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -1508,7 +1509,7 @@ a.ledger__row:hover .ledger__row-title {
 }
 
 .cat-lead .ledger__figure {
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
 }
 
 .cat-lead .ledger__actions {
@@ -2395,7 +2396,7 @@ a.ledger__row:hover .ledger__row-title {
 }
 
 .item-card__price {
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 700;
   color: var(--color-text-accent);
 }
@@ -2903,7 +2904,7 @@ a.ledger__row:hover .ledger__row-title {
 
 .stat__value {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-accent);
   line-height: 1;
 }
@@ -4468,7 +4469,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .kpi-card__value {
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   line-height: 1.1;
   color: var(--color-text-primary);
 }
@@ -4909,7 +4910,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .ops-summary__value {
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   line-height: 1.1;
   color: var(--color-text-primary);
 }
@@ -5722,7 +5723,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .detail-sticky__price {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-accent);
   line-height: 1.1;
 }
@@ -7869,7 +7870,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .svc-total__amount {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -7953,7 +7954,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   align-items: baseline;
   gap: var(--space-2);
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -9604,7 +9605,7 @@ a.card:hover {
   background: var(--gold-400);
 }
 
-/* --- KPI tiles: navy display figures on paper, one gold rule on hover ---------- */
+/* --- KPI tiles: paper, a quiet figure, one gold rule on hover ---------------- */
 .app-shell .app-main .kpi-card {
   background: var(--color-bg-surface-raised);
   padding: var(--space-5);
@@ -9645,7 +9646,7 @@ a.card:hover {
 }
 
 .app-shell .app-main .kpi-card__value {
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   color: var(--color-figure);
   letter-spacing: -0.01em;
 }
@@ -9691,7 +9692,7 @@ a.card:hover {
 
 .app-shell .app-main .finance-glance__amount {
   color: var(--color-text-accent);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
 }
 
 .app-shell .app-main .finance-glance__row {
@@ -10137,7 +10138,7 @@ a.card:hover {
 
 .paper-hero__price-value {
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   color: #ffffff;
   margin-top: var(--space-1);
   white-space: nowrap;
@@ -10827,8 +10828,8 @@ a.card:hover {
   }
 }
 
-/* The product figure is restrained on the home (18px), never display-sized
-   (captain, 2026-09-25). The other catalogue surfaces keep their 28px figure. */
+/* The product figure is restrained (18px), never display-sized (captain,
+   2026-09-25). Every catalogue surface uses the same right-sized figure. */
 .anchored-page .shop-card__price {
   font-size: var(--text-lg);
 }
@@ -14771,7 +14772,7 @@ a.card:hover {
 .ag-money__value {
   margin: var(--space-2) 0 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   line-height: 1.05;
   color: var(--color-figure);
   font-variant-numeric: tabular-nums;
@@ -16386,7 +16387,7 @@ a.card:hover {
   align-self: center;
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-lg);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
   white-space: nowrap;
@@ -16533,7 +16534,7 @@ a.card:hover {
 
 .sv-total__amount {
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -16756,7 +16757,7 @@ a.card:hover {
   gap: var(--space-2);
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -17818,7 +17819,7 @@ a.ia-alt:hover {
   gap: var(--space-2);
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-3xl);
+  font-size: var(--text-xl);
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
 }
@@ -18052,8 +18053,6 @@ a.ia-alt:hover {
  * ------------------------------------------------------------------------- */
 @media (max-width: 48rem) {
   .plan-quote { font-size: var(--text-xl); }           /* 22 */
-  .svc-total__amount { font-size: var(--text-2xl); }   /* 28 */
-  .ag-money__value { font-size: var(--text-2xl); }     /* 28 */
   .ag-signin__title { font-size: var(--text-2xl); }    /* 28 */
   .ia-call__number { font-size: var(--text-2xl); }     /* 28 */
 }
@@ -19123,7 +19122,7 @@ a.ia-alt:hover {
 
 .sb-estimate__total-amount {
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-text-primary);
 }
@@ -19254,7 +19253,7 @@ a.ia-alt:hover {
 .sb-arranged__title {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-2xl);
+  font-size: var(--text-xl);
   font-weight: 700;
 }
 

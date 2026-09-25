@@ -99,8 +99,13 @@ describe("type ladder", () => {
       expect(tokens).toMatch(new RegExp(`--text-${name}: *${rem};`));
     }
     expect(tokens).toMatch(
-      /--text-display: *clamp\(2\.25rem, 2rem \+ 1\.6vw, 3\.25rem\);/,
+      /--text-display: *clamp\(2\.25rem, 2rem \+ 1\.6vw, 2\.5rem\);/,
     );
+    // The captain's public-page ceiling: the one fluid display size tops out at
+    // 40px (2026-09-25). A future edit that widens the clamp fails here.
+    const displayMax = tokens.match(/--text-display: *clamp\([^;]*?(\d+(?:\.\d+)?)rem\);/);
+    expect(displayMax, "--text-display declares a rem maximum").not.toBeNull();
+    expect(Number(displayMax![1]) * 16, "public hero display ceiling").toBeLessThanOrEqual(40);
     const steps = Object.values(LADDER);
     expect(steps).toEqual([...steps].sort((a, b) => a - b));
     expect(Math.min(...steps)).toBeGreaterThanOrEqual(12);
@@ -289,6 +294,116 @@ describe("role → step map", () => {
       ),
     );
     expect([...sizes]).toEqual(["var(--text-page-title)"]);
+  });
+});
+
+/**
+ * The capped figure roles (captain, 2026-09-25: "the prices are so big… Fonts
+ * size should just be at the right size with no oversizing").
+ *
+ * A figure may ride BELOW its cap, never above it. The caps in px:
+ *   · price — a card / line price headline: body + one rung = 18px
+ *   · total — a band lead, estimate total, PDP figure: 22px
+ *   · stat  — a KPI / stat / finance figure: 24px → the ladder's 22px rung
+ *
+ * Hierarchy comes from weight, colour and spacing, not size. This gate fails a
+ * class bumped back to `--text-2xl`/`--text-3xl` on the desktop OR the phone
+ * rule, naming the class and the measured value, so oversizing cannot return by
+ * review alone.
+ */
+const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
+  {
+    role: "price",
+    max: 18,
+    selectors: [
+      ".shop-card__price",
+      ".plan-tier__price",
+      ".buy-card__price",
+      ".day-ladder__price",
+      ".story-rate__price",
+      ".ag-lot__price strong",
+      ".item-card__price",
+      ".sv-price-card__amount",
+    ],
+  },
+  {
+    role: "total",
+    max: 22,
+    selectors: [
+      ".ledger__figure",
+      ".cat-lead .ledger__figure",
+      ".ledger__row-figure",
+      ".detail-sticky__price",
+      ".svc-total__amount",
+      ".sv-total__amount",
+      ".sb-estimate__total-amount",
+      ".sb-estimate__arranged-figure, .sb-arranged__title",
+      ".paper-hero__price-value",
+      ".chapel-card__rate",
+      ".sv-chapel__rate",
+      ".fac-room__rate",
+      ".story-total__amount",
+      ".story-chapel__rate",
+      ".story-room__rate",
+    ],
+  },
+  {
+    role: "stat",
+    max: 22,
+    selectors: [
+      ".stat__value",
+      ".kpi-card__value",
+      ".app-shell .app-main .kpi-card__value",
+      ".ops-summary__value",
+      ".finance-glance__amount",
+      ".app-shell .app-main .finance-glance__amount",
+      ".ag-money__value",
+      ".ag-commission__amount",
+      ".membership-rate__value",
+      ".membership-glance__value",
+      ".payment-alerts__figure",
+      ".payment-alerts__amount",
+    ],
+  },
+];
+
+describe("figure caps (captain 2026-09-25)", () => {
+  const rules = parseCss(readStyle("styles/components.css"));
+
+  /** Resolve a `var(--text-…)` value to px through the ladder + role map. */
+  const pxFor = (value: string): number | null => {
+    const token = value.match(/var\(--text-([a-z0-9-]+)\)/)?.[1];
+    if (!token) return null;
+    const step = ROLE_STEPS[token] ?? token;
+    if (step === "display") return 40;
+    return LADDER[step] ?? null;
+  };
+
+  it("keeps every money / stat figure at or under its role's rung", () => {
+    const offenders: string[] = [];
+    for (const { role, max, selectors } of FIGURE_CAPS) {
+      for (const selector of selectors) {
+        const matches = rules.filter(
+          (r) =>
+            r.selector === selector ||
+            r.selector.split(",").map((s) => s.trim()).includes(selector),
+        );
+        if (matches.length === 0) {
+          offenders.push(`${selector}: MISSING (${role} ≤ ${max}px)`);
+          continue;
+        }
+        for (const rule of matches) {
+          const size = rule.body.match(/(?<![\-\w])font-size\s*:\s*([^;]+);/)?.[1].trim();
+          if (!size) continue; // a wrapper that inherits its figure is fine
+          const px = pxFor(size);
+          if (px === null) offenders.push(`${selector}: ${size} (not a ladder token)`);
+          else if (px > max) {
+            offenders.push(`${selector}: ${size} = ${px}px > ${max}px ${role} cap`);
+          }
+        }
+      }
+    }
+    expect(offenders).toEqual([]);
   });
 });
 
