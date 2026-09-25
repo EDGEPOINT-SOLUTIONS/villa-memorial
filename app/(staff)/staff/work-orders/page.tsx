@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { ApiError } from "@/lib/api-client/api-error";
 import { loadWorkOrders } from "@/lib/api-client/work-orders";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
@@ -170,34 +171,14 @@ export default async function WorkOrdersPage({
           this list reads the office&rsquo;s recorded file as of {formatCalendarDate(list.as_of)}.
         </p>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Open</span>
-              <span className="kpi-card__value">{summary.open}</span>
-              <span className="kpi-card__sub">not started</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">In hand</span>
-              <span className="kpi-card__value">{summary.in_hand}</span>
-              <span className="kpi-card__sub">being worked on</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Overdue</span>
-              <span className="kpi-card__value">{summary.overdue}</span>
-              <span className="kpi-card__sub">past the recorded due date</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Done</span>
-              <span className="kpi-card__value">{summary.done}</span>
-              <span className="kpi-card__sub">closed</span>
-            </span>
-          </span>
+          <StatCard label="Open" value={summary.open} sub="not started" />
+          <StatCard label="In hand" value={summary.in_hand} sub="being worked on" />
+          <StatCard
+            label="Overdue"
+            value={summary.overdue}
+            sub="past the recorded due date"
+          />
+          <StatCard label="Done" value={summary.done} sub="closed" />
         </div>
       </PageSection>
 

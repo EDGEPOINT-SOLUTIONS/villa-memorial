@@ -6,6 +6,7 @@ import {
   type DataTableColumn,
 } from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
+import { Alert } from "@/components/ui/alert";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { ACCOUNTING_NOT_WIRED, loadAccountingLedger } from "@/lib/api-client/accounting";
 import { ApiError } from "@/lib/api-client/api-error";
@@ -134,9 +135,9 @@ export default async function AccountingPage({
       />
 
       <PageSection>
-        <div className="alert alert--warning">
+        <Alert tone="warning">
           <p className="mb-0">{ACCOUNTING_NOT_WIRED}</p>
-        </div>
+        </Alert>
       </PageSection>
 
       <PageSection>

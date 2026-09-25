@@ -1,13 +1,11 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export default function LoadingBilling() {
   return (
-    <>
-      <PageHeader eyebrow="Finance" title="Billing & collections" />
-      <PageSection>
-        <div className="skeleton skeleton--text" style={{ width: "22rem" }} />
-        <div className="skeleton" style={{ height: "10rem", marginTop: "var(--space-4)" }} />
-      </PageSection>
-    </>
+    <PageLoading
+      eyebrow="Finance"
+      title="Billing & collections"
+      width="22rem"
+    />
   );
 }

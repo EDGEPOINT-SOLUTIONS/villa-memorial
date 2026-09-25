@@ -1,12 +1,10 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export default function LoadingCaseDetail() {
   return (
-    <>
-      <PageHeader eyebrow="Operations · Case" title="Loading…" />
-      <PageSection>
-        <div className="skeleton" style={{ height: "10rem" }} />
-      </PageSection>
-    </>
+    <PageLoading
+      eyebrow="Operations · Case"
+      title="Loading…"
+    />
   );
 }

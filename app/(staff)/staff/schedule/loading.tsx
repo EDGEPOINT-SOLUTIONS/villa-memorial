@@ -1,13 +1,12 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export default function LoadingSchedule() {
   return (
-    <>
-      <PageHeader eyebrow="Operations" title="Schedule" />
-      <PageSection>
-        <div className="skeleton skeleton--text" style={{ width: "24rem" }} />
-        <div className="skeleton" style={{ height: "12rem", marginTop: "var(--space-4)" }} />
-      </PageSection>
-    </>
+    <PageLoading
+      eyebrow="Operations"
+      title="Schedule"
+      width="24rem"
+      height="12rem"
+    />
   );
 }

@@ -6,6 +6,7 @@ import {
 } from "@/components/kit";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
+import { Alert } from "@/components/ui/alert";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import {
   ACCESS_ROSTER_NOTE,
@@ -128,15 +129,13 @@ export default async function UsersPage() {
 
       <PageSection>
         <p className="text-md">Who works here, what each role may do, and how invites work.</p>
-        <div className="alert alert--warning">
-          <div>
-            <p>
-              <strong>User provisioning is not wired.</strong>
-            </p>
-            <p>{PROVISIONING_NOT_WIRED}</p>
-            <p className="mb-0">{ACCESS_ROSTER_NOTE}</p>
-          </div>
-        </div>
+        <Alert tone="warning">
+          <p>
+            <strong>User provisioning is not wired.</strong>
+          </p>
+          <p>{PROVISIONING_NOT_WIRED}</p>
+          <p className="mb-0">{ACCESS_ROSTER_NOTE}</p>
+        </Alert>
         <p className="mt-4 mb-0">
           <Link className="btn btn--secondary btn--sm" href="/staff/users/new">
             See the invite path

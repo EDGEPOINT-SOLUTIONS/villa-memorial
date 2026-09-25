@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ApiError } from "@/lib/api-client/api-error";
@@ -81,27 +82,17 @@ export default async function ProvisionalReceiptsPage() {
       />
 
       <div className="kpi-grid">
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Issued</span>
-            <span className="kpi-card__value">{views.length}</span>
-            <span className="kpi-card__sub">counter slips on record</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Awaiting an official receipt</span>
-            <span className="kpi-card__value">{awaiting}</span>
-            <span className="kpi-card__sub">the family holds a provisional paper</span>
-          </span>
-        </span>
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Official receipt on file</span>
-            <span className="kpi-card__value">{replaced}</span>
-            <span className="kpi-card__sub">the real receipt replaces the slip</span>
-          </span>
-        </span>
+        <StatCard label="Issued" value={views.length} sub="counter slips on record" />
+        <StatCard
+          label="Awaiting an official receipt"
+          value={awaiting}
+          sub="the family holds a provisional paper"
+        />
+        <StatCard
+          label="Official receipt on file"
+          value={replaced}
+          sub="the real receipt replaces the slip"
+        />
       </div>
 
       <PageSection>

@@ -3,6 +3,7 @@ import { PageHeader, PageSection } from "@/components/ui/page";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { InquiryBoard } from "./inquiry-board";
 import { listInquiries } from "@/lib/api-client/crm";
 
@@ -49,10 +50,10 @@ export default async function InquiriesPage() {
       <PageHeader eyebrow="Relationships" title="Inquiries" />
 
       <div className="kpi-grid" style={{ marginBottom: "var(--space-5)" }}>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Inquiries</span><span className="kpi-card__value">{inquiries.length}</span><span className="kpi-card__sub">total received</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">New</span><span className="kpi-card__value">{newCount}</span><span className="kpi-card__sub">awaiting first contact</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Converted</span><span className="kpi-card__value">{converted}</span><span className="kpi-card__sub">became customers</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">From website</span><span className="kpi-card__value">{website}</span><span className="kpi-card__sub">public site leads</span></span></span>
+        <StatCard label="Inquiries" value={inquiries.length} sub="total received" />
+        <StatCard label="New" value={newCount} sub="awaiting first contact" />
+        <StatCard label="Converted" value={converted} sub="became customers" />
+        <StatCard label="From website" value={website} sub="public site leads" />
       </div>
 
       <PageSection>

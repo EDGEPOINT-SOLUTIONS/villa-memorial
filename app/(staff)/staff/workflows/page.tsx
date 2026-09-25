@@ -7,6 +7,7 @@ import {
   type DataTableColumn,
 } from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
+import { Alert } from "@/components/ui/alert";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { loadWorkflowsView, type InFlightRecord } from "@/lib/api-client/workflows";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
@@ -160,15 +161,13 @@ export default async function WorkflowsPage() {
 
       <PageSection>
         <p className="text-md">The office&rsquo;s four processes, and where each recorded job stands.</p>
-        <div className="alert alert--warning">
-          <div>
-            <p>
-              <strong>The workflow engine is not built.</strong>
-            </p>
-            <p>{WORKFLOW_ENGINE_NOT_WIRED}</p>
-            <p className="mb-0">{WORKFLOW_RECORDS_NOTE}</p>
-          </div>
-        </div>
+        <Alert tone="warning">
+          <p>
+            <strong>The workflow engine is not built.</strong>
+          </p>
+          <p>{WORKFLOW_ENGINE_NOT_WIRED}</p>
+          <p className="mb-0">{WORKFLOW_RECORDS_NOTE}</p>
+        </Alert>
         <p className="mt-4 mb-0">
           <Link
             className="btn btn--secondary btn--sm"

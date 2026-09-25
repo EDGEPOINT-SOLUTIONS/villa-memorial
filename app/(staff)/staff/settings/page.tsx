@@ -6,6 +6,7 @@ import {
   type DataTableColumn,
 } from "@/components/kit";
 import { PageHeader, PageSection } from "@/components/ui/page";
+import { Alert } from "@/components/ui/alert";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { loadTenantSettingsView, type IdentityRow } from "@/lib/api-client/tenant-settings";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
@@ -109,15 +110,13 @@ export default async function SettingsPage() {
 
       <PageSection>
         <p className="text-md">How this park is configured, and what only the platform can change.</p>
-        <div className="alert alert--warning">
-          <div>
-            <p>
-              <strong>{SETTINGS_NOT_WIRED_TITLE}.</strong>
-            </p>
-            <p>{SETTINGS_NOT_WIRED}</p>
-            <p className="mb-0">{SETTINGS_NOT_WIRED_NOTE}</p>
-          </div>
-        </div>
+        <Alert tone="warning">
+          <p>
+            <strong>{SETTINGS_NOT_WIRED_TITLE}.</strong>
+          </p>
+          <p>{SETTINGS_NOT_WIRED}</p>
+          <p className="mb-0">{SETTINGS_NOT_WIRED_NOTE}</p>
+        </Alert>
         <p className="mt-4 mb-0">
           <Link
             className="btn btn--secondary btn--sm"

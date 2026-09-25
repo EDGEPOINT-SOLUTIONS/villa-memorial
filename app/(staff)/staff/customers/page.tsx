@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
-import { EmptyState } from "@/components/ui/empty-state";
+import { DataTable, StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ForbiddenState } from "@/components/ui/states";
@@ -61,9 +61,13 @@ export default async function CustomersPage({
       />
 
       <div className="kpi-grid" style={{ marginBottom: "var(--space-5)" }}>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Customers</span><span className="kpi-card__value">{customers.length}</span><span className="kpi-card__sub">total records</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Active</span><span className="kpi-card__value">{activeCount}</span><span className="kpi-card__sub">currently active</span></span></span>
-        <span className="card kpi-card"><span className="kpi-card__body"><span className="kpi-card__label">Registered</span><span className="kpi-card__value">{customers.filter((x) => x.status === "inactive").length}</span><span className="kpi-card__sub">inactive records</span></span></span>
+        <StatCard label="Customers" value={customers.length} sub="total records" />
+        <StatCard label="Active" value={activeCount} sub="currently active" />
+        <StatCard
+          label="Registered"
+          value={customers.filter((x) => x.status === "inactive").length}
+          sub="inactive records"
+        />
       </div>
 
       <PageSection>
@@ -86,54 +90,52 @@ export default async function CustomersPage({
           ) : null}
         </form>
 
-        {filtered.length === 0 ? (
-          <EmptyState
-            title={query ? `No customers match “${q}”` : "No customers yet"}
-            hint={
-              query
-                ? "Try a different spelling, or clear the search to see everyone."
-                : "New registrations will appear here once the records service is connected."
+        <DataTable
+          columns={[
+            { key: "name", header: "Name" },
+            { key: "email", header: "Email" },
+            { key: "phone", header: "Phone" },
+            { key: "status", header: "Status" },
+            { key: "registered", header: "Registered" },
+          ]}
+          rows={filtered}
+          rowKey={(c) => c.id}
+          emptyTitle={query ? `No customers match “${q}”` : "No customers yet"}
+          emptyHint={
+            query
+              ? "Try a different spelling, or clear the search to see everyone."
+              : "New registrations will appear here once the records service is connected."
+          }
+          renderCell={(c, column) => {
+            switch (column.key) {
+              case "name":
+                return (
+                  <span className="name-cell">
+                    <span className="name-avatar" aria-hidden="true">
+                      {c.first_name.charAt(0)}{c.last_name.charAt(0)}
+                    </span>
+                    <Link href={`/staff/customers/${c.id}`} className="name-cell__link">
+                      {c.first_name} {c.last_name}
+                    </Link>
+                  </span>
+                );
+              case "email":
+                return c.email;
+              case "phone":
+                return c.phone;
+              case "status":
+                return (
+                  <Badge tone={c.status === "active" ? "success" : "neutral"}>
+                    {c.status}
+                  </Badge>
+                );
+              case "registered":
+                return new Date(c.registered_at).toLocaleDateString();
+              default:
+                return null;
             }
-          />
-        ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Phone</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Registered</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <span className="name-cell">
-                        <span className="name-avatar" aria-hidden="true">
-                          {c.first_name.charAt(0)}{c.last_name.charAt(0)}
-                        </span>
-                        <Link href={`/staff/customers/${c.id}`} className="name-cell__link">
-                          {c.first_name} {c.last_name}
-                        </Link>
-                      </span>
-                    </td>
-                    <td>{c.email}</td>
-                    <td>{c.phone}</td>
-                    <td>
-                      <Badge tone={c.status === "active" ? "success" : "neutral"}>
-                        {c.status}
-                      </Badge>
-                    </td>
-                    <td>{new Date(c.registered_at).toLocaleDateString()}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+          }}
+        />
       </PageSection>
 
       {/* The CRM area's other record: the recorded leads (PRD Lead Detail). The

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listInvoices, type Invoice } from "@/lib/api-client/finance";
@@ -124,36 +125,25 @@ export default async function BillingPage({
       />
 
       <div className="kpi-grid">
-        <span className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Invoices</span>
-            <span className="kpi-card__value">{invoices.length}</span>
-            <span className="kpi-card__sub">{invoices.filter((i) => i.status === "paid").length} paid</span>
-          </span>
-        </span>
-        <Link href="/staff/billing?status=overdue" className="card kpi-card">
-          <span className="kpi-card__body">
-            <span className="kpi-card__label">Overdue accounts</span>
-            <span className="kpi-card__value">{overdueCount}</span>
-            <span className="kpi-card__sub">need attention</span>
-          </span>
-        </Link>
+        <StatCard
+          label="Invoices"
+          value={invoices.length}
+          sub={`${invoices.filter((i) => i.status === "paid").length} paid`}
+        />
+        <StatCard
+          label="Overdue accounts"
+          value={overdueCount}
+          sub="need attention"
+          href="/staff/billing?status=overdue"
+        />
         {currencies.length > 0 ? (
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Outstanding</span>
-              <span className="kpi-card__value">{formatMinorUnits(outstandingByCurrency[currencies[0]], currencies[0])}</span>
-              <span className="kpi-card__sub">{currencies.length > 1 ? "see aging per currency below" : "total still owed"}</span>
-            </span>
-          </span>
+          <StatCard
+            label="Outstanding"
+            value={formatMinorUnits(outstandingByCurrency[currencies[0]], currencies[0])}
+            sub={currencies.length > 1 ? "see aging per currency below" : "total still owed"}
+          />
         ) : (
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Outstanding</span>
-              <span className="kpi-card__value">—</span>
-              <span className="kpi-card__sub">nothing owed</span>
-            </span>
-          </span>
+          <StatCard label="Outstanding" value="—" sub="nothing owed" />
         )}
       </div>
 

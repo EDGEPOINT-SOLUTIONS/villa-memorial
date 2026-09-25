@@ -1,12 +1,10 @@
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { PageLoading } from "@/components/ui/page-loading";
 
 export default function LoadingLotDetail() {
   return (
-    <>
-      <PageHeader eyebrow="Operations · Lot" title="Loading…" />
-      <PageSection>
-        <div className="skeleton" style={{ height: "10rem" }} />
-      </PageSection>
-    </>
+    <PageLoading
+      eyebrow="Operations · Lot"
+      title="Loading…"
+    />
   );
 }

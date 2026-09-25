@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
+import { StatCard } from "@/components/kit";
 import { ApiError } from "@/lib/api-client/api-error";
 import { loadDispatchBoard } from "@/lib/api-client/dispatch";
 import { listCases } from "@/lib/api-client/operations";
@@ -277,34 +278,18 @@ export default async function DispatchPage({
           dispatch and completion, so this board reads the office&rsquo;s recorded sheet.
         </p>
         <div className="kpi-grid">
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Fleet</span>
-              <span className="kpi-card__value">{summary.vehicles}</span>
-              <span className="kpi-card__sub">vehicles recorded</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">On the road</span>
-              <span className="kpi-card__value">{summary.onTheRoad}</span>
-              <span className="kpi-card__sub">vehicles in a trip state</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Drivers on duty</span>
-              <span className="kpi-card__value">{summary.driversOnDuty}</span>
-              <span className="kpi-card__sub">with a trip on this day</span>
-            </span>
-          </span>
-          <span className="card kpi-card">
-            <span className="kpi-card__body">
-              <span className="kpi-card__label">Trips</span>
-              <span className="kpi-card__value">{summary.trips}</span>
-              <span className="kpi-card__sub">{scheduleDayLabel(day)}</span>
-            </span>
-          </span>
+          <StatCard label="Fleet" value={summary.vehicles} sub="vehicles recorded" />
+          <StatCard
+            label="On the road"
+            value={summary.onTheRoad}
+            sub="vehicles in a trip state"
+          />
+          <StatCard
+            label="Drivers on duty"
+            value={summary.driversOnDuty}
+            sub="with a trip on this day"
+          />
+          <StatCard label="Trips" value={summary.trips} sub={scheduleDayLabel(day)} />
         </div>
       </PageSection>
 
