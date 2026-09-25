@@ -143,7 +143,12 @@ function HomeHero({
         // A pure photo hero still names the page for assistive tech.
         <h1 className="visually-hidden">{brandName}</h1>
       ) : (
-        <>
+        // The copy sits on its own deliberate panel (captain, 2026-09-25: the
+        // page opening must be a sharp, designed header band, never a bare
+        // title on white). The panel keeps the eyebrow · headline · short lead ·
+        // key action readable over any hero photograph and the staff-chosen
+        // text colour still paints through --hero-text-colour.
+        <div className="hero-home__copy">
           <div className="hero-home__brand">
             {brand}
             <span className="hero-home__wordmark">{brandName}</span>
@@ -168,7 +173,7 @@ function HomeHero({
             </div>
           ) : null}
           {careline ? <p className="hero-home__careline">{careline}</p> : null}
-        </>
+        </div>
       )}
     </section>
   );

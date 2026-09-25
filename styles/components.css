@@ -10550,6 +10550,26 @@ a.card:hover {
   background: var(--color-bg-desk);
 }
 
+/* Homepage type right-sizing (captain, 2026-09-25: the type read too big and
+   fake). Scoped to the home exactly like the family portal's reading scale
+   (.fv-body) so no other surface's type moves, and desktop-only so the token
+   map's phone step-down below 48rem still applies. The hero tops out at 36px
+   (the 52px display clamp never paints on the home), section heads ride 22px,
+   card titles 18px. Hierarchy comes from weight and colour, not size. */
+@media (min-width: 48.001rem) {
+  .anchored-page {
+    --text-hero: var(--text-3xl);          /* 36px — hero */
+    --text-section-title: var(--text-xl);  /* 22px — section heads */
+    --text-card-title: var(--text-lg);     /* 18px — card titles */
+  }
+}
+
+/* The product figure is restrained on the home (18px), never display-sized
+   (captain, 2026-09-25). The other catalogue surfaces keep their 28px figure. */
+.anchored-page .shop-card__price {
+  font-size: var(--text-lg);
+}
+
 /* ---- shared header (sticky, ONE row — captain 2026-09-21) ----
    Main row: brand · top-level page links · grouped "Explore more" · Sign in · cart
    icon. Sticky and it NEVER auto-hides: the phone action bar is always one tap
@@ -11404,6 +11424,112 @@ a.card:hover {
   padding: var(--space-1) 0;
 }
 
+/* ---- the left rail's always-reachable help card (captain, 2026-09-25) ----
+   A grieving visitor should never hunt for the phone: the big call action
+   leads the departments list. Flat surface, one gold rule — no decoration. */
+.rail-assist {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-top: 2px solid var(--gold-400);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+}
+
+.rail-assist__kicker {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-accent);
+}
+
+.rail-assist__call {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem; /* 44px touch target */
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+
+.rail-assist__call:hover {
+  color: var(--color-text-accent);
+}
+
+.rail-assist__note {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---- the right rail's quick actions (captain, 2026-09-25) ----------------
+   Four real doors, each a labelled row with one line of what it does. */
+.rail-actions {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.rail-actions__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.rail-action {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  min-height: 2.75rem; /* 44px touch target */
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+}
+
+.rail-action:hover {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-rule-strong);
+}
+
+.rail-action__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface-raised);
+  border: 1px solid var(--color-rule);
+  color: var(--color-text-accent);
+}
+
+.rail-action__text {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.rail-action__label {
+  font-size: var(--text-sm);
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+.rail-action__hint {
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--color-text-muted);
+}
+
 /* ---- hero (top of the scrollable middle) ---- */
 .hero-home {
   position: relative;
@@ -11429,6 +11555,22 @@ a.card:hover {
   height: 2px;
   z-index: 4;
   background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+}
+
+/* The opening band's copy panel (captain, 2026-09-25): a designed, readable
+   header band — eyebrow · headline · one short lead · the key action — with
+   deliberate whitespace. It sits left over the hero photograph (or on the
+   white sheet when the document carries no photo) so the type always reads and
+   the band never presents a bare title on the page ground. */
+.hero-home__copy {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  max-width: 36rem;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
 }
 
 /* ---- hero background photo (captain's home review) ----
@@ -20084,6 +20226,25 @@ a.plan-advisor__phone:hover {
 
 .section-head__action {
   flex: 0 0 auto;
+}
+
+/* The "see all" affordance (captain, 2026-09-25): a quiet text action with a
+   caret — the shelf's door, never a second filled button competing with the
+   page's commitment. */
+.section-head__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2.75rem; /* 44px touch target */
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--color-text-accent);
+  text-decoration: none;
+}
+
+.section-head__link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 /* --- PublicDisclosure — the "Show all N" control (plan §3 R8) ----------- */

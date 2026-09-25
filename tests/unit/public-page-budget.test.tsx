@@ -79,15 +79,15 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
         LandingView({ ...props, planPricing: { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS }, lotCategories: LOT_PRICE_CATEGORIES }),
       );
     },
-    // plan §5.1: hero → the captain's plans & lots band → the plan board → the
-    // live map → the newsfeed → the closing band (the band is rendered by
-    // NextSteps).
+    // The captain's 2026-09-25 storefront rebuild: hero → the plans & lots
+    // shelf (products first) → the plan board → the live park map → the
+    // About/mission band → the newsfeed → the closing band (NextSteps).
     sections: [
       'data-public-hero="home"',
-      "about-grid",
       "plan-lot-grid",
       "plan-board",
       "mid-section--map",
+      "about-grid",
       "blog-feed",
       "next-steps",
     ],
@@ -258,7 +258,7 @@ describe("the public page budget / section blueprint", () => {
 });
 
 describe("the home's named Phase 0 changes", () => {
-  it("removed the left rail's 24/7 call card (captain 2026-09-21)", async () => {
+  it("the left rail leads with the always-reachable help card (captain 2026-09-25)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       LandingView({
@@ -270,7 +270,11 @@ describe("the home's named Phase 0 changes", () => {
         lotCategories: LOT_PRICE_CATEGORIES,
       }),
     );
+    // The retired rail-call class stays retired; the help card ships as .rail-assist.
     expect(html).not.toContain("rail-call");
+    expect(html).toContain("rail-assist");
+    // The right rail is the short action list.
+    expect(html).toContain("rail-action");
   });
 
   it("keeps the mission/vision words available behind the shared disclosure", async () => {
