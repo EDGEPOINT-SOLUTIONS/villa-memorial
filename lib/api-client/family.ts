@@ -8,6 +8,11 @@
  * API lands (their plan, balance, their documents). Nothing here is wired to a live URL
  * and no cross-service shape is invented beyond display-level strings.
  *
+ * The plan's `payment_schedule` (client minute 2026-09-21, item 1) is read through the SAME
+ * tolerant seam: `parsePaymentSchedule` (lib/payment-schedule.ts) validates it field by
+ * field and returns null on a partial record, and every due date / due-soon state is
+ * DERIVED there — the fixture records amounts, never a second copy of a date.
+ *
  * THE FAMILY DOCUMENT PROJECTION (what a family record may carry, and nothing else):
  * `toFamilyDocument` reads ONLY a paper's title, status, kind, its own number, the date
  * on the paper, the amount as recorded and what it covers. Everything else a document
@@ -33,6 +38,7 @@
 import snapshotFile from "@/lib/fixtures/family/snapshot.json";
 import workspaceFile from "@/lib/fixtures/family/workspace.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { parsePaymentSchedule, type PaymentSchedule } from "@/lib/payment-schedule";
 
 /**
  * Which paper a document is, as the family sees it.
@@ -70,6 +76,13 @@ export type FamilySnapshot = {
    * back to the display strings without a progress figure when it is missing.
    */
   balance_cents?: { total: number; paid: number; remaining: number };
+  /**
+   * The family's own plan instalments (client minute 2026-09-21, item 1). Due dates and
+   * the due-soon/overdue state are DERIVED from this by `lib/payment-schedule.ts`; the
+   * reader returns null when the recorded shape cannot be trusted, so a partial record
+   * renders the honest state instead of a plausible schedule.
+   */
+  payment_schedule?: PaymentSchedule;
   recent_documents: FamilyDocument[];
 };
 
@@ -247,8 +260,12 @@ export async function getFamilySnapshot(): Promise<FamilySnapshot> {
     throw new Error("family snapshot fixture is malformed");
   }
   const snapshot = raw as unknown as FamilySnapshot;
+  const paymentSchedule = parsePaymentSchedule(
+    (raw as Record<string, unknown>).payment_schedule,
+  );
   return {
     ...snapshot,
+    payment_schedule: paymentSchedule ?? undefined,
     recent_documents: (Array.isArray(snapshot.recent_documents) ? snapshot.recent_documents : [])
       .map(toFamilyDocument)
       .filter((doc): doc is FamilyDocument => doc !== null),

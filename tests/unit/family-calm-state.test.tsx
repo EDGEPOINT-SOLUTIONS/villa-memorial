@@ -16,6 +16,19 @@ const settled: FamilySnapshot = {
   ...(fixture as unknown as FamilySnapshot),
   balance: { total: "₱42,000", paid: "₱42,000", remaining: "₱0" },
   balance_cents: { total: 4200000, paid: 4200000, remaining: 0 },
+  // A settled plan has no open instalments (all four paid), so the quiet week
+  // shows no “What’s coming” section and nothing is due soon.
+  payment_schedule: {
+    reference: "VM-PLAN-2026-0188",
+    term: "monthly",
+    first_due_on: "2026-07-27",
+    installments: [
+      { seq: 1, amount_cents: 1050000, paid_cents: 1050000 },
+      { seq: 2, amount_cents: 1050000, paid_cents: 1050000 },
+      { seq: 3, amount_cents: 1050000, paid_cents: 1050000 },
+      { seq: 4, amount_cents: 1050000, paid_cents: 1050000 },
+    ],
+  },
   recent_documents: [],
 };
 

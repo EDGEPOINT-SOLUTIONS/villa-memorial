@@ -64,7 +64,7 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
     state: "partial",
     module: "finance-billing.md",
     missing:
-      "The instalment schedule and the plan certificate need the contracts/documents service.",
+      "The instalment schedule now shows from the family's own recorded plan; the plan certificate and the frozen family contract still wait on the contracts/documents service.",
   },
   {
     screen: "My Lots",
@@ -80,7 +80,7 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
     state: "partial",
     module: "finance-billing.md",
     missing:
-      "The payment history, receipts and online payment need the payments/AR service.",
+      "Upcoming and overdue instalments show from the family's own plan; the payment history, receipts and online payment still need the payments/AR service.",
   },
   {
     screen: "My Documents",

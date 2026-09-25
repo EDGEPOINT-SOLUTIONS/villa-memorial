@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import snapshot from "@/lib/fixtures/family/snapshot.json";
 import { familyLiveModeEnabled } from "@/lib/api-client/family";
+import {
+  installmentOutstandingCents,
+  nextPaymentDue,
+  nextPaymentDueLabel,
+  parsePaymentSchedule,
+} from "@/lib/payment-schedule";
 
 /**
  * Family snapshot is PROVISIONAL (no frozen family API contract yet — dev-authored).
@@ -51,6 +57,45 @@ describe("family snapshot fixture", () => {
     const s = snapshot as unknown as { _provenance?: { status?: string; note?: string } };
     expect(s._provenance?.status ?? "").toMatch(/PROVISIONAL/);
     expect(s._provenance?.note ?? "").toMatch(/balance_cents/);
+    expect(s._provenance?.note ?? "").toMatch(/payment_schedule/);
+  });
+
+  it("carries a payment schedule whose open instalments equal the recorded balance", () => {
+    // The schedule and the balance are two readings of one debt; if they ever drift,
+    // the family sees two different truths. The fixture is the one place allowed to
+    // add them up (views never parse or re-derive a display amount).
+    const s = snapshot as unknown as {
+      payment_schedule: unknown;
+      balance_cents: { total: number; paid: number; remaining: number };
+    };
+    const schedule = parsePaymentSchedule(s.payment_schedule);
+    expect(schedule).not.toBeNull();
+    if (!schedule) return;
+    const total = schedule.installments.reduce((sum, i) => sum + i.amount_cents, 0);
+    const paid = schedule.installments.reduce((sum, i) => sum + i.paid_cents, 0);
+    const remaining = schedule.installments.reduce(
+      (sum, i) => sum + installmentOutstandingCents(i),
+      0,
+    );
+    expect(total).toBe(s.balance_cents.total);
+    expect(paid).toBe(s.balance_cents.paid);
+    expect(remaining).toBe(s.balance_cents.remaining);
+  });
+
+  it("keeps the plan's next-due line equal to the schedule's earliest open instalment", () => {
+    // plan_summary.next_due is display copy, but it must not describe a different
+    // instalment from the one the schedule derives — the family would read two dates.
+    const s = snapshot as unknown as {
+      payment_schedule: unknown;
+      plan_summary: { next_due: string };
+    };
+    const schedule = parsePaymentSchedule(s.payment_schedule);
+    expect(schedule).not.toBeNull();
+    if (!schedule) return;
+    const next = nextPaymentDue(schedule);
+    expect(next).not.toBeNull();
+    if (!next) return;
+    expect(s.plan_summary.next_due).toBe(nextPaymentDueLabel(next));
   });
 
   it("classifies the family-owned papers so the portal never asks for a copy of them", async () => {
