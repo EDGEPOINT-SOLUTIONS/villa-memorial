@@ -5138,6 +5138,21 @@ because the shared `.ag-appt` rule comes later in this file. */
   line-height: 1.35;
 }
 
+/* Phone: the task tick is the board's one write control, so it takes the
+   project's 44px touch height instead of the ~27px a single text line happens
+   to occupy. Desktop lanes already wrap the title past 44px, so this is scoped
+   to the phone width. */
+@media (max-width: 40rem) {
+  .ops-card__tick {
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .ops-card__tick-box {
+    margin-top: 0;
+  }
+}
+
 .ops-card__task {
   display: flex;
   align-items: flex-start;

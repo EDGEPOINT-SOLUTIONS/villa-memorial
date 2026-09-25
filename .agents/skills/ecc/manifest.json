@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "namespace": "ecc",
+  "posture": "reference only, not a style authority",
+  "source": {
+    "repo": "affaan-m/ECC",
+    "url": "https://github.com/affaan-m/ECC",
+    "commit": "e482e579415fde18357cafce70f177ae19fd7f03",
+    "version": "2.2.2",
+    "license": "MIT",
+    "copyright": "Copyright (c) 2026 Affaan Mustafa"
+  },
+  "requiredHeaderLine": "> **ECC reference only — not a style authority.**",
+  "advertisementBudgetBytes": 4096,
+  "skills": [
+    {
+      "name": "ecc-make-interfaces-feel-better",
+      "dir": "make-interfaces-feel-better",
+      "eccPath": "skills/make-interfaces-feel-better/SKILL.md",
+      "eccSha256": "aff91aef917cba9c65681ae77197cee93ce9b697ee8916ea684ef8537c99fb52",
+      "vendoredSha256": "f821125bd77c7d98bf0b413f2d55229204d83af7c479926736d3c059f1f5686a"
+    },
+    {
+      "name": "ecc-design-slop-check",
+      "dir": "design-slop-check",
+      "eccPath": "skills/design-system/SKILL.md",
+      "portion": "Mode 3: AI Slop Detection",
+      "eccSha256": "baa6057bec07334f531789d07fbdd656afd725c0540992bd04db7589cac36d26",
+      "vendoredSha256": "86779ad9ce9b5ed118888464055bb371047f82284483f831a64ead856c621466"
+    },
+    {
+      "name": "ecc-frontend-a11y",
+      "dir": "frontend-a11y",
+      "eccPath": "skills/frontend-a11y/SKILL.md",
+      "eccSha256": "d09d56424592c2382ca310af0067a6de6b8d098d709ea7e5b60513cffde03756",
+      "vendoredSha256": "24f7428cdae5d54acb97875b1a33060254ff64d2a83be9a0ababc45013c5b2cc"
+    },
+    {
+      "name": "ecc-react-patterns",
+      "dir": "react-patterns",
+      "eccPath": "skills/react-patterns/SKILL.md",
+      "eccSha256": "f3208d44a5d553038c42e046cec4dc16e4a3d90a9dbf931f883a2e21919a64a9",
+      "vendoredSha256": "070b50e8bba6fe22e58770114bb0af7f824630bc746ae72a375635ca58f416bf"
+    },
+    {
+      "name": "ecc-nextjs-turbopack",
+      "dir": "nextjs-turbopack",
+      "eccPath": "skills/nextjs-turbopack/SKILL.md",
+      "eccSha256": "44b68f7c74b237742bee4f39660f8a9160f755004cab0658594fdf494a42e681",
+      "vendoredSha256": "38d4edd56a63230a1d8d14cb5dec6c2ff7223702349ebf9d57ad1be72c85830d"
+    },
+    {
+      "name": "ecc-browser-qa",
+      "dir": "browser-qa",
+      "eccPath": "skills/browser-qa/SKILL.md",
+      "repointed": "chrome-devtools-axi",
+      "eccSha256": "c501257d2c9ca711342b56d7adfb04897f17c6946dc6cdb88a5c75c87e4aa951",
+      "vendoredSha256": "4844fbeefeb6b88b76684b6d96fa73e1c8bfd46d9d7fbaf1f0c6ccb1219f078e"
+    },
+    {
+      "name": "ecc-click-path-audit",
+      "dir": "click-path-audit",
+      "eccPath": "skills/click-path-audit/SKILL.md",
+      "eccSha256": "662fc5d02483bcd8ff799d6d3109a38da673182341cfc14445e9076fcd920162",
+      "vendoredSha256": "6282ec7476b2c3e812a9e83c88a4171e5c12f1b376f3fb91897eed0a1ef99e24"
+    },
+    {
+      "name": "ecc-architecture-decision-records",
+      "dir": "architecture-decision-records",
+      "eccPath": "skills/architecture-decision-records/SKILL.md",
+      "eccSha256": "525e51b4ed98222cd49ea7d2e42b51a010ecab391b25022a86164258c14b8bb0",
+      "vendoredSha256": "2e7a2fcac6d79bcc31fa1ce526350b9bf8b80f9c63da3a1395f3205d11ec768a"
+    },
+    {
+      "name": "ecc-article-writing",
+      "dir": "article-writing",
+      "eccPath": "skills/article-writing/SKILL.md",
+      "eccSha256": "4aa61709450a2148ef4036896d870da748e93ad68528bb7679b74f3597ffb021",
+      "vendoredSha256": "cf7ee2a746592ca433cc50bc0885a0246fe96744bcb4c71bd6b1f009859cea8d"
+    },
+    {
+      "name": "ecc-brand-voice",
+      "dir": "brand-voice",
+      "eccPath": "skills/brand-voice/SKILL.md",
+      "extraFiles": ["references/voice-profile-schema.md"],
+      "eccSha256": "57c7f8440b7bd4c91c0d325640b5c6fb7a3dc7fc05595946c7bc705761a987a7",
+      "vendoredSha256": "22dc3a35473e2385cbd1d170674390f58df55785d61ea8f69faaab991146af2a"
+    }
+  ]
+}

@@ -373,6 +373,66 @@
       "skillPath": "skills/specialized-skills/migration-and-modernization-skills/dms-schema-conversion/SKILL.md",
       "computedHash": "0e950608064ae763946db86ef5f44d7035e0ab79e7674a905c97eb0eb1eb207c"
     },
+    "ecc-architecture-decision-records": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/architecture-decision-records/SKILL.md",
+      "computedHash": "525e51b4ed98222cd49ea7d2e42b51a010ecab391b25022a86164258c14b8bb0"
+    },
+    "ecc-article-writing": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/article-writing/SKILL.md",
+      "computedHash": "4aa61709450a2148ef4036896d870da748e93ad68528bb7679b74f3597ffb021"
+    },
+    "ecc-brand-voice": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/brand-voice/SKILL.md",
+      "computedHash": "57c7f8440b7bd4c91c0d325640b5c6fb7a3dc7fc05595946c7bc705761a987a7"
+    },
+    "ecc-browser-qa": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/browser-qa/SKILL.md",
+      "computedHash": "c501257d2c9ca711342b56d7adfb04897f17c6946dc6cdb88a5c75c87e4aa951"
+    },
+    "ecc-click-path-audit": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/click-path-audit/SKILL.md",
+      "computedHash": "662fc5d02483bcd8ff799d6d3109a38da673182341cfc14445e9076fcd920162"
+    },
+    "ecc-design-slop-check": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/design-system/SKILL.md",
+      "computedHash": "baa6057bec07334f531789d07fbdd656afd725c0540992bd04db7589cac36d26"
+    },
+    "ecc-frontend-a11y": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-a11y/SKILL.md",
+      "computedHash": "d09d56424592c2382ca310af0067a6de6b8d098d709ea7e5b60513cffde03756"
+    },
+    "ecc-make-interfaces-feel-better": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/make-interfaces-feel-better/SKILL.md",
+      "computedHash": "aff91aef917cba9c65681ae77197cee93ce9b697ee8916ea684ef8537c99fb52"
+    },
+    "ecc-nextjs-turbopack": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/nextjs-turbopack/SKILL.md",
+      "computedHash": "44b68f7c74b237742bee4f39660f8a9160f755004cab0658594fdf494a42e681"
+    },
+    "ecc-react-patterns": {
+      "source": "affaan-m/ECC",
+      "sourceType": "github",
+      "skillPath": "skills/react-patterns/SKILL.md",
+      "computedHash": "f3208d44a5d553038c42e046cec4dc16e4a3d90a9dbf931f883a2e21919a64a9"
+    },
     "enabling-lambda-vpc-internet-access": {
       "source": "aws/agent-toolkit-for-aws",
       "sourceType": "github",
