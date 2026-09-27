@@ -12,4 +12,8 @@ coverage/
 .data/
 
 .premium-review/
+
+# Machine-local agent-instruction overlays (harnesses load these after AGENTS.md/CLAUDE.md)
+AGENTS.local.md
+CLAUDE.local.md
 *:Zone.Identifier
