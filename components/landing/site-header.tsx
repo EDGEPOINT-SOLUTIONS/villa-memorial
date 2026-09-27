@@ -54,6 +54,7 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
  * summary, not new claims.
  */
 export const EXPLORE_MORE_LINKS: ReadonlyArray<{ title: string; note: string; href: string }> = [
+  { title: "Blog", note: "Photographs, films and notes from the grounds", href: "/blog" },
   { title: "Builder", note: "Build the arrangement and see the 2026 total", href: "/builder" },
   { title: "Facilities", note: "Chapels, viewing rooms and the grounds", href: "/facilities" },
   { title: "Gallery", note: "Photographs of the park and a walk-through", href: "/gallery" },

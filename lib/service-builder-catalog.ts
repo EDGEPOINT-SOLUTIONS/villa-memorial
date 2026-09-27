@@ -48,6 +48,8 @@ import {
   type CasketFamily,
 } from "@/lib/villa-pricing";
 import { PLAN_TERM_DEFS, planRateOf, type PricingDocument } from "@/lib/pricing-model";
+import type { CatalogItem } from "@/lib/api-client/commerce";
+import { coffinSku } from "@/lib/catalogue-skus";
 import { WITHDRAWN_CATALOG_ITEMS } from "@/lib/catalog-sources";
 import type {
   BuilderCasketOption,
@@ -67,16 +69,34 @@ function includesFor(family: CasketFamily): string[] {
   );
 }
 
-/** The 24 sheet models, in the sheet's own order, with their two price columns. */
-function caskets(): BuilderCasketOption[] {
-  return CASKET_MODELS.map((model) => ({
-    model: model.model,
-    collection: model.collection,
-    family: model.family,
-    priceCents: cents(model.srp),
-    seniorPriceCents: cents(model.seniorPrice),
-    includes: includesFor(model.family),
-  }));
+/**
+ * The 24 sheet models, in the sheet's own order, with their two price columns.
+ *
+ * 2026-09-27: the figures come from the LIVE CATALOGUE (the record the staff admin edits
+ * and the cart charges), joined by SKU. They used to be read from the hardcoded sheet
+ * model, which meant an office price edit moved the product pages and not this estimate —
+ * the builder would have quoted a family a price the office no longer sells at.
+ *
+ * The sheet remains the FALLBACK for a model the catalogue does not carry, so an
+ * unavailable catalogue degrades to the recorded figures rather than blanking a step of
+ * the arrangement. `seniorPriceCents: 0` means "no senior column for this model", which is
+ * how the estimate already reads it.
+ */
+function caskets(items: ReadonlyArray<CatalogItem>): BuilderCasketOption[] {
+  const bySku = new Map(items.map((item) => [item.sku, item]));
+  return CASKET_MODELS.map((model) => {
+    const item = bySku.get(coffinSku(model.model));
+    return {
+      model: model.model,
+      collection: model.collection,
+      family: model.family,
+      priceCents: item ? item.unit_price_cents : cents(model.srp),
+      seniorPriceCents: item
+        ? (item.senior_price_cents ?? 0)
+        : cents(model.seniorPrice),
+      includes: includesFor(model.family),
+    };
+  });
 }
 
 /** Sheet III's two chapel classes, each with the printed 3–9 day schedule. */
@@ -120,8 +140,12 @@ function planRates(pricing: PricingDocument): BuilderPlanRate[] {
  * caller reads the stores per request, exactly like /plans and
  * /lots/price-list-2026.
  */
-export function builderCatalog(pricing: PricingDocument, planNote: string): BuilderCatalog {
-  const allCaskets = caskets();
+export function builderCatalog(
+  pricing: PricingDocument,
+  planNote: string,
+  catalogItems: ReadonlyArray<CatalogItem> = [],
+): BuilderCatalog {
+  const allCaskets = caskets(catalogItems);
   const collections = CASKET_COLLECTIONS.filter((collection) =>
     allCaskets.some((casket) => casket.collection === collection),
   );

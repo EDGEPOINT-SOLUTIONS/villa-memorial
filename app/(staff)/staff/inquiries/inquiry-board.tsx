@@ -1,16 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
 import type { Inquiry } from "@/lib/api-client/crm";
-import {
-  captureDemoInquiry,
-  readDemoInquiries,
-} from "@/lib/demo-inquiry-captures";
 
 type Tone = "info" | "warning" | "success" | "neutral";
 
@@ -27,11 +23,20 @@ const SOURCE_LABELS: Array<{ value: Inquiry["source"]; label: string }> = [
 ];
 
 /**
- * Quick-capture inquiry workspace. Capture is CLIENT-SIDE ONLY for now:
- * the BFF must not originate data writes (web/AGENTS.md rule 1) and no
- * crm-families API exists yet. Rows captured here (and public contact-form
- * enquiries) live in the browser's demo store — lib/demo-inquiry-captures.ts —
- * and are clearly marked as demo captures, never as service records.
+ * The office's enquiry workspace.
+ *
+ * 2026-09-27 — WHAT CHANGED AND WHY. This board used to merge, after hydration,
+ * whatever the public forms had written into THIS BROWSER's localStorage. Two things
+ * were wrong with that and both cost the office a customer:
+ *   · a website enquiry from any other device never appeared here at all, and
+ *   · the board's columns never rendered `message`, so the preferred date and the
+ *     additional requirements a family typed were captured and then invisible.
+ * Rows now arrive as `initialInquiries` from the server, which folds the durable
+ * journal (`lib/api-client/inquiry-store.ts`) that `POST /api/inquiries` writes — and
+ * the request's own words are rendered under its topic, where a coordinator reads them.
+ *
+ * The counter's "log a call or walk-in" form posts to the same route, so a call logged
+ * at the desk is a record and not a browser note that dies with the tab.
  */
 export function InquiryBoard({
   initialInquiries,
@@ -56,65 +61,68 @@ export function InquiryBoard({
     assigned_to: "",
   });
   const [validationError, setValidationError] = useState<string | null>(null);
-
-  // Demo captures kept from earlier visits — including public contact-form
-  // enquiries — are read after hydration so server markup stays deterministic.
-  useEffect(() => {
-    const demo = readDemoInquiries();
-    if (demo.length === 0) return;
-    setInquiries((prev) => {
-      const known = new Set(prev.map((i) => i.id));
-      return [...demo.filter((i) => !known.has(i.id)), ...prev];
-    });
-  }, []);
+  const [saving, setSaving] = useState(false);
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
     if (!q) return inquiries;
     return inquiries.filter((i) =>
-      [i.reference, i.person.full_name, i.person.phone, i.topic]
+      [i.reference, i.person.full_name, i.person.phone, i.topic, i.message]
         .join(" ")
         .toLowerCase()
         .includes(q),
     );
   }, [inquiries, filter]);
 
-  function submitCapture(e: React.FormEvent<HTMLFormElement>) {
+  async function submitCapture(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!form.full_name.trim() || !form.phone.trim() || !form.topic.trim()) {
-      setValidationError("Name, contact number, and topic are required.");
-      return;
-    }
     setValidationError(null);
-    const inquiry = captureDemoInquiry({
-      full_name: form.full_name,
-      email: form.email,
-      phone: form.phone,
-      source: form.source as Inquiry["source"],
-      topic: form.topic,
-      message: form.message,
-      assigned_to: form.assigned_to,
-    });
-    setInquiries((prev) => [inquiry, ...prev]);
-    setCapturedCount((n) => n + 1);
-    setFormOpen(false);
-    setForm({
-      full_name: "",
-      phone: "",
-      email: "",
-      source: "phone",
-      topic: "",
-      message: "",
-      assigned_to: "",
-    });
+    setSaving(true);
+    try {
+      // The counter's row goes to the SAME durable journal the website writes to, so a
+      // call logged at the desk survives the tab and reaches every staff screen.
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "log", values: form }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const body = typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
+
+      if (!response.ok || typeof body.inquiry !== "object" || body.inquiry === null) {
+        setValidationError(
+          typeof body.error === "string" ? body.error : "The enquiry could not be recorded.",
+        );
+        return;
+      }
+
+      setInquiries((prev) => [body.inquiry as Inquiry, ...prev]);
+      setCapturedCount((n) => n + 1);
+      setFormOpen(false);
+      setForm({
+        full_name: "",
+        phone: "",
+        email: "",
+        source: "phone",
+        topic: "",
+        message: "",
+        assigned_to: "",
+      });
+    } catch {
+      setValidationError(
+        "The enquiry could not be recorded — check your connection and try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <div className="stack-4">
       {capturedCount > 0 ? (
-        <Alert tone="success" title="Inquiry captured in this browser.">
-          Demo captures live only in this browser until the records service is
-          connected — nothing was sent anywhere.
+        <Alert tone="success" title="Inquiry recorded.">
+          The enquiry is saved in the office&rsquo;s register and appears in the list
+          below. Website requests arrive here the same way.
         </Alert>
       ) : null}
 
@@ -254,7 +262,9 @@ export function InquiryBoard({
           </section>
 
           <div className="capture-actions">
-            <Button type="submit">Capture inquiry</Button>
+            <Button type="submit" disabled={saving}>
+            {saving ? "Recording…" : "Capture inquiry"}
+          </Button>
             <Button variant="ghost" type="button" onClick={() => setFormOpen(false)}>
               Cancel
             </Button>
@@ -296,9 +306,28 @@ export function InquiryBoard({
                   <td>
                     <strong>{i.person.full_name}</strong>
                     <br />
-                    <span className="text-sm text-muted">{i.person.phone}</span>
+                    <span className="text-sm text-muted">
+                      {i.person.phone}
+                      {i.person.email ? (
+                        <>
+                          <br />
+                          {i.person.email}
+                        </>
+                      ) : null}
+                    </span>
                   </td>
-                  <td>{i.topic}</td>
+                  <td>
+                    {i.topic}
+                    {/* THE REQUEST'S OWN WORDS. Before 2026-09-27 this column showed
+                        only the topic, so a Request-for-Quote arrived with its preferred
+                        date and its additional requirements captured and never shown —
+                        the office could see only which service was asked about. A
+                        coordinator now reads exactly what the family wrote. `pre-line`
+                        keeps the labels the intake composed on their own lines. */}
+                    {i.message.trim() ? (
+                      <p className="inquiry-board__message">{i.message}</p>
+                    ) : null}
+                  </td>
                   <td className="text-sm">{SOURCE_LABELS.find((s) => s.value === i.source)?.label ?? i.source}</td>
                   <td className="text-sm">{i.assigned_to}</td>
                   <td>

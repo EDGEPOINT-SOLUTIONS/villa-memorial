@@ -70,15 +70,24 @@ export const HERO_BACKGROUND_PALETTE: ReadonlyArray<{
   value: string;
   token: string;
 }> = [
-  { name: "Daylight sky", value: "#c4e6f8", token: "--sky-200" },
-  { name: "Morning sky", value: "#6bbce8", token: "--sky-400" },
-  { name: "Clear sky", value: "#3f97d1", token: "--sky-500" },
-  { name: "Deep sky", value: "#22699a", token: "--sky-700" },
-  { name: "Sky ink", value: "#0d2c42", token: "--sky-950" },
-  { name: "Navy ink", value: "#081c31", token: "--navy-950" },
-  { name: "Marble paper", value: "#f5f3ee", token: "--marble-100" },
-  { name: "Golden hour", value: "#f1cc5e", token: "--gold-300" },
-  { name: "Brass", value: "#c79b1e", token: "--gold-500" },
+  // Rebuilt 2026-09-27 with the new foundation. The old palette offered five
+  // blues ("Daylight sky" … "Sky ink") because the brand was a sky-blue control
+  // colour. The brand is a deep evergreen now — this is a garden memorial park
+  // and the client's own photographs are all green — so the swatches follow the
+  // park: warm paper, the evergreen ladder, brass for a ceremonial hero, and the
+  // two status hues staff already use elsewhere.
+  { name: "Bone", value: "#faf7f2", token: "--paper-100" },
+  { name: "Parchment", value: "#f4efe6", token: "--paper-200" },
+  { name: "Pale evergreen", value: "#dce9e2", token: "--ever-100" },
+  { name: "Soft evergreen", value: "#8db6a3", token: "--ever-300" },
+  { name: "Evergreen", value: "#3f755c", token: "--ever-500" },
+  { name: "Deep evergreen", value: "#264a39", token: "--ever-700" },
+  { name: "Forest ink", value: "#152c22", token: "--ever-900" },
+  { name: "Night garden", value: "#0c1a14", token: "--ever-950" },
+  { name: "Warm ink", value: "#191713", token: "--ink-900" },
+  { name: "Golden hour", value: "#e7cb8c", token: "--brass-300" },
+  { name: "Brass", value: "#b8842a", token: "--brass-500" },
+  { name: "Deep brass", value: "#6d4b11", token: "--brass-700" },
   { name: "Sage", value: "#6f8f6a", token: "--sage-500" },
   { name: "Clay", value: "#b3695e", token: "--clay-500" },
 ];

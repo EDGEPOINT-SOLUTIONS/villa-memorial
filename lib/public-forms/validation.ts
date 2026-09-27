@@ -3,10 +3,16 @@
  * quote request and appointment request.
  *
  * ⚠ NO SERVICE CONTRACT backs these forms: crm-families (enquiries) and
- * scheduling are unbuilt. These validators check what the visitor typed; they
- * are NOT a request payload for anywhere. Contact captures stay demo-local
- * (lib/demo-inquiry-captures.ts) and the screens say so in their confirmation
- * wording — never claim delivery a service cannot perform.
+ * scheduling are unbuilt. These validators check what the visitor typed; they are
+ * NOT a request payload for an upstream service.
+ *
+ * 2026-09-27: they ARE the veto on the app's own write. A contact or quote submission
+ * is now posted to `POST /api/inquiries` and recorded in the office's durable journal
+ * (`lib/api-client/inquiry-store.ts`), and the route re-runs these same gates through
+ * `lib/inquiry-intake.ts` — so the sentence a family sees in the browser and the
+ * sentence the server refuses with cannot drift. (Before this, both forms wrote to
+ * `lib/demo-inquiry-captures.ts` in the visitor's own browser and the office received
+ * nothing; that module is deleted.)
  *
  * Labels never carry `*` or `(optional)`: optionality lives in the field hints
  * and in these gates (forms-UI report §2 rules; D2 public short measure).

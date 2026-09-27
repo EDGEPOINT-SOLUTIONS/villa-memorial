@@ -1,6 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+import { saveLandingContent } from "@/lib/api-client/landing";
 import { assertNoParagraphNesting } from "@/tests/helpers/paragraph-nesting";
 import { decodeEntities } from "@/tests/helpers/prose";
 import contentFile from "@/lib/fixtures/landing/content.json";
@@ -45,15 +46,19 @@ async function render(): Promise<string> {
   return renderToStaticMarkup(await SettingsPage());
 }
 
-type LandingGlobal = typeof globalThis & { __imLandingContent?: unknown };
-
+/**
+ * 2026-09-27: the `globalThis` seam these hooks deleted is GONE.
+ *
+ * The landing document used to keep an edit in process memory, so a test simulated one by
+ * assigning `globalThis.__imLandingContent` directly — which also meant an edit did not
+ * survive a restart in production. It is a durable journal now
+ * (`lib/api-client/journal.ts`, `LANDING_STORE_PATH`), and `tests/setup.ts` points every
+ * suite's journal at a throwaway file. So the edit below is made through the REAL save
+ * path, which is both the honest way to arrange it and a stronger test: it proves a save
+ * reaches this screen, not just that a global did.
+ */
 beforeEach(() => {
   sessionHolder.current = null;
-  delete (globalThis as LandingGlobal).__imLandingContent;
-});
-
-afterEach(() => {
-  delete (globalThis as LandingGlobal).__imLandingContent;
 });
 
 describe("this park's configuration", () => {
@@ -123,10 +128,12 @@ describe("this park's configuration", () => {
   it("carries an edit to the landing document straight to the identity table", async () => {
     signIn(["tenancy:tenants:manage"]);
     const seed = (contentFile as unknown as { content: Record<string, unknown> }).content;
-    (globalThis as LandingGlobal).__imLandingContent = {
+    // Through the REAL save path — the same call the editor's BFF route makes — so this
+    // proves a staff edit reaches this screen, not merely that a global was assigned.
+    await saveLandingContent({
       ...seed,
       logo: { ...(seed.logo as Record<string, unknown>), wordmark: "Sanctuario de Prueba" },
-    };
+    });
     const html = await render();
     expect(html).toContain("Sanctuario de Prueba");
     expect(html).not.toContain("Villa Memorial Park</td>");

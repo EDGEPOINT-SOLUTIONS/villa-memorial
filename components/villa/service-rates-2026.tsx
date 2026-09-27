@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ServiceIcons, IconChapel } from "@/components/villa/service-icons";
+import { ResultsGrid } from "@/components/kit/results-grid";
+import { ServiceCard } from "@/components/villa/service-card";
 import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
 import { PublicDisclosure, PublicImage, SectionHead } from "@/components/kit";
 import { buildQuoteHref } from "@/lib/public-forms/request-prefill";
@@ -15,6 +16,7 @@ import {
 import { ALACARTE_SCOPE, CHAPEL_NOTES, EMBALMING_RATES } from "@/lib/villa-pricing";
 import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
+import { catalogueItemPhoto } from "@/lib/catalogue-imagery";
 
 /**
  * Funeraria memorial services — the client's 2026 service offerings, quoted.
@@ -93,29 +95,35 @@ export function AlacarteServiceRates({
         id="services-rates-title"
         kicker={ALACARTE_SCOPE}
         title="Services we provide"
-        lead="Five services — request a quote for the ones you need."
-        action={<span className="text-sm text-muted">The office replies with a written quotation.</span>}
+        lead="Five services — ask for the ones you need."
       />
 
-      <ul className="story-rates">
-        {ALACARTE_LINES.map((fee) => {
-          const IconShape = ServiceIcons[fee.service] ?? IconChapel;
-          return (
-            <li className="story-rate" key={fee.service}>
-              <span className="story-rate__icon" aria-hidden="true">
-                <IconShape />
-              </span>
-              <span className="story-rate__text">
-                <span className="story-rate__name">{fee.service}</span>
-                <span className="story-rate__desc">{notes[fee.service]}</span>
-              </span>
-              <span className="story-rate__actions">
-                <QuoteAction item={fee.service} sku={fee.sku} note={ALACARTE_REQUEST_NOTE} />
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      {/* BOXES, NOT A LIST (captain, 2026-09-27: "more graphics … use boxes …
+          dont overwhelm visitors"). Each line is a picture-first `.shop-card` —
+          the same box /products, /plans and /lots render — carrying the client's
+          own photograph for that service, its icon, its name and the client's one
+          line. The prose that used to sit beside the list is gone; the one fact a
+          family needs from it is a compact box above the grid. */}
+      <p className="sv-scope">
+        <strong>A Villa Memorial Plan already includes all five.</strong>{" "}
+        <Link href="/plans">See what the plan covers →</Link>
+      </p>
+
+      <ResultsGrid
+        items={ALACARTE_LINES}
+        itemKey={(fee) => fee.sku}
+        label="At-need services"
+        emptyTitle="The service list is being prepared."
+        className="sv-services"
+        renderItem={(fee) => (
+          <ServiceCard
+            name={fee.service}
+            line={notes[fee.service] ?? ""}
+            photo={catalogueItemPhoto(fee.sku)}
+            action={<QuoteAction item={fee.service} sku={fee.sku} note={ALACARTE_REQUEST_NOTE} />}
+          />
+        )}
+      />
 
       <div className="story-actions">
         <QuoteAction
@@ -143,39 +151,47 @@ export function EmbalmingRates({ contact }: { contact: ContactInfo }) {
         lead="Includes make-up and dressing; the office confirms the day count."
       />
 
-      <EmbalmingDayPicker />
+      {/* Two columns on a wide screen: the choice on the left, the full ladder on
+          the right. It was a stack, which left the right half of a 1440px window
+          empty while the ladder sat folded underneath. */}
+      <div className="sv-embalm">
+        <div>
+          <EmbalmingDayPicker />
+          <p className="story-note">
+            Not sure how many days? Most families choose 3 — call{" "}
+            <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
+          </p>
+        </div>
 
-      <PublicDisclosure summary="See every day count, 3 to 9 days">
-        <ul className="sv-stays" aria-label="Embalming day counts">
-          {EMBALMING_RATES.map((row) => (
-            <li className="sv-stay" key={row.days}>
-              <span className="sv-stay__days">{row.days} days</span>
-              <span className="sv-stay__actions">
-                <QuoteAction
-                  item={`Embalming — ${row.days} days`}
-                  sku={embalmingDaySku(row.days)}
-                  note={EMBALMING_REQUEST_NOTE}
-                />
-              </span>
-            </li>
-          ))}
-          <li className="sv-stay">
-            <span className="sv-stay__days">More than 9</span>
-            <span className="sv-stay__actions">
-              <QuoteAction
-                item="Embalming — beyond 9 days"
-                sku={EMBALMING_EXTRA_DAY_SKU}
-                note={`${EMBALMING_REQUEST_NOTE} More than nine days.`}
-              />
-            </span>
-          </li>
-        </ul>
-      </PublicDisclosure>
-
-      <p className="story-note">
-        Not sure how many days? Most families choose 3 — call{" "}
-        <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
-      </p>
+        <div className="sv-embalm__ladder">
+          <PublicDisclosure summary="See every day count, 3 to 9 days">
+            <ul className="sv-stays" aria-label="Embalming day counts">
+              {EMBALMING_RATES.map((row) => (
+                <li className="sv-stay" key={row.days}>
+                  <span className="sv-stay__days">{row.days} days</span>
+                  <span className="sv-stay__actions">
+                    <QuoteAction
+                      item={`Embalming — ${row.days} days`}
+                      sku={embalmingDaySku(row.days)}
+                      note={EMBALMING_REQUEST_NOTE}
+                    />
+                  </span>
+                </li>
+              ))}
+              <li className="sv-stay">
+                <span className="sv-stay__days">More than 9</span>
+                <span className="sv-stay__actions">
+                  <QuoteAction
+                    item="Embalming — beyond 9 days"
+                    sku={EMBALMING_EXTRA_DAY_SKU}
+                    note={`${EMBALMING_REQUEST_NOTE} More than nine days.`}
+                  />
+                </span>
+              </li>
+            </ul>
+          </PublicDisclosure>
+        </div>
+      </div>
     </section>
   );
 }

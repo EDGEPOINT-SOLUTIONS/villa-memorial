@@ -38,6 +38,12 @@ type FormState = {
   description: string;
   item_type: CatalogItemType;
   price: string;
+  /**
+   * The senior-citizen price, in pesos. Blank means "this item has no senior price",
+   * which is honest for a service or a package — the control never defaults it to "0.00",
+   * because a zero would publish as free.
+   */
+  seniorPrice: string;
   currency: string;
   image: string;
   published: boolean;
@@ -51,6 +57,7 @@ function formOf(record?: AdminCatalogItem): FormState {
       description: "",
       item_type: "service",
       price: "",
+      seniorPrice: "",
       currency: "PHP",
       image: "",
       published: true,
@@ -61,8 +68,12 @@ function formOf(record?: AdminCatalogItem): FormState {
     name: record.item.name,
     description: record.item.description ?? "",
     item_type: record.item.item_type,
-    // The control edits pesos; the record's integer centavos are the truth.
+    // The controls edit pesos; the record's integer centavos are the truth.
     price: (record.item.unit_price_cents / 100).toFixed(2),
+    seniorPrice:
+      record.item.senior_price_cents != null
+        ? (record.item.senior_price_cents / 100).toFixed(2)
+        : "",
     currency: record.item.currency,
     image: record.item.image ?? "",
     published: record.published,
@@ -77,6 +88,7 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
   const descriptionId = useId();
   const typeId = useId();
   const priceId = useId();
+  const seniorPriceId = useId();
   const currencyId = useId();
   const imageId = useId();
   const publishedId = useId();
@@ -89,7 +101,12 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
 
   function update<K extends keyof FormState>(field: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [field]: value }));
-    const errorKey = (field === "price" ? "unit_price_cents" : field) as keyof CatalogDraftErrors;
+    // The form's control names differ from the draft's field names for the two money
+    // controls, so typing clears the RIGHT error. Without the senior entry, editing that
+    // field left its refusal on screen until the next submit.
+    const errorKey = (
+      field === "price" ? "unit_price_cents" : field === "seniorPrice" ? "senior_price_cents" : field
+    ) as keyof CatalogDraftErrors;
     setErrors((prev) => {
       const next = { ...prev };
       delete next[errorKey];
@@ -113,6 +130,9 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
     setSummary(null);
 
     const cents = parseMajorToMinorUnits(form.price);
+    // Blank stays blank: parseMajorToMinorUnits("") is null, and the validator reads null as
+    // "no senior price" rather than a zero that would publish as free.
+    const seniorCents = form.seniorPrice.trim() === "" ? null : parseMajorToMinorUnits(form.seniorPrice);
     const candidate = {
       sku: form.sku,
       name: form.name,
@@ -121,6 +141,7 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
       unit_price_cents: cents,
       currency: form.currency,
       image: form.image,
+      senior_price_cents: seniorCents,
       published: form.published,
     };
     const check = validateCatalogDraft(candidate);
@@ -265,6 +286,26 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
               value={form.price}
               onChange={(e) => update("price", e.target.value)}
               placeholder="6000.00"
+            />
+          </Field>
+          {/* The second figure the 2026 casket sheet prints. Before this control existed the
+              senior price could only be changed in code, so the storefront showed a discount
+              the office could not move. Blank means "no senior price" — never 0.00, which
+              would publish as free. */}
+          <Field
+            label="Senior-citizen price (₱, optional)"
+            htmlFor={seniorPriceId}
+            hint="The discounted price for 61–100. Leave empty when the item has none — it must stay below the unit price."
+            error={errors.senior_price_cents}
+          >
+            <input
+              id={seniorPriceId}
+              type="text"
+              inputMode="decimal"
+              disabled={pending}
+              value={form.seniorPrice}
+              onChange={(e) => update("seniorPrice", e.target.value)}
+              placeholder="26400.00"
             />
           </Field>
           <Field

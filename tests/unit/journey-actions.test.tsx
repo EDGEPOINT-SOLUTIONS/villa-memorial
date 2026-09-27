@@ -165,9 +165,18 @@ describe("the contact surface states the office's published facts before the for
     // The paths to the other capture forms.
     expect(html).toContain('href="/quote"');
     expect(html).toContain('href="/appointments"');
-    // One h1 on the route, and the facts sit before the message form.
+    // One h1 on the route. The message form now comes FIRST and the published
+    // facts close the page — captain, 2026-09-27: "put this at the last section".
+    // The assertion was the other way round (F-17: "a caller never has to scroll
+    // for the phone"); it is inverted rather than deleted, because the order is
+    // still a decision and a removed assertion cannot guard it.
     expect((html.match(/<h1\b/g) ?? []).length).toBe(1);
-    expect(html.indexOf("contact-facts")).toBeLessThan(html.indexOf("contact-message"));
+    expect(html.indexOf("contact-message")).toBeLessThan(html.indexOf("contact-facts"));
+    // …and the directions card is the LAST band, after the facts. Its marker is
+    // `data-location-block`, which the component owns (there is no
+    // `contact-locations` id — an assertion on one would have passed for the
+    // wrong reason, or not at all).
+    expect(html.indexOf("contact-facts")).toBeLessThan(html.indexOf("data-location-block"));
   });
 
   it("a staff edit reaches the contact surface and the footer", async () => {

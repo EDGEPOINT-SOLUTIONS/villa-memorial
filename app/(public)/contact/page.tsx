@@ -20,11 +20,21 @@ export const metadata: Metadata = pageMetadata({
  * the park, and the availability the 24/7 line keeps — all read from the
  * staff-editable LandingPage document, never typed here.
  *
+ * ORDER — captain, 2026-09-27: "put this at the last section". The published
+ * facts and the directions card now CLOSE the page, after the message form. They
+ * used to open it, which was the F-17 decision ("numbers, addresses and
+ * availability before the form — a caller never has to scroll for the phone") and
+ * is what `tests/unit/journey-actions.test.tsx` pinned; that assertion is now
+ * inverted and carries the new instruction.
+ *
+ * The screen therefore reads: the promise (hero) → the action a visitor came for
+ * (the form) → the office's own facts and directions as the closing reference.
+ *
  * Story-lane pass (2026-09-22, plan §5.7): the page opens on the shared
  * `PublicHero` and lists the published facts as a compact `.story-contact-facts`
- * grid before the form. The page keeps exactly ONE filled primary — the form's
- * Send — so the 24/7 Call is the outline support rung (settles D8: the page used
- * to show a gold Call and a sky Send as two equal primaries).
+ * grid. The page keeps exactly ONE filled primary — the form's Send — so the
+ * 24/7 Call is the outline support rung (settles D8: the page used to show a gold
+ * Call and a sky Send as two equal primaries).
  *
  * This is also the storefront's "Request order" landing: a link carrying
  * `?item=&sku=&price=` (lib/public-forms/request-prefill.ts) is parsed HERE and
@@ -57,8 +67,17 @@ export default async function Page({
         }
       />
 
-      {/* The published facts first (F-17): numbers, addresses and availability
-          before the form — a caller never has to scroll for the phone. */}
+      {/* The action first (captain, 2026-09-27). The form is why most people
+          opened this page; the facts below answer the ones who did not. */}
+      <div className="story-band" id="contact-message">
+        <ContactForm prefill={prefill} />
+      </div>
+
+      {/* The published facts — the page's CLOSING reference. They used to open it
+          (F-17, "a caller never has to scroll for the phone"); the captain moved
+          them last on 2026-09-27, so the order below is the decision now. The
+          facts themselves are unchanged: both hotlines, the client's letterhead
+          addresses, and the three other paths. */}
       <section className="story-band" aria-labelledby="contact-facts-title">
         <SectionHead
           id="contact-facts-title"
@@ -113,13 +132,10 @@ export default async function Page({
       </section>
 
       {/* Where the office and the park actually are, with directions (client's
-          minutes 2026-09-21, item 6). Sits with the published facts, before the
-          form, so someone travelling finds it without scrolling. */}
+          minutes 2026-09-21, item 6). The LAST band on the page (captain,
+          2026-09-27) — someone who is travelling reads it after they have sent
+          their message or decided to call. */}
       <LocationBlock contact={contact} className="story-band" />
-
-      <div className="story-band" id="contact-message">
-        <ContactForm prefill={prefill} />
-      </div>
 
       <nav className="story-back" aria-label="Back to home">
         <Link href="/" className="back-link">← Back to home</Link>

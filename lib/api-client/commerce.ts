@@ -75,6 +75,23 @@ export type CatalogItem = {
    * frozen contract field: live upstream never sends it → null, and the public
    * views fall back to their own recorded imagery. */
   image?: string | null;
+  /**
+   * APP-AUTHORED senior-citizen price, in minor units. NOT a frozen contract field
+   * (the envelope names `unit_price_cents` and no senior figure) — live upstream omits
+   * it, and a surface that needs a senior line falls back to the recorded sheet value.
+   *
+   * WHY IT IS HERE (2026-09-27). The 2026 casket sheet prints a senior price per model,
+   * and it existed in exactly one place: the hardcoded `CASKET_MODELS` list. The staff
+   * catalogue admin edits the durable catalogue, not that list, so **the senior price was
+   * not editable at all** — and the regular price was editable in a way the storefront
+   * ignored. The catalogue is the live selling record for both figures now, with the
+   * sheet as the provenance of the seed
+   * (`tests/fixture-contract/catalog-sources.test.ts` pins them together).
+   *
+   * Absent or null means "this item has no senior price", which is honest for a service
+   * or a package — never 0, which would read as free.
+   */
+  senior_price_cents?: number | null;
 };
 
 export type OrderResponse = {
@@ -152,6 +169,15 @@ function asCatalogItem(raw: unknown): CatalogItem {
     currency: String(r.currency),
     display_price: String(r.display_price),
     image: typeof r.image === "string" && r.image.trim().length > 0 ? r.image : null,
+    // App-authored, and optional by design: a live upstream omits it, and so does every
+    // item that genuinely has no senior price. Anything that is not a positive integer is
+    // treated as "none" rather than coerced, so a malformed value cannot print as ₱0.
+    senior_price_cents:
+      typeof r.senior_price_cents === "number" &&
+      Number.isInteger(r.senior_price_cents) &&
+      r.senior_price_cents > 0
+        ? r.senior_price_cents
+        : null,
   };
 }
 

@@ -5,10 +5,6 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import {
-  captureDemoInquiry,
-  contactInquiryInput,
-} from "@/lib/demo-inquiry-captures";
-import {
   validateContact,
   type ContactValues,
   type FieldErrors,
@@ -33,10 +29,15 @@ function initialValues(prefill: RequestPrefill | null): ContactValues {
 
 /**
  * Public contact capture on the shared shell (numbered sections · hints ·
- * one action bar). The submit gate is lib/public-forms/validation.ts; a passed
- * submission lands in the DEMO-LOCAL inquiry store the staff board reads
- * (lib/demo-inquiry-captures.ts) because no crm-families contract exists.
- * The confirmation states plainly that nothing was sent to a server.
+ * one action bar). The submit gate is lib/public-forms/validation.ts, run here for
+ * field feedback and again on the server as the veto; a passed submission is
+ * POSTed to `POST /api/inquiries`, which records it in the office's durable
+ * journal (lib/api-client/inquiry-store.ts). The staff inquiries board reads the
+ * same journal, so a message appears there as soon as it is sent.
+ *
+ * No frozen crm-families contract exists, so live mode refuses with a named 503
+ * and the form tells the family to call — it never claims a delivery that did not
+ * happen.
  *
  * `prefill` comes from a storefront "Request order" link
  * (lib/public-forms/request-prefill.ts): the banner echoes the exact item, SKU
@@ -70,18 +71,45 @@ export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | nul
     setErrors({});
     setFormError(null);
     setPending(true);
-    // No service exists yet, but keep a perceivable pending beat so the
-    // disabled state is visible (same simulated save as register-card).
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    const inquiry = captureDemoInquiry(contactInquiryInput(values));
-    setPending(false);
-    setCaptured({ reference: inquiry.reference });
+    try {
+      // 2026-09-27: this posts to the office. It used to write the message into this
+      // visitor's own browser and say so — so a family's message reached nobody in the
+      // office at all. `POST /api/inquiries` is the record now.
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "contact", values }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const body = typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
+
+      if (!response.ok) {
+        const message =
+          typeof body.error === "string" ? body.error : "Your message could not be sent.";
+        if (typeof body.fieldErrors === "object" && body.fieldErrors !== null) {
+          setErrors(body.fieldErrors as Record<string, string>);
+        }
+        setFormError(message);
+        return;
+      }
+
+      const inquiry = body.inquiry as { reference?: unknown } | undefined;
+      setCaptured({
+        reference: typeof inquiry?.reference === "string" ? inquiry.reference : "",
+      });
+    } catch {
+      setFormError(
+        "Your message could not be sent — check your connection and try again, or call the 24/7 assistance line and we will take the details by phone.",
+      );
+    } finally {
+      setPending(false);
+    }
   }
 
   if (captured) {
     return (
       <div className="stack">
-        <Alert tone="success" title="Message captured in this browser.">
+        <Alert tone="success" title="Your message has reached the office.">
           {prefill ? (
             <>
               Your request for <strong>{prefill.item}</strong> is recorded as{" "}
@@ -92,11 +120,9 @@ export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | nul
               Your enquiry is recorded as <strong>{captured.reference}</strong>
             </>
           )}{" "}
-          in the demo store this device keeps, so it shows on the staff inquiries
-          board in this browser. <strong>Nothing was sent to a server</strong> — the
-          records service is not connected in this build, so this is not a
-          reservation or a purchase. For anything urgent, use the 24/7 assistance
-          line in the header.
+          and the office can see it now. A coordinator replies to the contact details
+          you gave. This is not a reservation or a purchase. For anything urgent, use
+          the 24/7 assistance line in the header.
         </Alert>
         <div className="capture-actions">
           <Button

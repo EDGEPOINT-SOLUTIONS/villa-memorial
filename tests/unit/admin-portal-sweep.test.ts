@@ -45,7 +45,7 @@ function staffSources(): string[] {
       const full = path.join(dir, entry);
       if (statSync(full).isDirectory()) return walk(full);
       if (!/\.tsx?$/.test(entry)) return [];
-      return [path.relative(ROOT, full)];
+      return [path.relative(ROOT, full).replace(/\\/g, "/")];
     });
   return walk(STAFF_APP);
 }

@@ -1,23 +1,27 @@
 /**
  * Page backgrounds — the regression home for the captain's 2026-09-25
- * direction: "all background color should be white, sky blue theme is for
- * buttons only and footer".
+ * direction ("all background color should be white, sky blue theme is for
+ * buttons only and footer"), carried forward into the 2026-09-27 rebuild.
  *
  * The reproduction that motivated it: every page, section, table and band was
  * washed with a light-sky token, so the product read as a template ("it's
- * making every page feel cheap and very AI"). The brand blue is now a CONTROL
- * colour — primary buttons, selected states, the phone call actions — and the
- * footer surface; every page/surface ground is white.
+ * making every page feel cheap and very AI"). The rule survives the rebuild
+ * unchanged in intent — a shell must never paint a BRAND-tinted ground. What
+ * changed is the ground itself: it is warm bone now, not clinical #ffffff,
+ * because a cold grey screen reads institutional to a grieving family. So this
+ * file still fails on a brand wash, and additionally requires every ground to
+ * come from the paper ramp.
  *
  * This file is declaration-level on purpose (vitest runs in `node`): it fails
  * on the exact rule or token that regressed, and it cannot be satisfied by a
  * stray utility class in a view. It pins three things:
  *
- *   1. the semantic ground tokens are white and the hairline tokens neutral;
- *   2. every shell / page-ground class paints no sky tint;
- *   3. no stylesheet paints a sky background anywhere except the explicit
+ *   1. the semantic ground tokens come from the paper ramp and the hairline
+ *      tokens stay neutral (never a brand tint);
+ *   2. every shell / page-ground class paints no brand tint;
+ *   3. no stylesheet paints a brand background anywhere except the explicit
  *      allowlist (controls, the footer, the untouched nav bar, tiny status
- *      indicators) — so a new sky wash is a test failure, not a review miss.
+ *      indicators) — so a new wash is a test failure, not a review miss.
  *
  * The navigation BAND (`.anchored-header*`) is deliberately out of scope: the
  * captain asked for it to be left exactly as it is, so its rules are exempt.
@@ -55,17 +59,22 @@ const hasInverseGround = (value: string) =>
   /var\(--color-bg-inverse\)/.test(value) || /var\(--sky-900\)/.test(value);
 
 describe("the semantic ground tokens are white and the hairlines neutral", () => {
-  it("points every page/surface ground at white", () => {
+  it("points every page/surface ground at the warm paper ramp, never a brand wash", () => {
     for (const token of ["--color-bg-page", "--color-bg-surface", "--color-bg-surface-raised", "--color-bg-desk"]) {
-      expect(TOKENS, token).toMatch(
-        new RegExp(`${token}: *#ffffff;`),
-      );
+      const value = TOKENS.match(new RegExp(`${token}: *([^;]+);`))?.[1] ?? "";
+      expect(value, `${token} is unset`).not.toBe("");
+      expect(value, `${token} paints a brand or accent wash`).not.toMatch(/--(ever|sky|navy|brass|gold)-/);
+      expect(value, `${token} must come from the paper ramp`).toMatch(/--paper-[0-9]/);
     }
+    // A raised surface is true white, so a card reads as a sheet on the bone desk.
+    expect(TOKENS).toMatch(/--color-bg-surface: *var\(--paper-0\);/);
   });
 
-  it("keeps the quiet hover wash neutral, never a sky tint", () => {
-    expect(TOKENS).not.toMatch(/--color-bg-subtle: *var\(--sky-/);
-    expect(TOKENS).toMatch(/--color-bg-subtle: *var\(--granite-/);
+  it("keeps the quiet hover wash neutral, never a brand tint", () => {
+    const subtle = TOKENS.match(/--color-bg-subtle: *([^;]+);/)?.[1] ?? "";
+    expect(subtle, "--color-bg-subtle is unset").not.toBe("");
+    expect(subtle).not.toMatch(/--(ever|sky|navy|brass|gold)-/);
+    expect(subtle).toMatch(/--(paper|ink)-[0-9]/);
   });
 
   it("keeps every hairline / rule token off the sky ladder", () => {
@@ -194,16 +203,81 @@ describe("sky backgrounds are confined to controls and the footer", () => {
     ).toEqual([]);
   });
 
-  it("keeps the footer's sky brand surface (the exception, asserted positively)", () => {
+  it("keeps the footer as the page's ONE deep brand ground (the exception, asserted positively)", () => {
+    // The footer is the single surface allowed to carry the brand as a GROUND
+    // rather than as a control. Since the 2026-09-27 rebuild that ground is the
+    // deep end of the evergreen ramp, not a pale sky wash: a pale wash under a
+    // memorial page read as mint, and the deep ground is what the brass rule
+    // above it was always for.
     const footer = RULES.find((r) => r.selector === ".anchored-footer");
     expect(footer, "the .anchored-footer rule exists").toBeDefined();
-    expect(footer!.body).toMatch(/background:\s*var\(--sky-200\)/);
+    expect(footer!.body).toMatch(/background:\s*var\(--ever-900\)/);
+    // …and it re-inks its whole subtree through the tokens, so a child rule
+    // added later cannot land dark-ink-on-dark-ground.
+    expect(footer!.body).toMatch(/--color-text-primary:\s*var\(--paper-100\)/);
+    expect(footer!.body).toMatch(/--color-text-accent:\s*var\(--brass-300\)/);
   });
 
-  it("still ships the sky primary button and the gold item button (identity kept)", () => {
+  it("re-inks EVERY text role the footer subtree can reach, and each one clears AA", () => {
+    // The reproduction this guards (found by the 2026-09-27 audit, one cycle
+    // after the dark footer shipped): the footer flipped only
+    // `--color-text-primary` and `--color-text-accent`, so eight links per page
+    // kept painting `--color-text-secondary` — a DARK ink — on the deep ground,
+    // measuring 1.4:1. Invisible text, on every public page, from a one-token
+    // omission. So: every ink role must be re-pointed, AND the value it resolves
+    // to must actually be readable on the footer's ground.
+    const footer = RULES.find((r) => r.selector === ".anchored-footer")!;
+    const INK_ROLES = [
+      "--color-text-primary",
+      "--color-text-secondary",
+      "--color-text-muted",
+      "--color-text-accent",
+    ];
+
+    for (const role of INK_ROLES) {
+      expect(footer.body, `${role} is not re-pointed on the footer`).toContain(`${role}:`);
+    }
+
+    const resolve = (name: string, depth = 0): string | null => {
+      if (depth > 8) return null;
+      // The footer's own override wins; otherwise fall back to tokens.css.
+      const source = new RegExp(`\\n\\s*${name}:\\s*([^;]+);`).exec(`\n${footer.body}`)?.[1]
+        ?? new RegExp(`\\n\\s*${name}:\\s*([^;]+);`).exec(TOKENS)?.[1];
+      const raw = source?.trim();
+      if (!raw) return null;
+      if (/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
+      const inner = /var\((--[a-z0-9-]+)\)/i.exec(raw)?.[1];
+      return inner ? resolve(inner, depth + 1) : null;
+    };
+
+    const luminance = (hex: string) => {
+      const c = hex.replace("#", "");
+      const [r, g, b] = [0, 2, 4].map((i) => {
+        const v = parseInt(c.slice(i, i + 2), 16) / 255;
+        return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+      });
+      return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+    const ground = resolve("--ever-900");
+    expect(ground, "the footer ground resolves to a hex").not.toBeNull();
+
+    for (const role of INK_ROLES) {
+      const ink = resolve(role);
+      expect(ink, `${role} resolves to a hex`).not.toBeNull();
+      const [hi, lo] = [luminance(ink!), luminance(ground!)].sort((a, b) => b - a);
+      const ratio = (hi + 0.05) / (lo + 0.05);
+      expect(ratio, `${role} on the footer ground (${ink} on ${ground})`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it("still ships one brand primary and one brass item button (identity kept)", () => {
+    // The identity these two controls carry is unchanged — a deep brand fill for
+    // the page's own commitment, and a single warm accent for a per-item action.
+    // Only the ramp names moved in the 2026-09-27 rebuild (sky→evergreen, and
+    // the primary went deep so it could carry light ink at 9.7:1).
     const primary = RULES.find((r) => r.selector === ".btn--primary");
     const accent = RULES.find((r) => r.selector === ".btn--accent");
-    expect(primary!.body).toContain("background: var(--sky-300);");
+    expect(primary!.body).toContain("background: var(--ever-700);");
     expect(accent!.body).toContain("background: var(--gold-400);");
   });
 });

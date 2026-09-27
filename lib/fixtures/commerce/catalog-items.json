@@ -231,7 +231,8 @@
       "item_type": "add_on",
       "unit_price_cents": 3300000,
       "currency": "PHP",
-      "display_price": "₱33,000.00"
+      "display_price": "₱33,000.00",
+      "senior_price_cents": 2640000
     },
     {
       "id": 124,
@@ -241,7 +242,8 @@
       "item_type": "add_on",
       "unit_price_cents": 6200000,
       "currency": "PHP",
-      "display_price": "₱62,000.00"
+      "display_price": "₱62,000.00",
+      "senior_price_cents": 4960000
     },
     {
       "id": 125,
@@ -251,7 +253,8 @@
       "item_type": "add_on",
       "unit_price_cents": 6800000,
       "currency": "PHP",
-      "display_price": "₱68,000.00"
+      "display_price": "₱68,000.00",
+      "senior_price_cents": 5440000
     },
     {
       "id": 126,
@@ -261,7 +264,8 @@
       "item_type": "add_on",
       "unit_price_cents": 6500000,
       "currency": "PHP",
-      "display_price": "₱65,000.00"
+      "display_price": "₱65,000.00",
+      "senior_price_cents": 5200000
     },
     {
       "id": 127,
@@ -271,7 +275,8 @@
       "item_type": "add_on",
       "unit_price_cents": 7000000,
       "currency": "PHP",
-      "display_price": "₱70,000.00"
+      "display_price": "₱70,000.00",
+      "senior_price_cents": 5600000
     },
     {
       "id": 128,
@@ -281,7 +286,8 @@
       "item_type": "add_on",
       "unit_price_cents": 7000000,
       "currency": "PHP",
-      "display_price": "₱70,000.00"
+      "display_price": "₱70,000.00",
+      "senior_price_cents": 5600000
     },
     {
       "id": 129,
@@ -291,7 +297,8 @@
       "item_type": "add_on",
       "unit_price_cents": 7500000,
       "currency": "PHP",
-      "display_price": "₱75,000.00"
+      "display_price": "₱75,000.00",
+      "senior_price_cents": 6000000
     },
     {
       "id": 130,
@@ -301,7 +308,8 @@
       "item_type": "add_on",
       "unit_price_cents": 8000000,
       "currency": "PHP",
-      "display_price": "₱80,000.00"
+      "display_price": "₱80,000.00",
+      "senior_price_cents": 6400000
     },
     {
       "id": 131,
@@ -311,7 +319,8 @@
       "item_type": "add_on",
       "unit_price_cents": 9000000,
       "currency": "PHP",
-      "display_price": "₱90,000.00"
+      "display_price": "₱90,000.00",
+      "senior_price_cents": 7200000
     },
     {
       "id": 132,
@@ -321,7 +330,8 @@
       "item_type": "add_on",
       "unit_price_cents": 9500000,
       "currency": "PHP",
-      "display_price": "₱95,000.00"
+      "display_price": "₱95,000.00",
+      "senior_price_cents": 7600000
     },
     {
       "id": 133,
@@ -331,7 +341,8 @@
       "item_type": "add_on",
       "unit_price_cents": 8500000,
       "currency": "PHP",
-      "display_price": "₱85,000.00"
+      "display_price": "₱85,000.00",
+      "senior_price_cents": 6800000
     },
     {
       "id": 134,
@@ -341,7 +352,8 @@
       "item_type": "add_on",
       "unit_price_cents": 9500000,
       "currency": "PHP",
-      "display_price": "₱95,000.00"
+      "display_price": "₱95,000.00",
+      "senior_price_cents": 7600000
     },
     {
       "id": 135,
@@ -351,7 +363,8 @@
       "item_type": "add_on",
       "unit_price_cents": 10000000,
       "currency": "PHP",
-      "display_price": "₱100,000.00"
+      "display_price": "₱100,000.00",
+      "senior_price_cents": 8000000
     },
     {
       "id": 136,
@@ -361,7 +374,8 @@
       "item_type": "add_on",
       "unit_price_cents": 10000000,
       "currency": "PHP",
-      "display_price": "₱100,000.00"
+      "display_price": "₱100,000.00",
+      "senior_price_cents": 8000000
     },
     {
       "id": 137,
@@ -371,7 +385,8 @@
       "item_type": "add_on",
       "unit_price_cents": 11000000,
       "currency": "PHP",
-      "display_price": "₱110,000.00"
+      "display_price": "₱110,000.00",
+      "senior_price_cents": 8800000
     },
     {
       "id": 138,
@@ -381,7 +396,8 @@
       "item_type": "add_on",
       "unit_price_cents": 12000000,
       "currency": "PHP",
-      "display_price": "₱120,000.00"
+      "display_price": "₱120,000.00",
+      "senior_price_cents": 9600000
     },
     {
       "id": 139,
@@ -391,7 +407,8 @@
       "item_type": "add_on",
       "unit_price_cents": 13000000,
       "currency": "PHP",
-      "display_price": "₱130,000.00"
+      "display_price": "₱130,000.00",
+      "senior_price_cents": 10400000
     },
     {
       "id": 140,
@@ -401,7 +418,8 @@
       "item_type": "add_on",
       "unit_price_cents": 14000000,
       "currency": "PHP",
-      "display_price": "₱140,000.00"
+      "display_price": "₱140,000.00",
+      "senior_price_cents": 11200000
     },
     {
       "id": 141,
@@ -411,7 +429,8 @@
       "item_type": "add_on",
       "unit_price_cents": 13000000,
       "currency": "PHP",
-      "display_price": "₱130,000.00"
+      "display_price": "₱130,000.00",
+      "senior_price_cents": 10400000
     },
     {
       "id": 142,
@@ -421,7 +440,8 @@
       "item_type": "add_on",
       "unit_price_cents": 14000000,
       "currency": "PHP",
-      "display_price": "₱140,000.00"
+      "display_price": "₱140,000.00",
+      "senior_price_cents": 11200000
     },
     {
       "id": 143,
@@ -431,7 +451,8 @@
       "item_type": "add_on",
       "unit_price_cents": 15000000,
       "currency": "PHP",
-      "display_price": "₱150,000.00"
+      "display_price": "₱150,000.00",
+      "senior_price_cents": 12000000
     },
     {
       "id": 144,
@@ -441,7 +462,8 @@
       "item_type": "add_on",
       "unit_price_cents": 14000000,
       "currency": "PHP",
-      "display_price": "₱140,000.00"
+      "display_price": "₱140,000.00",
+      "senior_price_cents": 11200000
     },
     {
       "id": 145,
@@ -451,7 +473,8 @@
       "item_type": "add_on",
       "unit_price_cents": 15000000,
       "currency": "PHP",
-      "display_price": "₱150,000.00"
+      "display_price": "₱150,000.00",
+      "senior_price_cents": 12000000
     },
     {
       "id": 146,
@@ -461,7 +484,8 @@
       "item_type": "add_on",
       "unit_price_cents": 16000000,
       "currency": "PHP",
-      "display_price": "₱160,000.00"
+      "display_price": "₱160,000.00",
+      "senior_price_cents": 12800000
     }
   ]
 }

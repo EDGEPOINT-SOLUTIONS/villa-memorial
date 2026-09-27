@@ -58,13 +58,22 @@ function cartItemOf(item: CasketListingItem["item"]) {
   };
 }
 
-/** The prefilled request every casket line carries — the sheet's own two prices. */
-function casketRequest(model: CasketListingItem["modelRecord"]) {
-  return {
-    note: `Regular SRP ${amount(model.srp)}; senior-citizen price ${amount(
-      model.seniorPrice,
-    )} (61–100, no insurance benefit). Casket: ${model.collection}.`,
-  };
+/**
+ * The prefilled request every casket line carries — the LIVE catalogue's two prices.
+ *
+ * 2026-09-27: these were read from the hardcoded sheet model. The card and this message
+ * now quote the same figures the cart charges, so an edit in /staff/catalog moves all
+ * three together.
+ */
+function casketRequest(item: CasketListingItem) {
+  const lines = [`Regular SRP ${amount(item.priceCents / 100)}`];
+  if (item.seniorPriceCents > 0) {
+    lines.push(
+      `senior-citizen price ${amount(item.seniorPriceCents / 100)} (61–100, no insurance benefit)`,
+    );
+  }
+  lines.push(`Casket: ${item.modelRecord.collection}`);
+  return { note: `${lines.join("; ")}.` };
 }
 
 /** The one short supporting line a card prints: the sheet's cover, or the office confirms it. */
@@ -77,6 +86,11 @@ function coverLine(model: CasketListingItem["modelRecord"]): string {
  * figures stay under it, but only the ones a family reads at a glance: the
  * name, the cover, the regular price, the senior line, and one primary action.
  * The detail view owns the SKU, the long cover note and the full caption.
+ *
+ * Every figure comes from the LISTING — that is, from the live catalogue. This card used
+ * to print `model.srp` / `model.seniorPrice` from the hardcoded sheet list while the cart
+ * charged the catalogue, so a staff price edit would have made the headline and the cart
+ * disagree on the same card.
  */
 export function CasketCard({ item }: { item: CasketListingItem }) {
   const model = item.modelRecord;
@@ -87,12 +101,15 @@ export function CasketCard({ item }: { item: CasketListingItem }) {
       eyebrow={`${model.family} family`}
       title={item.name}
       supporting={coverLine(model)}
-      price={amount(model.srp)}
+      price={amount(item.priceCents / 100)}
       priceNote="regular SRP"
       senior={
-        <>
-          Senior 61–100 · {amount(model.seniorPrice)} · {amount(model.seniorDiscount)} off
-        </>
+        item.seniorPriceCents > 0 ? (
+          <>
+            Senior 61–100 · {amount(item.seniorPriceCents / 100)} ·{" "}
+            {amount(item.seniorDiscountCents / 100)} off
+          </>
+        ) : undefined
       }
       caption={`${photo.label}. ${COFFIN_SAMPLE_NOTE}`}
       actions={
@@ -100,7 +117,7 @@ export function CasketCard({ item }: { item: CasketListingItem }) {
           <CatalogueActions
             item={cartItemOf(item.item)}
             displayPrice={item.item.display_price}
-            prefill={casketRequest(model)}
+            prefill={casketRequest(item)}
             secondaryAsLink
           />
           <Link href={item.href} className="catalogue-actions__link catalogue-actions__link--detail">

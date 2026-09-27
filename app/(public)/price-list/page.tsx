@@ -106,11 +106,15 @@ export default async function PriceListPage() {
       {/* ONE sticky section rail (captain 2026-09-25): the five bands, always in
           view while scrolling, collapsing to a sheet on a phone. It replaces the
           hero's jump chips, which did the same job once and then scrolled away. */}
+      {/* No `sheetAction`: this is a NAV rail (`ListingNav`), and `ListingShell`
+          closes its phone sheet on the anchor's `hashchange`. A commit button
+          would also be a defect here — this is a Server Component, so a
+          `{ label, onClick }` object cannot cross the boundary (React refuses to
+          serialise the handler and the whole page 500s in a production build). */}
       <ListingShell
         railLabel="Price list sections"
         sheetLabel="Sections"
         sheetIcon={false}
-        sheetAction={{ label: "Show the price list", onClick: () => {} }}
         rail={
           <ListingNav
             label="Price list sections"

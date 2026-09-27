@@ -42,6 +42,7 @@ import {
   type PlotArea,
 } from "@/lib/park-maps";
 import { withLiveLotRecords } from "@/lib/park-live-lots";
+import { parkMapImage } from "@/lib/media";
 
 const ParksCanvas = dynamic(() => import("@/components/parks-canvas").then((m) => m.ParksCanvas), {
   ssr: false,
@@ -124,7 +125,11 @@ export function ParkMapsView({
     : { scale: 1, imageLocked: false, plotsLocked: false, customImage: undefined };
   const imageLocked = meta.imageLocked;
   const plotsLocked = meta.plotsLocked;
-  const image = customImage || park.image;
+  // A staff-uploaded image wins; otherwise the park's own masterplan, painted
+  // through `parkMapImage` so a browser loads its 209 KB WebP derivative instead
+  // of the client's 2,331 KB PNG. Same 1254 × 1254 pixels, so every plot
+  // coordinate and the canvas's natural-size fit are unaffected.
+  const image = customImage || parkMapImage(park.image);
   const areas = mounted ? parkAreas(park.id) : [];
   const effectiveAreas: PlotArea[] = withLiveLotRecords(areas, {
     statusById: liveStatusById,

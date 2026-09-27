@@ -277,8 +277,18 @@ describe("F-16 accessibility craft: the one-ring + status-ink contract", () => {
   const components = readFileSync(path.join(ROOT, "styles/components.css"), "utf8");
 
   it("declares the focus ring + halo once, from tokens", () => {
-    expect(tokens).toMatch(/--color-focus-ring:\s*var\(--sky-800\)/);
-    expect(tokens).toMatch(/--color-focus-ring-halo:\s*var\(--marble-50\)/);
+    // The ring and its halo must resolve THROUGH tokens (a raw hex here is how
+    // focus got lost on dark surfaces before), and they must be two DIFFERENT
+    // values or the halo does nothing. Asserted by shape, not by palette name,
+    // so the 2026-09-27 rebuild (sky-800 → ever-700, marble-50 → paper-50) did
+    // not have to retype a literal to keep the promise honest.
+    const ring = tokens.match(/--color-focus-ring:\s*([^;]+);/)?.[1]?.trim() ?? "";
+    const halo = tokens.match(/--color-focus-ring-halo:\s*([^;]+);/)?.[1]?.trim() ?? "";
+    expect(ring, "--color-focus-ring is unset").not.toBe("");
+    expect(halo, "--color-focus-ring-halo is unset").not.toBe("");
+    expect(ring).toMatch(/var\(--[a-z0-9-]+\)/);
+    expect(halo).toMatch(/var\(--[a-z0-9-]+\)/);
+    expect(ring).not.toBe(halo);
     const rule = base.match(/:focus-visible\s*\{[^}]*\}/)?.[0] ?? "";
     expect(rule).toContain("outline: 2px solid var(--color-focus-ring)");
     expect(rule).toContain("box-shadow: 0 0 0 2px var(--color-focus-ring-halo)");

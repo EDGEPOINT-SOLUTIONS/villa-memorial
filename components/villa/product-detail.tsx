@@ -229,10 +229,14 @@ export function ProductDetail({
             <div className="pdp-buy__price">
               <div className="detail-sticky__label">Published 2026 price</div>
               <div className="detail-sticky__price">{variant.item.display_price}</div>
-              {model ? (
+              {/* The senior figure comes from the VARIANT'S CATALOGUE ROW, not the hardcoded
+                  sheet model: it is the price the cart charges and the one a staff edit in
+                  /staff/catalog moves. A variant with no recorded senior price prints no
+                  senior line rather than ₱0. */}
+              {variant.item.senior_price_cents != null && variant.item.senior_price_cents > 0 ? (
                 <p className="pdp-buy__senior">
-                  Senior citizens pay <strong>{php(model.seniorPrice)}</strong> (61–100, no insurance
-                  benefit).{" "}
+                  Senior citizens pay <strong>{php(variant.item.senior_price_cents / 100)}</strong>{" "}
+                  (61–100, no insurance benefit).{" "}
                   <Link href="/price-list">Senior plan and rates</Link>.
                 </p>
               ) : null}
@@ -265,7 +269,11 @@ export function ProductDetail({
                 prefill={{
                   price: variant.item.display_price,
                   note: model
-                    ? `${model.collection} · ${model.family} family. Regular SRP ${php(model.srp)}; senior-citizen price ${php(model.seniorPrice)} (61–100, no insurance benefit).`
+                    ? `${model.collection} · ${model.family} family. Regular SRP ${variant.item.display_price}${
+                        variant.item.senior_price_cents != null && variant.item.senior_price_cents > 0
+                          ? `; senior-citizen price ${php(variant.item.senior_price_cents / 100)} (61–100, no insurance benefit)`
+                          : ""
+                      }.`
                     : undefined,
                 }}
               />

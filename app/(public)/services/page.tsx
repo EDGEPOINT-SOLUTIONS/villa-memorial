@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Phone, ScrollText, ShieldCheck } from "lucide-react";
 import { pageMetadata } from "@/lib/seo";
 import { clientPhotoWide } from "@/lib/client-photos";
 import { SERVICE_SAMPLE_NOTE } from "@/lib/media";
@@ -107,6 +108,40 @@ export default async function ServicesPage() {
               in lib/client-photos.ts), so the note must stay beside it. */}
           <p className="story-hero-note">{SERVICE_SAMPLE_NOTE}</p>
         </PublicHero>
+
+        {/* Three boxes, three short facts, one icon each (captain, 2026-09-27:
+            "lesser text … more graphics … use boxes … dont overwhelm visitors").
+            This replaced a paragraph-per-fact strip: same three facts, a third of
+            the words, and a graphic to land each one. A family arriving at an
+            at-need page has to learn these before any list is useful, and none of
+            them were on the page at all. */}
+        <ul className="sv-orient" aria-label="How these services work">
+          <li>
+            <span className="sv-orient__icon" aria-hidden="true">
+              <ScrollText size={20} />
+            </span>
+            <p className="sv-orient__label">Quoted, not listed</p>
+            <p className="sv-orient__text">A written quotation from the office.</p>
+          </li>
+          <li>
+            <span className="sv-orient__icon" aria-hidden="true">
+              <Phone size={20} />
+            </span>
+            <p className="sv-orient__label">A person, any hour</p>
+            <p className="sv-orient__text">
+              Call <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
+            </p>
+          </li>
+          <li>
+            <span className="sv-orient__icon" aria-hidden="true">
+              <ShieldCheck size={20} />
+            </span>
+            <p className="sv-orient__label">A plan covers these</p>
+            <p className="sv-orient__text">
+              <Link href="/plans">See the plan →</Link>
+            </p>
+          </li>
+        </ul>
 
         {/* Straight to the services: the a-la-carte lines, embalming per day and
             the chapel options, each carrying a Request-for-Quote action. */}

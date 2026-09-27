@@ -60,7 +60,12 @@ export default async function AgentApplicationsPage() {
         title="In flight"
         sub="Stages in the client's own process: filed → papers checked → with the office → approved → signed → active (or cancelled)."
       >
-        <div className="ag-list">
+        {/* Two-up on a wide screen: these are uniform, self-contained cards, and a
+            stack of them was the single tallest band on the page (1133px of 1647,
+            69%). `/agent/prospects` does NOT take this modifier — its cards are
+            pipeline-stage groups of different sizes, and pairing them would imply
+            a comparison that does not exist. */}
+        <div className="ag-list ag-list--grid">
           {applications.map((a) => (
             <article className="ag-card" key={a.id}>
               <div className="ag-card__head">

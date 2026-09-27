@@ -10,6 +10,39 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+
+  /* --- The 80% scale (captain, 2026-09-27) --------------------------------
+     "I want the whole page to look like how it looks when you minimize it at
+     80%." That is a request to change the page's RESOLUTION, and this one
+     declaration is the faithful way to do it on a rem-based system.
+
+     WHY IT IS FAITHFUL. Browser zoom at 80% does not touch a single CSS value:
+     it makes the window report 1/0.8 = 1.25x more CSS pixels and paints the
+     result 20% smaller. Measured on the running page, at 80% the h1 is still
+     "72px" in CSS and the root is still "16px" — the window simply says 1800 CSS
+     px instead of 1440. Because every type, space and layout token in this
+     product is expressed in `rem`, lowering the root font size reproduces BOTH
+     halves of that, in a 1440px window:
+       · type  — 4.5rem = 57.6px, exactly 72 x 0.8
+       · width — --layout-folio-w 99rem = 1267px, which is 88% of 1440 … and at
+                 real 80% zoom the same 99rem = 1584 CSS px is 88% of 1800.
+     The container's fraction of the window is therefore identical, which is the
+     part a naive "just make the text smaller" edit always gets wrong.
+
+     WHAT IT DOES *NOT* CHANGE. Breakpoints stay put: `em`/`rem` inside a media
+     query resolve against the browser's INITIAL font size, not this one, so
+     `@media (max-width: 48rem)` is still 768px and the phone layouts are
+     untouched. `pt` sizes in the printed-paper layer are absolute and unaffected.
+
+     THE FLOOR IS PINNED SEPARATELY. At a 12.8px root the two smallest ladder
+     rungs would fall to 9.6px and 11.2px, under this product's hard 12px floor
+     for anything a person reads — on a site whose readers are often older. So
+     they are declared in px in tokens.css and do not scale. Everything from the
+     body step upward scales to 80%.
+
+     TO TUNE: this is the one knob. `font-size: 90%` for a gentler scale, or
+     delete the line for the pre-2026-09-27 size. */
+  font-size: 80%;
 }
 
 body {
@@ -20,6 +53,45 @@ body {
   color: var(--color-text-primary);
   background-color: var(--color-bg-page);
   -webkit-font-smoothing: antialiased;
+  /* ECC `make-interfaces-feel-better` — Font Smoothing. The skill asks for BOTH
+     declarations "when the project does not already do so"; the macOS Firefox
+     half was missing, so text rendered heavier there than in Safari/Chrome. */
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ECC `make-interfaces-feel-better` — Text Wrapping. "Use `text-wrap: pretty` on
+   short-to-medium body text, captions, descriptions, and list items." The product
+   had `balance` on headings and nothing on body copy, so a caption could end on a
+   one-word orphan line. Scoped to reading copy: ECC is explicit that both are
+   wrong on long prose and preformatted content.
+
+   NOTE ON THE IMAGE OUTLINE below: `img { outline: ... }` from the skill is NOT
+   applied globally. Outlines follow the ELEMENT BOX, not the alpha channel, so a
+   global rule would draw a hard rectangle around every transparent logo — the
+   round brand mark would get a square. It is scoped to photographic frames
+   instead, which is where the skill's stated problem ("edges blur into the
+   surface") actually occurs. */
+p,
+li,
+dd,
+figcaption,
+summary,
+label {
+  text-wrap: pretty;
+}
+
+/* ECC — Image Outlines: "a subtle inset outline so their edges do not blur into
+   the surface ... neutral black or white alpha, never tinted with the brand". The
+   -1px offset keeps it inside the frame, so it reads as the picture's own edge
+   rather than a border the layout added.
+   `.home-news__media img` was here until the home's blog band was removed
+   (captain, 2026-09-27); a selector for markup that no longer exists is the same
+   dead weight as a dead rule. */
+.public-image img,
+.media-block img,
+.home-hero__photo img {
+  outline: 1px solid rgb(25 23 19 / 0.1);
+  outline-offset: -1px;
 }
 
 h1,
@@ -54,6 +126,20 @@ a {
 
 a:hover {
   color: var(--color-text-primary);
+}
+
+/* `sup`/`sub` are the ONE place the 12px floor can be broken without a single
+   declared size: the browser's own stylesheet gives them `font-size: smaller`,
+   i.e. 0.833em of their parent. At the pre-scale 17px body step that happened to
+   land at 14.2px, so nothing noticed; at the shipped 80% scale the body step is
+   13.6px and the same rule computes 11.33px — under the floor, measured on
+   /products. Pin the marker to the ladder's floor. A raised 12px glyph beside
+   13.6px copy still reads as a footnote marker, and the floor stays absolute
+   even for punctuation. */
+sup,
+sub {
+  font-size: var(--text-xs);
+  line-height: 0;
 }
 
 code {

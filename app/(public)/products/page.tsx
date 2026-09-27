@@ -7,7 +7,7 @@ import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { buildCasketListing, casketFacetIds, parseCasketFilters, parseCasketsSort } from "@/lib/casket-listing";
-import { CASKET_MODELS, COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
+import { COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
 import { CasketInclusionTable } from "@/components/villa/casket-catalogue";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
@@ -76,8 +76,11 @@ export default async function ProductsPage({
   const [leadTier, ...higherTiers] = COFFINS;
   const priceBy = new Map(catalogItems.map((line) => [line.sku, line.display_price]));
   const priceOf = (sku: string) => priceBy.get(sku) ?? null;
-  const fromPrice = CASKET_MODELS.length
-    ? php(Math.min(...CASKET_MODELS.map((model) => model.srp)))
+  // The "from" figure is the cheapest casket the LIVE catalogue sells, read off the same
+  // listing the cards render. It used to be `Math.min(...CASKET_MODELS.map(m => m.srp))` —
+  // the hardcoded sheet list — so a staff price edit moved every card but not this line.
+  const fromPrice = caskets.length
+    ? php(Math.min(...caskets.map((casket) => casket.priceCents)) / 100)
     : null;
 
   return (

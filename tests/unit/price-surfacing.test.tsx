@@ -259,7 +259,11 @@ describe("/services offers a Request for Quote instead of a service price", () =
     expect(html).not.toContain('id="guides"');
     expect(html).not.toContain("/services/death-at-home");
     expect(html).not.toContain("/services/death-at-hospital");
-    expect(html).not.toContain("/transport");
+    // Assert the ROUTE, not the bare word. `not.toContain("/transport")` was a
+    // false positive waiting to happen: it also matches a media filename, and on
+    // 2026-09-27 the Delivery service card began rendering
+    // `/media/composition/thumbs/transport-960.webp` — a picture, not a link.
+    expect(html).not.toContain('href="/transport"');
   });
 });
 

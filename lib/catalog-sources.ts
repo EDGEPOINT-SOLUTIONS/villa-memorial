@@ -92,6 +92,17 @@ export type CatalogPriceSource = {
   section: string;
   /** The figure the sheet prints, in the catalogue's minor units (centavos). */
   cents: number;
+  /**
+   * The sheet's SENIOR column for the same row, when it prints one.
+   *
+   * Added 2026-09-27. The casket sheet puts two figures beside each model, and until then
+   * only the regular one had a recorded source — the senior figure lived solely in the
+   * hardcoded model list, which is why the catalogue admin could not edit it at all. A row
+   * with no senior column omits this, and
+   * `tests/fixture-contract/catalog-sources.test.ts` pins the catalogue's
+   * `senior_price_cents` to it wherever it is present.
+   */
+  seniorCents?: number;
 };
 
 /**
@@ -130,13 +141,15 @@ export function catalogPriceSources(): CatalogPriceSource[] {
     cents: EMBALMING_PER_DAY_BEYOND_9 * 100,
   });
 
-  // sheet A · "For package" — one entry per casket model, at REGULAR SRP.
+  // sheet A · "For package" — one entry per casket model, at REGULAR SRP, with the senior
+  // column the same sheet prints beside it.
   for (const model of CASKET_MODELS) {
     sources.push({
       sku: coffinSku(model.model),
       document: "sheetA",
-      section: `For package · ${model.model} (REGULAR SRP)`,
+      section: `For package · ${model.model} (REGULAR SRP · senior-citizen price)`,
       cents: model.srp * 100,
+      seniorCents: model.seniorPrice * 100,
     });
   }
 

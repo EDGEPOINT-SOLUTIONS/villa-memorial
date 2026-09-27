@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
@@ -48,13 +49,16 @@ export const dynamic = "force-dynamic";
  * component beside it.
  */
 export default async function BuilderPage() {
-  const [pricing, content, plansPage] = await Promise.all([
+  const [pricing, content, plansPage, catalogItems] = await Promise.all([
     loadPricingDocument(),
     listLandingContent(),
     getPageDocument("plans").catch(() => null),
+    listCatalogItems().catch(() => []),
   ]);
   const plan = planContentFromDocument(plansPage);
-  const catalog = builderCatalog(pricing, plan.notes.contestability);
+  // The catalogue is the LIVE selling record, so the estimate quotes what the office
+  // actually charges today; the sheet is the module's fallback if it cannot be read.
+  const catalog = builderCatalog(pricing, plan.notes.contestability, catalogItems);
   const { contact } = content;
 
   return (

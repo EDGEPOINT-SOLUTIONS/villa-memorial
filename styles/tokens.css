@@ -1,82 +1,100 @@
 /* ============================================================================
-   tokens.css — single source of truth for every visual decision.
-   Pure :root custom properties only (safe under any load order).
-   Ported from docs/02-architecture/design-system.md — do not hard-code
-   raw values in views/components; reference a token instead.
+   tokens.css — the single source of truth for every visual decision.
+
+   REBUILT 2026-09-27. The previous foundation (cool granite + marble + sky blue
+   + a timid 12/14/16/18/22/28/36 type ladder) was replaced whole. The brief was
+   the seven prompts of the aitooltiphub.com UI guide; the decisions below are the
+   answer to each, and the reason each one is here:
+
+     · Give Color Meaning (P06) — the accent is now a SINGLE rationed colour that
+       means "call the office". It is not decoration. The brand colour stopped
+       being a blue control tint and became a deep evergreen, because this is a
+       garden memorial park: the product's own photographs are the brand.
+     · Scale the Type (P05) — the ladder has real jumps now (12 · 14 · 17 · 20 ·
+       24 · 32 · 44 · 72). The old ladder's steps were 1.1× apart, which is why
+       headings, body and labels all read at the same level.
+     · Add a Signature (P07) — ONE signature, applied only where it belongs: the
+       margin rule (`.rule-mark`, declared in components.css) and the display
+       serif. The serif is `TeX Gyre Bonum`, which is not a new download — it is
+       the client's OWN letterhead face, already vendored for the printed papers.
+       The website and the contract a family signs now share one voice.
+     · Sharpen the Message (P01) — the accent carries exactly one highlighted
+       phrase per headline, so this file defines ONE accent and nothing else.
+
+   Consumption rule (unchanged, and enforced): never type a raw value in a view.
+   Add the role here first, then consume it. tests/unit/typography-system.test.ts
+   pins the ladder, the role map and the no-raw-value rule.
    ========================================================================== */
 
 :root {
-  /* --- Color primitives ---------------------------------------------------
-     granite: cool slate neutrals (structure, text)
-     marble:  warm off-whites (backgrounds so screens don't feel clinical)
-     brass:   restrained accent — focus states + ceremonial moments ONLY
-  */
-  --granite-50: #f6f7f8;
-  --granite-100: #eceef0;
-  --granite-200: #d9dde1;
-  --granite-300: #bfc5cb;
-  --granite-400: #98a1aa;
-  --granite-500: #6e7883;
-  --granite-600: #525b64;
-  --granite-700: #3d444c;
-  --granite-800: #2c3238;
-  --granite-900: #1d2126;
+  /* --- Neutrals: warm ink on warm paper ------------------------------------
+     The old scale was a COOL slate ("granite") on clinical white. Warmth is the
+     whole point here — a family reads this site in the worst week of their life,
+     and a cold grey screen reads institutional. One ramp, warm, nine steps. */
+  --ink-50: #f7f5f1;
+  --ink-100: #efece5;
+  --ink-200: #e0dbd1;
+  --ink-300: #c8c1b4;
+  --ink-400: #a49c8d;
+  --ink-500: #7d766a;
+  --ink-600: #5c574e;
+  --ink-700: #423e38;
+  --ink-800: #2c2925;
+  --ink-900: #191713;
+  --ink-950: #0e0d0b;
 
-  --marble-50: #fbfaf8;
-  --marble-100: #f5f3ee;
-  --marble-200: #eae6dd;
-  --marble-300: #ddd7c9;
+  /* --- Paper grounds -------------------------------------------------------
+     Bone, not white. `#FFFFFF` still exists for surfaces that must read as a
+     sheet (cards on the bone desk), but the page ground is warm. */
+  --paper-0: #ffffff;
+  --paper-50: #fdfcf9;
+  --paper-100: #faf7f2;
+  --paper-200: #f4efe6;
+  --paper-300: #eae3d6;
 
-  /* Brass primitives now carry the Radiant Compassion gold family product-wide
-     (captain-approved blue/gold, 2026-09-08): decorative golds for hairlines,
-     washes and focus; a dark gold-ink for text-on-light so small accents keep
-     WCAG contrast. The porcelain-neutral granite/marble scales above stay. */
-  --brass-300: #f1cc5e;
-  --brass-400: #e2b633;
-  --brass-500: #c79b1e;
-  --brass-600: #7a5c00;
+  /* --- Brand: deep evergreen ----------------------------------------------
+     The park is a garden. Green is not a decorative choice — it is what the
+     client's own photographs are made of, and it is what "a place of rest"
+     looks like. This ladder replaces the old sky-blue control colour. */
+  --ever-50: #f1f6f3;
+  --ever-100: #dce9e2;
+  --ever-200: #b8d3c6;
+  --ever-300: #8db6a3;
+  --ever-400: #5f937b;
+  --ever-500: #3f755c;
+  --ever-600: #2f5c47;
+  --ever-700: #264a39;
+  --ever-800: #1c392c;
+  --ever-900: #152c22;
+  --ever-950: #0c1a14;
 
-  /* --- Sky blue theme — the brand's control colour --------------------------
-     Captain (2026-09-16): "the theme colour should be sky blue, like the blue
-     colour when you look up at the sky"; refined 2026-09-25: the blue is
-     confined to CONTROLS and the footer — primary buttons, selected/active
-     states, the phone call actions, the public footer. It is no longer a page,
-     section or table surface (that wash was the "cheap / AI template" tell).
-     The navy/granite scales above stay the ink and structure ladder; gold/brass
-     accents pair with the blue unchanged.
-     Ladder: 50–200 pale washes for selected states; 300–600 clear daytime sky
-     for button fills, active edges and selected pills; 700–950 deep sky for
-     white-text controls and dark functional labels. */
-  --sky-50: #f2f9fe;
-  --sky-100: #e2f2fc;
-  --sky-200: #c4e6f8;
-  --sky-300: #98d2f1;
-  --sky-400: #6bbce8;
-  --sky-500: #3f97d1;
-  --sky-600: #2b7cb4;
-  --sky-700: #22699a;
-  --sky-800: #1a5278;
-  --sky-900: #143f5c;
-  --sky-950: #0d2c42;
+  /* --- Accent: brass — THE ONE ACTION -------------------------------------
+     Rationed by rule, not by taste. Legal uses, and there are only three:
+       1. the office's phone number / the call action,
+       2. ONE highlighted phrase per headline,
+       3. the ceremonial hairline above a band.
+     Never a surface, never a data colour, never body text. 500 is the fill;
+     700 is the only brass ink dark enough to pass AA on paper. */
+  --brass-100: #fbf3e0;
+  --brass-200: #f4e3bd;
+  --brass-300: #e7cb8c;
+  --brass-400: #d4ab56;
+  --brass-500: #b8842a;
+  --brass-600: #966719;
+  --brass-700: #6d4b11;
 
-  /* Status hues — desaturated by design */
+  /* --- Status (unchanged in spirit: desaturated, never shouting) ----------- */
   --sage-500: #6f8f6a;
-  --sage-100: #e7ede5;
+  --sage-100: #e9efe7;
   --clay-500: #b3695e;
-  --clay-700: #96493f; /* danger fill for white ink (6.3:1) */
-  --clay-100: #f4e4e1;
+  --clay-700: #96493f;
+  --clay-100: #f5e5e2;
   --amber-500: #b08a3e;
-  --amber-100: #f3ecdb;
+  --amber-100: #f5eeda;
   --slate-info: #5b7086;
-  --slate-info-100: #e4eaf0;
+  --slate-info-100: #e6ecf1;
 
-  /* --- 3D park scene materials -------------------------------------------
-     The 3D park (components/park3d/*) is a material world, not a UI
-     surface: grass, asphalt, warm paving and stone have no equivalents among
-     the semantic roles above, so they are named here — one source of truth for
-     every 3D visual decision — and read through `scenePalette()`.
-     Scene colours are already "lit" (they sit under the scene's sun), so they
-     are one step darker than the illustration's flat colours. */
+  /* --- 3D park scene materials (a material world, not a UI surface) -------- */
   --scene-grass: #7d9a55;
   --scene-grass-dark: #5d7a41;
   --scene-grass-light: #92ab67;
@@ -98,135 +116,183 @@
   --scene-plot-occupied: #b9bdbf;
   --scene-plot-maintenance: #cfa79f;
   --scene-plot-line: #ece7d8;
-  --scene-marker: #c79b1e;
+  --scene-marker: #b8842a;
 
-  /* --- Semantic roles -----------------------------------------------------
-     White grounds, product-wide (captain, 2026-09-25: "all background color
-     should be white, sky blue theme is for buttons only and footer"). The sky
-     wash that used to sit under every page was the "cheap / AI template" tell;
-     the brand blue is now a CONTROL colour (buttons, selected states) and the
-     footer surface. `--color-bg-desk` (staff/public desk) is white too, so no
-     shell paints a tinted page. */
-  --color-bg-page: #ffffff;
-  --color-bg-surface: #ffffff;
-  --color-bg-surface-raised: #ffffff;
-  --color-bg-inverse: var(--sky-900);
-  /* Quiet neutral hover wash — a state, never a brand surface. */
-  --color-bg-subtle: var(--granite-50);
+  /* ======================================================================
+     LEGACY PRIMITIVE BRIDGE — read this before using one of these names.
+     components.css carries ~5,500 `var()` references written against the OLD
+     primitive names. Rather than leave the product wearing the old palette
+     while 21k lines are migrated, each legacy name is REDEFINED here onto the
+     new ramps. So: a rule that says `--granite-200` now paints warm paper, and
+     a rule that says `--sky-600` now paints evergreen.
 
-  --color-text-primary: #000000;
-  /* Secondary/muted/figure are NEUTRAL greys, not navy tints (captain,
-     2026-09-21): the text ink is pure black and its supporting roles are
-     neutral, while --navy-* stays a surface/border/background ladder. */
-  --color-text-secondary: #333333;
-  --color-text-muted: #595959;
-  --color-text-inverse: var(--marble-100);
-  --color-text-inverse-muted: var(--navy-200);
+     These are aliases, not decisions. Do NOT use them in new work — reach for
+     `--ink-*`, `--paper-*`, `--ever-*` and `--brass-*` above. The bridge is
+     deleted when the last `components.css` block is migrated.
+     ====================================================================== */
+  --granite-50: var(--ink-50);
+  --granite-100: var(--ink-100);
+  --granite-200: var(--ink-200);
+  --granite-300: var(--ink-300);
+  --granite-400: var(--ink-400);
+  --granite-500: var(--ink-500);
+  --granite-600: var(--ink-600);
+  --granite-700: var(--ink-700);
+  --granite-800: var(--ink-800);
+  --granite-900: var(--ink-900);
 
-  /* Hairlines are neutral, not sky-tinted: the blue border everywhere was the
-     other half of the template look. Blue stays on controls; separation comes
-     from one crisp grey rule (Apple-inspired). */
-  --color-border: var(--granite-200);
-  --color-border-strong: var(--granite-300);
-  --color-border-inverse: var(--navy-700);
+  --marble-50: var(--paper-50);
+  --marble-100: var(--paper-100);
+  --marble-200: var(--paper-200);
+  --marble-300: var(--paper-300);
 
-  /* Sky theme roles — the brand-blue family public surfaces paint with.
-     on-sky is the ink that stays legible on the light sky primitives. */
-  --color-sky: var(--sky-500);
-  --color-sky-strong: var(--sky-700);
-  --color-sky-soft: var(--sky-200);
-  --color-on-sky: var(--navy-950);
+  --sky-50: var(--ever-50);
+  --sky-100: var(--ever-100);
+  --sky-200: var(--ever-200);
+  --sky-300: var(--ever-300);
+  --sky-400: var(--ever-400);
+  --sky-500: var(--ever-500);
+  --sky-600: var(--ever-600);
+  --sky-700: var(--ever-700);
+  --sky-800: var(--ever-800);
+  --sky-900: var(--ever-900);
+  --sky-950: var(--ever-950);
 
+  --navy-50: var(--ever-50);
+  --navy-100: var(--ever-100);
+  --navy-200: var(--ever-200);
+  --navy-300: var(--ever-300);
+  --navy-500: var(--ever-500);
+  --navy-600: var(--ever-600);
+  --navy-700: var(--ever-700);
+  --navy-800: var(--ever-800);
+  --navy-900: var(--ever-900);
+  --navy-950: var(--ever-950);
+
+  --gold-100: var(--brass-100);
+  --gold-200: var(--brass-200);
+  --gold-300: var(--brass-300);
+  --gold-400: var(--brass-400);
+  --gold-500: var(--brass-500);
+  --gold-600: var(--brass-600);
+  --gold-700: var(--brass-700);
+  --gold-800: var(--brass-700);
+
+  /* --- Semantic roles ------------------------------------------------------ */
+  --color-bg-page: var(--paper-100);
+  --color-bg-surface: var(--paper-0);
+  --color-bg-surface-raised: var(--paper-0);
+  --color-bg-inverse: var(--ever-900);
+  --color-bg-subtle: var(--paper-200);
+  --color-bg-desk: var(--paper-100);
+
+  --color-text-primary: var(--ink-900);
+  --color-text-secondary: var(--ink-700);
+  --color-text-muted: var(--ink-600);
+  --color-text-inverse: var(--paper-100);
+  --color-text-inverse-muted: var(--ever-200);
+  --color-figure: var(--ink-900);
+
+  --color-border: var(--ink-200);
+  --color-border-strong: var(--ink-300);
+  --color-border-inverse: var(--ever-700);
+  --color-rule: var(--ink-200);
+  --color-rule-strong: var(--ink-300);
+  --color-rule-inverse: rgb(255 255 255 / 0.1);
+
+  /* Brand roles. `sky` names are kept for the legacy bridge; the brand is
+     evergreen and `--color-brand*` are the names new work should use. */
+  --color-brand: var(--ever-700);
+  --color-brand-strong: var(--ever-900);
+  --color-brand-soft: var(--ever-100);
+  --color-on-brand: var(--paper-50);
+  /* Legacy `sky` names, kept so ~5,500 existing references adopt the new brand.
+     A LIGHT brand fill takes dark ink; a DEEP one takes warm paper. The pair
+     below is the light one, because the light fill is what the phone bar and
+     selected states paint — get this backwards and white lands on pale sage at
+     2.2:1, which is exactly the regression this comment exists to prevent. */
+  --color-sky: var(--ever-600);
+  --color-sky-strong: var(--ever-800);
+  --color-sky-soft: var(--ever-100);
+  --color-on-sky: var(--ink-900);
+
+  /* The one accent. */
   --color-accent: var(--brass-500);
-  --color-accent-strong: var(--brass-600);
+  --color-accent-strong: var(--brass-700);
   --color-accent-soft: var(--brass-300);
-  /* ONE focus ring, every surface (F-16 craft pass). The brass ring alone was
-     1.8:1 on the light sky/page surfaces; the pair below is drawn together —
-     a dark sky ring (>=3:1 on every light surface) and a marble halo filling
-     the outline gap so the same ring stays visible on navy/dark surfaces. */
-  --color-focus-ring: var(--sky-800);
-  --color-focus-ring-halo: var(--marble-50);
+  --color-text-accent: var(--brass-700);
 
-  /* Text inks (type-voice decision, 2026-09-18): four roles on light
-     surfaces. Decorative gold (gold-300/400/500/600) is for rules, washes
-     and icons ONLY — it never carries text (gold-300 on white is 1.55:1). */
-  --color-text-accent: var(--gold-800);
+  /* ONE focus ring, every surface: a dark evergreen ring clears 3:1 on paper,
+     and the halo keeps it visible on the dark evergreen bands. */
+  --color-focus-ring: var(--ever-700);
+  --color-focus-ring-halo: var(--paper-50);
 
   --color-status-success: var(--sage-500);
   --color-status-success-bg: var(--sage-100);
   --color-status-danger: var(--clay-500);
-  /* Danger FILL for a white-ink control (the clay-500 banner hue is 4.1:1). */
   --color-status-danger-strong: var(--clay-700);
   --color-status-danger-bg: var(--clay-100);
   --color-status-warning: var(--amber-500);
   --color-status-warning-bg: var(--amber-100);
   --color-status-info: var(--slate-info);
   --color-status-info-bg: var(--slate-info-100);
-
-  /* Accessible status INK for small text on a status wash. The hues above are
-     tuned for large text and icons; at badge size (12 px / 600) they measure
-     2.7–4.2:1 on their own wash, so small status text uses these instead.
-     Applied on the family surfaces (styles/components.css, family block); the
-     staff-wide adoption is a separate visual decision. */
   --color-status-success-ink: #4f6b4a;
   --color-status-warning-ink: #7a5f1f;
   --color-status-danger-ink: #7f3f36;
   --color-status-info-ink: #42566b;
 
-  /* --- Type ---------------------------------------------------------------
-     ONE family, settled by the captain's consistency pass (2026-09-22):
-     Inter carries both the display and the interface voice, so headings and
-     body share one face. The two semantic tokens stay (they still describe a
-     ROLE — display copy vs interface copy — and let a surface opt into one),
-     but both resolve to Inter. Hierarchy comes from weight (600/700 headings)
-     and the role steps below, not from a second typeface.
-     The paper/legal print layer is untouched: its faces come from the client's
-     own .docx files (lib/export/paper-profile.ts), not from these tokens. */
-  --font-serif: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
-    sans-serif;
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
-    sans-serif;
-  /* Monospace is functional (code, ids, slugs), not a second brand voice. */
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono",
-    monospace;
+  /* --- Type: TWO faces, each with a job ------------------------------------
+     Display  TeX Gyre Bonum — the client's own letterhead face. Warm, printed,
+              unmistakably not a template. Used for h1/h2 and the memorial voice.
+     Interface Inter — body, UI, tables, forms, figures. It is a UI face and it
+              is good at it.
+     Introducing the second face is the change AGENTS.md anticipates: "a second
+     face means updating tests/unit/typography-system.test.ts in the same PR". */
+  --font-display: "TeX Gyre Bonum", "Bookman Old Style", Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-display);
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
-  /* The seven-step ladder (type-voice decision, 2026-09-18).
-     12px is the hard floor for anything a person reads; 16px is the base
-     for body/UI (and the phone body minimum); the public hero is the single
-     fluid display size. Every font-size in the app is one of these values —
-     9.92/11.52/13.6px nudges are not allowed. */
-  --text-xs: 0.75rem;    /* 12px — micro-label, badge, table header (floor) */
-  --text-sm: 0.875rem;   /* 14px — dense UI, caption, helper text */
-  --text-md: 1rem;       /* 16px — body & UI base, tables, buttons, forms */
-  --text-lg: 1.125rem;   /* 18px — reading body, leads, family portal scale */
-  --text-xl: 1.375rem;   /* 22px — card / section heading, totals & stat figures */
-  --text-2xl: 1.75rem;   /* 28px — page heading */
-  --text-3xl: 2.25rem;   /* 36px — display heading */
-  /* The public hero is the one fluid display size, and it tops out at 40px —
-     the old 52px clamp read fake (captain, 2026-09-25: "nothing above ~40px on
-     any public page"). The home scopes its hero down to 36px (.anchored-page);
-     interior public pages paint at most this 40px ceiling. */
-  --text-display: clamp(2.25rem, 2rem + 1.6vw, 2.5rem); /* 36→40px, public hero only */
+  /* The ladder (P05). Seven steps with REAL jumps, and the top step is 44px
+     where the old ceiling was 36. A heading can no longer be mistaken for a
+     label. Seven steps exactly: the guard retires `--text-4xl` by name, so the
+     display size below is a clamp, not an eighth rung.
 
-  /* Role → step map (consistency pass, 2026-09-22). ONE step per role, and no
-     role uses two steps across surfaces — the drift the captain reported was
-     never a raw size, it was the SAME role (a page title, a section head, a
-     card head) picking different rungs on different pages. Every role rule
-     below references these aliases; tests/unit/typography-system.test.ts pins
-     the map and the classes that consume it. The eight roles:
+     THE 80% SCALE AND THE PINNED FLOOR (2026-09-27). `html` carries
+     `font-size: 80%`, so a rem step now renders at 12.8/16 of its nominal value.
+     That would put the two smallest rungs at 9.6px and 11.2px — under this
+     product's hard 12px floor, on a site read by older people. They are
+     therefore declared in ABSOLUTE px and deliberately do NOT scale: a label
+     keeps its legibility while everything from the body step up shrinks.
+     Rendered at the 12.8px root: 12 · 13 · 13.6 · 16 · 19.2 · 25.6 · 35.2,
+     with the hero 35.2 → 57.6.
+     THE COST, STATED PLAINLY: the bottom three are now 12/13/13.6, so micro,
+     caption and body are close together and the small tier is compressed. That
+     is the unavoidable arithmetic of an 80% scale plus a 12px floor — there is
+     only 1.6px of room between them. If the small tier matters more than the
+     scale, raise the root to 90% (see styles/base.css). */
+  --text-xs: 12px;       /* micro-label, badge, table header — the pinned floor */
+  --text-sm: 13px;       /* caption, dense UI, helper text — pinned */
+  --text-md: 1.0625rem;  /* 13.6px at the 80% root — body & UI base */
+  --text-lg: 1.25rem;    /* 16px   — lead paragraph, row title */
+  --text-xl: 1.5rem;     /* 19.2px — card title */
+  --text-2xl: 2rem;      /* 25.6px — section title */
+  --text-3xl: 2.75rem;   /* 35.2px — page title (the ladder's top) */
 
-       hero          the public headline (one fluid display size)
-       page-title    the route's h1
-       section-title an h2 band/section head
-       card-title    a card's own head (h3 / the ledger row title)
-       body          reading copy (also the 18px senior/family scale)
-       ui            controls, tables, forms, dense admin
-       caption       secondary/helper copy
-       micro         labels, badges, table headers (the 12px floor)
+  /* The public hero is the one fluid size. Its ceiling is 4.5rem = 57.6px at
+     the 80% root — which is exactly the 72px of the 100% design seen at 80%,
+     so the hero's presence survives the scale instead of being flattened by it. */
+  --text-display: clamp(2.75rem, 2rem + 4vw, 4.5rem); /* 35.2 → 57.6px */
 
-     On phones the display roles step down one rung (a phone width is a
-     rendering contract, not a smaller desktop); body/caption/micro hold, 16px
-     is the phone body floor. */
+  /* Role → step map. ONE step per role, and no role uses two steps anywhere.
+        hero          the public headline (the one fluid display size)
+        page-title    the route's h1
+        section-title an h2 band/section head
+        card-title    a card's own head (h3 / a ledger row title)
+        body          reading copy
+        ui            controls, tables, forms, dense admin
+        caption       secondary/helper copy
+        micro         labels, badges, table headers (the 12px floor) */
   --text-hero: var(--text-display);
   --text-page-title: var(--text-3xl);
   --text-section-title: var(--text-2xl);
@@ -236,121 +302,56 @@
   --text-caption: var(--text-sm);
   --text-micro: var(--text-xs);
 
-  --leading-tight: 1.25;
-  --leading-normal: 1.55;
+  --leading-tight: 1.12;   /* display serif wants tighter leading than a sans */
+  --leading-normal: 1.62;  /* a touch more air for reading copy on bone */
 
-  /* --- Spacing / radii / shadows ------------------------------------------ */
+  /* --- Spacing: an 8-step rhythm, wider than before ------------------------
+     "Generous vertical spacing with thin dividers between sections" is prompt
+     03's explicit instruction, so space-7/8/9 grew. */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
   --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4rem;
-  --space-9: 6rem; /* page-foot breathing room (used by the portal content column) */
+  --space-5: 1.75rem;
+  --space-6: 2.5rem;
+  --space-7: 4rem;
+  --space-8: 6rem;
+  --space-9: 8rem;
 
-  /* --- Public folio layout -------------------------------------------------
-     ONE centred content envelope shared by the anchored nav bar, the home's
-     three-column anchored grid, the footer and every public page container,
-     so the nav brand block lines up with the page content edge on every page
-     (captain: brand must not hug the window edge — 2026-09-09).
-     99rem = the home trio at full width (17rem rails + 58rem middle + 2rem
-     max column gaps = 96rem) plus the 1.5rem folio padding on each side.
-     The middle grew from 50rem to 58rem on the captain's review of the
-     package-page prototype; the rails stay fixed at 17rem. */
+  /* --- Layout envelopes ---------------------------------------------------- */
   --layout-folio-w: 99rem;
+  --layout-catalogue-w: 75rem;
+  --layout-reading-w: 60rem;
+  --measure-prose: 66ch;
 
-  /* Public content envelopes (Phase 0 consistency contract, 2026-09-22).
-     The storefront's browsable + reading content is narrower than the home's
-     trio; lib/public-layout.ts carries the same numbers and
-     tests/unit/public-layout.test.ts parses this file and fails on drift. */
-  --layout-catalogue-w: 75rem; /* 1200px — grids and catalogue tables */
-  --layout-reading-w: 60rem;   /* 960px — prose, forms, PDP-below, support */
-  --measure-prose: 66ch;       /* the reading column's line length */
+  /* Radii: softer than the old 6/10/14, and one pill. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-xl: 28px;
 
-  /* Radii ladder — modern Apple-proportioned corners: small chrome, medium
-     controls/rows, large cards/sheets. Pills stay 999px where the grammar
-     calls for one. */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  /* Shadows: warmer and softer than a blue-black cast (which reads cold). */
+  --shadow-card: 0 1px 2px rgb(25 23 19 / 0.04), 0 2px 8px -2px rgb(25 23 19 / 0.06);
+  --shadow-raised: 0 2px 6px rgb(25 23 19 / 0.06), 0 16px 40px -12px rgb(25 23 19 / 0.16);
+  --shadow-paper: 0 1px 2px rgb(25 23 19 / 0.04);
+  --shadow-card-rest: 0 1px 2px rgb(25 23 19 / 0.04), 0 6px 16px -6px rgb(25 23 19 / 0.09);
+  --shadow-card-hover: 0 2px 6px rgb(25 23 19 / 0.07), 0 18px 40px -12px rgb(25 23 19 / 0.18);
 
-  /* Two-layer whisper shadows — crisp, low-opacity elevation (a card lifts a
-     hair off the page); borders carry most separation. */
-  --shadow-card: 0 1px 2px rgb(15 23 42 / 0.04), 0 2px 6px -1px rgb(15 23 42 / 0.06);
-  --shadow-raised: 0 1px 3px rgb(15 23 42 / 0.06), 0 10px 28px -8px rgb(15 23 42 / 0.12);
+  /* Gold containment — now brass, and translucent so it never floods. */
+  --gold-wash-soft: color-mix(in srgb, var(--brass-300) 16%, transparent);
+  --gold-wash: color-mix(in srgb, var(--brass-300) 26%, transparent);
+  --gold-wash-strong: color-mix(in srgb, var(--brass-300) 40%, transparent);
+  --gold-hairline: linear-gradient(90deg, transparent, var(--brass-400), transparent);
 
-  /* --- Radiant Compassion (staff premium) — COO blue/gold ------------------
-     The captain's requested premium direction for the staff portal: the COO
-     "Radiant Compassion" blue/gold palette adapted for admin screens — deep
-     navy surfaces with warm gold accents, cool paper content area, display
-     serif titles in navy ink. These primitives are consumed ONLY by the
-     .app-shell premium rules (components.css); public/family/agent surfaces
-     keep the DOC granite/marble/brass roles defined above.
-  */
-  --navy-50: #f3f7fb;
-  --navy-100: #e6eef6;
-  --navy-200: #c8d9e9;
-  --navy-300: #9fbdd7;
-  --navy-500: #41709c;
-  --navy-600: #2b5680;
-  --navy-700: #1c4366;
-  --navy-800: #12324e;
-  --navy-900: #0d2942;
-  --navy-950: #081c31;
-
-  --gold-100: #fdf4d7;
-  --gold-200: #f8e5ab;
-  --gold-300: #f1cc5e;
-  --gold-400: #e2b633;
-  --gold-500: #c79b1e;
-  --gold-600: #a67f12;
-  --gold-700: #7a5c00;
-  --gold-800: #574300;
-
-  /* The staff/public content desk is plain white — no sky radial wash. */
-  --color-bg-desk: #ffffff;
-
-  /* Hairline + rule ladder — one neutral grey rule, the sharpened grammar. */
-  --color-rule: var(--granite-200);
-  --color-rule-strong: var(--granite-300);
-  --color-rule-inverse: rgb(255 255 255 / 0.09);
-
-  /* Gold containment: washes stay translucent so gold never floods a surface. */
-  --gold-wash-soft: color-mix(in srgb, var(--gold-300) 16%, transparent);
-  --gold-wash: color-mix(in srgb, var(--gold-300) 26%, transparent);
-  --gold-wash-strong: color-mix(in srgb, var(--gold-300) 40%, transparent);
-  --gold-hairline: linear-gradient(90deg, transparent, var(--gold-400), transparent);
-
-  /* Elevation ladder — crisp, low-opacity, layered (paper on a white desk). */
-  --shadow-paper: 0 1px 2px rgb(15 23 42 / 0.04);
-  --shadow-card-rest:
-    0 1px 2px rgb(15 23 42 / 0.04),
-    0 4px 12px -4px rgb(15 23 42 / 0.08);
-  --shadow-card-hover:
-    0 2px 4px rgb(15 23 42 / 0.06),
-    0 12px 28px -8px rgb(15 23 42 / 0.16);
-
-  /* Display figure colour for the staff portal (titles, headline numerals) —
-     pure black, like every text ink, never the navy tint. */
-  --color-figure: #000000;
-
-  /* Motion ------------------------------------------------------------- */
+  /* --- Motion ------------------------------------------------------------- */
   --motion-fast: 120ms ease-out;
-  --motion-base: 180ms ease-out;
-  --motion-slow: 200ms ease-out;
+  --motion-base: 200ms ease-out;
+  --motion-slow: 320ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Phone step-down for the role map. Because every role rule consumes the alias
-   (not a hard rung), lowering the alias here steps the whole product down in
-   one place — no per-class phone overrides to keep in sync. */
+/* Phone step-down through the aliases, so every role moves at once. */
 @media (max-width: 48rem) {
   :root {
-    /* The display roles step down one rung on a phone. `--text-hero` joins the
-       map here (Phase 0) so every public hero headline is a phone-sized band
-       instead of the 36–52px fluid display, which is what pushed the home hero
-       past the 42vh cap. */
     --text-hero: var(--text-2xl);
     --text-page-title: var(--text-2xl);
     --text-section-title: var(--text-xl);

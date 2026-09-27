@@ -80,10 +80,22 @@ export const EMPTY_CASKET_FILTERS: CasketFilters = {
 /**
  * Bind the sheet's models to the LIVE catalogue entries, in the sheet's order.
  *
- * The figure that filters and prints is the sheet's regular SRP, converted to
- * integer centavos (the fixture contract pins `unit_price_cents === srp * 100`,
- * so the card, the filter and the cart can never quote three prices). A model
- * the catalogue does not carry is left out rather than shown unshoppable.
+ * WHERE THE FIGURE COMES FROM (changed 2026-09-27). Filters and printed prices now read
+ * the CATALOGUE — `item.unit_price_cents` and `item.senior_price_cents` — because the
+ * catalogue is the live selling record the staff admin edits and the CART charges. A
+ * surface that printed the sheet constant instead was showing a number the admin could not
+ * change, while the cart charged one they could: the two agreed only because a fixture
+ * contract pins the catalogue's seed to the sheet, so the first real price edit would have
+ * made the card and the cart disagree in front of a family.
+ *
+ * The sheet still owns provenance — it is what the catalogue's recorded seed is pinned
+ * back to (`tests/fixture-contract/catalog-sources.test.ts`) and what orders the models.
+ *
+ * `seniorDiscountCents` is DERIVED (`regular - senior`) rather than read from a third
+ * recorded figure, so there is one number to keep honest instead of two.
+ *
+ * A model the catalogue does not carry is left out rather than shown unshoppable; a casket
+ * with no recorded senior price prints no senior line rather than ₱0.
  */
 export function buildCasketListing(
   items: ReadonlyArray<CatalogItem>,
@@ -93,6 +105,8 @@ export function buildCasketListing(
     const sku = COFFIN_SKUS.find((entry) => entry.model === model.model)?.sku;
     const item = sku ? bySku.get(sku) : undefined;
     if (!item) return [];
+    const priceCents = item.unit_price_cents;
+    const seniorPriceCents = item.senior_price_cents ?? 0;
     return [
       {
         sku: item.sku,
@@ -102,9 +116,9 @@ export function buildCasketListing(
         collection: model.collection,
         family: model.family,
         cover: casketCover(model.model),
-        priceCents: model.srp * 100,
-        seniorPriceCents: model.seniorPrice * 100,
-        seniorDiscountCents: model.seniorDiscount * 100,
+        priceCents,
+        seniorPriceCents,
+        seniorDiscountCents: seniorPriceCents > 0 ? priceCents - seniorPriceCents : 0,
         currency: item.currency,
         item,
         modelRecord: model,

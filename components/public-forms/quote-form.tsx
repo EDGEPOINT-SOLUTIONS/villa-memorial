@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { captureDemoInquiry, quoteInquiryInput } from "@/lib/demo-inquiry-captures";
 import {
   QUOTE_INTERESTS,
   validateQuote,
@@ -37,10 +36,16 @@ function initialValues(prefill: RequestPrefill | null): QuoteValues {
  * contact details, the requested service, a preferred date when one applies,
  * and any additional requirements.
  *
- * The submit gate is lib/public-forms/validation.ts. A passed submission lands
- * in the DEMO-LOCAL inquiry store the staff board reads
- * (lib/demo-inquiry-captures.ts) because no crm-families contract exists, so
- * the confirmation states plainly that nothing was sent to a server.
+ * The submit gate is lib/public-forms/validation.ts, run here for field-level
+ * feedback and again on the server as the veto. A passed submission is POSTed to
+ * `POST /api/inquiries`, which records it in the office's durable journal
+ * (lib/api-client/inquiry-store.ts) and hands back the reference the family is
+ * shown. The staff inquiries board reads the same journal, so a request appears
+ * there as soon as it is sent.
+ *
+ * No frozen crm-families contract exists, so live mode refuses with a named 503
+ * rather than pretending: the form then tells the family to call, and never
+ * claims a delivery that did not happen.
  */
 export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null }) {
   const [values, setValues] = useState<QuoteValues>(() => initialValues(prefill));
@@ -69,18 +74,47 @@ export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null 
     setErrors({});
     setFormError(null);
     setPending(true);
-    // No service exists to await; keep a perceivable pending beat so the
-    // disabled state is visible (same simulated save as the contact form).
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    const inquiry = captureDemoInquiry(quoteInquiryInput(values));
-    setPending(false);
-    setCaptured({ reference: inquiry.reference });
+    try {
+      // 2026-09-27: this posts to the office. It used to call
+      // `captureDemoInquiry`, which wrote the request into THIS VISITOR'S BROWSER and
+      // told them plainly that nothing had been sent — so a family asking for a
+      // quotation reached nobody. The server is the record now.
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ kind: "quote", values }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const body = typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
+
+      if (!response.ok) {
+        // The server's own sentence, verbatim — never a generic "something went wrong".
+        const message =
+          typeof body.error === "string" ? body.error : "Your request could not be sent.";
+        if (typeof body.fieldErrors === "object" && body.fieldErrors !== null) {
+          setErrors(body.fieldErrors as Record<string, string>);
+        }
+        setFormError(message);
+        return;
+      }
+
+      const inquiry = body.inquiry as { reference?: unknown } | undefined;
+      setCaptured({
+        reference: typeof inquiry?.reference === "string" ? inquiry.reference : "",
+      });
+    } catch {
+      setFormError(
+        "Your request could not be sent — check your connection and try again, or call the 24/7 assistance line and we will take the details by phone.",
+      );
+    } finally {
+      setPending(false);
+    }
   }
 
   if (captured) {
     return (
       <div className="stack">
-        <Alert tone="success" title="Quote request captured in this browser.">
+        <Alert tone="success" title="Your request has reached the office.">
           {prefill ? (
             <>
               Your request for <strong>{prefill.item}</strong> is recorded as{" "}
@@ -91,10 +125,9 @@ export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null 
               Your quote request is recorded as <strong>{captured.reference}</strong>
             </>
           )}{" "}
-          in the demo store this device keeps, so it shows on the staff inquiries
-          board in this browser. <strong>Nothing was sent to a server</strong> — the
-          records service is not connected in this build, so the office has not yet
-          received it. For anything urgent, use the 24/7 assistance line.
+          and the office can see it now. A coordinator prepares the quotation and replies
+          to the contact details you gave. For anything urgent, use the 24/7 assistance
+          line.
         </Alert>
         <div className="capture-actions">
           <Button

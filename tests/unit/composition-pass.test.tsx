@@ -95,11 +95,35 @@ describe("decorative sheen is gone from the public buttons", () => {
     expect(rule(".btn--accent")).toContain("background: var(--gold-400);");
   });
 
-  it("paints the primary (sky) button flat too", () => {
+  it("paints the primary (brand) button flat too", () => {
+    // The 2026-09-27 rebuild moved the primary from a light sky fill with navy
+    // ink to a deep evergreen with warm paper ink: a pale fill cannot carry
+    // light ink (2.2:1), and the primary action should be the solid one. The
+    // rule this guard exists for is untouched — FLAT, no gradient, no shadow.
     const body = rule(".btn--primary");
     expect(body).not.toMatch(/gradient/);
     expect(body).not.toMatch(/box-shadow/);
-    expect(body).toContain("background: var(--sky-300);");
+    expect(body).toContain("background: var(--ever-700);");
+    expect(body).toContain("color: var(--paper-50);");
+  });
+
+  it("keeps the sheen off the public CALL controls", () => {
+    // This pass flattened `.btn--accent` / `.btn--primary` and then checked a
+    // HAND-PICKED list of bands — so the three controls a family actually taps
+    // in an emergency kept their gradients for months afterwards, and a
+    // production audit found them on 59 captures each. Root AGENTS.md already
+    // says "never re-add a decorative gradient … to a public band or button";
+    // this widens the net to the call controls so the next pass cannot re-add
+    // one to the single most important tap on the site.
+    for (const selector of [".quick-call", ".quick-menu-fab", ".anchored-phonebar__btn--call"]) {
+      // Several of these are declared more than once (a base rule plus the
+      // media-query rule that actually paints on a phone), so collect them all.
+      const decls = [...cssRules.matchAll(new RegExp(`\\n\\s*\\${selector} \\{([^}]*)\\}`, "g"))]
+        .map((m) => m[1])
+        .join("\n");
+      expect(decls, `no rule for ${selector}`).not.toBe("");
+      expect(decls, `${selector} carries a decorative gradient`).not.toMatch(/gradient/);
+    }
   });
 });
 
@@ -135,7 +159,10 @@ describe("bands are separated by rules and space, not by a shadow on every box",
     const banded = [
       ".sv-hero__media",
       ".sv-call",
-      ".sv-chapel",
+      // `.sv-chapel` was here while its rule existed. The rule was DEAD — no
+      // markup used the class (the live cards are `.story-chapel`) — and listing
+      // it here is what stopped anyone noticing. Removed with the rule,
+      // 2026-09-27.
       ".sv-help",
       ".sv-fact",
       ".sv-figure",

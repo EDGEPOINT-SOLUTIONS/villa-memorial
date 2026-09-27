@@ -14,12 +14,19 @@
  * public page read it through the same functions.
  *
  * Persistence is the app's standard fixture store: the seed JSON is recorded
- * content; demo mutations live on globalThis so the BFF route and the screen
- * that re-renders after it agree (same pattern as commerce's fixture orders /
- * property's fixture lots / scheduling bookings). No money math happens here —
- * displayed prices are content strings sourced from lib/villa-pricing.ts.
+ * content and each save APPENDS to a durable journal (2026-09-27 —
+ * `lib/api-client/journal.ts`), so an edit survives a restart and reaches every
+ * instance. It used to live on `globalThis` alone, which lost every edit on restart.
+ * No money math happens here — displayed prices are content strings sourced from
+ * `lib/villa-pricing.ts`.
  */
 import { ApiError } from "@/lib/api-client/api-error";
+import {
+  createJournalLock,
+  journalPath,
+  readJournalEvents,
+  writeJournalEvents,
+} from "@/lib/api-client/journal";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { isValidCssColor, readHeroTextColour, readHeroTransparency } from "@/lib/landing/hero-background";
 import { PLAN_TIER_IDS, type LotCategory, type PlanTier } from "@/lib/pricing-model";
@@ -566,7 +573,7 @@ export function readLandingContent(raw: unknown): LandingContent {
       note: readNullable(plansRaw as Record<string, unknown>, "note"),
     },
     blog: {
-      heading: readStr(blogRaw as Record<string, unknown>, "heading") || "News from the park",
+      heading: readStr(blogRaw as Record<string, unknown>, "heading") || "Blog",
       intro: readStr(blogRaw as Record<string, unknown>, "intro"),
       posts: arr((blogRaw as Record<string, unknown>).posts)
         .map(readBlogPost)
@@ -735,15 +742,55 @@ export function validateLandingContent(
 
 /* -------------------------------- store ---------------------------------- */
 
-// Next.js compiles route handlers into separate bundles — demo mutations live
-// on globalThis so the BFF save route and the re-rendered screens agree within
-// one server process (same reasoning as commerce/property/scheduling stores).
-type FixtureGlobal = typeof globalThis & { __imLandingContent?: LandingContent };
-const fixtureGlobal = globalThis as FixtureGlobal;
+/**
+ * The landing content document — the Home page, the FAQ, the blog, the header/footer and
+ * the office contact block — as a DURABLE journal.
+ *
+ * 2026-09-27. This store used to keep the edited document on `globalThis` with no file
+ * behind it, described in its own comment as a "demo mutation". The consequence was not
+ * cosmetic: a staff edit saved, the page re-rendered with the change (same process), and
+ * the edit was **gone on the next server restart** — and in a multi-instance or serverless
+ * deployment it reached only the instance that handled the save. Every commerce and ops
+ * store in this app is durable; the two content stores, which are exactly the ones behind
+ * "how every page can be edited", were not.
+ *
+ * The mechanics are now the shared `lib/api-client/journal.ts`. The SEED is still
+ * `lib/fixtures/landing/content.json`; each save appends ONE event, and every read folds
+ * the journal from disk. Path: `LANDING_STORE_PATH` when set (tests redirect it),
+ * otherwise `.data/landing-content.json` under the app's cwd.
+ */
+type LandingEvent = { kind: "landing_saved"; at: string; content: LandingContent };
 
-/** Reads the current landing document (seed + any saved demo mutation). */
+export function landingStorePath(): string {
+  return journalPath("LANDING_STORE_PATH", "landing-content.json");
+}
+
+const withLandingLock = createJournalLock();
+
+function toLandingEvent(raw: unknown): LandingEvent {
+  if (typeof raw !== "object" || raw === null) {
+    throw new ApiError("malformed landing store: event", 500);
+  }
+  const event = raw as Record<string, unknown>;
+  if (event.kind !== "landing_saved") {
+    throw new ApiError(`malformed landing store: event kind ${String(event.kind)}`, 500);
+  }
+  if (typeof event.at !== "string") {
+    throw new ApiError("malformed landing store: event timestamp", 500);
+  }
+  // The saved document goes through the SAME tolerant reader the seed does, so a
+  // hand-edited journal cannot inject a shape the page would then render.
+  return { kind: "landing_saved", at: event.at, content: readLandingContent(event.content) };
+}
+
+/**
+ * Reads the current landing document: the LAST saved revision, or the recorded seed when
+ * nothing has been saved yet.
+ */
 export async function listLandingContent(): Promise<LandingContent> {
-  return fixtureGlobal.__imLandingContent ?? readLandingContent(SEED);
+  const events = (await readJournalEvents(landingStorePath(), "landing")).map(toLandingEvent);
+  const latest = events.at(-1);
+  return latest ? structuredClone(latest.content) : readLandingContent(SEED);
 }
 
 /**
@@ -751,6 +798,9 @@ export async function listLandingContent(): Promise<LandingContent> {
  * before storing — rails are UNLIMITED (a 12-item rail saves fine; the rail
  * scrolls internally), malformed entries are rejected. Returns the saved
  * document so the editor can confirm exactly what the page will render.
+ *
+ * 2026-09-27: the write appends to the journal under the store's lock, so it survives a
+ * restart and every instance reads it — the promise this comment always made.
  */
 export async function saveLandingContent(raw: unknown): Promise<LandingContent> {
   const content = readLandingContent(raw);
@@ -767,6 +817,14 @@ export async function saveLandingContent(raw: unknown): Promise<LandingContent> 
     version: 1,
     updated_at: new Date().toISOString(),
   };
-  fixtureGlobal.__imLandingContent = saved;
-  return saved;
+  return withLandingLock(async () => {
+    const store = landingStorePath();
+    const events = await readJournalEvents(store, "landing");
+    const at = saved.updated_at ?? new Date().toISOString();
+    await writeJournalEvents(store, "landing", [
+      ...events,
+      { kind: "landing_saved", at, content: saved } satisfies LandingEvent,
+    ]);
+    return structuredClone(saved);
+  });
 }

@@ -93,8 +93,27 @@ function requiredItemType(value: unknown, what: string): CatalogItemType {
   return value;
 }
 
-/** The frozen envelope fields + the app-authored photo, read field by field.
- * `display_price` is DERIVED here from the wrapper's presentation unit. */
+/**
+ * An app-authored SENIOR price, or null when the item has none.
+ *
+ * Absent and null both mean "no senior price" — a service or a package legitimately has
+ * none, and the storefront must not print a senior line for it. A present value has to be
+ * a positive whole number of centavos that does NOT exceed the regular price: a senior
+ * price above the regular one is not a discount, and silently accepting it would publish a
+ * contradiction. (The sheet's per-model discount is `regular - senior`, derived at the
+ * surface — so there is one number to keep honest, not two.)
+ */
+function optionalSeniorPrice(value: unknown, unitPriceCents: number, what: string): number | null {
+  if (value == null) return null;
+  const cents = requiredInteger(value, `${what} senior price`, 1);
+  if (cents > unitPriceCents) {
+    malformed(`${what} senior price ${cents} exceeds its regular price ${unitPriceCents}`);
+  }
+  return cents;
+}
+
+/** The frozen envelope fields + the app-authored photo and senior price, read field by
+ * field. `display_price` is DERIVED here from the wrapper's presentation unit. */
 function toCatalogItemRecord(raw: unknown, priceUnit: string): CatalogItemRecord {
   if (typeof raw !== "object" || raw === null) malformed("catalogue item");
   const r = raw as Record<string, unknown>;
@@ -113,6 +132,7 @@ function toCatalogItemRecord(raw: unknown, priceUnit: string): CatalogItemRecord
     // stale display string.
     display_price: catalogDisplayPrice(unit_price_cents, currency, priceUnit),
     image,
+    senior_price_cents: optionalSeniorPrice(r.senior_price_cents, unit_price_cents, "item"),
   };
 }
 
@@ -153,6 +173,8 @@ function toSeedCatalogItem(raw: unknown): AdminCatalogItem {
       currency,
       display_price: display.trim(),
       image: null,
+      // The 24 casket rows record the sheet's senior price; every other row omits it.
+      senior_price_cents: optionalSeniorPrice(r.senior_price_cents, unit_price_cents, "seed"),
     },
     published: true,
     price_unit,
@@ -351,6 +373,7 @@ export function createCatalogRecord(raw: unknown): Promise<AdminCatalogItem> {
         currency: draft.currency,
         display_price: catalogDisplayPrice(draft.unit_price_cents, draft.currency, ""),
         image: draft.image,
+        senior_price_cents: draft.senior_price_cents,
       },
       published: draft.published,
       // New items carry no unit suffix — the form does not invent "/ month".
@@ -392,6 +415,7 @@ export function updateCatalogRecord(idOrSku: string, raw: unknown): Promise<Admi
           found.price_unit,
         ),
         image: draft.image,
+        senior_price_cents: draft.senior_price_cents,
       },
       published: draft.published,
       price_unit: found.price_unit,
