@@ -77,7 +77,17 @@ export default async function PlansPage() {
           optional staff-attached photo leads the card; without one it stays
           premium and text-only. */}
       <section id="tiers" className="stack-4" aria-labelledby="tiers-title">
-        <SectionHead id="tiers-title" title="The five tiers — what each one includes" />
+        {/* The kicker carries the product's signature — the brass margin rule on
+            the shared `.section-head__kicker` (UI-guide prompt 07). Without it
+            this page was the one public surface with no signature at all, which
+            is what made it read as a different design from /services and /map.
+            The lead states the answer in one line, per the same prompt. */}
+        <SectionHead
+          id="tiers-title"
+          kicker="The five tiers"
+          title="The five tiers — what each one includes"
+          lead="Every tier's monthly rate, its payment terms and the inclusions the client's own checklist prints."
+        />
         {plan.tiers.length === 0 ? (
           <p className="text-sm text-muted">
             The tier details are being prepared — the 2026 rates are on the Price list.

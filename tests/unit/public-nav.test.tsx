@@ -73,7 +73,11 @@ describe("the public bar", () => {
     expect(topLevel).not.toContain('href="/memorials"');
     expect(topLevel).not.toContain('href="/price-list"');
     // The grouped Explore more menu: disclosure trigger, hidden menu, exact items.
+    // "News from the park" (/blog) leads: the blog is staff-editable landing
+    // content, and until it was added here it sat in the sitemap while being
+    // reachable from nowhere in the UI — which is how a whole surface gets lost.
     expect(EXPLORE_MORE_LINKS.map((item) => [item.href, item.title])).toEqual([
+      ["/blog", "Blog"],
       ["/builder", "Builder"],
       ["/facilities", "Facilities"],
       ["/gallery", "Gallery"],

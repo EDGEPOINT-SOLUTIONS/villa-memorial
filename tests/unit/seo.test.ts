@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement } from "react";
@@ -33,6 +33,16 @@ const PUBLIC_DIR = path.join(ROOT, "app", "(public)");
 /** Transactional/account routes are real pages but must never be indexed. */
 const NON_INDEXABLE = new Set(["/cart", "/checkout"]);
 
+/**
+ * Public pages that deliberately live OUTSIDE `app/(public)`, and so are
+ * invisible to the directory walk below.
+ *
+ *   /blog — the former home, moved verbatim (2026-09-27). It renders
+ *           LandingView, which carries its OWN anchored header and footer, so it
+ *           has to sit outside the group that would paint a second pair.
+ */
+const OUTSIDE_THE_GROUP = ["/blog"];
+
 function publicPageRoutes(dir = PUBLIC_DIR, prefix = ""): string[] {
   const routes: string[] = [];
   for (const name of readdirSync(dir)) {
@@ -52,9 +62,12 @@ function publicPageRoutes(dir = PUBLIC_DIR, prefix = ""): string[] {
 
 describe("the sitemap table covers every public page", () => {
   it("lists every static public route and no transactional one", () => {
-    // The home (app/page.tsx) sits outside the (public) group; it is public all
-    // the same, so the comparison includes it explicitly.
-    const fromDisk = ["/", ...publicPageRoutes()].filter((route) => !NON_INDEXABLE.has(route));
+    // Since 2026-09-27 the home lives INSIDE `app/(public)` (it renders on the
+    // shared public shell), so the walk finds "/" itself. `/blog` is the one
+    // public page that has to stay outside the group — see OUTSIDE_THE_GROUP.
+    const fromDisk = [...OUTSIDE_THE_GROUP, ...publicPageRoutes()].filter(
+      (route) => !NON_INDEXABLE.has(route)
+    );
     const fromTable = PUBLIC_PAGES.map((page) => page.path);
     expect([...fromTable].sort()).toEqual([...fromDisk].sort());
   });
@@ -242,9 +255,15 @@ describe("/sitemap.xml and /robots.txt", () => {
 });
 
 describe("the JSON-LD block is rendered on the public surfaces", () => {
-  it("the home renders it from the content document", () => {
-    const home = readFileSync(path.join(ROOT, "app", "page.tsx"), "utf8");
-    expect(home).toContain("<JsonLd content={content} />");
+  it("the home is inside the (public) group, so the layout renders it for the home too", () => {
+    // Before 2026-09-27 the home was `app/page.tsx` and had to render its own
+    // JsonLd. It now lives in the group, so there is exactly ONE place that
+    // renders the structured data — the shared layout asserted below — and the
+    // home must NOT carry a second copy (two LocalBusiness blocks on one page is
+    // a duplicate-entity signal to a crawler).
+    expect(existsSync(path.join(ROOT, "app", "page.tsx"))).toBe(false);
+    const home = readFileSync(path.join(ROOT, "app", "(public)", "page.tsx"), "utf8");
+    expect(home).not.toContain("<JsonLd");
   });
 
   it("the shared public layout renders it on every interior page", () => {

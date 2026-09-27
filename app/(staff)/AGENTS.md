@@ -12,11 +12,16 @@
   Home is the existing landing/FAQ document edited by the full editor at
   `/staff/landing/home`; the other four are
   **page documents** seeded in `lib/fixtures/content/pages.json` (recorded from the
-  pages' current copy), read/written by `lib/api-client/content-pages.ts` (the
-  landing seam: an in-process globalThis store — no upstream content service
-  exists, the contract ask travels with the PR) and saved through
+  pages' current copy), read/written by `lib/api-client/content-pages.ts` (no
+  upstream content service exists, so this is an app-authored seam and the
+  contract ask travels with the PR) and saved through
   `POST /api/content/pages` (`catalog:write` provisionally, like the landing
-  route). Editor: `components/content/page-document-editor.tsx`; renderer:
+  route). **Both content stores are DURABLE** since 2026-09-27 — append-only
+  journals on the shared mechanics in `lib/api-client/journal.ts`, at
+  `CONTENT_PAGES_STORE_PATH` / `LANDING_STORE_PATH` or under `.data/` — so a
+  staff edit survives a restart and reaches every instance. They kept edits on
+  `globalThis` before that, which lost every one of them on restart; evidence in
+  `docs/08-delivery/phase2-design/`. Editor: `components/content/page-document-editor.tsx`; renderer:
   `components/content/content-blocks.tsx`.
 - **One pure model: `lib/content-catalog.ts`** — the PageDocument + CatalogueEntry
   shapes, the shared block vocabulary (paragraph · bullets · checklist · steps ·

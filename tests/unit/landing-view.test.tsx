@@ -86,10 +86,20 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(railItemCount(html)).toBe(left.items.length + right.items.length);
     expect(html).toContain('class="rail-thumb"');
 
-    // Hero with both approved doors.
-    expect(html).toContain("Honoring every life with dignity and light.");
-    expect(html).toContain("I need help now");
-    expect(html).toContain("Plan ahead");
+    // NO HERO (captain, 2026-09-27). This page is the blog; it used to open with
+    // the old home's hero — the brand lock-up, the "Honoring every life…"
+    // headline and both doors. That argument belongs to `/`, which now has a home
+    // page of its own, so the blog column opens on the catalogue instead.
+    //
+    // Asserted as an ABSENCE rather than deleted, because "nobody re-adds the
+    // hero to the blog" is the actual decision, and a removed assertion cannot
+    // guard it. The /blog route is the only consumer of LandingView, so this pins
+    // the blog's shape.
+    expect(html).not.toContain("Honoring every life with dignity and light.");
+    expect(html).not.toContain("I need help now");
+    expect(html).not.toContain("public-hero__headline");
+    // …and the column still opens on real content, not on a gap.
+    expect(html).toContain("anchored-mid__inner");
   });
 
   it("header nav leads with an explicit Home link so visitors always know the way back", async () => {
@@ -203,15 +213,16 @@ describe("the home renders the anchored catalogue shell", () => {
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    const heroPos = html.indexOf("hero-home__title");
+    // The hero that used to open this column is gone (captain, 2026-09-27), so
+    // the shelf is now the FIRST thing in it — `plansLotsPos` is the floor the
+    // rest of the order is measured from, rather than a position after a hero.
     const plansLotsPos = html.indexOf("plan-lot-grid");
     const plansPos = html.indexOf("plan-board");
     const mapPos = html.indexOf("mid-section--map");
     const aboutPos = html.indexOf("about-grid");
     const blogPos = html.indexOf("blog-feed");
-    expect(heroPos).toBeGreaterThanOrEqual(0);
+    expect(plansLotsPos).toBeGreaterThanOrEqual(0);
     // The shelf leads: plans & lots → the plan board → the live park map.
-    expect(plansLotsPos).toBeGreaterThan(heroPos);
     expect(plansPos).toBeGreaterThan(plansLotsPos);
     expect(mapPos).toBeGreaterThan(plansPos);
     // The About/mission band and the newsfeed close the column.
@@ -354,126 +365,39 @@ describe("the rails carry one oversized lead image each", () => {
   });
 });
 
-describe("the hero accepts a background photo", () => {
-  it("renders the attached photo behind the copy when staff attach one", async () => {
+describe("the landing hero is RETIRED from this view (captain, 2026-09-27)", () => {
+  it("renders no hero of any kind — the column opens on the catalogue", async () => {
+    // Four describe blocks used to live here, asserting the old landing hero's
+    // staff-editable machinery: the background photo, the colour wash layer, the
+    // image-only mode and the author-settable text colour (`hero-home__*`).
+    //
+    // They were deleted with the hero itself, and the reason is worth recording:
+    // /blog is this component's only consumer, and the captain removed the hero
+    // from it, so `HeroSection` no longer renders anywhere. A test for a
+    // component nothing renders is not coverage, it is a liability — it would
+    // have gone on passing the day someone deleted the feature.
+    //
+    // NOTHING SAFETY-RELEVANT WAS LOST. The two hostile-input cases those blocks
+    // carried (a `url(...)` smuggled through `hero.background` and through
+    // `hero.textColour`) are pure-module rules and are covered properly in
+    // tests/unit/hero-background.test.ts, which is their real home — and
+    // `heroBackgroundLayer` / `heroTextColourStyle` are still live on the park
+    // page's wash and the package page's hero, so those tests still guard shipped
+    // code.
+    //
+    // Asserted as an ABSENCE, because "nobody re-adds the hero to the blog" is
+    // the decision, and a deleted assertion cannot guard it.
     const content = await listLandingContent();
-    const withPhoto = cloneDoc(content);
-    withPhoto.hero.image = "/media/hero-1.jpg";
     const html = renderToStaticMarkup(
-      view({ content: withPhoto, mapNode: null, mapLive: false, sectionCount: 0 }),
+      view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    expect(html).toContain("hero-home--photo");
-    expect(html).toContain("/media/hero-1.jpg");
-  });
-
-  it("keeps the plain gradient hero when no photo is attached", async () => {
-    const content = await listLandingContent();
-    const bare = cloneDoc(content);
-    bare.hero.image = null;
-    const html = renderToStaticMarkup(
-      view({ content: bare, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).not.toContain("hero-home--photo");
-  });
-});
-
-describe("the hero renders the staff-chosen background colour layer", () => {
-  it("renders no wash at all for a legacy document (no colour) — today's look", async () => {
-    const content = await listLandingContent();
-    const legacy = cloneDoc(content);
-    legacy.hero.background = null;
-    legacy.hero.backgroundTransparency = 100;
-    const html = renderToStaticMarkup(
-      view({ content: legacy, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).not.toContain("hero-home__wash");
-  });
-
-  it("renders ONE wash layer carrying the colour and its alpha", async () => {
-    const content = await listLandingContent();
-    const tinted = cloneDoc(content);
-    tinted.hero.background = "#3f97d1";
-    tinted.hero.backgroundTransparency = 45;
-    const html = renderToStaticMarkup(
-      view({ content: tinted, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).toContain('class="hero-home__wash"');
-    expect(html.split("hero-home__wash").length - 1).toBe(1);
-    expect(html).toContain("background:#3f97d1");
-    expect(html).toContain("opacity:0.55");
-  });
-
-  it("renders no wash at 100% transparency (the colour is disabled, not half-applied)", async () => {
-    const content = await listLandingContent();
-    const transparent = cloneDoc(content);
-    transparent.hero.background = "#3f97d1";
-    transparent.hero.backgroundTransparency = 100;
-    const html = renderToStaticMarkup(
-      view({ content: transparent, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).not.toContain("hero-home__wash");
-  });
-
-  it("never paints an invalid content value into the page", async () => {
-    const content = await listLandingContent();
-    const hostile = cloneDoc(content);
-    hostile.hero.background = "url(https://evil.test/x.png)";
-    hostile.hero.backgroundTransparency = 0;
-    const html = renderToStaticMarkup(
-      view({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).not.toContain("hero-home__wash");
-    expect(html).not.toContain("evil.test");
-  });
-});
-
-describe("an image-only hero renders the raw photograph", () => {
-  it("renders the photo with no copy, no wash and no overlay markup", async () => {
-    const content = await listLandingContent();
-    const imageOnly = cloneDoc(content);
-    imageOnly.hero.image = "/media/hero-1.jpg";
-    imageOnly.hero.eyebrow = "";
-    imageOnly.hero.headline = "";
-    imageOnly.hero.subline = "";
-    const html = renderToStaticMarkup(
-      view({ content: imageOnly, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).toContain("hero-home--image-only");
-    expect(html).toContain("/media/hero-1.jpg");
-    expect(html).not.toContain("hero-home__wash");
-    expect(html).not.toContain("hero-home__actions");
-    // Still one h1 for assistive tech, just not painted over the photo.
-    expect(html).toContain("visually-hidden");
-  });
-
-  it("leaves the stylesheet free of a constant photo scrim", () => {
-    const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
-    expect(css).not.toContain(".hero-home--photo::after");
-    expect(css).toContain(".hero-home--image-only");
-  });
-});
-
-describe("the hero text colour is author-settable", () => {
-  it("paints the hero copy through the --hero-text-colour custom property", async () => {
-    const content = await listLandingContent();
-    const inked = cloneDoc(content);
-    inked.hero.textColour = "#ffffff";
-    const html = renderToStaticMarkup(
-      view({ content: inked, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
-    expect(html).toContain("--hero-text-colour:#ffffff");
-    expect(html).toContain("hero-home__title");
-  });
-
-  it("never paints an invalid content text colour", async () => {
-    const content = await listLandingContent();
-    const hostile = cloneDoc(content);
-    hostile.hero.textColour = "url(https://evil.test/x.png)";
-    const html = renderToStaticMarkup(
-      view({ content: hostile, mapNode: null, mapLive: false, sectionCount: 0 }),
-    );
+    expect(html).not.toContain("hero-home__");
+    expect(html).not.toContain("hero-home--");
+    expect(html).not.toContain("Honoring every life with dignity and light.");
+    expect(html).not.toContain("I need help now");
     expect(html).not.toContain("--hero-text-colour");
-    expect(html).not.toContain("evil.test");
+    // The blog still renders its own content.
+    expect(html).toContain("plan-lot-grid");
   });
 });
 

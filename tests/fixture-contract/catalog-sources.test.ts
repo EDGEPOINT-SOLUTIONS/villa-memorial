@@ -30,6 +30,7 @@ const ITEMS = (
       name: string;
       item_type: string;
       unit_price_cents: number;
+      senior_price_cents?: number | null;
     }>;
   }
 ).items;
@@ -74,6 +75,46 @@ describe("every published catalogue entry traces to a client document", () => {
           source.document,
         )} — ${source.section} — prints ${source.cents}`,
       ).toBe(source.cents);
+    }
+  });
+
+  /**
+   * The SECOND figure the casket sheet prints. A senior price the office can edit must
+   * still start from the client's own number, or the storefront would be discounting off a
+   * figure nobody transcribed. This is the pin that lets the catalogue be the live selling
+   * record while the sheet stays the provenance of the seed.
+   */
+  it("publishes the sheet's senior figure wherever the sheet prints one", () => {
+    let checked = 0;
+    for (const item of ITEMS) {
+      const source = catalogPriceSource(item.sku);
+      if (!source?.seniorCents) continue;
+      checked += 1;
+      expect(
+        item.senior_price_cents,
+        `${item.sku} (${item.name}) carries senior ${String(item.senior_price_cents)} but ${documentTitle(
+          source.document,
+        )} — ${source.section} — prints ${source.seniorCents}`,
+      ).toBe(source.seniorCents);
+      // A senior price above the regular one is not a discount, and would print as a
+      // contradiction on the card beside the regular figure.
+      expect(item.senior_price_cents!, `${item.sku} senior must not exceed its regular price`).toBeLessThan(
+        item.unit_price_cents,
+      );
+    }
+    // The casket sheet prints a senior column for all 24 models; a silent drop to zero
+    // would make this test pass vacuously.
+    expect(checked, "the sheet prints a senior column for the 24 casket models").toBe(24);
+  });
+
+  it("records no senior price on an item the sheet gives none", () => {
+    for (const item of ITEMS) {
+      const source = catalogPriceSource(item.sku);
+      if (source?.seniorCents) continue;
+      expect(
+        item.senior_price_cents ?? null,
+        `${item.sku} (${item.name}) has no senior column on its sheet, so it must record none`,
+      ).toBeNull();
     }
   });
 

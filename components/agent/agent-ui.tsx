@@ -11,9 +11,41 @@ import type { ReactNode } from "react";
 import type { AgentTask, Appointment, WorkItem } from "@/lib/api-client/agent";
 import { appointmentStateLabel, manilaTime, stageMeta, workKindLabel } from "@/lib/agent/agent-view";
 import { formatMinorUnits } from "@/lib/money";
+import {
+  PortalChip,
+  PortalFigure,
+  PortalHero,
+  PortalSection,
+} from "@/components/portal/portal-ui";
 
+/* ---------------------------------------------------------------------------
+ * THE SHARED PRIMITIVES LIVE IN components/portal/portal-ui.tsx, NOT HERE.
+ *
+ * `Chip`, `AgentHero`, `AgentSection` and `MoneyCard` used to be written out a
+ * second time in this file. Their markup was character-for-character the same as
+ * `PortalChip`, `PortalHero`, `PortalSection` and `PortalFigure` — both portals
+ * render one house style, and the only thing separating the two copies was the
+ * prop types (`string` here, `ReactNode` there).
+ *
+ * Two implementations of one house style is how a house style drifts: the day
+ * someone fixes a heading's margin in one file, the other portal keeps the old
+ * one, and nothing fails. They now delegate, so there is one DOM to change and
+ * one place to look.
+ *
+ * The names are kept so no call site changes, and the narrower `string` types the
+ * agent pages were written against are widened to `ReactNode` — which every
+ * existing caller already satisfies.
+ *
+ * What stays here is what is genuinely the agent's own: StageChip (stage words
+ * from lib/agent/agent-view.ts), WorkItemRow (the kind label, the icon map, the
+ * multi-item meta line and the snooze that waits on the CRM write contract),
+ * TaskRow, AgendaCard, WeekRow and `money`. Those are agent vocabulary and
+ * belongs to the agent feature folder.
+ * ------------------------------------------------------------------------- */
+
+/** @deprecated Use `PortalChip` — kept as an alias so agent call sites read unchanged. */
 export function Chip({ children }: { children: ReactNode }) {
-  return <span className="ag-chip">{children}</span>;
+  return <PortalChip>{children}</PortalChip>;
 }
 
 export function AgentHero({
@@ -30,13 +62,9 @@ export function AgentHero({
   children?: ReactNode;
 }) {
   return (
-    <section className="ag-hero">
-      <p className="ag-day">{eyebrow}</p>
-      <h1 className="ag-hero__title">{title}</h1>
-      <p className="ag-hero__lead">{lead}</p>
-      {chips ? <div className="ag-hero__chips">{chips}</div> : null}
+    <PortalHero eyebrow={eyebrow} title={title} lead={lead} chips={chips}>
       {children}
-    </section>
+    </PortalHero>
   );
 }
 
@@ -52,16 +80,9 @@ export function AgentSection({
   children: ReactNode;
 }) {
   return (
-    <section className="ag-sec">
-      <div className="ag-sec__head">
-        <div>
-          <h2 className="ag-h2">{title}</h2>
-          {sub ? <p className="ag-sub">{sub}</p> : null}
-        </div>
-        {more}
-      </div>
+    <PortalSection title={title} sub={sub} more={more}>
       {children}
-    </section>
+    </PortalSection>
   );
 }
 
@@ -86,21 +107,8 @@ export function MoneyCard({
   tone?: "due" | "ok";
   pill?: string;
 }) {
-  const cls = [
-    "ag-money",
-    hero ? "ag-money--hero" : "",
-    tone ? `ag-money--${tone}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
   return (
-    <div className={cls}>
-      <p className="ag-money__label">{label}</p>
-      <p className="ag-money__value">{value}</p>
-      <p className="ag-money__note">
-        {note} {pill ? <span className="ag-pill">{pill}</span> : null}
-      </p>
-    </div>
+    <PortalFigure label={label} value={value} note={note} hero={hero} tone={tone} pill={pill} />
   );
 }
 

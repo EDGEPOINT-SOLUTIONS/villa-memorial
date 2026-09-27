@@ -121,7 +121,10 @@ describe("Pages & content", () => {
     sessionHolder.current = session(["catalog:write"]);
     const html = renderToStaticMarkup(await PageDocumentAdminPage(params("services")));
     expect(html).toContain("Funeraria Memorial Services");
-    expect(html).toContain("Funeral services, and what they cost in 2026");
+    // The copy changed on 2026-09-27: the old headline promised "what they cost
+    // in 2026" while the page publishes no price at all (Request-for-Quote).
+    // The editor assertion follows the seed, which is what staff now see.
+    expect(html).toContain("Funeral services, arranged around your family");
     // Phase 3: the document carries the service descriptions as blocks…
     expect(html).toContain("Content blocks");
     // …and the three guide pages are service entries, each with its own editor.

@@ -66,6 +66,13 @@ export type CatalogItemRecord = {
   display_price: string;
   /** App-authored storefront photo — not part of the frozen contract. */
   image: string | null;
+  /**
+   * App-authored senior-citizen price in minor units — not part of the frozen contract.
+   * null means the item has no senior price (a service, a package), which is honest;
+   * 0 would read as free. The per-model discount is derived as
+   * `unit_price_cents - senior_price_cents` at the surface, so one number is kept honest.
+   */
+  senior_price_cents: number | null;
 };
 
 /** One catalogue item as the admin store keeps it: frozen envelope + app-authored state. */
@@ -91,6 +98,8 @@ export type CatalogDraft = {
   unit_price_cents: number;
   currency: string;
   image: string | null;
+  /** Optional senior-citizen price; null when the item has none. */
+  senior_price_cents: number | null;
   published: boolean;
 };
 
@@ -161,6 +170,33 @@ export function validateCatalogDraft(raw: unknown): CatalogDraftValidation {
     errors.unit_price_cents = "That price looks too large — check the amount and try again.";
   }
 
+  // The senior price is optional, and it is the SECOND figure the 2026 casket sheet
+  // prints. Before 2026-09-27 it could not be set here at all: it lived only in the
+  // hardcoded sheet list the admin does not edit. Blank means "no senior price", which is
+  // honest for a service or a package — it is NOT zero, which would read as free.
+  let seniorCents: number | null = null;
+  const seniorRaw = r.senior_price_cents;
+  if (seniorRaw != null && seniorRaw !== "") {
+    if (typeof seniorRaw !== "number" || Number.isNaN(seniorRaw)) {
+      errors.senior_price_cents = "Enter a senior price, or leave it blank if there is none.";
+    } else if (!isInteger(seniorRaw)) {
+      errors.senior_price_cents =
+        "Prices are integer centavos (minor units) — ₱26,400.00 is 2640000, never a decimal.";
+    } else if (seniorRaw <= 0) {
+      errors.senior_price_cents =
+        "Leave this blank when the item has no senior price — 0 would read as free.";
+    } else if (seniorRaw > CATALOG_PRICE_MAX_CENTS) {
+      errors.senior_price_cents = "That price looks too large — check the amount and try again.";
+    } else if (typeof cents === "number" && isInteger(cents) && seniorRaw > cents) {
+      // A "senior price" above the regular one is not a discount. Refusing here keeps the
+      // storefront from ever printing a contradiction, and the store checks it again under
+      // the lock (`optionalSeniorPrice` in catalog-store.ts).
+      errors.senior_price_cents = "The senior price cannot be higher than the regular price.";
+    } else {
+      seniorCents = seniorRaw;
+    }
+  }
+
   const currency = typeof r.currency === "string" ? r.currency.trim().toUpperCase() : "";
   if (!CURRENCY_PATTERN.test(currency)) {
     errors.currency = "Currency is a three-letter code, e.g. PHP.";
@@ -197,6 +233,7 @@ export function validateCatalogDraft(raw: unknown): CatalogDraftValidation {
       unit_price_cents: cents as number,
       currency,
       image,
+      senior_price_cents: seniorCents,
       published: published == null ? true : (published as boolean),
     },
   };

@@ -21,6 +21,12 @@ const eslintConfig = [
       "next-env.d.ts",
       ".agents/**",
       ".claude/**",
+      // The design-audit harness's OUTPUT directory (report.json, shots, and the
+      // throwaway probe scripts written while investigating). It is gitignored,
+      // so linting it only ever produced warnings about scratch files nobody
+      // ships — which trains people to ignore the lint output. The harness's real
+      // tools live in scripts/design-audit/ and ARE linted.
+      ".design-audit/**",
     ],
   },
 ];

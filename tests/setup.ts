@@ -15,7 +15,6 @@ import { mkdtempSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
-import { beforeEach } from "vitest";
 
 const dir = mkdtempSync(path.join(os.tmpdir(), "vm-fixture-stores-"));
 
@@ -30,6 +29,16 @@ const STORE_PATH_ENV_VARS = [
   "PROVISIONAL_RECEIPTS_STORE_PATH",
   "CONTENT_ENTRIES_STORE_PATH",
   "PRODUCT_LINES_STORE_PATH",
+  // Added 2026-09-27 with the enquiries journal. Its omission was caught by
+  // `tests/fixture-contract/crm.test.ts`, which asserts `listInquiries()` returns
+  // exactly the three recorded rows: once `listInquiries` folded the store, a real
+  // enquiry submitted through `/quote` against the dev server made that count four.
+  "INQUIRIES_STORE_PATH",
+  // Added the same day, when the two CONTENT stores became durable. They were the last
+  // pair keeping edits on `globalThis`, which is why page edits did not survive a
+  // restart — the exact thing Phase 2 of the client-minutes work fixed.
+  "LANDING_STORE_PATH",
+  "CONTENT_PAGES_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {
@@ -42,15 +51,8 @@ if (!process.env.MEDIA_UPLOAD_DIR) {
   process.env.MEDIA_UPLOAD_DIR = path.join(dir, "media-uploads");
 }
 
-// In-memory content seams (landing content + the page documents) live on
-// globalThis; reset them before every test so one suite's save can never leak
-// into the next. The entry store is durable now (its own journal under
-// CONTENT_ENTRIES_STORE_PATH), so it needs no globalThis reset.
-beforeEach(() => {
-  const g = globalThis as typeof globalThis & {
-    __imContentPages?: unknown;
-    __imLandingContent?: unknown;
-  };
-  delete g.__imContentPages;
-  delete g.__imLandingContent;
-});
+// 2026-09-27: the `globalThis` reset that stood here is GONE, because the two seams it
+// reset are gone. Landing content and the page documents were the last two stores keeping
+// an edit in process memory; both are durable journals now (`LANDING_STORE_PATH` /
+// `CONTENT_PAGES_STORE_PATH`, redirected to temp paths above), so isolation is a file
+// path rather than a deleted global. Nothing else in the app stores content on globalThis.

@@ -13,6 +13,14 @@ coverage/
 
 .premium-review/
 
+# Throwaway output of a design audit: captured screenshots, report.json, logs, and the
+# one-off fix scripts already applied to the tree. Durable, reusable tools belong in
+# `scripts/design-audit/` (tracked) so they actually travel with the repo.
+.design-audit/
+
+# Browser-automation snapshot output (a tool's scratch dir, not source).
+.wb/
+
 # Machine-local agent-instruction overlays (harnesses load these after AGENTS.md/CLAUDE.md)
 AGENTS.local.md
 CLAUDE.local.md

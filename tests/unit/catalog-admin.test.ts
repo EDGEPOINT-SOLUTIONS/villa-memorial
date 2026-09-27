@@ -82,6 +82,9 @@ describe("catalog draft validation (one rule shared by form, route and store)", 
       unit_price_cents: 600000,
       currency: "PHP",
       image: "/media/hero-1.jpg",
+      // The senior price is the second figure the 2026 casket sheet prints. Absent means
+      // "no senior price" — a service has none — and reads back as null, never 0.
+      senior_price_cents: null,
       published: true,
     });
   });
@@ -99,6 +102,43 @@ describe("catalog draft validation (one rule shared by form, route and store)", 
     expect(check.draft.image).toBeNull();
     expect(check.draft.published).toBe(true);
     expect(check.draft.unit_price_cents).toBe(600000);
+    expect(check.draft.senior_price_cents).toBeNull();
+  });
+
+  it("accepts a senior price the sheet prints, and keeps it below the regular one", () => {
+    // The 24 casket rows carry this figure; before 2026-09-27 it could not be set here at
+    // all, because it lived only in the hardcoded sheet list the admin does not edit.
+    const ok = validateCatalogDraft({
+      ...validDraft,
+      unit_price_cents: 3300000,
+      senior_price_cents: 2640000,
+    });
+    expect(ok.ok).toBe(true);
+    if (!ok.ok) return;
+    expect(ok.draft.senior_price_cents).toBe(2640000);
+
+    // Blank and absent both mean "no senior price" — never zero, which would read as free.
+    const blank = validateCatalogDraft({ ...validDraft, senior_price_cents: "" });
+    expect(blank.ok).toBe(true);
+    if (blank.ok) expect(blank.draft.senior_price_cents).toBeNull();
+    expect(validateCatalogDraft(validDraft).ok).toBe(true);
+
+    // A "senior price" above the regular one is not a discount, and 0 is not a price.
+    const above = validateCatalogDraft({
+      ...validDraft,
+      unit_price_cents: 100000,
+      senior_price_cents: 200000,
+    });
+    expect(above.ok).toBe(false);
+    if (!above.ok) expect(above.errors.senior_price_cents).toMatch(/cannot be higher/i);
+
+    const zero = validateCatalogDraft({ ...validDraft, senior_price_cents: 0 });
+    expect(zero.ok).toBe(false);
+    if (!zero.ok) expect(zero.errors.senior_price_cents).toMatch(/blank/i);
+
+    const fractional = validateCatalogDraft({ ...validDraft, senior_price_cents: 1234.5 });
+    expect(fractional.ok).toBe(false);
+    if (!fractional.ok) expect(fractional.errors.senior_price_cents).toMatch(/integer centavos/i);
   });
 
   it("rejects a missing name, a bad SKU, a missing type and an over-long description", () => {

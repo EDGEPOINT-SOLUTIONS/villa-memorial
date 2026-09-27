@@ -115,7 +115,11 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
   });
 
   it("renders one icon card per at-need service, each requesting a quote", () => {
-    expect((html.match(/class="story-rate__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
+    // The five lines became picture-first boxes on 2026-09-27 ("more graphics …
+    // use boxes"), so the icon lives on the card rather than on a ledger row. The
+    // assertion's intent is unchanged: one icon per service, and every service
+    // named.
+    expect((html.match(/class="sv-card__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
       ALACARTE_LINES.length,
     );
     for (const line of ALACARTE_LINES) {

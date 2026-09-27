@@ -68,8 +68,17 @@ honestly; `/staff/plans` redirects. The route-coverage note carries the changed 
 The content/CMS read-write contract (page documents + catalogue entries) is added to the platform
 contract list in [`frontend-complete.md`](../frontend-complete.md#the-platform-the-dev--the-contract-list)
 and [`prd-alignment-audit.md`](../prd-alignment-audit.md#72-platform--dev-contract--blocked-or-503-until-a-contract-freezes).
-No upstream content service exists: the stores are app-authored (globalThis, fixture mode), and a
-save validates against the LIVE catalogue + pricing stores.
+No upstream content service exists: the stores are app-authored and a save validates against the
+LIVE catalogue + pricing stores.
+
+> **2026-09-27 — the stores are DURABLE now.** This line used to read *"(globalThis, fixture mode)"*.
+> The landing document and the four page documents kept an edit in process memory with no file
+> behind it, so a staff save was gone on the next restart and reached only the instance that handled
+> it. Both are append-only journals since Phase 2 of
+> [`client-minutes-audit-2026-09-21`](../client-minutes-audit-2026-09-21/README.md), on the shared
+> mechanics in `lib/api-client/journal.ts`. See
+> [`phase2-design`](../phase2-design/README.md). The catalogue ENTRY store was already durable
+> (`CONTENT_ENTRIES_STORE_PATH`, recorded in `pdp-fields-design`).
 
 ## Evidence (shots/)
 

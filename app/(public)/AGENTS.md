@@ -153,9 +153,12 @@
   exemption: it IS the call-first screen (F-01) and renders no band. Never add a
   second closing grammar or a per-page CTA list; a new public page inherits it
   from the shell.
-- **The contact surface is `/contact`**: it leads with the office's published
-  facts — both hotlines, the main-office and park addresses, availability —
-  before the form, plus the quote/appointment paths. Those facts are the
+- **The contact surface is `/contact`**: the message form comes FIRST and the
+  office's published facts CLOSE the page — both hotlines, the main-office and park
+  addresses, availability, then the directions card last — plus the
+  quote/appointment paths (captain, 2026-09-27: "put this at the last section";
+  this reverses F-17's "facts before the form", and
+  `tests/unit/journey-actions.test.tsx` pins the new order). Those facts are the
   staff-editable landing contact region (`secondPhoneDisplay/Href`,
   `officeAddress`, `parkAddress`; editor zone 01 at `/staff/landing`), seeded from
   the client's 2026 Purchase Application Form letterhead; the validator keeps the

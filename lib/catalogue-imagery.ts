@@ -119,7 +119,7 @@ function packagePhoto(sku: string): CatalogueItemPhoto {
   const photoId = tierName ? COFFIN_TIER_PHOTO_IDS[tierName] : undefined;
   if (!photoId) return planPoster();
   const record = clientPhoto(photoId);
-  return sampleOf(photoId, `${record.label} — this plan&rsquo;s entry casket.`);
+  return sampleOf(photoId, `${record.label} — this plan’s entry casket.`);
 }
 
 /**
@@ -127,6 +127,14 @@ function packagePhoto(sku: string): CatalogueItemPhoto {
  * the client photographed the thing, and an explicitly captioned stand-in where
  * they did not (the office has no photograph of the preparation itself — the
  * honest picture of their work is the set-up their staff build).
+ *
+ * THE CAPTIONS ARE PLAIN TEXT, NOT MARKUP, and these two were not: they carried a
+ * literal `&rsquo;`, which React escapes, so the page printed the six characters
+ * "&rsquo;" instead of an apostrophe. It went unnoticed because NOTHING RENDERED
+ * THIS MAP until 2026-09-27 — the service lines had photographs but no surface
+ * showed them. The new /services picture cards are the first consumer, which is
+ * where the entity became visible (measured: two captions on the live page, and
+ * none on /plans or /products, whose captions never used entities).
  */
 const SERVICE_PHOTOS: Readonly<Record<string, CatalogueItemPhoto>> = {
   "SRV-RETRIEVAL": {
@@ -134,7 +142,7 @@ const SERVICE_PHOTOS: Readonly<Record<string, CatalogueItemPhoto>> = {
     src: libraryThumb("/media/at_need_services.jpg", 960),
     alt: "A funeral attendant holding a single rose beside a casket",
     sample: true,
-    caption: "The office&rsquo;s at-need call. Illustration only.",
+    caption: "The office’s at-need call. Illustration only.",
   },
   "SRV-DELIVERY": {
     id: "transport",
@@ -143,7 +151,7 @@ const SERVICE_PHOTOS: Readonly<Record<string, CatalogueItemPhoto>> = {
     sample: true,
     caption: "A hearse in service. Illustration only.",
   },
-  "SRV-VIEWING": sampleOf("wake-setup-lamp-alcove", "The office&rsquo;s own viewing set-up."),
+  "SRV-VIEWING": sampleOf("wake-setup-lamp-alcove", "The office’s own viewing set-up."),
   "SRV-INTERMENT": {
     id: "memorial-park",
     src: libraryThumb("/media/the very first memorial park in basilan.jpg", 960),
@@ -175,7 +183,7 @@ export function catalogueItemPhoto(sku: string): CatalogueItemPhoto | null {
   // itself, so all of them share the office's own picture of their staff at work
   // and say so.
   if (sku.startsWith("SRV-EMBALM")) {
-    return sampleOf("wake-setup-dressing", "The office&rsquo;s staff at work.");
+    return sampleOf("wake-setup-dressing", "The office’s staff at work.");
   }
   return null;
 }

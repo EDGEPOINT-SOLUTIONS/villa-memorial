@@ -95,7 +95,13 @@ function RailItemLink({ item }: { item: RailItem }) {
   if (item.featured) {
     return (
       <a className="rail-item rail-item--lead" href={item.href}>
-        <span className="rail-lead-flag">Lead</span>
+        {/* The rail's featured item. The visible word is "Featured", NOT "Lead":
+            on a public memorial page "Lead" reads as a sales lead, which is CRM
+            vocabulary on a grieving family's screen. The flag itself is a staff
+            editorial choice (`item.featured`), so "Featured" is also the honest
+            word — never "Popular"/"Most chosen", which would claim data the
+            office has not recorded (components/kit/README.md, honest data only). */}
+        <span className="rail-lead-flag">Featured</span>
         <RailThumb item={item} />
         <span className="rail-item__text">
           <span className="rail-item__title">{item.title}</span>
@@ -380,6 +386,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
               { label: "Facilities", href: "/facilities" },
               { label: "Transport", href: "/transport" },
               { label: "Photo gallery & virtual tour", href: "/gallery" },
+              { label: "Blog", href: "/blog" },
               { label: "Digital memorial search", href: "/memorials" },
               { label: "Find my loved one", href: "/memorials/find" },
             ]}
@@ -463,34 +470,6 @@ export function LandingFooter({ content }: { content: LandingContent }) {
         </div>
       </div>
     </footer>
-  );
-}
-
-function HeroSection({ content }: { content: LandingContent }) {
-  const { hero, logo } = content;
-  // The home hero is the shared PublicHero primitive (Phase 0 proof surface).
-  // It carries the hero-flexible base: an image-only document renders the raw
-  // photograph (no wash/scrim/gradient), 100 % transparency is the clear photo,
-  // the author's text colour paints through --hero-text-colour, and the phone
-  // band is capped at 42 vh by the shared grammar block. The page shell ALSO
-  // sets the colour property (below) so the left rail's 24/7 card stays synced.
-  return (
-    <PublicHero
-      variant="home"
-      brandName={logo.wordmark}
-      brand={
-        <BrandMark wordmark={logo.wordmark} markImage={logo.markImage} className="brand-mark--lg" />
-      }
-      eyebrow={hero.eyebrow}
-      headline={hero.headline}
-      subline={hero.subline}
-      image={hero.image}
-      background={hero.background}
-      backgroundTransparency={hero.backgroundTransparency}
-      textColour={hero.textColour}
-      primary={{ label: hero.primaryCta.label, href: hero.primaryCta.href }}
-      secondary={{ label: hero.secondaryCta.label, href: hero.secondaryCta.href }}
-    />
   );
 }
 
@@ -638,9 +617,13 @@ function BlogSection({ content }: { content: LandingContent }) {
   // a single row of equal columns — each story its own column — instead of a
   // spanning lead over a two-up grid that left two posts stacked in one column.
   // On a phone it becomes one column (one post per row).
+  //
+  // The band no longer carries a SectionHead: the page's title, `h1` and intro
+  // moved to the interior opening at the top of the column (2026-09-27), and a
+  // second "Blog" heading down here would have been the same words twice on one
+  // screen. `aria-label` names the region because its heading is now elsewhere.
   return (
-    <section className="mid-section" aria-labelledby="blog-title">
-      <SectionHead id="blog-title" kicker="Newsfeed" title={blog.heading} lead={blog.intro} />
+    <section className="mid-section" aria-label="Blog posts">
       {blog.posts.length === 0 ? (
         <p className="mid-empty">Stories will appear here once staff publishes the first post.</p>
       ) : (
@@ -707,7 +690,34 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
 
         <main id="main" className="anchored-mid">
           <div className="anchored-mid__inner">
-            <HeroSection content={content} />
+            {/* NO HOME HERO HERE (captain, 2026-09-27). This page opened with the
+                old home's hero — the brand lock-up, "Honoring every life with
+                dignity and light", the subline and the two doors ("I need help
+                now" / "Plan ahead"). That is the HOME's argument, and it has a
+                home of its own at `/`; on a page whose job is to list posts it
+                was a second front door competing with the blog itself.
+
+                What replaces it is NOT a smaller hero — it is the same interior
+                opening every other public page uses (`PublicHero` variant
+                "interior": a kicker, the page's `h1`, one lead, no photograph and
+                no actions). Removing the old block outright was not an option:
+                the hero held the page's ONLY `h1`, so `/blog` would have shipped
+                with zero headings and no accessible page title. The budget guard
+                caught exactly that — "blog (/blog) renders exactly one h1" read
+                `0`.
+
+                The wrapper exists because a copy-only interior hero must not keep
+                the desktop two-column track (it would strand an empty column
+                beside the words) — the same reason `.mem-page` overrides it. */}
+            <div className="blog-open">
+              <PublicHero
+                variant="interior"
+                id="blog-title"
+                eyebrow="Blog"
+                title={content.blog.heading}
+                lead={content.blog.intro}
+              />
+            </div>
             {/* Products first, story after (the Amazon order): the plans & lots
                 shelf, then the plan board, then the park map a visitor can walk.
                 The About/mission band and the newsfeed close the column. */}

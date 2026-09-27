@@ -93,7 +93,10 @@ const NEUTRAL_MEDIA_GROUNDS = [
   ".pdp-zoom__frame",
   ".gal-figure__media",
   ".sv-price-card__media img",
-  ".sv-chapel__media",
+  // `.sv-chapel__media` was here. It was DEAD CSS — the rule existed but no
+  // markup referenced the class (the live chapel cards are `.story-chapel`), and
+  // this list is what kept it looking alive. Removed with the rule on
+  // 2026-09-27; see docs/08-delivery/services-redesign/README.md.
   ".sv-card-media",
   ".fac-room__media",
   ".fac-ground__media",

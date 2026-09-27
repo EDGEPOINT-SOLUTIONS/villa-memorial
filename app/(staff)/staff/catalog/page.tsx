@@ -136,6 +136,17 @@ export default async function CatalogPage({
       />
 
       <PageSection>
+        {/* The type vocabulary is the UPSTREAM CONTRACT's, not ours: order-payment-api-v1
+            names exactly `package | service | add_on`, so a casket has to be filed as an
+            add-on on the wire. Saying so here is cheaper and more honest than renaming a
+            frozen enum — the office should not have to guess why "Add-on" returns coffins.
+            A first-class product type is a contract ask, recorded with this phase. */}
+        <Alert tone="info" title="About the item types">
+          The three types are the platform contract&rsquo;s own words. The 24 casket models
+          are its <code>add_on</code> rows, so filtering by <strong>Add-on</strong> lists
+          them; packages and service lines are named as they read.
+        </Alert>
+
         {settled ? (
           <Alert tone="success" title="Catalog saved">
             <code>{settled}</code> {params.updated ? "was updated." : "was added to the catalog."}{" "}

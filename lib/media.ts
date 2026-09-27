@@ -404,6 +404,36 @@ export function planLotCardPhoto(kind: string, product: string): string | null {
 /** The published thumbnail widths (1× mobile rail / 2× and the wide figures). */
 export const LIBRARY_THUMB_WIDTHS = [320, 640, 960] as const;
 
+/* --- the client masterplan's published web derivative ---------------------- */
+
+/** The client's own masterplan — the spatial source of truth. Never swapped. */
+export const PARK_MAP_SOURCE = "/media/Park%20map.png";
+
+/**
+ * The SAME 1254 × 1254 pixels as the masterplan, re-encoded as WebP:
+ * 2,331 KB → 209 KB (91% off), with not one pixel moved.
+ *
+ * WHY SAME-SIZE MATTERS, AND WHY THIS IS A DISPLAY CONCERN.
+ * `lib/park-3d/masterplan.ts` records the plan as 1254 × 1254 and every plot
+ * coordinate is authored in that pixel space (`MASTERPLAN_PX`, `pxToWorld`,
+ * `pxPathToWorld`). Resizing the image would silently move every plot, so the
+ * derivative keeps the exact dimensions and changes only the encoding.
+ *
+ * The park RECORD's `image` field still points at the client's PNG: that field is
+ * part of the 3D coordinate contract (`tests/unit/park-3d-coords.test.ts` pins
+ * it) and AGENTS.md says the masterplan is not to be swapped. So the swap happens
+ * HERE, at display time, for the surfaces that actually paint it in a browser —
+ * the public 2D map and the staff editor. `scripts/build-park-map-derivative.mjs`
+ * rebuilds the file and asserts the dimensions still match.
+ */
+export const PARK_MAP_DERIVATIVE = "/media/park-map-1254.webp";
+
+/** The masterplan URL a screen should paint: its web derivative, or `src`
+ *  unchanged for anything else (a staff-uploaded map, a device image). */
+export function parkMapImage(src: string): string {
+  return src === PARK_MAP_SOURCE ? PARK_MAP_DERIVATIVE : src;
+}
+
 /**
  * `/media/Some%20File.png` → `some-file`. The source is percent-decoded first
  * (the library stores the uploaded aerial with its spaces encoded), then MUST

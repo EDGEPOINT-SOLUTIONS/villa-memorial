@@ -141,6 +141,9 @@ export type PublicPage = {
 
 export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
+  // The former home, moved here verbatim 2026-09-27 (the captain asked for the
+  // existing home to become the blog page while a new home was designed at "/").
+  { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
   { path: "/immediate-assistance", changeFrequency: "monthly", priority: 0.9 },
   { path: "/services", changeFrequency: "weekly", priority: 0.9 },
   { path: "/builder", changeFrequency: "monthly", priority: 0.8 },

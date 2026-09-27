@@ -15,8 +15,8 @@
  * reader over `getAuthedJson`, per `property.ts`) with no screen change.
  */
 import customersFile from "@/lib/fixtures/crm/customers.json";
-import inquiriesFile from "@/lib/fixtures/crm/inquiries.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { listFixtureInquiries } from "@/lib/api-client/inquiry-store";
 import { readShape } from "@/lib/contracts/validate";
 import { liveModeEnabled } from "@/lib/live-mode";
 
@@ -192,7 +192,17 @@ export async function getCustomer(
   return { customer, family: rawFamily ? toFamily(rawFamily) : null };
 }
 
+/**
+ * Every enquiry the office has: the recorded front-desk seed PLUS whatever has arrived
+ * since, newest first.
+ *
+ * 2026-09-27: this read used to return the recorded fixture alone. The website's own
+ * submissions never appeared, because they were written to the VISITOR'S BROWSER by
+ * `lib/demo-inquiry-captures.ts` and this is a server read — so a family's
+ * Request-for-Quote reached nobody. It now folds the durable journal
+ * (`lib/api-client/inquiry-store.ts`), which is where `POST /api/inquiries` writes.
+ */
 export async function listInquiries(): Promise<Inquiry[]> {
   refuseWhenLive();
-  return (inquiriesFile.inquiries as unknown[]).map(toInquiry);
+  return listFixtureInquiries();
 }

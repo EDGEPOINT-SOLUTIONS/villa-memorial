@@ -1,11 +1,13 @@
 /**
  * Typography system — the regression home for the type-voice decision
- * (2026-09-18) and the captain's consistency pass (2026-09-22).
+ * (2026-09-18), the captain's consistency pass (2026-09-22) and the 2026-09-27
+ * rebuild to the aitooltiphub.com UI guide.
  *
- * The product owns ONE typeface, Inter (self-hosted, styles/fonts.css), and
- * every rendered text size is one of seven ladder steps (12px floor) chosen
- * through a single role→step map (styles/tokens.css). The paper/legal print
- * layer keeps the client's own faces — that is a separate, deliberate scale.
+ * The product owns TWO self-hosted faces, each with a job: TeX Gyre Bonum for
+ * display (the client's own letterhead face) and Inter for the interface. Every
+ * rendered text size is one of seven ladder steps (12px floor) chosen through a
+ * single role→step map (styles/tokens.css). The paper/legal print layer keeps
+ * the client's own faces — that is a separate, deliberate scale.
  *
  * The reproduced defects this file pins:
  *   1. the product shipped no font files, so every visitor saw different
@@ -18,10 +20,12 @@
  *      at 28px here and 36px there, a section head at 36px here and 22px
  *      there) — the drift the captain reported as "the consistent of the font
  *      sizes", fixed by the role map below.
+ *   5. a ladder whose steps were ~1.1× apart, so headings, body and labels all
+ *      read at the same level and the page had no focal point.
  *
  * If a future change introduces a raw `font-size`, a sub-12px value, a
- * fractional step, a second typeface, a gold-as-text rule, or moves one role
- * class off its step, this file fails.
+ * fractional step, an unshipped typeface, a decorative-gold-as-text rule, or
+ * moves one role class off its step, this file fails.
  */
 import { describe, expect, it } from "vitest";
 import { existsSync, readFileSync } from "node:fs";
@@ -33,23 +37,34 @@ const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const read = (p: string) => readFileSync(path.join(ROOT, p), "utf8");
 
 /** The seven steps, in px. 12 is the hard floor. */
+// The ladder, in the px each step actually RENDERS at the shipped 80% scale
+// (`html { font-size: 80% }` in styles/base.css — see tokens.css for why). These
+// are the numbers a person sees, so they are the numbers the contrast and figure
+// guards must reason about.
+//
+// The bottom two rungs are declared in ABSOLUTE px and deliberately do not
+// scale: at a 12.8px root a rem step would put them at 9.6 and 11.2px, under
+// this product's hard 12px floor, on a site read by older people. 12px is the
+// floor and it holds.
 const LADDER: Record<string, number> = {
   xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 22,
-  "2xl": 28,
-  "3xl": 36,
+  sm: 13,
+  md: 13.6,
+  lg: 16,
+  xl: 19.2,
+  "2xl": 25.6,
+  "3xl": 35.2,
 };
+// …and the exact strings tokens.css must declare for each step. The two small
+// ones are px on purpose; the rest are rem so they ride the global scale.
 const LADDER_REM: Record<string, string> = {
-  xs: "0.75rem",
-  sm: "0.875rem",
-  md: "1rem",
-  lg: "1.125rem",
-  xl: "1.375rem",
-  "2xl": "1.75rem",
-  "3xl": "2.25rem",
+  xs: "12px",
+  sm: "13px",
+  md: "1.0625rem",
+  lg: "1.25rem",
+  xl: "1.5rem",
+  "2xl": "2rem",
+  "3xl": "2.75rem",
 };
 /** The eight roles and the ladder rung each one uses. `hero` is the one fluid
  *  display size; every other role is a plain ladder step. */
@@ -91,6 +106,23 @@ function contrast(a: string, b: string): number {
   return (hi + 0.05) / (lo + 0.05);
 }
 
+/**
+ * Follow a `var()` chain in tokens.css down to a literal hex.
+ *
+ * The 2026-09-27 rebuild made every semantic role an alias (`--color-text-primary:
+ * var(--ink-900)`), so a guard that hardcoded the old hex would still pass while
+ * the ramp underneath it changed. Resolving means these guards check the PROMISE
+ * (this ink is readable on that ground), not a literal someone has to retype.
+ */
+function resolveHex(css: string, name: string, depth = 0): string | null {
+  if (depth > 8) return null;
+  const raw = css.match(new RegExp(`${name}: *([^;]+);`))?.[1]?.trim();
+  if (!raw) return null;
+  if (/^#[0-9a-f]{6}$/i.test(raw)) return raw.toLowerCase();
+  const inner = raw.match(/var\((--[a-z0-9-]+)\)/i)?.[1];
+  return inner ? resolveHex(css, inner, depth + 1) : null;
+}
+
 describe("type ladder", () => {
   const tokens = read("styles/tokens.css");
 
@@ -98,14 +130,23 @@ describe("type ladder", () => {
     for (const [name, rem] of Object.entries(LADDER_REM)) {
       expect(tokens).toMatch(new RegExp(`--text-${name}: *${rem};`));
     }
-    expect(tokens).toMatch(
-      /--text-display: *clamp\(2\.25rem, 2rem \+ 1\.6vw, 2\.5rem\);/,
-    );
-    // The captain's public-page ceiling: the one fluid display size tops out at
-    // 40px (2026-09-25). A future edit that widens the clamp fails here.
+    // The one fluid display size. Asserted as a SHAPE (a clamp with a fluid
+    // middle term and a rem ceiling) rather than a literal string, so a palette
+    // or ratio change updates one file instead of two — but the ceiling is the
+    // real guard and it is deliberate: the ladder tops at 44px and the hero tops
+    // at 72px. The old 40px ceiling (captain, 2026-09-25) left the home with no
+    // focal point, which is the defect UI-guide prompt 05 exists to fix.
+    expect(tokens).toMatch(/--text-display: *clamp\(\s*[\d.]+rem,\s*[\d.]+rem \+ [\d.]+vw,\s*[\d.]+rem\s*\);/);
     const displayMax = tokens.match(/--text-display: *clamp\([^;]*?(\d+(?:\.\d+)?)rem\);/);
     expect(displayMax, "--text-display declares a rem maximum").not.toBeNull();
-    expect(Number(displayMax![1]) * 16, "public hero display ceiling").toBeLessThanOrEqual(40);
+    const ceilingPx = Number(displayMax![1]) * 16;
+    expect(ceilingPx, "public hero display ceiling").toBeLessThanOrEqual(72);
+    // …and the hero must actually be the biggest thing on the page.
+    const topStep = Math.max(...Object.values(LADDER));
+    const leadingEdge = Number(
+      tokens.match(/--text-display: *clamp\(\s*([\d.]+)rem/)?.[1] ?? 0
+    ) * 16;
+    expect(leadingEdge, "the hero's small end must out-rank the ladder's top").toBeGreaterThanOrEqual(topStep);
     const steps = Object.values(LADDER);
     expect(steps).toEqual([...steps].sort((a, b) => a - b));
     expect(Math.min(...steps)).toBeGreaterThanOrEqual(12);
@@ -123,16 +164,46 @@ describe("type ladder", () => {
     // the ONE paper profile (lib/export/paper-profile.ts): the sheet's sizes are the
     // client's own paper sizes, declared as `--paper-body-pt` on the sheet element.
     const PAPER_PT_SIZE = /^(?:var\(--paper-body-pt,[^)]*\)|calc\(var\(--paper-body-pt,[^)]*\)[^)]*\))$/;
+    // ONE declaration is not a text size at all: the root font size that carries
+    // the global 80% scale (styles/base.css). It is a scale knob, not a rung, so
+    // it is allowed by exact selector — never by value, so a view cannot smuggle
+    // a `font-size: 80%` in.
+    const ROOT_SCALE = /(?:^|\n)html\s*\{[^}]*font-size:\s*[\d.]+%\s*;/;
     for (const file of STYLESHEETS) {
-      for (const match of read(file).matchAll(/font-size: *([^;}]+);/g)) {
+      const source = read(file);
+      // COMMENTS ARE PROSE, NOT DECLARATIONS. This gate is about what the
+      // stylesheet DOES, so strip comments first — the same discipline
+      // composition-pass.test.tsx uses. Without this, a comment that merely
+      // mentions "font-size: 80%" is scanned as a declaration and reported as an
+      // off-ladder size, which is a false alarm that teaches people to stop
+      // documenting the rules.
+      const css = source.replace(/\/\*[\s\S]*?\*\//g, "");
+      for (const match of css.matchAll(/font-size: *([^;}]+);/g)) {
         const value = match[1].trim();
         // `pt` is allowed only for the printed paper-sheet simulation.
         if (LADDER_TOKENS.has(value) || value.endsWith("pt")) continue;
         if (PAPER_PT_SIZE.test(value)) continue;
+        if (file === "styles/base.css" && ROOT_SCALE.test(source) && value.endsWith("%")) continue;
         offenders.push(`${file}: ${value}`);
       }
     }
     expect(offenders).toEqual([]);
+  });
+
+  it("pins sup/sub to the ladder, because the UA default can break the floor silently", () => {
+    // The 80% scale exposed this: `sup`/`sub` carry NO declared size, so the
+    // stylesheet scan above cannot see them at all — the browser's own
+    // `font-size: smaller` (0.833em of the parent) decides. At the old 17px body
+    // step that computed 14.2px and nobody noticed; at the shipped 13.6px step
+    // it computes 11.33px, under the hard 12px floor. Measured, on /products.
+    // A declaration is therefore required, and this asserts it exists.
+    const base = read("styles/base.css");
+    const rule = /sup,\s*\nsub\s*\{([^}]*)\}/.exec(base.replace(/\/\*[\s\S]*?\*\//g, ""))?.[1] ?? "";
+    expect(rule, "base.css declares an explicit sup/sub size").not.toBe("");
+    expect(rule, "sup/sub must ride a ladder token, never `smaller`").toMatch(
+      /font-size:\s*var\(--text-[a-z0-9]+\);/
+    );
+    expect(rule).not.toMatch(/smaller|%/);
   });
 
   it("declares the role→step map in tokens.css and nothing off-ladder", () => {
@@ -172,7 +243,11 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".hero-premium__title",
         ".pkg-title",
         ".gal-hero__title",
-        ".sv-page h1",
+        // ".sv-page h1" was here. It is gone on purpose: it forced /services's
+        // opening up to the hero rung while the other nine public pages opened
+        // at the shared page-title step. That page renders `PublicHero` now, so
+        // its h1 is owned by `.public-hero__title` (page-title) and one heading
+        // has exactly one role.
         ".mem-profile__name",
       ],
     },
@@ -303,19 +378,20 @@ describe("role → step map", () => {
  * size should just be at the right size with no oversizing").
  *
  * A figure may ride BELOW its cap, never above it. The caps in px:
- *   · price — a card / line price headline: body + one rung = 18px
- *   · total — a band lead, estimate total, PDP figure: 22px
- *   · stat  — a KPI / stat / finance figure: 24px → the ladder's 22px rung
+ *   · price — a card / line price headline: body + one rung = 20px
+ *   · total — a band lead, estimate total, PDP figure: 24px
+ *   · stat  — a KPI / stat / finance figure: 24px → the ladder's 24px rung
  *
- * Hierarchy comes from weight, colour and spacing, not size. This gate fails a
- * class bumped back to `--text-2xl`/`--text-3xl` on the desktop OR the phone
- * rule, naming the class and the measured value, so oversizing cannot return by
- * review alone.
+ * The numbers moved with the 2026-09-27 ladder rebuild (18→20, 22→24). The
+ * RULE did not: a figure must not out-shout its own role, and hierarchy comes
+ * from weight, colour and spacing rather than size. This gate fails a class
+ * bumped back to `--text-2xl`/`--text-3xl`/`--text-display` on the desktop OR
+ * the phone rule, naming the class and the measured value.
  */
 const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
   {
     role: "price",
-    max: 18,
+    max: 20,
     selectors: [
       ".shop-card__price",
       ".plan-tier__price",
@@ -329,7 +405,7 @@ const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
   },
   {
     role: "total",
-    max: 22,
+    max: 24,
     selectors: [
       ".ledger__figure",
       ".cat-lead .ledger__figure",
@@ -341,7 +417,10 @@ const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
       ".sb-estimate__arranged-figure, .sb-arranged__title",
       ".paper-hero__price-value",
       ".chapel-card__rate",
-      ".sv-chapel__rate",
+      // `.sv-chapel__rate` was here. Its rule was DEAD — no markup referenced the
+      // class (the live rate is `.story-chapel__rate`, listed below) — and being
+      // named in this role list is what kept the dead rule alive. Removed with the
+      // rule, 2026-09-27.
       ".fac-room__rate",
       ".story-total__amount",
       ".story-chapel__rate",
@@ -350,7 +429,7 @@ const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
   },
   {
     role: "stat",
-    max: 22,
+    max: 24,
     selectors: [
       ".stat__value",
       ".kpi-card__value",
@@ -376,7 +455,7 @@ describe("figure caps (captain 2026-09-25)", () => {
     const token = value.match(/var\(--text-([a-z0-9-]+)\)/)?.[1];
     if (!token) return null;
     const step = ROLE_STEPS[token] ?? token;
-    if (step === "display") return 40;
+    if (step === "display") return 72;
     return LADDER[step] ?? null;
   };
 
@@ -417,12 +496,29 @@ describe("typefaces", () => {
     expect(imports[0]).toBe("../styles/fonts.css");
   });
 
-  it("declares Inter as the product's one face (both semantic tokens)", () => {
+  it("declares TWO faces, each with a job, and both self-hosted", () => {
+    // Rebuilt 2026-09-27 (UI-guide prompt 07, "Add a Signature"). The one-face
+    // rule produced a product that was clean and forgettable, which is exactly
+    // the defect that prompt names. The pairing is deliberate:
+    //   display = TeX Gyre Bonum — the CLIENT'S OWN letterhead face, already
+    //             vendored for the printed papers, so the website and the
+    //             contract a family signs speak in one voice;
+    //   ui      = Inter — body, controls, tables, figures.
+    // AGENTS.md anticipates this: "a second face means updating
+    // tests/unit/typography-system.test.ts in the same PR".
     const tokens = read("styles/tokens.css");
-    expect(tokens).toMatch(/--font-serif: *"Inter", system-ui/);
+    expect(tokens).toMatch(/--font-display: *"TeX Gyre Bonum"/);
     expect(tokens).toMatch(/--font-sans: *"Inter", system-ui/);
+    // `--font-serif` is the display role under its historical name, so the ~60
+    // rules written against it adopt the serif instead of silently falling back.
+    expect(tokens).toMatch(/--font-serif: *var\(--font-display\)/);
+    // The display face must be a real, shipped face — never a hopeful name that
+    // falls back to Times on every machine.
+    const fonts = read("styles/fonts.css");
+    expect(fonts).toMatch(/@font-face\s*\{[^}]*font-family: *"TeX Gyre Bonum"/s);
+    expect(existsSync(path.join(ROOT, "public/fonts/paper/texgyrebonum-regular.otf"))).toBe(true);
     // The retired faces stay retired.
-    expect(tokens).not.toMatch(/Alegreya|Source Sans 3/);
+    expect(tokens).not.toMatch(/Alegreya|Source Sans 3|Iowan|Palatino/);
   });
 
   it("ships the Inter woff2 files and the OFL licence text, and no retired files", () => {
@@ -471,22 +567,47 @@ describe("typefaces", () => {
 });
 
 describe("ink roles", () => {
-  it("uses pure black text ink and neutral supporting greys (captain, 2026-09-21)", () => {
+  it("keeps every text ink readable — the promise, not a hardcoded hex", () => {
+    // Rebuilt 2026-09-27: the ink is a WARM near-black (the old pure #000 on
+    // clinical white read cold), and every semantic role is now an alias into
+    // the ink/paper ramps. So this guard resolves each role through its var()
+    // chain and checks the actual contrast promise — which is the thing that
+    // matters, and which the old hardcoded-hex version could not do: it would
+    // have kept passing while the ramp underneath it silently changed.
     const tokens = read("styles/tokens.css");
-    expect(tokens).toMatch(/--color-text-primary: *#000000;/);
-    expect(tokens).toMatch(/--color-text-secondary: *#333333;/);
-    expect(tokens).toMatch(/--color-text-muted: *#595959;/);
-    expect(tokens).toMatch(/--color-text-accent: *var\(--gold-800\);/);
-    expect(tokens).toMatch(/--color-figure: *#000000;/);
+    for (const role of [
+      "--color-text-primary",
+      "--color-text-secondary",
+      "--color-text-muted",
+      "--color-text-accent",
+      "--color-figure",
+    ]) {
+      expect(resolveHex(tokens, role), `${role} resolves to a literal hex`).not.toBeNull();
+    }
 
-    // Every text ink that can land on a light surface passes AA at any size.
-    const inks = ["#000000", "#333333", "#595959", "#574300"];
-    const surfaces = ["#f2f9fe", "#ffffff"];
+    // Every text ink must clear AA at body size on every light ground the
+    // product paints, including the new warm paper and the brass wash.
+    const inks = [
+      "--color-text-primary",
+      "--color-text-secondary",
+      "--color-text-muted",
+      "--color-text-accent",
+      "--color-figure",
+    ].map((r) => resolveHex(tokens, r)!);
+    const grounds = ["--paper-0", "--paper-100", "--paper-200", "--ink-50"].map(
+      (r) => resolveHex(tokens, r)!
+    );
     for (const ink of inks) {
-      for (const surface of surfaces) {
-        expect(contrast(ink, surface), `${ink} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+      for (const ground of grounds) {
+        expect(contrast(ink, ground), `${ink} on ${ground}`).toBeGreaterThanOrEqual(4.5);
       }
     }
+
+    // The primary ink must be the darkest thing in the palette — if a lighter
+    // value ever wins, hierarchy has inverted.
+    const primary = resolveHex(tokens, "--color-text-primary")!;
+    const muted = resolveHex(tokens, "--color-text-muted")!;
+    expect(relativeLuminance(primary)).toBeLessThan(relativeLuminance(muted));
   });
 
   it("never carries the navy tint in a text colour (navy stays surface/border)", () => {
@@ -504,12 +625,13 @@ describe("ink roles", () => {
   it("never paints text with a decorative gold tint (the 1.55:1 regression)", () => {
     const offenders: string[] = [];
     for (const file of STYLESHEETS) {
-      // gold-300/400/500/600 and brass-300/400/500 are decoration: on the
-      // page they measure 1.46–3.49:1. gold-700/800 and brass-600 pass AA
-      // and remain legal accent text; the inverse golds (100/200) are for
-      // text on navy surfaces only.
+      // gold-300/400/500/600 are decoration: on the page they measure
+      // 1.46–3.49:1. gold-700/800 pass AA and remain legal accent text; the
+      // inverse golds (100/200) are for text on navy surfaces only.
+      // (The `brass-*` alternates this regex used to carry were retired when the
+      // byte-identical brass ramp collapsed into gold — see styles/tokens.css.)
       for (const match of read(file).matchAll(
-        /(^|[\s{;])color: *var\(--(?:gold-(?:300|400|500|600)|brass-(?:300|400|500))\)/g,
+        /(^|[\s{;])color: *var\(--(?:gold-(?:300|400|500|600))\)/g,
       )) {
         offenders.push(`${file}: ${match[0]}`);
       }

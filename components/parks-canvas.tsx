@@ -324,7 +324,11 @@ export function ParksCanvas({
     if (!group) return;
     group.clearLayers();
     layersRef.current = new Map();
-    const brass = cssToken("--brass-500", "#a8873f");
+    // The selected plot's outline. This reads the token at RUNTIME, so it had to
+    // be renamed with the ramp: `--brass-500` was a byte-identical duplicate of
+    // `--gold-500` and is retired — a stale name here would have silently fallen
+    // back to the hard-coded #a8873f and changed the map's selected colour.
+    const selectedOutline = cssToken("--gold-500", "#c79b1e");
     for (const area of areas) {
       const selected = area.code === selectedCode;
       const statusFill = statusColor(area.status);
@@ -332,7 +336,7 @@ export function ParksCanvas({
       const fill = type?.color ?? statusFill;
       const opts: L.PathOptions = {
         // Outline keeps the STATUS colour; the fill shows the legend TYPE colour.
-        color: selected ? brass : statusFill,
+        color: selected ? selectedOutline : statusFill,
         weight: selected ? 4 : 2,
         fillColor: fill,
         fillOpacity: selected ? 0.45 : type ? 0.3 : 0.16,

@@ -8,18 +8,19 @@ import {
   validateQuote,
 } from "@/lib/public-forms/validation";
 import {
-  captureDemoInquiry,
   contactInquiryInput,
   quoteInquiryInput,
-  readDemoInquiries,
-} from "@/lib/demo-inquiry-captures";
+  readInquirySubmission,
+} from "@/lib/inquiry-intake";
 
 /**
  * Submit-gate contracts for the public "Reach us" forms (contact / quote /
  * appointment). No service contract backs them, so these tests pin the two
- * things that ARE executable: the validation gates and the demo-local
- * inquiry mapping the staff board reads. They also pin the shell's label
- * rule — no `*` / `(optional)` wording — at the vocabulary level.
+ * things that ARE executable: the validation gates and the inquiry mapping that
+ * turns a submission into the row the staff board reads
+ * (`lib/inquiry-intake.ts`, shared by the browser and `POST /api/inquiries`).
+ * They also pin the shell's label rule — no `*` / `(optional)` wording — at the
+ * vocabulary level.
  */
 
 describe("contact submit gate", () => {
@@ -214,18 +215,52 @@ describe("demo-local inquiry capture (the board's seam)", () => {
     expect(blank.topic).toBe("Website enquiry");
   });
 
-  it("captures with the board's demo reference grammar and reads it back", () => {
-    const inquiry = captureDemoInquiry({
+  it("composes a submission the office can act on, and refuses an incomplete one", () => {
+    // The mapping moved out of the browser on 2026-09-27: `readInquirySubmission` is the
+    // ONE reading the form runs for field feedback and `POST /api/inquiries` runs as the
+    // veto, so a refusal says the same sentence in both places.
+    const accepted = readInquirySubmission("quote", {
       full_name: "Maria Dela Cruz",
       email: "maria@example.com",
-      phone: "",
-      source: "website",
-      topic: "Pre-need plans",
-      message: "Ask about pre-need plans",
+      phone: "+63 917 000 0000",
+      service: "Embalming — 3 days",
+      preferred_date: "2026-10-05",
+      notes: "Please call after 6pm.",
+      consent: true,
     });
-    expect(inquiry.reference).toMatch(/^INQ-DEMO-\d{3}$/);
-    expect(inquiry.status).toBe("new");
-    expect(inquiry.assigned_to).toBe("Unassigned");
-    expect(readDemoInquiries().some((row) => row.id === inquiry.id)).toBe(true);
+    expect(accepted.ok).toBe(true);
+    if (!accepted.ok) return;
+    expect(accepted.intake.topic).toBe("Embalming — 3 days");
+    expect(accepted.intake.source).toBe("website");
+    expect(accepted.intake.assigned_to).toBe("Unassigned");
+    // The two facts the client's minutes name must survive into the row the board
+    // renders. They were captured and then shown on no staff screen before this.
+    expect(accepted.intake.message).toContain("Preferred date: 2026-10-05");
+    expect(accepted.intake.message).toContain("Additional requirements:");
+    expect(accepted.intake.message).toContain("Please call after 6pm.");
+
+    const refused = readInquirySubmission("quote", { full_name: "", email: "nope", consent: false });
+    expect(refused.ok).toBe(false);
+    if (refused.ok) return;
+    expect(Object.keys(refused.errors).sort()).toEqual(
+      ["consent", "email", "full_name", "service"].sort(),
+    );
+  });
+
+  it("refuses a front-desk log without the three facts the counter must record", () => {
+    const missing = readInquirySubmission("log", { full_name: "Ana", phone: "", topic: "" });
+    expect(missing.ok).toBe(false);
+    if (missing.ok) return;
+    expect(Object.keys(missing.errors).sort()).toEqual(["phone", "topic"]);
+
+    const ok = readInquirySubmission("log", {
+      full_name: "Ana",
+      phone: "+63 917 111 1111",
+      topic: "Asked about lot prices",
+      source: "walk_in",
+    });
+    expect(ok.ok).toBe(true);
+    if (!ok.ok) return;
+    expect(ok.intake.assigned_to).toBe("Unassigned");
   });
 });

@@ -32,6 +32,7 @@ import {
   Trash2,
   Video,
 } from "lucide-react";
+import Link from "next/link";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -740,7 +741,7 @@ function MediaRowEditor({
   );
 }
 
-function BlogEditor({
+export function BlogEditor({
   section,
   onChange,
 }: {
@@ -1081,7 +1082,7 @@ const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: strin
   { id: "ed-plans-lots", num: "05", label: "Plans & lots · home cards", hint: "The home band's cards — a real photo, a name, a type word and a live figure from the 2026 list. You pick the family + product (or the plan tier); the amount is never typed." },
   { id: "ed-plans", num: "06", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
   { id: "ed-map", num: "07", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
-  { id: "ed-blog", num: "08", label: "Blog & newsfeed", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
+  { id: "ed-blog", num: "08", label: "Blog", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
   { id: "ed-faq", num: "09", label: "FAQ page", hint: "The help page at /faq: the questions families ask most, the answers under each one, and the next-step links that close the page." },
 ];
 
@@ -1520,7 +1521,7 @@ export function LandingPageEditor({
       <EdSection
         id="ed-blog"
         num="08"
-        title="Blog — rich newsfeed posts"
+        title="Blog posts"
         hint="A caption plus as many photos/videos as you like, laid out like a newsfeed (single / pair / gallery, video inline). No like/share row — by design."
         badge={
           flags.media + flags.posts > 0 ? (
@@ -1586,3 +1587,129 @@ export function LandingPageEditor({
 }
 
 export default LandingPageEditor;
+
+/**
+ * BlogAdminEditor — the Blog's own screen in the admin panel.
+ *
+ * WHY THIS EXISTS. The blog was zone 08 inside the Home document's editor, so
+ * "where do I write a post?" was answered by "open the home editor and scroll to
+ * the eighth zone". The captain asked for both: the surface is called Blog now
+ * (`/blog`), and it has its own door in Pages & content.
+ *
+ * IT IS THE SAME EDITOR, NOT A SECOND ONE. It renders the very same `BlogEditor`
+ * the Home zone renders, and saves through the very same
+ * `POST /api/landing/content` seam with the whole document — so a post written
+ * here and a post written on the Home screen are the same record, and the two
+ * screens can never disagree about what a post is. Only the surrounding console
+ * differs: this one names the document as the Blog and links to the live page.
+ *
+ * The document is loaded whole and saved whole because that is what the store
+ * accepts (one landing document); this screen simply declines to show the parts
+ * it does not own.
+ */
+export function BlogAdminEditor({ initialContent }: { initialContent: LandingContent }) {
+  const [content, setContent] = useState<LandingContent>(() => clone(initialContent));
+  const savedJson = useRef(JSON.stringify(initialContent));
+  const [busy, setBusy] = useState(false);
+  const [notice, setNotice] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
+
+  const dirty = useMemo(() => JSON.stringify(content) !== savedJson.current, [content]);
+  const posts = content.blog.posts;
+
+  /** Only the blog's own rules. The Home editor runs the whole document's; this
+   *  screen must not block a publish over a FAQ entry it never showed. */
+  function blogIssues(): string[] {
+    const issues: string[] = [];
+    if (!content.blog.heading.trim()) issues.push("The blog needs a heading.");
+    content.blog.posts.forEach((post, i) => {
+      const label = `Post ${i + 1}`;
+      if (!post.caption.trim() && post.media.length === 0) {
+        issues.push(`${label} is empty — give it a caption, a photo or a video.`);
+      }
+      post.media.forEach((m, j) => {
+        if (!m.src.trim()) issues.push(`${label}'s attachment ${j + 1} has no file chosen yet.`);
+      });
+    });
+    return issues;
+  }
+
+  async function publish() {
+    const issues = blogIssues();
+    if (issues.length > 0) {
+      setNotice({ tone: "danger", msg: issues.join(" ") });
+      return;
+    }
+    setBusy(true);
+    setNotice(null);
+    try {
+      const res = await fetch("/api/landing/content", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(content),
+      });
+      const payload: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const msg =
+          typeof payload === "object" && payload !== null && "error" in payload
+            ? String((payload as { error: unknown }).error)
+            : "Publish failed — the content store didn't accept the document.";
+        setNotice({ tone: "danger", msg });
+        return;
+      }
+      const returned =
+        typeof payload === "object" && payload !== null && "content" in payload
+          ? (payload as { content: LandingContent }).content
+          : null;
+      const next = returned ? clone(returned) : content;
+      setContent(next);
+      savedJson.current = JSON.stringify(next);
+      setNotice({ tone: "success", msg: "Published — the blog page and the home band both show this now." });
+    } catch {
+      setNotice({ tone: "danger", msg: "Publish failed — the request did not complete." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="stack-4">
+      <div className="row row--space" style={{ alignItems: "center", flexWrap: "wrap" }}>
+        <p className="ed-muted" style={{ margin: 0 }}>
+          {posts.length} post{posts.length === 1 ? "" : "s"} ·{" "}
+          {posts.reduce((n, p) => n + p.media.length, 0)} attachment
+          {posts.reduce((n, p) => n + p.media.length, 0) === 1 ? "" : "s"}
+        </p>
+        <div className="row" style={{ gap: "var(--space-2)", alignItems: "center" }}>
+          <Link href="/blog" target="_blank" rel="noreferrer" className="btn btn--secondary btn--sm">
+            View live blog
+          </Link>
+          <Button variant="secondary" size="sm" onClick={() => setContent(clone(initialContent))} disabled={!dirty || busy}>
+            Discard changes
+          </Button>
+          <Button variant="primary" size="sm" onClick={publish} disabled={!dirty || busy}>
+            {busy ? (
+              <>
+                <Loader2 size={15} aria-hidden="true" /> Publishing…
+              </>
+            ) : (
+              <>
+                <Save size={15} aria-hidden="true" /> Publish
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {notice ? <Alert tone={notice.tone}>{notice.msg}</Alert> : null}
+
+      <EdSection
+        id="blog-posts"
+        num="—"
+        title="Blog posts"
+        hint="A caption plus as many photos or videos as you like. The newest post leads the home band; every post also appears on /blog."
+      >
+        <BlogEditor section={content.blog} onChange={(next) => setContent((prev) => ({ ...prev, blog: next }))} />
+      </EdSection>
+    </div>
+  );
+}

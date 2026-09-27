@@ -183,6 +183,43 @@ describe("wide data tables stay reachable at 390", () => {
   });
 });
 
+describe("a printed sheet wraps a token that cannot fit — the /staff/property overflow", () => {
+  /*
+   * Measured on `/staff/property/…/document` at 390px: the client's purchase
+   * application prints `roberto.santos@example.com` in a table cell, and that one
+   * address painted **159px of text inside a 76px cell**. `table-layout: fixed`
+   * cannot shrink a column below its longest unbreakable token, so the spill
+   * propagated — cell → table (348 in a 273 box) → sheet (361/298) → column
+   * (375/326) → main (407/390) — and the whole Admin Portal gained **17px of
+   * horizontal scroll**. One email address, one printed table, every staff page
+   * pannable sideways.
+   *
+   * Vitest runs in `node`, so this cannot reproduce the layout; it pins the
+   * DECLARATIONS that make it impossible, which is this file's established job.
+   * The rule is the researched one: `overflow-wrap: anywhere` breaks ONLY a token
+   * that cannot fit, so ordinary prose still wraps normally — `word-break:
+   * break-all` is for identifiers and would mangle a sentence.
+   */
+  it("the paper table's cells break a long token rather than spilling", () => {
+    const rule = ruleFor(RULES, ".paper-sheet .paper-table td");
+    expect(rule, "the .paper-sheet .paper-table td rule exists").toBeDefined();
+    expect(declares(rule, "overflow-wrap", /anywhere|break-word/)).toBe(true);
+  });
+
+  it("the cell text wrapper breaks it too — it is the element that painted the spill", () => {
+    const rule = ruleFor(RULES, ".paper-sheet .paper-cell__text");
+    expect(rule, "the .paper-sheet .paper-cell__text rule exists").toBeDefined();
+    expect(declares(rule, "overflow-wrap", /anywhere|break-word/)).toBe(true);
+  });
+
+  it("reaches for overflow-wrap, never word-break: break-all", () => {
+    const mangled = TOP.filter(
+      (r) => selectors(r).some((s) => s.startsWith(".paper-sheet")) && /word-break:\s*break-all/.test(r.body),
+    ).map((r) => r.selector);
+    expect(mangled).toEqual([]);
+  });
+});
+
 describe("the product detail page stacks at 390 — the P3 Amazon layout", () => {
   // The PDP collapses at 64rem (the sticky-gallery breakpoint), which is wider
   // than the shared 40rem phone query, so this gate reads the 64rem rules.

@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url";
 import { LABEL_FULL_PLOT_PX, LABEL_MIN_PLOT_PX, labelDensityFor } from "@/lib/park-maps";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const read = (p: string) => readFileSync(path.join(ROOT, p), "utf8");
+const read = (p: string) => readFileSync(path.join(ROOT, p), "utf8").replace(/\r\n/g, "\n");
 
 describe("labelDensityFor", () => {
   it("paints nothing for a plot too small to carry a label", () => {

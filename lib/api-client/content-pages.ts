@@ -9,14 +9,19 @@
  * Memorial Plan · Coffins & caskets. Home is composed from the landing document
  * so the Pages & content list can show all five without storing it twice.
  *
- * THE STORE PATTERN
- * The same seam as the landing content document: demo mutations live on
- * globalThis so the BFF save route and the re-rendered public pages agree within
- * one server process (Next compiles route handlers into separate bundles, so a
- * module-level variable would not be shared). No upstream content service exists
- * — the platform has no content/CMS contract — so this is an app-authored CMS
- * seam exactly like landing content; the write path is /api/content/pages
- * (gated `catalog:write`, provisionally, like the landing route).
+ * THE STORE IS DURABLE (2026-09-27)
+ * It used to keep the edited documents on `globalThis` with no file behind them, so a
+ * staff edit survived only until the server process restarted, and in a multi-instance
+ * or serverless deployment it was visible only to the instance that handled the save.
+ * That is the exact failure mode "how every page can be edited" cannot have. Each save
+ * now APPENDS one event to a journal on disk and every read folds it — the mechanics are
+ * the shared `lib/api-client/journal.ts`, the same pattern as every commerce and ops
+ * store. Path: `CONTENT_PAGES_STORE_PATH` when set (tests redirect it), otherwise
+ * `.data/content-pages.json` under the app's cwd.
+ *
+ * No upstream content service exists — the platform has no content/CMS contract — so
+ * this is an app-authored CMS seam exactly like landing content; the write path is
+ * /api/content/pages (gated `catalog:write`, provisionally, like the landing route).
  *
  * THE AUTHORITY
  * `validatePageDocument` (lib/content-catalog.ts) is the save rule, run here
@@ -27,6 +32,12 @@
  */
 import { ApiError } from "@/lib/api-client/api-error";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import {
+  createJournalLock,
+  journalPath,
+  readJournalEvents,
+  writeJournalEvents,
+} from "@/lib/api-client/journal";
 import { listLandingContent } from "@/lib/api-client/landing";
 import {
   CONTENT_RATE_REFS,
@@ -46,14 +57,40 @@ const SEED: PageDocument[] = ((seedFile as unknown as ContentSeed).pages ?? [])
   .map((raw) => readPageDocument(raw))
   .filter((doc, index, all) => all.findIndex((d) => d.key === doc.key) === index);
 
-// One process-wide store, the landing pattern.
-type ContentGlobal = typeof globalThis & { __imContentPages?: PageDocument[] };
-const contentGlobal = globalThis as ContentGlobal;
+type PageEvent = { kind: "page_saved"; at: string; document: PageDocument };
 
-function stored(): PageDocument[] {
-  // Copy the seed the first time so a later save can never mutate the module seed.
-  contentGlobal.__imContentPages ??= SEED.map((doc) => structuredClone(doc));
-  return contentGlobal.__imContentPages;
+export function contentPagesStorePath(): string {
+  return journalPath("CONTENT_PAGES_STORE_PATH", "content-pages.json");
+}
+
+const withContentPagesLock = createJournalLock();
+
+function toPageEvent(raw: unknown): PageEvent {
+  if (typeof raw !== "object" || raw === null) {
+    throw new ApiError("malformed page-documents store: event", 500);
+  }
+  const event = raw as Record<string, unknown>;
+  if (event.kind !== "page_saved") {
+    throw new ApiError(`malformed page-documents store: event kind ${String(event.kind)}`, 500);
+  }
+  if (typeof event.at !== "string") {
+    throw new ApiError("malformed page-documents store: event timestamp", 500);
+  }
+  // The saved document goes through the SAME reader the seed does, so a hand-edited
+  // journal cannot inject a block shape the page would then render.
+  return { kind: "page_saved", at: event.at, document: readPageDocument(event.document) };
+}
+
+/**
+ * The four stored documents as the journal leaves them: the recorded seed, with every
+ * later save folded over its own key. A save REPLACES a document; it never accumulates a
+ * second copy of the same page.
+ */
+async function stored(): Promise<PageDocument[]> {
+  const events = (await readJournalEvents(contentPagesStorePath(), "page documents")).map(toPageEvent);
+  const byKey = new Map(SEED.map((doc) => [doc.key, structuredClone(doc)]));
+  for (const event of events) byKey.set(event.document.key, event.document);
+  return [...byKey.values()];
 }
 
 /** Home is the landing content document — composed, never stored twice. */
@@ -84,9 +121,9 @@ async function homeDocument(): Promise<PageDocument> {
 export async function listPageDocuments(): Promise<PageDocument[]> {
   const [home, storedDocs] = await Promise.all([
     homeDocument(),
-    Promise.resolve(
+    stored().then((docs) =>
       PAGE_DOCUMENTS.filter((def) => def.key !== "home").map((def) => {
-        const found = stored().find((doc) => doc.key === def.key);
+        const found = docs.find((doc) => doc.key === def.key);
         return found ?? readPageDocument({ key: def.key, title: def.label });
       }),
     ),
@@ -97,8 +134,8 @@ export async function listPageDocuments(): Promise<PageDocument[]> {
 /** One document by key; null when the key names none of the five pages. */
 export async function getPageDocument(key: string): Promise<PageDocument | null> {
   if (key === "home") return homeDocument();
-  const found = stored().find((doc) => doc.key === key);
-  return found ?? null;
+  const docs = await stored();
+  return docs.find((doc) => doc.key === key) ?? null;
 }
 
 /** The live validation context: what a price binding may resolve against. */
@@ -120,6 +157,9 @@ async function validationContext(): Promise<ContentValidationContext> {
  * Validates and persists one page document. The caller passes the key because
  * the document body carries it; both must agree. Returns the saved document so
  * the editor can confirm exactly what the pages render.
+ *
+ * The append runs under the store's lock, so two saves at once cannot interleave a
+ * read-modify-write and lose one of them.
  */
 export async function savePageDocument(
   key: string,
@@ -140,11 +180,16 @@ export async function savePageDocument(
     updated_at: new Date().toISOString(),
     updated_by: actor ?? null,
   };
-  const documents = stored();
-  const index = documents.findIndex((doc) => doc.key === key);
-  if (index >= 0) documents[index] = saved;
-  else documents.push(saved);
-  return saved;
+  return withContentPagesLock(async () => {
+    const store = contentPagesStorePath();
+    const events = await readJournalEvents(store, "page documents");
+    const at = saved.updated_at ?? new Date().toISOString();
+    await writeJournalEvents(store, "page documents", [
+      ...events,
+      { kind: "page_saved", at, document: saved } satisfies PageEvent,
+    ]);
+    return structuredClone(saved);
+  });
 }
 
 /** Test helper: the seed as the store starts. */

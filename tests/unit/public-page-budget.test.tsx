@@ -2,7 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
+import { HomePage } from "@/components/public/home-page";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
 import { CartProvider } from "@/lib/cart/cart-context";
 
@@ -66,7 +68,40 @@ type Blueprint = {
 
 const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
+    // The REAL home. This blueprint used to render `LandingView` and call it
+    // "home (/)", which was true until the new home landed at `/` — after that it
+    // measured the OLD home under the new page's name, and it only kept passing
+    // because landing-view.tsx still rendered a hero. Removing that hero
+    // (captain, 2026-09-27) exposed it: "home (/) renders exactly one h1" failed
+    // against a component that is not on `/` at all.
+    //
+    // It now renders the page `/` actually serves.
     name: "home (/)",
+    render: async () => {
+      const [content, pricing] = await Promise.all([
+        listLandingContent(),
+        loadPricingDocument(),
+      ]);
+      return renderToStaticMarkup(
+        HomePage({
+          content,
+          planPricing: pricing.plans,
+          lotCategories: pricing.lotCategories,
+          mapNode: null,
+        }),
+      );
+    },
+    // The home's own argument, in order: the promise → who it is for → the two
+    // doors → the park → what it feels like. The blog band used to close it and
+    // was removed by the captain on 2026-09-27 — `/blog` keeps the full feed and
+    // is still linked from the header's "Explore more" menu and the footer, so
+    // the page no longer reprints three posts and nothing became unreachable.
+    sections: ["home-hero", "home-qualify", "home-fork", "home-park", "home-feel"],
+  },
+  {
+    // The blog (/blog) — where the old anchored catalogue actually renders now.
+    // No hero: the captain removed it (2026-09-27), so the shelf leads.
+    name: "blog (/blog)",
     render: async () => {
       const content = await listLandingContent();
       const props: Omit<LandingViewProps, "planPricing" | "lotCategories"> = {
@@ -79,11 +114,11 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
         LandingView({ ...props, planPricing: { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS }, lotCategories: LOT_PRICE_CATEGORIES }),
       );
     },
-    // The captain's 2026-09-25 storefront rebuild: hero → the plans & lots
-    // shelf (products first) → the plan board → the live park map → the
-    // About/mission band → the newsfeed → the closing band (NextSteps).
+    // The storefront order, under the blog's own interior opening: the shelf →
+    // the plan board → the live park map → the About/mission band → the blog
+    // feed → the closing band.
     sections: [
-      'data-public-hero="home"',
+      'data-public-hero="interior"',
       "plan-lot-grid",
       "plan-board",
       "mid-section--map",

@@ -152,8 +152,18 @@ Never copy a nested rule back into this file — the budget below is why.
 ```bash
 npm run lint && npm run typecheck && npm test        # unit + fixture-contract tests
 npm run build                                        # production build must pass
+npm run smoke                                        # every sitemap URL renders (needs a PRODUCTION build serving on :4000)
 docker compose up --build                            # SSR on :3000 against stub-gateway w/ fixtures
 ```
+
+**`npm run smoke` catches what the unit suite structurally cannot.** `/price-list` shipped a
+production-only `HTTP 500` — a Server Component passing `onClick` into the client `ListingShell` —
+while sitting in `PUBLIC_PAGES` at `priority: 0.9`. It passed `next dev`, `tsc`, `lint` and 2,654
+tests, because `tests/unit/seo.test.ts` asserts a public page is *listed* in `PUBLIC_PAGES`, never
+that it *renders*. **A function prop from a Server Component into a `"use client"` component is a
+merge blocker** (dev is permissive; only a production build refuses to serialise it), and **a route
+in the sitemap must have a row in `notes/demo-web-route-coverage.md`** — the missing row is how
+this one went unopened. Record: `docs/08-delivery/art-direction-design/`.
 
 ## Run modes
 | Mode | Trigger | Behavior |

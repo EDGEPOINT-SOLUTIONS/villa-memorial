@@ -34,12 +34,15 @@
      Composition pass (captain 2026-09-18): the vertical gradient + its drop
      shadow were pure sheen — a button is a control, not a lit object. Flat
      fill, and the hover step carries the affordance. */
-  background: var(--sky-300);
-  color: var(--color-on-sky);
+  /* 2026-09-27: the page's own commitment control is now a DEEP evergreen fill
+     carrying light ink (9.7:1), not a pale sky chip. The identity is unchanged —
+     one brand primary, one brass per-item accent — only the ramp moved. */
+  background: var(--ever-700);
+  color: var(--paper-50);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--sky-200);
+  background: var(--ever-600);
 }
 
 .btn--secondary {
@@ -3603,12 +3606,19 @@ a.ledger__row:hover .ledger__row-title {
   /* Same kit, one comfortable step larger for older eyes. Every `ag-*`
      element inside inherits these text tokens; the values stay on the
      seven-step ladder (styles/tokens.css) so the family scale can never
-     drift into fractional sizes. */
-  --text-xs: 0.875rem;   /* 14px — labels and eyebrows */
-  --text-sm: 1rem;       /* 16px — supporting lines */
-  --text-md: 1.125rem;   /* 18px — row text and leads */
-  --text-lg: 1.375rem;   /* 22px — card and row titles */
-  --text-xl: 1.75rem;    /* 28px — section headings */
+     drift into fractional sizes.
+
+     2026-09-27: these were 0.875/1/1.125/1.375/1.75rem — each a size that
+     exists nowhere on the ladder, which is exactly the drift the comment above
+     promised could not happen. `typography-system` now scans every
+     `--text-*:` declaration in this file against the ladder and fails an
+     off-ladder value. Each step is the NEXT ladder rung up, so the family
+     scope is still one comfortable step larger — it is just made of real steps. */
+  --text-xs: 13px;         /* ladder --text-sm */
+  --text-sm: 1.0625rem;    /* ladder --text-md */
+  --text-md: 1.25rem;      /* ladder --text-lg */
+  --text-lg: 1.5rem;       /* ladder --text-xl */
+  --text-xl: 2rem;         /* ladder --text-2xl */
 
   font-size: var(--text-md);
   line-height: 1.55;
@@ -4082,12 +4092,16 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 /* --- device-local reading modes ------------------------------------------------ */
+/* "Larger" is one full step above the family scope, so every value is a real
+   ladder rung rather than a hand-picked size: typography-system scans every
+   `--text-*:` declaration in this file against the ladder and fails an off-ladder
+   value. These were 1/1.125/1.375/1.75/2.25rem, none of which is on it. */
 [data-fv-reading~="large"] .fv-body {
-  --text-xs: 1rem;       /* 16px */
-  --text-sm: 1.125rem;   /* 18px */
-  --text-md: 1.375rem;   /* 22px */
-  --text-lg: 1.75rem;    /* 28px */
-  --text-xl: 2.25rem;    /* 36px */
+  --text-xs: 1.0625rem;  /* ladder --text-md */
+  --text-sm: 1.25rem;    /* ladder --text-lg */
+  --text-md: 1.5rem;     /* ladder --text-xl */
+  --text-lg: 2rem;       /* ladder --text-2xl */
+  --text-xl: 2.75rem;    /* ladder --text-3xl */
 }
 
 [data-fv-reading~="contrast"] .fv-body {
@@ -9976,6 +9990,11 @@ a.card:hover {
   vertical-align: top;
   font-weight: 400;
   line-height: 1.35;
+  /* A long unbroken token (an email address, a reference number) in a fixed-layout
+     table pushed the whole SHEET wider than the paper — measured as page-level
+     horizontal overflow. `anywhere` is the one value that breaks inside a token
+     rather than moving the table's edge. */
+  overflow-wrap: anywhere;
 }
 
 .paper-sheet .paper-table th {
@@ -9987,6 +10006,9 @@ a.card:hover {
 .paper-sheet .paper-cell__text {
   white-space: pre-line;
   display: block;
+  /* The wrapper is the element that actually painted the spill: the browser held
+     the long token here and stretched the table's containing block. */
+  overflow-wrap: anywhere;
 }
 
 .paper-sheet__pagebreak {
@@ -11352,7 +11374,8 @@ a.card:hover {
 
   .anchored-phonebar__btn--call {
     border: 1px solid var(--sky-500);
-    background: linear-gradient(180deg, var(--sky-200) 0%, var(--sky-400) 100%);
+    /* Flat: the 180deg two-stop wash was sheen on a control. */
+    background: var(--sky-300);
     color: var(--color-text-primary);
   }
 
@@ -12469,8 +12492,23 @@ a.card:hover {
   /* Flat daylight-sky surface: the two gold radial blooms and the vertical wash
      were sheen on a surface that already has a gold rule above it and gold
      accents inside it (composition pass, 2026-09-18). */
-  background: var(--sky-200);
-  color: var(--color-text-primary);
+  /* THE FOOTER IS THE PAGE'S ONE DEEP BRAND GROUND (2026-09-27). It was a pale sky
+     wash, which under a memorial page read as mint. Since the evergreen ramp it is
+     the deep end, and it re-inks EVERY text role its subtree can reach: the audit
+     found that flipping only --color-text-primary and --color-text-accent left
+     eight links per page painting --color-text-secondary — a DARK ink — on the
+     deep ground, measuring 1.4:1. Invisible text on every public page, from a
+     one-token omission. */
+  --color-text-primary: var(--paper-100);
+  --color-text-secondary: var(--ever-200);
+  --color-text-muted: var(--ever-300);
+  --color-text-accent: var(--brass-300);
+  --color-border: var(--color-rule-inverse);
+  --color-rule: var(--color-rule-inverse);
+  --color-border-strong: var(--ever-700);
+  --color-rule-strong: var(--ever-700);
+  background: var(--ever-900);
+  color: var(--paper-100);
 }
 
 .anchored-footer::before {
@@ -12674,7 +12712,10 @@ a.card:hover {
     border-radius: 50%;
     border: 1px solid var(--gold-500);
     color: var(--color-text-primary);
-    background: linear-gradient(135deg, var(--gold-300), var(--gold-500));
+    /* Flat: the 135deg brass gradient was sheen on a control. A floating action
+       button is a control, not a lit object — `composition-pass` fails a
+       decorative gradient on an interactive element by name. */
+    background: var(--gold-400);
     box-shadow: 0 8px 24px -6px rgb(10 30 52 / 0.4);
     cursor: pointer;
   }
@@ -12772,7 +12813,10 @@ a.card:hover {
   align-items: center;
   gap: var(--space-3);
   text-decoration: none;
-  background: linear-gradient(135deg, var(--sky-700), var(--sky-900));
+  /* Flat (composition pass): a call control is a control, not a lit object. The
+     135deg sky gradient was sheen, and `composition-pass` fails a decorative
+     gradient on an interactive element by name. */
+  background: var(--sky-800);
   color: var(--color-text-inverse);
   border-radius: var(--radius-md);
   padding: var(--space-3);
@@ -21804,4 +21848,262 @@ a.plan-advisor__phone:hover {
     grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
+}
+
+/* ============================================================================
+   services redesign — the at-need page's new face (captain, 2026-09-27)
+   "make this Funeraria Memorial Services more beautiful and restructure every
+   element … make use of the space, dont make everything big just to take up
+   spaces" then "lesser text, more graphics, more strategic way of offering the
+   services by design, be smart, use placeholders, use boxes dont overwhelm
+   visitors."
+
+   Four measured problems, four answers:
+
+   1. THE PAGE USED A THIRD OF THE SCREEN. `.sv-main` was capped at 76rem —
+      973px at the 80% root — inside a 1440px window: 234px dead on EACH side,
+      468px in total. It now uses the product's own folio envelope.
+
+   2. THE MOST IMPORTANT FACT WAS A 12px KICKER. The sheet's scope heading
+      qualifies every line under it, and the thing a family most needs from it —
+      that a Villa Memorial Plan already covers all five services — was nowhere
+      on the page. It is now a box above the grid.
+
+   3. NOTHING SAID HOW THE PAGE WORKS. A three-box strip now opens it: quoted not
+      listed · a person any hour · a plan covers these.
+
+   4. THE FLOOR WAS DOCUMENTED AND FALSE. "18px body, nothing under 16px in page
+      content" (app/(public)/AGENTS.md) — measured on the live page, SEVEN
+      elements sat under it, and no test checked. Now enforced.
+
+   The five services are picture-first boxes on the storefront's own
+   `.shop-grid` / `.shop-card` grammar, so a service card and a coffin card read
+   as one product. No card CSS is added for the box itself; only the two things a
+   service card has and a product card does not — an icon disc, and no price row
+   (every funeral service is Request-for-Quote).
+
+   The sections keep the markup ids tests/unit/villa-services-premium.test.tsx
+   pins; this block changes composition, never the contract.
+   ========================================================================== */
+
+/* --- the envelope: the page uses the width it is given --------------------- */
+.sv-main {
+  max-width: var(--layout-folio-w);
+}
+
+/* --- the orientation boxes: an icon, a few words, one line each ------------ */
+.sv-orient {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0 var(--space-6);
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-rule);
+}
+
+.sv-orient > li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+@media (min-width: 56rem) {
+  .sv-orient {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The icon disc: the translucent --gold-wash disc with a --gold-700 glyph is the
+   combination the package page's feature columns already use, so the treatment is
+   in the product's vocabulary rather than invented here. */
+.sv-orient__icon,
+.sv-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--gold-wash);
+  color: var(--gold-700);
+  flex: none;
+}
+
+.sv-orient__icon {
+  grid-row: span 2;
+}
+
+.sv-orient__label {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-figure);
+}
+
+.sv-orient__text {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+/* --- the one fact the list's guidance column carried, shortened to a box --- */
+.sv-scope {
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+}
+
+/* --- the five service boxes ------------------------------------------------ */
+.sv-services {
+  margin-top: var(--space-5);
+}
+
+.sv-card__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* The photograph is not a link here — a service line has no detail route to open,
+   which is why this is not the kit's ProductCard (it requires both an href and a
+   price). The frame needs the box the link would have provided. */
+.sv-card__media {
+  display: block;
+}
+
+/* The honest placeholder: the service's own icon on the frame's quiet wash at the
+   shared 4:3 card ratio. Never a stand-in photograph. */
+.sv-card__media--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-muted);
+}
+
+.sv-card__media--icon svg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.sv-card__line {
+  margin: 0;
+}
+
+.sv-card__action {
+  margin-top: var(--space-3);
+}
+
+/* --- embalming: the picker and the ladder side by side --------------------- */
+.sv-embalm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5) var(--space-7);
+}
+
+/* 62rem, not 72rem. Measured at a 1024px window: the page is 979px wide and both
+   columns have room, but a 72rem breakpoint put the band in one column and stacked
+   the ladder underneath — adding 196px of height to a screen that had the width to
+   avoid it. The breakpoint now matches where the space actually appears. */
+@media (min-width: 62rem) {
+  .sv-embalm {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.sv-embalm__ladder > .public-disclosure {
+  margin-top: 0;
+}
+
+/* --- the chapel photographs fill their cards again -------------------------
+   MEASURED BEFORE: the client's two chapel photographs rendered at 273x205 inside
+   a 590px card — 317px of empty column beside each picture, on the page whose job
+   is to show a family the rooms.
+
+   The cause is the `card` image role, and it is not obvious. `public-image--card`
+   caps HEIGHT at 16rem (204.8px at the 80% root), and because the frame is
+   ratio-locked at 4/3 the WIDTH FOLLOWS THE HEIGHT — 204.8 x 4/3 = 273. A
+   max-height cap on a ratio-locked frame is a width cap in disguise, so the wider
+   this page became, the smaller the photograph looked.
+
+   This restores what the page had before its markup was rewritten: the retired
+   `.sv-chapel__media img` block set `width: 100%; aspect-ratio: 16 / 10`. Same
+   intent, live class. Scoped to this page — the shared `card` role keeps the
+   ceiling every other surface relies on, which is what
+   tests/unit/public-image-rules.test.tsx pins. */
+@media (min-width: 60rem) {
+  .sv-page .story-chapel .public-image {
+    aspect-ratio: 16 / 10;
+    max-height: none;
+  }
+}
+
+/* --- the senior-first floor, made real -------------------------------------
+   The rule is documented as non-negotiable — "18px body, nothing under 16px in
+   page content" — and on this page it was not true. Measured on the live page,
+   SEVEN elements sat under it and NO TEST checked the floor at all, which is why
+   it drifted:
+
+     13.6px  .sv-small         "How many days will the viewing be open?"
+     13.6px  .sv-note          "Package includes embalming — no fixed day count."
+     12.0px  .story-facts dt   "Room fits about"  (uppercase, letter-spaced)
+     13.6px  .story-facts dd   "120 people" / "60 people"
+     13.6px  .story-help p     "Questions about a service, chapel dates…"
+
+   On a page whose readers are often older, the floor IS the design. Scoped to
+   `.sv-page`: `.story-facts` and `.story-help` are shared with /facilities,
+   /immediate-assistance and the guides, and this pass owns /services alone. */
+.sv-page .sv-note,
+.sv-page .sv-small,
+.sv-page .story-facts dt,
+.sv-page .story-facts dd,
+.sv-page .story-help p {
+  font-size: var(--text-lg);
+}
+
+/* The facts label was 12px UPPERCASE with letter-spacing — a treatment that only
+   works small. At 16px it would shout, so it reads as plain text and keeps the
+   muted colour that marks it as a label. */
+.sv-page .story-facts dt {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* --- a phone shows the same five services in less height -------------------
+   Measured: at 390px the five picture cards at the shared 4:3 card ratio made
+   2,810px of scrolling on their own. A 16:9 media box is the standard responsive
+   treatment and saves about 65px per card.
+
+   The per-card sample caption STAYS at its full size. It is the honesty label
+   ("Illustration only"), so it is not a thing to shrink for a narrower measure —
+   and at --text-xs it would break the senior-first 16px floor this same block
+   enforces above. */
+@media (max-width: 40rem) {
+  .sv-services .sv-card .sv-card__media img {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+/* --- the enquiries board's request text -------------------------------------
+   2026-09-27: the board rendered only a row's `topic`, so a Request-for-Quote reached
+   the office with its preferred date and additional requirements captured and never
+   shown. The substance now prints under the topic, and `pre-line` is load-bearing —
+   the intake composes labelled lines, and without it they collapse into one paragraph
+   and a coordinator has to hunt for the date. */
+.inquiry-board__message {
+  margin: var(--space-2) 0 0;
+  white-space: pre-line;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  /* A pasted essay must not widen the table past the viewport. */
+  max-width: 34rem;
+  overflow-wrap: anywhere;
 }
