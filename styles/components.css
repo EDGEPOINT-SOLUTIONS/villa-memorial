@@ -22107,3 +22107,466 @@ a.plan-advisor__phone:hover {
   max-width: 34rem;
   overflow-wrap: anywhere;
 }
+
+/* ============================================================================
+   public: home block — the storefront home (/)
+
+   WHY THIS BLOCK EXISTS. The home was rebuilt on 2026-09-27
+   (`components/public/home-page.tsx`, the seven prompts of the aitooltiphub UI
+   guide) and the rebuild shipped the MARKUP WITHOUT ITS STYLESHEET — `git log -S
+   "home-fork" -- styles/components.css` is empty, so for the whole life of the
+   rebuild the busiest page in the product rendered as raw, unstyled HTML. This
+   block is that missing design. `tests/unit/home-styles.test.ts` fails if a
+   `home-*` class is ever used without a rule again.
+
+   VISUAL LANGUAGE — a printed memorial folio.
+     · ground   warm bone; bands separated by hairlines and space, never by a
+                shadow on every box (the composition-pass rule).
+     · faces    the display serif (`--font-display`, the client's OWN letterhead
+                face) carries the hero and every section title; Inter carries copy.
+     · accent   ONE brass, used where the tokens.css contract allows it and nowhere
+                else: the h1's single highlighted phrase, the ceremonial rule above
+                a door / panel, the numbered marks, and the office's bullets.
+     · rungs    the 3-rung CTA grammar: at most ONE commit (`btn--primary`) per
+                band, support as `btn--secondary`. No per-item gold on the home.
+     · rhythm   each band owns its own vertical space (clamp), so a phone reads
+                three-and-a-bit screens and a desktop four-and-a-half — the home's
+                PAGE_HEIGHT_CEILINGS (lib/public-layout.ts).
+
+   Owned by this block. Other public lanes append their own named block and do
+   not edit this one.
+   ========================================================================== */
+
+/* --- rhythm: every band carries the container's padding to the frame edge --- */
+.home {
+  display: block;
+}
+
+.home > section {
+  margin-inline: calc(var(--space-5) * -1);
+  padding: clamp(var(--space-6), 5vw, var(--space-8)) var(--space-5);
+}
+
+/* Columns that must be allowed to shrink below their content. */
+.home-hero__words,
+.home-park__copy,
+.home-park__media,
+.home-feel__copy {
+  min-width: 0;
+}
+
+/* --- the hero — asymmetric: words left, the photograph right ---------------- */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  align-items: center;
+  background: var(--paper-0);
+  border-bottom: 1px solid var(--color-border);
+  padding-top: clamp(var(--space-7), 7vw, var(--space-9));
+}
+
+.home-hero__place {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.home-hero__title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+
+/* The ONE highlighted phrase in the h1 (P01 + P06). */
+.home-hero__promise {
+  font-style: normal;
+  color: var(--color-text-accent);
+}
+
+.home-hero__lead {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure-prose);
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.home-hero__visual {
+  position: relative;
+}
+
+.home-hero__photo {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* The one element that breaks the grid (P02): a real credential, not a badge. */
+.home-hero__card {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  max-width: 17rem;
+  padding: var(--space-4) var(--space-5);
+  background: var(--paper-0);
+  border-left: 3px solid var(--brass-400);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-raised);
+}
+
+.home-hero__card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+}
+
+.home-hero__card-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* --- the qualifying strip — a thin, ruled band (P03) ----------------------- */
+.home-qualify {
+  background: var(--paper-200);
+  border-block: 1px solid var(--color-border);
+  padding-block: var(--space-4);
+}
+
+.home-qualify p {
+  margin: 0 auto;
+  max-width: 60rem;
+  font-size: var(--text-caption);
+  line-height: var(--leading-normal);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+/* --- the fork — two doors, and the urgent one wins (P03 + P04) -------------- */
+.home-fork {
+  background: var(--color-bg-page);
+}
+
+.home-fork__title {
+  margin: var(--space-2) 0 var(--space-5);
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-fork__doors {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: stretch;
+}
+
+.home-door {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+}
+
+/* The winner: a heavier ground, a ceremonial brass rule, more room, a bigger
+   head. Hierarchy by scale and position — never by a shadow. */
+.home-door--now {
+  background: var(--ever-50);
+  border: 1px solid var(--ever-200);
+  border-top: 4px solid var(--brass-400);
+}
+
+.home-door--later {
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+}
+
+.home-door__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home-door--now .home-door__kicker {
+  color: var(--color-text-accent);
+}
+
+.home-door--later .home-door__kicker {
+  color: var(--color-text-muted);
+}
+
+.home-door__title {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+}
+
+.home-door--now .home-door__title {
+  font-size: var(--text-card-title);
+  line-height: 1.18;
+}
+
+.home-door--later .home-door__title {
+  font-size: var(--text-lg);
+  line-height: 1.25;
+}
+
+.home-door__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.home-door__list li {
+  position: relative;
+  padding-left: var(--space-4);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-door__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--brass-500);
+}
+
+.home-door > .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* --- the park — the ONE winner (P03 why-us + P04) -------------------------- */
+.home-park {
+  background: var(--paper-200);
+}
+
+.home-park__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(var(--space-6), 5vw, var(--space-8));
+  align-items: center;
+}
+
+.home-park__title {
+  margin: var(--space-2) 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-park__story {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure-prose);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-park__facts {
+  margin: 0 0 var(--space-5);
+  display: grid;
+}
+
+.home-park__facts > div {
+  display: grid;
+  grid-template-columns: 10rem minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.home-park__facts dt {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.home-park__facts dd {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.home-park__photo {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.home-park__map {
+  margin-top: clamp(var(--space-6), 5vw, var(--space-7));
+  padding: var(--space-3);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.home-park__map > * {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* --- what it feels like — the promise, as a marked page (P03) --------------- */
+.home-feel {
+  background: var(--color-bg-page);
+}
+
+.home-feel__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(var(--space-6), 5vw, var(--space-8));
+  align-items: center;
+}
+
+.home-feel__title {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-feel__lines {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.home-feel__lines li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.home-feel__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--brass-400);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-accent);
+}
+
+.home-feel__lines p {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-feel__panel {
+  padding: var(--space-6);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--brass-400);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-paper);
+}
+
+.home-feel__sample-kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.home-feel__sample-title {
+  margin: var(--space-3) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
+}
+
+.home-feel__sample-body {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+/* --- responsive: a phone is a re-layout, not a shrunken desktop ------------- */
+@media (max-width: 60rem) {
+  .home-hero,
+  .home-fork__doors,
+  .home-park__grid,
+  .home-feel__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The credential stops floating and settles under the photograph. */
+  .home-hero__card {
+    position: static;
+    margin: calc(var(--space-4) * -1) var(--space-5) 0;
+    max-width: none;
+  }
+
+  .home-park__facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}
+
+@media (max-width: 40rem) {
+  .home > section {
+    padding-block: var(--space-6);
+  }
+
+  .home-hero {
+    padding-top: var(--space-6);
+  }
+
+  .home-door {
+    padding: var(--space-5);
+  }
+
+  .home-feel__num {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .home-feel__lines li {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+}

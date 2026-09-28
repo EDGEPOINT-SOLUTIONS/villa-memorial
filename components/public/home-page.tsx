@@ -113,9 +113,13 @@ export function HomePage({
             stay with you until the burial is done.
           </p>
           <div className="home-hero__actions">
-            {/* The ONE accented action (P06) — brass means "call the office",
-                and nothing else on this page is allowed to borrow it. */}
-            <a className="btn btn--accent btn--lg" href={contact.phoneHref}>
+            {/* ONE commit + ONE support (the 3-rung CTA grammar, lib/public-layout.ts).
+                The hero's call is the PAGE's commitment, so it rides `btn--primary`
+                — not the per-item gold. `tests/unit/public-cta-contract.test.tsx`
+                records the defect this avoids: "The home hero used to paint its
+                commitment in the per-item gold. Its action row must not carry an
+                accent button." Brass stays the headline phrase + the margin rule. */}
+            <a className="btn btn--primary btn--lg" href={contact.phoneHref}>
               Call {contact.phoneDisplay}
             </a>
             <Link className="btn btn--secondary btn--lg" href="/plans">
