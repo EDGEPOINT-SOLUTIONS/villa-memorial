@@ -25,6 +25,7 @@
  */
 
 import fs from "node:fs";
+import { extractRules, selectorParts, squash } from "./css-parse.mjs";
 
 const args = process.argv.slice(2);
 const FILE = args.includes("--file") ? args[args.indexOf("--file") + 1] : "styles/components.css";
@@ -87,31 +88,34 @@ out = out.replace(/[ \t]+\n/g, "\n");
 
 /* ---- THE INVARIANT ----
  *
- * Two lessons, both from watching it cry wolf:
+ * Every selector that WAS matched at runtime must still exist after the prune.
  *
- *  · CHECK BY SUBSTRING, NOT BY RE-PARSING. The first version re-extracted
- *    selectors from the pruned text with the same hand-rolled parser and reported
- *    279 live selectors as "lost" — including `.btn--accent`, which was sitting
- *    right there in the output. A verifier built on the same assumptions as the
- *    thing it verifies is not a verifier; it is a second guess.
+ * The first version checked this by SUBSTRING of the raw text, and it cried wolf:
+ * an emptied `@media (max-width: 88rem)` block takes its prelude with it, and two
+ * selectors that merely sat next to each other read as one "lost selector" — 20
+ * false alarms on a prune that removed none of them (2026-09-28). A verifier must
+ * not be weaker than the thing it checks.
  *
- *  · COMPARE NORMALIZED, BECAUSE THE MINIFIER REWRITES SELECTORS. The served CSS
- *    drops attribute quotes (`[type="checkbox"]` → `[type=checkbox]`) and
- *    Chromium may report the single-colon pseudo-element form. Comparing raw text
- *    therefore flagged 169 perfectly intact rules. Normalizing whitespace, quotes
- *    and `::`→`:` on BOTH sides leaves only real differences.
+ * So compare real selector SETS, parsed with the SAME `css-parse.mjs` the pruner's
+ * input came from. The prune only ever removes a rule WHOLE, so a surviving
+ * selector is still a whole selector — set membership is exact, and there is no
+ * boundary for a substring to cross.
+ *
+ * The minifier still rewrites selectors (`[type="checkbox"]` → `[type=checkbox]`,
+ * `::` → `:`), so both sides are normalised with the shared `squash` first.
  */
-const squash = (s) => s.replace(/\s+/g, "").replace(/["']/g, "").replace(/::/g, ":");
-const haystack = squash(out);
 const usedSelectors = new Set(coverage.usedSelectors.map(normalize));
 
 /* Only assert about selectors THIS FILE actually contained. The runtime selector
    set spans every stylesheet plus the libraries — utilities.css's `.mt-4`,
    base.css's `::placeholder` and Leaflet's own `.leaflet-pane` were all reported
-   as "lost from components.css", which they never were. */
-const originalSquashed = squash(css);
-const owned = [...usedSelectors].filter((s) => originalSquashed.includes(squash(s)));
-const lost = owned.filter((s) => !haystack.includes(squash(s)));
+   as "lost from components.css", which they never were. A coverage entry that is
+   not a comma-part of one of this file's own rules (an at-rule prelude, say) is
+   not a selector this file owns. */
+const originalParts = selectorParts(extractRules(css));
+const prunedParts = selectorParts(extractRules(out));
+const owned = [...usedSelectors].filter((s) => originalParts.has(squash(s)));
+const lost = owned.filter((s) => !prunedParts.has(squash(s)));
 
 console.log(`file                   : ${FILE}`);
 console.log(`rules to delete        : ${dead.safeToDelete.length}`);

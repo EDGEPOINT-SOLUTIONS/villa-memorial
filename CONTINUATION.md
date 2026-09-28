@@ -124,14 +124,14 @@ Cause: `checkLotCategories` (`lib/pricing-model.ts:379-398`) validates senior �
    while the card headlines the **monthly** (`:328-336`) — "price: low to high" orders a figure nobody
    sees. Make them agree.
 
-### Phase 6 — the genuinely unfinished minute items (DONE 2026-09-28, `docs/08-delivery/phase6-design/`; burial edit/delete still open)
+### Phase 6 — the genuinely unfinished minute items (DONE 2026-09-28, `docs/08-delivery/phase6-design/`)
 1. **Burial + light-pickup write path — DONE 2026-09-28** (`lib/api-client/burials-store.ts`,
    `lib/burial-admin.ts`, `app/api/schedule/burials/**`, `app/(staff)/staff/schedule/burial-admin.tsx`).
-   Editing/removing a recorded burial is now DONE too (2026-09-28). Minute #2 says "record and manage". A real month grid exists
-   (`app/(staff)/staff/schedule/burial-calendar.tsx`), and `light_pickup` is a typed nested field on the
-   burial (`lib/burial-calendar.ts:65-86`) — but there is **no write path at all** (no burials route),
-   and the pickup's `scheduled → in_progress → done` state has **no transition surface**. Prep staff also
-   never see it: `/staff/cases/[id]/preparation` has zero burial/pickup references.
+   Minute #2 says "record and manage": a burial is recorded and its `light_pickup` moves
+   `scheduled → in_progress → done`. **Editing and removing a recorded burial is DONE too**
+   (2026-09-28, PR #143: `parseBurialUpdate`, `updateBurial`/`removeBurial`,
+   `PATCH|DELETE /api/schedule/burials/:id`, an "Edit or remove" panel). The old gap — no write
+   path at all, no transition surface for the pickup — is closed.
 2. **2-day payment notice trigger.** `PAYMENT_DUE_SOON_DAYS = 2` (`lib/payment-schedule.ts:34`) is real
    and single-sourced, and the family portal shows the notice — but there is **no scheduler, cron or
    sender anywhere** (`lib/payment-reminder-channels.ts:45` adapters `[]`). Nothing is ever *sent*.
@@ -152,8 +152,9 @@ Cause: `checkLotCategories` (`lib/pricing-model.ts:379-398`) validates senior �
    (that band was removed 2026-09-27); `/facilities` metadata + hero still promise "2026 per-day rates"
    it no longer prints; `docs/08-delivery/next-session-plan.md:133,171` marks the branding item "in
    flight"; `/price-list` renders the same logo row twice (`app/(public)/price-list/page.tsx:92-103`).
-3. `app/(public)/AGENTS.md` still describes the deleted `lib/demo-inquiry-captures.ts` in two places
-   (the "Public Reach us forms" section) — **this doc was NOT updated in Phase 1 and is now wrong.**
+3. `app/(public)/AGENTS.md` — FIXED 2026-09-27: the two references to the deleted
+   `lib/demo-inquiry-captures.ts` were removed from the "Public Reach us forms" section
+   (`grep` confirms the module is gone from `app/`).
 
 ### Blocked on a captain/platform decision (do not just do these)
 - **`item_type` for caskets.** It is a **frozen contract enum** (`order-payment-api-v1.md:42`,

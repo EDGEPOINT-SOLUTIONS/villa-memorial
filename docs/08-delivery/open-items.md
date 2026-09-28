@@ -1,6 +1,6 @@
 # Open items — what is waiting on whom
 
-**Last updated:** 2026-09-25 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
+**Last updated:** 2026-09-28 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
 ([readable artifact](./prd-alignment-audit/prd-alignment-audit.html)).
 
 This is the standing short list after the audit: four items, plus two platform contract asks —
@@ -21,6 +21,7 @@ not a report — every claim links to the document that owns it.
 4. [The queued final commerce phase — closed](#4-the-queued-final-commerce-phase)
 5. [Platform ask — the media upload object store (C12) — OPEN](#5-platform-ask--the-media-upload-object-store-c12)
 6. [Platform ask — the family payment schedule — OPEN](#6-platform-ask--the-family-payment-schedule)
+7. [Captain decisions — OPEN](#7-captain-decisions)
 
 ---
 
@@ -117,7 +118,8 @@ answers are followed in [item 3](#3-client-questions-for-villa) and the
 specific, and the build currently publishes each honestly rather than inventing an answer. They
 are the client-owned half of what remains after the front end completed; the platform-owned half
 is the contract list in the [completion record](./frontend-complete.md#what-remains--with-its-owner).
-The build states below were re-checked on 2026-09-19.
+The build states below were re-checked on 2026-09-19 and again on 2026-09-28 (rows 6–7 added by the
+client-minutes phases 4–7).
 
 | # | Question | What is blocked without it | How the build stands today |
 |---|---|---|---|
@@ -126,6 +128,8 @@ The build states below were re-checked on 2026-09-19.
 | 3 | **Which senior-rate figure is right** | The chapel table on `/services` and the 2026 price list | Both published as printed: the computed column (₱1,440 / ₱3,360 per day) against the sheet's own footnote (₱1,800 / ₱4,200), per the captain's Q8; `/facilities` reads the same rate (pinned equal by test) |
 | 4 | **Lot A-001's real price** | The lot pages, the 2026 price list and the purchase application | The office's per-plot quotation (₱85,000 for a 3.5 sqm lot) matches no sheet row — the sheet prices lots by family only (₱75,000 / ₱114,000 / ₱128,000 at 2.5 sqm; ₱567,000 @ 12 sqm; ₱1,073,000 @ 24 sqm). Since 2026-09-18 the demo lots publish their section's family figure (`lib/catalog-sources.ts`), so no invented per-plot price is on screen — the office's plot prices stay the question |
 | 5 | **Which 2025 / 2026 rules stand** (refunds and cancellation, lot classifications) | The purchase-agreement templates and the contract lifecycle | The app captures each revision's own fields rather than reconciling — the 2026 no-refund transfer window and the changed lot-class list are kept as separate revisions |
+| 6 | **Must a lot's headline monthly tie to its contract price?** | The lot card's monthly figure against the `/lots` filter and sort | The 2026 sheet prices lots monthly (≈1.5% of selling over 72 months) and only ties `annual × 6 ≈ selling`; nothing ties the monthly to the total, while `/lots` filters and sorts on the total the card does not show. Recorded read-only as `lot-monthly-vs-contract-price` in the pricing store's `questions` |
+| 7 | **Should the 2-day payment notice actually be sent?** | The family payment reminder | `PAYMENT_DUE_SOON_DAYS = 2` is real and the family portal shows the notice, but no scheduler, cron or sender exists (`lib/payment-reminder-channels.ts` adapters are empty). Either build the trigger or record that in-portal-only is the agreed scope — Track E in [`open-questions.md`](../07-client-villa/open-questions.md) |
 
 For #3 and #4 the two conflicts live as read-only metadata in the pricing store
 (`lib/fixtures/commerce/pricing.json` → `questions`), outside the editable document, so an editor
@@ -209,9 +213,25 @@ for the P4 notification service — not built here.
 **Who can act.** The platform (freeze the family billing read or the family contract's plan
 shape). Nothing in this repo can close it; the fixture schedule stays until the contract lands.
 
+## 7. Captain decisions
+
+**Status: OPEN — captain-owned.** These are not platform contracts and not client facts: they are
+calls the captain reserved while the work was built honestly around them. The linked record is the
+authority for each; this section only says who can act.
+
+| Item | What waits | Record |
+|---|---|---|
+| **Minute 5 on `/builder` and `/plans/[sku]`** — may they keep publishing service amounts? | The a-la-carte, embalming and chapel amounts those two surfaces still print, after `/services` moved to request-a-quote | [client-minutes audit](./client-minutes-audit-2026-09-21/README.md) §5 (plan item 5) |
+| **The casket `item_type`** — a first-class product type needs a frozen-enum change | The 24 caskets file as **"Add-on"** (`order-payment-api-v1.md`), so a casket created through `/staff/catalog/new` cannot reach `/products`; the catalogue screen carries one explanatory line instead of an invented value | [`contracts/order-payment-api-v1.md`](./contracts/order-payment-api-v1.md) · the content-catalogue design record |
+| **`GET /api/content/pages` scope** — it needs `catalog:write`, not `catalog:read` | The read half of the page-content API, so a read-only editor can list page documents | [content-catalogue cleanup](./content-catalogue-cleanup-design/) record |
+| **The brand name** — "Villa Funeraria" (7 uses) against "Villa Memorial Park" (48) and bare "Villa Memorial" (179), one page showing two | The header wordmark, `lib/seo.ts` `SITE_NAME` and every page title (a client-facing identity call) | [art-direction pass](./art-direction-design/README.md) §5, beside the hero-gradient and tap-target items |
+
+**Who can act.** The captain — with the platform where an enum or a scope must change. Nothing in
+this repo chooses for them, and no screen invents the answer.
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
 as the decision record, item 3 the open list. Updated 2026-09-25 — §6 added by the
-payment-due-notification pass. The audit and the linked documents remain the authoritative
-record.*
+payment-due-notification pass. Updated 2026-09-28 — §3 rows 6–7 and §7 added (the client-minutes
+phases 4–7). The audit and the linked documents remain the authoritative record.*

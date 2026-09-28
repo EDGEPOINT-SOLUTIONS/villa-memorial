@@ -19,6 +19,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import { extractRules, squash } from "./css-parse.mjs";
 
 const FILE = process.argv.includes("--file")
   ? process.argv[process.argv.indexOf("--file") + 1]
@@ -26,62 +27,6 @@ const FILE = process.argv.includes("--file")
 const OUT = ".design-audit";
 
 const css = fs.readFileSync(FILE, "utf8");
-
-/** Every rule with its absolute byte range, at any nesting depth, plus the chain
- *  of at-rule preludes it sits inside.
- *
- *  The chain matters: a rule inside `@media print` or
- *  `@media (prefers-reduced-motion: reduce)` can NEVER be matched by a viewport
- *  sweep, so treating it as "unused" would delete the product's print stylesheet
- *  and its accessibility affordances. Those blocks are protected instead of
- *  measured — see PROTECTED_AT below.
- *
- *  Keyframe steps (`from`/`to`/`50%`) and at-rule preludes are NOT rules; the
- *  first version of this parser reported them as deletion candidates, which is
- *  how a tool starts lying. */
-function extractRules(text) {
-  const rules = [];
-  let i = 0;
-  const stack = [];
-  const KEYFRAME_STEP = /^(from|to|\d+(?:\.\d+)?%)(?:\s*,\s*(?:from|to|\d+(?:\.\d+)?%))*$/i;
-  while (i < text.length) {
-    const ch = text[i];
-    if (ch === "/" && text[i + 1] === "*") {
-      const end = text.indexOf("*/", i + 2);
-      i = end === -1 ? text.length : end + 2;
-      continue;
-    }
-    if (ch === "{") {
-      let start = i - 1;
-      while (start >= 0 && !";}{".includes(text[start])) start--;
-      // The span a caller deletes must be the WHOLE rule: the selector too, not
-      // just `{ ... }`. Recording the brace alone left a dangling selector behind
-      // and corrupted everything after it.
-      let selStart = start + 1;
-      while (selStart < i && /\s/.test(text[selStart])) selStart++;
-      const selector = text
-        .slice(start + 1, i)
-        .replace(/\/\*[\s\S]*?\*\//g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-      const outer = stack[stack.length - 1];
-      const atChain = outer ? [...outer.atChain, outer.selector] : [];
-      stack.push({ selector, open: i, selStart, atChain });
-      i++;
-      continue;
-    }
-    if (ch === "}") {
-      const frame = stack.pop();
-      if (frame && frame.selector && !frame.selector.startsWith("@") && !KEYFRAME_STEP.test(frame.selector)) {
-        rules.push({ selector: frame.selector, start: frame.selStart, end: i + 1, atChain: frame.atChain });
-      }
-      i++;
-      continue;
-    }
-    i++;
-  }
-  return rules;
-}
 
 /** At-rules no viewport sweep can reach. Their contents are never candidates. */
 const PROTECTED_AT = /print|prefers-reduced-motion|prefers-contrast|forced-colors|color-scheme/i;
@@ -149,8 +94,8 @@ if (!coverage || !Array.isArray(coverage.usedSelectors)) {
  *  `input[type=checkbox]`) and Chromium reports the single-colon pseudo-element
  *  form. Matching raw text therefore classified rules that ARE used as unused —
  *  `input[type="checkbox"]` was a deletion candidate, which would have silently
- *  deleted the product's checkbox styling. */
-const squash = (s) => s.replace(/\s+/g, "").replace(/["']/g, "").replace(/::/g, ":");
+ *  deleted the product's checkbox styling. `squash` (shared from `css-parse.mjs`)
+ *  normalises both sides the way the minifier does. */
 
 const usedSquashed = new Set(coverage.usedSelectors.map(squash));
 console.log(`selectors seen used at runtime: ${usedSquashed.size}`);

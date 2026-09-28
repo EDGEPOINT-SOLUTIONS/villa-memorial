@@ -12,13 +12,10 @@
 
 import { chromium } from "@playwright/test";
 import fs from "node:fs";
+import { staticRoutes } from "./routes.mjs";
 
 const BASE = "http://localhost:4000";
 const EXPECT = { H1: 36, H2: 28, H3: 22 };
-
-const { staticRoutes } = JSON.parse(
-  fs.readFileSync(".design-audit/routes.json", "utf8")
-);
 
 // pull concrete values for the dynamic routes out of the running app's own links
 const browser = await chromium.launch();
@@ -49,7 +46,7 @@ for (const [name, creds] of Object.entries(PERSONAS)) {
 const seed = await browser.newContext({ baseURL: BASE, viewport: { width: 1440, height: 900 } });
 const page = await seed.newPage();
 
-const routes = [...staticRoutes].filter((r) => !r.includes("["));
+const routes = staticRoutes().filter((r) => !r.includes("["));
 const discovered = new Set();
 for (const r of ["/", "/lots", "/plans", "/products", "/memorials", "/login"]) {
   try {

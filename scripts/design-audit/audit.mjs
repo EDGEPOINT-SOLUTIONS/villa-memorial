@@ -13,6 +13,7 @@
 import { chromium } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
+import { staticRoutes } from "./routes.mjs";
 
 const BASE = process.argv.includes("--base")
   ? process.argv[process.argv.indexOf("--base") + 1]
@@ -303,8 +304,8 @@ console.log("crawling for real links (incl. dynamic routes)…");
 const discovered = await crawl(crawlCtx);
 console.log(`  discovered ${discovered.length} linked routes`);
 
-const stats = JSON.parse(fs.readFileSync(".design-audit/routes.json", "utf8"));
-const all = [...new Set([...stats.staticRoutes, ...discovered])]
+// The static list is DERIVED from the app tree, not read from a file nothing writes.
+const all = [...new Set([...staticRoutes(), ...discovered])]
   .filter((r) => !r.includes("["))
   .sort();
 
