@@ -40,15 +40,18 @@ function parkSeed(): Record<string, unknown> {
 }
 
 describe("the park page", () => {
-  it("opens on the editable hero, the tabs and the map", async () => {
+  it("opens on the tabs and the map, with the page named by a hidden h1", async () => {
     const html = renderToStaticMarkup(await page());
-    expect(html).toContain("Interactive park map");
-    expect(html).toContain("Villa Memorial Park");
+    // The opening hero band was removed (2026-09-28): the map leads.
+    expect(html).not.toContain("Interactive park map");
+    expect(html).not.toContain("deep-link any plot");
+    expect(html).not.toContain("Browse all plots");
+    // The route keeps exactly one h1 — visually hidden — so it is still named.
+    expect(html).toContain('class="visually-hidden">Villa Memorial Park</h1>');
+    expect(html.match(/<h1/g) ?? []).toHaveLength(1);
     expect(html).toContain("Park view");
     expect(html).toContain("Lots");
     expect(html).toContain("map-shell");
-    // Nor the previous standalone heading — the hero names the page now.
-    expect(html).toContain("deep-link any plot");
   });
 
   it("shows the Lots listing inside the Lots tab", async () => {
@@ -57,13 +60,13 @@ describe("the park page", () => {
     expect(html).not.toContain("map-shell");
   });
 
-  it("prints a saved hero edit on the next request", async () => {
+  it("no longer renders the saved hero — the band was removed", async () => {
     await savePageDocument("park", {
       ...parkSeed(),
       hero: { ...(parkSeed().hero as Record<string, unknown>), headline: "The park, revised" },
     });
     const html = renderToStaticMarkup(await page());
-    expect(html).toContain("The park, revised");
+    expect(html).not.toContain("The park, revised");
   });
 
   it("renders the page document's content blocks under the tabs", async () => {
