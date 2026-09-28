@@ -96,7 +96,20 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // was removed by the captain on 2026-09-27 — `/blog` keeps the full feed and
     // is still linked from the header's "Explore more" menu and the footer, so
     // the page no longer reprints three posts and nothing became unreachable.
-    sections: ["home-hero", "home-qualify", "home-fork", "home-park", "home-feel"],
+    sections: [
+      "home-hero",
+      "home-trust",
+      "home-qualify",
+      "home-fork",
+      "home-process",
+      "home-services",
+      "home-caskets",
+      "home-plans",
+      "home-park",
+      "home-gallery",
+      "home-feel",
+      "home-faq",
+    ],
   },
   {
     // The blog (/blog) — where the old anchored catalogue actually renders now.

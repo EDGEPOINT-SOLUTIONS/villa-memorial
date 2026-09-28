@@ -2,46 +2,44 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { PublicImage } from "@/components/public/public-image";
 import { planMonthlyPrice } from "@/lib/monthly-pricing";
-import { PLAN_TIERS, php } from "@/lib/villa-pricing";
+import {
+  ALACARTE_SERVICE_FEES,
+  CASKET_MODELS,
+  CHAPEL_NOTES,
+  COFFIN_SAMPLE_NOTE,
+  EMBALMING_RATES,
+  PLAN_TIERS,
+  php,
+} from "@/lib/villa-pricing";
+import { GALLERY_GROUPS, GALLERY_HERO } from "@/lib/gallery";
+import { casketSamplePhoto, libraryThumb, libraryThumbSet } from "@/lib/media";
 import type { LandingContent } from "@/lib/api-client/landing";
 import type { LotCategory, PlanPricing } from "@/lib/pricing-model";
 
 /**
- * HomePage — the rebuilt public home (2026-09-27).
+ * HomePage — the public storefront home.
  *
- * Built to the seven prompts of the aitooltiphub.com UI guide. Each section below
- * names the prompt it answers, because the prompts are the brief and the next
- * person to touch this file should be able to check the work against it:
+ * Built to the seven prompts of the aitooltiphub UI guide, then rebuilt again
+ * (2026-09-28) to SELL: the earlier pass was honest but thin, so this one leads
+ * with the facts a family needs to trust the office and adds a band per real
+ * product — every figure and every name read from the stores, never typed:
  *
- *   P01 Sharpen the Message — the h1 is a plain-spoken promise with ONE phrase in
- *       the accent (brass), not a slogan. "Honoring every life with dignity and
- *       light" could sit on any funeral home on the internet; this cannot.
- *   P02 Break the Symmetry — the hero is deliberately asymmetric: words on the
- *       left, the photograph on the right, running out to the frame edge. One
- *       element breaks the grid: the credential card overlapping the photo.
- *   P03 Build the Argument — the page argues in sequence and every section has
- *       ONE job: promise → who it is for → the fork → why us (the park) → what it
- *       feels like. The ask is inherited from the shell (`NextSteps`), so this
- *       page never invents a second closing grammar.
- *   P04 Pick the Winner — the park band is the ONE winner (largest, photograph
- *       led); inside the fork, "it has already happened" wins by size, weight and
- *       space over "you are planning ahead". Nothing here is a grid of equals.
- *   P05 Scale the Type — every size is a ladder step via a role token; the
- *       display serif carries h1/h2 and Inter carries everything read at length.
- *   P06 Give Color Meaning — brass appears exactly three times on this page: the
- *       headline phrase, the call action, and the section kickers. Nowhere else.
- *   P07 Add a Signature — the margin rule: a short brass hairline at the left of
- *       every section head, the way a printed document marks its own margin. It
- *       is applied to the section heads only, never to the hero.
+ *   hero        the promise, the call, and four real trust facts.
+ *   qualify     who this is for.
+ *   fork        the two doors (it has happened / planning ahead).
+ *   process     what actually happens when you call — four steps.
+ *   services    the full funeral-service list (NO price: minute 5 = request a quote).
+ *   caskets     the 2026 casket collections, "from" the real SRP.
+ *   plans       the five plan tiers' live monthly + garden lots.
+ *   park        the winner: the grounds and the live map.
+ *   gallery     the client's own photographs.
+ *   feel        the family-portal promise.
+ *   faq         the three questions the office is asked most.
  *
- * COPY OWNERSHIP. The structural copy here is route-local, exactly like
- * /immediate-assistance — whose content order is its contract and whose only
- * editable value is the phone number. Every FACT on this page (the phone number
- * and href, the wordmark, the addresses, the park's own story, and both money
- * figures) is read from the landing/pricing documents at request time and never
- * typed into this file. The strings that are still hardcoded here are the next
- * editor follow-up: they carry no client data, so nothing can go stale or
- * dishonest, but staff cannot reword them yet.
+ * COPY OWNERSHIP. Every FACT (wordmark, phones, addresses, story, prices, the
+ * service/casket names) is read from the landing or pricing documents; the
+ * strings that stay in this file are structural next to no client data. The
+ * service band prints NO amount, by the client's own minute 5.
  */
 
 /** The lowest monthly installment across every product in a lot family set. */
@@ -58,14 +56,27 @@ function lowestLotMonthly(categories: ReadonlyArray<LotCategory>): number | null
   return lowest;
 }
 
-/** The signature (P07) — the shared margin rule.
- *
- *  This deliberately renders the SHARED `.section-head__kicker`, not a home-only
- *  class. For the length of one rebuild the rule existed only here, which meant
- *  the home had a signature and the rest of the public site had none — two
- *  designs wearing one brand. The rule now lives on the primitive
- *  (`SectionHead`), so every interior page inherits it and this page simply uses
- *  the same class. */
+/** The four casket collections, each "from" its cheapest model's SRP, with the
+ *  first model's name so the band can show the collection's sample photograph. */
+function casketCollections(): Array<{ name: string; from: number; count: number; model: string }> {
+  const firstModel = new Map<string, string>();
+  const byCollection = new Map<string, { from: number; count: number }>();
+  for (const model of CASKET_MODELS) {
+    if (!firstModel.has(model.collection)) firstModel.set(model.collection, model.model);
+    const current = byCollection.get(model.collection);
+    byCollection.set(model.collection, {
+      from: current ? Math.min(current.from, model.srp) : model.srp,
+      count: (current?.count ?? 0) + 1,
+    });
+  }
+  return [...byCollection.entries()].map(([name, value]) => ({
+    name,
+    ...value,
+    model: firstModel.get(name) ?? "",
+  }));
+}
+
+/** The section head (kicker · title · one lead · one action) for the bands. */
 function SectionKicker({ children }: { children: ReactNode }) {
   return <p className="section-head__kicker">{children}</p>;
 }
@@ -82,44 +93,52 @@ export function HomePage({
   /** The live park map, rendered inside the winner band. */
   mapNode: ReactNode;
 }) {
-  const { contact, about, logo } = content;
+  const { contact, about, logo, faq } = content;
 
   // Both figures are DERIVED from the pricing store, never authored. The entry
   // tier is the store's own Bronze 1; the lot figure is the cheapest monthly
   // installment any recorded product carries.
   const entryPlan = planMonthlyPrice(planPricing, PLAN_TIERS[0].id);
   const entryLotMonthly = lowestLotMonthly(lotCategories);
+  const caskets = casketCollections();
+  const cheapestCasket = Math.min(...CASKET_MODELS.map((model) => model.srp));
+  // Dedupe by src: GALLERY_GROUNDS also appears inside GALLERY_GROUPS[0], and a
+  // repeated src would render the same photograph twice (a React duplicate-key).
+  const galleryPhotos = (() => {
+    const seen = new Set<string>();
+    const photos = [];
+    for (const photo of [GALLERY_HERO, ...GALLERY_GROUPS.flatMap((group) => group.photos)]) {
+      if (seen.has(photo.src)) continue;
+      seen.add(photo.src);
+      photos.push(photo);
+      if (photos.length === 6) break;
+    }
+    return photos;
+  })();
 
   return (
     <div className="home">
       {/* ================================================================
-          P01 + P02 — THE PROMISE, ASYMMETRIC
-          Words left, photograph right running out to the frame edge. The
-          credential card breaks the grid over the photo's lower-left corner,
-          which is the "one element breaks the grid" beat of prompt 02.
+          THE PROMISE — asymmetric: words left, the photograph right.
           ================================================================ */}
       <section className="home-hero" aria-labelledby="home-hero-title">
         <div className="home-hero__words">
-          <p className="home-hero__place">
-            {contact.location} · we answer every hour
-          </p>
+          <p className="home-hero__place">{contact.location} · we answer every hour</p>
           <h1 id="home-hero-title" className="home-hero__title">
-            Someone has died. Call us, and{" "}
-            {/* The ONE accented phrase on the page's headline (P01 + P06). */}
-            <em className="home-hero__promise">we will carry it from here.</em>
+            Someone has died.{" "}
+            <span className="home-hero__promise">Call us — we will carry it from here.</span>
           </h1>
           <p className="home-hero__lead">
             A coordinator answers any hour, day or night. We come to you, and we
             stay with you until the burial is done.
           </p>
           <div className="home-hero__actions">
-            {/* The ONE accented action (P06) — brass means "call the office",
-                and nothing else on this page is allowed to borrow it. */}
-            <a className="btn btn--accent btn--lg" href={contact.phoneHref}>
+            {/* ONE commit + ONE support (lib/public-layout.ts). */}
+            <a className="btn btn--primary btn--lg" href={contact.phoneHref}>
               Call {contact.phoneDisplay}
             </a>
-            <Link className="btn btn--secondary btn--lg" href="/plans">
-              I am planning ahead
+            <Link className="btn btn--secondary btn--lg" href="/immediate-assistance">
+              What to do right now
             </Link>
           </div>
         </div>
@@ -129,29 +148,52 @@ export function HomePage({
             <PublicImage
               role="home-hero"
               className="home-hero__photo"
-              src={content.hero.image}
+              src={libraryThumb(content.hero.image, 960)}
+              srcSet={libraryThumbSet(content.hero.image)}
+              sizes="(max-width: 60rem) 92vw, 44vw"
               alt={`The grounds of ${logo.wordmark}`}
               width={1626}
               height={916}
               priority
             />
           ) : null}
-          {/* The one grid-breaking element. A real credential, not a badge. */}
           <div className="home-hero__card">
-            <p className="home-hero__card-title">
-              The first memorial park in Basilan
-            </p>
+            <p className="home-hero__card-title">The first memorial park in Basilan</p>
             <p className="home-hero__card-note">
-              Family-run, in {contact.location}.
+              Family-run, in {contact.location}. Answering every hour since the first call.
             </p>
           </div>
         </div>
       </section>
 
       {/* ================================================================
-          P03 — THE QUALIFYING STRIP
-          "Directly under the hero, add a thin qualifying strip that names who
-          this product is for, so the right visitor knows immediately."
+          THE TRUST STRIP — four real facts, not badges.
+          ================================================================ */}
+      <section className="home-trust" aria-label="Why families can trust us">
+        <dl className="home-trust__list">
+          <div className="home-trust__item">
+            <dt>Always answered</dt>
+            <dd>
+              A coordinator, day or night — <a href={contact.phoneHref}>{contact.phoneDisplay}</a>
+            </dd>
+          </div>
+          <div className="home-trust__item">
+            <dt>First in the province</dt>
+            <dd>The first memorial park in Basilan, built for {contact.location}</dd>
+          </div>
+          <div className="home-trust__item">
+            <dt>Family-run</dt>
+            <dd>Two offices — the city office and the park at {contact.parkAddress.split(",")[1]?.trim() || "the grounds"}</dd>
+          </div>
+          <div className="home-trust__item">
+            <dt>Backed by Eternal Plans</dt>
+            <dd>Villa Memorial Plan is powered by Eternal Plans, Inc.</dd>
+          </div>
+        </dl>
+      </section>
+
+      {/* ================================================================
+          WHO IT IS FOR.
           ================================================================ */}
       <section className="home-qualify" aria-label="Who we serve">
         <p>
@@ -161,11 +203,7 @@ export function HomePage({
       </section>
 
       {/* ================================================================
-          P03 (the fork) + P04 (one winner)
-          The page's real decision is "has it happened or not". Both doors are
-          here, and the urgent one WINS — larger type, more space, a brass rule,
-          the heavier ground. A family in the first hour must not have to read
-          two equal cards to find their door.
+          THE FORK — two doors, and the urgent one wins.
           ================================================================ */}
       <section className="home-fork" aria-labelledby="home-fork-title">
         <SectionKicker>Two doors</SectionKicker>
@@ -176,13 +214,12 @@ export function HomePage({
         <div className="home-fork__doors">
           <article className="home-door home-door--now">
             <p className="home-door__kicker">It has already happened</p>
-            <h3 className="home-door__title">
-              Call us. We take it from the first hour.
-            </h3>
+            <h3 className="home-door__title">Call us. We take it from the first hour.</h3>
             <ul className="home-door__list">
               <li>We answer any hour, day or night — a person, not a queue.</li>
               <li>We come to you, wherever you are in the province.</li>
               <li>We handle the papers, the permits and the schedule.</li>
+              <li>We tell you the cost plainly, before you decide anything.</li>
             </ul>
             <Link className="btn btn--primary btn--lg" href="/immediate-assistance">
               What to do right now
@@ -196,13 +233,11 @@ export function HomePage({
             </h3>
             <ul className="home-door__list">
               <li>
-                Memorial plans from{" "}
-                <strong>{php(entryPlan.monthly)} a month</strong>.
+                Memorial plans from <strong>{php(entryPlan.monthly)} a month</strong>.
               </li>
               {entryLotMonthly !== null ? (
                 <li>
-                  Garden lots from{" "}
-                  <strong>{php(entryLotMonthly)} a month</strong>.
+                  Garden lots from <strong>{php(entryLotMonthly)} a month</strong>.
                 </li>
               ) : null}
               <li>Assignable and transferable, with no forfeiture.</li>
@@ -215,11 +250,165 @@ export function HomePage({
       </section>
 
       {/* ================================================================
-          P03 (why us) + P04 (THE WINNER)
-          This is the one band that is allowed to be big. It is the product:
-          a real garden that a family can walk before they need it. The live
-          map goes inside it, because "browse the grounds" is the most
-          convincing thing this business can show.
+          THE FIRST HOUR — what actually happens when you call.
+          ================================================================ */}
+      <section className="home-process" aria-labelledby="home-process-title">
+        <SectionKicker>When you call</SectionKicker>
+        <h2 id="home-process-title" className="home-process__title">
+          Four steps, and you are never alone in any of them.
+        </h2>
+        <ol className="home-process__steps">
+          {[
+            ["We answer", "A coordinator picks up, any hour. You tell us what has happened — nothing else is decided yet."],
+            ["We come to you", "Wherever you are in the province, our team brings the care and the transport to you."],
+            ["We arrange it together", "The wake, the chapel, the schedule and the papers — handled with you, step by step."],
+            ["We stay until the burial", "One coordinator is yours from the first call to the last, and answers every question between."],
+          ].map(([title, body], index) => (
+            <li key={title} className="home-process__step">
+              <span className="home-process__num" aria-hidden="true">
+                {index + 1}
+              </span>
+              <h3 className="home-process__step-title">{title}</h3>
+              <p className="home-process__step-body">{body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* ================================================================
+          THE SERVICES — everything a funeral needs, at your request.
+          NO price on this band: the client's minute 5 asks for a quotation.
+          ================================================================ */}
+      <section className="home-services" aria-labelledby="home-services-title">
+        <SectionKicker>Funeral services</SectionKicker>
+        <h2 id="home-services-title" className="home-services__title">
+          Everything a funeral needs, arranged with one office.
+        </h2>
+        <p className="home-services__lead">
+          The five services, the embalming care and the chapel — quoted for your
+          family, not priced off a list.
+        </p>
+        <div className="home-services__grid">
+          <div className="home-services__group">
+            <h3 className="home-services__group-title">The five services</h3>
+            <ul className="home-services__list">
+              {ALACARTE_SERVICE_FEES.map((fee) => (
+                <li key={fee.service}>{fee.service}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="home-services__group">
+            <h3 className="home-services__group-title">Embalming care</h3>
+            <ul className="home-services__list">
+              {EMBALMING_RATES.map((rate) => (
+                <li key={rate.days}>{rate.days} days</li>
+              ))}
+              <li>Beyond nine days, by the day</li>
+            </ul>
+          </div>
+          <div className="home-services__group">
+            <h3 className="home-services__group-title">The chapel</h3>
+            <ul className="home-services__list">
+              <li>Common chapel</li>
+              <li>Private chapel</li>
+              <li>Chapel use only</li>
+            </ul>
+            <p className="home-services__note">{CHAPEL_NOTES.scope}</p>
+          </div>
+        </div>
+        <div className="home-services__actions">
+          <Link className="btn btn--primary btn--lg" href="/services">
+            See the services &amp; request a quote
+          </Link>
+          <Link className="btn btn--secondary btn--lg" href="/builder">
+            Estimate your arrangement
+          </Link>
+        </div>
+      </section>
+
+      {/* ================================================================
+          THE CASKETS — the 2026 collections, from the real SRP.
+          ================================================================ */}
+      <section className="home-caskets" aria-labelledby="home-caskets-title">
+        <SectionKicker>Coffins &amp; caskets</SectionKicker>
+        <h2 id="home-caskets-title" className="home-caskets__title">
+          Twenty-four caskets, grouped in four collections.
+        </h2>
+        <ul className="home-caskets__list">
+          {caskets.map((collection) => {
+            const photo = casketSamplePhoto({ collection: "", model: collection.model });
+            return (
+              <li key={collection.name} className="home-caskets__card">
+                <Link href="/products" className="home-caskets__card-link">
+                  <PublicImage
+                    role="card"
+                    src={photo.card.src}
+                    srcSet={photo.card.srcSet}
+                    sizes="(max-width: 64rem) 46vw, 16rem"
+                    alt={photo.alt}
+                    width={photo.card.width}
+                    height={photo.card.height}
+                  />
+                  <span className="home-caskets__name">{collection.name}</span>
+                  <span className="home-caskets__count">
+                    {collection.count} {collection.count === 1 ? "model" : "models"}
+                  </span>
+                  <span className="home-caskets__from">
+                    from <strong>{php(collection.from)}</strong>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="home-caskets__note">
+          {COFFIN_SAMPLE_NOTE} The full price list runs from {php(cheapestCasket)} to{" "}
+          {php(Math.max(...CASKET_MODELS.map((model) => model.srp)))}.
+        </p>
+        <div className="home-caskets__actions">
+          <Link className="btn btn--primary btn--lg" href="/products">
+            See the whole collection
+          </Link>
+        </div>
+      </section>
+
+      {/* ================================================================
+          THE PLANS & LOTS — the five tiers' live monthly.
+          ================================================================ */}
+      <section className="home-plans" aria-labelledby="home-plans-title">
+        <SectionKicker>{content.plans.kicker}</SectionKicker>
+        <h2 id="home-plans-title" className="home-plans__title">
+          {content.plans.heading}
+        </h2>
+        <p className="home-plans__lead">{content.plans.intro}</p>
+        <ul className="home-plans__tiers">
+          {PLAN_TIERS.map((tier) => {
+            const monthly = planMonthlyPrice(planPricing, tier.id);
+            return (
+              <li key={tier.id} className="home-plans__tier">
+                <Link href="/plans" className="home-plans__tier-link">
+                  <span className="home-plans__tier-name">{tier.name}</span>
+                  <span className="home-plans__tier-price">
+                    {php(monthly.monthly)}
+                    <span className="home-plans__tier-unit"> / month</span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        <div className="home-plans__actions">
+          <Link className="btn btn--primary btn--lg" href="/plans">
+            Compare the five plans
+          </Link>
+          <Link className="btn btn--secondary btn--lg" href="/price-list">
+            The 2026 price list
+          </Link>
+        </div>
+      </section>
+
+      {/* ================================================================
+          THE PARK — the ONE winner: the grounds and the live map.
           ================================================================ */}
       <section className="home-park" aria-labelledby="home-park-title">
         <SectionKicker>Villa Memorial Park</SectionKicker>
@@ -252,7 +441,9 @@ export function HomePage({
               <PublicImage
                 role="band-lead"
                 className="home-park__photo"
-                src={about.image}
+                src={libraryThumb(about.image, 960)}
+                srcSet={libraryThumbSet(about.image)}
+                sizes="(max-width: 60rem) 92vw, 44vw"
                 alt={`The grounds at ${logo.wordmark}`}
                 width={1254}
                 height={836}
@@ -260,18 +451,40 @@ export function HomePage({
             ) : null}
           </div>
         </div>
-        {/* The live map gets the FULL band width, not a cell inside the media
-            column. At ~380px it was a postage stamp whose plot labels could not
-            be read — and "walk the grounds before you visit" is the single most
-            convincing thing this business can show, so it earns the room. */}
         {mapNode ? <div className="home-park__map">{mapNode}</div> : null}
       </section>
 
       {/* ================================================================
-          P03 (what it feels like) — "one large product visual and three short
-          summary lines that describe what using this product is actually like
-          day to day."
-          The three lines are the family portal's own promise, in its own voice.
+          THE GALLERY — the client's own photographs.
+          ================================================================ */}
+      <section className="home-gallery" aria-labelledby="home-gallery-title">
+        <SectionKicker>Photo gallery</SectionKicker>
+        <h2 id="home-gallery-title" className="home-gallery__title">
+          See the place before you visit.
+        </h2>
+        <div className="home-gallery__grid">
+          {galleryPhotos.map((photo) => (
+            <PublicImage
+              key={photo.src}
+              role="gallery-tile"
+              src={photo.src}
+              srcSet={photo.srcSet}
+              sizes="(max-width: 60rem) 46vw, 30vw"
+              alt={photo.alt}
+              width={photo.width}
+              height={photo.height}
+            />
+          ))}
+        </div>
+        <div className="home-gallery__actions">
+          <Link className="btn btn--secondary btn--lg" href="/gallery">
+            The full gallery &amp; virtual tour
+          </Link>
+        </div>
+      </section>
+
+      {/* ================================================================
+          THE PROMISE — what the family portal feels like.
           ================================================================ */}
       <section className="home-feel" aria-labelledby="home-feel-title">
         <SectionKicker>Once you are with us</SectionKicker>
@@ -287,10 +500,7 @@ export function HomePage({
               </li>
               <li>
                 <span className="home-feel__num">2</span>
-                <p>
-                  You see what is left to pay, and the papers your family already
-                  holds.
-                </p>
+                <p>You see what is left to pay, and the papers your family already holds.</p>
               </li>
               <li>
                 <span className="home-feel__num">3</span>
@@ -299,34 +509,41 @@ export function HomePage({
             </ol>
           </div>
           <div className="home-feel__panel" aria-hidden="true">
-            {/* Not a screenshot — the promise as a printed line, on the same
-                bone ground the family portal uses. */}
             <p className="home-feel__sample-kicker">Your family&rsquo;s page</p>
-            <p className="home-feel__sample-title">
-              {php(2000)} is still to pay on the plan.
-            </p>
+            <p className="home-feel__sample-title">{php(2000)} is still to pay on the plan.</p>
             <p className="home-feel__sample-body">
-              That is all that is left. The office&rsquo;s next date for your
-              family is the 15th. Nothing else needs you today.
+              That is all that is left. The office&rsquo;s next date for your family
+              is the 15th. Nothing else needs you today.
             </p>
           </div>
         </div>
       </section>
-      {/* THE BLOG BAND IS GONE FROM THE HOME (captain, 2026-09-27).
-          It was added when the captain asked "now where are our blogs??" — the
-          rebuild had dropped the old home's newsfeed and `/blog` was linked from
-          nowhere, so the band did two jobs: it said the place was cared for, and
-          it made the blog discoverable. The captain has now had it removed, and
-          the DISCOVERABILITY half is what matters to check: `/blog` is still the
-          first entry in the header's "Explore more" menu and a row in the
-          footer's Explore column, so it is reachable from every public page
-          without this band (`tests/unit/public-nav.test.tsx` pins both).
 
-          `content.blog` remains the staff document and `/blog` still renders its
-          full feed — nothing was retired; the home simply no longer reprints
-          three posts. The card component and the "News from the park" CSS block
-          went with it, because an unused card is the sort of thing that gets
-          quietly re-imported later. */}
+      {/* ================================================================
+          THE QUESTIONS — the three the office is asked most.
+          ================================================================ */}
+      <section className="home-faq" aria-labelledby="home-faq-title">
+        <SectionKicker>{faq.eyebrow}</SectionKicker>
+        <h2 id="home-faq-title" className="home-faq__title">
+          {faq.heading}
+        </h2>
+        <ul className="home-faq__list">
+          {faq.items.map((item) => (
+            <li key={item.id} className="home-faq__item">
+              <h3 className="home-faq__q">{item.question}</h3>
+              <p className="home-faq__a">{item.answer}</p>
+            </li>
+          ))}
+        </ul>
+        <div className="home-faq__actions">
+          <Link className="btn btn--secondary btn--lg" href="/faq">
+            More questions
+          </Link>
+          <Link className="btn btn--primary btn--lg" href="/contact">
+            Ask us anything
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

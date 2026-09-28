@@ -9122,28 +9122,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   box-shadow: var(--shadow-raised);
 }
 
-/* Park page hero (content catalogue, Phase 1): the park document's editable
-   hero above the map. The wash reuses the home hero's ONE-layer discipline —
-   above the photo, below every copy block — and only exists when staff set a
-   colour with transparency below 100%. */
-.park-hero {
-  position: relative;
-  overflow: hidden;
-}
-.park-hero__wash {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-}
-.park-hero > .hero-premium__grid {
-  position: relative;
-  z-index: 3;
-}
-.park-hero__media {
-  position: relative;
-  z-index: 1;
-}
+/* The park page's `.park-hero*` skin was removed with the band it styled
+   (2026-09-28): the map leads `/map` now, so nothing references those classes.
+   `.hero-premium*` stays — `/plans/[sku]` and the home still render it. */
 
 /* Image-only page hero: a photograph and no authored copy. The photo is the
    whole band — no gradient, border, scrim or colour layer (captain 2026-09-21). */
@@ -22143,4 +22124,985 @@ a.plan-advisor__phone:hover {
   /* A pasted essay must not widen the table past the viewport. */
   max-width: 34rem;
   overflow-wrap: anywhere;
+}
+
+/* ============================================================================
+   public: home block — the storefront home (/)
+
+   WHY THIS BLOCK EXISTS. The home was rebuilt on 2026-09-27
+   (`components/public/home-page.tsx`, the seven prompts of the aitooltiphub UI
+   guide) and the rebuild shipped the MARKUP WITHOUT ITS STYLESHEET — `git log -S
+   "home-fork" -- styles/components.css` is empty, so for the whole life of the
+   rebuild the busiest page in the product rendered as raw, unstyled HTML. This
+   block is that missing design. `tests/unit/home-styles.test.ts` fails if a
+   `home-*` class is ever used without a rule again.
+
+   VISUAL LANGUAGE — a printed memorial folio.
+     · ground   warm bone; bands separated by hairlines and space, never by a
+                shadow on every box (the composition-pass rule).
+     · faces    the display serif (`--font-display`, the client's OWN letterhead
+                face) carries the hero and every section title; Inter carries copy.
+     · accent   ONE brass, used where the tokens.css contract allows it and nowhere
+                else: the h1's single highlighted phrase, the ceremonial rule above
+                a door / panel, the numbered marks, and the office's bullets.
+     · rungs    the 3-rung CTA grammar: at most ONE commit (`btn--primary`) per
+                band, support as `btn--secondary`. No per-item gold on the home.
+     · rhythm   each band owns its own vertical space (clamp), so a phone reads
+                three-and-a-bit screens and a desktop four-and-a-half — the home's
+                PAGE_HEIGHT_CEILINGS (lib/public-layout.ts).
+
+   Owned by this block. Other public lanes append their own named block and do
+   not edit this one.
+   ========================================================================== */
+
+/* --- rhythm: every band carries the container's padding to the frame edge --- */
+.home {
+  display: block;
+}
+
+.home > section {
+  margin-inline: calc(var(--space-5) * -1);
+  padding: clamp(var(--space-6), 5vw, var(--space-8)) var(--space-5);
+}
+
+/* Columns that must be allowed to shrink below their content. */
+.home-hero__words,
+.home-park__copy,
+.home-park__media,
+.home-feel__copy {
+  min-width: 0;
+}
+
+/* --- the hero — asymmetric: words left, the photograph right ---------------- */
+.home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: clamp(var(--space-5), 4vw, var(--space-7));
+  align-items: center;
+  background: var(--paper-0);
+  border-bottom: 1px solid var(--color-border);
+  padding-top: clamp(var(--space-7), 7vw, var(--space-9));
+}
+
+.home-hero__place {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.home-hero__title {
+  margin: 0 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-hero);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+
+/* The ONE highlighted phrase in the h1 (P01 + P06). */
+.home-hero__promise {
+  font-style: normal;
+  color: var(--color-text-accent);
+}
+
+.home-hero__lead {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure-prose);
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.home-hero__visual {
+  position: relative;
+}
+
+.home-hero__photo {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* The one element that breaks the grid (P02): a real credential, not a badge. */
+.home-hero__card {
+  position: absolute;
+  left: var(--space-4);
+  bottom: var(--space-4);
+  max-width: 17rem;
+  padding: var(--space-4) var(--space-5);
+  background: var(--paper-0);
+  border-left: 3px solid var(--brass-400);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-raised);
+}
+
+.home-hero__card-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  line-height: 1.15;
+  color: var(--color-text-primary);
+}
+
+.home-hero__card-note {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* --- the qualifying strip — a thin, ruled band (P03) ----------------------- */
+.home-qualify {
+  background: var(--paper-200);
+  border-block: 1px solid var(--color-border);
+  padding-block: var(--space-4);
+}
+
+.home-qualify p {
+  margin: 0 auto;
+  max-width: 60rem;
+  font-size: var(--text-caption);
+  line-height: var(--leading-normal);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+/* --- the fork — two doors, and the urgent one wins (P03 + P04) -------------- */
+.home-fork {
+  background: var(--color-bg-page);
+}
+
+.home-fork__title {
+  margin: var(--space-2) 0 var(--space-5);
+  max-width: 24ch;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-fork__doors {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: stretch;
+}
+
+.home-door {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+}
+
+/* The winner: a heavier ground, a ceremonial brass rule, more room, a bigger
+   head. Hierarchy by scale and position — never by a shadow. */
+.home-door--now {
+  background: var(--ever-50);
+  border: 1px solid var(--ever-200);
+  border-top: 4px solid var(--brass-400);
+}
+
+.home-door--later {
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+}
+
+.home-door__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.home-door--now .home-door__kicker {
+  color: var(--color-text-accent);
+}
+
+.home-door--later .home-door__kicker {
+  color: var(--color-text-muted);
+}
+
+.home-door__title {
+  margin: 0;
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+}
+
+.home-door--now .home-door__title {
+  font-size: var(--text-card-title);
+  line-height: 1.18;
+}
+
+.home-door--later .home-door__title {
+  font-size: var(--text-lg);
+  line-height: 1.25;
+}
+
+.home-door__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.home-door__list li {
+  position: relative;
+  padding-left: var(--space-4);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-door__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--brass-500);
+}
+
+.home-door > .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* --- the park — the ONE winner (P03 why-us + P04) -------------------------- */
+.home-park {
+  background: var(--paper-200);
+}
+
+.home-park__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: clamp(var(--space-6), 5vw, var(--space-8));
+  align-items: center;
+}
+
+.home-park__title {
+  margin: var(--space-2) 0 var(--space-4);
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-park__story {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure-prose);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-park__facts {
+  margin: 0 0 var(--space-5);
+  display: grid;
+}
+
+.home-park__facts > div {
+  display: grid;
+  grid-template-columns: 10rem minmax(0, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.home-park__facts dt {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.home-park__facts dd {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.home-park__photo {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.home-park__map {
+  margin-top: clamp(var(--space-6), 5vw, var(--space-7));
+  padding: var(--space-3);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.home-park__map > * {
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* The home band's map is a teaser, not the park page's full-screen walk: a
+   shorter frame keeps the band from towering over everything around it. */
+.home-park__map .geo-map {
+  height: min(38vh, 22rem);
+}
+
+/* --- what it feels like — the promise, as a marked page (P03) --------------- */
+.home-feel {
+  background: var(--color-bg-page);
+}
+
+.home-feel__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: clamp(var(--space-6), 5vw, var(--space-8));
+  align-items: center;
+}
+
+.home-feel__title {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-feel__lines {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.home-feel__lines li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.home-feel__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--brass-400);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-accent);
+}
+
+.home-feel__lines p {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-feel__panel {
+  padding: var(--space-6);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--brass-400);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-paper);
+}
+
+.home-feel__sample-kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.home-feel__sample-title {
+  margin: var(--space-3) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
+}
+
+.home-feel__sample-body {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+/* --- responsive: a phone is a re-layout, not a shrunken desktop ------------- */
+@media (max-width: 60rem) {
+  .home-hero,
+  .home-fork__doors,
+  .home-park__grid,
+  .home-feel__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The credential stops floating and settles under the photograph. */
+  .home-hero__card {
+    position: static;
+    margin: calc(var(--space-4) * -1) var(--space-5) 0;
+    max-width: none;
+  }
+
+  .home-park__facts > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}
+
+@media (max-width: 40rem) {
+  .home > section {
+    padding-block: var(--space-6);
+  }
+
+  .home-hero {
+    padding-top: var(--space-6);
+  }
+
+  .home-door {
+    padding: var(--space-5);
+  }
+
+  .home-feel__num {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .home-feel__lines li {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+}
+
+/* --- the trust strip — four real facts on the deep ground ------------------ */
+.home-trust {
+  background: var(--ever-900);
+  color: var(--color-text-inverse);
+}
+
+.home-trust__list {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.home-trust__item {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+}
+
+.home-trust__item dt {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brass-200);
+}
+
+.home-trust__item dd {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-inverse-muted);
+}
+
+.home-trust__item dd a {
+  color: var(--paper-0);
+  text-underline-offset: 3px;
+}
+
+/* --- the first hour — four steps ------------------------------------------- */
+.home-process {
+  background: var(--color-bg-page);
+}
+
+.home-process__title {
+  margin: var(--space-2) 0 var(--space-5);
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-process__steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.home-process__step {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding-top: var(--space-4);
+  border-top: 3px solid var(--brass-400);
+}
+
+.home-process__num {
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-accent);
+}
+
+.home-process__step-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+.home-process__step-body {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+/* --- the services — names only, quote on request (minute 5) ---------------- */
+.home-services {
+  background: var(--paper-200);
+}
+
+.home-services__title {
+  margin: var(--space-2) 0 var(--space-2);
+  max-width: 28ch;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-services__lead {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure-prose);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-services__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.home-services__group {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  padding: var(--space-5);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.home-services__group-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
+}
+
+.home-services__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.home-services__list li {
+  position: relative;
+  padding-left: var(--space-4);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-services__list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--brass-500);
+}
+
+.home-services__note {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.home-services__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* --- the caskets — the 2026 collections, from the real SRP ------------------ */
+.home-caskets {
+  background: var(--color-bg-page);
+}
+
+.home-caskets__title {
+  margin: var(--space-2) 0 0;
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-caskets__list {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.home-caskets__card {
+  min-width: 0;
+}
+
+.home-caskets__card-link {
+  display: grid;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-3);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+}
+
+.home-caskets__card-link > figure {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.home-caskets__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
+}
+
+.home-caskets__count {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.home-caskets__from {
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.home-caskets__from strong {
+  font-size: var(--text-card-title);
+  color: var(--color-figure);
+}
+
+.home-caskets__note {
+  margin: var(--space-4) 0 0;
+  max-width: var(--measure-prose);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.home-caskets__actions {
+  margin-top: var(--space-5);
+}
+
+/* --- the plans — the five tiers' live monthly ------------------------------- */
+.home-plans {
+  background: var(--ever-50);
+}
+
+.home-plans__title {
+  margin: var(--space-2) 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-plans__lead {
+  margin: 0 0 var(--space-5);
+  max-width: var(--measure-prose);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-plans__tiers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.home-plans__tier {
+  display: grid;
+}
+
+.home-plans__tier-link {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  height: 100%;
+  padding: var(--space-5);
+  background: var(--paper-0);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+}
+
+.home-plans__tier-name {
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
+}
+
+.home-plans__tier-price {
+  font-size: var(--text-card-title);
+  color: var(--color-figure);
+}
+
+.home-plans__tier-unit {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.home-plans__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* --- the gallery — the client's own photographs ----------------------------- */
+.home-gallery {
+  background: var(--paper-200);
+}
+
+.home-gallery__title {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-gallery__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+  align-items: start;
+}
+
+.home-gallery__grid > figure {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.home-gallery__actions {
+  margin-top: var(--space-5);
+}
+
+/* --- the questions ---------------------------------------------------------- */
+.home-faq {
+  background: var(--color-bg-page);
+}
+
+.home-faq__title {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: 1.14;
+  color: var(--color-text-primary);
+}
+
+.home-faq__list {
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.home-faq__item {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding-top: var(--space-4);
+  border-top: 3px solid var(--brass-400);
+}
+
+.home-faq__q {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  line-height: 1.2;
+  color: var(--color-text-primary);
+}
+
+.home-faq__a {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.home-faq__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 64rem) {
+  .home-trust__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-process__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-services__grid,
+  .home-faq__list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-plans__tiers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .home-gallery__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .home-trust__list,
+  .home-process__steps,
+  .home-plans__tiers {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .home-caskets__list,
+  .home-gallery__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* --- colour rhythm: deep evergreen bands + brass edges ---------------------
+   The first pass left seven of twelve bands the same near-white bone, which is
+   why the page read flat. The deep ground now returns twice more (the steps and
+   the promise), and the seller bands take a brass edge, so the eye moves:
+   white hero → deep trust → bone → deep steps → bone services → seller caskets →
+   evergreen plans → park → gallery → deep promise → faq. */
+.home-process,
+.home-park,
+.home-feel {
+  background: var(--ever-900);
+  color: var(--color-text-inverse);
+}
+
+.home-process .section-head__kicker,
+.home-park .section-head__kicker,
+.home-feel .section-head__kicker {
+  color: var(--brass-200);
+}
+
+.home-process__title,
+.home-process__step-title,
+.home-park__title,
+.home-feel__title {
+  color: var(--color-text-inverse);
+}
+
+.home-process__step-body,
+.home-park__story,
+.home-park__facts dd,
+.home-feel__lines p {
+  color: var(--color-text-inverse-muted);
+}
+
+.home-process__num,
+.home-feel__num,
+.home-park__facts dt {
+  color: var(--brass-200);
+}
+
+.home-process__step,
+.home-park__facts > div {
+  border-top-color: var(--brass-300);
+}
+
+.home-feel__num {
+  border-color: var(--brass-300);
+}
+
+/* Inverse buttons on a deep band: the commitment stays the solid one, painted
+   in paper instead of evergreen so it is legible on evergreen. */
+.home-park .btn--primary {
+  background: var(--paper-0);
+  color: var(--ink-900);
+}
+
+.home-park .btn--primary:hover:not(:disabled) {
+  background: var(--paper-200);
+}
+
+.home-plans {
+  background: var(--ever-100);
+}
+
+.home-plans__tier-link,
+.home-services__group {
+  border-top: 3px solid var(--brass-400);
+}
+
+.home-gallery {
+  background: var(--paper-100);
 }
