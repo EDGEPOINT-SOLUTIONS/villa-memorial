@@ -278,6 +278,7 @@ function PickupControls({ burials }: { burials: BurialEntry[] }) {
         {burials.map((entry) => (
           <li key={entry.id} className="burial-pickup-admin__row">
             <PickupRow entry={entry} />
+            <EditOrRemove entry={entry} />
           </li>
         ))}
       </ul>
@@ -377,5 +378,149 @@ function PickupRow({ entry }: { entry: BurialEntry }) {
         {error ? <span className="text-sm burial-pickup-admin__error">{error}</span> : null}
       </div>
     </form>
+  );
+}
+
+/**
+ * Correct or take off a recorded burial (client minute item 2 — "manage"). Editing changes the
+ * burial's own fields; removing folds the record out of the sheet but leaves the journal entry,
+ * so the office's trail still shows it was recorded and then withdrawn.
+ */
+function EditOrRemove({ entry }: { entry: BurialEntry }) {
+  const router = useRouter();
+  const base = useId();
+  const [fields, setFields] = useState({
+    date: entry.date,
+    time: entry.time,
+    case_number: entry.case_number,
+    deceased_name: entry.deceased_name,
+    lot_number: entry.lot_number,
+    section: entry.section,
+    coordinator: entry.coordinator,
+    note: entry.note ?? "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  function change<K extends keyof typeof fields>(key: K, value: string) {
+    setFields((prev) => ({ ...prev, [key]: value }));
+  }
+
+  async function saveEdit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+    setSaving(true);
+    const result = await postJson(
+      `/api/schedule/burials/${encodeURIComponent(entry.id)}`,
+      fields,
+      "PATCH",
+    );
+    setSaving(false);
+    if (!result.ok) {
+      setError(result.error ?? "That could not be saved.");
+      return;
+    }
+    router.refresh();
+  }
+
+  async function remove() {
+    const ok = window.confirm(
+      `Remove the recorded burial for ${entry.deceased_name}? The sheet's history keeps it.`,
+    );
+    if (!ok) return;
+    setError(null);
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/schedule/burials/${encodeURIComponent(entry.id)}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const payload = (await res.json().catch(() => null)) as { error?: string } | null;
+        setError(payload?.error ?? "That could not be removed.");
+        return;
+      }
+      router.refresh();
+    } catch {
+      setError("Could not reach the scheduling service.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <details className="burial-admin__edit">
+      <summary className="text-sm">Edit or remove</summary>
+      <form className="stack-3" onSubmit={saveEdit} noValidate>
+        <div className="field-grid">
+          <Field label="Burial date" htmlFor={`${base}-date`}>
+            <input
+              id={`${base}-date`}
+              type="date"
+              value={fields.date}
+              onChange={(e) => change("date", e.target.value)}
+            />
+          </Field>
+          <Field label="Burial time" htmlFor={`${base}-time`} hint="24-hour, park time">
+            <input
+              id={`${base}-time`}
+              type="time"
+              value={fields.time}
+              onChange={(e) => change("time", e.target.value)}
+            />
+          </Field>
+          <Field label="Case number" htmlFor={`${base}-case`}>
+            <input
+              id={`${base}-case`}
+              value={fields.case_number}
+              onChange={(e) => change("case_number", e.target.value)}
+            />
+          </Field>
+          <Field label="Name" htmlFor={`${base}-name`}>
+            <input
+              id={`${base}-name`}
+              value={fields.deceased_name}
+              onChange={(e) => change("deceased_name", e.target.value)}
+            />
+          </Field>
+          <Field label="Lot number" htmlFor={`${base}-lot`}>
+            <input
+              id={`${base}-lot`}
+              value={fields.lot_number}
+              onChange={(e) => change("lot_number", e.target.value)}
+            />
+          </Field>
+          <Field label="Section" htmlFor={`${base}-section`}>
+            <input
+              id={`${base}-section`}
+              value={fields.section}
+              onChange={(e) => change("section", e.target.value)}
+            />
+          </Field>
+          <Field label="Coordinator" htmlFor={`${base}-coord`}>
+            <input
+              id={`${base}-coord`}
+              value={fields.coordinator}
+              onChange={(e) => change("coordinator", e.target.value)}
+            />
+          </Field>
+        </div>
+        <Field label="Note" htmlFor={`${base}-note`} hint="Optional">
+          <input
+            id={`${base}-note`}
+            value={fields.note}
+            onChange={(e) => change("note", e.target.value)}
+          />
+        </Field>
+        <div className="row row--wrap">
+          <Button type="submit" size="sm" disabled={saving}>
+            {saving ? "Saving…" : "Save burial"}
+          </Button>
+          <Button type="button" size="sm" variant="secondary" disabled={saving} onClick={remove}>
+            Remove burial
+          </Button>
+          {error ? <span className="text-sm burial-pickup-admin__error">{error}</span> : null}
+        </div>
+      </form>
+    </details>
   );
 }

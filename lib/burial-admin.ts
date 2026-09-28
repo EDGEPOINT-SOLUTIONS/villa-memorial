@@ -22,7 +22,8 @@ import {
 export const MAX_BURIAL_TEXT = 120;
 export const MAX_BURIAL_NOTE = 400;
 
-export type BurialDraft = {
+/** The burial's own fields — what an edit may change (the light pickup has its own route). */
+export type BurialFields = {
   date: string;
   time: string;
   case_number: string;
@@ -31,6 +32,9 @@ export type BurialDraft = {
   section: string;
   coordinator: string;
   note: string | null;
+};
+
+export type BurialDraft = BurialFields & {
   /** The optional light pickup recorded with the burial; its state always starts `scheduled`. */
   light_pickup: { time: string; crew: string; note: string | null } | null;
 };
@@ -54,9 +58,14 @@ function fail(errors: Record<string, string>): { ok: false; error: string; field
   return { ok: false, error: first, fieldErrors: errors };
 }
 
-/** Validate one burial draft; a malformed field is refused with a plain sentence. */
-export function parseBurialDraft(raw: unknown): BurialVerdict<BurialDraft> {
-  const source = record(raw);
+/**
+ * Validate the burial's own fields once, for both a new burial and an edit. The light
+ * pickup is NOT read here — it has its own route and its own rules.
+ */
+function readBurialFields(source: Record<string, unknown>): {
+  errors: Record<string, string>;
+  fields: BurialFields;
+} {
   const errors: Record<string, string> = {};
 
   const date = trimmed(source.date);
@@ -86,6 +95,26 @@ export function parseBurialDraft(raw: unknown): BurialVerdict<BurialDraft> {
   }
   if (note.length > MAX_BURIAL_NOTE) errors.note = "That is too long.";
 
+  return {
+    errors,
+    fields: {
+      date,
+      time,
+      case_number: caseNumber,
+      deceased_name: deceasedName,
+      lot_number: lotNumber,
+      section,
+      coordinator,
+      note: note || null,
+    },
+  };
+}
+
+/** Validate one burial draft; a malformed field is refused with a plain sentence. */
+export function parseBurialDraft(raw: unknown): BurialVerdict<BurialDraft> {
+  const source = record(raw);
+  const { errors, fields } = readBurialFields(source);
+
   // The light pickup is optional, but half of one is not: a time or a crew alone is refused.
   let lightPickup: BurialDraft["light_pickup"] = null;
   const pickup = record(source.light_pickup);
@@ -101,20 +130,19 @@ export function parseBurialDraft(raw: unknown): BurialVerdict<BurialDraft> {
   }
 
   if (Object.keys(errors).length > 0) return fail(errors);
-  return {
-    ok: true,
-    value: {
-      date,
-      time,
-      case_number: caseNumber,
-      deceased_name: deceasedName,
-      lot_number: lotNumber,
-      section,
-      coordinator,
-      note: note || null,
-      light_pickup: lightPickup,
-    },
-  };
+  return { ok: true, value: { ...fields, light_pickup: lightPickup } };
+}
+
+/**
+ * Validate an edit to a recorded burial — the same own-fields rules, no light pickup (a
+ * caller changes the pickup through `parsePickupUpdate`). Same field sentences, so the
+ * edit form and the create form refuse the same way.
+ */
+export function parseBurialUpdate(raw: unknown): BurialVerdict<BurialFields> {
+  const source = record(raw);
+  const { errors, fields } = readBurialFields(source);
+  if (Object.keys(errors).length > 0) return fail(errors);
+  return { ok: true, value: fields };
 }
 
 /* ------------------------------------------------------------------ */

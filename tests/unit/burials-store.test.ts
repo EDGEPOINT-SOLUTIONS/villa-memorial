@@ -5,10 +5,12 @@ import path from "node:path";
 import {
   burialsStorePath,
   listStoredBurials,
+  removeBurial,
   scheduleBurial,
+  updateBurial,
   updatePickup,
 } from "@/lib/api-client/burials-store";
-import type { BurialDraft } from "@/lib/burial-admin";
+import type { BurialDraft, BurialFields } from "@/lib/burial-admin";
 
 /**
  * The durable burial store (client minute 2026-09-21, item 2). Every test points
@@ -128,5 +130,89 @@ describe("the store refuses to guess", () => {
     await expect(
       live.scheduleBurial({ draft: draft(), actor: "Sam Staff" }),
     ).rejects.toMatchObject({ status: 503 });
+  });
+});
+
+describe("editing and removing a recorded burial", () => {
+  function fieldsOf(entry: {
+    date: string;
+    time: string;
+    case_number: string;
+    deceased_name: string;
+    lot_number: string;
+    section: string;
+    coordinator: string;
+    note: string | null;
+  }): BurialFields {
+    return {
+      date: entry.date,
+      time: entry.time,
+      case_number: entry.case_number,
+      deceased_name: entry.deceased_name,
+      lot_number: entry.lot_number,
+      section: entry.section,
+      coordinator: entry.coordinator,
+      note: entry.note,
+    };
+  }
+
+  it("edits the own fields, leaves the pickup untouched, and persists", async () => {
+    const before = (await listStoredBurials()).find((b) => b.id === "bur-2026-0001-santos")!;
+    const updated = await updateBurial({
+      burialId: before.id,
+      fields: {
+        ...fieldsOf(before),
+        time: "11:00",
+        deceased_name: "Pedro Santos Jr.",
+        coordinator: "Jose Mendoza",
+        note: "Corrected.",
+      },
+      actor: "Sam Staff",
+    });
+    expect(updated.deceased_name).toBe("Pedro Santos Jr.");
+    expect(updated.time).toBe("11:00");
+    // The light pickup is not part of an edit — it keeps its own route.
+    expect(updated.light_pickup).toEqual(before.light_pickup);
+
+    const reread = (await listStoredBurials()).find((b) => b.id === before.id)!;
+    expect(reread.coordinator).toBe("Jose Mendoza");
+    expect(reread.note).toBe("Corrected.");
+  });
+
+  it("refuses an edit that would duplicate another burial's case", async () => {
+    const before = (await listStoredBurials()).find((b) => b.id === "bur-2026-0001-santos")!;
+    await expect(
+      updateBurial({
+        burialId: before.id,
+        fields: { ...fieldsOf(before), case_number: "CASE-2026-0003" },
+        actor: "Sam Staff",
+      }),
+    ).rejects.toMatchObject({ status: 422 });
+  });
+
+  it("removes a burial, and a fresh read no longer carries it", async () => {
+    await removeBurial({ burialId: "bur-2026-0003-reyes", actor: "Sam Staff" });
+    const after = await listStoredBurials();
+    expect(after.map((b) => b.id)).not.toContain("bur-2026-0003-reyes");
+    expect(after).toHaveLength(2);
+  });
+
+  it("404s an unknown burial for both edit and remove", async () => {
+    const fields: BurialFields = {
+      date: "2026-10-05",
+      time: "10:00",
+      case_number: "CASE-2026-0009",
+      deceased_name: "Nena Bautista",
+      lot_number: "B-002",
+      section: "B",
+      coordinator: "Elena Villanueva",
+      note: null,
+    };
+    await expect(
+      updateBurial({ burialId: "bur-nope", fields, actor: "Sam Staff" }),
+    ).rejects.toMatchObject({ status: 404 });
+    await expect(removeBurial({ burialId: "bur-nope", actor: "Sam Staff" })).rejects.toMatchObject({
+      status: 404,
+    });
   });
 });

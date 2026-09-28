@@ -310,7 +310,10 @@
   (`SCHEDULING_BASE_URL`) answers the named 503 on reads AND writes — never a local file.
 - **The screen**: `app/(staff)/staff/schedule/burial-admin.tsx` (client) renders inside
   `burial-calendar.tsx` only when `canWrite`; it holds no rules and calls `router.refresh()` after
-  a write. Editing/removing a recorded burial is still open — do not add it silently.
+  a write. A recorded burial is editable and removable: `PATCH /api/schedule/burials/:id`
+  (`parseBurialUpdate`, own fields only — the pickup has its own route) and
+  `DELETE /api/schedule/burials/:id`; the store's journal keeps `burial_updated` /
+  `burial_removed` as the trail, and the screen's "Edit or remove" panel drives both.
 - Evidence: `tests/unit/burial-admin.test.ts`, `tests/unit/burials-store.test.ts`,
   `tests/unit/burials-route.test.ts`, `tests/unit/burial-calendar-page.test.tsx`; record
   `docs/08-delivery/phase6-design/`.
