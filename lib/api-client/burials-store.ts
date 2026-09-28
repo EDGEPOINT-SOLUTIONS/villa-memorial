@@ -37,12 +37,14 @@ import {
 import burialsFile from "@/lib/fixtures/scheduling/burials.json";
 import { toBurialEntry, toLightPickup } from "@/lib/burial-records";
 import type { BurialEntry, LightPickup } from "@/lib/burial-calendar";
-import type { BurialDraft } from "@/lib/burial-admin";
+import type { BurialDraft, BurialFields } from "@/lib/burial-admin";
 
 const LABEL = "burials";
 
 type PersistedEvent =
   | { kind: "burial_scheduled"; at: string; burial: BurialEntry }
+  | { kind: "burial_updated"; at: string; burial: BurialEntry }
+  | { kind: "burial_removed"; at: string; burial_id: string }
   | { kind: "pickup_updated"; at: string; burial_id: string; pickup: LightPickup };
 
 const lock = createJournalLock();
@@ -75,8 +77,11 @@ function toPersistedEvent(raw: unknown): PersistedEvent {
   if (typeof raw !== "object" || raw === null) malformed("store event");
   const r = raw as Record<string, unknown>;
   const at = requiredString(r.at, "event timestamp");
-  if (r.kind === "burial_scheduled") {
-    return { kind: "burial_scheduled", at, burial: toBurialEntry(r.burial) };
+  if (r.kind === "burial_scheduled" || r.kind === "burial_updated") {
+    return { kind: r.kind, at, burial: toBurialEntry(r.burial) };
+  }
+  if (r.kind === "burial_removed") {
+    return { kind: "burial_removed", at, burial_id: requiredString(r.burial_id, "removed burial id") };
   }
   if (r.kind === "pickup_updated") {
     return {
@@ -109,19 +114,26 @@ export async function listStoredBurials(): Promise<BurialEntry[]> {
   const order = seed.map((entry) => entry.id);
 
   for (const event of await readPersistedEvents()) {
-    if (event.kind === "burial_scheduled") {
-      if (!byId.has(event.burial.id)) order.push(event.burial.id);
-      byId.set(event.burial.id, event.burial);
-    } else {
-      const existing = byId.get(event.burial_id);
-      if (existing) byId.set(event.burial_id, { ...existing, light_pickup: event.pickup });
+    switch (event.kind) {
+      case "burial_scheduled":
+      case "burial_updated":
+        if (!byId.has(event.burial.id)) order.push(event.burial.id);
+        byId.set(event.burial.id, event.burial);
+        break;
+      case "burial_removed":
+        byId.delete(event.burial_id);
+        break;
+      case "pickup_updated": {
+        const existing = byId.get(event.burial_id);
+        if (existing) byId.set(event.burial_id, { ...existing, light_pickup: event.pickup });
+        break;
+      }
     }
   }
 
   return order
-    .map((id) => byId.get(id))
-    .filter((entry): entry is BurialEntry => entry !== undefined)
-    .map((entry) => structuredClone(entry));
+    .filter((id) => byId.has(id))
+    .map((id) => structuredClone(byId.get(id) as BurialEntry));
 }
 
 async function readPersistedEvents(): Promise<PersistedEvent[]> {
@@ -243,5 +255,71 @@ export async function updatePickup(args: {
       { kind: "pickup_updated", at, burial_id: args.burialId, pickup },
     ]);
     return structuredClone({ ...existing, light_pickup: pickup });
+  });
+}
+
+/**
+ * Edits a recorded burial's OWN fields (the light pickup is left exactly as it is — it has its
+ * own route). The ids are preserved; the store re-checks the one cross-row rule a create does:
+ * no other burial may already carry the edited case number.
+ */
+export async function updateBurial(args: {
+  burialId: string;
+  fields: BurialFields;
+  actor: string;
+  now?: Date;
+}): Promise<BurialEntry> {
+  assertFixtureMode();
+  const now = args.now ?? new Date();
+  return lock(async () => {
+    const all = await listStoredBurials();
+    const existing = all.find((entry) => entry.id === args.burialId);
+    if (!existing) {
+      throw new ApiError("no such burial", 404);
+    }
+    if (
+      all.some(
+        (entry) => entry.id !== args.burialId && entry.case_number === args.fields.case_number,
+      )
+    ) {
+      throw new ApiError(
+        `a burial for case ${args.fields.case_number} is already recorded`,
+        422,
+      );
+    }
+    const burial: BurialEntry = { ...existing, ...args.fields, id: existing.id };
+    const at = now.toISOString();
+    const events = await readPersistedEvents();
+    await writeJournalEvents(burialsStorePath(), LABEL, [
+      ...events,
+      { kind: "burial_updated", at, burial },
+    ]);
+    return structuredClone(burial);
+  });
+}
+
+/**
+ * Removes a recorded burial from the calendar. Append-only like every store here: the journal
+ * keeps the record (`burial_removed`), and every read folds it out. The office's audit trail
+ * therefore still shows that a burial was recorded and then taken off the sheet.
+ */
+export async function removeBurial(args: {
+  burialId: string;
+  actor: string;
+  now?: Date;
+}): Promise<void> {
+  assertFixtureMode();
+  const now = args.now ?? new Date();
+  return lock(async () => {
+    const existing = (await listStoredBurials()).find((entry) => entry.id === args.burialId);
+    if (!existing) {
+      throw new ApiError("no such burial", 404);
+    }
+    const at = now.toISOString();
+    const events = await readPersistedEvents();
+    await writeJournalEvents(burialsStorePath(), LABEL, [
+      ...events,
+      { kind: "burial_removed", at, burial_id: args.burialId },
+    ]);
   });
 }

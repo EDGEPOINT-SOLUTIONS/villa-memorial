@@ -127,7 +127,7 @@ Cause: `checkLotCategories` (`lib/pricing-model.ts:379-398`) validates senior �
 ### Phase 6 — the genuinely unfinished minute items (DONE 2026-09-28, `docs/08-delivery/phase6-design/`; burial edit/delete still open)
 1. **Burial + light-pickup write path — DONE 2026-09-28** (`lib/api-client/burials-store.ts`,
    `lib/burial-admin.ts`, `app/api/schedule/burials/**`, `app/(staff)/staff/schedule/burial-admin.tsx`).
-   Editing/removing a recorded burial is the remaining piece. Minute #2 says "record and manage". A real month grid exists
+   Editing/removing a recorded burial is now DONE too (2026-09-28). Minute #2 says "record and manage". A real month grid exists
    (`app/(staff)/staff/schedule/burial-calendar.tsx`), and `light_pickup` is a typed nested field on the
    burial (`lib/burial-calendar.ts:65-86`) — but there is **no write path at all** (no burials route),
    and the pickup's `scheduled → in_progress → done` state has **no transition surface**. Prep staff also

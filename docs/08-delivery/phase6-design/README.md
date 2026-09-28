@@ -57,7 +57,15 @@ pickup needs a time and crew. The store's journal is redirected in `tests/setup.
 **Evidence:** `tests/unit/burial-admin.test.ts` (rules + lifecycle), `tests/unit/burials-store.test.ts`
 (durability, refusals, corrupt-journal 500, live 503), `tests/unit/burials-route.test.ts`
 (401/403/422/201, persistence), `tests/unit/burial-calendar-page.test.tsx` (writer sees the controls,
-reader does not). Still open, and named rather than half-built: editing or removing a recorded burial.
+reader does not).
+
+**Added 2026-09-28 (this PR):** editing and removing a recorded burial. A burial's own
+fields are editable (`PATCH /api/schedule/burials/:id`, `parseBurialUpdate`) and a
+mis-recorded burial can be taken off the sheet (`DELETE /api/schedule/burials/:id`); the
+store is append-only, so the journal keeps `burial_updated` / `burial_removed` as the audit
+trail. The screen gains an "Edit or remove" panel per burial. Editing keeps the light pickup
+untouched (it has its own route) and re-checks the one cross-row rule a create does — a case
+carries one burial. Evidence: `tests/unit/{burial-admin,burials-store,burials-route}.test.*`.
 
 **Deferred (unchanged):** the eleven older stores still carry their own journal mechanics — the
 Phase 7 migration.

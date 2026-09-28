@@ -3,6 +3,7 @@ import {
   MAX_BURIAL_TEXT,
   nextPickupState,
   parseBurialDraft,
+  parseBurialUpdate,
   parsePickupUpdate,
   previousPickupState,
 } from "@/lib/burial-admin";
@@ -113,5 +114,38 @@ describe("the light pickup lifecycle", () => {
   it("refuses an unknown state and a bad time", () => {
     expect(parsePickupUpdate({ state: "collected" }).ok).toBe(false);
     expect(parsePickupUpdate({ state: "done", time: "not-a-time" }).ok).toBe(false);
+  });
+});
+
+describe("editing a recorded burial", () => {
+  function fields(over: Record<string, unknown> = {}) {
+    return {
+      date: "2026-10-05",
+      time: "10:00",
+      case_number: "CASE-2026-0005",
+      deceased_name: "Nena Bautista",
+      lot_number: "B-002",
+      section: "B",
+      coordinator: "Elena Villanueva",
+      note: "",
+      ...over,
+    };
+  }
+
+  it("accepts the own fields and never reads a light pickup", () => {
+    const verdict = parseBurialUpdate(fields());
+    expect(verdict.ok).toBe(true);
+    if (verdict.ok) {
+      expect(verdict.value.note).toBeNull();
+      // The pickup has its own route; an edit cannot carry one.
+      expect("light_pickup" in verdict.value).toBe(false);
+    }
+  });
+
+  it("refuses a bad field with the same sentence the create form uses", () => {
+    const verdict = parseBurialUpdate(fields({ time: "25:00" }));
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.fieldErrors.time).toMatch(/24-hour/i);
+    expect(parseBurialUpdate(fields({ deceased_name: "  " })).ok).toBe(false);
   });
 });
