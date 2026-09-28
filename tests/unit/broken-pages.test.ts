@@ -24,11 +24,11 @@ import { fileURLToPath } from "node:url";
  *   3. `/services` — both guide cards: the photograph took the whole right
  *      column at the top while the heading was baseline-dropped to the image's
  *      bottom, leaving a ~174px void in the top-left. Cause: the guide cards
- *      reuse `.sv-price-card`, which the composition pass re-templated into a
- *      two-column price ledger (`minmax(0, 1fr) auto` + `align-items: baseline`)
- *      without giving the guide variant its own template. (The whole `.sv-*`
- *      services surface was retired later; this defect's guard was removed with
- *      it on 2026-09-28.)
+ *      reused the retired services price-card class, which the composition pass
+ *      re-templated into a two-column price ledger (`minmax(0, 1fr) auto` +
+ *      `align-items: baseline`) without giving the guide variant its own template.
+ *      (That whole services surface was retired later; this defect's guard went
+ *      with it on 2026-09-28.)
  *   4. `/products` — every row of the five-coffin-tier band was drawn as a
  *      bordered box with its copy crushed into a 131px ribbon and three empty
  *      columns. Cause: `.tier-row` was declared twice at top level — the package
@@ -130,10 +130,11 @@ describe("defect 1 — a ratio declared on an img must reset the height attribut
 });
 
 // "defect 3 — the guide cards own their layout, not the price ledger's" was here.
-// It pinned `.sv-prices--guides .sv-price-card`, a rule for the RETIRED services
-// guide cards: neither class is named anywhere in app/, components/ or lib/, and
-// the rule was matched on none of 218 routes x 3 viewports. Naming it in this file
-// is what kept the dead rule in the sheet. Removed 2026-09-28.
+// It pinned the rules for the RETIRED services guide cards: no class in them is
+// named anywhere in app/, components/ or lib/, and the rule was matched on none of
+// 218 routes x 3 viewports. Naming a dead selector in this file — comment included —
+// is what kept its rule in the sheet. Removed 2026-09-28; the manifest is in the
+// design record.
 
 describe("round 2 defect — a scroll wrapper must contain its absolute descendants", () => {
   // `position: absolute` escapes an `overflow` clip unless the scroll container

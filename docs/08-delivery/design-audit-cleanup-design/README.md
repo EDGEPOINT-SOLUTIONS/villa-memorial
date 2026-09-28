@@ -164,32 +164,53 @@ worse than one that reports what it could not measure.
 ## Second pass — the stale guards (2026-09-28)
 
 The first prune removed every rule whose class name appeared nowhere in source. What it could
-not touch: **152 dead rules whose class names survive only in *test guards***. A guard that names
-a selector keeps its rule alive (the second signal scans `tests/`), so a stale guard is
+not touch: **dead rules whose class names survive only in *test guards***. A guard that names a
+selector keeps its rule alive (the second signal scans `tests/`), so a stale guard is
 indistinguishable from a live consumer.
 
-A measurement settled it: `.item-card`, `.page-hero__title`, `.gal-hero__title`, `.fac-room`,
-`.story-chapel__rate` and 100+ more appear in **zero** files under `app/`, `components/` or
-`lib/`, and were matched on **none** of 218 routes × 3 viewports. They are retired classes whose
-guards were never updated — vacuous guards, exactly what the art-direction pass named as a rule
-("verify a guard is not vacuous").
+Measured, not guessed: the retired band classes below appear in **zero** files under `app/`,
+`components/` or `lib/`, and matched on **none** of 218 routes × 3 viewports — vacuous guards,
+exactly what the art-direction pass named as a rule to avoid ("verify a guard is not vacuous").
 
-**Cleaned** (dead selectors removed from the guard lists; every file re-greened):
-`typography-system` (30 role-map / figure-cap entries), `composition-pass`,
-`public-surface-consistency`, `page-backgrounds`, `portal-calm`, and `broken-pages` (its whole
-"defect 3" describe pinned the retired guide cards).
+**Removed from the guards** (rule-existence assertions only): `typography-system` (30 role-map /
+figure-cap entries), `composition-pass`, `public-surface-consistency`, `page-backgrounds`,
+`portal-calm`, and `broken-pages` (its whole "defect 3" describe pinned the retired services guide
+cards). Four test cases went with their stale subjects.
 
-**Deliberately kept**: guards whose subject is a *negative* assertion — "the markup must not
-contain `class="sv-subnav"`" (`villa-services-premium`), `.ag-map__pin` (`agent-park-map`),
-`.chapel-grid` (`schedule-page`), `.story-room__rate` (`facilities-page`). Those guards are
-meaningful, and the second signal keeps their rules: a tool limitation, recorded rather than
-papered over. The `.public-grid--cards` guards (`phone-layout`, `public-layout`) were also left
-alone — they read through `lib/public-layout.ts`'s `GRID` contract, which is not this pass's to
-change.
+### The lesson that cost two extra passes: a comment counts
 
-**Second prune:** 52 rules · 9,885 bytes · 311 lines, invariant `...LOST: 0`. With the first pass,
-`styles/components.css` is **≈56.7 KB (9.9 %)** lighter and the two-signal pipeline now reports
-**0** deletion candidates.
+The first re-run freed only 52 rules, because **the explanatory comments written in this very
+pass named the dead classes** — and the source signal reads a comment like any other text. Three
+rounds were needed before the tool agreed. The rule is now explicit: *never name a dead selector
+in a scanned file, comment included.* The manifest of what went lives here, in `docs/` (which the
+tool does not scan), not beside the guard.
+
+### `lib/public-layout.ts` — a "referenced but never used" loop
+
+The `.public-grid` `--cards` modifier (a 21 rem "card" floor) was set by no page: the only
+renderer of `.public-grid` (`/lots/price-list-2026`) uses `public-grid catalogue-photos`. The
+modifier, `GRID.cardFloorRem` and the two assertions that pinned them existed only to justify one
+another. All three went.
+
+### Deliberately kept — and why the tool is right
+
+`tests/` stays in the source signal, and the four **negative-assertion** guards stay with it —
+`not.toContain('class="sv-subnav"')` (`villa-services-premium`) and the `ag-map__pin` /
+`chapel-grid` / `story-room__rate` equivalents. Those guards are meaningful: they assert a retired
+surface's *markup* cannot return, and they do not need the CSS.
+
+Excluding `tests/` was **rejected on evidence**: the app builds class names dynamically at **122
+`className={…}` sites** (`mem-choice--${choice.id}`, `seg--${tone}`,
+`copilot-finding--${finding.tone}`…), so a class can be real and never appear literally. A test
+that names it is a genuine safety net. The residue is the price of that safety, recorded here
+rather than papered over.
+
+### Result
+
+Three prunes in total — **313 rules · 46,771 bytes**, then **52 rules · 9,885 bytes**, then **72
+rules · 12,624 bytes**: `styles/components.css` is **69,291 bytes (12.1 %)** lighter, and the
+two-signal pipeline reports **0** deletion candidates — no dead CSS remains that automation can
+prove dead.
 
 **Verification:** 240 files / **2,742 tests** · lint · tsc · production build · smoke 61/61 ·
 re-audit (0 render failures, 0 overflow).

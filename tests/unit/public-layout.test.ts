@@ -166,12 +166,17 @@ describe("the catalogue grid and the Show all N disclosure (plan §3 R4/R8)", ()
     expect(GRID.catalogueFloorRem * 16).toBeLessThanOrEqual(320);
   });
 
-  it("the grid and the wider card grid declare their floors", () => {
+  it("the grid declares its floor", () => {
     expect(declares(rule(".public-grid"), "grid-template-columns", /repeat/)).toBe(true);
     const base = rule(".public-grid");
     expect(base.body).toContain(`${GRID.catalogueFloorRem}rem`);
-    const cards = rule(".public-grid--cards");
-    expect(cards.body).toContain(`${GRID.cardFloorRem}rem`);
+    // The `--cards` modifier of `.public-grid` (a 21rem "card" floor) and
+    // `GRID.cardFloorRem` were removed 2026-09-28: they were a "referenced but
+    // never used" loop. The only page that renders `.public-grid`
+    // (`/lots/price-list-2026`) uses `public-grid catalogue-photos`, so the
+    // modifier, the constant and this assertion existed only to justify one
+    // another. (Its selector is not spelled out here — naming a dead class in a
+    // scanned file, comment included, keeps its rule alive.)
   });
 
   it("the disclosure threshold and the visible window agree", () => {

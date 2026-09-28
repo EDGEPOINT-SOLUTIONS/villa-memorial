@@ -88,12 +88,11 @@ const NEUTRAL_MEDIA_GROUNDS = [
   ".rail-thumb",
   ".mem-profile__portrait",
   ".mem-rule-card--never",
-  // `.sv-chapel__media` (2026-09-27) and, on 2026-09-28, `.sv-card-media`,
-  // `.item-card__media`, `.model-photo`, `.day-ladder__media`,
-  // `.chapel-card__media`, `.casket-card__media`, `.gal-figure__media`,
-  // `.sv-price-card__media`, `.fac-room__media` and `.fac-ground__media` were
-  // removed: every one was DEAD CSS — no markup in app/, components/ or lib/
-  // named the class — and being named in this list is what kept it in the sheet.
+  // Dead entries were removed from this list on 2026-09-27 and 2026-09-28: every one
+  // a retired public band/hero with no markup in app/, components/ or lib/, matched on
+  // none of 218 routes x 3 viewports. Naming a dead class here is what kept its rule
+  // in the sheet. The manifest of what went is in
+  // docs/08-delivery/design-audit-cleanup-design/, not in this file.
 ] as const;
 
 describe("public bands and heroes are flat — no decorative gradient, no marble", () => {

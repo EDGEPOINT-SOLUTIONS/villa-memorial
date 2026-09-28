@@ -391,11 +391,11 @@ const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
       ".sb-estimate__total-amount",
       ".sb-estimate__arranged-figure, .sb-arranged__title",
       ".paper-hero__price-value",
-      // `.sv-chapel__rate`, `.story-chapel__rate`, `.story-total__amount`,
-      // `.ledger__figure`, `.svc-total__amount` and `.chapel-card__rate` were here.
-      // Every one was a DEAD rule — no markup in app/, components/ or lib/ named the
-      // class, and none was matched across 218 routes x 3 viewports. Being named in
-      // this list is exactly what kept the dead rules alive. Removed 2026-09-28.
+      // Six dead entries were removed from this role on 2026-09-28: every one a
+      // retired services/ledger class with no markup in app/, components/ or lib/,
+      // matched on none of 218 routes x 3 viewports. Naming a dead class here — as
+      // this list did — is what kept its rule alive. The manifest of what went is in
+      // docs/08-delivery/design-audit-cleanup-design/, not in this file.
       ".fac-room__rate",
     ],
   },

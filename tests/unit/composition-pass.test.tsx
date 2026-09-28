@@ -139,11 +139,12 @@ describe("bands are separated by rules and space, not by a shadow on every box",
     expect(rule(".post-card")).not.toMatch(/box-shadow/);
   });
 
-  // "the catalogue tile is ruled, not boxed" was here. It pinned `.item-card`,
-  // which no longer exists in app/, components/ or lib/ — the home's plans & lots
-  // band renders the kit `ProductCard` (`.shop-card`) now, and the captain
-  // explicitly asked for equal cards there. It was guarding a retired tile and
-  // keeping its dead CSS alive. Removed 2026-09-28.
+  // "the catalogue tile is ruled, not boxed" was here. It pinned the retired
+  // catalogue-tile class, which no longer appears in app/, components/ or lib/ —
+  // the home's plans & lots band renders the kit `ProductCard` (`.shop-card`) now,
+  // and the captain explicitly asked for equal cards there. The test guarded a
+  // retired tile and kept its dead CSS alive. Removed 2026-09-28 (the class name is
+  // deliberately not repeated here — see the design record for the manifest).
 
   it("keeps elevation only where something actually floats", () => {
     // The shared kit's card, the sticky rail panel, the header's dropdown and
@@ -155,11 +156,10 @@ describe("bands are separated by rules and space, not by a shadow on every box",
     // surface or to a non-public (staff/editor) surface — the public BANDS in
     // this pass carry none.
     //
-    // The dead public classes were removed 2026-09-28 (`.sv-hero__media`,
-    // `.sv-call`, `.sv-help`, `.sv-fact`, `.sv-figure`, `.fac-room`,
-    // `.fac-grounds__media`, `.fac-areas`, `.fac-help`, `.gal-figure__media`):
-    // none is named anywhere in app/, components/ or lib/, so their rules were
-    // dead and naming them here is what kept them breathing.
+    // Ten dead public classes were removed from this list on 2026-09-28 — retired
+    // services/facilities/gallery bands with no markup in app/, components/ or lib/,
+    // matched on none of 218 routes x 3 viewports. Naming a dead class here is what
+    // kept its rule alive. The manifest is in docs/08-delivery/design-audit-cleanup-design/.
     const banded = [
       ".sv-picker",
       ".gal-hero",

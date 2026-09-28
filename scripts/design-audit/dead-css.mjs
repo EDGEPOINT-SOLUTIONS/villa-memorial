@@ -13,6 +13,16 @@
  * unsafe: a class can be built dynamically (`\`card--${kind}\``) and never appear
  * literally. Requiring BOTH is what makes the deletion defensible.
  *
+ * A NOTE FOR WHOEVER CLEANS GUARDS. Because `tests/` is scanned, a test that NAMES a
+ * dead selector keeps its rule alive — **including a comment written to explain the
+ * removal**. A cleanup pass spent two extra rounds learning that (2026-09-28). Write
+ * the manifest in `docs/` (never scanned) and keep the token out of the test file, or
+ * this tool will keep reporting the rule as referenced.
+ *
+ * And do NOT "fix" that by dropping `tests/` from SRC_DIRS: the app builds class names
+ * dynamically (`mem-choice--${choice.id}`, `seg--${tone}`, …), so a test that names one
+ * is a real safety net.
+ *
  * Usage: node scripts/design-audit/dead-css.mjs [--file styles/components.css]
  * Output: .design-audit/dead-css.md + dead-css.json
  */
