@@ -801,15 +801,7 @@ input[type="checkbox"] {
   100% { background-position: -200% 0; }
 }
 
-/* --- Auth shell --------------------------------------------------------------- */
-.auth-shell {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-5);
-  background: var(--color-bg-surface-raised);
-}
+
 
 
 
@@ -1334,13 +1326,7 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-secondary);
 }
 
-.ledger__row-figure {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+
 
 
 
@@ -1398,14 +1384,7 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-7);
 }
 
-.cat-lead {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-1) var(--space-5);
-  align-items: baseline;
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-rule);
-}
+
 
 
 
@@ -1417,10 +1396,7 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-xl);
 }
 
-.cat-lead .ledger__actions {
-  grid-column: 1 / -1;
-  margin-top: var(--space-2);
-}
+
 
 /* The five coffin tiers as a ledged band (/products): the entry tier leads with
    its photograph, the steps above it follow as hairline rows that keep their own
@@ -1481,10 +1457,7 @@ a.ledger__row:hover .ledger__row-title {
   grid-row: 1;
 }
 
-.ledger__row--model .ledger__row-figure {
-  grid-column: 3;
-  grid-row: 1;
-}
+
 
 .ledger__row--model .ledger__row-meta {
   grid-column: 2 / -1;
@@ -1526,12 +1499,7 @@ a.ledger__row:hover .ledger__row-title {
   margin: 0 auto var(--space-6);
 }
 
-.page-hero__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-page-title);
-  margin: 0;
-  color: var(--hero-text-colour, inherit);
-}
+
 
 
 
@@ -2142,12 +2110,7 @@ a.ledger__row:hover .ledger__row-title {
 
 
 
-.day-ladder__price {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
+
 
 @media (max-width: 40rem) {
   
@@ -2192,26 +2155,13 @@ a.ledger__row:hover .ledger__row-title {
 
 
 
-.item-card__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  color: var(--color-text-primary);
-}
 
-.item-card__title a {
-  color: inherit;
-  text-decoration: none;
-}
 
-.item-card__title a:hover {
-  color: var(--color-text-accent);
-}
 
-.item-card__price {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-text-accent);
-}
+
+
+
+
 
 
 
@@ -2517,15 +2467,7 @@ a.ledger__row:hover .ledger__row-title {
   }
 }
 
-/* --- Sellable casket cards (/products): collection heading + price facts ------ */
-.casket-collection__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  color: var(--color-text-primary);
-  margin: 0;
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--color-rule);
-}
+
 
 
 
@@ -2599,13 +2541,7 @@ a.ledger__row:hover .ledger__row-title {
   margin-bottom: var(--space-3);
 }
 
-.landing__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-hero);
-  line-height: 1.08;
-  letter-spacing: -0.01em;
-  margin: 0 0 var(--space-4);
-}
+
 
 
 
@@ -2643,12 +2579,7 @@ a.ledger__row:hover .ledger__row-title {
   background: var(--color-border);
 }
 
-.stat__value {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-accent);
-  line-height: 1;
-}
+
 
 
 
@@ -2891,14 +2822,7 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-md);
 }
 
-/* Memorial card — the ceremonial heart of the family dashboard. */
-.memorial-card {
-  text-align: center;
-  padding: var(--space-7) var(--space-6);
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
+
 
 
 
@@ -3230,11 +3154,7 @@ a.ledger__row:hover .ledger__row-title {
   padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
-.family-shell__footer {
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg-surface);
-  padding-block: var(--space-5);
-}
+
 
 .family-shell__footer .text-sm {
   color: var(--color-text-muted);
@@ -6129,29 +6049,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Landing showcase — “The very first memorial park in Basilan” (premium band)
- * ------------------------------------------------------------------------- */
-.landing-showcase {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(720px circle at 88% 12%, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 58%),
-    linear-gradient(180deg, var(--navy-900), var(--navy-950));
-  color: var(--color-text-inverse);
-  padding-block: clamp(3.5rem, 7vw, 6rem);
-  margin-block: var(--space-6);
-}
-
-.landing-showcase::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
-}
 
 
 
@@ -6159,12 +6056,10 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-.landing-showcase__title {
-  margin: 0;
-  font-size: var(--text-section-title);
-  line-height: 1.12;
-  color: var(--color-text-inverse);
-}
+
+
+
+
 
 
 
@@ -7582,35 +7477,19 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-.gal-hero__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-hero);
-  line-height: 1.12;
-  color: var(--color-text-primary);
-}
 
 
 
 
 
-/* --- photo groups --------------------------------------------------------- */
-.gal-group {
-  display: grid;
-  gap: var(--space-4);
-}
 
 
 
 
 
-.gal-group__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  line-height: 1.2;
-  color: var(--color-text-primary);
-}
+
+
+
 
 .gal-group__intro {
   margin: var(--space-2) 0 0;
@@ -7687,35 +7566,17 @@ because the shared `.ag-appt` rule comes later in this file. */
   aspect-ratio: 1 / 1;
 }
 
-/* --- next step: ask the office about a visit ------------------------------ */
-.gal-visit {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  padding: var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
+
 
 @media (max-width: 62rem) {
-  .gal-visit {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--space-5);
-  }
+  
 
   .gal-visit__actions .btn {
     width: 100%;
   }
 }
 
-.gal-visit__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
+
 
 
 
@@ -15584,22 +15445,7 @@ a.card:hover {
 
 
 
-.sv-price-card__amount {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  align-self: center;
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
+
 
 
 
@@ -15636,17 +15482,6 @@ a.card:hover {
   background: var(--color-bg-subtle);
 }
 
-.sv-price-card--photo .sv-price-card__head,
-.sv-price-card--photo .sv-price-card__plain,
-.sv-price-card--photo .sv-price-card__amount,
-.sv-price-card--photo .sv-price-card__actions {
-  grid-column: auto;
-  grid-row: auto;
-}
-
-.sv-price-card--photo .sv-price-card__amount {
-  justify-content: flex-start;
-}
 
 
 
@@ -15656,33 +15491,16 @@ a.card:hover {
 
 
 
-/* Total band */
-.sv-total {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-3) var(--space-5);
-  margin-top: var(--space-5);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
-}
 
 
 
-.sv-total__amount {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
 
-.sv-total p {
-  flex: 1 1 20rem;
-  margin: 0;
-  color: var(--color-text-primary);
-}
+
+
+
+
+
+
 
 
 
@@ -16097,77 +15915,26 @@ a.card:hover {
   }
 }
 
-/* Phone-only sticky call bar — the "Need help?" path that never scrolls away.
-   It sits above the existing MobileQuickMenu FAB (bottom: 5.5rem). */
-.sv-callbar {
-  position: fixed;
-  left: var(--space-3);
-  right: var(--space-3);
-  bottom: var(--space-3);
-  z-index: 60;
-  display: none;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: 999px;
-  background: var(--sky-700);
-  color: #ffffff;
-  box-shadow: var(--shadow-card-hover);
-}
 
-.sv-callbar span {
-  font-size: var(--text-md);
-  color: #ffffff;
-}
 
-.sv-callbar a {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: 0 var(--space-4);
-  border-radius: 999px;
-  background: var(--gold-400);
-  color: var(--color-text-primary);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
+
+
+
 
 @media (max-width: 62rem) {
-  /* The bar sits clear ABOVE the MobileQuickMenu FAB (1rem offset + 3.25rem
-     button + 1.25rem gap): the FAB must never cover the 24/7 number. */
-  .sv-callbar {
-    display: flex;
-    bottom: 5.5rem;
-  }
+  
   .sv-page {
     padding-bottom: 10rem; /* clear the call bar + the FAB below it */
   }
 }
 
-/* --- Sources block ----------------------------------------------------------- */
-.sv-sources {
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-sources h2 {
-  margin-bottom: var(--space-2);
-  font-size: var(--text-section-title);
-}
 
-.sv-sources p {
-  margin: 0 0 var(--space-3);
-  color: var(--color-text-primary);
-}
 
-.sv-sources p:last-child {
-  margin-bottom: 0;
-}
+
+
+
+
 
 
 
@@ -16335,11 +16102,7 @@ a.card:hover {
 
 
 
-.ia-hero__title {
-  margin: 0;
-  font-size: var(--text-page-title);
-  color: var(--color-text-primary);
-}
+
 
 
 
@@ -16620,19 +16383,11 @@ a.ia-alt:hover {
   font-weight: 600;
 }
 
-/* --- Sections ------------------------------------------------------------- */
-.fac-section {
-  display: grid;
-  gap: var(--space-4);
-  margin-top: var(--space-7);
-}
 
 
 
-.fac-section__title {
-  margin: 0;
-  font-size: var(--text-section-title);
-}
+
+
 
 
 
@@ -16673,10 +16428,7 @@ a.ia-alt:hover {
 
 
 
-.fac-room__name {
-  margin: 0;
-  font-size: var(--text-card-title);
-}
+
 
 .fac-room__rate {
   display: flex;
@@ -16900,23 +16652,13 @@ a.ia-alt:hover {
 
 
 
-.mem-hero__card-title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  color: var(--color-text-primary);
-}
 
 
 
 
 
-.mem-section-title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
+
+
 
 .mem-intro {
   margin: 0;
@@ -17178,31 +16920,11 @@ a.ia-alt:hover {
 
 
 
-/* --- Closing "Talk to the office" band ------------------------------------- */
-.mem-find {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card-rest);
-}
 
-@media (max-width: 60rem) {
-  .mem-find {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.mem-find__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
+
+
+
 
 
 
@@ -17300,16 +17022,7 @@ a.ia-alt:hover {
   color: var(--color-text-secondary);
 }
 
-/* --- The memorial page: one uniform answer for absent AND unpublished ------ */
-.mem-unavailable {
-  display: grid;
-  gap: var(--space-5);
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  box-shadow: var(--shadow-card-rest);
-}
+
 
 
 
@@ -19352,14 +19065,6 @@ a.plan-advisor__phone:hover {
 
 
 
-.story-rate {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--color-rule);
-}
 
 
 
@@ -19369,30 +19074,14 @@ a.plan-advisor__phone:hover {
 
 
 
-.story-rate__price {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  line-height: var(--leading-tight);
-  white-space: nowrap;
-  color: var(--color-text-primary);
-}
 
 
 
 
 
-@media (min-width: 48rem) {
-  .story-rate {
-    /* Request-for-Quote retired the price column (captain 2026-09-21): one
-       action per row, so the grid is icon · words · action. */
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-  }
 
-  
 
-  
-}
+
 
 .story-total {
   display: flex;

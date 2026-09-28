@@ -137,15 +137,13 @@ describe("bands are separated by rules and space, not by a shadow on every box",
   it("the home's four stacked bands and its newsfeed cast no shadow", () => {
     expect(rule(".mid-section")).not.toMatch(/box-shadow/);
     expect(rule(".post-card")).not.toMatch(/box-shadow/);
-    expect(rule(".item-card")).not.toMatch(/box-shadow/);
   });
 
-  it("the catalogue tile is ruled, not boxed", () => {
-    const body = rule(".item-card");
-    expect(body).toContain("border-bottom: 1px solid var(--color-rule);");
-    expect(body).toContain("border-radius: 0;");
-    expect(body).toContain("background: transparent;");
-  });
+  // "the catalogue tile is ruled, not boxed" was here. It pinned `.item-card`,
+  // which no longer exists in app/, components/ or lib/ — the home's plans & lots
+  // band renders the kit `ProductCard` (`.shop-card`) now, and the captain
+  // explicitly asked for equal cards there. It was guarding a retired tile and
+  // keeping its dead CSS alive. Removed 2026-09-28.
 
   it("keeps elevation only where something actually floats", () => {
     // The shared kit's card, the sticky rail panel, the header's dropdown and
@@ -156,24 +154,16 @@ describe("bands are separated by rules and space, not by a shadow on every box",
     // Every rule that still paints --shadow-card-rest belongs to a floating
     // surface or to a non-public (staff/editor) surface — the public BANDS in
     // this pass carry none.
+    //
+    // The dead public classes were removed 2026-09-28 (`.sv-hero__media`,
+    // `.sv-call`, `.sv-help`, `.sv-fact`, `.sv-figure`, `.fac-room`,
+    // `.fac-grounds__media`, `.fac-areas`, `.fac-help`, `.gal-figure__media`):
+    // none is named anywhere in app/, components/ or lib/, so their rules were
+    // dead and naming them here is what kept them breathing.
     const banded = [
-      ".sv-hero__media",
-      ".sv-call",
-      // `.sv-chapel` was here while its rule existed. The rule was DEAD — no
-      // markup used the class (the live cards are `.story-chapel`) — and listing
-      // it here is what stopped anyone noticing. Removed with the rule,
-      // 2026-09-27.
-      ".sv-help",
-      ".sv-fact",
-      ".sv-figure",
       ".sv-picker",
-      ".fac-room",
-      ".fac-grounds__media",
-      ".fac-areas",
-      ".fac-help",
       ".gal-hero",
       ".gal-walk",
-      ".gal-figure__media",
       ".promo-figure",
       ".casket-sample",
     ];

@@ -26,7 +26,9 @@ import { fileURLToPath } from "node:url";
  *      bottom, leaving a ~174px void in the top-left. Cause: the guide cards
  *      reuse `.sv-price-card`, which the composition pass re-templated into a
  *      two-column price ledger (`minmax(0, 1fr) auto` + `align-items: baseline`)
- *      without giving the guide variant its own template.
+ *      without giving the guide variant its own template. (The whole `.sv-*`
+ *      services surface was retired later; this defect's guard was removed with
+ *      it on 2026-09-28.)
  *   4. `/products` — every row of the five-coffin-tier band was drawn as a
  *      bordered box with its copy crushed into a 131px ribbon and three empty
  *      columns. Cause: `.tier-row` was declared twice at top level — the package
@@ -93,8 +95,8 @@ const declarationRules = ALL_RULES.filter((r) => !r.selector.startsWith("@"));
 
 /** `aspect-ratio` set straight on an `img` sizes that image's own box, so a
  *  presentational `height` attribute can defeat it. An `aspect-ratio` on a
- *  WRAPPER (`.media-block`, `.gal-figure__media`) is safe: the picture inside
- *  gets an author `height: 100%`, which outranks the hint. */
+ *  WRAPPER (`.media-block`) is safe: the picture inside gets an author
+ *  `height: 100%`, which outranks the hint. */
 describe("defect 1 — a ratio declared on an img must reset the height attribute's hint", () => {
   const imgRatioRules = declarationRules.filter(
     (r) =>
@@ -127,27 +129,11 @@ describe("defect 1 — a ratio declared on an img must reset the height attribut
   });
 });
 
-describe("defect 3 — the guide cards own their layout, not the price ledger's", () => {
-  const guideRule = declarationRules.find((r) => r.selector === ".sv-prices--guides .sv-price-card");
-
-  it("exists", () => {
-    expect(guideRule).toBeDefined();
-  });
-
-  it("declares a single column and stops baseline-dropping the heading", () => {
-    expect(guideRule?.body).toMatch(/grid-template-columns\s*:\s*minmax\(0,\s*1fr\)\s*;/);
-    expect(guideRule?.body).toMatch(/align-items\s*:\s*start\s*;/);
-  });
-
-  it("the approved design record is a one-column stack (the shape it restores)", () => {
-    // docs/08-delivery/services-design/services-design.html renders head, media,
-    // words, action in one column; this pins the artifact to that reading so the
-    // comparison in the PR stays true.
-    const artifact = read("docs/08-delivery/services-design/services-pages.css");
-    const base = artifact.slice(artifact.indexOf(".sv-price-card {"));
-    expect(base.slice(0, base.indexOf("}"))).not.toMatch(/grid-template-columns/);
-  });
-});
+// "defect 3 — the guide cards own their layout, not the price ledger's" was here.
+// It pinned `.sv-prices--guides .sv-price-card`, a rule for the RETIRED services
+// guide cards: neither class is named anywhere in app/, components/ or lib/, and
+// the rule was matched on none of 218 routes x 3 viewports. Naming it in this file
+// is what kept the dead rule in the sheet. Removed 2026-09-28.
 
 describe("round 2 defect — a scroll wrapper must contain its absolute descendants", () => {
   // `position: absolute` escapes an `overflow` clip unless the scroll container

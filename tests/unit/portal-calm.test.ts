@@ -23,7 +23,7 @@ const RULES: CssRule[] = parseCss(readStyle("styles/components.css"));
 
 /** The portal grammar's own selectors: the agent `ag-*` kit, the family `fv-*`
  *  additions, the shared `portal-*` chrome, the sign-in doors and the shells. */
-const PORTAL_SCOPE = /\.(ag-|fv-|portal-|signin-|family-shell|memorial-card)/;
+const PORTAL_SCOPE = /\.(ag-|fv-|portal-|signin-|family-shell)/;
 
 const portalRules = RULES.filter((rule) =>
   selectors(rule).some((selector) => PORTAL_SCOPE.test(selector)),
@@ -104,9 +104,7 @@ describe("the portal grammar is type + hairlines on white", () => {
     ".ag-deal",
     ".ag-lot",
     ".ag-material",
-    ".ag-map",
     ".fv-record",
-    ".memorial-card",
     ".signin-card",
   ];
 

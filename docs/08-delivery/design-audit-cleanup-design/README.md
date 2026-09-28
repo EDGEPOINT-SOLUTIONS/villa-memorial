@@ -158,3 +158,38 @@ worse than one that reports what it could not measure.
 | `styles/components.css` | phone wrap fix for the payment-alert band; 313 dead rules pruned |
 | `tests/unit/dashboard-payment-alerts.test.tsx` | guard for the phone wrap fix |
 | `CONTINUATION.md` | stale burial/edit-delete and `demo-inquiry-captures` notes corrected |
+
+---
+
+## Second pass — the stale guards (2026-09-28)
+
+The first prune removed every rule whose class name appeared nowhere in source. What it could
+not touch: **152 dead rules whose class names survive only in *test guards***. A guard that names
+a selector keeps its rule alive (the second signal scans `tests/`), so a stale guard is
+indistinguishable from a live consumer.
+
+A measurement settled it: `.item-card`, `.page-hero__title`, `.gal-hero__title`, `.fac-room`,
+`.story-chapel__rate` and 100+ more appear in **zero** files under `app/`, `components/` or
+`lib/`, and were matched on **none** of 218 routes × 3 viewports. They are retired classes whose
+guards were never updated — vacuous guards, exactly what the art-direction pass named as a rule
+("verify a guard is not vacuous").
+
+**Cleaned** (dead selectors removed from the guard lists; every file re-greened):
+`typography-system` (30 role-map / figure-cap entries), `composition-pass`,
+`public-surface-consistency`, `page-backgrounds`, `portal-calm`, and `broken-pages` (its whole
+"defect 3" describe pinned the retired guide cards).
+
+**Deliberately kept**: guards whose subject is a *negative* assertion — "the markup must not
+contain `class="sv-subnav"`" (`villa-services-premium`), `.ag-map__pin` (`agent-park-map`),
+`.chapel-grid` (`schedule-page`), `.story-room__rate` (`facilities-page`). Those guards are
+meaningful, and the second signal keeps their rules: a tool limitation, recorded rather than
+papered over. The `.public-grid--cards` guards (`phone-layout`, `public-layout`) were also left
+alone — they read through `lib/public-layout.ts`'s `GRID` contract, which is not this pass's to
+change.
+
+**Second prune:** 52 rules · 9,885 bytes · 311 lines, invariant `...LOST: 0`. With the first pass,
+`styles/components.css` is **≈56.7 KB (9.9 %)** lighter and the two-signal pipeline now reports
+**0** deletion candidates.
+
+**Verification:** 240 files / **2,742 tests** · lint · tsc · production build · smoke 61/61 ·
+re-audit (0 render failures, 0 overflow).
