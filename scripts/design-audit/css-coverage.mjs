@@ -21,6 +21,7 @@
 
 import { chromium } from "@playwright/test";
 import fs from "node:fs";
+import { staticRoutes } from "./routes.mjs";
 
 const BASE = process.argv.includes("--base")
   ? process.argv[process.argv.indexOf("--base") + 1]
@@ -79,9 +80,8 @@ if (fs.existsSync(reportFile)) {
   routes = [...new Set(rows.map((r) => r.route))].filter((r) => !r.includes("[")).sort();
   console.log(`routes from the audit report: ${routes.length}`);
 } else {
-  const { staticRoutes } = JSON.parse(fs.readFileSync(`${OUT}/routes.json`, "utf8"));
-  routes = staticRoutes.filter((r) => !r.includes("["));
-  console.log(`routes from routes.json (audit report absent): ${routes.length}`);
+  routes = staticRoutes().filter((r) => !r.includes("["));
+  console.log(`routes from the app tree (audit report absent): ${routes.length}`);
 }
 
 const browser = await chromium.launch();

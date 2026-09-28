@@ -18,6 +18,7 @@
 
 import { chromium } from "@playwright/test";
 import fs from "node:fs";
+import { staticRoutes } from "./routes.mjs";
 
 const BASE = process.argv.includes("--base")
   ? process.argv[process.argv.indexOf("--base") + 1]
@@ -41,8 +42,7 @@ function personaFor(url) {
   return "anon";
 }
 
-const { staticRoutes } = JSON.parse(fs.readFileSync(`${OUT}/routes.json`, "utf8"));
-const routes = staticRoutes.filter((r) => !r.includes("["));
+const routes = staticRoutes().filter((r) => !r.includes("["));
 
 const browser = await chromium.launch();
 const contexts = {};

@@ -8,7 +8,7 @@ import {
   type PaymentAlertSource,
   type PaymentAlertSummary,
 } from "@/lib/payment-alerts";
-import { parseCss, readStyle, ruleFor } from "../helpers/css-rules";
+import { inPhone, parseCss, readStyle, ruleFor } from "../helpers/css-rules";
 
 /**
  * The staff dashboard's payment alert band (client minute, 2026-09-21, item 4).
@@ -195,6 +195,24 @@ describe("the band's type is right-sized (captain feedback, 2026-09-25)", () => 
     expect(amount, ".payment-alerts__amount is declared").toBeDefined();
     expect(figure!.body).toMatch(/font-size:\s*var\(--text-lg\)/);
     expect(amount!.body).toMatch(/font-size:\s*var\(--text-lg\)/);
+  });
+});
+
+describe("a phone is never widened by the band (design audit, 2026-09-28)", () => {
+  const phone = inPhone(parseCss(readStyle("styles/components.css")));
+
+  it("lets the band's rows wrap, so the nowrap run stops setting a 434px floor", () => {
+    // Measured in Chromium: at 390 the row's nowrap run (due date + amount +
+    // badge + countdown) gave the alert's own flex child a 434px min-content,
+    // and `min-width: auto` refuses to shrink below it — so /staff/dashboard
+    // scrolled 92px past the viewport. The phone block must stack the row and
+    // let the run wrap.
+    const row = phone.find((r) => r.selector === ".payment-alerts__list .row");
+    const nowrap = phone.find((r) => r.selector === ".payment-alerts__list .nowrap");
+    expect(row, ".payment-alerts__list .row is declared in a phone block").toBeDefined();
+    expect(nowrap, ".payment-alerts__list .nowrap is declared in a phone block").toBeDefined();
+    expect(row!.body).toMatch(/flex-wrap:\s*wrap/);
+    expect(nowrap!.body).toMatch(/white-space:\s*normal/);
   });
 });
 

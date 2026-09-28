@@ -542,16 +542,7 @@ input[type="checkbox"] {
   font-size: var(--text-sm);
 }
 
-/* Collection header row inside the casket price table (sheet A groups its rows
-   under "The White Rose Collection" etc. — mirrors .table thead th). */
-.price-table__group th {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-  background: var(--color-bg-surface);
-}
+
 
 /* The Villa Memorial Plan rate card on a phone (captain's /plans report,
    2026-09-19). The client's sheet is a five-tier × four-term table — 515px of
@@ -695,7 +686,7 @@ input[type="checkbox"] {
   font-size: var(--text-md);
 }
 
-.alert--success { border-left-color: var(--color-status-success); background: var(--color-status-success-bg); }
+
 .alert--warning { border-left-color: var(--color-status-warning); background: var(--color-status-warning-bg); }
 .alert--danger  { border-left-color: var(--color-status-danger); background: var(--color-status-danger-bg); }
 .alert--info    { border-left-color: var(--color-status-info); background: var(--color-status-info-bg); }
@@ -803,7 +794,7 @@ input[type="checkbox"] {
 }
 
 .skeleton--text { height: 0.875rem; margin-bottom: var(--space-2); }
-.skeleton--line { height: 1px; margin: var(--space-3) 0; }
+
 
 @keyframes skeleton-shimmer {
   0% { background-position: 200% 0; }
@@ -820,44 +811,17 @@ input[type="checkbox"] {
   background: var(--color-bg-surface-raised);
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 24rem;
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-raised);
-  overflow: hidden;
-}
 
-.auth-card__brand {
-  padding: var(--space-6) var(--space-6) var(--space-4);
-  text-align: center;
-  border-bottom: 1px solid var(--color-border);
-}
 
-.auth-card__brand h1 {
-  font-size: var(--text-xl);
-  margin: 0;
-}
 
-.auth-card__brand p {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
 
-.auth-card__body {
-  padding: var(--space-6);
-}
 
-.auth-card__footer {
-  padding: var(--space-3) var(--space-6);
-  border-top: 1px solid var(--color-border);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  text-align: center;
-}
+
+
+
+
+
+
 
 /* --- App shell (sidebar + content) ------------------------------------------------ */
 .app-shell {
@@ -1036,21 +1000,9 @@ input[type="checkbox"] {
   }
 }
 
-/* --- Ceremonial display primitives ----------------------------------------------- */
-.life-dates {
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--color-text-secondary);
-  letter-spacing: 0.02em;
-}
 
-.ornament-rule {
-  height: 1px;
-  border: none;
-  margin: var(--space-4) auto;
-  width: 8rem;
-  background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
-}
+
+
 
 /* --- Park map (shared surface: client + staff) -----------------------------------
    Schematic map: section bands over a canvas, status dots positioned by the derived
@@ -1134,11 +1086,11 @@ input[type="checkbox"] {
   transform: scale(1.2);
 }
 
-.park-map__dot--success { background: var(--color-status-success); }
-.park-map__dot--warning { background: var(--color-status-warning); }
-.park-map__dot--info    { background: var(--color-status-info); }
-.park-map__dot--neutral { background: var(--granite-500); }
-.park-map__dot--danger  { background: var(--color-status-danger); }
+
+
+
+
+
 
 .park-map__legend {
   display: flex;
@@ -1260,19 +1212,9 @@ input[type="checkbox"] {
   background: var(--color-bg-subtle);
 }
 
-/* A chipped photograph (the client's sample sheet) needs the chip anchored to
-   the picture, not to the caption below it. */
-.ledger__media--chip {
-  position: relative;
-  display: grid;
-}
 
-.ledger__caption {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-xs);
-  line-height: 1.55;
-  color: var(--color-text-muted);
-}
+
+
 
 .ledger__media img {
   display: block;
@@ -1339,13 +1281,7 @@ input[type="checkbox"] {
   font-variant-numeric: tabular-nums;
 }
 
-.ledger__unit {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--color-text-muted);
-}
+
 
 .ledger__note {
   margin: 0;
@@ -1354,13 +1290,7 @@ input[type="checkbox"] {
   color: var(--color-text-secondary);
 }
 
-.ledger__actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
+
 
 /* The supporting list. Two columns above 60rem, one below; the hairline is the
    separator so nothing needs a border, a radius or a shadow of its own. */
@@ -1384,16 +1314,7 @@ input[type="checkbox"] {
   grid-column: 1 / -1;
 }
 
-/* An entry link fills its row so the whole line is the target. */
-.ledger__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: var(--space-1) var(--space-4);
-  padding: var(--space-4) 0;
-  color: inherit;
-  text-decoration: none;
-}
+
 
 a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-accent);
@@ -1421,14 +1342,7 @@ a.ledger__row:hover .ledger__row-title {
   white-space: nowrap;
 }
 
-.ledger__row-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  padding-top: var(--space-1);
-}
+
 
 @media (max-width: 60rem) {
   .ledger__lead {
@@ -1467,17 +1381,9 @@ a.ledger__row:hover .ledger__row-title {
   font-variant-numeric: tabular-nums;
 }
 
-.band-head__link {
-  margin-left: auto;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text-accent);
-  text-decoration: none;
-}
 
-.band-head__link:hover {
-  text-decoration: underline;
-}
+
+
 
 /* The grouped catalogue index (/plans, /packages): one band per item type, each
    led by its dominant entry and continued as hairline rows.
@@ -1501,11 +1407,7 @@ a.ledger__row:hover .ledger__row-title {
   border-bottom: 1px solid var(--color-rule);
 }
 
-.cat-lead__body {
-  display: grid;
-  gap: var(--space-1);
-  min-width: 0;
-}
+
 
 .cat-lead__body .ledger__title {
   font-size: var(--text-2xl);
@@ -1567,22 +1469,7 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-lg);
 }
 
-/* --- Casket catalogue rows ---------------------------------------------------
-   The captain's 2026-09-19 brief: every one of the 24 models carries its own
-   photograph. The row keeps the ledger grammar (a rule, not a box) and gains one
-   thumbnail column; the picture is captioned with what it actually is — a sample
-   from the client's own photographs — because the client's photo set is not yet
-   reconciled with the price sheet's model names (lib/client-photos.ts).
 
-   Placement is explicit (grid-column/grid-row), not grid-template-areas: the
-   base `.ledger__row-meta`/`__actions` rules span `1 / -1`, and an explicit
-   span beats an area name — the photo column would be swallowed by the meta
-   line. Same-specificity class, declared after `.ledger__row`, so it wins. */
-.ledger__row--model {
-  grid-template-columns: 8rem minmax(0, 1fr) auto;
-  align-items: start;
-  column-gap: var(--space-4);
-}
 
 .ledger__row--model .model-photo {
   grid-column: 1;
@@ -1604,10 +1491,7 @@ a.ledger__row:hover .ledger__row-title {
   grid-row: 2;
 }
 
-.ledger__row--model .ledger__row-actions {
-  grid-column: 2 / -1;
-  grid-row: 3;
-}
+
 
 .model-photo {
   margin: 0;
@@ -1629,25 +1513,11 @@ a.ledger__row:hover .ledger__row-title {
   background: var(--color-bg-subtle);
 }
 
-.model-photo__label {
-  font-size: var(--text-xs);
-  line-height: 1.4;
-  color: var(--color-text-muted);
-}
 
-.model-photo__chip {
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
 
-@media (max-width: 40rem) {
-  .ledger__row--model {
-    grid-template-columns: 6rem minmax(0, 1fr) auto;
-    column-gap: var(--space-3);
-  }
-}
+
+
+
 
 /* --- Public catalog pages (villa item-card grammar, DOC palette) ------------- */
 .page-hero {
@@ -1663,38 +1533,15 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--hero-text-colour, inherit);
 }
 
-.page-hero__lead {
-  color: var(--hero-text-colour, var(--color-text-secondary));
-  font-size: var(--text-lg);
-  max-width: 40rem;
-  margin: var(--space-3) auto 0;
-}
 
-.page-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
 
-.catalog-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-5);
-}
 
-@media (max-width: 60rem) {
-  .catalog-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
-@media (max-width: 40rem) {
-  .catalog-grid {
-    grid-template-columns: 1fr;
-  }
-}
+
+
+
+
+
 
 /* --- The shop grid: ONE product-card grammar for every catalogue surface -----
    The captain's 2026-09-19 brief, measured: product imagery was rendering in
@@ -2245,19 +2092,9 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-primary);
 }
 
-.lot-hero__facts {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
 
-.lot-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
+
+
 
 /* --- The day ladder: one service, one photograph, its priced rows ------------
    The embalming service is sold at eight day counts (3–9 days plus the extra
@@ -2295,38 +2132,15 @@ a.ledger__row:hover .ledger__row-title {
   background: var(--color-bg-subtle);
 }
 
-.day-ladder__caption {
-  margin-top: var(--space-3);
-  font-size: var(--text-xs);
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
 
-.day-ladder__rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0;
-}
 
-.day-ladder__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
-  gap: var(--space-4);
-  padding-block: var(--space-3);
-  border-top: 1px solid var(--color-rule);
-}
 
-.day-ladder__row:first-child {
-  border-top: 0;
-}
 
-.day-ladder__name {
-  font-size: var(--text-md);
-  color: var(--color-text-primary);
-}
+
+
+
+
+
 
 .day-ladder__price {
   font-size: var(--text-lg);
@@ -2336,10 +2150,7 @@ a.ledger__row:hover .ledger__row-title {
 }
 
 @media (max-width: 40rem) {
-  .day-ladder__row {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--space-2) var(--space-3);
-  }
+  
 
   .day-ladder__row .catalogue-actions {
     grid-column: 1 / -1;
@@ -2379,13 +2190,7 @@ a.ledger__row:hover .ledger__row-title {
   object-fit: cover;
 }
 
-.item-card__body {
-  padding: var(--space-4) 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  flex: 1;
-}
+
 
 .item-card__title {
   font-family: var(--font-serif);
@@ -2408,23 +2213,11 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-accent);
 }
 
-.item-card__meta {
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
 
-.item-card__actions {
-  margin-top: auto;
-  padding-top: var(--space-2);
-}
 
-/* Two-action catalogue card row: “View this item” link + one-click
-   “Add to cart” button beside it (captain: one click from the catalogue). */
-.item-card__actions--split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
-}
+
+
+
 
 /* --- Storefront action pairs (Add to cart + Request order) ------------------- */
 .catalogue-actions {
@@ -2434,10 +2227,7 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-2);
 }
 
-.catalogue-actions--column {
-  flex-direction: column;
-  align-items: stretch;
-}
+
 
 /* The quiet second action (2026-09-21 UI/UX pass): a catalogue CARD whose
    primary is the gold Add to cart renders Request order — and its detail link —
@@ -2670,17 +2460,11 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-xs);
 }
 
-.booking-range__day--free strong {
-  color: var(--color-status-success);
-}
 
-.booking-range__day--booked strong {
-  color: var(--clay-500);
-}
 
-.booking-range__day--blocked strong {
-  color: var(--color-status-warning-ink);
-}
+
+
+
 
 .booking-price {
   margin: 0;
@@ -2743,29 +2527,13 @@ a.ledger__row:hover .ledger__row-title {
   border-bottom: 1px solid var(--color-rule);
 }
 
-.casket-card__prices {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-1) var(--space-3);
-  margin: 0;
-  font-size: var(--text-sm);
-}
 
-.casket-card__prices > div {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-}
 
-.casket-card__prices dt {
-  color: var(--color-text-muted);
-}
 
-.casket-card__prices dd {
-  margin: 0;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
+
+
+
+
 
 /* Pill toggle filters (doc palette) */
 .pill-toggle {
@@ -2816,29 +2584,11 @@ a.ledger__row:hover .ledger__row-title {
   letter-spacing: 0.14em;
 }
 
-/* --- Landing page (villa grammar, DOC palette) ---------------------------------- */
-.landing__hero {
-  position: relative;
-  background:
-    radial-gradient(90% 120% at 85% -10%, var(--marble-50) 0%, transparent 60%),
-    linear-gradient(180deg, var(--color-bg-surface) 0%, var(--marble-200) 100%);
-  border-bottom: 1px solid var(--color-border);
-}
 
-.landing__hero-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: var(--space-8);
-  align-items: center;
-  padding-block: var(--space-8);
-}
 
-@media (max-width: 56rem) {
-  .landing__hero-grid {
-    grid-template-columns: 1fr;
-    padding-block: var(--space-7);
-  }
-}
+
+
+
 
 .eyebrow-label {
   color: var(--hero-text-colour, var(--color-text-accent));
@@ -2857,17 +2607,9 @@ a.ledger__row:hover .ledger__row-title {
   margin: 0 0 var(--space-4);
 }
 
-.landing__lead {
-  color: var(--color-text-secondary);
-  font-size: var(--text-lg);
-  line-height: 1.6;
-  max-width: 36rem;
-}
 
-.landing__actions {
-  margin-top: var(--space-6);
-  flex-wrap: wrap;
-}
+
+
 
 /* Media block — park photo with doc-palette gradient behind as graceful fallback. */
 .media-block {
@@ -2882,17 +2624,9 @@ a.ledger__row:hover .ledger__row-title {
   place-items: center;
 }
 
-.landing__hero-media {
-  box-shadow: var(--shadow-raised);
-}
 
-/* Stats band */
-.landing__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: var(--space-6);
-  padding-block: var(--space-7);
-}
+
+
 
 .stat {
   text-align: center;
@@ -2916,16 +2650,9 @@ a.ledger__row:hover .ledger__row-title {
   line-height: 1;
 }
 
-.stat__label {
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  margin-top: var(--space-2);
-}
 
-/* Sections */
-.landing__section {
-  padding-block: var(--space-7);
-}
+
+
 
 .section-title {
   font-family: var(--font-serif);
@@ -2934,24 +2661,11 @@ a.ledger__row:hover .ledger__row-title {
   line-height: 1.2;
 }
 
-.section-sub {
-  color: var(--color-text-secondary);
-  font-size: var(--text-lg);
-  max-width: 36rem;
-}
 
-/* Feature split band */
-.landing__band {
-  background: var(--color-bg-subtle);
-  border-block: 1px solid var(--color-border);
-  padding-block: var(--space-8);
-}
 
-.feature-split {
-  max-width: 44rem;
-  display: grid;
-  gap: var(--space-4);
-}
+
+
+
 
 .landing__band .section-title {
   margin-bottom: var(--space-3);
@@ -3038,33 +2752,16 @@ a.ledger__row:hover .ledger__row-title {
   margin-bottom: var(--space-2);
 }
 
-.quote__attribution {
-  text-align: center;
-  color: var(--color-text-muted);
-  font-size: var(--text-sm);
-  margin-top: var(--space-3);
-}
 
-/* CTA band */
-.landing__cta {
-  background:
-    radial-gradient(80% 140% at 90% 0%, var(--navy-700) 0%, transparent 60%),
-    var(--navy-900);
-  border: none;
-  border-radius: var(--radius-lg);
-}
+
+
 
 .landing__cta .card__body {
   color: var(--color-text-inverse);
   padding: var(--space-6) var(--space-7);
 }
 
-.landing__cta h3 {
-  color: var(--color-text-inverse);
-  font-family: var(--font-serif);
-  font-size: var(--text-2xl);
-  margin: 0 0 var(--space-2);
-}
+
 
 .landing__cta .text-muted {
   color: color-mix(in srgb, var(--navy-100) 72%, transparent);
@@ -3203,35 +2900,13 @@ a.ledger__row:hover .ledger__row-title {
   border-radius: var(--radius-lg);
 }
 
-.memorial-card__name {
-  font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  margin: var(--space-3) 0 0;
-  line-height: 1.15;
-}
 
-.memorial-card__dates {
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--color-text-secondary);
-  margin-top: var(--space-1);
-}
 
-.ornament-rule {
-  height: 1px;
-  border: none;
-  margin: var(--space-5) auto;
-  width: 9rem;
-  background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
-}
 
-/* Family/portal card grid */
-.family-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  gap: var(--space-5);
-  margin-top: var(--space-5);
-}
+
+
+
+
 
 /* --- Portal switcher (one product, four doors) ------------------------------- */
 .portal-switch {
@@ -3791,24 +3466,10 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-secondary);
 }
 
-.fv-when__now {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-sm);
-  font-weight: 700;
-  color: var(--color-text-secondary);
-}
+
 
 /* --- the “what you can ask for” grid ------------------------------------------- */
-/* The office's request list as a two-up grid on a wide screen (one column when
-the rail and the phone leave no room) — the same row grammar, laid out to use
-the width instead of leaving it empty. */
-.fv-ask {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(21rem, 1fr));
-  gap: var(--space-3);
-}
+
 
 .fv-ask .ag-work {
   height: 100%;
@@ -4560,7 +4221,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .seg--warning { background: var(--color-status-warning); }
 .seg--info    { background: var(--color-status-info); }
 .seg--danger  { background: var(--color-status-danger); }
-.seg--neutral { background: var(--granite-400); }
+
 
 .legend {
   display: flex;
@@ -5053,9 +4714,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   border-left: 3px solid var(--color-status-danger-strong);
 }
 
-.ops-card--warning {
-  border-left: 3px solid var(--color-status-warning);
-}
+
 
 .ops-card__top {
   display: flex;
@@ -5672,10 +5331,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-muted);
 }
 
-.chapel-day--held {
-  border-color: color-mix(in srgb, var(--color-status-warning) 45%, transparent);
-  background: var(--color-status-warning-bg);
-}
+
 
 .chapel-day--held .chapel-day__state {
   color: var(--color-status-warning-ink);
@@ -5692,14 +5348,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-weight: 600;
 }
 
-.chapel-day--blocked {
-  border-color: color-mix(in srgb, var(--color-status-danger) 45%, transparent);
-  background: repeating-linear-gradient(
-    135deg,
-    var(--color-status-danger-bg) 0 6px,
-    color-mix(in srgb, var(--color-status-danger-bg) 55%, #ffffff) 6px 12px
-  );
-}
+
 
 .chapel-day--blocked .chapel-day__state {
   color: var(--color-status-danger-ink);
@@ -5747,23 +5396,11 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-accent);
 }
 
-/* --- Product/lot detail (villa two-column with sticky price card) ------------- */
-.product-layout {
-  display: grid;
-  grid-template-columns: 1.25fr 1fr;
-  gap: var(--space-7);
-  align-items: start;
-}
 
-@media (max-width: 56rem) {
-  .product-layout {
-    grid-template-columns: 1fr;
-  }
-}
 
-.product-layout__media {
-  aspect-ratio: 16 / 10;
-}
+
+
+
 
 .detail-sticky {
   position: sticky;
@@ -5797,30 +5434,13 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-3);
 }
 
-/* Family arrangement steps */
-.arrangement-steps {
-  display: grid;
-  gap: var(--space-2);
-  margin: var(--space-2) 0;
-}
 
-.arrangement-step {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  padding-left: var(--space-1);
-  border-left: 2px solid var(--color-border);
-}
 
-.arrangement-step:first-of-type {
-  border-left-color: var(--brass-400);
-}
 
-.kpi-card__value--muted {
-  color: var(--color-text-muted);
-}
+
+
+
+
 
 /* --- Geo (Leaflet) park map --------------------------------------------------- */
 .geo-map {
@@ -5957,11 +5577,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   transform: translate(-50%, -50%);
 }
 
-.plot-label__detail {
-  display: block;
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
+
 
 /* Natural (uncropped) image rendering for real photography */
 .media-block--natural {
@@ -5978,21 +5594,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   object-fit: contain;
 }
 
-/* A photo CARD: one aspect for every card in the row, the picture cropped to
-   it. The composition derivatives have slightly different crops (1.03–1.16),
-   so a natural-height row left four cards on four baselines — which read as
-   sloppy beside the price index they head (craft pass, 2026-09-18). */
-.media-block--photo {
-  aspect-ratio: 4 / 3;
-}
 
-.media-block--photo img {
-  position: static;
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
+
+
 
 /* Item-card media: keep the photo whole (no fixed-height crop) */
 .item-card__media {
@@ -6008,19 +5612,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   object-fit: contain;
 }
 
-/* The package card's photograph caption (2026-09-19 imagery pass): the gallery's
-   caption grammar — the picture named, then the client's own note — at the
-   catalogue's type size. The figure carries no margin of its own. */
-.item-card__figure {
-  margin: 0;
-}
 
-.item-card__caption {
-  margin-top: var(--space-2);
-  font-size: var(--text-xs);
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
+
+
 
 /* Legend chips (type colours + status counts) */
 .legend {
@@ -6559,27 +6153,11 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
 }
 
-.landing-showcase__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-  gap: clamp(var(--space-5), 5vw, var(--space-8));
-  align-items: center;
-}
 
-@media (max-width: 56rem) {
-  .landing-showcase__grid {
-    grid-template-columns: 1fr;
-  }
-}
 
-.landing-showcase__eyebrow {
-  margin: 0 0 var(--space-3);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
+
+
+
 
 .landing-showcase__title {
   margin: 0;
@@ -6588,104 +6166,31 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-inverse);
 }
 
-.landing-showcase__lead {
-  margin: var(--space-4) 0 0;
-  color: var(--color-text-inverse-muted);
-  max-width: 34rem;
-}
 
-.landing-showcase__list {
-  list-style: none;
-  margin: var(--space-4) 0 0;
-  padding: 0;
-  display: grid;
-  gap: var(--space-2);
-}
 
-.landing-showcase__list li {
-  display: flex;
-  gap: var(--space-2);
-  align-items: baseline;
-  color: var(--color-text-inverse);
-  font-size: var(--text-md);
-}
 
-.landing-showcase__list li::before {
-  content: "◆";
-  flex: none;
-  font-size: var(--text-xs);
-  color: var(--color-text-accent);
-  transform: translateY(-2px);
-}
 
-.landing-showcase__photo {
-  margin: 0;
-  padding: clamp(0.6rem, 1.2vw, 0.9rem);
-  border: 1px solid rgba(211, 184, 119, 0.22);
-  border-radius: calc(var(--radius-lg) + 0.5rem);
-  background: rgba(255, 255, 255, 0.03);
-}
 
-.landing-showcase__photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(211, 184, 119, 0.35);
-  box-shadow: 0 28px 70px -28px rgba(0, 0, 0, 0.65);
-}
 
-.landing-showcase__photo figcaption {
-  margin-top: var(--space-3);
-  text-align: center;
-  font-size: var(--text-xs);
-  letter-spacing: 0.04em;
-  color: var(--color-text-accent);
-}
 
-.landing-showcase__types {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-  gap: var(--space-3);
-  margin-top: clamp(var(--space-5), 4vw, var(--space-7));
-  border-top: 1px solid rgba(211, 184, 119, 0.18);
-  padding-top: var(--space-5);
-}
 
-.landing-showcase__type {
-  display: grid;
-  gap: var(--space-2);
-  text-decoration: none;
-  color: var(--color-text-inverse);
-}
 
-.landing-showcase__type img {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(251, 250, 248, 0.14);
-  transition:
-    border-color var(--motion-base),
-    transform var(--motion-base);
-}
 
-.landing-showcase__type:hover img {
-  border-color: var(--brass-400);
-  transform: translateY(-2px);
-}
 
-.landing-showcase__type span {
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
 
-/* Live map embed on the landing page */
-#park-explorer {
-  scroll-margin-top: var(--space-4);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 .map-embed .map-layout aside {
   position: static;
@@ -6744,13 +6249,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--hero-text-colour, var(--color-text-secondary));
 }
 
-/* The hero's one primary action (reading budget, captain 2026-09-18). */
-.hero-premium__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
-}
+
 
 .hero-premium__media {
   margin: 0;
@@ -7490,11 +6989,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   border-color: var(--sky-700);
 }
 
-/* Legend-type chips (public /lots) — each type carries its legend colour dot
-   and a live plot count so visitors can see what a chip selects before clicking. */
-.pill-toggle--type {
-  gap: var(--space-2);
-}
+
 .type-dot {
   width: 0.6rem;
   height: 0.6rem;
@@ -7502,23 +6997,8 @@ because the shared `.ag-appt` rule comes later in this file. */
   box-shadow: inset 0 0 0 1px rgb(29 33 38 / 0.18);
   flex: none;
 }
-.type-name {
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.05em;
-}
-.type-count {
-  font-size: var(--text-xs);
-  font-weight: 800;
-  line-height: 1;
-  min-width: 1.3rem;
-  text-align: center;
-  padding: 0.22rem 0.4rem;
-  border-radius: 999px;
-  background: var(--color-bg-page);
-  border: 1px solid var(--color-border);
-  color: var(--color-text-muted);
-}
+
+
 .pill-toggle--active .type-count {
   background: rgb(255 255 255 / 0.16);
   border-color: transparent;
@@ -7832,79 +7312,23 @@ because the shared `.ag-appt` rule comes later in this file. */
  * cards for the client's own chapel samples.
  * ========================================================================= */
 
-/* Rate block: sellable cards in the wide column, a client sample photograph in
-   the aside. Below 60rem the cards come first and the photo follows. */
-.svc-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.75fr) minmax(0, 1fr);
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
-  align-items: start;
-}
 
-@media (max-width: 60rem) {
-  .svc-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-/* The home's old "What we do · Services we offer" band (`.svc-grid` /
-   `.svc-band*` / `.svc-card*`) was RETIRED 2026-09-21 and replaced by the
-   "Memorial plans & garden lots" band (`.shop-grid.plan-lot-grid`). These
-   `.svc-*` classes are the /services page's own layout only — one class, one
-   home; the home band declared here was the collision trap this file records. */
 
-.svc-aside {
-  display: grid;
-  gap: var(--space-4);
-  min-width: 0;
-}
 
-.svc-figure {
-  margin: 0;
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-surface-raised);
-}
 
-.svc-figure img {
-  display: block;
-  width: 100%;
-  height: 15rem;
-  object-fit: cover;
-}
 
-.svc-figure figcaption {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-xs);
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
 
-.svc-fact {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  padding: var(--space-4);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
-.svc-fact svg {
-  width: 1.3rem;
-  height: 1.3rem;
-  flex: none;
-  margin-top: 2px;
-  color: var(--color-text-accent);
-}
 
-.svc-fact p {
-  margin: 0;
-  font-size: var(--text-sm);
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
+
+
+
+
+
+
+
+
 
 /* The sheet's own bottom-line total for the five at-need services. */
 .svc-total {
@@ -7924,13 +7348,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-3);
 }
 
-.svc-total__label {
-  font-size: var(--text-xs);
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
+
 
 .svc-total__amount {
   font-family: var(--font-serif);
@@ -7939,19 +7357,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-variant-numeric: tabular-nums;
 }
 
-.svc-total__note {
-  margin: 0;
-  max-width: 52rem;
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-}
 
-.svc-notes {
-  margin: var(--space-4) 0 0;
-  padding-left: var(--space-5);
-  display: grid;
-  gap: var(--space-2);
-}
+
+
 
 /* Chapel options: one photo card per room, then the full 3–9 day schedule. */
 .chapel-grid {
@@ -7990,26 +7398,11 @@ because the shared `.ag-appt` rule comes later in this file. */
   object-fit: cover;
 }
 
-.chapel-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  flex: 1;
-}
 
-.chapel-card__head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-}
 
-.chapel-card__name {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-}
+
+
+
 
 .chapel-card__rate {
   margin: 0;
@@ -8023,44 +7416,17 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-variant-numeric: tabular-nums;
 }
 
-.chapel-card__facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-}
 
-.chapel-card__facts > div {
-  display: grid;
-  gap: 2px;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-}
 
-.chapel-card__facts dt {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
 
-.chapel-card__facts dd {
-  margin: 0;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
 
-.chapel-card__actions {
-  margin-top: auto;
-}
 
-.chapel-card__illus {
-  margin: 0;
-  font-size: var(--text-xs);
-  line-height: 1.5;
-  color: var(--color-text-muted);
-}
+
+
+
+
+
+
 
 /* ===========================================================================
  * Photo gallery & virtual tour (/gallery) — the park in the client's own
@@ -8139,12 +7505,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   padding: var(--space-3) var(--space-2) 0;
 }
 
-.gal-figure__caption {
-  font-size: var(--text-md);
-  font-weight: 650;
-  line-height: 1.4;
-  color: var(--color-text-primary);
-}
+
 
 .gal-figure__note {
   font-size: var(--text-sm);
@@ -8215,26 +7576,11 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
 }
 
-.gal-hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: clamp(var(--space-5), 4vw, var(--space-7));
-  align-items: center;
-}
 
-@media (max-width: 52rem) {
-  .gal-hero__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.gal-hero__eyebrow {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--gold-800);
-}
+
+
+
 
 .gal-hero__title {
   margin: 0;
@@ -8244,20 +7590,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-primary);
 }
 
-.gal-hero__lead {
-  margin: var(--space-3) 0 0;
-  max-width: 34rem;
-  font-size: var(--text-lg);
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-}
 
-.gal-hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
-}
+
+
 
 /* --- photo groups --------------------------------------------------------- */
 .gal-group {
@@ -8265,18 +7600,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   gap: var(--space-4);
 }
 
-.gal-group__head {
-  max-width: 46rem;
-}
 
-.gal-group__kicker {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gold-800);
-}
+
+
 
 .gal-group__title {
   margin: 0;
@@ -8355,10 +7681,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   margin-top: var(--space-5);
 }
 
-.gal-figure--plan {
-  max-width: 18rem;
-  justify-self: center;
-}
+
 
 .gal-figure--plan .gal-figure__media {
   aspect-ratio: 1 / 1;
@@ -8394,17 +7717,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-primary);
 }
 
-.gal-visit__text {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-}
 
-.gal-visit__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
+
+
 
 /* ===========================================================================
  * Casket detail (/products/[sku]) — sample photograph, facts, inclusions
@@ -9135,16 +8450,8 @@ because the shared `.ag-appt` rule comes later in this file. */
    (2026-09-28): the map leads `/map` now, so nothing references those classes.
    `.hero-premium*` stays — `/plans/[sku]` and the home still render it. */
 
-/* Image-only page hero: a photograph and no authored copy. The photo is the
-   whole band — no gradient, border, scrim or colour layer (captain 2026-09-21). */
-.hero-premium--image-only {
-  padding: 0;
-  border: 0;
-  background: none;
-}
-.hero-premium--image-only::before {
-  display: none;
-}
+
+
 .hero-premium--image-only .hero-premium__grid {
   grid-template-columns: minmax(0, 1fr);
 }
@@ -11011,11 +10318,7 @@ a.card:hover {
   object-fit: cover;
 }
 
-.brand-mark--lg {
-  width: 3.4rem;
-  height: 3.4rem;
-  font-size: var(--text-2xl);
-}
+
 
 /* Nav sits in the middle auto track of the balanced grid → truly centred in
    the header bar regardless of how wide the brand or the actions are. The
@@ -13999,14 +13302,9 @@ a.card:hover {
   box-shadow: 0 0 0 3px var(--gold-wash-soft);
 }
 
-.rail-side-mark--left {
-  background: var(--gold-500);
-}
 
-.rail-side-mark--right {
-  background: var(--navy-600);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--navy-300) 45%, transparent);
-}
+
+
 
 /* Closing publish row at the end of the document. */
 .ed-publish-row {
@@ -15009,11 +14307,7 @@ a.card:hover {
   color: var(--color-text-secondary);
 }
 
-.ag-person__note {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-}
+
 
 /* --- Agenda ------------------------------------------------------------------ */
 .ag-agenda {
@@ -15443,8 +14737,8 @@ a.card:hover {
   box-shadow: var(--shadow-card);
 }
 
-.ag-map__pin--reserved { background: var(--amber-500); }
-.ag-map__pin--sold { background: var(--granite-500); }
+
+
 
 .ag-map__caption {
   padding: var(--space-3) var(--space-4);
@@ -15717,9 +15011,9 @@ a.card:hover {
   animation: ag-shimmer 1.4s ease-in-out infinite;
 }
 
-.ag-skeleton--line { height: 0.9rem; }
-.ag-skeleton--title { height: 1.6rem; width: 40%; }
-.ag-skeleton--block { height: 5rem; }
+
+
+
 
 @keyframes ag-shimmer {
   from { background-position: 100% 0; }
@@ -15817,95 +15111,33 @@ a.card:hover {
   .ag-skeleton { animation: none; }
 }
 
-/* --- Sign-in (agent door) ---------------------------------------------------- */
-.ag-signin {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(20rem, 0.95fr);
-  gap: var(--space-6);
-  align-items: center;
-  max-width: 62rem;
-  margin-inline: auto;
-  padding: var(--space-7) var(--space-5);
-}
 
-.ag-signin__aside {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  padding: var(--space-7) var(--space-6);
-  color: var(--color-text-primary);
-  background: var(--color-bg-surface-raised);
-}
 
-.ag-signin__eyebrow {
-  margin: 0;
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-}
 
-.ag-signin__title {
-  margin: var(--space-3) 0 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  line-height: 1.12;
-}
 
-.ag-signin__lead {
-  margin: var(--space-3) 0 0;
-  color: var(--color-text-secondary);
-  max-width: 32rem;
-}
 
-.ag-signin__list {
-  list-style: none;
-  margin: var(--space-5) 0 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
 
-.ag-signin__list li {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
 
-.ag-signin__list svg { color: var(--color-text-secondary); flex-shrink: 0; margin-top: 0.2rem; }
 
-.ag-signin__park {
-  margin: var(--space-5) 0 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
-}
+
+
+
+
+
+
+
+
+
 
 .ag-signin__card .signin-card { max-width: none; }
 
-.ag-signin input[type="checkbox"] { accent-color: var(--sky-700); }
 
-.ag-demo {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-border);
-  font-size: var(--text-sm);
-}
 
-.ag-demo__name { font-weight: 700; color: var(--color-figure); }
 
-@media (max-width: 63.99rem) {
-  .ag-signin { grid-template-columns: minmax(0, 1fr); padding: var(--space-5) var(--space-4); }
-}
+
+
+
+
 
 /* Agent responsive visibility — one markup, two layouts (the design's
    desktop board vs the phone's sorted list). */
@@ -16069,39 +15301,15 @@ a.card:hover {
   padding: var(--space-5) 0 var(--space-6);
 }
 
-.sv-hero__eyebrow {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--hero-text-colour, var(--color-text-accent)); /* 9.9:1 on white — clears AAA at 16px */
-}
 
-.sv-hero__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: clamp(var(--space-5), 4vw, var(--space-7));
-  align-items: center;
-}
 
-@media (max-width: 62rem) {
-  .sv-hero__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.sv-hero__title {
-  margin: 0 0 var(--space-3);
-  color: var(--hero-text-colour, inherit);
-}
 
-.sv-hero__lead {
-  margin: 0 0 var(--space-4);
-  max-width: 38rem;
-  font-size: var(--text-xl);
-  line-height: 1.55;
-  color: var(--hero-text-colour, var(--color-text-primary));
-}
+
+
+
+
+
 
 .sv-hero__media {
   margin: 0;
@@ -16143,21 +15351,11 @@ a.card:hover {
   background: var(--color-bg-surface-raised);
 }
 
-.sv-call__title {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-xl);
-}
 
-.sv-call__text {
-  margin: 0;
-  color: var(--color-text-primary);
-}
 
-.sv-call__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
+
+
+
 
 .sv-call .btn--primary {
   font-size: var(--text-xl);
@@ -16238,21 +15436,9 @@ a.card:hover {
   backdrop-filter: blur(6px);
 }
 
-.sv-subnav__row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  max-width: 76rem;
-  margin-inline: auto;
-}
 
-.sv-subnav__label {
-  flex: none;
-  font-size: var(--text-md);
-  font-weight: 700;
-  color: var(--color-text-secondary);
-  margin-right: var(--space-2);
-}
+
+
 
 .sv-subnav ul {
   display: flex;
@@ -16316,9 +15502,7 @@ a.card:hover {
   .sv-subnav li {
     scroll-snap-align: start;
   }
-  .sv-subnav__label {
-    display: none;
-  }
+  
   .sv-subnav .sv-top {
     display: none;
   }
@@ -16344,46 +15528,17 @@ a.card:hover {
   border-top: 1px solid var(--color-border);
 }
 
-.sv-section__kicker {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--color-text-secondary);
-}
 
-.sv-section__title {
-  margin: 0 0 var(--space-3);
-}
 
-.sv-section__intro {
-  max-width: 46rem;
-  margin: 0 0 var(--space-5);
-  color: var(--color-text-primary);
-}
 
-.sv-section--plain {
-  border-top: 1px solid var(--color-border);
-}
 
-/* Labelled facts — structure, not prose (reading budget, captain 2026-09-18). */
-.sv-factlist {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
 
-.sv-factlist li {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  background: var(--color-bg-surface-raised);
-  color: var(--color-text-primary);
-  font-size: var(--text-md);
-}
+
+
+
+
+
+
 
 /* --- Price cards (at-need services) ---------------------------------------- */
 /* The five a-la-carte fees as a price LEDGER (composition pass, 2026-09-18):
@@ -16423,33 +15578,11 @@ a.card:hover {
   grid-column: 1 / -1;
 }
 
-.sv-price-card__head {
-  display: block;
-  grid-column: 1;
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  line-height: 1.25;
-  color: var(--color-text-primary);
-}
 
-/* The glyph stays — the captain's package-page review fixed this icon treatment
-   for the public site — but at marker size on the line it labels, not as a
-   3.25rem disc standing where a photograph of the service would go. */
-.sv-price-card__icon {
-  width: 1.15rem;
-  height: 1.15rem;
-  display: inline-block;
-  vertical-align: -0.18em;
-  margin-right: var(--space-2);
-  color: var(--color-text-accent);
-}
 
-.sv-price-card__icon svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
+
+
+
 
 .sv-price-card__amount {
   display: flex;
@@ -16468,61 +15601,15 @@ a.card:hover {
   white-space: nowrap;
 }
 
-.sv-price-card__unit {
-  display: block;
-  flex-basis: 100%;
-  text-align: right;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
 
-.sv-price-card__plain {
-  grid-column: 1;
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
 
-.sv-price-card__actions {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
 
-/* --- The client's own photograph on each a-la-carte line (2026-09-19) --------
-   Measured, before this pass: every one of the five fees printed its photograph
-   in a 7.5rem column — 120×90 on the page — which is the "50px icon" state the
-   captain named. Each fee is now a SHOP CARD in the shared `.shop-grid`: the
-   client's own photograph leads at the column's full width (448×336 measured at
-   1440, 92vw at 390), the price block and the note sit under it, and the actions
-   close it. The `.sv-price-card` names stay — the section's own approved DOM
-   (docs/08-delivery/services-design/) and its tests still address them — but the
-   layout is the catalogue's one grammar, so /services and /products read alike. */
-.sv-prices--photos {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
-  align-items: stretch;
-  column-gap: var(--space-5);
-  row-gap: var(--space-6);
-  border-top: 0;
-}
 
-.sv-price-card--photo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  align-content: stretch;
-  align-items: stretch;
-  padding: var(--space-4) 0 0;
-  border-top: 1px solid var(--color-rule);
-  border-bottom: 0;
-}
+
+
+
+
+
 
 /* The photograph leads; the odd-tail rule that spanned a price-list row does not
    apply to a card that now carries its own picture. */
@@ -16561,32 +15648,13 @@ a.card:hover {
   justify-content: flex-start;
 }
 
-.sv-price-card--photo .sv-price-card__unit {
-  text-align: left;
-}
 
-.sv-price-card--photo .sv-price-card__actions {
-  margin-top: auto;
-}
 
-/* Explicit "these two buttons" legend — repeated once per section, not per
-   card, so nobody has to infer what the pair means. */
-.sv-howto {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3) var(--space-5);
-  margin: 0 0 var(--space-5);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-  font-size: var(--text-md);
-  color: var(--color-text-primary);
-}
 
-.sv-howto b {
-  color: var(--color-text-primary);
-}
+
+
+
+
 
 /* Total band */
 .sv-total {
@@ -16601,11 +15669,7 @@ a.card:hover {
   background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
 }
 
-.sv-total__label {
-  font-size: var(--text-md);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
+
 
 .sv-total__amount {
   font-family: var(--font-serif);
@@ -16620,23 +15684,11 @@ a.card:hover {
   color: var(--color-text-primary);
 }
 
-.sv-aside {
-  display: grid;
-  gap: var(--space-4);
-  align-content: start;
-}
 
-.sv-helper {
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
-}
 
-.sv-helper p {
-  margin: 0;
-}
+
+
+
 
 .sv-page .alert {
   font-size: var(--text-md);
@@ -16651,19 +15703,9 @@ a.card:hover {
   font-size: var(--text-md);
 }
 
-/* --- Two-column block (table/picker + client photo) ------------------------ */
-.sv-split {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
-  align-items: start;
-}
 
-@media (max-width: 62rem) {
-  .sv-split {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
+
+
 
 .sv-figure {
   margin: 0;
@@ -16776,18 +15818,9 @@ a.card:hover {
   overflow-x: auto;
 }
 
-/* --- Chapel cards ----------------------------------------------------------- */
-.sv-chapels {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
-}
 
-@media (max-width: 62rem) {
-  .sv-chapels {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
+
+
 
 .sv-chapel {
   display: flex;
@@ -16812,18 +15845,9 @@ a.card:hover {
   object-fit: cover;
 }
 
-.sv-chapel__body {
-  display: grid;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  flex: 1;
-  align-content: start;
-}
 
-.sv-chapel__name {
-  margin: 0;
-  font-size: var(--text-2xl);
-}
+
+
 
 .sv-chapel__rate {
   display: flex;
@@ -16837,70 +15861,25 @@ a.card:hover {
   font-variant-numeric: tabular-nums;
 }
 
-.sv-chapel__unit {
-  font-family: var(--font-sans);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
 
-.sv-chapel__what {
-  margin: 0;
-  color: var(--color-text-primary);
-}
 
-.sv-chapel__facts {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-}
 
-.sv-chapel__facts > div {
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-chapel__facts dt {
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
 
-.sv-chapel__facts dd {
-  margin: var(--space-1) 0 0;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
 
-.sv-chapel__actions {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
-}
 
-.sv-chapel__illus {
-  margin: 0;
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
 
-/* "What does this chapel name mean" — the placeholder disclosure. */
-.sv-placeholder {
-  display: flex;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
-  border: 1px dashed var(--amber-500);
-  border-radius: var(--radius-lg);
-  background: var(--amber-100);
-  color: var(--color-text-primary);
-  font-size: var(--text-md);
-}
 
-.sv-placeholder b {
-  color: var(--color-text-primary);
-}
+
+
+
+
+
+
+
+
+
+
 
 /* --- Per-stay schedule rows (the table, made senior-readable) -------------- */
 .sv-stays {
@@ -16930,16 +15909,9 @@ a.card:hover {
   white-space: nowrap;
 }
 
-.sv-stay__prices {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-5);
-  font-variant-numeric: tabular-nums;
-}
 
-.sv-stay__prices b {
-  font-size: var(--text-xl);
-}
+
+
 
 .sv-stay__actions {
   display: flex;
@@ -16954,9 +15926,7 @@ a.card:hover {
     gap: var(--space-2);
     padding: var(--space-4);
   }
-  .sv-stay__prices {
-    gap: var(--space-1) var(--space-4);
-  }
+  
   .sv-stay__actions {
     justify-content: stretch;
   }
@@ -16967,36 +15937,13 @@ a.card:hover {
   }
 }
 
-.sv-senior {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  margin-top: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-subtle);
-  color: var(--color-text-primary);
-}
 
-.sv-senior svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  flex: none;
-  margin-top: 2px;
-  color: var(--color-text-accent);
-}
 
-.sv-senior p {
-  margin: 0;
-}
 
-/* The senior-rate conflict keeps both printed figures: one paragraph for the
-   table's column, one for the sheet's own footnote. */
-.sv-senior__body {
-  display: grid;
-  gap: var(--space-2);
-}
+
+
+
+
 
 /* --- States ----------------------------------------------------------------- */
 .sv-cartchip {
@@ -17030,49 +15977,17 @@ a.card:hover {
   font-weight: 700;
 }
 
-.sv-stateblock {
-  display: grid;
-  gap: var(--space-3);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-stateblock__label {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--color-text-secondary);
-}
 
-.sv-state-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
-}
 
-@media (max-width: 62rem) {
-  .sv-state-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.sv-skeleton {
-  display: grid;
-  gap: var(--space-3);
-  margin: var(--space-5) 0;
-}
 
-.sv-skeleton span {
-  display: block;
-  height: 1.5rem;
-  border-radius: var(--radius-md);
-  background: linear-gradient(90deg, var(--color-bg-subtle), var(--color-bg-subtle), var(--color-bg-subtle));
-  background-size: 200% 100%;
-  animation: sv-shimmer 1.6s linear infinite;
-}
+
+
+
+
+
+
 
 @media (prefers-reduced-motion: reduce) {
   .sv-skeleton span {
@@ -17086,12 +16001,7 @@ a.card:hover {
 }
 
 /* --- Booking step, in context ---------------------------------------------- */
-/* The live dialog (.booking-modal) is fixed; in the sample it is placed in
-   flow inside a stage so it can be reviewed next to the page it opens from. */
-.sv-booking-stage {
-  position: relative;
-  margin-top: var(--space-5);
-}
+
 
 .sv-booking-stage .booking-modal {
   position: static;
@@ -17170,11 +16080,7 @@ a.card:hover {
   color: var(--color-text-primary);
 }
 
-.sv-help__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
+
 
 .sv-help .btn--secondary {
   background: var(--color-bg-surface-raised);
@@ -17263,10 +16169,7 @@ a.card:hover {
   margin-bottom: 0;
 }
 
-/* --- Review pages only: standalone body padding ----------------------------- */
-.sv-standalone {
-  padding-bottom: 2rem;
-}
+
 
 .sv-page .sv-demo-note {
   margin: var(--space-4) auto 0;
@@ -17365,16 +16268,9 @@ a.card:hover {
   gap: var(--space-2);
 }
 
-.sv-stay__heading {
-  margin: var(--space-4) 0 var(--space-2);
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-}
 
-.sv-section__note {
-  margin-top: var(--space-4);
-}
+
+
 
 /* "In your cart" chip + its actions (approved Q3). */
 .sv-cartrow {
@@ -17437,14 +16333,7 @@ a.card:hover {
   text-align: center;
 }
 
-.ia-hero__eyebrow {
-  margin: 0 0 var(--space-2);
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
+
 
 .ia-hero__title {
   margin: 0;
@@ -17452,64 +16341,19 @@ a.card:hover {
   color: var(--color-text-primary);
 }
 
-.ia-hero__lead {
-  max-width: 32rem;
-  margin: var(--space-2) auto 0;
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-}
 
-/* The enormous one-tap call: a 4.5rem-tall gold target carrying the staff's
-   own number at display size (navy-950 on the gold gradient is AAA). */
-.ia-call {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-3);
-  width: 100%;
-  max-width: 32rem;
-  min-height: 4.5rem;
-  margin: var(--space-4) auto 0;
-  padding: var(--space-3) var(--space-5);
-  border: 2px solid var(--gold-600);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--gold-300) 0%, var(--gold-500) 100%);
-  color: var(--color-text-primary);
-  text-decoration: none;
-  box-shadow: var(--shadow-raised);
-}
 
-.ia-call:hover {
-  filter: brightness(1.04);
-}
 
-/* The call button is the page's one job: its keyboard ring is navy so it can
-   never melt into the gold surface the global brass ring sits between. */
-.ia-call:focus-visible {
-  outline: 3px solid var(--navy-900);
-  outline-offset: 3px;
-}
 
-.ia-call__text {
-  display: grid;
-  text-align: left;
-}
 
-.ia-call__kicker {
-  font-size: var(--text-sm);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-primary);
-}
 
-.ia-call__number {
-  font-family: var(--font-serif);
-  font-size: var(--text-3xl);
-  font-weight: 800;
-  line-height: 1.1;
-  white-space: nowrap;
-}
+
+
+
+
+
+
+
 
 .ia-hero__note {
   margin: var(--space-3) 0 0;
@@ -17766,34 +16610,9 @@ a.ia-alt:hover {
   min-width: 0;
 
 }
-/* ===========================================================================
- * Facilities page — the park's rooms and the grounds ("fac-*" block)
- *
- * One public page (app/(public)/facilities/page.tsx) answering "which room,
- * how many people, what does it cost" from the client's own 2026 sheet, then
- * pointing at the park map / 3D walk-through instead of redrawing them.
- *
- * Grammar: the shared public hero (.hero-premium) + buttons, then the
- * senior-first section/card grammar the services block established — sky
- * surfaces, navy ink, gold-800 kickers, prices always with their unit. Every
- * colour, size and space here resolves to a token from styles/tokens.css; the
- * page reads no amount of its own (lib/villa-pricing.ts owns the figures).
- * =========================================================================== */
-.fac-page {
-  max-width: 80rem;
-  margin-inline: auto;
-  color: var(--color-text-primary);
-}
 
-/* Page reading scale: nothing under 16px in content, prices on their own line. */
-.fac-page p,
-.fac-page li,
-.fac-page dt,
-.fac-page dd,
-.fac-page figcaption {
-  font-size: var(--text-md);
-  line-height: 1.6;
-}
+
+
 
 .fac-page .btn {
   min-height: 3rem; /* 48px — the senior-first tap-target floor */
@@ -17808,40 +16627,18 @@ a.ia-alt:hover {
   margin-top: var(--space-7);
 }
 
-.fac-section__kicker {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-accent); /* 9.9:1 on white — AAA at 16px */
-}
+
 
 .fac-section__title {
   margin: 0;
   font-size: var(--text-section-title);
 }
 
-.fac-section__intro {
-  margin: 0;
-  max-width: 44rem;
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-}
 
-/* --- Room cards: photograph, purpose, rate, one next step ----------------- */
-.fac-rooms {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
-  margin-top: var(--space-2);
-}
 
-@media (max-width: 60rem) {
-  .fac-rooms {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
+
+
+
 
 .fac-room {
   display: flex;
@@ -17874,13 +16671,7 @@ a.ia-alt:hover {
   color: var(--color-text-secondary);
 }
 
-.fac-room__body {
-  display: grid;
-  gap: var(--space-3);
-  flex: 1;
-  align-content: start;
-  padding: var(--space-5);
-}
+
 
 .fac-room__name {
   margin: 0;
@@ -17899,70 +16690,23 @@ a.ia-alt:hover {
   font-variant-numeric: tabular-nums;
 }
 
-.fac-room__unit {
-  font-family: var(--font-sans);
-  font-size: var(--text-lg);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
 
-.fac-room__facts {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-}
 
-.fac-room__facts > div {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-}
 
-.fac-room__facts dt {
-  color: var(--color-text-secondary);
-}
 
-.fac-room__facts dd {
-  margin: 0;
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
 
-.fac-room__action {
-  margin-top: var(--space-2);
-  text-align: center;
-}
 
-/* --- The sheet's own conditions, as facts (never a paragraph) ------------- */
-.fac-facts {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  color: var(--color-text-primary);
-}
 
-.fac-facts li {
-  position: relative;
-  padding-left: var(--space-5);
-}
 
-.fac-facts li::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.6em;
-  width: 0.5rem;
-  height: 0.5rem;
-  border-radius: 50%;
-  background: var(--gold-500);
-}
+
+
+
+
+
+
+
+
+
 
 /* The honest state: the park's real room list is still a client question.
    Dashed + amber so it never reads as a published figure. */
@@ -18019,24 +16763,11 @@ a.ia-alt:hover {
   background: var(--color-bg-surface-raised);
 }
 
-.fac-areas__heading {
-  margin: 0;
-  font-size: var(--text-lg);
-}
 
-/* The two areas a family asks about: hairline figures, no per-card shadow. The
-   photograph is the client's tile's picture alone (see the page's GROUND_AREAS). */
-.fac-grounds__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
-}
 
-@media (max-width: 46rem) {
-  .fac-grounds__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
+
+
+
 
 .fac-ground {
   margin: 0;
@@ -18058,29 +16789,11 @@ a.ia-alt:hover {
   object-fit: cover;
 }
 
-.fac-ground__body h3 {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-}
 
-.fac-areas__list {
-  display: grid;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
 
-.fac-areas__list .fac-area {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
+
+
+
 
 /* --- Ask the office (the page's one closing action band) ------------------ */
 .fac-help {
@@ -18110,11 +16823,7 @@ a.ia-alt:hover {
   color: var(--color-text-primary);
 }
 
-.fac-help__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
+
 
 
 /* ---------------------------------------------------------------------------
@@ -18127,9 +16836,7 @@ a.ia-alt:hover {
  * never rides at 390px. Values stay on the seven-step ladder.
  * ------------------------------------------------------------------------- */
 @media (max-width: 48rem) {
-  .plan-quote { font-size: var(--text-xl); }           /* 22 */
-  .ag-signin__title { font-size: var(--text-2xl); }    /* 28 */
-  .ia-call__number { font-size: var(--text-2xl); }     /* 28 */
+  .plan-quote { font-size: var(--text-xl); }                    /* 28 */
 }
 
 /* ===========================================================================
@@ -18191,18 +16898,7 @@ a.ia-alt:hover {
   font-weight: 700;
 }
 
-/* --- The hero's quiet companion card -------------------------------------- */
-.mem-hero__card {
-  display: grid;
-  gap: var(--space-2);
-  align-content: start;
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card-rest);
-  color: var(--color-text-accent);
-}
+
 
 .mem-hero__card-title {
   margin: 0;
@@ -18211,22 +16907,9 @@ a.ia-alt:hover {
   color: var(--color-text-primary);
 }
 
-.mem-hero__card-line {
-  margin: 0;
-  font-size: var(--text-md);
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
 
-/* --- Shared section furniture --------------------------------------------- */
-.mem-kicker {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
+
+
 
 .mem-section-title {
   margin: 0;
@@ -18357,11 +17040,7 @@ a.ia-alt:hover {
   padding-top: var(--space-2);
 }
 
-.mem-choices__title {
-  margin: 0;
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-}
+
 
 .mem-choices__list {
   display: grid;
@@ -18388,17 +17067,11 @@ a.ia-alt:hover {
   background: var(--color-bg-surface-raised);
 }
 
-.mem-choice--private {
-  border-left-color: var(--granite-400);
-}
 
-.mem-choice--family {
-  border-left-color: var(--color-border-strong);
-}
 
-.mem-choice--published {
-  border-left-color: var(--gold-500);
-}
+
+
+
 
 .mem-choice__label {
   font-size: var(--text-md);
@@ -18493,49 +17166,17 @@ a.ia-alt:hover {
   color: var(--color-text-secondary);
 }
 
-/* --- What a published memorial shows (a labelled shape, never a person) ---- */
-.mem-shape__facts {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-}
 
-@media (max-width: 72rem) {
-  .mem-shape__facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
-@media (max-width: 34rem) {
-  .mem-shape__facts {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.mem-shape__facts > div {
-  display: grid;
-  gap: 2px;
-  align-content: start;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-}
 
-.mem-shape__facts dt {
-  font-size: var(--text-md);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-text-accent);
-}
 
-.mem-shape__facts dd {
-  margin: 0;
-  font-size: var(--text-md);
-  color: var(--color-text-primary);
-}
+
+
+
+
+
+
 
 /* --- Closing "Talk to the office" band ------------------------------------- */
 .mem-find {
@@ -18563,17 +17204,9 @@ a.ia-alt:hover {
   color: var(--color-text-primary);
 }
 
-.mem-find__line {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-lg);
-  color: var(--color-text-secondary);
-}
 
-.mem-find__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
+
+
 
 /* --- Find my loved one: the family's steps --------------------------------- */
 .mem-steps {
@@ -18678,31 +17311,11 @@ a.ia-alt:hover {
   box-shadow: var(--shadow-card-rest);
 }
 
-.mem-unavailable__head {
-  display: flex;
-  gap: var(--space-5);
-  align-items: flex-start;
-}
 
-@media (max-width: 44rem) {
-  .mem-unavailable__head {
-    flex-direction: column;
-  }
-}
 
-.mem-unavailable__mark {
-  flex: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  border-radius: 50%;
-  border: 1px solid var(--color-border-strong);
-  background: var(--color-bg-surface-raised);
-  color: var(--sky-700);
-  box-shadow: var(--shadow-card-rest);
-}
+
+
+
 
 /* --- The published memorial profile ---------------------------------------- */
 .mem-profile {
@@ -19470,87 +18083,34 @@ a.ia-alt:hover {
   gap: var(--space-4);
 }
 
-.contact-facts__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  font-weight: 700;
-}
 
-.contact-facts__grid {
-  display: grid;
-  gap: var(--space-4);
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-}
 
-.contact-fact {
-  display: grid;
-  align-content: start;
-  gap: var(--space-2);
-}
 
-.contact-fact__label {
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
-}
 
-.contact-fact__value {
-  font-size: var(--text-md);
-  line-height: 1.5;
-  color: var(--color-text-primary);
-}
 
-.contact-fact__meta {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
+
+
+
+
+
+
 
 .contact-fact--call .btn {
   justify-self: start;
   min-height: 44px;
 }
 
-.contact-fact__number {
-  justify-self: start;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--color-text-primary);
-  text-decoration: none;
-}
 
-.contact-fact__number:hover {
-  color: var(--color-text-accent);
-}
 
-.contact-fact__link {
-  justify-self: start;
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text-accent);
-}
 
-.contact-facts__doors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-4);
-  border-top: 1px solid var(--color-rule);
-  padding-top: var(--space-4);
-}
 
-.contact-facts__doors a {
-  font-size: var(--text-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
 
-.contact-facts__doors a:hover {
-  color: var(--color-text-accent);
-}
+
+
+
+
+
+
 
 /* The advisor cards on the package/casket detail pages carry the same
    staff-editable call target — an anchor now, so it stays a real tel: link. */
@@ -19842,13 +18402,9 @@ a.plan-advisor__phone:hover {
   border-left: 3px solid var(--color-rule);
 }
 
-.copilot-finding--info {
-  border-left-color: var(--color-status-info);
-}
 
-.copilot-finding--warning {
-  border-left-color: var(--color-status-warning);
-}
+
+
 
 .copilot-finding--danger {
   border-left-color: var(--color-status-danger);
@@ -20794,13 +19350,7 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-muted);
 }
 
-/* --- services · the a-la-carte ledger (plan §5.2) ------------------------ */
-.story-rates {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--color-rule);
-}
+
 
 .story-rate {
   display: grid;
@@ -20811,36 +19361,13 @@ a.plan-advisor__phone:hover {
   border-bottom: 1px solid var(--color-rule);
 }
 
-.story-rate__icon {
-  grid-row: span 2;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--radius-md);
-  background: var(--gold-wash-soft);
-  color: var(--gold-700);
-}
 
-.story-rate__text {
-  min-width: 0;
-}
 
-.story-rate__name {
-  display: block;
-  font-size: var(--text-card-title);
-  font-weight: 600;
-  line-height: var(--leading-tight);
-  color: var(--color-text-primary);
-}
 
-.story-rate__desc {
-  display: block;
-  margin-top: var(--space-1);
-  font-size: var(--text-body);
-  color: var(--color-text-secondary);
-}
+
+
+
+
 
 .story-rate__price {
   font-size: var(--text-lg);
@@ -20850,20 +19377,9 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-primary);
 }
 
-.story-rate__unit {
-  display: block;
-  font-size: var(--text-caption);
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
 
-.story-rate__actions {
-  grid-column: 2 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-}
+
+
 
 @media (min-width: 48rem) {
   .story-rate {
@@ -20873,13 +19389,9 @@ a.plan-advisor__phone:hover {
     align-items: center;
   }
 
-  .story-rate__icon {
-    grid-row: auto;
-  }
+  
 
-  .story-rate__actions {
-    grid-column: auto;
-  }
+  
 }
 
 .story-total {
@@ -20892,10 +19404,7 @@ a.plan-advisor__phone:hover {
   border-top: 2px solid var(--color-rule-strong);
 }
 
-.story-total__label {
-  font-size: var(--text-body);
-  color: var(--color-text-secondary);
-}
+
 
 .story-total__amount {
   margin-left: auto;
@@ -20948,11 +19457,7 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-primary);
 }
 
-.story-chapel__unit {
-  font-size: var(--text-caption);
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
+
 
 .story-chapel__what {
   margin: 0;
@@ -21095,20 +19600,14 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-primary);
 }
 
-.story-room__unit {
-  font-size: var(--text-caption);
-  font-weight: 400;
-  color: var(--color-text-muted);
-}
+
 
 .story-room__suits {
   margin: 0;
   color: var(--color-text-secondary);
 }
 
-.story-room__action {
-  margin-top: var(--space-3);
-}
+
 
 /* --- facilities · the grounds list (plan §5.8) --------------------------- */
 .story-grounds {
@@ -21659,6 +20158,22 @@ a.plan-advisor__phone:hover {
   list-style: none;
   padding: 0;
   margin: var(--space-3) 0 0;
+}
+
+/* At 390 the row's nowrap run (due date + amount + badge + countdown) gave the
+   alert's own flex child a 434px min-content — `min-width: auto` refuses to shrink
+   below it — so the whole dashboard scrolled 92px past the viewport (design audit,
+   2026-09-28; caught only once `scripts/design-audit/routes.mjs` let the audit run).
+   A phone stacks the row and lets the run wrap; a desktop keeps the single
+   space-between line. */
+@media (max-width: 40rem) {
+  .payment-alerts__list .row {
+    flex-wrap: wrap;
+  }
+
+  .payment-alerts__list .nowrap {
+    white-space: normal;
+  }
 }
 
 /* ============================================================================
