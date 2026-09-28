@@ -99,7 +99,6 @@ const PAGE_GROUND_SHELLS = [
   ".family-shell",
   ".family-shell__header",
   ".family-shell__main",
-  ".family-shell__footer",
   ".portal-frame",
   ".portal-frame[data-portal=\"agent\"]",
   ".portal-frame[data-portal=\"family\"]",
@@ -108,7 +107,6 @@ const PAGE_GROUND_SHELLS = [
   ".portal-frame[data-portal=\"agent\"] .portal-content",
   ".portal-frame[data-portal=\"family\"] .portal-content",
   ".signin-shell",
-  ".auth-shell",
   ".fv-signin-scope .signin-shell",
   ".card",
   ".table-wrapper",
@@ -119,7 +117,6 @@ const PAGE_GROUND_SHELLS = [
   ".ag-hero",
   ".gal-hero",
   ".mem-profile__hero",
-  ".mem-unavailable",
   ".next-steps",
 ];
 
@@ -164,7 +161,6 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: "input:checked", why: "a checked switch is a control state" },
   { match: ".pill-toggle--active", why: "an active filter pill is a control state" },
   { match: ".quick-call", why: "the home's one-tap call control" },
-  { match: ".sv-callbar", why: "the services page's sticky call control" },
   { match: ".portal-topbar__call", why: "the family portal's call control" },
   { match: ".anchored-phonebar__btn--call", why: "the phone bar's call control" },
   { match: ".ag-filter--on", why: "an active agent filter is a control state" },

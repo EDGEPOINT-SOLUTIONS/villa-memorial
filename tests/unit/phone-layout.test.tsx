@@ -323,7 +323,6 @@ describe("the public layout contract's phone ceilings (Phase 0)", () => {
 
   it("declares the 4-across catalogue grid inside the catalogue envelope", () => {
     expect(declares(ruleFor(RULES, ".public-grid"), "grid-template-columns", /repeat/)).toBe(true);
-    expect(ruleFor(RULES, ".public-grid--cards")?.body).toMatch(/21rem/);
     expect(ruleFor(RULES, ".container--catalogue")?.body).toMatch(
       /var\(--layout-catalogue-w\)/,
     );

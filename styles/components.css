@@ -801,15 +801,7 @@ input[type="checkbox"] {
   100% { background-position: -200% 0; }
 }
 
-/* --- Auth shell --------------------------------------------------------------- */
-.auth-shell {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--space-5);
-  background: var(--color-bg-surface-raised);
-}
+
 
 
 
@@ -1266,20 +1258,7 @@ input[type="checkbox"] {
   text-decoration: none;
 }
 
-/* The lead's figure is the band's loudest number — a real 2026 amount, read
-   through lib/villa-pricing.ts / the pricing store, never typed into a view.
-   Right-sized (captain 2026-09-25): a total is 22px, never display type. */
-.ledger__figure {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2) var(--space-3);
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
+
 
 
 
@@ -1334,13 +1313,7 @@ a.ledger__row:hover .ledger__row-title {
   color: var(--color-text-secondary);
 }
 
-.ledger__row-figure {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
+
 
 
 
@@ -1398,14 +1371,7 @@ a.ledger__row:hover .ledger__row-title {
   gap: var(--space-7);
 }
 
-.cat-lead {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-1) var(--space-5);
-  align-items: baseline;
-  padding-bottom: var(--space-4);
-  border-bottom: 1px solid var(--color-rule);
-}
+
 
 
 
@@ -1413,14 +1379,9 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-2xl);
 }
 
-.cat-lead .ledger__figure {
-  font-size: var(--text-xl);
-}
 
-.cat-lead .ledger__actions {
-  grid-column: 1 / -1;
-  margin-top: var(--space-2);
-}
+
+
 
 /* The five coffin tiers as a ledged band (/products): the entry tier leads with
    its photograph, the steps above it follow as hairline rows that keep their own
@@ -1471,20 +1432,14 @@ a.ledger__row:hover .ledger__row-title {
 
 
 
-.ledger__row--model .model-photo {
-  grid-column: 1;
-  grid-row: 1 / span 3;
-}
+
 
 .ledger__row--model .ledger__row-title {
   grid-column: 2;
   grid-row: 1;
 }
 
-.ledger__row--model .ledger__row-figure {
-  grid-column: 3;
-  grid-row: 1;
-}
+
 
 .ledger__row--model .ledger__row-meta {
   grid-column: 2 / -1;
@@ -1493,25 +1448,9 @@ a.ledger__row:hover .ledger__row-title {
 
 
 
-.model-photo {
-  margin: 0;
-  display: grid;
-  gap: var(--space-1);
-  min-width: 0;
-}
 
-/* A stated `aspect-ratio` needs the height reset: the reserved width/height
-   attributes are a presentational hint and would otherwise win (the rule the
-   ledger block documents). The picture's space stays reserved. */
-.model-photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-subtle);
-}
+
+
 
 
 
@@ -1526,12 +1465,7 @@ a.ledger__row:hover .ledger__row-title {
   margin: 0 auto var(--space-6);
 }
 
-.page-hero__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-page-title);
-  margin: 0;
-  color: var(--hero-text-colour, inherit);
-}
+
 
 
 
@@ -2117,20 +2051,6 @@ a.ledger__row:hover .ledger__row-title {
   }
 }
 
-.day-ladder__media {
-  margin: 0;
-}
-
-/* The height reset every img-level ratio in this file carries. */
-.day-ladder__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
-}
 
 
 
@@ -2142,12 +2062,10 @@ a.ledger__row:hover .ledger__row-title {
 
 
 
-.day-ladder__price {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
+
+
+
+
 
 @media (max-width: 40rem) {
   
@@ -2157,61 +2075,21 @@ a.ledger__row:hover .ledger__row-title {
   }
 }
 
-.item-card {
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--color-rule);
-  border-radius: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-5) 0;
-}
-
-/* Every tile used to be a shadowed white box, which is what made a catalogue
-   read as "the same box repeated". Separation is a hairline + space; elevation
-   is reserved for things that actually float (menus, dialogs, the phone bar).
-   See the "composition grammar" block for the lead entry and the dense rows. */
-
-.item-card__media {
-  height: auto;
-  aspect-ratio: 3 / 2;
-  overflow: hidden;
-  background: var(--color-bg-subtle);
-  border-bottom: 0;
-  border-radius: var(--radius-md);
-  position: relative;
-}
-
-.item-card__media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
 
 
 
-.item-card__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  color: var(--color-text-primary);
-}
 
-.item-card__title a {
-  color: inherit;
-  text-decoration: none;
-}
 
-.item-card__title a:hover {
-  color: var(--color-text-accent);
-}
 
-.item-card__price {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  color: var(--color-text-accent);
-}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2517,15 +2395,7 @@ a.ledger__row:hover .ledger__row-title {
   }
 }
 
-/* --- Sellable casket cards (/products): collection heading + price facts ------ */
-.casket-collection__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  color: var(--color-text-primary);
-  margin: 0;
-  padding-bottom: var(--space-1);
-  border-bottom: 1px solid var(--color-rule);
-}
+
 
 
 
@@ -2599,13 +2469,7 @@ a.ledger__row:hover .ledger__row-title {
   margin-bottom: var(--space-3);
 }
 
-.landing__title {
-  font-family: var(--font-serif);
-  font-size: var(--text-hero);
-  line-height: 1.08;
-  letter-spacing: -0.01em;
-  margin: 0 0 var(--space-4);
-}
+
 
 
 
@@ -2643,12 +2507,7 @@ a.ledger__row:hover .ledger__row-title {
   background: var(--color-border);
 }
 
-.stat__value {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-accent);
-  line-height: 1;
-}
+
 
 
 
@@ -2891,14 +2750,7 @@ a.ledger__row:hover .ledger__row-title {
   font-size: var(--text-md);
 }
 
-/* Memorial card — the ceremonial heart of the family dashboard. */
-.memorial-card {
-  text-align: center;
-  padding: var(--space-7) var(--space-6);
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
+
 
 
 
@@ -3230,11 +3082,7 @@ a.ledger__row:hover .ledger__row-title {
   padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
-.family-shell__footer {
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg-surface);
-  padding-block: var(--space-5);
-}
+
 
 .family-shell__footer .text-sm {
   color: var(--color-text-muted);
@@ -5598,19 +5446,9 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-/* Item-card media: keep the photo whole (no fixed-height crop) */
-.item-card__media {
-  height: auto;
-  background: transparent;
-}
 
-.item-card__media img {
-  position: static;
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: contain;
-}
+
+
 
 
 
@@ -6129,29 +5967,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   }
 }
 
-/* ---------------------------------------------------------------------------
- * Landing showcase — “The very first memorial park in Basilan” (premium band)
- * ------------------------------------------------------------------------- */
-.landing-showcase {
-  position: relative;
-  overflow: hidden;
-  background:
-    radial-gradient(720px circle at 88% 12%, color-mix(in srgb, var(--gold-300) 18%, transparent), transparent 58%),
-    linear-gradient(180deg, var(--navy-900), var(--navy-950));
-  color: var(--color-text-inverse);
-  padding-block: clamp(3.5rem, 7vw, 6rem);
-  margin-block: var(--space-6);
-}
-
-.landing-showcase::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--brass-400), transparent);
-}
 
 
 
@@ -6159,12 +5974,10 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-.landing-showcase__title {
-  margin: 0;
-  font-size: var(--text-section-title);
-  line-height: 1.12;
-  color: var(--color-text-inverse);
-}
+
+
+
+
 
 
 
@@ -7330,32 +7143,13 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-/* The sheet's own bottom-line total for the five at-need services. */
-.svc-total {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-5);
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
-}
-
-.svc-total > div {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-3);
-}
 
 
 
-.svc-total__amount {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
+
+
+
+
 
 
 
@@ -7375,28 +7169,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   }
 }
 
-.chapel-card {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
-
-.chapel-card__media {
-  margin: 0;
-  border-bottom: 1px solid var(--color-rule);
-  background: var(--color-bg-subtle);
-}
-
-.chapel-card__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-}
 
 
 
@@ -7404,17 +7176,12 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-.chapel-card__rate {
-  margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
+
+
+
+
+
+
 
 
 
@@ -7484,20 +7251,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   min-width: 0;
 }
 
-.gal-figure__media {
-  overflow: hidden;
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-subtle);
-}
 
-.gal-figure__media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--motion-slow) ease;
-}
+
+
 
 .gal-figure figcaption {
   display: grid;
@@ -7513,10 +7269,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-muted);
 }
 
-/* Hero figure — the client's gate photo, 16:9 like the source. */
-.gal-figure--hero .gal-figure__media {
-  aspect-ratio: 16 / 9;
-}
+
 
 /* The one wide photograph of the grounds, kept AT its native width: the largest
    published derivative is 940px, so the box is capped at 58.75rem (940px). At
@@ -7526,9 +7279,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   max-width: 58.75rem;
 }
 
-.gal-figure--feature .gal-figure__media {
-  aspect-ratio: 940 / 545;
-}
+
 
 /* The chapels group: four equal 3:2 cards, 2-up on tablets and phones. */
 .gal-cards {
@@ -7549,14 +7300,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   }
 }
 
-.gal-figure--card .gal-figure__media {
-  aspect-ratio: 3 / 2;
-}
 
-.gal-figure--card:hover .gal-figure__media img,
-.gal-figure--card:focus-within .gal-figure__media img {
-  transform: scale(1.03);
-}
+
+
 
 /* --- page opening --------------------------------------------------------- */
 .gal-hero {
@@ -7582,35 +7328,19 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-.gal-hero__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-hero);
-  line-height: 1.12;
-  color: var(--color-text-primary);
-}
 
 
 
 
 
-/* --- photo groups --------------------------------------------------------- */
-.gal-group {
-  display: grid;
-  gap: var(--space-4);
-}
 
 
 
 
 
-.gal-group__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  line-height: 1.2;
-  color: var(--color-text-primary);
-}
+
+
+
 
 .gal-group__intro {
   margin: var(--space-2) 0 0;
@@ -7683,39 +7413,19 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 
 
-.gal-figure--plan .gal-figure__media {
-  aspect-ratio: 1 / 1;
-}
 
-/* --- next step: ask the office about a visit ------------------------------ */
-.gal-visit {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  padding: var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
+
+
 
 @media (max-width: 62rem) {
-  .gal-visit {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--space-5);
-  }
+  
 
   .gal-visit__actions .btn {
     width: 100%;
   }
 }
 
-.gal-visit__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
+
 
 
 
@@ -7733,22 +7443,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: var(--color-bg-surface-raised);
 }
 
-/* Catalogue-card media: a reserved aspect ratio, so the photo never shifts the
-   grid while it loads (the shared .item-card__media keeps photos uncropped). */
-.casket-card__media {
-  position: relative;
-  aspect-ratio: 4 / 3;
-  overflow: hidden;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-subtle);
-}
 
-.casket-card__media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+
+
 
 .casket-sample__media {
   position: relative;
@@ -15311,45 +15008,15 @@ a.card:hover {
 
 
 
-.sv-hero__media {
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-hero__media img {
-  display: block;
-  width: 100%;
-  height: 20rem;
-  object-fit: cover;
-}
 
-@media (max-width: 62rem) {
-  .sv-hero__media img {
-    height: 16rem;
-  }
-}
 
-.sv-hero__media figcaption {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
 
-/* --- The 24/7 call panel — the first thing a bereaved family needs --------- */
-.sv-call {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-5);
-  align-items: center;
-  margin-top: var(--space-5);
-  padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
+
+
+
+
+
 
 
 
@@ -15364,10 +15031,7 @@ a.card:hover {
 }
 
 @media (max-width: 62rem) {
-  .sv-call {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--space-5);
-  }
+  
   .sv-call__actions .btn {
     width: 100%;
   }
@@ -15541,23 +15205,9 @@ a.card:hover {
 
 
 /* --- Price cards (at-need services) ---------------------------------------- */
-/* The five a-la-carte fees as a price LEDGER (composition pass, 2026-09-18):
-   one line per fee, the amount set against it and the two actions under it. Five
-   equal shadowed boxes — the fifth orphaned on its own row — became one
-   hairline-separated sheet, which is both calmer and denser: the whole price list
-   is scannable at a glance and every unit stays attached to its figure. */
-.sv-prices {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  column-gap: var(--space-6);
-  border-top: 1px solid var(--color-rule);
-}
 
-@media (min-width: 60rem) {
-  .sv-prices {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
+
+
 
 .sv-price-card {
   display: grid;
@@ -15584,22 +15234,7 @@ a.card:hover {
 
 
 
-.sv-price-card__amount {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: flex-end;
-  gap: var(--space-2);
-  grid-column: 2;
-  grid-row: 1 / span 3;
-  align-self: center;
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-}
+
 
 
 
@@ -15617,36 +15252,6 @@ a.card:hover {
   grid-column: auto;
 }
 
-.sv-price-card__media {
-  order: -1;
-  margin: 0;
-  min-width: 0;
-}
-
-/* The height reset every `img`-level ratio in this file carries: the reserved
-   width/height attributes are a presentational hint and would make the ratio a
-   no-op. Space stays reserved. */
-.sv-price-card__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
-}
-
-.sv-price-card--photo .sv-price-card__head,
-.sv-price-card--photo .sv-price-card__plain,
-.sv-price-card--photo .sv-price-card__amount,
-.sv-price-card--photo .sv-price-card__actions {
-  grid-column: auto;
-  grid-row: auto;
-}
-
-.sv-price-card--photo .sv-price-card__amount {
-  justify-content: flex-start;
-}
 
 
 
@@ -15656,33 +15261,20 @@ a.card:hover {
 
 
 
-/* Total band */
-.sv-total {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-3) var(--space-5);
-  margin-top: var(--space-5);
-  padding: var(--space-5);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: linear-gradient(180deg, var(--color-bg-subtle), var(--color-bg-subtle));
-}
 
 
 
-.sv-total__amount {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
 
-.sv-total p {
-  flex: 1 1 20rem;
-  margin: 0;
-  color: var(--color-text-primary);
-}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -15707,26 +15299,11 @@ a.card:hover {
 
 
 
-.sv-figure {
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-figure img {
-  display: block;
-  width: 100%;
-  height: 16rem;
-  object-fit: cover;
-}
 
-.sv-figure figcaption {
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
+
+
+
 
 /* --- Stay chooser (embalming day picker) ----------------------------------- */
 .sv-days {
@@ -15831,35 +15408,15 @@ a.card:hover {
   background: var(--color-bg-surface-raised);
 }
 
-.sv-chapel__media {
-  margin: 0;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-subtle);
-}
-
-.sv-chapel__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-}
 
 
 
 
 
-.sv-chapel__rate {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
+
+
+
+
 
 
 
@@ -16053,32 +15610,11 @@ a.card:hover {
 }
 
 /* --- Help band + mobile call bar ------------------------------------------- */
-/* Captain's brand rule (2026-09-16): the public page paints the sky ladder
-   with navy ink, never a dark-navy band. The band matches the .sv-call panel:
-   light sky gradient, navy-900 text (16.8:1 on the sky-100 stop). */
-.sv-help {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  margin-top: var(--space-6);
-  padding: var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-subtle); /* a flat neutral band — no sky wash */
-  color: var(--color-text-primary);
-}
 
-.sv-help h2 {
-  margin: 0 0 var(--space-2);
-  color: var(--color-text-primary);
-  font-size: var(--text-section-title);
-}
 
-.sv-help p {
-  margin: 0;
-  color: var(--color-text-primary);
-}
+
+
+
 
 
 
@@ -16088,86 +15624,32 @@ a.card:hover {
 }
 
 @media (max-width: 62rem) {
-  .sv-help {
-    grid-template-columns: minmax(0, 1fr);
-    padding: var(--space-5);
-  }
+  
   .sv-help__actions .btn {
     width: 100%;
   }
 }
 
-/* Phone-only sticky call bar — the "Need help?" path that never scrolls away.
-   It sits above the existing MobileQuickMenu FAB (bottom: 5.5rem). */
-.sv-callbar {
-  position: fixed;
-  left: var(--space-3);
-  right: var(--space-3);
-  bottom: var(--space-3);
-  z-index: 60;
-  display: none;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-radius: 999px;
-  background: var(--sky-700);
-  color: #ffffff;
-  box-shadow: var(--shadow-card-hover);
-}
 
-.sv-callbar span {
-  font-size: var(--text-md);
-  color: #ffffff;
-}
 
-.sv-callbar a {
-  margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: 0 var(--space-4);
-  border-radius: 999px;
-  background: var(--gold-400);
-  color: var(--color-text-primary);
-  font-size: var(--text-lg);
-  font-weight: 700;
-  text-decoration: none;
-  white-space: nowrap;
-}
+
+
+
 
 @media (max-width: 62rem) {
-  /* The bar sits clear ABOVE the MobileQuickMenu FAB (1rem offset + 3.25rem
-     button + 1.25rem gap): the FAB must never cover the 24/7 number. */
-  .sv-callbar {
-    display: flex;
-    bottom: 5.5rem;
-  }
+  
   .sv-page {
     padding-bottom: 10rem; /* clear the call bar + the FAB below it */
   }
 }
 
-/* --- Sources block ----------------------------------------------------------- */
-.sv-sources {
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-sources h2 {
-  margin-bottom: var(--space-2);
-  font-size: var(--text-section-title);
-}
 
-.sv-sources p {
-  margin: 0 0 var(--space-3);
-  color: var(--color-text-primary);
-}
 
-.sv-sources p:last-child {
-  margin-bottom: 0;
-}
+
+
+
+
 
 
 
@@ -16223,44 +15705,15 @@ a.card:hover {
   padding: var(--space-4);
 }
 
-.sv-card-media {
-  margin: var(--space-2) 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--color-bg-subtle);
-}
 
-.sv-card-media img {
-  display: block;
-  width: 100%;
-  height: 12rem;
-  object-fit: cover;
-}
 
-/* Embalming aside fact (icon + one sentence). */
-.sv-fact {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  padding: var(--space-4) var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
-.sv-fact svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  flex: none;
-  margin-top: 2px;
-  color: var(--color-text-accent);
-}
 
-.sv-fact p {
-  margin: 0;
-  color: var(--color-text-primary);
-}
+
+
+
+
+
 
 /* Grouping label above a picker; stay-list chapel heading. */
 .sv-picker-group {
@@ -16335,11 +15788,7 @@ a.card:hover {
 
 
 
-.ia-hero__title {
-  margin: 0;
-  font-size: var(--text-page-title);
-  color: var(--color-text-primary);
-}
+
 
 
 
@@ -16620,19 +16069,11 @@ a.ia-alt:hover {
   font-weight: 600;
 }
 
-/* --- Sections ------------------------------------------------------------- */
-.fac-section {
-  display: grid;
-  gap: var(--space-4);
-  margin-top: var(--space-7);
-}
 
 
 
-.fac-section__title {
-  margin: 0;
-  font-size: var(--text-section-title);
-}
+
+
 
 
 
@@ -16649,34 +16090,15 @@ a.ia-alt:hover {
   background: var(--color-bg-surface-raised);
 }
 
-.fac-room__media {
-  margin: 0;
-  border-bottom: 1px solid var(--color-border);
-  background: var(--color-bg-subtle);
-}
-
-.fac-room__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
-}
-
-/* The sheet's "Illustration purposes only" label stays attached to the photo. */
-.fac-room__media figcaption {
-  padding: var(--space-2) var(--space-5);
-  border-top: 1px solid var(--color-border);
-  background: var(--color-bg-surface-raised);
-  color: var(--color-text-secondary);
-}
 
 
 
-.fac-room__name {
-  margin: 0;
-  font-size: var(--text-card-title);
-}
+
+
+
+
+
+
 
 .fac-room__rate {
   display: flex;
@@ -16719,49 +16141,6 @@ a.ia-alt:hover {
   color: var(--color-text-primary);
 }
 
-/* --- The grounds ---------------------------------------------------------- */
-.fac-grounds {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: var(--space-5);
-  align-items: start;
-}
-
-@media (max-width: 62rem) {
-  .fac-grounds {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.fac-grounds__media {
-  margin: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  background: var(--color-bg-surface-raised);
-}
-
-.fac-grounds__media img {
-  display: block;
-  width: 100%;
-  height: clamp(14rem, 30vw, 24rem);
-  object-fit: cover;
-}
-
-.fac-grounds__media figcaption {
-  padding: var(--space-3) var(--space-4);
-  color: var(--color-text-secondary);
-}
-
-.fac-areas {
-  display: grid;
-  gap: var(--space-3);
-  align-content: start;
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
 
 
@@ -16769,25 +16148,6 @@ a.ia-alt:hover {
 
 
 
-.fac-ground {
-  margin: 0;
-  display: grid;
-  gap: var(--space-3);
-}
-
-.fac-ground__media {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: var(--color-bg-subtle);
-}
-
-.fac-ground__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-}
 
 
 
@@ -16795,33 +16155,29 @@ a.ia-alt:hover {
 
 
 
-/* --- Ask the office (the page's one closing action band) ------------------ */
-.fac-help {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-5);
-  align-items: center;
-  margin-top: var(--space-7);
-  padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
 
-@media (max-width: 60rem) {
-  .fac-help {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.fac-help h2 {
-  margin: 0 0 var(--space-2);
-}
 
-.fac-help p {
-  margin: 0;
-  color: var(--color-text-primary);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -16900,23 +16256,13 @@ a.ia-alt:hover {
 
 
 
-.mem-hero__card-title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-card-title);
-  color: var(--color-text-primary);
-}
 
 
 
 
 
-.mem-section-title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
+
+
 
 .mem-intro {
   margin: 0;
@@ -17178,31 +16524,11 @@ a.ia-alt:hover {
 
 
 
-/* --- Closing "Talk to the office" band ------------------------------------- */
-.mem-find {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-4);
-  align-items: center;
-  padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card-rest);
-}
 
-@media (max-width: 60rem) {
-  .mem-find {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 
-.mem-find__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
+
+
+
 
 
 
@@ -17300,16 +16626,7 @@ a.ia-alt:hover {
   color: var(--color-text-secondary);
 }
 
-/* --- The memorial page: one uniform answer for absent AND unpublished ------ */
-.mem-unavailable {
-  display: grid;
-  gap: var(--space-5);
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  box-shadow: var(--shadow-card-rest);
-}
+
 
 
 
@@ -19183,10 +18500,7 @@ a.plan-advisor__phone:hover {
   row-gap: var(--space-6);
 }
 
-/* The lot/product card keeps the wider floor (a full-width figure under it). */
-.public-grid--cards {
-  --public-grid-floor: 21rem;
-}
+
 
 /* --- PublicHero interior / call-first variants (the home keeps .hero-home) */
 .public-hero {
@@ -19352,14 +18666,6 @@ a.plan-advisor__phone:hover {
 
 
 
-.story-rate {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: start;
-  gap: var(--space-2) var(--space-4);
-  padding: var(--space-4) 0;
-  border-bottom: 1px solid var(--color-rule);
-}
 
 
 
@@ -19369,30 +18675,14 @@ a.plan-advisor__phone:hover {
 
 
 
-.story-rate__price {
-  font-size: var(--text-lg);
-  font-weight: 700;
-  line-height: var(--leading-tight);
-  white-space: nowrap;
-  color: var(--color-text-primary);
-}
 
 
 
 
 
-@media (min-width: 48rem) {
-  .story-rate {
-    /* Request-for-Quote retired the price column (captain 2026-09-21): one
-       action per row, so the grid is icon · words · action. */
-    grid-template-columns: auto minmax(0, 1fr) auto;
-    align-items: center;
-  }
 
-  
 
-  
-}
+
 
 .story-total {
   display: flex;
@@ -19406,12 +18696,7 @@ a.plan-advisor__phone:hover {
 
 
 
-.story-total__amount {
-  margin-left: auto;
-  font-size: var(--text-xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
+
 
 .story-total p {
   flex-basis: 100%;
@@ -19450,12 +18735,7 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-muted);
 }
 
-.story-chapel__rate {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-xl);
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
+
 
 
 

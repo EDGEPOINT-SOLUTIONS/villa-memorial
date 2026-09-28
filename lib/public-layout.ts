@@ -263,8 +263,6 @@ export function ctaClass(rung: CtaRung): string {
  * list already fits), so a short catalogue never grows a pointless toggle.
  */
 export const GRID = {
-  /** The lot/product card grid floor (a full-width figure under the card). */
-  cardFloorRem: 21,
   /**
    * The dense catalogue grid floor. It is chosen so FOUR columns fit inside the
    * 1,200 px catalogue envelope's 1,152 px content box (4 × 16.5 rem + 3 × 24 px

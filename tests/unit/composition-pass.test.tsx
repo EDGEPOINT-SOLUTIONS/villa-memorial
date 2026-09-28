@@ -137,15 +137,14 @@ describe("bands are separated by rules and space, not by a shadow on every box",
   it("the home's four stacked bands and its newsfeed cast no shadow", () => {
     expect(rule(".mid-section")).not.toMatch(/box-shadow/);
     expect(rule(".post-card")).not.toMatch(/box-shadow/);
-    expect(rule(".item-card")).not.toMatch(/box-shadow/);
   });
 
-  it("the catalogue tile is ruled, not boxed", () => {
-    const body = rule(".item-card");
-    expect(body).toContain("border-bottom: 1px solid var(--color-rule);");
-    expect(body).toContain("border-radius: 0;");
-    expect(body).toContain("background: transparent;");
-  });
+  // "the catalogue tile is ruled, not boxed" was here. It pinned the retired
+  // catalogue-tile class, which no longer appears in app/, components/ or lib/ —
+  // the home's plans & lots band renders the kit `ProductCard` (`.shop-card`) now,
+  // and the captain explicitly asked for equal cards there. The test guarded a
+  // retired tile and kept its dead CSS alive. Removed 2026-09-28 (the class name is
+  // deliberately not repeated here — see the design record for the manifest).
 
   it("keeps elevation only where something actually floats", () => {
     // The shared kit's card, the sticky rail panel, the header's dropdown and
@@ -156,24 +155,15 @@ describe("bands are separated by rules and space, not by a shadow on every box",
     // Every rule that still paints --shadow-card-rest belongs to a floating
     // surface or to a non-public (staff/editor) surface — the public BANDS in
     // this pass carry none.
+    //
+    // Ten dead public classes were removed from this list on 2026-09-28 — retired
+    // services/facilities/gallery bands with no markup in app/, components/ or lib/,
+    // matched on none of 218 routes x 3 viewports. Naming a dead class here is what
+    // kept its rule alive. The manifest is in docs/08-delivery/design-audit-cleanup-design/.
     const banded = [
-      ".sv-hero__media",
-      ".sv-call",
-      // `.sv-chapel` was here while its rule existed. The rule was DEAD — no
-      // markup used the class (the live cards are `.story-chapel`) — and listing
-      // it here is what stopped anyone noticing. Removed with the rule,
-      // 2026-09-27.
-      ".sv-help",
-      ".sv-fact",
-      ".sv-figure",
       ".sv-picker",
-      ".fac-room",
-      ".fac-grounds__media",
-      ".fac-areas",
-      ".fac-help",
       ".gal-hero",
       ".gal-walk",
-      ".gal-figure__media",
       ".promo-figure",
       ".casket-sample",
     ];

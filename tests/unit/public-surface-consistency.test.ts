@@ -64,7 +64,6 @@ const FLAT_PUBLIC_SURFACES = [
   ".ia-hero",
   ".hero-premium",
   ".gal-hero",
-  ".mem-unavailable",
   ".mem-profile__hero",
   ".plan-statement",
   ".park-map",
@@ -78,31 +77,22 @@ const NEUTRAL_MEDIA_GROUNDS = [
   ".shop-card__media",
   ".ledger__media",
   ".tier-ledger__media",
-  ".item-card__media",
-  ".model-photo img",
-  ".day-ladder__media img",
   ".plan-tier__media",
-  ".chapel-card__media",
   ".casket-sample__media",
-  ".casket-card__media",
   ".tribute-figure img",
   ".pdp-variant__thumb",
   ".pdp-gallery__main",
   ".pdp-gallery__thumb",
   ".pdp-gallery__placeholder",
   ".pdp-zoom__frame",
-  ".gal-figure__media",
-  ".sv-price-card__media img",
-  // `.sv-chapel__media` was here. It was DEAD CSS — the rule existed but no
-  // markup referenced the class (the live chapel cards are `.story-chapel`), and
-  // this list is what kept it looking alive. Removed with the rule on
-  // 2026-09-27; see docs/08-delivery/services-redesign/README.md.
-  ".sv-card-media",
-  ".fac-room__media",
-  ".fac-ground__media",
   ".rail-thumb",
   ".mem-profile__portrait",
   ".mem-rule-card--never",
+  // Dead entries were removed from this list on 2026-09-27 and 2026-09-28: every one
+  // a retired public band/hero with no markup in app/, components/ or lib/, matched on
+  // none of 218 routes x 3 viewports. Naming a dead class here is what kept its rule
+  // in the sheet. The manifest of what went is in
+  // docs/08-delivery/design-audit-cleanup-design/, not in this file.
 ] as const;
 
 describe("public bands and heroes are flat — no decorative gradient, no marble", () => {

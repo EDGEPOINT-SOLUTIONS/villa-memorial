@@ -238,11 +238,9 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
     {
       file: "styles/components.css",
       selectors: [
-        ".landing__title",
         ".hero-home__title",
         ".hero-premium__title",
         ".pkg-title",
-        ".gal-hero__title",
         // ".sv-page h1" was here. It is gone on purpose: it forced /services's
         // opening up to the hero rung while the other nine public pages opened
         // at the shared page-title step. That page renders `PublicHero` now, so
@@ -256,12 +254,10 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
     {
       file: "styles/components.css",
       selectors: [
-        ".page-hero__title",
         ".public-hero__title",
         ".app-shell .app-main .page-header h1",
         ".paper-hero__title",
         ".ag-hero__title",
-        ".ia-hero__title",
         ".pdp-buy__title",
       ],
     },
@@ -274,11 +270,7 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".section-title",
         ".mid-section > h2",
         ".sv-page h2",
-        ".fac-section__title",
-        ".gal-group__title",
         ".gal-walk__title",
-        ".gal-visit__title",
-        ".landing-showcase__title",
         ".app-shell .app-main .page-section-title",
         ".page-section-title",
         ".plan-section-title",
@@ -287,12 +279,8 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".ag-h2",
         ".ia-steps h2",
         ".ia-alts h2",
-        ".sv-sources h2",
         ".ed-section__head h2",
-        ".sv-help h2",
-        ".mem-section-title",
         ".next-steps__title",
-        ".mem-find__title",
         ".price-module__title",
         ".ledger__title",
         ".band-head__title",
@@ -306,7 +294,6 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
       file: "styles/components.css",
       selectors: [
         ".card__header h2",
-        ".item-card__title",
         ".ledger__row-title",
         ".empty-state__title",
         ".ag-card__title",
@@ -314,17 +301,14 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".rich-text h3",
         ".rte__host h3",
         ".shop-card__title",
-        ".casket-collection__title",
         ".ag-state__title",
         ".ag-work__title",
         ".ag-action__title",
         ".sv-page .booking-step__title",
         ".mem-step__title",
         ".mem-result__name",
-        ".mem-hero__card-title",
         ".case-card__name",
         ".ops-card__name",
-        ".fac-room__name",
         ".pdp-feature-group__title",
       ],
     },
@@ -396,42 +380,29 @@ const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
       ".shop-card__price",
       ".plan-tier__price",
       ".buy-card__price",
-      ".day-ladder__price",
-      ".story-rate__price",
       ".ag-lot__price strong",
-      ".item-card__price",
-      ".sv-price-card__amount",
     ],
   },
   {
     role: "total",
     max: 24,
     selectors: [
-      ".ledger__figure",
-      ".cat-lead .ledger__figure",
-      ".ledger__row-figure",
       ".detail-sticky__price",
-      ".svc-total__amount",
-      ".sv-total__amount",
       ".sb-estimate__total-amount",
       ".sb-estimate__arranged-figure, .sb-arranged__title",
       ".paper-hero__price-value",
-      ".chapel-card__rate",
-      // `.sv-chapel__rate` was here. Its rule was DEAD — no markup referenced the
-      // class (the live rate is `.story-chapel__rate`, listed below) — and being
-      // named in this role list is what kept the dead rule alive. Removed with the
-      // rule, 2026-09-27.
+      // Six dead entries were removed from this role on 2026-09-28: every one a
+      // retired services/ledger class with no markup in app/, components/ or lib/,
+      // matched on none of 218 routes x 3 viewports. Naming a dead class here — as
+      // this list did — is what kept its rule alive. The manifest of what went is in
+      // docs/08-delivery/design-audit-cleanup-design/, not in this file.
       ".fac-room__rate",
-      ".story-total__amount",
-      ".story-chapel__rate",
-      ".story-room__rate",
     ],
   },
   {
     role: "stat",
     max: 24,
     selectors: [
-      ".stat__value",
       ".kpi-card__value",
       ".app-shell .app-main .kpi-card__value",
       ".ops-summary__value",
