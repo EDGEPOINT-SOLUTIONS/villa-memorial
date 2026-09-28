@@ -48,14 +48,14 @@ export async function generateMetadata({ params }: MemorialParams): Promise<Meta
     // No name, no canonical claim and an explicit noindex. The title says what
     // the page is, never who it might have been about.
     return {
-      title: "Memorial — Villa Memorial",
+      title: "Memorial — Villa Funeraria",
       description:
         "A memorial appears here only when a family chooses to publish it. Private and family-only memorials are never shown.",
       robots: UNPUBLISHED_MEMORIAL_ROBOTS,
     };
   }
   return pageMetadata({
-    title: `${memorial.name} — Villa Memorial`,
+    title: `${memorial.name} — Villa Funeraria`,
     description: `Remembering ${memorial.name} (${memorial.life_dates.display}) — the memorial their family published at Villa Memorial Park, with where they rest.`,
     path: `/memorials/${encodeURIComponent(memorial.id)}`,
   });

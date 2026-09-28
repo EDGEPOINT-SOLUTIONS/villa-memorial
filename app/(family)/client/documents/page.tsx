@@ -15,7 +15,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Papers — Villa Memorial" };
+export const metadata = { title: "Papers — Villa Funeraria" };
 
 /**
  * Papers — the family's “My Documents” screen (PRD screen-inventory),

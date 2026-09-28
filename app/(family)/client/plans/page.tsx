@@ -16,7 +16,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Your plan — Villa Memorial" };
+export const metadata = { title: "Your plan — Villa Funeraria" };
 
 /**
  * Your plan — the family's “My Plans” screen (PRD screen-inventory), compressed

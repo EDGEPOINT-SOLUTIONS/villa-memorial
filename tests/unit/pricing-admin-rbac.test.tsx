@@ -149,7 +149,7 @@ describe("/api/pricing RBAC", () => {
     expect(read.status).toBe(200);
     const body = (await read.json()) as { pricing: { plans: unknown }; questions: unknown[] };
     expect(body.pricing.plans).toBeTruthy();
-    expect(body.questions).toHaveLength(2);
+    expect(body.questions).toHaveLength(3);
 
     // catalog:read alone cannot write.
     expect((await post({ section: "plans", plans: editedPlans() })).status).toBe(403);

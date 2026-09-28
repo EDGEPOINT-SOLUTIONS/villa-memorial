@@ -10,6 +10,7 @@ import {
   type LandingContent,
 } from "@/lib/api-client/landing";
 import contentFile from "@/lib/fixtures/landing/content.json";
+import { BRAND_NAME } from "@/lib/brand";
 import { buildRailCatalogue, flattenCatalogue } from "@/lib/landing/catalogue";
 import { LOT_PRICE_CATEGORIES, php, planRate } from "@/lib/villa-pricing";
 
@@ -38,7 +39,10 @@ describe("landing fixture follows the approved content model", () => {
   it("seed reads into a full document: brand, hero, rails, about, plans & lots, plans, blog, map", async () => {
     const content = await listLandingContent();
     expect(content.version).toBe(1);
-    expect(content.logo.wordmark.length).toBeGreaterThan(0);
+    // The header wordmark is the ONE brand constant (client minute item 3); this is the
+    // assertion the 2026-09-21 review asked for — it used to only check non-empty, so a
+    // silent regression to the old name would pass.
+    expect(content.logo.wordmark).toBe(BRAND_NAME);
     expect(content.contact.phoneDisplay.length).toBeGreaterThan(0);
     expect(content.hero.headline).toContain("every life");
     expect(content.hero.primaryCta.label).toBe("I need help now");

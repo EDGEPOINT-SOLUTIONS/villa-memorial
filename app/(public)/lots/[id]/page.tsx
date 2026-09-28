@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: LotDetailParams): Promise<Met
   const lot = await getLot(decodeURIComponent(id)).catch(() => null);
   if (!lot) {
     return pageMetadata({
-      title: "Memorial lots — Villa Memorial",
+      title: "Memorial lots — Villa Funeraria",
       description:
         "Browse the park's plots by park, status and legend type — see availability and the published lot prices, then reserve with the park office.",
       path: "/lots",
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: LotDetailParams): Promise<Met
   }
   const price = lot.price_cents > 0 ? formatMinorUnits(lot.price_cents, lot.currency) : null;
   return pageMetadata({
-    title: `Lot ${lot.lot_number} — ${lot.section} — Villa Memorial`,
+    title: `Lot ${lot.lot_number} — ${lot.section} — Villa Funeraria`,
     description: `Lot ${lot.lot_number} in ${lot.section} at Villa Memorial Park — ${lotStatusLabel(lot.status)}${price ? `, ${price}` : ""}. See the plot on the park map and ask the office about reserving it.`,
     path: `/lots/${encodeURIComponent(lot.id)}`,
   });

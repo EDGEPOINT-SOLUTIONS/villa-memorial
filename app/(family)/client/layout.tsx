@@ -4,6 +4,7 @@ import { Phone } from "lucide-react";
 import { PortalFrame } from "@/components/portal-frame";
 import { PortalPage } from "@/components/portal/portal-ui";
 import { FAMILY_PORTAL_GROUPS, FAMILY_PORTAL_TABS } from "@/components/portal-nav";
+import { BRAND_NAME } from "@/lib/brand";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { familyHousehold } from "@/lib/family/family-view";
 import { FAMILY_HELP } from "@/lib/family/contact";
@@ -38,7 +39,7 @@ export default async function FamilyLayout({ children }: { children: React.React
         <header className="family-shell__header">
           <div className="container family-shell__bar">
             <Link href="/" className="family-shell__brand">
-              Villa Memorial <span className="family-shell__brand-sub">· Family</span>
+              {BRAND_NAME} <span className="family-shell__brand-sub">· Family</span>
             </Link>
             <Link href="/login" className="btn btn--secondary btn--sm">
               Staff sign-in

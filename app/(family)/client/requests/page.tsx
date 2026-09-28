@@ -20,7 +20,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Requests — Villa Memorial" };
+export const metadata = { title: "Requests — Villa Funeraria" };
 
 /**
  * Requests — the family's “My Requests” screen (PRD screen-inventory),

@@ -23,7 +23,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Payments — Villa Memorial" };
+export const metadata = { title: "Payments — Villa Funeraria" };
 
 /**
  * Payments — the family's “My Payments” screen (PRD screen-inventory).

@@ -5,6 +5,7 @@ import { SignOutButton } from "@/components/ui/sign-out-button";
 import { TenantSwitcher } from "@/components/tenant-switcher";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { portalForSession, portalHomeForSession } from "@/lib/auth/destination";
+import { BRAND_NAME } from "@/lib/brand";
 import { STAFF_NOTICES } from "@/lib/demo-notices";
 import { visibleNav } from "@/lib/rbac/nav";
 import { redirect } from "next/navigation";
@@ -24,7 +25,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
 
   return (
     <AppShell
-      brandEyebrow="Villa Memorial"
+      brandEyebrow={BRAND_NAME}
       brandTitle="Admin Portal"
       sections={sections}
       topbar={

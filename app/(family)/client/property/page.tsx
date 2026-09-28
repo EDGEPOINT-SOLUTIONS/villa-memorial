@@ -15,7 +15,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip, PortalKv } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Your lot — Villa Memorial" };
+export const metadata = { title: "Your lot — Villa Funeraria" };
 
 /**
  * Your lot — the family's “My Lots” screen (PRD screen-inventory), compressed

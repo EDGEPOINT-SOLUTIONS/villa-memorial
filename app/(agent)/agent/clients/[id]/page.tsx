@@ -6,7 +6,7 @@ import { manilaDay } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
-export const metadata = { title: "Client — Villa Memorial agent portal" };
+export const metadata = { title: "Client — Villa Funeraria agent portal" };
 
 /**
  * Client record — what the agent may see (approved design page 06). The record

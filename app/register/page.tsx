@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { RegisterCard } from "./register-card";
 
 export const metadata: Metadata = {
-  title: "Create your account — Villa Memorial",
+  title: "Create your account — Villa Funeraria",
 };
 
 /**

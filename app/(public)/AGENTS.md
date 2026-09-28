@@ -285,9 +285,10 @@
   publish no price and offer no cart action.** Every service line — the five a-la-carte fees,
   each embalming day count and each chapel class — carries ONE `Request a quote` action
   (`lib/public-forms/request-prefill.ts` `buildQuoteHref`) that opens `/quote` with the service
-  prefilled; the quote capture records the name, contact details, requested service, preferred
-  date and additional requirements in the demo inquiry store
-  (`lib/demo-inquiry-captures.ts`) the staff board reads. The chapel booking dialog
+  prefilled; the submission is POSTed to `/api/inquiries`, which records the name, contact
+  details, requested service, preferred date and additional requirements through
+  `lib/inquiry-intake.ts` into the durable `lib/api-client/inquiry-store.ts` journal the staff
+  board reads (Phase 1 — `docs/08-delivery/phase1-design/README.md`). The chapel booking dialog
   (`components/chapel-booking-dialog.tsx`) is no longer linked from `/services`.
   The 24/7 number is staff-editable landing content (zone 01); the page reads it
   from the same document the header reads — `tests/unit/villa-services-premium.test.tsx`
@@ -451,13 +452,17 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   submit gate is one function per form in `lib/public-forms/validation.ts`. The shell
   grammar carries no `*`/`(optional)` labels — optionality lives in field hints and
   the gate. The appointment reason list there is PROVISIONAL: no shared taxonomy exists.
-- No crm-families / quotation / scheduling contract exists, so nothing is sent or
-  stored server-side. Quote and appointment confirmations must keep saying so
-  ("Request checked — nothing was sent."); contact captures land in the browser-local
-  demo store `lib/demo-inquiry-captures.ts`, which the staff inquiries board reads
-  after hydration (`app/(staff)/staff/inquiries/inquiry-board.tsx`). When a real write
-  contract lands, replace that store and the wording — never dress demo capture up as
-  delivery.
+- `/quote` and `/contact` submissions reach the office server-side: both POST
+  `/api/inquiries` (public, rules-free — `app/api/inquiries/route.ts`) → one validation in
+  `lib/inquiry-intake.ts` (shared with the browser) → the durable
+  `lib/api-client/inquiry-store.ts` journal, which the staff inquiries board reads
+  (`app/(staff)/staff/inquiries/inquiry-board.tsx` renders the visitor's own message, so the
+  preferred date and requirements are visible). No crm-families / quotation / scheduling
+  contract exists, so LIVE mode answers the named `CRM_NOT_WIRED` 503 rather than filing the
+  request into a local file, and the form tells the family to call. `/appointments` still has
+  no server write path — its confirmation keeps saying "Request checked — nothing was sent."
+  When a real write contract lands, replace the store and the wording — never dress a demo
+  capture up as delivery.
 - `/contact` is also the storefront's request landing: price-list actions link
   `?item=&sku=&price=&note=`, built and parsed by `lib/public-forms/request-prefill.ts`
   (clamped, untrusted input). The banner and the pre-written message echo exactly what

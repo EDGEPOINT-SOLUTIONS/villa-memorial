@@ -87,8 +87,7 @@ export default async function PagesAndContentPage() {
                 </h2>
               </div>
               <p className="text-sm text-muted" style={{ margin: 0 }}>
-                The posts the office publishes — a caption plus photos or video. The newest also leads the home
-                page&rsquo;s blog band.
+                The posts the office publishes — a caption plus photos or video.
               </p>
               <p className="text-sm text-muted" style={{ margin: 0 }}>
                 {byKey.get("home")?.updated_at

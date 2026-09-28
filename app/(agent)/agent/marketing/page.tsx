@@ -12,7 +12,7 @@ import {
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
-export const metadata = { title: "Marketing & materials — Villa Memorial agent portal" };
+export const metadata = { title: "Marketing & materials — Villa Funeraria agent portal" };
 
 /** Cover per material — the client's own assets, mapped in one place (lib/media.ts). */
 const COVER: Record<string, string> = {

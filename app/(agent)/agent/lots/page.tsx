@@ -11,7 +11,7 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 
-export const metadata = { title: "Lot availability — Villa Memorial agent portal" };
+export const metadata = { title: "Lot availability — Villa Funeraria agent portal" };
 
 /** Photo per availability key — the same map the park editor uses (lib/media.ts). */
 const PHOTO: Record<string, string> = {

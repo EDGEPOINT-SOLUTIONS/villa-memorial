@@ -13,7 +13,7 @@ import { pageMetadata } from "@/lib/seo";
 import { VisibilityChoices } from "../visibility-choices";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Find my loved one — Villa Memorial",
+  title: "Find my loved one — Villa Funeraria",
   description:
     "A family's path to finding someone at Villa Memorial Park: what the office needs, how a memorial is created or changed, and the privacy rules that protect every family.",
   path: MEMORIAL_FIND_HREF,

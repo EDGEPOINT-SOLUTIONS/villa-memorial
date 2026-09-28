@@ -1,5 +1,5 @@
 /**
- * BrandMark — the Villa Memorial brand glyph used in the header, footer, hero
+ * BrandMark — the Villa Funeraria brand glyph used in the header, footer, hero
  * and the mobile quick-menu: an uploaded staff logo image when one is set,
  * otherwise a gold serif monogram fallback of the wordmark's first letter.
  * Pure presentational + framework-free so every surface (server-rendered home,

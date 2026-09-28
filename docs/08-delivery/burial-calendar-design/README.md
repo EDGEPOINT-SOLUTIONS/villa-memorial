@@ -1,5 +1,13 @@
 # Burial calendar — burial schedules and their light pickups
 
+> **Update 2026-09-28 — the write path has landed.** This record describes the READ surface as it
+> shipped. The audit of the 2026-09-21 minutes found item 2's verb missing (no way to *record* a
+> burial, and no surface to move the light pickup's `scheduled → in_progress → done` lifecycle);
+> that write path is now built — `lib/api-client/burials-store.ts`, `lib/burial-admin.ts`,
+> `app/api/schedule/burials/**`, `app/(staff)/staff/schedule/burial-admin.tsx`. The paragraph below
+> saying "it is read-only" is therefore superseded for a `scheduling:write` session; a
+> `scheduling:read` session still sees it read-only. Record: `docs/08-delivery/phase6-design/`.
+
 **Task:** `villa-burial-light-calendar` · **Client minutes of meeting (Villa Memorial,
 2026-09-21), item 2 — Calendar Integration for Light Pickup and Burial Schedule:**
 

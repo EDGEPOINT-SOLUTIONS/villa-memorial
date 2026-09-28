@@ -8,7 +8,7 @@ import {
 } from "@/lib/location-map";
 
 /**
- * LocationBlock — where Villa Memorial is, and how to get there (client's
+ * LocationBlock — where Villa Funeraria is, and how to get there (client's
  * minutes 2026-09-21, item 6). One public band: a section head, a STATIC map
  * card carrying the park's recorded address, one clear "Get directions" action,
  * the office as a supporting row, and a one-line honesty note.
@@ -48,7 +48,7 @@ export function LocationBlock({
       <SectionHead
         id={titleId}
         kicker="Visit us"
-        title="Where to find Villa Memorial"
+        title="Where to find Villa Memorial Park"
         lead="Directions open in your maps app from the recorded address below."
       />
 

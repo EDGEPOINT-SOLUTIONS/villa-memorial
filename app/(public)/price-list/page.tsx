@@ -19,7 +19,7 @@ import { CASH_ASSISTANCE, COFFINS, PLAN_TIERS, php } from "@/lib/villa-pricing";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Price list — Villa Memorial",
+  title: "Price list — Villa Funeraria",
   description:
     "The complete Villa Memorial price list: package comparison, coffins, senior-citizen rates, the five plan tiers' 2026 payment tables and the lot &amp; mausoleum list.",
   path: "/price-list",
@@ -88,12 +88,6 @@ export default async function PriceListPage() {
         <p className="text-sm text-muted">
           Served by Funeraria Villa &amp; ZC-Arcega Funeral Homes, underwritten by Villa Agency
           Insurance Services.
-        </p>
-        <p className="logo-row">
-          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
-          <img src={LOGO_VILLA_AGENCY} alt="Villa Agency Insurance Services — Insure. Invest. Prosper." />
-          {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}
-          <img src={LOGO_VILLA_GROUP} alt="Villa Group of Companies" />
         </p>
         <p className="logo-row">
           {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client logo */}

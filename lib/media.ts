@@ -328,7 +328,7 @@ export const DEATH_AT_HOSPITAL_IMAGE = "/media/death_at_hospital.jpg";
  */
 export const MEDIA_LIBRARY: ReadonlyArray<{ src: string; label: string }> = [
   { src: HERO_IMAGE, label: "Park grounds — golden hour" },
-  { src: VILLA_PARK_AERIAL, label: "Villa Memorial — aerial" },
+  { src: VILLA_PARK_AERIAL, label: "Villa Memorial Park — aerial" },
   { src: "/media/at_need_services.jpg", label: "At-need care" },
   { src: DEATH_AT_HOME_IMAGE, label: "Death at home" },
   { src: DEATH_AT_HOSPITAL_IMAGE, label: "Death at hospital" },

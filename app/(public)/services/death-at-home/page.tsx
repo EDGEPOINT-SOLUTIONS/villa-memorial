@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const view = await loadServiceGuideView("death-at-home");
   return pageMetadata({
-    title: `${view?.title ?? "Death at home"} — Villa Memorial`,
+    title: `${view?.title ?? "Death at home"} — Villa Funeraria`,
     description:
       view?.summary ??
       "When a death happens at home, one call starts everything: our 24/7 line, the retrieval and the first steps, taken with you and at your pace.",

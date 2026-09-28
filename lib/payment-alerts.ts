@@ -143,16 +143,26 @@ export function buildPaymentAlerts(
   };
 }
 
-/** The empty summary — what a source that cannot be read returns, never a fake count. */
-export const NO_PAYMENT_ALERTS: PaymentAlertSummary = {
-  overdue: [],
-  due_soon: [],
-  overdue_count: 0,
-  due_soon_count: 0,
-  total: 0,
-  overdue_cents: 0,
-  due_soon_cents: 0,
-};
+/**
+ * THE one overdue test every staff screen uses: an invoice still owes money and its due
+ * date has passed. `buildPaymentAlerts` classifies with the same `paymentDueState`, so the
+ * dashboard band, the billing list's KPI and its `?status=overdue` filter cannot disagree.
+ *
+ * This exists because they DID: the 2026-09-21 review found the dashboard reading
+ * "Overdue accounts 2" (the invoice's stored status, which leaves a part-paid invoice
+ * `partial` however late it is) beside the band's "6 overdue" (the date rule). One rule now.
+ * A settled invoice is never overdue, even when its date has passed.
+ */
+export function invoiceOverdue(
+  invoice: { total_cents: number; paid_cents: number; due_at: string },
+  now: Date,
+): boolean {
+  const amount = Math.max(0, invoice.total_cents - invoice.paid_cents);
+  if (amount <= 0) return false;
+  const dueOn = alertDueDate(invoice.due_at);
+  if (dueOn === "") return false;
+  return paymentDueState(amount, daysUntilDue(dueOn, now)) === "overdue";
+}
 
 /** The window the alert headline names, read from the shared rule. */
 export function paymentAlertWindowDays(): number {

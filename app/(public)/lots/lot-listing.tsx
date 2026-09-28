@@ -328,8 +328,8 @@ function LotCard({ item }: { item: LotListingItem }) {
       price={
         item.monthly ? (
           <MonthlyPriceBlock price={item.monthly} />
-        ) : item.priceCents !== null ? (
-          formatMinorUnits(item.priceCents, item.currency)
+        ) : item.contractPriceCents !== null ? (
+          formatMinorUnits(item.contractPriceCents, item.currency)
         ) : (
           "Price on request"
         )

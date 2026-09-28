@@ -213,7 +213,9 @@ describe("the /lots product listing", () => {
       [{ type: "lt-premium", status: "available" }, 4],
       [{ section: "D" }, 4],
       [{ area: "up-to-5" }, 8],
-      [{ min: "200000", max: "600000" }, 4],
+      // The price range filters on the figure the card LEADS with (the monthly
+      // installment): ₱5,000–₱10,000/month selects the four Garden Niches lots.
+      [{ min: "5000", max: "10000" }, 4],
     ];
     for (const [params, expected] of cases) {
       const html = await renderPage(params);
@@ -253,11 +255,12 @@ describe("the /lots product listing", () => {
     expect(html).toContain("16 plots · 10 available · Isabela City");
     expect(optionRow(html, "Over 15 sqm")).toContain('class="refine-option__count">0</span>');
     expect(optionRow(html, "Over 15 sqm")).toContain('data-empty="true"');
-    // Price is a min/max pair plus quick ranges read from the published figures.
+    // Price is a min/max pair plus quick ranges read from the published figures —
+    // the MONTHLY installment the card leads with, not the contract total.
     expect(html).toContain("Min ₱");
     expect(html).toContain("Max ₱");
-    expect(html).toContain("Up to ₱128,000.00");
-    expect(html).toContain("₱567,000.00 and up");
+    expect(html).toContain("Up to ₱1,920.00");
+    expect(html).toContain("₱8,505.00 and up");
   });
 
   it("puts the same panel behind the phone control, opened on demand", async () => {

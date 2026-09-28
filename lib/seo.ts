@@ -27,6 +27,7 @@
  */
 import type { Metadata } from "next";
 import type { LandingContent } from "@/lib/api-client/landing";
+import { BRAND_NAME } from "@/lib/brand";
 import { HERO_IMAGE } from "@/lib/media";
 
 /** The documented deployment host; override with SITE_URL on a real deployment. */
@@ -34,7 +35,7 @@ export const DEFAULT_SITE_URL = "https://in-memoriam.edgepoint-ai.com";
 
 /** The park's own logo mark stands in for a favicon (app/layout.tsx). */
 
-export const SITE_NAME = "Villa Funeraria";
+export const SITE_NAME = BRAND_NAME;
 
 /** The one description the home, the sitemap fallbacks and the LocalBusiness
  * record share — the same line the public home publishes. */
@@ -67,7 +68,7 @@ export function absoluteUrl(path: string, base: string = siteUrl()): string {
 }
 
 export type PageMetadataInput = {
-  /** Full page title, in the repo's existing "… — Villa Memorial" convention. */
+  /** Full page title, in the repo's existing "… — Villa Funeraria" convention. */
   title: string;
   description: string;
   /** Site path, e.g. "/lots". Drives the canonical URL and og:url. */

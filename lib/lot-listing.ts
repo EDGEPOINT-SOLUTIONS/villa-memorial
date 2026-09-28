@@ -35,7 +35,17 @@ export type LotListingItem = {
   /** The legend type's display name (the card's eyebrow). */
   typeName: string;
   hasLot: boolean;
-  priceCents: number | null;
+  /**
+   * The figure the CARD LEADS WITH, in integer centavos: the linked lot's monthly
+   * installment when the pricing store prices its section, otherwise the recorded
+   * contract price (or null). Filtering, sorting and the quick price ranges all read
+   * THIS, so a range labelled in monthly figures matches the number on the card
+   * (2026-09-21 review: the ranges were labelled in contract totals while the cards
+   * showed the monthly).
+   */
+  leadPriceCents: number | null;
+  /** The recorded contract price, shown only as the fallback when no monthly is priced. */
+  contractPriceCents: number | null;
   currency: string;
   parkId: string;
   /** The park's own branch line (the band header prints it). */
@@ -214,9 +224,9 @@ export function matchesListingFilters(item: LotListingItem, filters: LotFilters)
     }
   }
   if (filters.priceMinCents !== null || filters.priceMaxCents !== null) {
-    if (item.priceCents === null) return false;
-    if (filters.priceMinCents !== null && item.priceCents < filters.priceMinCents) return false;
-    if (filters.priceMaxCents !== null && item.priceCents > filters.priceMaxCents) return false;
+    if (item.leadPriceCents === null) return false;
+    if (filters.priceMinCents !== null && item.leadPriceCents < filters.priceMinCents) return false;
+    if (filters.priceMaxCents !== null && item.leadPriceCents > filters.priceMaxCents) return false;
   }
   return true;
 }
@@ -296,8 +306,8 @@ export function sortListingItems(items: LotListingItem[], sort: LotsSort): LotLi
   if (sort === "") return items;
   const direction = sort === "price-asc" ? 1 : -1;
   return [...items].sort((a, b) => {
-    const pa = a.priceCents;
-    const pb = b.priceCents;
+    const pa = a.leadPriceCents;
+    const pb = b.leadPriceCents;
     if (pa === null && pb === null) return a.code.localeCompare(b.code);
     if (pa === null) return 1;
     if (pb === null) return -1;
@@ -309,10 +319,10 @@ export function sortListingItems(items: LotListingItem[], sort: LotsSort): LotLi
  *  themselves (terciles of the distinct figures) — never an invented amount. */
 export function priceQuickRanges(items: LotListingItem[]): PriceQuickRange[] {
   const prices = [
-    ...new Set(items.map((i) => i.priceCents).filter((p): p is number => p !== null)),
+    ...new Set(items.map((i) => i.leadPriceCents).filter((p): p is number => p !== null)),
   ].sort((a, b) => a - b);
   if (prices.length < 2) return [];
-  const currency = items.find((i) => i.priceCents !== null)?.currency ?? "PHP";
+  const currency = items.find((i) => i.leadPriceCents !== null)?.currency ?? "PHP";
   const first = prices[Math.floor(prices.length / 3)];
   const second = prices[Math.floor((2 * prices.length) / 3)];
   if (first === undefined || second === undefined) return [];

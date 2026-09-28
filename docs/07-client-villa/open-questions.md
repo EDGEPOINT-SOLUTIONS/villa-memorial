@@ -72,6 +72,17 @@ From blueprint §72 + gaps found during corpus review:
       lat/long (OpenStreetMap) or a Google Maps API key and a consent decision. No coordinates were
       invented; the card is labelled static meanwhile.
 
+## Track E (payment due notice) — raised by the 2026-09-28 minutes verification (minutes item 1)
+- [ ] **Is an out-of-system reminder required, or is the in-portal notice the agreed scope?**
+      The two-day rule (`PAYMENT_DUE_SOON_DAYS = 2`, `lib/payment-schedule.ts`) and the family
+      portal's notice are real and single-sourced, but **nothing is ever sent**: there is no
+      scheduler and no external channel wired (`lib/payment-reminder-channels.ts` adapters = [],
+      only `in_app`). The minute's own wording is conditional ("where supported, **may** be
+      delivered through other configured notification channels"); please confirm whether the
+      client expects an email/SMS reminder — which waits on the platform's P4 notification
+      service and a provider decision — or whether the in-portal notice satisfies item 1. Until
+      answered, no surface claims a reminder "will be sent".
+
 ## Process rule
 Never mark a feature "not needed" by developer preference. If business clarification is required,
 create a clearly identified decision item for Villa Memorial (owner: JBR as product owner).

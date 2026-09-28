@@ -23,8 +23,8 @@ import {
  */
 export const metadata: Metadata = {
   title: {
-    default: "Platform operator surface — Villa Memorial",
-    template: "%s — Villa Memorial platform",
+    default: "Platform operator surface — Villa Funeraria",
+    template: "%s — Villa Funeraria platform",
   },
   description:
     "The platform's operator surface: tenant management, platform sign-in and tenant sign-up. For platform operators only — not the funeral product.",

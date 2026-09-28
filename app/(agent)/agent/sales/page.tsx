@@ -4,7 +4,7 @@ import type { CommissionLine } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
-export const metadata = { title: "Sales & commissions — Villa Memorial agent portal" };
+export const metadata = { title: "Sales & commissions — Villa Funeraria agent portal" };
 
 const LINE_BADGE: Record<CommissionLine["state"], string> = {
   pending_approval: "badge--warning",

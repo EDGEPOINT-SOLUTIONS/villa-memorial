@@ -395,6 +395,19 @@ export function checkLotCategories(categories: LotCategory[]): string | null {
         if (drift > LOT_AMORTIZATION_ROUNDING) {
           return `“${row.product}” · ${table}: ${pesos(figures.annual)} × ${LOT_AMORTIZATION_YEARS} = ${pesos(figures.annual * LOT_AMORTIZATION_YEARS)} but the selling price is ${pesos(figures.selling)} — the six-year amortization must agree within ${pesos(LOT_AMORTIZATION_ROUNDING)}.`;
         }
+        // The 2026-09-21 review asked for the monthly column to be tied to the selling
+        // price. The sheet's monthly is NOT selling ÷ 72 — it carries a financing cost
+        // (Prime Lots prints ₱1,920/month on a ₱128,000 lot: × 72 = ₱138,240, ~8% more),
+        // and the same holds for every family, so `annual = monthly × 12` is not the
+        // sheet's rule and cannot be enforced without changing the client's figures. The
+        // invariant the sheet DOES keep is the lower bound: six years of the monthly must
+        // at least cover the contract price. A monthly that never pays the lot is a
+        // transcription error. The gap itself is a recorded client question (see
+        // `questions` in the pricing fixture and docs/08-delivery/phase5-design/).
+        const financed = figures.monthly * LOT_AMORTIZATION_MONTHS;
+        if (figures.selling > 0 && financed < figures.selling) {
+          return `“${row.product}” · ${table}: ${pesos(figures.monthly)} × ${LOT_AMORTIZATION_MONTHS} = ${pesos(financed)} is less than the selling price ${pesos(figures.selling)} — the monthly installment can never pay the lot.`;
+        }
       }
     }
   }

@@ -5,7 +5,7 @@ import type { Prospect } from "@/lib/api-client/agent";
 import { needsYou, prospectValueTotal, stageMeta } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 
-export const metadata = { title: "Prospects — Villa Memorial agent portal" };
+export const metadata = { title: "Prospects — Villa Funeraria agent portal" };
 
 const URGENCY_ORDER: Record<string, number> = { hot: 0, today: 1, waiting: 2, warm: 3, new: 4 };
 

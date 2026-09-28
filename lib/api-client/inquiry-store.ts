@@ -34,9 +34,13 @@
  * serves fixture mode only. Setting `CRM_BASE_URL` cannot silently route an enquiry into
  * a local file.
  */
-import { promises as fs } from "node:fs";
+import {
+  createJournalLock,
+  journalPath,
+  readJournalEvents,
+  writeJournalEvents,
+} from "@/lib/api-client/journal";
 import { randomUUID } from "node:crypto";
-import path from "node:path";
 import { ApiError } from "@/lib/api-client/api-error";
 import type { Inquiry } from "@/lib/api-client/crm";
 import type { InquiryIntake } from "@/lib/inquiry-intake";
@@ -44,13 +48,8 @@ import seedFile from "@/lib/fixtures/crm/inquiries.json";
 
 type PersistedEvent = { kind: "inquiry_received"; at: string; inquiry: Inquiry };
 
-type PersistedStore = { version: 1; events: PersistedEvent[] };
-
 export function inquiriesStorePath(): string {
-  const configured = process.env.INQUIRIES_STORE_PATH?.trim();
-  return configured && configured.length > 0
-    ? configured
-    : path.join(process.cwd(), ".data", "crm-inquiries.json");
+  return journalPath("INQUIRIES_STORE_PATH", "crm-inquiries.json");
 }
 
 /* ------------------------------ readers --------------------------------- */
@@ -99,64 +98,15 @@ function toPersistedEvent(raw: unknown): PersistedEvent {
 }
 
 async function readPersistedEvents(): Promise<PersistedEvent[]> {
-  let raw: string;
-  try {
-    raw = await fs.readFile(inquiriesStorePath(), "utf8");
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw new ApiError("the enquiries store could not be read", 500);
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw new ApiError("the enquiries store file is not valid JSON", 500);
-  }
-  if (typeof parsed !== "object" || parsed === null) {
-    throw new ApiError("the enquiries store file has an unexpected shape", 500);
-  }
-  const p = parsed as Record<string, unknown>;
-  if (p.version !== 1 || !Array.isArray(p.events)) {
-    throw new ApiError("the enquiries store file has an unexpected shape", 500);
-  }
-  return p.events.map(toPersistedEvent);
+  const events = await readJournalEvents(inquiriesStorePath(), "enquiries");
+  return events.map(toPersistedEvent);
 }
 
-async function persistEvents(events: PersistedEvent[]): Promise<void> {
-  const store = inquiriesStorePath();
-  await fs.mkdir(path.dirname(store), { recursive: true }).catch(() => {
-    throw new ApiError("the enquiries store directory could not be created", 500);
-  });
-  const temp = `${store}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
-  const payload = JSON.stringify({ version: 1, events } satisfies PersistedStore, null, 2) + "\n";
-  try {
-    const handle = await fs.open(temp, "w");
-    try {
-      await handle.writeFile(payload, "utf8");
-      // Flush before the rename so a crash cannot leave the renamed file empty.
-      await handle.sync();
-    } finally {
-      await handle.close();
-    }
-    await fs.rename(temp, store);
-  } catch {
-    await fs.rm(temp, { force: true }).catch(() => undefined);
-    throw new ApiError("the enquiries store could not be written", 500);
-  }
+function persistEvents(events: PersistedEvent[]): Promise<void> {
+  return writeJournalEvents(inquiriesStorePath(), "enquiries", events);
 }
 
-// One in-process writer: every mutation chains onto the previous one, so a
-// read-modify-write cycle is never interleaved by another request in this process.
-let writeQueue: Promise<unknown> = Promise.resolve();
-
-function withStoreLock<T>(task: () => Promise<T>): Promise<T> {
-  const run = writeQueue.then(task, task);
-  writeQueue = run.then(
-    () => undefined,
-    () => undefined,
-  );
-  return run;
-}
+const withStoreLock = createJournalLock();
 
 /* ------------------------------ the seed -------------------------------- */
 

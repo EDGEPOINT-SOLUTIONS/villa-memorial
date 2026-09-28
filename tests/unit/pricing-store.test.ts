@@ -152,8 +152,9 @@ describe("fixture-mode pricing store", () => {
     expect(questions.map((q) => q.id)).toEqual([
       "senior-rate-sheet-conflict",
       "lot-a001-fixture-vs-sheet",
+      "lot-monthly-vs-contract-price",
     ]);
-    expect(questions.map((q) => q.scope)).toEqual(["plans", "lots"]);
+    expect(questions.map((q) => q.scope)).toEqual(["plans", "lots", "lots"]);
     // A saved document can never carry or drop them.
     const pricing = (await loadPricingDocument()) as unknown as Record<string, unknown>;
     expect("questions" in pricing).toBe(false);

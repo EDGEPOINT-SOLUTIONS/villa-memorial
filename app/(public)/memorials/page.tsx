@@ -34,7 +34,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { query } = parseMemorialSearch(await searchParams);
   const meta = pageMetadata({
-    title: "Digital memorial search — Villa Memorial",
+    title: "Digital memorial search — Villa Funeraria",
     description:
       "Search the memorials families have chosen to publish at Villa Memorial Park — by name and life dates. Private and family-only memorials never appear.",
     path: "/memorials",

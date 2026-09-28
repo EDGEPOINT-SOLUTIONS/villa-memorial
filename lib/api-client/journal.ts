@@ -22,10 +22,11 @@
  * `tests/setup.ts` keeps owning the redirect that stops a dev `.data/` store leaking into
  * a test).
  *
- * THE SIBLING STORES PREDATE THIS FILE. They still carry their own copies of these
- * mechanics; they are correct and tested, so migrating them is a follow-up rather than
- * part of a phase that is about page editing. Recorded in
- * `docs/08-delivery/phase2-design/README.md`.
+ * THE SIBLING STORES PREDATE THIS FILE. Phase 2 left them carrying their own copies of these
+ * mechanics; Phase 7 (2026-09-28) moved all eleven commerce/ops stores onto this module, so
+ * this is now the ONLY implementation. `tests/unit/journal-single-source.test.ts` fails a
+ * store that grows a `node:fs` import, a `writeQueue`, or a hand-rolled `JSON.parse(raw)`
+ * back. History: `docs/08-delivery/phase2-design/README.md` and `phase7-design/`.
  */
 import { promises as fs } from "node:fs";
 import path from "node:path";

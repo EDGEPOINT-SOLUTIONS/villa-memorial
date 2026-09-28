@@ -11,7 +11,7 @@ import { planMonthlyPrice } from "@/lib/monthly-pricing";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Villa Memorial Plan — Villa Memorial",
+  title: "Villa Memorial Plan — Villa Funeraria",
   description:
     "The Villa Memorial Plan's five tiers and the live monthly rate each one starts from — the plan a family can build on. The 2026 payment tables and terms live on the Price list.",
   path: "/plans",

@@ -2,7 +2,7 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { PlannedAnswer } from "@/components/family/family-ui";
 
-export const metadata = { title: "Privacy Center — Villa Memorial" };
+export const metadata = { title: "Privacy Center — Villa Funeraria" };
 
 /**
  * Privacy Center — compressed to the family reading budget (2026-09-21). The

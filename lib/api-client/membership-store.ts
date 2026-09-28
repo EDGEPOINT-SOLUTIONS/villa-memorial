@@ -24,8 +24,12 @@
  * instead of inventing a partner integration. The record carries no COC number, no coverage
  * dates and no clause text — see `lib/contracts/membership-application.ts`.
  */
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import {
+  createJournalLock,
+  journalPath,
+  readJournalEvents,
+  writeJournalEvents,
+} from "@/lib/api-client/journal";
 import { ApiError } from "@/lib/api-client/api-error";
 import applicationsFile from "@/lib/fixtures/commerce/membership-applications.json";
 import {
@@ -44,8 +48,6 @@ type PersistedEvent = {
   application: MembershipApplication;
 };
 
-type PersistedStore = { version: 1; events: PersistedEvent[] };
-
 /** What a recording supplies above the form input: the rate read from the pricing store. */
 export type MembershipRecordDraft = {
   input: MembershipApplicationInput;
@@ -55,10 +57,7 @@ export type MembershipRecordDraft = {
 };
 
 export function membershipStorePath(): string {
-  const configured = process.env.MEMBERSHIP_STORE_PATH?.trim();
-  return configured && configured.length > 0
-    ? configured
-    : path.join(process.cwd(), ".data", "commerce-membership-applications.json");
+  return journalPath("MEMBERSHIP_STORE_PATH", "commerce-membership-applications.json");
 }
 
 /* ------------------------------ readers --------------------------------- */
@@ -152,64 +151,15 @@ function toPersistedEvent(raw: unknown): PersistedEvent {
 }
 
 async function readPersistedEvents(): Promise<PersistedEvent[]> {
-  let raw: string;
-  try {
-    raw = await fs.readFile(membershipStorePath(), "utf8");
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw new ApiError("the membership store could not be read", 500);
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw new ApiError("the membership store file is not valid JSON", 500);
-  }
-  if (typeof parsed !== "object" || parsed === null) {
-    throw new ApiError("the membership store file has an unexpected shape", 500);
-  }
-  const p = parsed as Record<string, unknown>;
-  if (p.version !== 1 || !Array.isArray(p.events)) {
-    throw new ApiError("the membership store file has an unexpected shape", 500);
-  }
-  return p.events.map(toPersistedEvent);
+  const events = await readJournalEvents(membershipStorePath(), "membership");
+  return events.map(toPersistedEvent);
 }
 
-async function persistEvents(events: PersistedEvent[]): Promise<void> {
-  const store = membershipStorePath();
-  await fs.mkdir(path.dirname(store), { recursive: true }).catch(() => {
-    throw new ApiError("the membership store directory could not be created", 500);
-  });
-  const temp = `${store}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
-  const payload = JSON.stringify({ version: 1, events } satisfies PersistedStore, null, 2) + "\n";
-  try {
-    const handle = await fs.open(temp, "w");
-    try {
-      await handle.writeFile(payload, "utf8");
-      // Flush before the rename so a crash cannot leave the renamed file empty.
-      await handle.sync();
-    } finally {
-      await handle.close();
-    }
-    await fs.rename(temp, store);
-  } catch {
-    await fs.rm(temp, { force: true }).catch(() => undefined);
-    throw new ApiError("the membership store could not be written", 500);
-  }
+function persistEvents(events: PersistedEvent[]): Promise<void> {
+  return writeJournalEvents(membershipStorePath(), "membership", events);
 }
 
-// One in-process writer: every recording chains onto the previous one, so id allocation is
-// never interleaved by another request in this server process.
-let writeQueue: Promise<unknown> = Promise.resolve();
-
-function withStoreLock<T>(task: () => Promise<T>): Promise<T> {
-  const run = writeQueue.then(task, task);
-  writeQueue = run.then(
-    () => undefined,
-    () => undefined,
-  );
-  return run;
-}
+const withStoreLock = createJournalLock();
 
 /** Seed + journal folded into the current records, in recorded order. */
 async function loadState(): Promise<{

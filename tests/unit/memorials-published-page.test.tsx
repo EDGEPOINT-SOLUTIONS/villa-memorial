@@ -49,7 +49,7 @@ describe("a published memorial reaches the public routes", () => {
   it("is indexable, with a canonical URL of its own", async () => {
     const meta = await generateMetadata({ params: Promise.resolve({ id: TEST_MEMORIAL.id }) });
     expect(meta.robots).toBeUndefined();
-    expect(meta.title).toBe(`${TEST_MEMORIAL.name} — Villa Memorial`);
+    expect(meta.title).toBe(`${TEST_MEMORIAL.name} — Villa Funeraria`);
     expect(String(meta.alternates?.canonical)).toContain(`/memorials/${TEST_MEMORIAL.id}`);
   });
 

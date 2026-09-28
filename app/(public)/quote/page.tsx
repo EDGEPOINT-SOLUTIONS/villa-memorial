@@ -4,7 +4,7 @@ import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Request a quote — Villa Memorial",
+  title: "Request a quote — Villa Funeraria",
   description:
     "Funeral services are quoted for your family, not priced on a page. Tell us what you need and the park office prepares a written quotation — a request for the office, never a reservation.",
   path: "/quote",

@@ -4,7 +4,7 @@ import { listAgentClients } from "@/lib/api-client/agent";
 import { findClients } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 
-export const metadata = { title: "Clients — Villa Memorial agent portal" };
+export const metadata = { title: "Clients — Villa Funeraria agent portal" };
 
 /**
  * Clients — the book of business (approved design page 05). The list shows the

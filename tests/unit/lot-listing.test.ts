@@ -35,7 +35,8 @@ function item(overrides: Partial<LotListingItem> = {}): LotListingItem {
     typeId: "lt-primary",
     typeName: "PRIMARY LOTS",
     hasLot: true,
-    priceCents: 12_800_000,
+    leadPriceCents: 12_800_000,
+    contractPriceCents: 12_800_000,
     currency: "PHP",
     parkId: "villa",
     parkBranch: "Isabela City",
@@ -143,7 +144,7 @@ describe("matching a plot against the panel", () => {
     parkId: "second-park",
     section: null,
     areaSqm: null,
-    priceCents: null,
+    leadPriceCents: null,
     hasLot: false,
   });
 
@@ -177,7 +178,7 @@ describe("matching a plot against the panel", () => {
   });
 
   it("bands the area and bounds the price inclusively", () => {
-    const valley = item({ areaSqm: 12, priceCents: 56_700_000 });
+    const valley = item({ areaSqm: 12, leadPriceCents: 56_700_000 });
     expect(matchesListingFilters(valley, { ...EMPTY_LOT_FILTERS, areas: ["5-to-15"] })).toBe(true);
     expect(matchesListingFilters(valley, { ...EMPTY_LOT_FILTERS, areas: ["up-to-5"] })).toBe(false);
     expect(
@@ -206,7 +207,7 @@ describe("facet counts", () => {
       status: "available",
       section: null,
       areaSqm: null,
-      priceCents: null,
+      leadPriceCents: null,
       hasLot: false,
     }),
   ];
@@ -236,10 +237,10 @@ describe("facet counts", () => {
 
 describe("sorting", () => {
   const items = [
-    item({ key: "a", code: "A-001", priceCents: 12_800_000 }),
-    item({ key: "b", code: "B-001", priceCents: 11_400_000 }),
-    item({ key: "c", code: "C-001", priceCents: 56_700_000 }),
-    item({ key: "d", code: "D-001", priceCents: null, hasLot: false }),
+    item({ key: "a", code: "A-001", leadPriceCents: 12_800_000 }),
+    item({ key: "b", code: "B-001", leadPriceCents: 11_400_000 }),
+    item({ key: "c", code: "C-001", leadPriceCents: 56_700_000 }),
+    item({ key: "d", code: "D-001", leadPriceCents: null, hasLot: false }),
   ];
 
   it("orders by price with the unpriced plots last in BOTH directions", () => {
@@ -268,10 +269,10 @@ describe("sorting", () => {
 describe("the price group's quick ranges", () => {
   it("takes its boundaries from the published figures, never an invented amount", () => {
     const items = [
-      item({ priceCents: 11_400_000 }),
-      item({ priceCents: 12_800_000 }),
-      item({ priceCents: 56_700_000 }),
-      item({ priceCents: null }),
+      item({ leadPriceCents: 11_400_000 }),
+      item({ leadPriceCents: 12_800_000 }),
+      item({ leadPriceCents: 56_700_000 }),
+      item({ leadPriceCents: null }),
     ];
     const ranges = priceQuickRanges(items);
     expect(ranges.map((r) => r.label)).toEqual([
@@ -285,7 +286,7 @@ describe("the price group's quick ranges", () => {
   });
 
   it("offers nothing when the listing carries no published prices", () => {
-    expect(priceQuickRanges([item({ priceCents: null })])).toEqual([]);
+    expect(priceQuickRanges([item({ leadPriceCents: null })])).toEqual([]);
     expect(priceQuickRanges([])).toEqual([]);
   });
 });

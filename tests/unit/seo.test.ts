@@ -99,13 +99,13 @@ describe("pageMetadata emits canonical, OpenGraph and Twitter tags", () => {
 
   it("builds absolute URLs from the documented host by default", () => {
     const meta = pageMetadata({
-      title: "Memorial lots — Villa Memorial",
+      title: "Memorial lots — Villa Funeraria",
       description: "Browse the park's plots.",
       path: "/lots",
     });
     expect(meta.alternates?.canonical).toBe(`${DEFAULT_SITE_URL}/lots`);
     expect(meta.openGraph?.url).toBe(`${DEFAULT_SITE_URL}/lots`);
-    expect(meta.openGraph?.title).toBe("Memorial lots — Villa Memorial");
+    expect(meta.openGraph?.title).toBe("Memorial lots — Villa Funeraria");
     expect(meta.openGraph?.description).toBe("Browse the park's plots.");
     expect(meta.openGraph?.siteName).toBe(SITE_NAME);
     const images = meta.openGraph?.images as Array<{ url: string }>;

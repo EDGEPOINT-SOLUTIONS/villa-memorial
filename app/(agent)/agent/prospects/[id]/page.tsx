@@ -14,7 +14,7 @@ import {
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
-export const metadata = { title: "Lead — Villa Memorial agent portal" };
+export const metadata = { title: "Lead — Villa Funeraria agent portal" };
 
 const TIMELINE_CLASS: Record<string, string> = {
   call: "ag-tl--appt",

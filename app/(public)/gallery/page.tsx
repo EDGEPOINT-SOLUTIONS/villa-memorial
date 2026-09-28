@@ -13,7 +13,7 @@ import { pageMetadata } from "@/lib/seo";
 import { GalleryListing } from "./gallery-listing";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Photo gallery & virtual tour — Villa Memorial",
+  title: "Photo gallery & virtual tour — Villa Funeraria",
   description:
     "The park in the client's own photographs — the entrance, the grounds, the chapels and the viewing set-ups — plus one entry to the park map and its 3D walk-through.",
   path: "/gallery",

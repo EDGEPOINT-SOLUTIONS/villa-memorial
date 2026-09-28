@@ -148,6 +148,19 @@ describe("lot-table validation", () => {
     expect(checkLotCategories(beyond)).toMatch(/six-year amortization/);
   });
 
+  it("refuses a monthly installment that can never pay the lot", () => {
+    // The 2026-09-21 review's monthly/total finding. The sheet's monthly is not
+    // selling ÷ 72 (it carries a financing cost), so the rule enforced here is the lower
+    // bound the sheet DOES keep: six years of the monthly must cover the contract price.
+    const categories = lots();
+    const target = categories[0].rows.find((r) => r.product === "Prime Lots")!;
+    target.regular.monthly = 1000; // 1,000 × 72 = 72,000 < 128,000
+    target.senior.monthly = 900; // keep senior ≤ regular so this rule is the one reported
+    const error = checkLotCategories(categories);
+    expect(error).toMatch(/can never pay the lot/);
+    expect(error).toMatch(/72,000/);
+  });
+
   it("refuses a senior figure above the regular figure, cell by cell", () => {
     const selling = lots();
     selling[0].rows[0].senior.selling = selling[0].rows[0].regular.selling + 1;

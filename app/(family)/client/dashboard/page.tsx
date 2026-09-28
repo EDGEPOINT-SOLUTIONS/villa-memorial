@@ -18,7 +18,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip, PortalFigure, PortalFigures } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Home — Villa Memorial" };
+export const metadata = { title: "Home — Villa Funeraria" };
 
 /** “Wednesday, 16 September” — the day the reader is looking at this page. */
 function today(): string {

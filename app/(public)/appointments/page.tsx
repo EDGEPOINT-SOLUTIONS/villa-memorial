@@ -4,7 +4,7 @@ import { AppointmentForm } from "@/components/public-forms/appointment-form";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Book an appointment — Villa Memorial",
+  title: "Book an appointment — Villa Funeraria",
   description:
     "Book a time to sit down with a coordinator at the park office — at a time that suits your family.",
   path: "/appointments",

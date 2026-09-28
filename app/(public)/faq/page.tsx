@@ -6,7 +6,7 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Frequently asked questions — Villa Memorial",
+  title: "Frequently asked questions — Villa Funeraria",
   description:
     "Straight answers about calling the park day or night, planning ahead, and seeing available lots at Villa Memorial Park, Isabela City, Basilan.",
   path: "/faq",

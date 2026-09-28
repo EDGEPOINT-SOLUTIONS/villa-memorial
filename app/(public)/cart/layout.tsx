@@ -7,7 +7,7 @@ import type { Metadata } from "next";
  * components and cannot export metadata, hence this pass-through layout.
  */
 export const metadata: Metadata = {
-  title: "Cart — Villa Memorial",
+  title: "Cart — Villa Funeraria",
   robots: { index: false, follow: true },
 };
 

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { PortalFrame } from "@/components/portal-frame";
 import { AGENT_PORTAL_GROUPS, AGENT_PORTAL_TABS } from "@/components/portal-nav";
+import { BRAND_NAME } from "@/lib/brand";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
 /**
@@ -30,7 +31,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
         <header className="family-shell__header">
           <div className="container family-shell__bar">
             <Link href="/" className="family-shell__brand">
-              Villa Memorial <span className="family-shell__brand-sub">· Agent</span>
+              {BRAND_NAME} <span className="family-shell__brand-sub">· Agent</span>
             </Link>
             <Link href="/login" className="btn btn--secondary btn--sm">
               Staff sign-in

@@ -6,7 +6,7 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import { PublicHero } from "@/components/kit";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Immediate assistance — Villa Memorial",
+  title: "Immediate assistance — Villa Funeraria",
   description:
     "When someone has died: call the 24/7 line, then follow four plain steps. One coordinator handles every arrangement — nothing needs deciding tonight.",
   path: "/immediate-assistance",
