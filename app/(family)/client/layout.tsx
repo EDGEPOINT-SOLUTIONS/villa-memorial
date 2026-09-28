@@ -65,6 +65,7 @@ export default async function FamilyLayout({ children }: { children: React.React
       portal="family"
       brandLabel="Family Portal"
       email={email}
+      profileTo="/client/profile"
       logoutTo="/client/login"
       nav={FAMILY_PORTAL_GROUPS}
       tabs={FAMILY_PORTAL_TABS}

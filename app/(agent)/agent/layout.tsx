@@ -47,6 +47,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
       portal="agent"
       brandLabel="Agent Portal"
       email={email}
+      profileTo="/agent/profile"
       logoutTo="/agent/login"
       nav={AGENT_PORTAL_GROUPS}
       tabs={AGENT_PORTAL_TABS}

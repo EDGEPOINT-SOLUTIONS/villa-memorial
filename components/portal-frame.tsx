@@ -110,6 +110,7 @@ export function PortalFrame({
   portal,
   brandLabel,
   email,
+  profileTo,
   logoutTo,
   nav,
   bell,
@@ -121,6 +122,8 @@ export function PortalFrame({
   portal: "family" | "agent";
   brandLabel: string;
   email: string | null;
+  /** When set, the sidebar's user line links to the portal's own profile screen. */
+  profileTo?: string;
   logoutTo: string;
   /** Grouped navigation (a single unnamed group renders exactly as before). */
   nav: PortalNavGroup[];
@@ -207,7 +210,17 @@ export function PortalFrame({
           </Link>
           {bell}
         </div>
-        {email ? <p className="portal-sidebar__user">{email}</p> : null}
+        {email ? (
+          <p className="portal-sidebar__user">
+            {profileTo ? (
+              <Link href={profileTo} title="Your account">
+                {email}
+              </Link>
+            ) : (
+              email
+            )}
+          </p>
+        ) : null}
 
         <nav className="portal-nav" aria-label={`${brandLabel} navigation`}>
           {navList}
