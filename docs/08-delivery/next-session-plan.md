@@ -1,8 +1,14 @@
 # Next-session plan — pick the Villa Memorial front end up on another machine
 
-**Status:** handover plan · **Written:** 2026-09-26 · **Base:** `main` at
-commit `0d62693` (merge of PR #131) · **Repository:**
+**Status:** handover plan · **Written:** 2026-09-26 · **Updated:** 2026-09-28 · **Base:** `main`
+at commit `00788c7` (merge of PR #144) · **Repository:**
 `https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial`
+
+> **2026-09-28 update — read [`CONTINUATION.md`](../../CONTINUATION.md) §7 first.** The picture
+> moved on since this plan was written: all the client-minutes phases and the design-audit
+> cleanup are merged, and what remains is decisions, not code. §2 (the minutes, item by item)
+> and §3 (the captain's design rules) are still current and worth reading; §4 ("Next work") is
+> now the decisions list in [`open-items.md`](open-items.md).
 
 This document is written to be read **on its own**, on a fresh clone, by whoever
 continues this work. It records where the project stands, what the client asked
@@ -16,9 +22,9 @@ a secret: every path is a file that exists in this repository after cloning.
 > Admin Portal, the family portal and the agent portal — plus its own BFF route
 > handlers. It runs **fixtures-first**: with no gateway environment variables set
 > it serves recorded contract fixtures in-process, so every screen demos
-> standalone. Five client-requested features (minutes items 1, 2, 4, 5, 8) are
-> merged; four follow-up workstreams (minutes items 3, 6, 7 and the page
-> design/type system) are queued or in flight.
+> standalone. **As of 2026-09-28 all eight client-minutes items are verified and
+> every front-end workstream is merged** (PRs #139–#145); the design audit is clean
+> and what remains is decisions owned by the client, the captain and the platform.
 
 **Read first, in this order** (all in this repository):
 
