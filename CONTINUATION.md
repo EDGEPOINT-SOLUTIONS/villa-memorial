@@ -1,9 +1,17 @@
 # CONTINUATION — Villa Memorial (transfer to another laptop)
 
-**Written:** 2026-09-27. **Repo:** `villa-memorial` (Next.js 15 App Router, fixtures-first).
-**Committed 2026-09-28.** Phases 1–3 are merged to `main` as PR #139 (`757b253`); the tree is
-clean, so a plain `git clone` / `git pull` gets everything. This note is kept as the session
-record — Phases 4–7 below are still open.
+**Written:** 2026-09-27 · **Updated:** 2026-09-28. **Repo:** `villa-memorial` (Next.js 15 App
+Router, fixtures-first).
+
+**All seven phases are DONE and merged.** Phases 1–3 landed as PR #139; Phases 4–7 as PR #140;
+the burial edit/delete as PR #143; the home/portal passes as PRs #141–#142; the design-audit
+cleanup as PRs #144 and #145 — **all merged, no code PR is open**. `main` is `fffb0cd` and the
+tree is clean, so a plain `git clone` / `git pull` gets everything. Do **not** re-do the phases
+below — they are kept as the record.
+
+**Next steps are decisions, not code** — see [§7](#7--whats-next-2026-09-28) and
+[`docs/08-delivery/open-items.md`](docs/08-delivery/open-items.md) (§3 client questions, §7
+captain decisions).
 
 ---
 
@@ -13,7 +21,7 @@ record — Phases 4–7 below are still open.
 cd villa-memorial
 npm install
 npm run typecheck && npm run lint          # both must be exit 0
-npm test                                    # expect 232 files / 2,689 tests passing
+npm test                                    # expect 240 files / 2,742 tests passing
 npm run build                               # must compile
 npx next start --port 4000                  # in a BACKGROUND job, then:
 npm run smoke                               # expect "All 61 advertised routes render."
@@ -95,7 +103,7 @@ senior**, the old ones gone; revert restores.
 
 ---
 
-## 3 · TODO — Phases 4–7 (4 and 5 now DONE — see `docs/08-delivery/phase4-design/` and `phase5-design/`)
+## 3 · Phases 4–7 — ALL DONE (kept as the record; do not re-do)
 
 Order is by business cost. Each phase: measured before/after, full gate green, its own
 `docs/08-delivery/phaseN-design/README.md`.
@@ -232,8 +240,41 @@ is already green.
 | | |
 |---|---|
 | `lint` / `typecheck` | clean |
-| `npm test` | **232 files, 2,689 tests passing** |
+| `npm test` | **240 files, 2,742 tests passing** |
 | `npm run build` / `smoke` | clean · **61 of 61 routes** |
-| Design audit | **interrupted — must re-run** |
+| Design audit | **clean** — 218 routes × 2 viewports: 0 render failures, 0 overflow, 0 sub-12px type, 0 heading/alt problems; only the documented `.paper-hero` contrast false positives |
+| Dead CSS | `styles/components.css` pruned **69,291 bytes (12.1 %)**; the two-signal pipeline reports **0** deletion candidates |
 | `.data/` | cleaned (no store files) |
-| Git | merged to `main` — PR #139 (`757b253`), tree clean |
+| Git | `main` @ `fffb0cd` — PRs #144 and #145 merged; no code PR open, tree clean |
+
+---
+
+## 7 · What's next (2026-09-28)
+
+**Code is done.** The front end is complete and the design audit is clean, so what remains is
+decisions owned by other people — gathered in one place:
+[`docs/08-delivery/open-items.md`](docs/08-delivery/open-items.md).
+
+| Owner | What | Where |
+|---|---|---|
+| **Villa (client)** | 7 answers — the park's chapel list · commission rules and rates · which senior chapel-rate figure is right · Lot A-001's real per-lot price · which 2025/2026 rules stand · whether a lot's headline monthly must tie to its contract price · whether the 2-day payment notice is actually sent | `open-items.md` §3 |
+| **Captain** | minute 5 on `/builder` + `/plans/[sku]` · the casket `item_type` (a frozen enum) · the `/api/content/pages` scope · the brand name | `open-items.md` §7 |
+| **Platform (the dev)** | the 28 contract asks — every screen already refuses live mode honestly with a named 503 / `not_wired` | `frontend-complete.md` §"What remains" |
+
+**On the new machine, in order:**
+
+1. `git pull` — `main` already carries every code change (PRs #139–#145). Nothing is waiting to
+   merge; do not look for a branch to finish.
+2. Read the three records this session produced:
+   - `docs/08-delivery/design-audit-cleanup-design/` — the phantom `routes.json` that stopped the
+     whole audit chain, the `/staff/dashboard` phone overflow it had been hiding, the parser and
+     verifier fixes, the 12.1 % prune, and the lesson that **a comment naming a dead selector
+     still counts as a reference**.
+   - `docs/08-delivery/phase6-design/` + `phase7-design/` — the burial write path, the brand
+     constant and the eleven-store journal migration.
+3. Then it is the decisions above. **Nothing in the repo can close any of them**, and no screen
+   invents an answer — the honest states are the deliverable.
+
+**Optional code, if someone wants it (no blocker):** the four negative-assertion guards and
+`tests/`-in-signal-2 are deliberate (see the design record, "Deliberately kept"); the dependency
+majors (postcss → Next 16, vitest → 5) are left to Dependabot or a planned upgrade.
