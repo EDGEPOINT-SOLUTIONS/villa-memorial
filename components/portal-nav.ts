@@ -126,6 +126,10 @@ export const AGENT_PORTAL_GROUPS: PortalNavGroup[] = [
       { key: "capture", label: "New lead", to: "/agent/new" },
     ],
   },
+  {
+    label: "Your account",
+    items: [{ key: "profile", label: "Profile", to: "/agent/profile" }],
+  },
 ];
 
 /**

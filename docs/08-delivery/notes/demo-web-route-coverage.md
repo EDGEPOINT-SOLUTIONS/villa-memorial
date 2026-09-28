@@ -114,8 +114,8 @@ refuses an unmarked row and offers no live mode), pinned by
 
 ## Agent portal — `app/(agent)/agent`
 
-11 routes (`dashboard`, `prospects`, `prospects/[id]`, `clients`, `clients/[id]`, `sales`,
-`lots`, `applications`, `appointments`, `marketing`, `new`): ⚠ all read one provisional
+12 routes (`dashboard`, `prospects`, `prospects/[id]`, `clients`, `clients/[id]`, `sales`,
+`lots`, `applications`, `appointments`, `marketing`, `new`, `profile`): ⚠ all read one provisional
 agent-workspace fixture — no agent/commission contract exists, so commission amounts are
 `null` by design and the pages say so. `/agent/lots` mounts the same shared park map as
 `/staff/property` and `/map`.

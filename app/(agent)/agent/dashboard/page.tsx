@@ -107,7 +107,7 @@ export default async function AgentTodayPage() {
 
       <AgentSection
         title="What needs you now"
-        sub="Most important first. Once you finish one, it leaves this list — we never nag you with it again."
+        sub="Most important first."
         more={<Link className="ag-sec__more" href="/agent/prospects">See all {prospects.length} prospects →</Link>}
       >
         {items.length === 0 ? (
@@ -135,7 +135,7 @@ export default async function AgentTodayPage() {
 
       <AgentSection
         title="Today's stops"
-        sub="The order to drive them in, with what to bring so nobody drives back for a paper."
+        sub="In driving order, with what to bring."
         more={<Link className="ag-sec__more" href="/agent/appointments">Full week →</Link>}
       >
         {stops.length === 0 ? (
@@ -160,7 +160,7 @@ export default async function AgentTodayPage() {
 
       <AgentSection
         title="Your numbers"
-        sub="Four figures, each with what it means. The commission figures follow the office's rules — the Sales & commissions page carries the full shape."
+        sub="Each figure with what it means."
         more={<Link className="ag-sec__more" href="/agent/sales">Sales &amp; commissions →</Link>}
       >
         <div className="ag-money-grid">
@@ -197,8 +197,8 @@ export default async function AgentTodayPage() {
                 <div className="ag-target__fill" style={{ width: `${pctTarget}%` }} />
               </div>
               <p className="ag-note">
-                The bar fills against the target the office sets for you, once the commission engine is
-                configured. Nothing here guesses a number (PRD finance-billing.md:16–21).
+                The office sets this target once the commission engine is configured. Nothing here
+                guesses a number.
               </p>
             </div>
           </div>
@@ -230,9 +230,8 @@ export default async function AgentTodayPage() {
           ))}
         </div>
         <p className="ag-note">
-          Example figures in this workspace come from the demo office record — the real numbers arrive
-          with the agent-workspace contract; commission stays “—” until the client configures rates
-          (open question, 07-client-villa/open-questions.md:26). Signed in as {session.email}.
+          Example figures come from the demo office record; commission stays “—” until the
+          client sets rates. Signed in as {session.email}.
         </p>
       </AgentSection>
     </div>
