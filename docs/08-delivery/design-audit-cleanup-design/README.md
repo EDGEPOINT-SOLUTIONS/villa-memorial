@@ -133,6 +133,19 @@ surfaces (the reason `check-sv-classes.mjs` exists) — a conservative keep, not
   LOST: 0` before it wrote. The CSS-declaration gates in the unit suite (typography, phone-layout,
   broken-pages, composition-pass, page-backgrounds, public-layout) stay green, and every selector
   the tests name is kept by the second signal (`tests/` is scanned).
+- **Coverage re-run, completed.** `css-coverage.mjs` could itself hang (see below); once its sweep
+  was bounded it finished all 654 loads and re-classifying the pruned stylesheet against the fresh
+  coverage returns **0 deletion candidates** with `...LOST: 0` — the prune left nothing dead and
+  removed nothing live.
+
+### A note on the tooling
+
+`css-coverage.mjs` awaited `res.text()` inside a `page.on("response")` handler and then awaited
+`page.close()` **outside** its try/catch; a response that never finished streaming stalled the
+sweep at 300/654 with nothing to bound it. Every await in the sweep is now bounded (a per-route
+`withTimeout`, a bounded `close`, a fire-and-forget handler) and a route that will not cooperate is
+**skipped and named** rather than silently ending the run — a tool that stops without saying so is
+worse than one that reports what it could not measure.
 
 ## Files
 

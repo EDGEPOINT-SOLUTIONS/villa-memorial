@@ -17,6 +17,10 @@
  *
  * Usage: node scripts/design-audit/css-coverage.mjs [--base URL]
  * Output: .design-audit/css-coverage.json
+ *
+ * THE SWEEP IS BOUNDED. No single route can stall it (see `withTimeout` below); a
+ * route/viewport pair that will not cooperate is skipped and named at the end of
+ * the run rather than silently ending it.
  */
 
 import { chromium } from "@playwright/test";
@@ -112,51 +116,107 @@ for (const [name, creds] of Object.entries(PERSONAS)) {
 const sheets = new Map();
 let done = 0;
 const total = routes.length * VIEWPORTS.length;
+const skipped = [];
+
+/** NO AWAIT IN THIS SWEEP MAY BE UNBOUNDED.
+ *
+ *  The first version could hang forever and did: it awaited `res.text()` inside a
+ *  `page.on("response")` handler, then awaited `page.close()` OUTSIDE the try/catch.
+ *  A CSS response that never finished streaming left the handler pending, and the
+ *  close (and the sweep) sat there with nothing to time it out — the run stopped
+ *  making progress at 300/654 and had to be killed (2026-09-28).
+ *
+ *  Every step below is now either bounded by Playwright's own `timeout` or by this
+ *  race, and a route that will not cooperate is recorded and skipped instead of
+ *  ending the run. A tool that silently stops is worse than one that reports what
+ *  it could not measure. */
+function withTimeout(promise, ms, label) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`timed out after ${ms}ms (${label})`)), ms);
+    }),
+  ]).finally(() => clearTimeout(timer));
+}
+
+const PER_ROUTE_MS = 40_000;
 
 for (const vp of VIEWPORTS) {
   for (const route of routes) {
     const ctx = contexts[`${personaFor(route)}:${vp.name}`];
     const page = await ctx.newPage();
     const bodies = new Map();
-    page.on("response", async (res) => {
+    // Fire-and-forget with a catch: a body that never arrives must not hold a handler.
+    page.on("response", (res) => {
       const url = res.url().replace(BASE, "").split("?")[0];
       if (!url.includes("/_next/static/css/")) return;
-      try {
-        bodies.set(url, await res.text());
-      } catch {}
+      res
+        .text()
+        .then((text) => bodies.set(url, text))
+        .catch(() => {});
     });
 
     try {
-      await page.coverage.startCSSCoverage({ resetOnNavigation: true });
-      await page.goto(BASE + route, { waitUntil: "networkidle", timeout: 30000 });
-      await page.waitForTimeout(120);
-      for (const sel of [
-        ".anchored-header__explore-trigger",
-        ".listing-sheet__toggle",
-        ".park-tabs button",
-        ".quick-menu-fab",
-        ".anchored-phonebar__btn--explore",
-      ]) {
-        try {
-          await page.click(sel, { timeout: 300 });
-          await page.waitForTimeout(80);
-        } catch {}
-      }
-      const entries = await page.coverage.stopCSSCoverage();
-      for (const e of entries) {
-        const url = e.url.replace(BASE, "").split("?")[0];
-        if (!url.includes("/_next/static/css/")) continue;
-        const rec = sheets.get(url) ?? { css: bodies.get(url) ?? "", ranges: [] };
-        if (!rec.css && bodies.has(url)) rec.css = bodies.get(url);
-        for (const r of e.ranges) rec.ranges.push([r.start, r.end]);
-        sheets.set(url, rec);
-      }
-    } catch {
-      /* a failing route contributes nothing; the audit reports those separately */
+      await withTimeout(
+        (async () => {
+          await page.coverage.startCSSCoverage({ resetOnNavigation: true });
+          try {
+            await page.goto(BASE + route, { waitUntil: "networkidle", timeout: 15_000 });
+          } catch {
+            /* `networkidle` never fires on a page that keeps polling. The page is
+               loaded by then, so measure what is there rather than navigate again. */
+          }
+          await page.waitForTimeout(120);
+          for (const sel of [
+            ".anchored-header__explore-trigger",
+            ".listing-sheet__toggle",
+            ".park-tabs button",
+            ".quick-menu-fab",
+            ".anchored-phonebar__btn--explore",
+          ]) {
+            try {
+              await page.click(sel, { timeout: 300 });
+              await page.waitForTimeout(80);
+            } catch {}
+          }
+          const entries = await page.coverage.stopCSSCoverage();
+          for (const e of entries) {
+            const url = e.url.replace(BASE, "").split("?")[0];
+            if (!url.includes("/_next/static/css/")) continue;
+            const rec = sheets.get(url) ?? { css: bodies.get(url) ?? "", ranges: [] };
+            if (!rec.css && bodies.has(url)) rec.css = bodies.get(url);
+            for (const r of e.ranges) rec.ranges.push([r.start, r.end]);
+            sheets.set(url, rec);
+          }
+        })(),
+        PER_ROUTE_MS,
+        `${vp.name} ${route}`,
+      );
+    } catch (err) {
+      /* A failing route contributes nothing; record it so the run never hides a gap. */
+      skipped.push(`${vp.name} ${route} — ${String(err).slice(0, 80)}`);
     }
-    await page.close();
+    // Closing is outside the route's try, so bound it too — this is where it hung.
+    try {
+      await withTimeout(page.close(), 5_000, "page.close");
+    } catch {}
     done++;
-    if (done % 60 === 0) console.log(`  ${done}/${total}`);
+    if (done % 20 === 0) console.log(`  ${done}/${total}`);
+  }
+}
+
+/* Any sheet whose body never arrived from a response is fetched once, bounded. */
+for (const [url, rec] of sheets) {
+  if (rec.css) continue;
+  for (const ctx of Object.values(contexts)) {
+    try {
+      const res = await ctx.request.get(BASE + url, { timeout: 10_000 });
+      if (res.ok()) {
+        rec.css = await res.text();
+        break;
+      }
+    } catch {}
   }
 }
 
@@ -199,3 +259,9 @@ for (const [url, r] of Object.entries(report)) {
   console.log(`  ${url}  ${(r.cssLength / 1024).toFixed(0)} KB css, ${r.usedRanges} ranges, ${r.usedChars} used chars`);
 }
 console.log(`\ndistinct selectors seen used at runtime: ${usedSelectors.size}`);
+
+if (skipped.length) {
+  console.log(`\n${skipped.length} route/viewport pair(s) were skipped after a bounded timeout:`);
+  for (const s of skipped.slice(0, 40)) console.log(`  ${s}`);
+  if (skipped.length > 40) console.log(`  …and ${skipped.length - 40} more`);
+}
