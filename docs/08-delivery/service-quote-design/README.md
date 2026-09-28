@@ -5,6 +5,14 @@ with a 'Request for Quote' option."* The purpose is to let Villa Funeraria provi
 quotations; the inquiry must capture the client's name, contact details, the requested funeral
 service, a preferred date (when one applies) and additional requirements.
 
+> **Update 2026-09-28 — superseded in part.** The capture mechanism described in the `/quote`
+> row below and in the "Captured inquiry fields" measured row (browser-local
+> `lib/demo-inquiry-captures.ts` → localStorage) was replaced when `/quote` and `/contact` moved
+> onto `POST /api/inquiries` and the durable `lib/api-client/inquiry-store.ts` journal;
+> `lib/demo-inquiry-captures.ts` is deleted. See `docs/08-delivery/phase1-design/README.md`.
+> The no-price / one-quote-action rule this record documents is unchanged and stays
+> authoritative.
+
 **Surfaces changed**
 
 | Surface | Before | After |

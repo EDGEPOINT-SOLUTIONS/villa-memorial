@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PublicShell } from "@/components/ui/public-shell";
 import { JsonLd } from "@/components/seo/json-ld";
+import { BRAND_NAME } from "@/lib/brand";
 import { listLandingContent } from "@/lib/api-client/landing";
 import "../globals.css";
 
@@ -9,7 +10,7 @@ import "../globals.css";
 // Deliberately NO canonical URL: no page should inherit a canonical it does not
 // own — every content page supplies its own through pageMetadata().
 export const metadata: Metadata = {
-  title: "Villa Memorial — Memorial & funeral services, Isabela City, Basilan",
+  title: `${BRAND_NAME} — Memorial & funeral services, Isabela City, Basilan`,
   description:
     "Funeral services, memorial plans and garden lots at Villa Memorial Park — the first memorial park in Basilan, Isabela City.",
 };

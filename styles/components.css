@@ -5544,6 +5544,43 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-muted);
 }
 
+/* The write surface (client minutes item 2): record a burial, move each light pickup.
+   Rendered only for a scheduling:write session; layout only, tokens for colour. */
+.burial-admin {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-4);
+}
+
+.burial-pickup-admin {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.burial-pickup-admin__row {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-2);
+}
+
+.burial-pickup-admin__form {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.burial-pickup-admin__who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-2);
+  min-width: 0;
+}
+
+.burial-pickup-admin__error {
+  color: var(--color-status-danger-ink);
+}
+
 @media (max-width: 60rem) {
   .burial-week {
     grid-template-columns: minmax(0, 1fr);

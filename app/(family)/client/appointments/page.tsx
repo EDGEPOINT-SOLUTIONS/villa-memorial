@@ -17,7 +17,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Ask for a visit — Villa Memorial" };
+export const metadata = { title: "Ask for a visit — Villa Funeraria" };
 
 /**
  * Ask for a visit — the family's “My Appointments” screen (PRD screen-inventory;

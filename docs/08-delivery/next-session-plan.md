@@ -130,10 +130,10 @@ merged PRs; the table and notes below are the consolidated record.
 |---|---|---|---|
 | 1 | Payment Due Notification | **Shipped** | [#126](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/126) |
 | 2 | Calendar Integration for Light Pickup and Burial Schedule | **Shipped** | [#128](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/128) |
-| 3 | Change Branding to Villa Funeraria | **In flight** | branch `fm/villa-branding-villa-funeraria` (no PR yet) |
+| 3 | Change Branding to Villa Funeraria | **Shipped** (consolidated in Phase 6) | [#132](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/132) + the 2026-09-28 brand constant |
 | 4 | Dashboard Payment Due Notification (red indicator) | **Shipped** | [#127](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/127) |
 | 5 | Replace Funeral Service Prices with Request for Quote | **Shipped** | [#129](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/129) |
-| 6 | Villa Memorial Map Integration | **In flight** | branch `fm/villa-map-location` (no PR yet) |
+| 6 | Villa Memorial Map Integration | **Shipped** | [#135](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/135) |
 | 7 | Client-provided approved imagery | **Waiting on the client** | — (no code until Villa submits) |
 | 8 | Display Monthly Pricing for Memorial Plans and Lots | **Shipped** | [#130](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/130) |
 
@@ -168,7 +168,7 @@ Evidence: `tests/unit/burial-calendar.test.ts`, `tests/unit/burial-calendar-page
 `tests/unit/burial-schedule.test.ts`. No burial-schedule contract exists, so live
 mode answers a named 503.
 
-### Item 3 — Change Branding to Villa Funeraria · in flight
+### Item 3 — Change Branding to Villa Funeraria · shipped
 
 > *"Replace the text 'Villa Memorial Lots' with 'Villa Funeraria' on the
 > upper-left section of the homepage. Update the branding and displayed label.
@@ -180,7 +180,10 @@ renders, keep the approved brand mark, and keep the **navigation bar structure
 untouched** (text/wordmark only). Check metadata titles/descriptions that name
 the brand; leave the legal/company name alone where it differs. Acceptance:
 a plain list of every replaced string, updated tests, and the full check set
-green. In flight on branch `fm/villa-branding-villa-funeraria`.
+green. Shipped in **#132**; the follow-up "ensure consistency" sweep landed 2026-09-28 as
+`lib/brand.ts` (one `BRAND_NAME`), read by the staff eyebrow, the portal frames and the
+`(public)` fallback, with every `— Villa Memorial` title suffix moved to the brand and
+`tests/unit/brand-consistency.test.ts` pinning it.
 
 ### Item 4 — Dashboard Payment Due Notification (red indicator) · shipped
 
@@ -208,7 +211,7 @@ figures remain in `lib/villa-pricing.ts` as the office's quotation source and ar
 still pinned by tests. Evidence: `tests/unit/price-surfacing.test.tsx`,
 `tests/unit/villa-services-premium.test.tsx`, `tests/unit/facilities-page.test.tsx`.
 
-### Item 6 — Villa Memorial Map Integration · in flight
+### Item 6 — Villa Memorial Map Integration · shipped
 
 > *"Integrate a map showing the location of Villa Memorial… Display the location
 > on the website. Provide an interactive map where appropriate. Include address

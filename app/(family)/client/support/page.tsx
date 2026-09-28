@@ -11,7 +11,7 @@ import {
   Section,
 } from "@/components/family/family-ui";
 
-export const metadata = { title: "Help — Villa Memorial" };
+export const metadata = { title: "Help — Villa Funeraria" };
 
 /**
  * Help — the family's “Support/Ticket” screen (PRD screen-inventory), on the

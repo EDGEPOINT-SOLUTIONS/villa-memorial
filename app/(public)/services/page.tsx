@@ -20,7 +20,7 @@ import {
 } from "@/lib/service-content";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Funeraria Memorial Services — Villa Memorial",
+  title: "Funeraria Memorial Services — Villa Funeraria",
   description:
     "At-need funeral care day or night — a-la-carte services, embalming by the day and chapel bookings at Villa Memorial Park, each quoted for your family.",
   path: "/services",

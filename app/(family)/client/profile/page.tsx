@@ -13,7 +13,7 @@ import {
 import { PortalCard } from "@/components/portal/portal-ui";
 import { FamilyReadingPreferences } from "@/components/family/family-reading-preferences";
 
-export const metadata = { title: "Your details — Villa Memorial" };
+export const metadata = { title: "Your details — Villa Funeraria" };
 
 /**
  * Your details — the family's profile screen, on the shared portal kit. Real

@@ -290,6 +290,31 @@
   budget, month-grid class), `tests/fixture-contract/chapel-admin.test.ts` (seed pinned
   to the scheduling resources fixture + the fallback rules).
 
+## Burial calendar — write path (client minutes 2026-09-21, item 2; read before touching it)
+
+- **Requirement 2's missing verb is now built.** `/staff/schedule`'s burial calendar records a
+  burial and moves each light pickup through `scheduled → in_progress → done`, for a
+  `scheduling:write` session; a `scheduling:read` session still sees the calendar read-only.
+- **One rules home: `lib/burial-admin.ts`** (pure) — `parseBurialDraft`, `parsePickupUpdate`,
+  `nextPickupState` / `previousPickupState`, the field caps. The browser form, the BFF routes and
+  the store all run it, so a refusal reads the same everywhere.
+- **Durable store: `lib/api-client/burials-store.ts`** — the recorded seed
+  (`lib/fixtures/scheduling/burials.json`) folded with an append-only journal on the shared
+  `lib/api-client/journal.ts` mechanics (`BURIALS_STORE_PATH` or `.data/scheduling-burials.json`;
+  `tests/setup.ts` redirects it). Events: `burial_scheduled`, `pickup_updated`. The store owns two
+  cross-row rules — a case carries one burial, and a FIRST pickup needs a time and crew.
+- **Tolerant readers live in `lib/burial-records.ts`** (shared by the reader and the store, no
+  import cycle); `lib/api-client/burial-schedule.ts` re-exports them and folds the store on read.
+- **Routes** `POST /api/schedule/burials`, `PATCH /api/schedule/burials/:id/pickup` (gate
+  `app/api/schedule/_guard.ts`, `scheduling:write`, rules-free handlers). Live mode
+  (`SCHEDULING_BASE_URL`) answers the named 503 on reads AND writes — never a local file.
+- **The screen**: `app/(staff)/staff/schedule/burial-admin.tsx` (client) renders inside
+  `burial-calendar.tsx` only when `canWrite`; it holds no rules and calls `router.refresh()` after
+  a write. Editing/removing a recorded burial is still open — do not add it silently.
+- Evidence: `tests/unit/burial-admin.test.ts`, `tests/unit/burials-store.test.ts`,
+  `tests/unit/burials-route.test.ts`, `tests/unit/burial-calendar-page.test.tsx`; record
+  `docs/08-delivery/phase6-design/`.
+
 ## Villa Memorial Plan membership applications — `/staff/plans/membership` (F-18 / FORMS_PLAN gap 4)
 
 - **The enrolment folio is a CAPTURE, never a certificate.** `/staff/plans/membership` is the

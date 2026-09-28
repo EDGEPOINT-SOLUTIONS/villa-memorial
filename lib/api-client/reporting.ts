@@ -162,16 +162,6 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
   let paymentAlerts: PaymentAlertSummary | null = null;
   if (invoicesResult.status === "fulfilled") {
     const all = invoicesResult.value;
-    finance = {
-      total_invoices: all.length,
-      overdue_count: all.filter((i) => i.status === "overdue").length,
-      total_outstanding_cents: all.reduce(
-        (sum, i) => sum + Math.max(0, i.total_cents - i.paid_cents),
-        0,
-      ),
-      collections_this_month_cents: null,
-      currency: all[0]?.currency ?? "PHP",
-    };
     // The dashboard alert surface: the same invoices, classified by the shared
     // two-day rule the family reminder runs on — never a second due-soon threshold.
     const sources: PaymentAlertSource[] = all.map((invoice) => ({
@@ -182,6 +172,19 @@ export async function getDashboardSummary(now: Date = new Date()): Promise<Dashb
       due_at: invoice.due_at,
     }));
     paymentAlerts = buildPaymentAlerts(sources, now);
+    finance = {
+      total_invoices: all.length,
+      // ONE meaning of "overdue": the date rule above, not the stored status (which keeps a
+      // part-paid invoice `partial` however late it is). The billing screen reads the same
+      // rule, so the dashboard can no longer read 2 here and 6 in the band.
+      overdue_count: paymentAlerts.overdue_count,
+      total_outstanding_cents: all.reduce(
+        (sum, i) => sum + Math.max(0, i.total_cents - i.paid_cents),
+        0,
+      ),
+      collections_this_month_cents: null,
+      currency: all[0]?.currency ?? "PHP",
+    };
   }
 
   return {

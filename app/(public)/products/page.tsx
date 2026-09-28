@@ -17,7 +17,7 @@ import { pageMetadata } from "@/lib/seo";
 import { ProductsListing } from "./products-listing";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Coffins & caskets — Villa Memorial",
+  title: "Coffins & caskets — Villa Funeraria",
   description:
     "The client's full 2026 casket catalogue at published prices — SRP, senior-citizen price and the inclusions per family, with details for every model.",
   path: "/products",

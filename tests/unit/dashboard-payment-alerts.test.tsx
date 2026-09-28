@@ -148,6 +148,35 @@ describe("the dashboard alert band", () => {
     expect(html).toContain("7 payments need attention");
     expect(html).toContain("+2 more on the billing screen.");
   });
+
+  it("still shows due-soon rows when five or more are overdue", async () => {
+    // The old single cap concatenated overdue first, so with 5+ overdue the counted
+    // upcoming payment's row could never render (2026-09-21 review).
+    const sources = [
+      ...Array.from({ length: 6 }, (_, i) =>
+        source({ id: `o${i}`, reference: `INV-OVD-${i}`, days: -1 - i }),
+      ),
+      source({ id: "soon", reference: "INV-SOON-1", days: 1 }),
+    ];
+    const alerts = buildPaymentAlerts(sources, new Date());
+    const html = await render(summaryWith(alerts));
+
+    expect(alerts.overdue_count).toBe(6);
+    expect(alerts.due_soon_count).toBe(1);
+    expect(html).toContain("INV-SOON-1");
+    expect(html).toContain("1 due within 2 days");
+  });
+
+  it("opens each row at the read-only invoice, so a reader can see the payment", async () => {
+    const alerts = buildPaymentAlerts(
+      [source({ days: -5, reference: "INV-2026-00043" })],
+      new Date(),
+    );
+    const html = await render(summaryWith(alerts));
+    expect(html).toContain('href="/staff/billing/invoices/INV-2026-00043"');
+    // The due date is printed, not only the countdown.
+    expect(html).toContain("due ");
+  });
 });
 
 describe("the band's type is right-sized (captain feedback, 2026-09-25)", () => {

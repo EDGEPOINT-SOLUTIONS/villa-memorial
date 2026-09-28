@@ -52,14 +52,14 @@ export async function generateMetadata({ params }: PlanDetailParams): Promise<Me
   const item = await getCatalogItem(decodeURIComponent(sku)).catch(() => null);
   if (!item) {
     return pageMetadata({
-      title: "Villa Memorial Plan — Villa Memorial",
+      title: "Villa Memorial Plan — Villa Funeraria",
       description:
         "Villa Memorial Plan tiers and terms with the client's 2026 payment-mode tables — regular and senior rates, six-year amortization, and what each plan includes.",
       path: "/plans",
     });
   }
   return pageMetadata({
-    title: `${item.name} — Villa Memorial`,
+    title: `${item.name} — Villa Funeraria`,
     description:
       item.description?.trim() ||
       `${item.name} — the Villa Memorial Plan's inclusions, eligibility and published 2026 prices.`,

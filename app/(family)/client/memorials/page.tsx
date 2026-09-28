@@ -24,7 +24,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip, PortalKv } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Remembering — Villa Memorial" };
+export const metadata = { title: "Remembering — Villa Funeraria" };
 
 /**
  * Remembering — the family's “My Memorials” screen (PRD screen-inventory),

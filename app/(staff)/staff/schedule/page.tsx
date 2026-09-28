@@ -382,6 +382,7 @@ export default async function SchedulePage({
             today={today}
             caseHrefs={caseHrefs}
             hrefFor={burialHrefFor}
+            canWrite={canWrite}
           />
         ) : (
           <div className="card" id="burial-calendar">

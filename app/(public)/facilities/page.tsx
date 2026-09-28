@@ -19,9 +19,9 @@ import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
 import { StoryHelpBand } from "@/components/villa/story-ui";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Chapels & grounds — Villa Memorial",
+  title: "Chapels & grounds — Villa Funeraria",
   description:
-    "The park's common and private chapels with their 2026 per-day rates, the garden niches, mausoleum and grounds — and how to ask the office about dates.",
+    "The park's common and private chapels, the garden niches, mausoleum and grounds — and how to ask the office about dates and a quotation.",
   path: "/facilities",
 });
 
@@ -125,7 +125,7 @@ export default async function FacilitiesPage() {
         variant="interior"
         eyebrow="Facilities"
         title="The chapels and the grounds"
-        lead="Where the wake is held — and the 2026 rates."
+        lead="Where the wake is held — ask the office for a date."
         primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
         secondary={{ label: "See the rooms", href: "#rooms" }}
         image={{

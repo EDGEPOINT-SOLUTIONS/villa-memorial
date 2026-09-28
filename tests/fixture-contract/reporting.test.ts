@@ -3,7 +3,7 @@ import { getDashboardSummary } from "@/lib/api-client/reporting";
 import { listCases } from "@/lib/api-client/operations";
 import { listLots } from "@/lib/api-client/property";
 import { listInvoices } from "@/lib/api-client/finance";
-import { buildPaymentAlerts, type PaymentAlertSource } from "@/lib/payment-alerts";
+import { buildPaymentAlerts, invoiceOverdue, type PaymentAlertSource } from "@/lib/payment-alerts";
 
 /**
  * Module I tests. The dashboard no longer has a fixture of its own — it aggregates the
@@ -43,8 +43,9 @@ describe("dashboard summary reconciles with the sources it summarises", () => {
   });
 
   it("finance figures match what the billing screen computes", async () => {
-    const summary = await getDashboardSummary();
-    const invoices = await listInvoices();
+    const now = new Date("2026-09-25T12:00:00Z");
+    const summary = await getDashboardSummary(now);
+    const invoices = await listInvoices(now);
     const outstanding = invoices.reduce(
       (sum, i) => sum + Math.max(0, i.total_cents - i.paid_cents),
       0,
@@ -52,8 +53,11 @@ describe("dashboard summary reconciles with the sources it summarises", () => {
 
     expect(summary.finance).not.toBeNull();
     expect(summary.finance!.total_invoices).toBe(invoices.length);
+    // ONE meaning of "overdue": the date-derived rule the band and the billing screen use,
+    // not the stored status (which keeps a part-paid invoice `partial` however late it is).
+    expect(summary.finance!.overdue_count).toBe(summary.payment_alerts!.overdue_count);
     expect(summary.finance!.overdue_count).toBe(
-      invoices.filter((i) => i.status === "overdue").length,
+      invoices.filter((i) => invoiceOverdue(i, now)).length,
     );
     expect(summary.finance!.total_outstanding_cents).toBe(outstanding);
     expect([...new Set(invoices.map((i) => i.currency))]).toContain(

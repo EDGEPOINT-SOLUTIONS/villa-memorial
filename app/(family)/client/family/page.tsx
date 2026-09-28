@@ -15,7 +15,7 @@ import {
 } from "@/components/family/family-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
-export const metadata = { title: "Your family — Villa Memorial" };
+export const metadata = { title: "Your family — Villa Funeraria" };
 
 /**
  * Your family — the family account dashboard (PRD screen-inventory “Family

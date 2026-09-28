@@ -10,7 +10,7 @@ import { pageMetadata } from "@/lib/seo";
 import { LotListing } from "./lot-listing";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Memorial lots — Villa Memorial",
+  title: "Memorial lots — Villa Funeraria",
   description:
     "Browse the park's plots by park, status and legend type — see availability and the published lot prices, then reserve with the park office.",
   path: "/lots",

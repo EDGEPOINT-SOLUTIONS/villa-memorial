@@ -445,6 +445,13 @@
       "title": "The office's per-plot lot prices match no 2026 price-list row",
       "detail": "The 2026 lot sheet prices lots by FAMILY, each with its own area — Mausoleum ₱1,073,000 @ 24 sqm, Garden Niches ₱567,000 @ 12 sqm, Prime Lots ₱128,000 @ 2.5 sqm, Premium Lots ₱114,000 @ 2.5 sqm, Condo-type ₱75,000 @ 2.5 sqm (LOT ONLY block) — and no sheet row is 3.5 sqm. The office's per-plot quotation (Lot A-001 at ₱85,000 for 3.5 sqm in the original demo records) has never been reconciled with the sheet. Since 2026-09-18 the demo lots carry their SECTION's family figure (lib/catalog-sources.ts, LOT_FAMILY_BY_SECTION) so no invented per-plot price is published — but the question itself stays open: do not price a specific plot from the sheet, and do not fold the office's plot prices into a family, until the client answers.",
       "source": "lib/fixtures/property/lots.json · PRICE LIST FOR 2026.pdf (LOT ONLY block)"
+    },
+    {
+      "id": "lot-monthly-vs-contract-price",
+      "scope": "lots",
+      "title": "A lot's monthly installment does not sum to its contract price over 72 months",
+      "detail": "The lot sheet's monthly column is not the contract price divided by 72. Prime Lots prints ₱1,920/month while the selling price is ₱128,000: ₱1,920 × 72 = ₱138,240, about 8% more, and every family shows the same gap, so the schedule appears to carry a financing cost. The cards lead with the monthly and also print the sheet's recorded contract price; the two therefore do not multiply out. The client must confirm whether the monthly plan's total IS the contract price (with an earlier payoff) or a financed figure, before the office quotes a monthly plan's total. Do not reconcile the sheet's own columns on your own.",
+      "source": "PRICE LIST FOR 2026.pdf (LOT ONLY block) · lib/fixtures/commerce/pricing.json · docs/08-delivery/phase5-design/README.md"
     }
   ]
 }

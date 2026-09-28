@@ -88,6 +88,10 @@ export function buildLotListing(
     // Lot record (the office quotes per plot), so `monthly` stays null and the
     // card keeps its honest "Price on request" state.
     const monthly = lot && family ? lotFamilyMonthlyPrice(lotCategories, family) : null;
+    const contractPriceCents = lot?.price_cents ?? null;
+    // The card leads with the monthly when the pricing store prices the section, so the
+    // filter/sort figure must be that monthly (in centavos) — not the contract total.
+    const leadPriceCents = monthly ? monthly.monthly * 100 : contractPriceCents;
     return {
       key: `${park.id}-${plot.code}`,
       code: plot.code,
@@ -96,7 +100,8 @@ export function buildLotListing(
       typeId: type.id,
       typeName: type.name,
       hasLot: lot !== null,
-      priceCents: lot?.price_cents ?? null,
+      leadPriceCents,
+      contractPriceCents,
       currency: lot?.currency ?? "PHP",
       parkId: park.id,
       parkBranch: park.branch,

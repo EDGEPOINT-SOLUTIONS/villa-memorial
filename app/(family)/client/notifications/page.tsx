@@ -20,7 +20,7 @@ import {
   WhatThisShows,
 } from "@/components/family/family-ui";
 
-export const metadata = { title: "What we tell you about — Villa Memorial" };
+export const metadata = { title: "What we tell you about — Villa Funeraria" };
 
 /**
  * Notifications — the in-system surface for what the office tells the family.

@@ -170,7 +170,7 @@ describe("an absent or unpublished memorial (/memorials/[id])", () => {
   it("marks the head noindex and never writes a name into it", async () => {
     const meta = await memorialMetadata({ params: Promise.resolve({ id: "who-knows" }) });
     expect((meta.robots as { index?: boolean })?.index).toBe(false);
-    expect(meta.title).toBe("Memorial — Villa Memorial");
+    expect(meta.title).toBe("Memorial — Villa Funeraria");
     expect(String(meta.title)).not.toContain("who-knows");
   });
 });

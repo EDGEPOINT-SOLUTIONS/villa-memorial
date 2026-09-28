@@ -8,7 +8,7 @@ import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Contact us — Villa Memorial",
+  title: "Contact us — Villa Funeraria",
   description:
     "Reach Villa Memorial Park day or night — the 24/7 assistance line, the park office, and a message a coordinator answers.",
   path: "/contact",

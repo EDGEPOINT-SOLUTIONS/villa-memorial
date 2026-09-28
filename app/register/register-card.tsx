@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { BRAND_NAME } from "@/lib/brand";
 
 type FieldErrors = {
   first_name?: string;
@@ -54,7 +55,7 @@ export function RegisterCard() {
   return (
     <div className="signin-card">
       <div className="signin-card__head">
-        <p className="signin-card__eyebrow">Villa Memorial · Family</p>
+        <p className="signin-card__eyebrow">{BRAND_NAME} · Family</p>
         <h1 className="signin-card__title">Create your account</h1>
         <p className="signin-card__blurb">
           One account keeps your family&rsquo;s arrangement, papers and updates in one place.

@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: CasketDetailParams): Promise<
   if (!model) {
     // Unknown SKU: the route 404s; canonicalise the head to the catalogue.
     return pageMetadata({
-      title: "Coffins & caskets — Villa Memorial",
+      title: "Coffins & caskets — Villa Funeraria",
       description:
         "The client's full 2026 casket catalogue at published prices — SRP, senior-citizen price and the inclusions per family.",
       path: "/products",
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: CasketDetailParams): Promise<
   }
   const sample = casketSamplePhoto(model);
   return pageMetadata({
-    title: `${model.model} casket — 2026 price — Villa Memorial`,
+    title: `${model.model} casket — 2026 price — Villa Funeraria`,
     description: `${model.model} (${model.collection}) — the client's 2026 SRP of ${php(model.srp)} and the senior-citizen price of ${php(model.seniorPrice)}, with the inclusions this model carries.`,
     // Canonicalise every case/spelling variant to the sheet's own SKU URL.
     path: `/products/${coffinSku(model.model)}`,

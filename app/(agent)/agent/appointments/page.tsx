@@ -4,7 +4,7 @@ import { listAgentAppointments } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
-export const metadata = { title: "Appointments & tasks — Villa Memorial agent portal" };
+export const metadata = { title: "Appointments & tasks — Villa Funeraria agent portal" };
 
 /**
  * Appointments & tasks (approved design page 07). The agent's day on one page:

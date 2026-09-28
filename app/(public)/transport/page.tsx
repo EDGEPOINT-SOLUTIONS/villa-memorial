@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const view = await loadServiceGuideView("transport");
   return pageMetadata({
-    title: `${view?.title ?? "Transport"} — Villa Memorial`,
+    title: `${view?.title ?? "Transport"} — Villa Funeraria`,
     description:
       view?.summary ??
       "Dignified transport coordinated by our team — retrieval and delivery within the first 25 km of every Villa Memorial Plan.",

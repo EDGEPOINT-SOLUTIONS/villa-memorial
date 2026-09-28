@@ -1,7 +1,9 @@
 # CONTINUATION — Villa Memorial (transfer to another laptop)
 
 **Written:** 2026-09-27. **Repo:** `villa-memorial` (Next.js 15 App Router, fixtures-first).
-**Nothing is committed.** The whole session lives in the working tree — copy the folder, not a git clone.
+**Committed 2026-09-28.** Phases 1–3 are merged to `main` as PR #139 (`757b253`); the tree is
+clean, so a plain `git clone` / `git pull` gets everything. This note is kept as the session
+record — Phases 4–7 below are still open.
 
 ---
 
@@ -35,7 +37,11 @@ make sense. Evidence over assumption: no claim without a file or a measurement.*
 Verdicts: #1 PARTIAL · #2 PARTIAL · #3 DONE (exact ask) · #4 WORKING w/ 3 defects · #5 PARTIAL
 (**a family's quote never reached the office**) · #6 PARTIAL · #7 PARTIAL · #8 WORKING.
 
-Then a 7-phase plan was agreed. **Phases 1–3 are DONE and proven. Phases 4–7 remain.**
+Then a 7-phase plan was agreed. **Phases 1–5 are DONE and proven** (4 and 5 on 2026-09-28, records
+under `docs/08-delivery/phase{1,2,3,4,5}-design/`). **Phase 6** shipped the brand constant, recorded the payment-notice decision, and built the
+**burial / light-pickup write path** (record a burial; move each pickup `scheduled → in_progress →
+done`). **Phase 7** fixed the stale copy **and** migrated the eleven older stores to the shared journal.
+All seven phases are now done.
 
 ---
 
@@ -89,12 +95,12 @@ senior**, the old ones gone; revert restores.
 
 ---
 
-## 3 · TODO — Phases 4–7
+## 3 · TODO — Phases 4–7 (4 and 5 now DONE — see `docs/08-delivery/phase4-design/` and `phase5-design/`)
 
 Order is by business cost. Each phase: measured before/after, full gate green, its own
 `docs/08-delivery/phaseN-design/README.md`.
 
-### Phase 4 — one meaning for "overdue"
+### Phase 4 — one meaning for "overdue" · DONE 2026-09-28 (`docs/08-delivery/phase4-design/`)
 The dashboard reads **"Overdue accounts 2"** (status-based, `lib/api-client/reporting.ts:167`) beside
 **"6 overdue"** (date-derived, `lib/payment-alerts.ts:96-97`) — two definitions of the same word on one
 screen, and `tests/fixture-contract/reporting.test.ts:55-57` pins only one, so it can never catch it.
@@ -107,7 +113,7 @@ screen, and `tests/fixture-contract/reporting.test.ts:55-57` pins only one, so i
    `NO_PAYMENT_ALERTS` / `PAYMENT_ALERT_STATES` have no app consumer; `nextPaymentDue()`
    (`lib/payment-schedule.ts:175`) has no page consumer.
 
-### Phase 5 — a lot's monthly must reconcile with its own total
+### Phase 5 — a lot's monthly must reconcile with its own total · DONE 2026-09-28 (`docs/08-delivery/phase5-design/` — note the proposed `annual = monthly × 12` was found arithmetically impossible; the true invariant + an open client question were implemented instead)
 Prime Lots: monthly **₱1,920** · annual ₱21,333 · selling **₱128,000** — but 1,920 × 72 = **₱138,240**.
 The card prints all three **side by side** (`components/villa/monthly-price.tsx:29-40`).
 Cause: `checkLotCategories` (`lib/pricing-model.ts:379-398`) validates senior ≤ regular, whole pesos and
@@ -118,8 +124,10 @@ Cause: `checkLotCategories` (`lib/pricing-model.ts:379-398`) validates senior �
    while the card headlines the **monthly** (`:328-336`) — "price: low to high" orders a figure nobody
    sees. Make them agree.
 
-### Phase 6 — the genuinely unfinished minute items
-1. **Burial + light-pickup write path.** Minute #2 says "record and manage". A real month grid exists
+### Phase 6 — the genuinely unfinished minute items (DONE 2026-09-28, `docs/08-delivery/phase6-design/`; burial edit/delete still open)
+1. **Burial + light-pickup write path — DONE 2026-09-28** (`lib/api-client/burials-store.ts`,
+   `lib/burial-admin.ts`, `app/api/schedule/burials/**`, `app/(staff)/staff/schedule/burial-admin.tsx`).
+   Editing/removing a recorded burial is the remaining piece. Minute #2 says "record and manage". A real month grid exists
    (`app/(staff)/staff/schedule/burial-calendar.tsx`), and `light_pickup` is a typed nested field on the
    burial (`lib/burial-calendar.ts:65-86`) — but there is **no write path at all** (no burials route),
    and the pickup's `scheduled → in_progress → done` state has **no transition surface**. Prep staff also
@@ -134,10 +142,12 @@ Cause: `checkLotCategories` (`lib/pricing-model.ts:379-398`) validates senior �
    **No test pins the header wordmark** (`tests/fixture-contract/landing.test.ts:41` only asserts
    non-empty), so a regression slips through.
 
-### Phase 7 — dead weight
-1. **Migrate the 11 older stores to `lib/api-client/journal.ts`.** They each still carry their own ~65
-   lines of identical mechanics — that duplication is *where the Phase 2 `globalThis` mistake survived
-   unnoticed*.
+### Phase 7 — dead weight · DONE 2026-09-28 (`docs/08-delivery/phase7-design/` — stale copy fixed + all eleven stores migrated to `lib/api-client/journal.ts`)
+1. **Migrate the 11 older stores to `lib/api-client/journal.ts` — DONE 2026-09-28.** All eleven now
+   delegate to the shared mechanics (thin `readPersistedEvents`/`persistEvents`/`withStoreLock`
+   delegates; no call site changed). `tests/unit/journal-single-source.test.ts` fails a store that
+   re-grows its own `node:fs`/`writeQueue`/`JSON.parse(raw)` — that duplication was *where the Phase 2
+   `globalThis` mistake survived unnoticed*.
 2. Stale copy: `/staff/landing/page.tsx:90-91` claims the newest post "leads the home page's blog band"
    (that band was removed 2026-09-27); `/facilities` metadata + hero still promise "2026 per-day rates"
    it no longer prints; `docs/08-delivery/next-session-plan.md:133,171` marks the branding item "in
@@ -225,4 +235,4 @@ is already green.
 | `npm run build` / `smoke` | clean · **61 of 61 routes** |
 | Design audit | **interrupted — must re-run** |
 | `.data/` | cleaned (no store files) |
-| Git | everything uncommitted; the tree IS the work |
+| Git | merged to `main` — PR #139 (`757b253`), tree clean |

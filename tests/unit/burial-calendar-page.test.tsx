@@ -166,3 +166,27 @@ describe("the calendar's place and gates", () => {
     expect(html.match(/<h1/g) ?? []).toHaveLength(1);
   });
 });
+
+describe("the write surface follows the scope (client minutes item 2)", () => {
+  it("gives a scheduling:write session the record/manage controls", async () => {
+    signInAs(["scheduling:read", "scheduling:write"]);
+    const html = await render();
+
+    expect(html).toContain("Record a burial");
+    expect(html).toContain("Light pickups");
+    expect(html).toContain("Scheduled");
+    expect(html).toContain("In progress");
+    expect(html).toContain("Collected");
+    // The read-only note is gone for a writer.
+    expect(html).not.toContain("Read-only for this session");
+  });
+
+  it("keeps a read-only session's calendar read-only", async () => {
+    signInAs(["scheduling:read"]);
+    const html = await render();
+
+    expect(html).toContain("Read-only for this session");
+    expect(html).not.toContain("Record a burial");
+    expect(html).not.toContain("Light pickups");
+  });
+});

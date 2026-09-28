@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   QUOTE_INTERESTS,
   validateQuote,
@@ -318,7 +319,7 @@ export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null 
               aria-invalid={errors.consent ? true : undefined}
               aria-describedby={errors.consent ? "qr-consent-hint qr-consent-error" : "qr-consent-hint"}
             />
-            <span>I consent to Villa Memorial using these details to prepare my quote.</span>
+            <span>I consent to {BRAND_NAME} using these details to prepare my quote.</span>
           </label>
           <span className="field__hint" id="qr-consent-hint">
             Data Privacy Act consent — required before the office prepares your quote.

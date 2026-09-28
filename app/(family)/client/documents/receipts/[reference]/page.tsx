@@ -13,7 +13,7 @@ import { PaperSheet } from "@/components/paper/paper-sheet";
 import { PaperExportActions } from "@/components/paper/paper-export-actions";
 import { Answer, PrimaryAction, QuietLink, Section } from "@/components/family/family-ui";
 
-export const metadata = { title: "Your official receipt — Villa Memorial" };
+export const metadata = { title: "Your official receipt — Villa Funeraria" };
 
 /**
  * One official receipt as the family's own copy.

@@ -3,7 +3,7 @@ import { AgentHero, AgentSection, Chip, StageChip } from "@/components/agent/age
 import { listAgentApplications } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 
-export const metadata = { title: "Applications — Villa Memorial agent portal" };
+export const metadata = { title: "Applications — Villa Funeraria agent portal" };
 
 /** Chip tone per application stage — word plus tone, never colour alone. */
 const STAGE_TONE: Record<string, string> = {

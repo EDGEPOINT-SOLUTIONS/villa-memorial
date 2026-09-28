@@ -19,7 +19,7 @@ import { pageMetadata } from "@/lib/seo";
 import type { PageHero, PageTab } from "@/lib/content-catalog";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Villa Memorial Park — Villa Memorial",
+  title: "Villa Memorial Park — Villa Funeraria",
   description:
     "Walk the Villa Memorial Park map — sections, plots, availability and deep links to any plot, with the interactive 3D view of the grounds.",
   path: "/map",

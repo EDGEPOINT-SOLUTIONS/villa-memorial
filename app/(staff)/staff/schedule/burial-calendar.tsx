@@ -20,6 +20,7 @@ import {
   type BurialEntry,
   type BurialSchedule,
 } from "@/lib/burial-calendar";
+import { BurialAdmin } from "./burial-admin";
 
 export type BurialCalendarView = "month" | "week";
 
@@ -45,6 +46,7 @@ export function BurialCalendar({
   today,
   caseHrefs,
   hrefFor,
+  canWrite = false,
 }: {
   board: BurialSchedule;
   view: BurialCalendarView;
@@ -52,6 +54,8 @@ export function BurialCalendar({
   today: string;
   caseHrefs: Map<string, string>;
   hrefFor: BurialHrefFor;
+  /** A `scheduling:write` session gets the record/manage controls (item 2's missing verb). */
+  canWrite?: boolean;
 }) {
   const conflicts = burialConflicts(board.burials);
   const conflicted = conflictedBurialIds(conflicts);
@@ -126,8 +130,10 @@ export function BurialCalendar({
       <div className="card__body stack-4">
         <p className="text-sm text-muted mb-0">
           {board.burials.length} burial{board.burials.length === 1 ? "" : "s"} recorded ·{" "}
-          {withPickup} with a light pickup. Read-only — no burial service is connected, so this
-          calendar records the office&rsquo;s sheet.
+          {withPickup} with a light pickup.{" "}
+          {canWrite
+            ? "Recorded here — a burial and its light pickup are the office's to add and move."
+            : "Read-only for this session — records need the scheduling:write permission."}
         </p>
 
         {/* What the recorded times collide on: a shared burial slot, a crew set for
@@ -290,6 +296,10 @@ export function BurialCalendar({
             </ul>
           )}
         </div>
+
+        {/* The missing verb (client minutes item 2): record a burial and move its light
+            pickup through scheduled → in_progress → done. Write scope only. */}
+        {canWrite ? <BurialAdmin burials={board.burials} defaultDate={anchor} /> : null}
       </div>
     </div>
   );

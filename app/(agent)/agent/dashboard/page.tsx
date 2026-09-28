@@ -4,7 +4,7 @@ import { getAgentToday, listAgentAppointments, listAgentProspects } from "@/lib/
 import { nextActionItem, orderWorkItems, workState, manilaTime } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 
-export const metadata = { title: "Today — Villa Memorial agent portal" };
+export const metadata = { title: "Today — Villa Funeraria agent portal" };
 
 /** Quick-action icon per fixture key (lucide paths, inline — no icon font). */
 function quickIcon(key: string) {

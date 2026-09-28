@@ -7,7 +7,7 @@ import type { Metadata } from "next";
  * pass-through layout.
  */
 export const metadata: Metadata = {
-  title: "Checkout — Villa Memorial",
+  title: "Checkout — Villa Funeraria",
   robots: { index: false, follow: false },
 };
 

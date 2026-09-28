@@ -52,6 +52,7 @@ import {
 import { PortalSwitch } from "@/components/portal-switch";
 import { SkipLink } from "@/components/ui/skip-link";
 import { useModalFocus } from "@/components/ui/use-modal-focus";
+import { BRAND_NAME } from "@/lib/brand";
 import type { PortalNavGroup, PortalNavItem } from "@/components/portal-nav";
 
 const ICONS: Record<string, LucideIcon> = {
@@ -146,7 +147,7 @@ export function PortalFrame({
 
   const brand = (
     <>
-      <span className="portal-sidebar__brand">Villa Memorial</span>
+      <span className="portal-sidebar__brand">{BRAND_NAME}</span>
       <span className="portal-sidebar__brand-sub">{brandLabel}</span>
     </>
   );
@@ -266,7 +267,7 @@ export function PortalFrame({
       {menuOpen ? (
         <div className="portal-drawer" role="dialog" aria-modal="true" aria-label="Menu" ref={panelRef} tabIndex={-1}>
           <div className="portal-drawer__bar">
-            <span className="portal-sidebar__brand">Villa Memorial</span>
+            <span className="portal-sidebar__brand">{BRAND_NAME}</span>
             <button
               type="button"
               className="portal-topbar__icon"

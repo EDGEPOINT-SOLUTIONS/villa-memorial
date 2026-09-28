@@ -1,5 +1,5 @@
 /**
- * Villa Memorial — real 2026 public product & price content (as provided).
+ * Villa Funeraria — real 2026 public product & price content (as provided).
  * Display content only; storefront CHECKOUT continues to run on the frozen
  * commerce contract items (this data never drives cart math).
  *

@@ -39,6 +39,8 @@ const STORE_PATH_ENV_VARS = [
   // restart — the exact thing Phase 2 of the client-minutes work fixed.
   "LANDING_STORE_PATH",
   "CONTENT_PAGES_STORE_PATH",
+  // Added 2026-09-28 with the burial calendar's write path (client minutes item 2).
+  "BURIALS_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {

@@ -10,6 +10,7 @@ import { hasAnyScope } from "@/lib/rbac/nav";
 import { listInvoices, type Invoice } from "@/lib/api-client/finance";
 import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE } from "@/lib/api-client/billing-derive";
 import { outstandingCents } from "@/lib/billing-payments";
+import { invoiceOverdue } from "@/lib/payment-alerts";
 import { formatMinorUnits } from "@/lib/money";
 
 export const metadata = { title: "Billing & collections — Admin Portal" };
@@ -43,9 +44,10 @@ export default async function BillingPage({
     );
   }
 
+  const now = new Date();
   let invoices;
   try {
-    invoices = await listInvoices();
+    invoices = await listInvoices(now);
   } catch {
     return (
       <>
@@ -65,7 +67,12 @@ export default async function BillingPage({
   const canRecordPayments = hasAnyScope(session.scopes, ["billing:write"]);
 
   let filtered = invoices;
-  if (statusFilter) {
+  if (statusFilter === "overdue") {
+    // "Overdue" means the one thing everywhere on this screen: still owed, past its due
+    // date. The stored status leaves a part-paid invoice `partial`, so filtering on the
+    // status would hide late part-payments the dashboard counts (2026-09-21 review).
+    filtered = filtered.filter((i) => invoiceOverdue(i, now));
+  } else if (statusFilter) {
     filtered = filtered.filter((i) => i.status === statusFilter);
   }
 
@@ -97,7 +104,7 @@ export default async function BillingPage({
 
   const currencies = Object.keys(outstandingByCurrency).sort();
 
-  const overdueCount = invoices.filter((i) => i.status === "overdue").length;
+  const overdueCount = invoices.filter((i) => invoiceOverdue(i, now)).length;
 
   return (
     <>
@@ -134,7 +141,7 @@ export default async function BillingPage({
         <StatCard
           label="Overdue accounts"
           value={overdueCount}
-          sub="need attention"
+          sub="past their due date"
           href="/staff/billing?status=overdue"
         />
         {currencies.length > 0 ? (
@@ -236,17 +243,15 @@ export default async function BillingPage({
                 {filtered.map((inv) => (
                   <tr key={inv.id}>
                     <td>
-                      {canRecordPayments ? (
-                        <Link
-                          href={`/staff/billing/record-payment?invoice=${encodeURIComponent(inv.invoice_number)}`}
-                          title={`Record a payment against ${inv.invoice_number}`}
-                          aria-label={`Record a payment against ${inv.invoice_number}`}
-                        >
-                          <code>{inv.invoice_number}</code>
-                        </Link>
-                      ) : (
+                      {/* The invoice opens read-only, so a reader without billing:write can
+                          still see the payment; recording is an action on that screen. */}
+                      <Link
+                        href={`/staff/billing/invoices/${encodeURIComponent(inv.invoice_number)}`}
+                        title={`Open ${inv.invoice_number}`}
+                        aria-label={`Open invoice ${inv.invoice_number}`}
+                      >
                         <code>{inv.invoice_number}</code>
-                      )}
+                      </Link>
                     </td>
                     <td>{inv.customer_name}</td>
                     <td className="text-sm">{inv.order_number ?? "—"}</td>

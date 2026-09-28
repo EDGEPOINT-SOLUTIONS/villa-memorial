@@ -41,8 +41,12 @@
  *   `validatePaymentInput` the form and the BFF route run, re-read against the CURRENT
  *   invoice inside the lock (never against the copy the caller held).
  */
-import { promises as fs } from "node:fs";
-import path from "node:path";
+import {
+  createJournalLock,
+  journalPath,
+  readJournalEvents,
+  writeJournalEvents,
+} from "@/lib/api-client/journal";
 import { ApiError } from "@/lib/api-client/api-error";
 import invoicesFile from "@/lib/fixtures/finance/invoices.json";
 import documentsFile from "@/lib/fixtures/documents/documents.json";
@@ -67,13 +71,8 @@ const APP_DOCUMENT_ID_BAND = 900_000_000_000;
 
 type PersistedEvent = { kind: "payment_recorded"; at: string; payment: RecordedPayment };
 
-type PersistedStore = { version: 1; events: PersistedEvent[] };
-
 export function billingStorePath(): string {
-  const configured = process.env.PAYMENTS_STORE_PATH?.trim();
-  return configured && configured.length > 0
-    ? configured
-    : path.join(process.cwd(), ".data", "finance-payments.json");
+  return journalPath("PAYMENTS_STORE_PATH", "finance-payments.json");
 }
 
 /* ------------------------------ readers --------------------------------- */
@@ -172,65 +171,15 @@ function toPersistedEvent(raw: unknown): PersistedEvent {
 }
 
 async function readPersistedEvents(): Promise<PersistedEvent[]> {
-  let raw: string;
-  try {
-    raw = await fs.readFile(billingStorePath(), "utf8");
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw new ApiError("the payment store could not be read", 500);
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw new ApiError("the payment store file is not valid JSON", 500);
-  }
-  if (typeof parsed !== "object" || parsed === null) {
-    throw new ApiError("the payment store file has an unexpected shape", 500);
-  }
-  const p = parsed as Record<string, unknown>;
-  if (p.version !== 1 || !Array.isArray(p.events)) {
-    throw new ApiError("the payment store file has an unexpected shape", 500);
-  }
-  return p.events.map(toPersistedEvent);
+  const events = await readJournalEvents(billingStorePath(), "payment");
+  return events.map(toPersistedEvent);
 }
 
-async function persistEvents(events: PersistedEvent[]): Promise<void> {
-  const store = billingStorePath();
-  await fs.mkdir(path.dirname(store), { recursive: true }).catch(() => {
-    throw new ApiError("the payment store directory could not be created", 500);
-  });
-  const temp = `${store}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
-  const payload =
-    JSON.stringify({ version: 1, events } satisfies PersistedStore, null, 2) + "\n";
-  try {
-    const handle = await fs.open(temp, "w");
-    try {
-      await handle.writeFile(payload, "utf8");
-      // Flush before the rename so a crash cannot leave the renamed file empty.
-      await handle.sync();
-    } finally {
-      await handle.close();
-    }
-    await fs.rename(temp, store);
-  } catch {
-    await fs.rm(temp, { force: true }).catch(() => undefined);
-    throw new ApiError("the payment store could not be written", 500);
-  }
+function persistEvents(events: PersistedEvent[]): Promise<void> {
+  return writeJournalEvents(billingStorePath(), "payment", events);
 }
 
-// One in-process writer: every mutation chains onto the previous one, so a read-modify-write
-// cycle is never interleaved by another request in this server process.
-let writeQueue: Promise<unknown> = Promise.resolve();
-
-function withStoreLock<T>(task: () => Promise<T>): Promise<T> {
-  const run = writeQueue.then(task, task);
-  writeQueue = run.then(
-    () => undefined,
-    () => undefined,
-  );
-  return run;
-}
+const withStoreLock = createJournalLock();
 
 /* ------------------------------ store API ------------------------------- */
 

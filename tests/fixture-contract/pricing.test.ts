@@ -79,10 +79,11 @@ describe("the pricing seed records the client's 2026 sheets", () => {
 describe("the open client questions stay visible and outside the editable document", () => {
   const questions = readPricingQuestions(RAW.questions);
 
-  it("carries both flagged conflicts with their screens and sources", () => {
+  it("carries the flagged conflicts with their screens and sources", () => {
     expect(questions.map((q) => q.id)).toEqual([
       "senior-rate-sheet-conflict",
       "lot-a001-fixture-vs-sheet",
+      "lot-monthly-vs-contract-price",
     ]);
     expect(questions.find((q) => q.id === "senior-rate-sheet-conflict")!.scope).toBe("plans");
     expect(questions.find((q) => q.id === "senior-rate-sheet-conflict")!.detail).toMatch(
@@ -91,6 +92,11 @@ describe("the open client questions stay visible and outside the editable docume
     expect(questions.find((q) => q.id === "lot-a001-fixture-vs-sheet")!.scope).toBe("lots");
     expect(questions.find((q) => q.id === "lot-a001-fixture-vs-sheet")!.detail).toMatch(/A-001/);
     expect(questions.find((q) => q.id === "lot-a001-fixture-vs-sheet")!.detail).toMatch(/₱85,000/);
+    // The lot sheet's monthly does not sum to its contract price over 72 months (Phase 5).
+    expect(questions.find((q) => q.id === "lot-monthly-vs-contract-price")!.scope).toBe("lots");
+    expect(questions.find((q) => q.id === "lot-monthly-vs-contract-price")!.detail).toMatch(
+      /₱1,920/,
+    );
   });
 
   it("is not part of the stored document shape (a save can never drop one)", () => {

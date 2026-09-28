@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
+import { BRAND_NAME } from "@/lib/brand";
 import {
   validateContact,
   type ContactValues,
@@ -274,7 +275,7 @@ export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | nul
               aria-invalid={errors.consent ? true : undefined}
               aria-describedby={errors.consent ? "ct-consent-hint ct-consent-error" : "ct-consent-hint"}
             />
-            <span>I consent to Villa Memorial storing these details to answer my enquiry.</span>
+            <span>I consent to {BRAND_NAME} storing these details to answer my enquiry.</span>
           </label>
           <span className="field__hint" id="ct-consent-hint">
             Data Privacy Act consent — required before an enquiry is stored.

@@ -5,7 +5,7 @@ import { familyPapers } from "@/lib/family/family-documents";
 import { PlannedAnswer, Rows, Section } from "@/components/family/family-ui";
 import { OwnedPaperRow } from "@/components/family/family-papers";
 
-export const metadata = { title: "The funeral — Villa Memorial" };
+export const metadata = { title: "The funeral — Villa Funeraria" };
 
 /**
  * The funeral — the approved redesign (docs/08-delivery/family-portal-design,

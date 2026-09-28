@@ -2,7 +2,7 @@ import { AgentHero, AgentSection, Chip } from "@/components/agent/agent-ui";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { LeadCaptureForm } from "./lead-capture-form";
 
-export const metadata = { title: "New lead — Villa Memorial agent portal" };
+export const metadata = { title: "New lead — Villa Funeraria agent portal" };
 
 /**
  * New lead — capture in the field (approved design page 12). The form is a real

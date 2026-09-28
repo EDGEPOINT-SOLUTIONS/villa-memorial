@@ -10,7 +10,7 @@ import { PublicHero } from "@/components/public/public-hero";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Smart Service Builder — Villa Memorial",
+  title: "Smart Service Builder — Villa Funeraria",
   description:
     "Build a funeral arrangement step by step — casket, preparation, chapel and extras — and see the running total from the client's published 2026 prices. An estimate the office confirms, never a quotation.",
   path: "/builder",
