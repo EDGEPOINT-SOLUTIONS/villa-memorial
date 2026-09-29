@@ -116,7 +116,11 @@ describe("public pages read the saved plan rates", () => {
     expect(html).toContain("₱6,660");
     expect(html).toContain("₱130,000");
     expect(html).toContain("₱21,667");
-    expect(html).not.toContain("₱128,000");
+    // The stale lot value is gone from the LOT band. The page now also carries
+    // the 24-model coffin index, where ₱128,000 is a legitimate senior casket
+    // price, so the negative is scoped to the lot band.
+    const lots = html.slice(html.indexOf('id="lots"'), html.indexOf('id="coffins"'));
+    expect(lots).not.toContain("₱128,000");
   });
 
   it("/price-list prints the edited senior cell only", async () => {

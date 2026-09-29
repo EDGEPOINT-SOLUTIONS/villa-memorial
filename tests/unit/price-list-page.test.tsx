@@ -47,7 +47,9 @@ describe("the consolidated Price list page", () => {
   it("renders exactly one h1 and names the page Price list", async () => {
     const html = await renderPage();
     expect((html.match(/<h1\b/g) ?? []).length).toBe(1);
-    expect(html).toContain(">Price list</h1>");
+    // The redesign's opening is the home gateway, so the h1 is the page's
+    // headline (the route's own name stays in the metadata/title).
+    expect(html).toContain(">Every published 2026 amount</h1>");
   });
 
   it("carries all four consolidated surfaces on one page", async () => {
@@ -56,7 +58,7 @@ describe("the consolidated Price list page", () => {
     expect(html).toContain("Compare the packages");
     // 2 · the products & price list view
     expect(html).toContain("Coffin options");
-    expect(html).toContain("Price list 2026 — lots &amp; mausoleum");
+    expect(html).toContain("Lots &amp; mausoleum");
     // 3 · the senior-citizen plan
     expect(html).toContain("Senior citizen plan");
     // 4 · the 2026 plan payment tables

@@ -157,16 +157,18 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "price list (/price-list)",
     render: async () =>
       renderToStaticMarkup(withBaskets( await PriceListPage())),
-    // Hero, then the four disclosed bands in the blueprint's order.
+    // The rebuilt price index: the shared interior gateway, then the five
+    // figure-led bands in order (plans · lots · coffins · package · branches),
+    // each long table behind the shared disclosure.
     sections: [
       'data-public-hero="interior"',
-      'id="packages"',
+      'id="plans"',
+      'id="lots"',
       'id="coffins"',
-      'id="senior"',
-      'id="vmp"',
-      'id="prices"',
+      'id="package"',
+      'id="branches"',
     ],
-    requires: ["data-section-head", "data-public-disclosure"],
+    requires: ["data-public-disclosure"],
   },
   {
     name: "builder (/builder)",

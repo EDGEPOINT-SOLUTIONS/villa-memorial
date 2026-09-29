@@ -22950,3 +22950,446 @@ a.plan-advisor__phone:hover {
     border-bottom-color: var(--gold-500);
   }
 }
+/* ==========================================================================
+ * public: price-index block (/price-list — `villa-price-list-redesign-plan`)
+ *
+ * Appended by the /price-list rebuild (captain approved the board 2026-09-30;
+ * "implement this also"). It owns ONLY the declarations this page needs and
+ * never edits the Phase 0 grammar block or another lane's block. Every value
+ * consumes a contract token (`lib/public-layout.ts` / `styles/tokens.css`).
+ *
+ * THE STICKY INDEX RAIL is required behaviour (captain's board round 1). It
+ * rides `ListingShell`'s `.listing-rail`, which is already `position: sticky`
+ * under the public header at >=64rem; the rules here give its rows their live
+ * from-figures and the active state. Nothing re-declares the rail's position.
+ * ========================================================================== */
+
+/* The gateway opt-out — the same shape the /plans listing uses, scoped to THIS
+   page (.price-index-page matches /price-list only). Plain paper, centred, no
+   border: the home gateway, not the Phase 0 boxed band. */
+.plan-flow.price-index-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.plan-flow.price-index-page .public-hero--interior::before {
+  content: none;
+}
+
+.plan-flow.price-index-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.plan-flow.price-index-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.plan-flow.price-index-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+  text-align: center;
+}
+
+/* The gateway headline at the page-title step: light display weight, balanced. */
+.plan-flow.price-index-page .public-hero--interior .public-hero__title {
+  max-width: 24ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.plan-flow.price-index-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+  font-size: var(--text-lg);
+  text-align: center;
+}
+
+.plan-flow.price-index-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* --- the gateway's facts + provenance ------------------------------------- */
+.price-index__facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4) var(--space-6);
+  margin: var(--space-6) auto 0;
+  padding: var(--space-5) 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+}
+
+.price-index__facts li {
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.price-index__facts b {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  line-height: 1.1;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-index__provenance {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.price-index__provenance p {
+  margin: 0;
+}
+
+/* Right-size the two underwriting marks (the base rule keeps them at 2.6rem,
+   the size the phone guard pins; this page prints provenance, so they read). */
+.price-index-page .logo-row img {
+  height: 5.5rem;
+  width: auto;
+  object-fit: contain;
+}
+
+/* --- the bands ------------------------------------------------------------- */
+.price-index__band {
+  display: grid;
+  gap: var(--space-4);
+  padding-block: clamp(var(--space-6), 4vw, var(--space-7));
+  border-bottom: 1px solid var(--color-border);
+}
+
+.price-index__band:last-child {
+  border-bottom: 0;
+}
+
+.price-index__subhead {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  color: var(--color-text-primary);
+}
+
+.price-index__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.price-index__source {
+  margin: 0;
+  font-size: var(--text-micro);
+  color: var(--color-text-muted);
+}
+
+.price-index__band-action {
+  margin: 0;
+}
+
+.price-index__footer {
+  margin-top: var(--space-4);
+}
+
+/* --- the band's headline “from” figure ------------------------------------- */
+.price-index__from {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3) var(--space-7);
+  text-align: center;
+}
+
+.price-index__from-figure {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.price-index__from-label {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.price-index__from-value {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-3xl);
+  line-height: 1.05;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- the three published packages ------------------------------------------ */
+.price-index__packages {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--paper-50);
+}
+
+.price-index__packages-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.price-index__packages ul {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.price-index__packages li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 2px var(--space-3);
+  align-items: baseline;
+}
+
+.price-index__packages li b {
+  font-variant-numeric: tabular-nums;
+}
+
+.price-index__packages li span {
+  grid-column: 1 / -1;
+}
+
+/* --- coffins: one sample per collection + the 24-model index ---------------- */
+.price-index__collections {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.price-index__collection {
+  display: grid;
+  gap: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--paper-0);
+}
+
+.price-index__collection-photo {
+  display: block;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--paper-100);
+}
+
+.price-index__collection-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.price-index__collection-name {
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.price-index__collection-meta {
+  padding: 0 var(--space-3);
+  font-size: var(--text-micro);
+  color: var(--color-text-muted);
+}
+
+.price-index__collection-from {
+  padding: 0 var(--space-3) var(--space-3);
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.price-index__models {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.price-index__model-table {
+  width: 100%;
+  min-width: 0;
+}
+
+.price-index__model-table caption {
+  padding-bottom: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  text-align: left;
+  color: var(--color-text-primary);
+}
+
+/* --- the complete package --------------------------------------------------- */
+.price-index__package {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.price-index__ledger {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.price-index__ledger-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--text-xl);
+  color: var(--color-text-primary);
+}
+
+/* --- the sticky index rail's rows ------------------------------------------ */
+.price-index__link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.price-index__link[aria-current="true"] {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+  box-shadow: inset 2px 0 0 var(--sky-700);
+}
+
+.price-index__link-label {
+  min-width: 0;
+}
+
+.price-index__link-figure {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.price-index__print {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.price-index__print .btn {
+  width: 100%;
+}
+
+/* --- print: the page's second form ----------------------------------------- */
+/* The global print rule hides `body *` and reveals only the paper layer, so
+   this page prints blank without its own opt-in. This block reveals the page,
+   hides its chrome, and repeats table headers. The disclosures' bodies render
+   once the Print action has opened every <details> (CSS cannot open one). */
+.price-index__print-note {
+  display: none;
+}
+
+@media print {
+  .price-index-page,
+  .price-index-page * {
+    visibility: visible;
+  }
+
+  .price-index__print-note {
+    display: block;
+    margin: 0 0 var(--space-3);
+    color: #000;
+  }
+
+  .price-index-page .listing-rail,
+  .price-index-page .listing-sheet,
+  .price-index-page .price-index__print,
+  .price-index-page .public-hero__actions {
+    display: none;
+  }
+
+  .price-index-page .public-disclosure__summary {
+    display: none;
+  }
+
+  .price-index-page {
+    max-width: none;
+    margin: 0;
+  }
+
+  .price-index-page .listing-results {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .price-index-page .price-index__band {
+    border-bottom: 1px solid var(--color-rule-strong);
+    padding-block: var(--space-4);
+  }
+
+  .price-index-page thead {
+    display: table-header-group;
+  }
+
+  .price-index-page tr {
+    break-inside: avoid;
+  }
+
+  .price-index-page a {
+    color: #000;
+    text-decoration: none;
+  }
+}
+
+/* --- phone ------------------------------------------------------------------ */
+@media (max-width: 48rem) {
+  .price-index__collections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .price-index__models {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .price-index__package {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .price-index__from-value {
+    font-size: var(--text-2xl);
+  }
+
+  .price-index-page .logo-row img {
+    height: 4rem;
+  }
+}
