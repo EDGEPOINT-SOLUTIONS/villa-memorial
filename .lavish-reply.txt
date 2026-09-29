@@ -1,0 +1,5 @@
+Implemented. The approved builder composition is on branch fm/villa-builder-redesign-plan (local-only), rebased as a clean fast-forward onto local main 7c0d08f.
+
+Shipped: the home-gateway opening (scoped opt-out of the shared boxed band) with the three-fact trust row; the designed band head; the five questions as numbered steps in the home's option-row language (labels left, every figure hard right); the client's own casket sample photograph and the two chapel-room photographs; the sheet conditions, the office-arranged items and the plan's fine print behind native disclosures; the plan as its own instalment band; and one sticky "Your arrangement" sheet, capped to its sticky room, moved above the questions and folded on a phone, replacing the six per-step "So far ..." repeats. Every section title is TeX Gyre Bonum, 35.2px, weight 500, normal style, letter-spacing -0.01em.
+
+Gates on the branch head: lint clean, tsc clean, all 2,760 tests pass, and `next build` succeeds.

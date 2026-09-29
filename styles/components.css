@@ -17460,7 +17460,7 @@ a.card:hover {
 .sb-estimate__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--text-3xl);
+  font-size: var(--text-page-title);
   font-weight: 500;
   font-style: normal;
   letter-spacing: -0.01em;
@@ -18026,6 +18026,30 @@ a.card:hover {
 .sb-arranged__text {
   margin: 0;
   font-size: var(--text-lg);
+}
+
+/* --- ≤48rem: the trust row compacts so the sticky total reaches the first
+   screen. The supporting lines stay in the DOM (hidden, never dropped). ----- */
+@media (max-width: 48rem) {
+  .sb-page .plan-orient {
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+  }
+
+  .sb-page .plan-orient__icon {
+    grid-row: auto;
+  }
+
+  .sb-page .plan-orient__text {
+    display: none;
+  }
+
+  /* Tighten the band opening so the sticky total clears the shared phone bar. */
+  .sb-page .sb-band {
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
 }
 
 /* --- desktop: the sheet caps to its sticky room --------------------------- */
