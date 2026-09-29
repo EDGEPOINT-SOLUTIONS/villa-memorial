@@ -69,11 +69,13 @@ const CHAPEL_ROOMS: Readonly<
 > = {
   common: {
     photo: clientPhotoWide("chapel-hall-candle-pedestals"),
-    alt: "The chapel hall in the client's own photograph — a draped side table, tall candle pedestals on a green carpet, the hall's platform behind",
+    // The room card's radio is named by its visible text, so the photograph
+    // inside the label is decorative (alt="") — not a second, louder name.
+    alt: "",
   },
   private: {
     photo: clientPhotoWide("wake-setup-lamp-alcove"),
-    alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
+    alt: "",
   },
 };
 

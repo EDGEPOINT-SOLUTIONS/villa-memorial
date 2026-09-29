@@ -174,3 +174,48 @@ describe("the builder's honest states", () => {
     assertNoParagraphNesting(await renderBuilder(), "/builder");
   });
 });
+
+describe("the builder wears the home's composition (2026-09-30)", () => {
+  it("opens on the home gateway with the three trust facts", async () => {
+    const html = await renderBuilder();
+    expect(html).toContain('class="plan-orient"');
+    expect(html).toContain("24 casket models");
+    expect(html).toContain("Preparation, 3–9 days");
+    expect(html).toContain("An estimate, not a quotation");
+  });
+
+  it("heads the workbench and promotes every step under it (no skipped level)", async () => {
+    const html = await renderBuilder();
+    expect(html).toContain('class="sb-band"');
+    expect(html).toContain("Build it, question by question");
+    // h1 (hero) → h2 (band head + the sheet) → h3 (the five steps + the plan).
+    expect(html.match(/<h2\b/g)?.length ?? 0).toBeGreaterThanOrEqual(2);
+    expect(html.match(/<h3\b/g)?.length ?? 0).toBeGreaterThanOrEqual(6);
+    // The six per-step "So far …" repeats are gone.
+    expect(html).not.toContain("So far");
+    expect(html).not.toContain("sb-step__sofar");
+  });
+
+  it("pictures the two chapel rooms in the client's own photographs", async () => {
+    const html = await renderBuilder();
+    expect(html).toContain("chapel-hall-candle-pedestals-wide-960.webp");
+    expect(html).toContain("wake-setup-lamp-alcove-wide-960.webp");
+    // Both rooms keep the sheet's stay total beside the per-day caption.
+    expect(html).toContain("3 days — ₱4,500.00");
+  });
+
+  it("keeps the sheet conditions reachable behind a native disclosure", async () => {
+    const html = await renderBuilder();
+    expect(html).toContain("public-disclosure");
+    // The words stay in the DOM (the disclosure hides, never drops).
+    expect(html).toContain("chapel use only");
+    expect(html).toContain("miscellaneous fee");
+  });
+
+  it("makes the plan its own instalment band, not a numbered sixth step", async () => {
+    const html = await renderBuilder();
+    expect(html).toContain('class="sb-plan"');
+    expect(html).not.toContain(">06<");
+    expect(html).toContain("not counted in the total");
+  });
+});
