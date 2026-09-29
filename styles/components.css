@@ -22406,3 +22406,127 @@ a.plan-advisor__phone:hover {
     gap: var(--space-3) var(--space-5);
   }
 }
+
+/* ============================================================================
+   public: products block — the /products four-column catalogue (captain 2026-09-30)
+
+   The casket catalogue at /products was reworked to the home's grammar on the
+   captain's review of the page plan (`data/villa-products-redesign-plan`):
+
+     · the folio envelope (the page no longer pinches itself to the 960px
+       catalogue envelope) so the railed results column fits FOUR columns;
+     · the four-column card grid at ≥64rem, each picture shown whole
+       (`object-fit: contain` on the card's own 4:3 ratio — never cropped);
+     · the opening unboxed to the home's plain gateway (the same opt-out the
+       /services and /plans lanes make);
+     · every section title in the display serif at 35.2px / weight 500, the
+       captain's rule for every interior page.
+
+   Owned by this block. Other public lanes append their own named block and do
+   not edit this one. `tests/unit/products-listing.test.tsx` and
+   `tests/unit/public-page-budget.test.tsx` pin the shape.
+   ========================================================================== */
+
+/* --- the opening: the home's gateway, not the shared boxed band ----------- */
+.catalogue-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.catalogue-page .public-hero--interior::before {
+  content: none;
+}
+
+.catalogue-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.catalogue-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.catalogue-page .public-hero--interior .public-hero__title {
+  max-width: 22ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.catalogue-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.catalogue-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+.catalogue-page .catalogue-hero__facts {
+  text-align: center;
+}
+
+/* --- the band heads: the home's centred grammar, 35.2px / weight 500 ------ */
+.catalogue-page .section-head {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.catalogue-page .section-head::before {
+  content: "";
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
+
+.catalogue-page .section-head__text {
+  display: grid;
+  justify-items: center;
+  flex: 0 1 auto;
+}
+
+.catalogue-page .section-head__title {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+.catalogue-page .section-head__lead {
+  max-width: 46ch;
+}
+
+@media (max-width: 48rem) {
+  .catalogue-page .section-head__title {
+    font-size: var(--text-section-title);
+  }
+}
+
+/* --- the catalogue grid: FOUR columns, each picture whole ----------------- */
+@media (min-width: 64rem) {
+  .catalogue-page .casket-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* The card's own 4:3 derivative, whole inside the equal plate — the captain's
+   "smaller but don't crop" (2026-09-30). The shared rule forces `cover`; this
+   page shows the picture's own ratio with `contain`, so no part is ever cut
+   off and a non-4:3 asset letterboxes on the paper rather than cropping. */
+.catalogue-page .casket-grid .shop-card__media img {
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+}

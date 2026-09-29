@@ -12,7 +12,6 @@ import { CasketInclusionTable } from "@/components/villa/casket-catalogue";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { heroTextColourStyle } from "@/lib/landing/hero-background";
-import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
 import { ProductsListing } from "./products-listing";
 
@@ -84,7 +83,13 @@ export default async function ProductsPage({
     : null;
 
   return (
-    <div className={`${containerClass("catalogue")} stack-5 catalogue-page`}>
+    // The folio envelope the shared `.public-main` already carries — the same
+    // width /lots, /gallery and the home use. The page previously pinched itself
+    // to `containerClass("catalogue")` (75rem = 960px at the 80% root), which
+    // left the results column only 677px wide and made the catalogue render two
+    // cards across. The folio width gives the four-column grid room beside the
+    // sticky refine rail (captain 2026-09-30: "make it 4 columns").
+    <div className="stack-5 catalogue-page">
       <PublicHero
         variant="interior"
         eyebrow={page?.hero.eyebrow.trim() || "Coffins & caskets"}
