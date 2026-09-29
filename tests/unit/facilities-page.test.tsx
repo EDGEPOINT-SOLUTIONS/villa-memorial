@@ -8,18 +8,13 @@ import {
   saveLandingContent,
   type LandingContent,
 } from "@/lib/api-client/landing";
+import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
 import { SiteHeaderBar } from "@/components/landing/site-header";
 import { LandingFooter } from "@/components/landing/landing-view";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
-import { CHAPEL_NOTES, CHAPEL_RATES, php } from "@/lib/villa-pricing";
-import {
-  CHAPEL_HALL_PEDESTALS_IMAGE,
-  CHAPEL_SAMPLE_NOTE,
-  PARK_PLACE_PHOTOS,
-  VILLA_PARK_AERIAL,
-  WAKESETUP_ALCOVE_IMAGE,
-  libraryThumb,
-} from "@/lib/media";
+import { CHAPEL_RATES, php } from "@/lib/villa-pricing";
+import { CHAPEL_CLASS_LABEL } from "@/lib/chapel-booking";
+import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
 
 /** The public shell provides BOTH baskets; render inside both the way the app does. */
 function withBaskets(node: React.ReactNode) {
@@ -30,22 +25,26 @@ function withBaskets(node: React.ReactNode) {
   );
 }
 
-
 /**
  * The Facilities page (screen inventory P25) — the park's rooms and grounds.
  *
- * What these tests exist to protect:
- *  · the rooms are SHOWN (the client's own photograph, what each suits, the
- *    per-day rate) rather than described;
- *  · every figure is READ — the page's per-day rates must be the same numbers
- *    /services publishes, so the two can never drift (the defect this suite
- *    exists to catch is a typed amount);
- *  · the honest states stay honest: the park's real chapel names and capacity
- *    are an open client question, so the page must say so and must invent no
- *    room name and no capacity figure;
+ * These tests protect the APPROVED redesign (2026-09-30) and the honesty rules
+ * the old page carried:
+ *  · the rooms are SHOWN as a comparison — the client's own photograph, the
+ *    room's own record (name · capacity), what each is shared with, and the
+ *    client's one-line copy — so a family can decide between them;
+ *  · every figure is READ, never typed: the names and capacities are the park's
+ *    OWN schedule record (`getChapelSchedule()`), the same record /services and
+ *    the home publish; the room copy is the shared page-document copy; the stay
+ *    span is the 2026 sheet's own rows;
+ *  · the honesty rule survives the decision to publish capacity: the band says,
+ *    in ONE plain line, that the names and capacity come from the schedule
+ *    record — it never dresses a placeholder seed as confirmed client fact;
+ *  · no amount is ever published (`₱` absent): every room is Request-for-Quote;
  *  · the sample photography keeps the client sheet's own illustration label;
- *  · the 24/7 number is the staff-editable content, never typed here;
- *  · the map and 3D walk-through are linked, not duplicated.
+ *  · the grounds are the client masterplan's own areas, with the client's own
+ *    photographs, and the map + 3D view are linked, not duplicated;
+ *  · the 24/7 number is the staff-editable content, never typed here.
  */
 
 vi.mock("next/link", () => ({
@@ -61,28 +60,48 @@ const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 
 async function renderFacilities(): Promise<string> {
-  return renderToStaticMarkup(withBaskets( await FacilitiesPage()));
+  return renderToStaticMarkup(withBaskets(await FacilitiesPage()));
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(withBaskets( await ServicesPage()));
+  return renderToStaticMarkup(withBaskets(await ServicesPage()));
 }
 
-describe("/facilities shows the rooms a family is choosing between", () => {
-  it("renders one card per chapel class with the client's sample photograph", async () => {
+describe("/facilities compares the two rooms a family is choosing between", () => {
+  it("renders one column per chapel class, headed by the client's own photograph", async () => {
     const html = await renderFacilities();
 
-    expect((html.match(/class="story-room"/g) ?? []).length).toBe(2);
-    expect(html).toContain("Common chapel");
-    expect(html).toContain("Private chapel");
-    // 2026-09-19: the two classes show the client's OWN 2026 photographs — the
-    // chapel hall for the common class, a decorated viewing room for the private
-    // one. Both keep the sheet's illustration label (the office confirms the
-    // room), and both alts name whose photograph it is.
-    expect(html).toContain(CHAPEL_HALL_PEDESTALS_IMAGE);
-    expect(html).toContain(WAKESETUP_ALCOVE_IMAGE);
-    expect((html.match(new RegExp(escapeRe(CHAPEL_SAMPLE_NOTE), "g")) ?? []).length).toBe(2);
+    // Two comparison columns, one per class the park sells.
+    expect((html.match(/class="fac-room"/g) ?? []).length).toBe(2);
+    expect(html).toContain(CHAPEL_CLASS_LABEL.common);
+    expect(html).toContain(CHAPEL_CLASS_LABEL.private);
+    // The client's OWN 2026 photographs: the chapel hall for the common class,
+    // a decorated viewing room for the private one.
+    expect(html).toContain("/media/client/chapel-hall-candle-pedestals-wide-1600.webp");
+    expect(html).toContain("/media/client/wake-setup-lamp-alcove-wide-960.webp");
     expect((html.match(/alt="(The chapel hall in the client|A decorated private viewing room in the client)/g) ?? []).length).toBe(2);
+  });
+
+  it("publishes the park's OWN schedule record — the same names and capacity /services shows", async () => {
+    const schedule = await getChapelSchedule();
+    const html = await renderFacilities();
+
+    expect(schedule.chapels.length).toBeGreaterThan(0);
+    for (const chapel of schedule.chapels) {
+      expect(html, chapel.name).toContain(chapel.name);
+      expect(html, `${chapel.name} capacity`).toContain(`${chapel.capacity} people`);
+    }
+    // The facts a family weighs are side by side: capacity, stay and who shares.
+    expect(html).toContain("Fits about");
+    expect(html).toContain("Who shares it");
+    expect(html).toContain("Other families");
+    expect(html).toContain("Your family only");
+  });
+
+  it("states the record's provenance in ONE plain line, and never dresses it as confirmed", async () => {
+    const html = await renderFacilities();
+    expect(html).toContain("Room names and capacity come from the park");
+    expect(html).not.toContain("still unconfirmed");
   });
 
   it("publishes no per-day rate — each room requests a quote instead", async () => {
@@ -90,7 +109,6 @@ describe("/facilities shows the rooms a family is choosing between", () => {
 
     expect(html).not.toContain(php(CHAPEL_RATES[0].common.ratePerDay));
     expect(html).not.toContain(php(CHAPEL_RATES[0].private.ratePerDay));
-    expect(html).not.toContain('class="story-room__rate"');
     expect(html).not.toMatch(/₱/);
   });
 
@@ -107,83 +125,45 @@ describe("/facilities shows the rooms a family is choosing between", () => {
     const { contact } = await listLandingContent();
     const html = await renderFacilities();
 
-    // One Add-to-Quote action and one call per room (office, inbox 047): the
-    // button adds the chapel line to the basket and its accessible name names
-    // the room, so two identical-visible actions stay unambiguous.
-    expect((html.match(/>Add to Quote</g) ?? []).length).toBe(2);
-    expect((html.match(/aria-label="Add to Quote: Chapel use — /g) ?? []).length).toBe(2);
+    // One gold "Ask for dates" per room (the per-item rung), whose accessible
+    // name names the room, plus the outline support call.
+    expect((html.match(/>Ask for dates</g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Ask for dates: Chapel use — /g) ?? []).length).toBe(2);
     expect(html).not.toContain('href="/quote?');
     expect((html.match(new RegExp(escapeRe(`Call ${contact.phoneDisplay}`), "g")) ?? []).length)
       .toBeGreaterThanOrEqual(2);
   });
 
-  it("keeps the sheet's scope line as a fact, and publishes no fee figure", async () => {
+  it("keeps the sheet's illustration discipline in ONE shared foot", async () => {
     const html = await renderFacilities();
-
-    expect(html).toContain(`class="story-area">${CHAPEL_NOTES.scope}</li>`);
-    expect(html).not.toContain(CHAPEL_NOTES.miscFee);
-    expect(html).not.toContain(CHAPEL_NOTES.privateChapelOnly);
-    expect(html).not.toMatch(/₱/);
+    // The sample note is printed ONCE for the band, not once per card.
+    expect((html.match(new RegExp(escapeRe(CHAPEL_SAMPLE_NOTE), "g")) ?? []).length).toBe(1);
+    expect(html).toContain("the office confirms availability and the price");
   });
 });
 
-describe("/facilities is honest about what the client has not answered", () => {
-  it("says the real room list is unconfirmed, in one line", async () => {
-    const html = await renderFacilities();
-
-    expect(html).toContain('class="fac-placeholder"');
-    expect(html).toContain("Room names and capacity are still unconfirmed");
-    expect(html).toContain("the client has not sent the park\u2019s real chapel list");
-  });
-
-  it("invents no room name, no capacity and no chapel count", async () => {
-    const html = await renderFacilities();
-
-    // The placeholder resource names /services sells ("Chapel A"/"Chapel B")
-    // and the old page's invented capacities (120/60 people) must not appear.
-    expect(html).not.toContain("Chapel A");
-    expect(html).not.toContain("Chapel B");
-    expect(html).not.toMatch(/\d+\s*people/i);
-    expect(html).not.toMatch(/fits about/i);
-    // No chapel COUNT either, before or after the word: the client has not
-    // confirmed how many chapels the park has.
-    expect(html).not.toMatch(/\b(two|three|four|2|3|4)\s+chapels\b/i);
-    expect(html).not.toMatch(/\bchapels\b[^<]{0,24}\b(one|two|three|1|2|3)\b/i);
-  });
-});
-
-describe("/facilities shows the grounds without re-drawing the map", () => {
-  it("names the areas in the client masterplan's own words", async () => {
+describe("/facilities shows the grounds as the client's own places", () => {
+  it("names the areas in the client masterplan's own words, as a keyboard tablist", async () => {
     const html = await renderFacilities();
 
     const areas = POINTS_OF_INTEREST.filter((p) => p.id !== "future-development");
     expect(areas.length).toBeGreaterThanOrEqual(4);
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain('role="tabpanel"');
     for (const area of areas) {
-      expect(html, area.label).toContain(`<li class="story-area">${area.label}</li>`);
+      expect(html, area.label).toContain(`>${area.label}</button>`);
     }
   });
 
-  it("uses the client's park imagery and links to the map, the 3D view and the lots", async () => {
+  it("uses the client's own place photographs and links to the map, the 3D view and the lots", async () => {
     const html = await renderFacilities();
 
-    // Both park photographs are served from their sized derivatives, not the
-    // print-sized uploads (the pavilion composite is 185 KB for a 34rem figure).
-    expect(html).toContain(libraryThumb(VILLA_PARK_AERIAL, 640));
-    expect(html).not.toContain(`src="${VILLA_PARK_AERIAL}"`);
-    // The two ground types show the client's own photograph of the place — as
-    // PHOTOGRAPH-ONLY derivatives of the client's lot tiles, not the tiles
-    // themselves (composition pass, 2026-09-18: a tile carries the group logo and
-    // the family name set large, so publishing it inside a captioned figure
-    // printed a second title in baked-in marketing type). Same source asset,
-    // documented crop: scripts/build-composition-images.mjs.
-    expect(html).toContain(PARK_PLACE_PHOTOS.niches);
-    expect(html).toContain(PARK_PLACE_PHOTOS.mausoleum);
+    // The atlas stage shows the client's own photograph of the selected place,
+    // served from its sized derivative, never a marketing tile.
+    expect(html).toContain("/media/gallery/park-gate-1024.webp");
+    expect(html).toContain("/media/gallery/park-gate-640.webp 640w");
     expect(html).not.toContain("/media/lot-garden-niches.png");
     expect(html).not.toContain("/media/lot-mausoleum.png");
-    // The photograph is served at the layout's own 1×/2× widths.
-    expect(html).toContain(PARK_PLACE_PHOTOS.niches.replace("-720", "-480"));
-    expect(html).toContain("480w");
-    expect(html).toContain("The pavilion and the grounds");
     // The map + 3D park stay on /map; the page links out instead of embedding
     // a second masterplan or plot list.
     expect(html).toContain('href="/map"');
@@ -203,8 +183,9 @@ describe("/facilities reads the staff-editable 24/7 line", () => {
     const telLinks = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].filter(
       (m) => m[1].startsWith("tel:"),
     );
-    // Hero, both room cards and the closing band.
-    expect(telLinks.length).toBeGreaterThanOrEqual(4);
+    // The gateway and the two rooms (the page closing band is gone; the shell
+    // owns the final call).
+    expect(telLinks.length).toBeGreaterThanOrEqual(3);
     for (const [, href] of telLinks) {
       expect(href).toBe(contact.phoneHref);
     }
@@ -263,7 +244,9 @@ describe("/facilities is reachable from the public chrome and stays one page", (
     // token-driven classes in styles/components.css.
     expect(html).not.toContain('style="');
     expect(html).toContain('class="public-hero__eyebrow"');
-    expect(html).toContain('class="story-room"');
+    expect(html).toContain('class="fac-room"');
+    // The band heads wear the home's grammar (35.2px w500, never bold).
+    expect(html).toContain('class="home-band-head__title"');
   });
 });
 

@@ -22601,3 +22601,352 @@ a.plan-advisor__phone:hover {
   aspect-ratio: 4 / 3;
   object-fit: contain;
 }
+
+/* ============================================================================
+   public: facilities block — /facilities, the rooms and the grounds
+   (approved redesign plan, 2026-09-30: "the lavish plan for … Facilities … each
+   page is uniquely designed for their purposes, creative and interactive").
+
+   This block owns the shapes the redesign adds — the gateway's fact row, the
+   two-room comparator and the grounds atlas — and it reuses the home's band
+   grammar (`.home-band-head`, 35.2px w500, never bold) and the shared
+   `.story-band` rhythm. It edits no other lane's block; every value is a token.
+   ========================================================================== */
+
+/* --- the page shell -------------------------------------------------------- */
+.fac-page {
+  width: 100%;
+  margin-inline: auto;
+  padding-block: var(--space-4) var(--space-7);
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+}
+
+/* The opening is the home's gateway, not a card: plain paper, no border, no
+   radius, no gold rule. Scoped to this page only. */
+.fac-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.fac-page .public-hero--interior::before {
+  content: none;
+}
+
+.fac-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.fac-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.fac-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+  text-align: center;
+}
+
+/* The headline is the home's gateway shape at the page-title step: a light
+   display weight, balance-wrapped, inside the one text column — 35.2px w500,
+   never bold (captain's type rule, 2026-09-30). */
+.fac-page .public-hero--interior .public-hero__title {
+  max-width: 22ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.fac-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.fac-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* --- the gateway's three facts, under a hairline --------------------------- */
+.fac-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  max-width: var(--layout-reading-w);
+  margin: var(--space-5) auto 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--color-rule);
+  list-style: none;
+  text-align: center;
+}
+
+.fac-facts > li {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+}
+
+.fac-facts strong {
+  font-size: var(--text-body);
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+.fac-facts span {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* --- the rooms comparator --------------------------------------------------- */
+.fac-rooms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  max-width: var(--layout-catalogue-w);
+  margin-inline: auto;
+}
+
+.fac-room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2);
+  margin: calc(-1 * var(--space-2));
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+}
+
+/* Pointer hover and keyboard focus do the SAME thing: the chosen column lifts,
+   and the other recedes so a family reads across the pair. Pure CSS. */
+.fac-room:hover,
+.fac-room:focus-within {
+  background: var(--paper-50);
+}
+
+.fac-rooms:has(.fac-room:hover) .fac-room:not(:hover),
+.fac-rooms:has(.fac-room:focus-within) .fac-room:not(:focus-within) {
+  opacity: 0.62;
+}
+
+.fac-room__plate {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+}
+
+.fac-room__plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  /* `contain`, not `cover`: the client's photograph is shown WHOLE. */
+  object-fit: contain;
+}
+
+.fac-room__class {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--sky-700);
+}
+
+/* A card-level name wears the SANS face at the home's body step (the display
+   serif is reserved for the h1 and the band titles). */
+.fac-room__name {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.fac-room__what {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.fac-room__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.fac-room__facts dt {
+  font-size: var(--text-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.fac-room__facts dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-card-title);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The action pins to the column's bottom, so both rooms' buttons sit on one line
+   even when a copy line wraps. */
+.fac-room__action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+.fac-room-foot {
+  max-width: var(--layout-reading-w);
+  margin: var(--space-6) auto 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+  text-align: center;
+}
+
+.fac-room-foot p {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.fac-room-foot .fac-room-foot__note {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
+}
+
+.fac-empty {
+  max-width: var(--layout-reading-w);
+  margin: var(--space-4) auto 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+/* --- the grounds atlas ------------------------------------------------------ */
+.fac-atlas {
+  display: grid;
+  grid-template-columns: 13rem minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+  max-width: var(--layout-reading-w);
+  margin-inline: auto;
+}
+
+.fac-atlas__list {
+  display: grid;
+  gap: 2px;
+}
+
+.fac-atlas__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+  padding: var(--space-2) var(--space-3);
+  cursor: pointer;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.fac-atlas__item:hover {
+  background: var(--paper-50);
+}
+
+.fac-atlas__item[aria-selected="true"] {
+  border-left-color: var(--gold-500);
+  background: var(--paper-50);
+  color: var(--color-text-primary);
+  font-weight: 700;
+}
+
+.fac-atlas__stage {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.fac-atlas__stage img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--paper-50);
+}
+
+.fac-atlas__cap {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.fac-atlas__empty {
+  max-width: var(--layout-reading-w);
+  margin: 0 auto;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.fac-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* --- phone ------------------------------------------------------------------ */
+@media (max-width: 48rem) {
+  .fac-rooms,
+  .fac-atlas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The index becomes a horizontal snap rail above the stage; the selection
+     behaviour is unchanged. */
+  .fac-atlas__list {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding-bottom: var(--space-1);
+    scroll-snap-type: x mandatory;
+  }
+
+  .fac-atlas__item {
+    flex: 0 0 auto;
+    border-left: 0;
+    border-bottom: 3px solid transparent;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+
+  .fac-atlas__item[aria-selected="true"] {
+    border-bottom-color: var(--gold-500);
+  }
+}

@@ -1,22 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { listLandingContent } from "@/lib/api-client/landing";
-import {
-  CHAPEL_SAMPLE_NOTE,
-  HERO_IMAGE,
-  PARK_PLACE_PHOTOS,
-  VILLA_PARK_AERIAL,
-  libraryThumb,
-  libraryThumbSet,
-} from "@/lib/media";
-import { clientPhotoWide } from "@/lib/client-photos";
+import { getPageDocument } from "@/lib/api-client/content-pages";
+import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
+import { servicePageContentFromDocument } from "@/lib/service-content";
+import { PARK_PLACE_PHOTOS, compositionThumbSet } from "@/lib/media";
+import { CHAPEL_RATES } from "@/lib/villa-pricing";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
-import { CHAPEL_NOTES } from "@/lib/villa-pricing";
-import { CHAPEL_SKUS } from "@/lib/catalogue-skus";
 import { pageMetadata } from "@/lib/seo";
-import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
-import { ItemQuoteButton } from "@/components/villa/item-quote-button";
-import { StoryHelpBand } from "@/components/villa/story-ui";
+import { PublicHero } from "@/components/kit";
+import { FacilityRooms } from "@/components/villa/facility-rooms";
+import { GroundsAtlas, type AtlasArea, type AtlasPhoto } from "@/components/villa/grounds-atlas";
 
 export const metadata: Metadata = pageMetadata({
   title: "Chapels & grounds — Villa Funeraria",
@@ -25,102 +19,155 @@ export const metadata: Metadata = pageMetadata({
   path: "/facilities",
 });
 
-// Reads the content store per request — a staff edit to the 24/7 line must be
-// what the NEXT visitor sees, never a build-time snapshot (same rule as /faq).
+// Reads the schedule record and the content store per request — a staff rename
+// on /staff/schedule or a copy edit must be what the NEXT visitor sees, never a
+// build-time snapshot (same rule as /services and /faq).
 export const dynamic = "force-dynamic";
 
 /**
- * Facilities (P25 of the screen inventory: "Facilities" had no page — the
- * chapels existed only as rates inside `/services`).
+ * Facilities — the rooms and the grounds (approved redesign plan, 2026-09-30).
  *
- * WHAT THIS PAGE IS FOR: a family choosing where to hold a wake sees the rooms
- * — the client's own photograph, what each one suits, and the published
- * per-day rate — then the grounds, then one next step per room.
+ * WHAT THIS PAGE IS FOR: a family choosing WHERE the wake is held. The page is
+ * therefore a COMPARISON and a place, not a catalogue:
+ *
+ *   Band 1 · the gateway      — the home's opening grammar: one sentence, the
+ *                               24/7 call, "See the rooms", and three facts.
+ *   Band 2 · the rooms        — two photo-headed columns carrying the SAME facts
+ *                               (capacity · stay · who shares it), so a family
+ *                               can decide; one gold "Ask for dates" per room.
+ *   Band 3 · the grounds      — an area spotlight: pick a place from the client's
+ *                               own masterplan labels and see its photograph.
+ *   (no page closing band)    — the shared shell's "Next step" closes the page;
+ *                               the deleted band is the plan's D7.
  *
  * WHERE EVERY FACT COMES FROM (nothing is authored here):
- *  · the per-day rates and the sheet's notes are READ from
- *    `lib/villa-pricing.ts` (sheet III: "PRICE LIST FOR 2026 III"), the same
- *    constants `/services` renders — so the two pages cannot drift, and no
- *    amount is ever typed into this view (`tests/unit/facilities-page.test.tsx`
- *    compares both pages' figures);
- *  · the area names are the client masterplan's own labels, read from
- *    `lib/park-3d/masterplan.ts` — never re-typed, so the grounds list and the
- *    park map cannot name the park differently;
- *  · the 24/7 line is the staff-editable landing content (zone 01), like every
- *    other call action on the public site;
- *  · the chapel photographs are the client's own 2026 photographs — the chapel
- *    hall for the common class and a decorated viewing room for the private one
- *    (lib/client-photos.ts). The client's material carries no room name or
- *    capacity, and the sheet's "(Illustration purposes only)" discipline stays on
- *    the cards: neither photograph claims to be the exact room a family gets.
+ *  · the room NAMES and CAPACITY are the park's own schedule record
+ *    (`getChapelSchedule()`) — the SAME record /services and the home publish, so
+ *    the three pages cannot name the park differently;
+ *  · the class labels are the frozen `CHAPEL_CLASS_LABEL` vocabulary;
+ *  · the one line per class is the shared page-document copy (`chapelNotes`), read
+ *    from the SAME services document /services renders;
+ *  · the 3–9 day stay is DERIVED from the sheet's own rows (`CHAPEL_RATES`);
+ *  · the area names are the client masterplan's own labels (`POINTS_OF_INTEREST`),
+ *    and the photographs are the client's own place derivatives (`lib/media.ts`);
+ *  · the 24/7 line is the staff-editable landing content, like every other call
+ *    action on the public site;
+ *  · no amount is ever typed here — the page stays Request-for-Quote (captain's
+ *    minutes, 2026-09-21, item 5) and every figure has an owning store.
  *
- * HONEST STATES (one short line each, never a placeholder that reads as fact):
- * the park's real chapel names and capacity are still a client question
- * (docs/07-client-villa/open-questions.md), so this page publishes what the
- * sheets publish — two classes, per-day rates — and says plainly that the real
- * list is unconfirmed. It publishes no chapel count, no room name and no
- * capacity figure. The park map and the 3D walk-through are NOT duplicated
- * here: the page links to them.
- *
- * Story-lane pass (2026-09-22, plan §5.8): the page moved onto the Phase 0
- * grammar (`PublicHero` · `SectionHead` · `PublicImage`) and the compact
- * `.story-*` room/ground shapes, so the two rooms, the areas and the two ground
- * photographs read at a glance instead of four phone screens.
+ * HONEST STATE: the park's real chapel names and capacity are still a client
+ * question (docs/07-client-villa/open-questions.md); the store carries a labelled
+ * placeholder seed. This page publishes the record the rest of the product already
+ * publishes and says so in ONE plain provenance line — it invents no name and no
+ * figure. With no active chapel, the rooms band prints an honest line instead of
+ * an empty grid; a failed schedule read is caught and shows the same line, never a
+ * crash. The park map and the 3D walk-through are NOT duplicated here: the grounds
+ * band links to them.
  */
 
+/** The sheet's own stay span, DERIVED (first and last day counts it prices). */
+const STAYED_DAYS_LABEL = `${CHAPEL_RATES[0].days}–${CHAPEL_RATES[CHAPEL_RATES.length - 1].days} days`;
+/** The same span read as a count of days, for the gateway fact ("3–9 day stays"). */
+const STAYED_DAYS_SHORT = `${CHAPEL_RATES[0].days}–${CHAPEL_RATES[CHAPEL_RATES.length - 1].days} day`;
+
+type AreaAsset = AtlasPhoto & { caption: string };
+
 /**
- * The two room classes the park sells. `suitedTo` and `sharedWith` describe the
- * class (a common/shared chapel vs a private one) — no capacity and no room name
- * is invented for either. The 2026 rates are no longer displayed (captain's
- * minutes 2026-09-21, item 5): each room asks the office for dates and a quote,
- * and the rate lives with the office (lib/villa-pricing.ts).
+ * The client's own photograph of each family-facing masterplan area. Composition
+ * derivatives (the photograph-only crops scripts/build-composition-images.mjs
+ * publishes, with the marketing tile's logo lock-up and family name removed)
+ * where they exist; the client's gallery photographs for the gate and the
+ * pavilion, which have no composition derivative. Every source is 3:2-or-wider
+ * and is shown WHOLE (`object-fit: contain` in the stage), never re-cropped.
  */
-const ROOMS = [
-  {
-    key: "common",
-    name: "Common chapel",
-    photo: clientPhotoWide("chapel-hall-candle-pedestals"),
-    alt: "The chapel hall in the client's own photograph — a draped side table, tall candle pedestals on a green carpet, the hall's platform behind",
-    suitedTo: "A large visitation",
-    sharedWith: "Other families",
+const AREA_ASSETS: Record<string, AreaAsset> = {
+  "main-entrance": {
+    src: "/media/gallery/park-gate-1024.webp",
+    srcSet: "/media/gallery/park-gate-640.webp 640w, /media/gallery/park-gate-1024.webp 1024w",
+    width: 1024,
+    height: 577,
+    alt: "The park's gated entrance and roadside sign, seen from the road",
+    caption: "The gated approach, from the road.",
   },
-  {
-    key: "private",
-    name: "Private chapel",
-    photo: clientPhotoWide("wake-setup-lamp-alcove"),
-    alt: "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
-    suitedTo: "An intimate gathering",
-    sharedWith: "Your family only",
+  "premium-lots": {
+    src: PARK_PLACE_PHOTOS.premium,
+    srcSet: compositionThumbSet(PARK_PLACE_PHOTOS.premium),
+    width: 720,
+    height: 698,
+    alt: "The premium lots in the client's own photograph",
+    caption: "The park's frontage lots.",
   },
-] as const;
+  "primary-lots": {
+    src: PARK_PLACE_PHOTOS.prime,
+    srcSet: compositionThumbSet(PARK_PLACE_PHOTOS.prime),
+    width: 720,
+    height: 619,
+    alt: "The primary lots in the client's own photograph",
+    caption: "The first garden plots.",
+  },
+  "garden-lots": {
+    src: "/media/gallery/park-pavilion-940.webp",
+    srcSet: "/media/gallery/park-pavilion-640.webp 640w, /media/gallery/park-pavilion-940.webp 940w",
+    width: 940,
+    height: 545,
+    alt: "The park's pavilion and grounds in the client's own photograph",
+    caption: "Open lawn and planting.",
+  },
+  "garden-niches": {
+    src: PARK_PLACE_PHOTOS.niches,
+    srcSet: compositionThumbSet(PARK_PLACE_PHOTOS.niches),
+    width: 720,
+    height: 619,
+    alt: "The garden niches in the client's own photograph",
+    caption: "A wall of individual niches.",
+  },
+  mausoleum: {
+    src: PARK_PLACE_PHOTOS.mausoleum,
+    srcSet: compositionThumbSet(PARK_PLACE_PHOTOS.mausoleum),
+    width: 720,
+    height: 619,
+    alt: "The park's mausoleum in the client's own photograph",
+    caption: "The park's above-ground tombs.",
+  },
+};
 
 /**
- * The areas the park's own masterplan labels, in the plan's own words (the
- * "Future Development" parcel is land, not a family-facing area, so it is left
- * to the map).
+ * The areas the park's own masterplan labels, in the plan's own order (the
+ * "Future Development" parcel is land, not a family-facing area, so it is left to
+ * the map). An area the client never photographed is simply absent — the atlas
+ * names only places it can show.
  */
-const PARK_AREAS: ReadonlyArray<string> = POINTS_OF_INTEREST.filter(
-  (area) => area.id !== "future-development",
-).map((area) => area.label);
-
-/**
- * The client's own product imagery for the two areas a family asks about.
- * Composition pass (2026-09-18): these are the PHOTOGRAPH-ONLY derivatives of the
- * client's lot tiles (scripts/build-composition-images.mjs) rather than the tiles
- * themselves — a tile carries the group's logo lock-up and its family name set
- * large, so publishing it inside a captioned figure printed a second, baked-in
- * title.
- */
-const GROUND_AREAS = [
-  { src: PARK_PLACE_PHOTOS.niches, label: "Garden niches" },
-  { src: PARK_PLACE_PHOTOS.mausoleum, label: "Mausoleum" },
-] as const;
+const PARK_AREAS: ReadonlyArray<AtlasArea> = POINTS_OF_INTEREST.flatMap((area) => {
+  if (area.id === "future-development") return [];
+  const asset = AREA_ASSETS[area.id];
+  if (!asset) return [];
+  return [
+    {
+      id: area.id,
+      label: area.label,
+      photo: { ...asset, sizes: "(max-width: 48rem) 92vw, 600px" },
+      caption: asset.caption,
+    },
+  ];
+});
 
 export default async function FacilitiesPage() {
   const { contact } = await listLandingContent();
+  const [servicesPage, schedule] = await Promise.all([
+    // The chapel copy is shared with /services, so it is read from the SAME
+    // document /services renders — a staff edit reaches both, and the two pages
+    // cannot drift.
+    getPageDocument("services").catch(() => null),
+    getChapelSchedule().catch(() => null),
+  ]);
+  const chapelNotes = servicePageContentFromDocument(servicesPage).chapelNotes;
+  const chapels = schedule?.chapels ?? [];
 
   return (
-    <div className="story-page container--catalogue">
+    <div className="fac-page container--catalogue">
+      {/* Band 1 · the gateway — the home's opening grammar, no photograph (the
+          client's park photograph is not on this page: the captain dropped it in
+          review, and the grounds band shows the park as PLACES instead). */}
       <PublicHero
         variant="interior"
         eyebrow="Facilities"
@@ -128,149 +175,48 @@ export default async function FacilitiesPage() {
         lead="Where the wake is held — ask the office for a date."
         primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
         secondary={{ label: "See the rooms", href: "#rooms" }}
-        image={{
-          src: libraryThumb(HERO_IMAGE, 640),
-          srcSet: libraryThumbSet(HERO_IMAGE),
-          sizes: "(max-width: 48rem) 92vw, 30rem",
-          alt: "The park's gated entrance and roadside sign, seen from the road",
-          width: 960,
-          height: 640,
-        }}
       />
 
-      <section className="story-band" id="rooms" aria-labelledby="rooms-title">
-        <SectionHead
-          id="rooms-title"
-          kicker="The rooms"
-          title="Common chapel, private chapel"
-          lead="Booked by the day, three to nine days."
-        />
+      {/* The park at a glance, under a hairline. Every fact is READ: the room
+          count and the stay span come from the schedule record and the 2026
+          sheet; the grounds line names the client's own place labels. */}
+      <ul className="fac-facts" aria-label="The park at a glance">
+        <li>
+          <strong>Chapels by the day</strong>
+          <span>
+            {chapels.length
+              ? `${chapels.length} room${chapels.length === 1 ? "" : "s"}, quoted for your dates`
+              : "Quoted for your dates"}
+          </span>
+        </li>
+        <li>
+          <strong>{STAYED_DAYS_SHORT} stays</strong>
+          <span>Every date checked before you book</span>
+        </li>
+        <li>
+          <strong>The grounds</strong>
+          <span>Niches, mausolea and open lawns</span>
+        </li>
+      </ul>
 
-        <div className="story-rooms">
-          {ROOMS.map((room) => (
-            <article className="story-room" key={room.key}>
-              <div className="story-figure">
-                <PublicImage
-                  role="band-lead"
-                  src={room.photo.src}
-                  srcSet={room.photo.srcSet}
-                  sizes="(max-width: 60rem) 92vw, 28rem"
-                  alt={room.alt}
-                  width={room.photo.width}
-                  height={room.photo.height}
-                />
-                <p className="public-image__caption">{CHAPEL_SAMPLE_NOTE}</p>
-              </div>
-              <h3 className="story-room__name">{room.name}</h3>
-              <p className="story-room__suits">
-                {room.suitedTo} · shared with {room.sharedWith.toLowerCase()}
-              </p>
-              {/* One next step per room: ADD THE CHAPEL LINE to the quote
-                  basket (office, inbox 047 — the line is quoted by hand, so it
-                  carries no amount). The 24/7 number is the staff-editable
-                  landing content — never typed into this page. */}
-              <div className="story-actions">
-                <ItemQuoteButton
-                  lines={[
-                    {
-                      sku: CHAPEL_SKUS[room.key],
-                      name: `Chapel use — ${room.name}`,
-                      itemType: "service",
-                      detail: "Chapel use when the service is not with Villa.",
-                    },
-                  ]}
-                  name={`Chapel use — ${room.name}`}
-                  label="Add to Quote"
-                />
-                <a className="btn btn--secondary btn--sm" href={contact.phoneHref}>
-                  <span className="visually-hidden">Ask about the {room.name}: </span>
-                  Call {contact.phoneDisplay}
-                </a>
-              </div>
-            </article>
-          ))}
-        </div>
-
-        <ul className="story-areas" aria-label="Chapel conditions">
-          <li className="story-area">{CHAPEL_NOTES.scope}</li>
-        </ul>
-
-        <p className="fac-placeholder">
-          <strong>Room names and capacity are still unconfirmed</strong> — the client has not
-          sent the park&rsquo;s real chapel list. Rates and dates are real.
-        </p>
-      </section>
-
-      <section className="story-band" id="grounds" aria-labelledby="grounds-title">
-        <SectionHead
-          id="grounds-title"
-          kicker="The park and the grounds"
-          title="Gardens, niches and open lawns"
-          lead="Every area the client&rsquo;s own masterplan labels."
-        />
-
-        <div className="story-grounds">
-          <div className="story-figure">
-            <PublicImage
-              role="band-lead"
-              src={libraryThumb(VILLA_PARK_AERIAL, 960)}
-              srcSet={libraryThumbSet(VILLA_PARK_AERIAL)}
-              sizes="(max-width: 60rem) 92vw, 45rem"
-              alt="The park's pavilion and grounds, with the client's own banner text over the picture"
-              width={960}
-              height={640}
-            />
-            <p className="public-image__caption">The pavilion and the grounds — the client&rsquo;s own photo.</p>
-          </div>
-          <ul className="story-areas" aria-label="Areas on the masterplan">
-            {PARK_AREAS.map((area) => (
-              <li className="story-area" key={area}>
-                {area}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="story-ground-grid">
-          {GROUND_AREAS.map((area) => (
-            <div className="story-ground" key={area.label}>
-              <PublicImage
-                role="gallery-tile"
-                src={area.src.replace("-720", "-480")}
-                srcSet={`${area.src.replace("-720", "-480")} 480w, ${area.src} 720w`}
-                /* Two columns on a phone and inside the catalogue envelope:
-                   each figure is ~46vw. The hint must match that box. */
-                sizes="(max-width: 46rem) 46vw, 24vw"
-                alt={area.label}
-                width={480}
-                height={320}
-              />
-              <p className="story-ground__label">{area.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* The map and the 3D park already exist — this page links to them
-            instead of drawing a second one (a plot's own status and geometry
-            stay on /map). */}
-        <div className="story-actions">
-          <Link className="btn btn--primary" href="/map">
-            Open the park map &amp; 3D view
-          </Link>
-          <Link className="btn btn--secondary" href="/lots">
-            Browse lots &amp; 2026 prices
-          </Link>
-        </div>
-      </section>
-
-      <StoryHelpBand
+      <FacilityRooms
+        chapels={chapels}
+        chapelNotes={chapelNotes}
         contact={contact}
-        title="Ask the office for availability"
-        text="Any hour, any day — the park holds the dates."
-        secondary={
-          <Link className="btn btn--secondary" href="/services#chapel">
-            Chapel dates &amp; quotes
-          </Link>
+        stayedDaysLabel={STAYED_DAYS_LABEL}
+      />
+
+      <GroundsAtlas
+        areas={PARK_AREAS}
+        actions={
+          <>
+            <Link className="btn btn--secondary" href="/map">
+              Open the park map &amp; 3D view
+            </Link>
+            <Link className="btn btn--secondary" href="/lots">
+              Browse lots &amp; 2026 prices
+            </Link>
+          </>
         }
       />
     </div>
