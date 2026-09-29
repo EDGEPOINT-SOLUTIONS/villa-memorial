@@ -30,7 +30,7 @@ platform's own surface:
 | Audit items | Screen(s) | PR | Landed |
 |---|---|---|---|
 | P9 Smart Service Builder | `/builder` (estimate over the client's published figures) | [#66](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/66) | 2026-09-19 |
-| P22 Immediate Assistance | `/immediate-assistance` (call-first) | [#54](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/54) | 2026-09-18 |
+| P22 Immediate Assistance | ~~`/immediate-assistance` (call-first)~~ **REMOVED 2026-09-29 (office inbox 040)** | [#54](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/54) | 2026-09-18 |
 | P25 Facilities | `/facilities` (rooms, per-day rates, honest chapel-list gap) | [#55](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/55) | 2026-09-18 |
 | P26 Virtual Tour · P27 Gallery | `/gallery` + the park's 3D walk-through entered from it (`/map` hosts it, never rebuilt) | [#62](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/62) | 2026-09-19 |
 | P28 Digital Memorial Search · P29 Digital Memorial Page · P30 Find My Loved One | `/memorials` · `/memorials/[id]` · `/memorials/find` (nothing published by default) | [#65](https://github.com/EDGEPOINT-SOLUTIONS/villa-memorial/pull/65) | 2026-09-19 |

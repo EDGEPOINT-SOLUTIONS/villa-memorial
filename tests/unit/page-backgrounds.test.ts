@@ -168,7 +168,6 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".ag-target__fill", why: "the commission target's value bar (data viz)" },
   { match: ".ag-map__pin", why: "a small functional map pin label" },
   { match: ".sv-subnav", why: "the services page's in-page nav chips (a control state)" },
-  { match: ".ia-step__num", why: "the immediate-assistance step disc (white numeral)" },
   { match: ".mem-list", why: "the memorial bullet dot (a status indicator)" },
   { match: ".ag-tl__dot", why: "the agent timeline dot (a status indicator)" },
   { match: ".ag-trail__dot", why: "the lead-stage trail dot (a status indicator)" },

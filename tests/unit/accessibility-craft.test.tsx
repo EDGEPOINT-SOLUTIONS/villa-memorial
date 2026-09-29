@@ -66,9 +66,6 @@ const { default: FaqPage } = await import("@/app/(public)/faq/page");
 const { default: ContactPage } = await import("@/app/(public)/contact/page");
 const { default: QuotePage } = await import("@/app/(public)/quote/page");
 const { default: AppointmentsPage } = await import("@/app/(public)/appointments/page");
-const { default: ImmediateAssistancePage } = await import(
-  "@/app/(public)/immediate-assistance/page"
-);
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
@@ -118,10 +115,6 @@ const PAGES: ReadonlyArray<PageCase> = [
       ),
   },
   { name: "/appointments", render: async () => renderToStaticMarkup(AppointmentsPage()) },
-  {
-    name: "/immediate-assistance",
-    render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
-  },
   {
     name: "/memorials",
     render: async () =>

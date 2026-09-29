@@ -108,38 +108,54 @@ describe("the home renders the anchored catalogue shell", () => {
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
+    // The MAIN nav (the upper row's own nav comes first in the document, so
+    // the closing tag must be searched after this start).
+    const navStart = html.indexOf('<nav class="anchored-header__nav');
+    const nav = html.slice(navStart, html.indexOf("</nav>", navStart));
     expect(nav.indexOf('href="/">Home<')).toBeGreaterThanOrEqual(0);
     // Home is the first destination in the bar.
     expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Funeraria Memorial Services"));
   });
 
-  it("public chrome keeps the top-level pages and groups the rest under Explore more", async () => {
+  it("public chrome splits the destinations across the two header rows", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    // Header bar (the ONE public nav — same component on every public page):
-    // the captain's five top-level destinations (2026-09-21 direction).
-    const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
+    // MAIN row (the ONE sticky bar every public page shows): the four
+    // ground-floor pages — Blog and Contact moved up (office, inbox 035).
+    const navStart = html.indexOf('<nav class="anchored-header__nav');
+    const nav = html.slice(navStart, html.indexOf("</nav>", navStart));
     for (const [href, label] of [
       ["/", "Home"],
       ["/services", "Funeraria Memorial Services"],
       ["/plans", "Villa Memorial Plan"],
       ["/map", "Villa Memorial Park"],
-      ["/contact", "Contact"],
     ] as const) {
       expect(nav).toContain(`href="${href}">${label}</a>`);
     }
-    // Lots left the bar (it lives inside Villa Memorial Park) and the four
-    // secondary pages moved into the grouped Explore more menu.
-    const menu = nav.slice(nav.indexOf("anchored-header__explore-menu"));
+    expect(nav).not.toContain('href="/contact"');
+    expect(nav).not.toContain('href="/blog"');
+    expect(nav).not.toContain('href="/lots"');
+    // UPPER row (desktop only, inbox 035): Contact · Blog · Memorials · Login
+    // and the grouped menu — Memorials is no longer inside that menu.
+    const topStart = html.indexOf('class="anchored-header__topbar"');
+    const topbar = html.slice(topStart, html.indexOf('class="anchored-header__bar"'));
+    for (const [href, label] of [
+      ["/contact", "Contact"],
+      ["/blog", "Blog"],
+      ["/memorials", "Memorials"],
+    ] as const) {
+      expect(topbar).toContain(`href="${href}">${label}</a>`);
+    }
+    expect(topbar).toContain('class="anchored-header__login" href="/login">Login</a>');
+    const menu = topbar.slice(topbar.indexOf("anchored-header__explore-menu"));
     expect(menu).toContain("Builder");
     expect(menu).toContain("Facilities");
     expect(menu).toContain("Gallery");
-    expect(menu).toContain("Memorials");
-    expect(nav).not.toContain('href="/lots"');
-    expect(nav.slice(0, nav.indexOf("anchored-header__explore"))).not.toContain('href="/builder"');
+    expect(menu).toContain("Price list");
+    expect(menu).not.toContain(">Memorials</strong>");
+    expect(nav).not.toContain('href="/builder"');
     // The footer keeps the same destinations, de-duplicated (captain,
     // 2026-09-21): the plan has ONE entry (Care & planning), and the park's
     // one clear entry is the contact block's map link, never a second

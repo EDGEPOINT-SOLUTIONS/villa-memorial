@@ -69,8 +69,10 @@ describe("the service guide entries drive their routes and the /services cards",
     expect(before).toContain(
       "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
     );
-    // The route keeps its structure: the immediate-assistance primary action.
-    expect(before).toContain('href="/immediate-assistance"');
+    // The route keeps its structure: the help band's outline action, now the
+    // human contact door (the former /immediate-assistance target was removed —
+    // office, inbox 040).
+    expect(before).toContain('href="/contact"');
     expect(before).toContain("← Back to Funeraria Memorial Services");
     expect((before.match(/<h1\b/g) ?? []).length).toBe(1);
   });

@@ -55,6 +55,31 @@
   border-color: var(--navy-300);
 }
 
+/* The gateway's secondary action wears the CALL's gold as an outline (office,
+   inbox 041), so the pair reads as a deliberate set: the call keeps the solid
+   gold fill, this one only the edge. EXPLICIT, SINGLE-SURFACE OVERRIDE of the
+   rule that band actions never wear gold — do not reuse it elsewhere without
+   the office asking, and do not move gold into the shared `.btn--accent`.
+   Contrast measured on the white band: gold-400 (the call's fill) as a border
+   is 1.84:1 and gold-500 is 2.27:1 — both under the 3:1 UI-component floor —
+   so the edge uses gold-600 at 3.25:1, one step down the same ramp. The label
+   is ink (--color-text-primary, ~19:1 on white): never white, never gold. */
+.btn--gold-outline {
+  border-color: var(--gold-600);
+  color: var(--color-text-primary);
+}
+
+/* Hover/focus fills with the REAL gold the call wears at rest (office, inbox
+   044): the pale gold-50 wash was the "bland yellow". The label stays ink —
+   dark ink on gold-400 measures ~9.5:1 — never white, never gold. Keyboard
+   focus gets the same fill, so the pair behaves identically for every user. */
+.btn--gold-outline:hover:not(:disabled),
+.btn--gold-outline:focus-visible {
+  border-color: var(--gold-600);
+  background: var(--gold-400);
+  color: var(--color-text-primary);
+}
+
 .btn--ghost {
   background: transparent;
   color: var(--color-text-secondary);
@@ -9920,9 +9945,19 @@ a.card:hover {
    away. The bar height is for sticky surfaces that must sit under it (the home
    rails, the services page's in-page nav). Sticky offsets only matter once
    scrolled, when the bar is compressed — the value below is that compressed
-   height, so nothing peeks through the seam. */
+   height, so nothing peeks through the seam.
+
+   `--anchored-topbar-h` + `--anchored-topbar-gap` are the UPPER row's height
+   and its breathing room below the page top (office, inboxes 035/041). Their
+   sum is the header's negative sticky offset, so the upper row scrolls away
+   and the MAIN bar pins at the viewport top: neither is part of
+   `--anchored-header-h`, which stays the main bar's own height and nothing
+   else — panels and rails measure against the pinned bar, not the row that has
+   already left. */
 :root {
-  --anchored-header-h: 4.5625rem; /* 73 px = the compressed main 72 + the hairline */
+  --anchored-header-h: 4.5625rem; /* 73 px = the compressed MAIN bar 72 + the hairline */
+  --anchored-topbar-h: 2.75rem; /* 35.2 px — the upper row's own height */
+  --anchored-topbar-gap: var(--space-5); /* 22.4 px — air above the utility row */
 }
 
 /* First focusable on every public page — keyboard users go straight to the
@@ -9952,7 +9987,11 @@ a.card:hover {
 
 .anchored-header {
   position: sticky;
-  top: 0;
+  /* ONE sticky layer for two rows: the header pins with its upper row (height
+     + its top margin) already above the viewport, so only the main bar stays.
+     (The row itself is hidden below 74.999rem, where this offset returns to
+     0.) */
+  top: calc(-1 * (var(--anchored-topbar-h) + var(--anchored-topbar-gap)));
   z-index: 40;
   background: color-mix(in srgb, var(--color-bg-surface-raised) 92%, transparent);
   -webkit-backdrop-filter: blur(8px);
@@ -9965,12 +10004,90 @@ a.card:hover {
   transition: box-shadow var(--motion-base);
 }
 
-.anchored-header::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--gold-400), transparent);
+/* The upper row (office, inbox 035): the three doorways · Login · Explore
+   more. Desktop only; NOT sticky — it scrolls away while the main bar pins.
+   One header element, one class set; the gold ceremonial hairline stays on
+   the MAIN bar, not on this utility row. */
+.anchored-header__topbar {
+  max-width: var(--layout-folio-w);
+  margin-inline: auto;
+  /* The utility row sits a comfortable distance below the page top (office,
+     inbox 041) — the sticky offset above carries the same value. */
+  margin-top: var(--anchored-topbar-gap);
+  padding: 0 var(--space-5);
+  height: var(--anchored-topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+/* Even rhythm, one system: both rows use the same gap and the same link padding
+   (inbox 039 — spacing does the separating now the bars are gone). */
+.anchored-header__topnav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.anchored-header__topnav > a,
+.anchored-header__login {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  /* The utility row takes the SMALLER type of the pair (office, inbox 042);
+     the sticky main bar carries the larger one. Both stay bold. */
+  font-size: var(--text-sm);
+  font-weight: 700;
+  line-height: 1.2; /* fits the 2.75rem row */
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--motion-fast), background-color var(--motion-fast);
+}
+
+.anchored-header__topnav > a:hover,
+.anchored-header__login:hover {
+  color: var(--color-text-accent);
+  background: var(--color-bg-subtle);
+}
+
+/* Current page in the upper row: ink, not a bar (office, inbox 039 — the gold
+   active-page underline was removed from the header entirely; the attribute
+   stays in the markup, so screen readers still hear "current page"). */
+.anchored-header__topnav > a[aria-current="page"] {
+  color: var(--color-text-primary);
+}
+
+.anchored-header__top-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* The shared trigger's 44 px tap floor is for the sticky bar; in the utility
+   row it would overflow the 2.75rem band, so it rides the row's own height
+   (the row is desktop-only — no touch target is lost on a phone). It also
+   takes the utility row's smaller type (office, inbox 042). */
+.anchored-header__topbar .anchored-header__explore-trigger {
+  min-height: 2rem;
+  font-size: var(--text-sm);
+}
+
+/* Below the nav breakpoint the upper row disappears with the main nav: the
+   quick-menu FAB and the phone action bar carry every destination it held
+   (Contact · Memorials in the quick menu, Blog in both, Login in the quick
+   menu's portal doors). */
+@media (max-width: 74.999rem) {
+  .anchored-header__topbar {
+    display: none;
+  }
+
+  .anchored-header {
+    top: 0;
+  }
 }
 
 /* D5 — quiet compression once scrolled: the main row shortens, the sheet goes
@@ -9982,6 +10099,7 @@ a.card:hover {
 
 /* ---- main row: brand · page links · Explore more · actions ---- */
 .anchored-header__bar {
+  position: relative;
   max-width: var(--layout-folio-w);
   margin-inline: auto;
   padding: 0 var(--space-5);
@@ -10077,7 +10195,7 @@ a.card:hover {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: var(--space-1);
+  gap: var(--space-3);
   min-width: 0;
   flex: 0 1 auto;
   overflow-x: auto;
@@ -10095,12 +10213,13 @@ a.card:hover {
   align-items: center;
   gap: 0.3rem;
   min-height: 2.75rem; /* 44 px — the tap-target floor */
-  padding: 0.5rem 0.75rem;
+  padding: 0.5rem;
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
   font: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text-lg);
+  font-weight: 700;
   color: var(--color-text-secondary); /* 10.3:1 on white — AAA */
   text-decoration: none;
   cursor: pointer;
@@ -10115,39 +10234,16 @@ a.card:hover {
   background: var(--color-bg-subtle);
 }
 
-/* Active page: a gold underline + a weight change (never colour alone). */
+/* Active page: ink, not a bar (office, inbox 039 — no gold in the header). The
+   attribute remains in the markup for screen readers. */
 .anchored-header__nav-track > a[aria-current="page"] {
   color: var(--color-text-primary);
-  font-weight: 700;
 }
 
-.anchored-header__nav-track > a[aria-current="page"]::after {
-  content: "";
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.3rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--gold-400);
-}
-
-/* A page inside the Explore more menu keeps the same cue: the trigger is
-   underlined while a grouped page is open, and the open item is ruled. */
+/* A page inside the Explore more menu keeps the same ink cue: the trigger
+   reads primary while a grouped page is open, and the open item is ruled. */
 .anchored-header__explore-trigger[aria-current] {
   color: var(--color-text-primary);
-  font-weight: 700;
-}
-
-.anchored-header__explore-trigger[aria-current]::after {
-  content: "";
-  position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.3rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--gold-400);
 }
 
 .anchored-header__explore-item[aria-current="page"] {
@@ -10245,8 +10341,8 @@ a.card:hover {
   border: 1.5px solid var(--sky-500);
   border-radius: var(--radius-md);
   color: var(--sky-700);
-  font-size: var(--text-sm);
-  font-weight: 650;
+  font-size: var(--text-lg);
+  font-weight: 700;
   text-decoration: none;
   transition: background-color var(--motion-fast), border-color var(--motion-fast);
 }
@@ -10272,21 +10368,9 @@ a.card:hover {
   line-height: 1;
 }
 
-.anchored-header__signin {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem; /* 44 px — the tap-target floor */
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-}
-
-.anchored-header__signin:hover {
-  color: var(--color-text-accent);
-  background: var(--color-bg-subtle);
-}
+/* The header carries NO gold (office, inbox 039): the full-width ceremonial
+   hairline that used to cap the bar went with the active-page underlines. Gold
+   stays the ritual call and the band rule — not a divider in the chrome. */
 
 /* The captain's full page names (Funeraria Memorial Services · Villa Memorial
    Plan · Villa Memorial Park) are wide: tighten the nav chips for every bar
@@ -15884,200 +15968,6 @@ a.card:hover {
 
 /* ---- end services page (sv-*) ---------------------------------------- */
 
-/* ---- immediate assistance page (/immediate-assistance) --------------------
-   F-01 (captain, 2026-09-18): the hardest moment gets its own screen. The
-   order is the design — the 24/7 call first and enormous, then the four plain
-   steps, then the calm alternatives. Sky/navy/gold tokens only, no motion,
-   one h1, every tap target ≥ 44 px. The phone number itself lives in the
-   landing content document (zone 01); nothing here paints an amount or a
-   colour outside tokens. */
-.ia-page {
-  display: grid;
-  gap: var(--space-5);
-  max-width: 52rem;
-  margin-inline: auto;
-}
-
-/* --- the call hero --- */
-.ia-hero {
-  padding: clamp(1.5rem, 4vw, 2.75rem);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  color: var(--color-text-primary);
-  box-shadow: var(--shadow-card-hover);
-  text-align: center;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.ia-hero__note {
-  margin: var(--space-3) 0 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-}
-
-/* --- what to do right now --- */
-.ia-steps {
-  padding: var(--space-5);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card-rest);
-}
-
-.ia-steps h2 {
-  margin: 0 0 var(--space-4);
-  font-size: var(--text-section-title);
-}
-
-.ia-steps__list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ia-step {
-  display: flex;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-}
-
-.ia-step__num {
-  flex: none;
-  display: grid;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background: var(--sky-700);
-  color: #ffffff;
-  font-weight: 800;
-  font-size: var(--text-sm);
-}
-
-.ia-step__body {
-  min-width: 0;
-}
-
-.ia-step h3 {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
-}
-
-.ia-step p {
-  margin: 0;
-  color: var(--color-text-primary);
-}
-
-/* What to have ready — short labelled chips, never a paragraph. */
-.ia-ready {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.ia-ready li {
-  padding: 0.2rem 0.65rem;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-bg-surface-raised);
-  color: var(--color-text-primary);
-  font-size: var(--text-sm);
-  font-weight: 600;
-}
-
-/* --- reassurance: one line, calm surface --- */
-.ia-reassure {
-  margin: 0;
-  padding: var(--space-4) var(--space-5);
-  border-left: 4px solid var(--gold-500);
-  border-radius: var(--radius-md);
-  background: var(--gold-wash-soft);
-  color: var(--color-text-primary);
-  font-size: var(--text-lg);
-}
-
-.ia-reassure strong {
-  color: var(--color-text-primary);
-}
-
-/* --- the alternatives, clearly secondary --- */
-.ia-alts h2 {
-  margin: 0 0 var(--space-3);
-  font-size: var(--text-section-title);
-}
-
-.ia-alts__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-.ia-alt {
-  display: grid;
-  gap: 0.2rem;
-  align-content: start;
-  padding: var(--space-4);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-  color: inherit;
-  text-decoration: none;
-}
-
-a.ia-alt:hover {
-  border-color: var(--gold-500);
-}
-
-.ia-alt svg {
-  color: var(--color-text-secondary);
-}
-
-.ia-alt__label {
-  font-weight: 700;
-  color: var(--color-text-primary);
-}
-
-.ia-alt__value {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
-
-@media (max-width: 50rem) {
-  .ia-steps__list,
-  .ia-alts__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* ---- end immediate assistance page (ia-*) ----------------------------- */
 
 /* ---- pricing admin editors (/staff/plans, /staff/pricing) ----------------
    The two money-table screens from the admin-commerce plan: a state/action bar,
@@ -18740,8 +18630,9 @@ a.plan-advisor__phone:hover {
 /* ============================================================================
  * public: story block — Lane 1 of Wave A (`villa-public-minimal-story-pages`).
  *
- * Scope: /services + the three guides, /facilities, /immediate-assistance,
- * /faq and /contact. The grammar comes from the Phase 0 primitives
+ * Scope: /services + the three guides, /facilities, /faq and /contact.
+ * (/immediate-assistance was in this lane but the page was removed — office,
+ * inbox 040.) The grammar comes from the Phase 0 primitives
  * (components/public/*) and the numbers from lib/public-layout.ts; this block
  * adds ONLY the shapes these routes need. It never edits the Phase 0 grammar
  * block above and never another lane's block. The five shapes:
@@ -19143,41 +19034,6 @@ a.plan-advisor__phone:hover {
 
   .story-help__actions .btn {
     flex: 1 1 auto;
-  }
-
-  /* /immediate-assistance — the call-first screen keeps its order and its
-     classes, but its steps and alternatives read as hairline rows instead of
-     three stacked boxes (the eye-friendly grammar). */
-  .story-page .ia-steps {
-    padding: var(--space-5) 0 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
-  }
-
-  .story-page .ia-step {
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-  }
-
-  .story-page .ia-step__num {
-    background: var(--gold-wash-soft);
-    color: var(--gold-700);
-  }
-
-  .story-page .ia-alts__grid {
-    gap: var(--space-2);
-  }
-
-  .story-page .ia-alt {
-    padding: var(--space-3) 0;
-    border: 0;
-    border-top: 1px solid var(--color-rule);
-    border-radius: 0;
-    background: transparent;
   }
 }
 
@@ -20003,8 +19859,8 @@ a.plan-advisor__phone:hover {
      13.6px  .story-help p     "Questions about a service, chapel dates…"
 
    On a page whose readers are often older, the floor IS the design. Scoped to
-   `.sv-page`: `.story-facts` and `.story-help` are shared with /facilities,
-   /immediate-assistance and the guides, and this pass owns /services alone. */
+   `.sv-page`: `.story-facts` and `.story-help` are shared with /facilities
+   and the guides, and this pass owns /services alone. */
 .sv-page .sv-note,
 .sv-page .sv-small,
 .sv-page .story-facts dt,
@@ -20191,28 +20047,25 @@ a.plan-advisor__phone:hover {
   gap: var(--space-2);
 }
 
-/* THE GATEWAY'S OWN TYPE SCALE (office, inbox 034: "roughly twice" the band's
-   type and its call). Every step below is DERIVED FROM THE LADDER — one
-   multiplier drives all of it — and it is scoped to this band only, so no
-   other band, the header or any other button moves. Desktop only: phones keep
-   the ladder's own step-down (the tokens map the display roles down below
-   48rem), so the band steps down sensibly instead of clipping.
-     eyebrow   12 → 24px     (2 × --text-micro)
-     headline  57.6 → 92.8px (2 × --text-hero, CAPPED: at a true 2× = 115.2px
-               the two stored lines need ~1450px and the band is 1222px wide,
-               so 7.25rem is the largest size that keeps "Someone has died.
-               Call us" on one line at the widest desktop)
-     lead      16 → 32px     (2 × --text-lg)
-     the call  13.6 → 27.2px label, doubled padding from the same space
-               tokens, the icon riding the label at 1.35em. */
+/* THE GATEWAY'S OWN TYPE SCALE (office, inbox 034; corrected to 1.5 in inbox
+   036: one and a half times the ORIGINAL sizes). Every step below is DERIVED
+   FROM THE LADDER — one multiplier drives all of it — and it is scoped to this
+   band only, so no other band, the header or any other button moves. Desktop
+   only: phones keep the ladder's own step-down (the tokens map the display
+   roles down below 48rem), so the band steps down sensibly instead of
+   clipping.
+     eyebrow   12 → 18px     (1.5 × --text-micro)
+     headline  57.6 → 86.4px (1.5 × --text-hero); the true 2× cap is gone:
+               at 1.5× "Someone has died. Call us" is ~1087px, inside the
+               band's 1222px, so the size is honestly 1.5×
+     lead      16 → 24px     (1.5 × --text-lg)
+     the call  13.6 → 20.4px label, 1.5× padding from the same space tokens,
+               the icon riding the label at 1.35em. */
 @media (min-width: 48.001rem) {
   .home-gateway {
-    --gateway-type-scale: 2;
+    --gateway-type-scale: 1.5;
     --text-micro: calc(var(--gateway-type-scale) * var(--text-xs));
-    --text-hero: min(
-      calc(var(--gateway-type-scale) * var(--text-display)),
-      7.25rem
-    );
+    --text-hero: calc(var(--gateway-type-scale) * var(--text-display));
   }
 
   /* The lead doubles through its own role slot; the icon row's labels keep the
@@ -20222,16 +20075,20 @@ a.plan-advisor__phone:hover {
     font-size: var(--text-body);
   }
 
-  /* The primary action grows as a button, not just as text: its padding
-     doubles from the same tokens the base `.btn` uses. */
-  .home-gateway__actions .home-call {
+  /* BOTH actions in the row grow as buttons, not just as text — and they grow
+     together (office, inbox 041/043): same label size, same scaled padding,
+     same height. The call keeps the solid gold fill; Build keeps the gold
+     outline. */
+  .home-gateway__actions .home-call,
+  .home-gateway__actions .btn--gold-outline {
     --text-ui: calc(var(--gateway-type-scale) * var(--text-md));
     font-size: var(--text-ui);
     padding: calc(var(--gateway-type-scale) * var(--space-2))
       calc(var(--gateway-type-scale) * var(--space-4));
   }
 
-  .home-gateway__actions .home-call svg {
+  .home-gateway__actions .home-call svg,
+  .home-gateway__actions .btn--gold-outline svg {
     width: 1.35em;
     height: 1.35em;
   }

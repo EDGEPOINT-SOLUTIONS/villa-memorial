@@ -43,13 +43,11 @@ function PublicChromeHeader({ content }: { content: LandingContent }) {
 }
 
 /**
- * The closing action band on interior pages (F-17), with the one documented
- * exception: /immediate-assistance IS the call-first screen (F-01), so it keeps
- * its own content order and gets no second action band.
+ * The closing action band on interior pages (F-17). Every public page gets it:
+ * the former /immediate-assistance exception went with that page (office,
+ * inbox 040).
  */
 function PublicNextSteps({ content }: { content: LandingContent }) {
-  const pathname = usePathname();
-  if (pathname === "/immediate-assistance") return null;
   return <NextSteps contact={content.contact} />;
 }
 

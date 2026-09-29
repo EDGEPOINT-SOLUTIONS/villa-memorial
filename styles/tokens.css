@@ -274,7 +274,10 @@
      face means updating tests/unit/typography-system.test.ts in the same PR". */
   --font-display: "TeX Gyre Bonum", "Bookman Old Style", Georgia, "Times New Roman", serif;
   --font-serif: var(--font-display);
-  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  /* Manrope is the interface face (office, 2026-09-29); Inter stays behind it
+     so a font-load failure degrades to the previous face, not a system default. */
+  --font-sans: "Manrope", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+    sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 
   /* The ladder (P05). Seven steps with REAL jumps, and the top step is 44px

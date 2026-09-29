@@ -19,7 +19,7 @@ not interpret `@path` imports reads this text literally).
 
 | Nested file | Covers |
 |---|---|
-| [`app/(public)/AGENTS.md`](app/(public)/AGENTS.md) | Landing page and its content model · public services and casket catalogue · gallery · digital memorial · facilities · reach-us forms · `/plans/[sku]` · `/builder` · `/map` · `/immediate-assistance` · storefront imagery · public SEO surface |
+| [`app/(public)/AGENTS.md`](app/(public)/AGENTS.md) | Landing page and its content model · public services and casket catalogue · gallery · digital memorial · facilities · reach-us forms · `/plans/[sku]` · `/builder` · `/map` · storefront imagery · public SEO surface |
 | [`app/(staff)/AGENTS.md`](app/(staff)/AGENTS.md) | Content catalogue (page documents) · billing and provisional receipts · orders admin · catalog admin · cases, ops board, preparation, lot records, guarantee instruments · chapel administration · commission · copilot · admin platform and data screens |
 | [`app/(agent)/AGENTS.md`](app/(agent)/AGENTS.md) | Agent lots map · agent lead record |
 | [`app/(family)/AGENTS.md`](app/(family)/AGENTS.md) | Family portal |
@@ -344,13 +344,13 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - **The left rail's help card is `.rail-assist`** (captain: removed the
   2026-09-21 `rail-call` card, then reinstated an always-reachable help card in
   the 2026-09-25 storefront pass). It reads the staff-editable number from the
-  landing document; the number also stays reachable in the footer, `/contact`,
-  `/immediate-assistance` and the phone action bar's "Call 24/7". `.rail-call*`
+  landing document; the number also stays reachable in the footer, `/contact`
+  and the phone action bar's "Call 24/7". `.rail-call*`
   and the `rail-pulse` keyframe stay retired (`landing-view.test.tsx` fails
   their return).
 - **Wave A lane 1 (story · service · support) rebuilt eight routes on this grammar**
-  (`/services` + the three guides, `/facilities`, `/immediate-assistance`, `/faq`,
-  `/contact`). Its two shared page shapes live in `components/villa/story-ui.tsx`
+  (`/services` + the three guides, `/facilities`, `/faq`, `/contact` — and
+  `/immediate-assistance`, removed 2026-09-29, office inbox 040). Its two shared page shapes live in `components/villa/story-ui.tsx`
   (`StoryHelpBand` · `StorySteps`); everything else is the Phase 0 primitives. The
   lane's CSS is the appended `/* public: story block */` at the tail of
   `styles/components.css` — other lanes must not edit it and new story shapes belong
@@ -358,7 +358,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   budget, image caps) and the phone-height open item (the shared masthead/footer/closing
   band dominates the budget) live in `docs/08-delivery/story-minimal-design/README.md`;
   the pinned guards are `tests/unit/{villa-services-premium,facilities-page,faq-page,
-  immediate-assistance,service-entry-page,reading-budget}`.
+  service-entry-page,reading-budget}`.
 
 ## 2026 price list — where every client figure surfaces
 

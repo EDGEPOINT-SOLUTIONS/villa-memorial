@@ -53,7 +53,7 @@ describe("the home hero is the proof surface", () => {
       brandName: "Villa Memorial Park",
       headline: "Honoring every life with dignity and light.",
       subline: "You are not alone.",
-      primary: { label: "I need help now", href: "/immediate-assistance" },
+      primary: { label: "I need help now", href: "/contact" },
       secondary: { label: "Plan ahead", href: "/plans" },
     }),
   );

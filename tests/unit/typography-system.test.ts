@@ -4,7 +4,9 @@
  * rebuild to the aitooltiphub.com UI guide.
  *
  * The product owns TWO self-hosted faces, each with a job: TeX Gyre Bonum for
- * display (the client's own letterhead face) and Inter for the interface. Every
+ * display (the client's own letterhead face) and Manrope for the interface
+ * (office, 2026-09-29), with Inter kept behind Manrope as the interface
+ * fallback. Every
  * rendered text size is one of seven ladder steps (12px floor) chosen through a
  * single role→step map (styles/tokens.css). The paper/legal print layer keeps
  * the client's own faces — that is a separate, deliberate scale.
@@ -277,8 +279,6 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".rich-text h2",
         ".rte__host h2",
         ".ag-h2",
-        ".ia-steps h2",
-        ".ia-alts h2",
         ".ed-section__head h2",
         ".next-steps__title",
         ".price-module__title",
@@ -474,12 +474,15 @@ describe("typefaces", () => {
     //   display = TeX Gyre Bonum — the CLIENT'S OWN letterhead face, already
     //             vendored for the printed papers, so the website and the
     //             contract a family signs speak in one voice;
-    //   ui      = Inter — body, controls, tables, figures.
+    //   ui      = Manrope (office, 2026-09-29) — body, controls, tables,
+    //             figures; Inter stays in the stack behind it purely as the
+    //             fallback, so a font-load failure degrades to the previous
+    //             face rather than a system default.
     // AGENTS.md anticipates this: "a second face means updating
     // tests/unit/typography-system.test.ts in the same PR".
     const tokens = read("styles/tokens.css");
     expect(tokens).toMatch(/--font-display: *"TeX Gyre Bonum"/);
-    expect(tokens).toMatch(/--font-sans: *"Inter", system-ui/);
+    expect(tokens).toMatch(/--font-sans: *"Manrope", "Inter", system-ui/);
     // `--font-serif` is the display role under its historical name, so the ~60
     // rules written against it adopt the serif instead of silently falling back.
     expect(tokens).toMatch(/--font-serif: *var\(--font-display\)/);
@@ -492,7 +495,26 @@ describe("typefaces", () => {
     expect(tokens).not.toMatch(/Alegreya|Source Sans 3|Iowan|Palatino/);
   });
 
-  it("ships the Inter woff2 files and the OFL licence text, and no retired files", () => {
+  it("ships the Manrope woff2 files and the OFL licence text beside them", () => {
+    // The interface face (office, 2026-09-29). Its variable file covers
+    // 200–800 and its latin-ext subset carries U+20B1 (checked below). No
+    // italic file ships: Manrope has no italic and the product's italic text
+    // is the display serif.
+    const files = [
+      "public/fonts/manrope/manrope-latin.woff2",
+      "public/fonts/manrope/manrope-latin-ext.woff2",
+      "public/fonts/manrope/OFL.txt",
+    ];
+    for (const file of files) {
+      expect(existsSync(path.join(ROOT, file)), file).toBe(true);
+      expect(read(file).length).toBeGreaterThan(0);
+    }
+    const fonts = read("styles/fonts.css");
+    expect(fonts).toMatch(/@font-face\s*\{[^}]*font-family: *"Manrope"/s);
+    expect(fonts).not.toContain("Manrope-italic");
+  });
+
+  it("keeps the Inter woff2 files as the interface fallback", () => {
     const files = [
       "public/fonts/inter/inter-latin.woff2",
       "public/fonts/inter/inter-latin-ext.woff2",
@@ -518,20 +540,26 @@ describe("typefaces", () => {
     const fonts = read("styles/fonts.css");
     expect(fonts).not.toMatch(/Alegreya|Source Sans 3/);
     expect(fonts).toContain('font-family: "Inter"');
+    expect(fonts).toContain('font-family: "Manrope"');
     expect(fonts).toContain('font-family: "TeX Gyre Bonum"');
   });
 
-  it("keeps the peso sign (U+20B1) inside the shipped latin-ext ranges", () => {
+  it("keeps the peso sign (U+20B1) inside every shipped latin-ext range", () => {
     const fonts = read("styles/fonts.css");
-    // U+20B1 sits inside the latin-ext range U+20AD-20C0 of Inter (normal + italic).
+    // U+20B1 sits inside the latin-ext range U+20AD-20C0: Inter (normal +
+    // italic) and Manrope (normal) — three declarations carry it.
     const latinExtCount = fonts.split("U+20AD-20C0").length - 1;
-    expect(latinExtCount).toBeGreaterThanOrEqual(2);
+    expect(latinExtCount).toBeGreaterThanOrEqual(3);
     expect(fonts).toContain('font-family: "Inter"');
+    expect(fonts).toContain('font-family: "Manrope"');
   });
 
-  it("preloads the latin subset above the fold", () => {
+  it("preloads the interface face's latin subset above the fold", () => {
     const layout = read("app/layout.tsx");
-    expect(layout).toContain("/fonts/inter/inter-latin.woff2");
+    expect(layout).toContain("/fonts/manrope/manrope-latin.woff2");
+    // Inter is the fallback only: it must not be preloaded (it downloads only
+    // if Manrope fails), and no retired face may return.
+    expect(layout).not.toContain("/fonts/inter/inter-latin.woff2");
     expect(layout).not.toContain("alegreya");
     expect(layout).not.toContain("source-sans-3");
   });

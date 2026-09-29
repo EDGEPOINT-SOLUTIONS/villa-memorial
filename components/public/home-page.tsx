@@ -185,7 +185,11 @@ export function HomePage({
               <Phone size={18} aria-hidden="true" />
               {contact.phoneDisplay}
             </a>
-            <Link className="btn btn--secondary" href={gateway.secondary.href}>
+            {/* The office's explicit override (inbox 041): this ONE band action
+                wears the call's gold as an outline, so the pair reads as a
+                deliberate set. The variant lives in the stylesheet and is not
+                for other bands; the call keeps the solid fill. */}
+            <Link className="btn btn--secondary btn--gold-outline" href={gateway.secondary.href}>
               {gateway.secondary.label}
               <ArrowRight size={18} aria-hidden="true" />
             </Link>

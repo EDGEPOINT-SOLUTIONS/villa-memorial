@@ -27,7 +27,7 @@ function withBaskets(node: React.ReactNode) {
  *  · list items stay short too, so prose cannot move into a list.
  *
  * Scope: the public content pages that joined this guard — /services, /plans,
- * /immediate-assistance, /facilities, /gallery and the digital-memorial
+ * /facilities, /gallery and the digital-memorial
  * search/find/detail screens (F-04) — plus the agent portal's
  * lead record (F-09); each page joined in the PR that added it (a room page is
  * read at a glance; the lead record must answer the person, the state and the
@@ -93,9 +93,6 @@ const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku]/page");
-const { default: ImmediateAssistancePage } = await import(
-  "@/app/(public)/immediate-assistance/page"
-);
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
@@ -157,11 +154,6 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/price-list",
     render: async () =>
       renderToStaticMarkup(withBaskets( await PriceListPage())),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
-  },
-  {
-    name: "/immediate-assistance",
-    render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {

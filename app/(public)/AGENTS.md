@@ -147,10 +147,10 @@
   `components/landing/next-steps.tsx`, rendered by `PublicShell` (interior pages)
   and `LandingView` (home) from the landing contact document — call the office
   (primary, a real `tel:` link with a “Call …” label), ask a question (`/contact`),
-  start the arrangement (`/builder`). `/immediate-assistance` is the one documented
-  exemption: it IS the call-first screen (F-01) and renders no band. Never add a
-  second closing grammar or a per-page CTA list; a new public page inherits it
-  from the shell.
+  start the arrangement (`/builder`). EVERY public page gets it: the former
+  /immediate-assistance exemption went with that page (office, inbox 040). Never
+  add a second closing grammar or a per-page CTA list; a new public page inherits
+  it from the shell.
 - **The contact surface is `/contact`**: the message form comes FIRST and the
   office's published facts CLOSE the page — both hotlines, the main-office and park
   addresses, availability, then the directions card last — plus the
@@ -342,28 +342,17 @@
   `price-surfacing`, `cart-catalogue`, `quote-basket` and `villa-services-premium` pin the
   strings, so a label reworded without its aria-label fails there.
 
-## Immediate assistance — `/immediate-assistance` (read before touching it or its entry points)
+## Immediate assistance — REMOVED (office, 2026-09-29, inbox 040)
 
-- The F-01 screen (captain 2026-09-18): the hardest moment gets its own page. Its content
-  order is the contract — the enormous `tel:` call first (read from the landing document's
-  contact region, zone 01; never typed), then four numbered steps, then one reassurance line,
-  then the secondary alternatives (location · `/contact` · `/client/login`). Full width
-  belongs to the call; nothing else asks for a decision. One `h1`, no motion, tokens only.
-  Honest states: the content document carries no street address and no office hours, so they
-  are omitted — never invent a second number or a schedule.
-- Entry points are the phone bar's `anchored-phonebar__btn--help` target (mobile;
-  the approved D3 bar carries three targets — recorded in
-  `docs/08-delivery/public-nav-design/README.md` §4) and the guide pages'
-  "Immediate assistance" buttons. The retired header utility row's
-  `anchored-header__assist` chip and the home rail's `rail-call__assist` link are
-  both gone (captain 2026-09-21); the phone bar's "Call 24/7" is the one-tap call.
-  Never add a nav menu entry.
-- It is a reading-budget page: `tests/unit/reading-budget.test.tsx` renders it (paragraphs
-  ≤ 30 words, opening sentence ≤ 12, list items ≤ 30) and the phone number + step 1 must
-  stay above the fold at 390 px (evidence + screenshots under
-  `docs/08-delivery/immediate-assistance-design/`). `tests/unit/immediate-assistance.test.tsx`
-  pins the call-first order, the doc-driven number, the steps and the honest omissions;
-  `lib/seo.ts` publishes the route in `PUBLIC_PAGES` and `sitemap.xml`.
+- The route `app/(public)/immediate-assistance/` is DELETED; the old URL answers
+  as not-found (no redirect stub was added — the office can ask for one). Its
+  entry points were rewired, not left dangling: the phone bar's
+  `anchored-phonebar__btn--help` "Get help" opens `/contact`, and the guide
+  pages' "Immediate assistance" outline action points at `/contact`. The sitemap
+  entry in `lib/seo.ts` and `PublicShell`'s closing-band exemption went with it.
+  The historical design record is
+  `docs/08-delivery/immediate-assistance-design/` — read it as history, never as
+  a live route.
 
 ## Facilities page — `/facilities` (the rooms a family is choosing between)
 

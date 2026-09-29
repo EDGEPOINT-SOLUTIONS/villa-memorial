@@ -120,18 +120,19 @@ describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
     expect(RULES).not.toContain(".home-trust__note");
   });
 
-  it("scales the band 2× from the ladder, desktop only (inbox 034)", () => {
+  it("scales the band 1.5× from the ladder, desktop only (inbox 034/036)", () => {
     // One multiplier, scoped to band 1 and to desktop — every step derived
-    // from an existing alias so nothing else in the product moves.
-    const at = RULES.indexOf("--gateway-type-scale: 2;");
+    // from an existing alias so nothing else in the product moves. The 2×
+    // cap is gone: at 1.5× the headline genuinely is 1.5× (86.4px) and fits.
+    const at = RULES.indexOf("--gateway-type-scale: 1.5;");
     expect(at, "the gateway scale block exists").toBeGreaterThanOrEqual(0);
     const block = RULES.slice(RULES.lastIndexOf("@media", at), RULES.indexOf("\n}", at));
     expect(block).toContain("@media (min-width: 48.001rem)");
     expect(block).toMatch(/--text-micro:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-xs\)\)/);
-    expect(block).toMatch(/--text-hero:\s*min\(/);
-    // The headline's cap: true 2× (115.2px) would push the first stored line
-    // past the 1222px band, so 7.25rem (92.8px) is the largest that fits.
-    expect(block).toContain("7.25rem");
+    expect(block).toMatch(
+      /--text-hero:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-display\)\)/,
+    );
+    expect(block).not.toContain("min(");
     expect(block).toMatch(
       /--text-body:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-lg\)\)/,
     );
