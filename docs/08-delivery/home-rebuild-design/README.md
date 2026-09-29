@@ -262,7 +262,15 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   visitor: the server HTML itself carries the sign, the CSS drop runs from the
   first frame (hydration only arms the timers), and the home is rendered
   underneath — when the sequence ends the overlay simply unmounts, with nothing
-  to navigate. A returning visitor's request carries the cookie and gets the
+  to navigate. The overlay is an OPAQUE white veil (office, inbox 059): the
+  visible first paint is a plain white page carrying only the cloud, and the
+  home behind it is `inert` until the veil lifts (hidden visually, unreachable
+  by Tab or a screen reader). When the exit finishes, the veil's leaving fade
+  runs out and the home — already there — simply appears. Verified end to end in
+  a fresh profile: at ~250ms the page is white with the cloud in the drop; the
+  home is inert from hydration (into the ~2.3s exit); the leaving fade begins
+  ~3.3s with the cookie already written; by ~3.6s the overlay is unmounted, the
+  home is inert-free and on screen. A returning visitor's request carries the cookie and gets the
   home alone. Measured in a fresh Chromium profile: the overlay is in the DOM
   and the drop animation is running at the first sample (~150ms: `translateY`
   −650, `home-intro-drop:0:running`), the URL never leaves `/`, the session

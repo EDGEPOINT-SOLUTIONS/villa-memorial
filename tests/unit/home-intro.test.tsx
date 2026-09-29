@@ -108,6 +108,15 @@ describe("the home's entrance sign", () => {
     expect(COMPONENT).toContain('aria-modal="true"');
     expect(COMPONENT).toContain("rootRef.current?.focus()");
     expect(COMPONENT).toContain('className="home-intro__skip"');
+    // The first paint is a PLAIN WHITE page (office, inbox 059): the veil is
+    // opaque, never a translucent wash the home could read through.
+    const veil = /\.home-intro \{[^}]*\}/.exec(CSS)?.[0] ?? "";
+    expect(veil).toContain("background: var(--paper-0);");
+    expect(veil).not.toContain("color-mix(in srgb, var(--paper-0) 94%");
+    // The home underneath is inert while the sign is up — hidden visually,
+    // but also unreachable by Tab or a screen reader until the veil lifts.
+    expect(COMPONENT).toContain('behind?.setAttribute("inert", "")');
+    expect(COMPONENT).toContain('behind?.removeAttribute("inert")');
   });
 
   it("honours reduced motion by showing the greeting without motion", () => {

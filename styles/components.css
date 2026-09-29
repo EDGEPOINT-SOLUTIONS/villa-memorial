@@ -20964,9 +20964,12 @@ a.plan-advisor__phone:hover {
    and the overlay is removed. The cloud's geometry, its sky gradient, the
    blurred highlight/underside and the cords/beads/word treatment are the
    reference's own ARTWORK; the skip control is ordinary UI. The sign is the
-   FIRST PAINT of `/` (office, inbox 058): the home route cookie-gates this
-   overlay into the server HTML, so the visitor sees it immediately with the
-   home already behind it — no redirect, no flash, no blank second route.
+   FIRST PAINT of `/` (office, inboxes 058/059): the home route cookie-gates
+   this overlay into the server HTML, and the overlay is an OPAQUE white veil —
+   the visitor sees a plain white page carrying only the cloud, never the home
+   it is covering (the home is rendered underneath, hidden and inert). When the
+   exit ends the veil fades, and the home is simply there. No redirect, no
+   flash, no blank second route.
    Motion is the reference's, rebuilt COMPOSITOR-ONLY (office, inbox 057): the whole hang
    drops as one translateY gesture whose track carries the decaying sway as
    follow-through, and the exit recoils on scaleY/translateY/scale — no
@@ -20983,7 +20986,10 @@ a.plan-advisor__phone:hover {
   inset: 0;
   z-index: 120; /* above the header (40) and the phone bar (55) */
   overflow: hidden;
-  background: color-mix(in srgb, var(--paper-0) 94%, transparent);
+  /* OPAQUE: the first paint is a plain white page with only the sign on it.
+     The home is rendered behind it (indexable, no reload) and is revealed
+     when the exit ends and the leaving fade runs this veil out. */
+  background: var(--paper-0);
   outline: none;
   /* No-JS fallback: if the client never hydrates, the overlay leaves on its
      own — a transform, so it neither paints a frame nor blocks the page it

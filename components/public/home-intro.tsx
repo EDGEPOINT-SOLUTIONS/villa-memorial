@@ -10,15 +10,16 @@ import { INTRO_COOKIE, SEEN_KEY } from "@/lib/home-intro";
  * cloud on two cords drops over the page, the words surface, then the cords
  * stretch, thin and snap the cloud away.
  *
- * IT IS THE FIRST PAINT OF `/` (office, inbox 058). The home route reads the
- * `villa_home_intro_seen` cookie BEFORE render and puts this overlay in the
- * HTML for an unseen visitor, so the visitor sees the sign — mid-drop, CSS
- * animation already running — with no homepage flash and no blank hop through
- * a second route. The overlay takes itself down when the sequence ends; the
- * home was rendered behind it all along, so nothing navigates. A returning
- * visitor's request carries the cookie and the home server-renders without it.
- * `/entrance` still exists as the blank `noindex` demo route for a direct
- * visit; there the overlay hands off to `/` (replacing the history entry).
+ * IT IS THE FIRST PAINT OF `/` (office, inboxes 058/059). The home route reads
+ * the `villa_home_intro_seen` cookie BEFORE render and puts this overlay in the
+ * HTML for an unseen visitor: a PLAIN WHITE page (the overlay is an opaque
+ * veil) carrying only the sign, with the drop already running in CSS from the
+ * first frame. The home is rendered underneath — indexable, no reload, no
+ * client redirect — but it is visually hidden by the veil and made INERT while
+ * the sign is up. When the sequence ends the veil fades and the home is simply
+ * there; a returning visitor's request carries the cookie and gets the home
+ * alone. `/entrance` still exists as the blank `noindex` demo route for a
+ * direct visit; there the overlay hands off to `/` (replacing the history).
  *
  * The matching visual specifics are the reference's: the 400×200 cloud SVG
  * (five circles + the rounded base), the `#7cbcec → #2f6cab` sky gradient, the
@@ -89,6 +90,8 @@ export function EntranceHandoff({ hello, welcome }: { hello: string; welcome: st
  * and this effect removes it before it reads).
  */
 export function HomeSignOverlay({ hello, welcome }: { hello: string; welcome: string }) {
+  // While this overlay is up the home underneath stays hidden and inert; the
+  // play effect in HomeSign owns that attribute and removes it on unmount.
   const [hidden, setHidden] = useState(false);
   useEffect(() => {
     try {
@@ -128,11 +131,19 @@ export function HomeSign({
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
-  // Play: focus the sign (so keys dismiss), arm the phases and any-input skip.
-  // Hydration only arms the timers — the motion itself runs in CSS from the
-  // server-rendered first paint, so a slow bundle never delays the animation.
+  // Play: focus the sign (so keys dismiss), make the page under the veil
+  // INERT (hidden visually, but screen readers and Tab must not reach it),
+  // arm the phases and any-input skip. Hydration only arms the timers — the
+  // motion itself runs in CSS from the server-rendered first paint, so a slow
+  // bundle never delays the animation.
   useEffect(() => {
     rootRef.current?.focus();
+    const behind = document.querySelector(".home");
+    behind?.setAttribute("inert", "");
+    return () => behind?.removeAttribute("inert");
+  }, []);
+
+  useEffect(() => {
     const enterTimer = window.setTimeout(() => setPhase("exit"), EXIT_AT_MS);
     const exitTimer = window.setTimeout(
       () => setLeaving(true),
