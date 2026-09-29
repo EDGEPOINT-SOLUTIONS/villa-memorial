@@ -412,7 +412,7 @@ export function Park3dView({
             <input
               type="search"
               value={filters.text}
-              placeholder="Search: P-001, premium, available…"
+              placeholder="Search: A-001, premium, available…"
               onChange={(event) =>
                 setFilters((current) => ({ ...current, text: event.target.value }))
               }
@@ -529,8 +529,8 @@ export function Park3dView({
           <div className="park3d__details">{details}</div>
 
           <p className="park3d__note">
-            Placeholder inventory marked <code>P-</code>/<code>PR-</code>/<code>G-</code>/
-            <code>GN-</code>; prices read “Contact for pricing” until the park publishes real lots.
+            Every plot is a recorded lot the lot pages also list; a plot with no published price
+            reads “Price on request” until the office quotes it.
             {canPlot
               ? " Plotting is open to you (property:write) — edits share one store with the map view."
               : " Plotting is handled by the office on the property map; you can inspect and select any plot."}

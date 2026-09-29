@@ -19,14 +19,16 @@
  *    `showReserveRequest={false}` and supplies it through `children`.
  *
  * ⚠ Prices: a plot that is linked to a published Lot shows that lot's real price.
- * Every other plot — including the placeholder inventory (P-/PR-/G-/GN- codes)
- * — shows "Contact for pricing". No price is ever invented here.
+ * Every other recorded plot shows "Price on request" (the office quotes per plot)
+ * — the same honest state the lot card prints. No price is ever invented here.
+ *
+ * The generated placeholder inventory was removed 2026-09-30: every plot this
+ * panel can describe is now a recorded plot the lot pages also show.
  */
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { LOT_TONE, lotStatusLabel } from "@/components/property-map";
 import { legendEntry, type PlotArea } from "@/lib/park-maps";
-import { placeholderSectionLabel } from "@/lib/park-3d/placeholder-lots";
 import type { Lot } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
 import { plotDimensionsMetres } from "@/lib/park-3d/plot-geometry";
@@ -77,9 +79,7 @@ export function PlotDetails({
     : null;
   const plotType = legendEntry(selected.area.typeId);
   const dimensions = plotDimensionsMetres(selected.area);
-  const sectionLabel =
-    placeholderSectionLabel(selected.area.code) ?? selected.area.sectionBlock ?? "—";
-  const isPlaceholder = placeholderSectionLabel(selected.area.code) !== undefined;
+  const sectionLabel = selected.area.sectionBlock ?? "—";
 
   return (
     <div className="stack">
@@ -131,7 +131,7 @@ export function PlotDetails({
           <dd>
             {linkedLot
               ? formatMinorUnits(linkedLot.price_cents, linkedLot.currency)
-              : "Contact for pricing"}
+              : "Price on request"}
           </dd>
         </div>
       </dl>
@@ -163,19 +163,13 @@ export function PlotDetails({
             memorial park office.
           </p>
         )
-      ) : isPlaceholder ? (
-        <p className="text-sm text-muted">
-          <strong>{selected.area.code}</strong> is a <strong>placeholder lot</strong> from the
-          masterplan blockout — a labelled stand-in until the park publishes its real lot list.
-          Both park modes draw this same record, so a plot the office places or adjusts appears
-          here too.
-        </p>
       ) : (
         <p className="text-sm text-muted">
-          This is a demo plot area on the park map, marked as a{" "}
+          This is a recorded park plot, marked as a{" "}
           <strong>{plotType?.name ?? "Standard"}</strong> area and currently{" "}
-          <strong>{selected.area.status}</strong>. Online reservation and ordering for plots arrive
-          with the geometry &amp; M1 contracts (dev).
+          <strong>{selected.area.status}</strong>. It is not linked to a published lot, so the
+          office quotes per plot. Online ordering arrives with the geometry &amp; M1 contracts
+          (dev).
         </p>
       )}
 

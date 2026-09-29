@@ -95,6 +95,7 @@ const { default: PriceListPage } = await import("@/app/(public)/price-list/page"
 const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku]/page");
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
+const { default: PublicMapPage } = await import("@/app/(public)/map/page");
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
@@ -180,6 +181,17 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/gallery",
     render: async () =>
       renderToStaticMarkup(withBaskets( await GalleryPage())),
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    // The park page opens on the home's gateway (captain 2026-09-30): one
+    // short lead + the Map / Lots actions; the map band adds labels and
+    // figures, not prose.
+    name: "/map (Villa Memorial Park)",
+    render: async () =>
+      renderToStaticMarkup(
+        await PublicMapPage({ searchParams: Promise.resolve({}) }),
+      ),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {

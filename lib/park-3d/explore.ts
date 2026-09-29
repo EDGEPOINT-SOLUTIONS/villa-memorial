@@ -8,12 +8,13 @@
  * plots that pass the filter, so filtering genuinely changes what is visible and
  * selectable in the world.
  *
- * Section naming is derived, never invented: a placeholder code (`P-001`,
- * `PR-001`, `G-001`, `GN-001`) belongs to the masterplan section
- * `placeholder-lots.ts` assigns it; everything else falls back to the plot's own
- * stored section text, then to its legend type name.
+ * Section naming is derived, never invented: a recorded plot belongs to the
+ * masterplan section its legend TYPE names (`lt-premium` → PREMIUM LOTS, …); a
+ * plot with no type falls back to its own stored section text, then to
+ * "Unassigned". The generated placeholder inventory was removed 2026-09-30, so
+ * these labels are the same on every recorded plot and the four section ids the
+ * 3D explorer flies to still resolve.
  */
-import { placeholderSectionLabel } from "@/lib/park-3d/placeholder-lots";
 import type { PlotArea } from "@/lib/park-maps";
 import { parkType } from "@/lib/park-types";
 
@@ -30,13 +31,14 @@ export type PlotFilters = {
 
 export const NO_FILTER: PlotFilters = { text: "", status: ANY, section: ANY };
 
-/** The section a plot belongs to, as a display label. */
+/** The section a plot belongs to, as a display label. The legend TYPE owns the
+ *  masterplan section name (so a recorded A/B/C/D plot lands on PRIMARY LOTS /
+ *  PREMIUM LOTS / GARDEN NICHES / MAUSOLEUM); stored section text is the
+ *  fallback for a plot with no type. */
 export function plotSectionLabel(area: PlotArea): string {
-  const fromPlaceholder = placeholderSectionLabel(area.code);
-  if (fromPlaceholder) return fromPlaceholder;
+  if (area.typeId) return parkType(area.typeId).name;
   const stored = area.sectionBlock?.split("·")[0]?.trim();
   if (stored) return stored;
-  if (area.typeId) return parkType(area.typeId).name;
   return "Unassigned";
 }
 

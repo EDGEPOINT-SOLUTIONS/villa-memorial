@@ -27,7 +27,7 @@ function parked() {
       backgroundTransparency: 100,
     },
     tabs: [
-      { id: "tab-view", label: "Park view", href: "/map", note: null },
+      { id: "tab-view", label: "Map", href: "/map", note: null },
       { id: "tab-lots", label: "Lots", href: "/map?tab=lots", note: null },
     ],
     blocks: [],
@@ -58,7 +58,7 @@ describe("the page-document store", () => {
   it("reads the recorded park seed with its two tabs", async () => {
     const park = await getPageDocument("park");
     expect(park?.hero.headline).toBe("Villa Memorial Park");
-    expect(park?.tabs.map((tab) => tab.label)).toEqual(["Park view", "Lots"]);
+    expect(park?.tabs.map((tab) => tab.label)).toEqual(["Map", "Lots"]);
   });
 
   it("saves an edit and serves it to the next read", async () => {

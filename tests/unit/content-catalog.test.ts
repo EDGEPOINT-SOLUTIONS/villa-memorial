@@ -43,7 +43,7 @@ function parkDocument(overrides: Record<string, unknown> = {}) {
       textColour: null,
     },
     tabs: [
-      { id: "tab-view", label: "Park view", href: "/map", note: null },
+      { id: "tab-view", label: "Map", href: "/map", note: null },
       { id: "tab-lots", label: "Lots", href: "/map?tab=lots", note: null },
     ],
     blocks: [],

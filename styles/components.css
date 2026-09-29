@@ -5519,7 +5519,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   border: 1px solid var(--color-border);
 }
 
-/* Plot label: legend type line (coloured dot + type name) */
+/* Plot label: legend type line (coloured box + type name) */
 .plot-label__type {
   display: inline-flex;
   align-items: center;
@@ -5541,7 +5541,8 @@ because the shared `.ag-appt` rule comes later in this file. */
   content: "";
   width: 0.55em;
   height: 0.55em;
-  border-radius: 50%;
+  /* A box, like the plot it names — the map draws rectangles, never circles. */
+  border-radius: 1px;
   flex: none;
   background: var(--plt, var(--color-border-strong));
   box-shadow: 0 0 2px var(--color-bg-surface);
@@ -8684,11 +8685,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   border-radius: var(--radius-lg);
 }
 
-/* Park page view tabs (Park view · Lots) — the same pill grammar as the
-   catalogue filters, as a navigation row rather than a button group. */
-.park-tabs {
-  margin: 0 0 var(--space-4);
-}
+/* Park page view tabs (Park view · Lots) were removed with the opening
+   rebuild (2026-09-30): the two views are now the gateway's own "Map" / "Lots"
+   actions, so no standalone `.park-tabs` navigation renders. */
 
 /* Quote basket: framed line items + brass-trimmed summary */
 .quote-page .page-section .table-wrapper,
@@ -22242,5 +22241,168 @@ a.plan-advisor__phone:hover {
   .blog-row {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
+  }
+}
+
+/* ============================================================================
+   public: map block — the /map park page (captain 2026-09-30)
+   The page opens on the home's gateway grammar, exactly as /services does, and
+   its one map band carries a designed head, the honest box key and the sticky
+   dossier. Scoped to `.park-page` so the home, /services and the /blog map
+   embed are untouched. One named block (the story/plan lanes' own rule): other
+   lanes append theirs, never edit this one.
+   ========================================================================== */
+
+/* Band 1 · the gateway — the stripped, centred opening /services wears. */
+.park-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.park-page .public-hero--interior::before {
+  content: none;
+}
+
+.park-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.park-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.park-page .public-hero--interior .public-hero__eyebrow,
+.park-page .public-hero--interior .public-hero__title,
+.park-page .public-hero--interior .public-hero__lead {
+  text-align: center;
+}
+
+/* The gateway eyebrow matches /services: 12px micro, sky-700, wide tracking. */
+.park-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+}
+
+/* First-section title: the page-title step, non-bold (captain 2026-09-30). */
+.park-page .public-hero--interior .public-hero__title {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.park-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+}
+
+.park-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* Band 1's three-fact trust row, under a hairline. Every fact is a record
+   count read by the page, never a claim. */
+.park-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-4) var(--space-6);
+  margin: var(--space-5) 0 0;
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--color-rule);
+  list-style: none;
+}
+
+.park-facts > li {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-1);
+  text-align: center;
+}
+
+.park-facts strong {
+  font-size: var(--text-body);
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+.park-facts span {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* Band 2 · the map band head — the home's grammar, every section title at the
+   page-title step, weight 500, never bold (captain 2026-09-30). */
+.park-page .home-band-head__title {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* The map key: TYPE is the box FILL, STATUS is a paper box with a 2px status
+   edge — the same combined grammar `parks-canvas.tsx` draws. A box, not a dot:
+   the canvas is all rectangles. */
+.map-key {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.map-key__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.map-key__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.map-key__swatch {
+  display: inline-block;
+  width: 0.875rem;
+  height: 0.625rem;
+  border-radius: 2px;
+  box-sizing: border-box;
+}
+
+.map-key__swatch--type {
+  border: 1px solid var(--color-border-strong);
+}
+
+.map-key__swatch--status {
+  background: var(--color-bg-surface);
+  border: 2px solid var(--color-border-strong);
+}
+
+.map-key__swatch--status.map-key__swatch--success { border-color: var(--color-status-success); }
+.map-key__swatch--status.map-key__swatch--warning { border-color: var(--color-status-warning); }
+.map-key__swatch--status.map-key__swatch--info { border-color: var(--color-status-info); }
+.map-key__swatch--status.map-key__swatch--danger { border-color: var(--color-status-danger); }
+.map-key__swatch--status.map-key__swatch--neutral { border-color: var(--granite-400); }
+
+.map-key__sep {
+  width: 1px;
+  height: 1rem;
+  background: var(--color-border-strong);
+}
+
+@media (max-width: 40rem) {
+  .map-key__sep {
+    display: none;
+  }
+
+  .park-facts {
+    gap: var(--space-3) var(--space-5);
   }
 }

@@ -104,7 +104,7 @@ describe("Pages & content", () => {
     expect(html).toContain("Interactive park map");
     expect(html).toContain("Page tabs");
     expect(html).toContain("Content blocks");
-    expect(html).toContain("Park view");
+    expect(html).toContain("Map");
   });
 
   it("gives each plans tier the description + photo controls in the block canvas", async () => {

@@ -4,12 +4,15 @@ import PublicMapPage from "@/app/(public)/map/page";
 import { getPageDocument, savePageDocument } from "@/lib/api-client/content-pages";
 
 /**
- * The park page's content catalogue wiring (Phase 1):
+ * The park page's content catalogue wiring (Phase 1; opening rebuilt 2026-09-30):
  *
- *   · the hero comes from the "Villa Memorial Park" page document, so a save in
- *     Pages & content is what the next visitor reads;
+ *   · the page opens on the home's gateway grammar — a visible h1, one short
+ *     lead and the two view actions **Map** / **Lots** (they replace the old
+ *     pill tabs);
+ *   · the hero words come from the "Villa Memorial Park" page document, so a save
+ *     in Pages & content is what the next visitor reads;
  *   · the lots listing is a TAB of the page (and the /lots route still exists);
- *   · the page's content blocks render under the tabs;
+ *   · the page's content blocks render under the map;
  *   · the public page stays view-only (the existing public-map-view-only suite
  *     pins the map component; this pins the page's own output too).
  */
@@ -25,13 +28,13 @@ function parkSeed(): Record<string, unknown> {
     hero: {
       eyebrow: "Interactive park map",
       headline: "Villa Memorial Park",
-      lead: "Walk the grounds.",
+      lead: "Every recorded plot, its status, and where it sits.",
       image: null,
       background: null,
       backgroundTransparency: 100,
     },
     tabs: [
-      { id: "tab-view", label: "Park view", href: "/map", note: null },
+      { id: "tab-view", label: "Map", href: "/map", note: null },
       { id: "tab-lots", label: "Lots", href: "/map?tab=lots", note: null },
     ],
     blocks: [],
@@ -40,18 +43,32 @@ function parkSeed(): Record<string, unknown> {
 }
 
 describe("the park page", () => {
-  it("opens on the tabs and the map, with the page named by a hidden h1", async () => {
+  it("opens on the gateway with the Map / Lots actions and a visible h1", async () => {
     const html = renderToStaticMarkup(await page());
-    // The opening hero band was removed (2026-09-28): the map leads.
-    expect(html).not.toContain("Interactive park map");
-    expect(html).not.toContain("deep-link any plot");
-    expect(html).not.toContain("Browse all plots");
-    // The route keeps exactly one h1 — visually hidden — so it is still named.
-    expect(html).toContain('class="visually-hidden">Villa Memorial Park</h1>');
+    expect(html).toContain('data-public-hero="interior"');
+    // The route keeps exactly one h1 — now visible, naming the page.
     expect(html.match(/<h1/g) ?? []).toHaveLength(1);
-    expect(html).toContain("Park view");
-    expect(html).toContain("Lots");
+    expect(html).not.toContain('class="visually-hidden">Villa Memorial Park</h1>');
+    expect(html).toContain("Villa Memorial Park");
+    // The two view actions replace the old standalone pill tabs.
+    expect(html).toContain('href="/map"');
+    expect(html).toContain('href="/map?tab=lots"');
+    expect(html).toContain(">Map</a>");
+    expect(html).toContain(">Lots</a>");
+    expect(html).not.toContain("park-tabs");
+    // The map band head and the framed canvas lead the page.
+    expect(html).toContain("home-band-head");
     expect(html).toContain("map-shell");
+  });
+
+  it("prints the recorded-plot counts, never a placeholder count", async () => {
+    const html = renderToStaticMarkup(await page());
+    // The 16 recorded plots / 10 available the lot pages also show.
+    expect(html).toContain("16 recorded plots");
+    expect(html).toContain("4 lot types");
+    expect(html).toContain("10 available");
+    // The generated placeholder inventory is gone from the page entirely.
+    expect(html).not.toContain("placeholder");
   });
 
   it("shows the Lots listing inside the Lots tab", async () => {
@@ -60,16 +77,16 @@ describe("the park page", () => {
     expect(html).not.toContain("map-shell");
   });
 
-  it("no longer renders the saved hero — the band was removed", async () => {
+  it("renders the saved hero words in the gateway", async () => {
     await savePageDocument("park", {
       ...parkSeed(),
       hero: { ...(parkSeed().hero as Record<string, unknown>), headline: "The park, revised" },
     });
     const html = renderToStaticMarkup(await page());
-    expect(html).not.toContain("The park, revised");
+    expect(html).toContain("The park, revised");
   });
 
-  it("renders the page document's content blocks under the tabs", async () => {
+  it("renders the page document's content blocks under the map", async () => {
     await savePageDocument("park", {
       ...parkSeed(),
       blocks: [

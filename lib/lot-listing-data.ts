@@ -96,7 +96,10 @@ export function buildLotListing(
       key: `${park.id}-${plot.code}`,
       code: plot.code,
       href: lot ? `/lots/${lot.id}` : `/map?park=${park.id}&plot=${encodeURIComponent(plot.code)}`,
-      status: plot.status,
+      // The property service owns availability: a linked lot's LIVE status and
+      // owner win, exactly as the map overlay (`lib/park-live-lots.ts`) draws
+      // them — so the listing and the map can never disagree about one plot.
+      status: lot?.status ?? plot.status,
       typeId: type.id,
       typeName: type.name,
       hasLot: lot !== null,

@@ -55,6 +55,7 @@ const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
 const { default: BlogRoute } = await import("@/app/(public)/blog/page");
+const { default: PublicMapPage } = await import("@/app/(public)/map/page");
 
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
@@ -258,6 +259,18 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       'id="walk"',
     ],
     requires: ["data-section-head", "data-public-image"],
+  },
+  {
+    // The park page (captain 2026-09-30): the gateway (Map / Lots actions and
+    // the park-facts row) → the designed map band head → the framed canvas.
+    // The lots tab is the same page and is covered by /lots' own blueprint.
+    name: "/map (Villa Memorial Park)",
+    render: async () =>
+      renderToStaticMarkup(
+        await PublicMapPage({ searchParams: Promise.resolve({}) }),
+      ),
+    sections: ['data-public-hero="interior"', "park-facts", "home-band-head", "map-shell"],
+    requires: ["data-public-hero"],
   },
   {
     // plan §5.3/§5.5: hero → the family photographs → the four rate tables, the

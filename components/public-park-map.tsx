@@ -8,7 +8,7 @@
  * show real lot info; map-only plots explain their status honestly.
  *
  * Two connected modes (spec §3, docs/07-client-villa/park-3d-spec.md):
- *   · MAP — the plain masterplan image;
+ *   · MAP — the plain masterplan image, opening under a designed band head;
  *   · 3D  — the orbit-navigated park, built from the same masterplan, entered in
  *           FULL SCREEN, with every control INSIDE the experience.
  * Both read ONE plot store and the selection is shared.
@@ -77,12 +77,19 @@ export function PublicParkMap({
   initialPark,
   initialPlot,
   enable3d = false,
+  bandHead,
 }: {
   lots: Lot[];
   initialPark?: string;
   initialPlot?: string;
-  /** Opt-in: only the park page hosts the 3D park. */
+  /** Opt-in: only the park page hosts the 3D park and its designed band head. */
   enable3d?: boolean;
+  /**
+   * The park page's designed band head (kicker · title · lead). When present it
+   * renders ABOVE the framed map with the ONE 3D outline action in it; the
+   * old page-chrome “Map / 3D” switch and its sentence are gone.
+   */
+  bandHead?: { kicker: string; title: string; lead?: string };
 }) {
   const [selected, setSelected] = useState<{ area: PlotArea; parkId: string } | null>(null);
   const [parkId, setParkId] = useState<string>(() => initialPark ?? VILLA_PARK_ID);
@@ -211,22 +218,23 @@ export function PublicParkMap({
 
   return (
     <div className="stack-4 park-mode" ref={hostRef}>
-      {/* Page chrome — only while the plain map is on screen. In 3D everything
-          lives inside the experience (mode switch, exit, toggles, details). */}
+      {/* The park page's designed band head — kicker · title · lead and the ONE
+          3D outline action — sits ABOVE the framed map (captain 2026-09-30).
+          The old page-chrome “Map / 3D” switch and its two-sentence explainer
+          are deleted: the gateway owns the Map/Lots view switch now, and 3D is
+          a single action in this band. The /blog embed passes no head. */}
       {enable3d && mode === "map" ? (
-        <div className="row row--wrap park-mode-switch">
-          <div className="btn-group" role="tablist" aria-label="Park view mode">
-            <Button variant="primary" size="sm" role="tab" aria-selected onClick={() => setMode("map")}>
-              Map
-            </Button>
-            <Button variant="secondary" size="sm" role="tab" aria-selected={false} onClick={enter3d}>
-              3D · enter the park
-            </Button>
-          </div>
-          <p className="text-sm text-muted" style={{ margin: 0 }}>
-            The plain park map. Switch to 3D to orbit the same masterplan — selecting a plot
-            behaves the same in both views.
-          </p>
+        <div className="home-band-head">
+          {bandHead ? (
+            <>
+              <p className="home-band-head__kicker">{bandHead.kicker}</p>
+              <h2 className="home-band-head__title">{bandHead.title}</h2>
+              {bandHead.lead ? <p className="home-band-head__lead">{bandHead.lead}</p> : null}
+            </>
+          ) : null}
+          <Button variant="secondary" onClick={enter3d}>
+            3D · enter the park
+          </Button>
         </div>
       ) : null}
 
@@ -253,23 +261,25 @@ export function PublicParkMap({
           }
         />
       ) : (
-        <div className="map-layout">
-          <div className="stack-4" style={{ flex: "1 1 auto", minWidth: 0 }}>
-            <ParkMapsView
-              // Public viewer: never editable here, for anyone.
-              canEdit={false}
-              liveStatusById={liveStatus}
-              liveOwnerById={liveOwner}
-              initialParkId={initialPark}
-              autoSelectCode={initialPlot}
-              selectedCode={selected?.area.code ?? null}
-              onSelect={selectArea}
-              onParkChange={(id) => setParkId(id)}
-            />
+        <div className={enable3d ? "map-shell" : undefined}>
+          <div className="map-layout">
+            <div className="stack-4" style={{ flex: "1 1 auto", minWidth: 0 }}>
+              <ParkMapsView
+                // Public viewer: never editable here, for anyone.
+                canEdit={false}
+                liveStatusById={liveStatus}
+                liveOwnerById={liveOwner}
+                initialParkId={initialPark}
+                autoSelectCode={initialPlot}
+                selectedCode={selected?.area.code ?? null}
+                onSelect={selectArea}
+                onParkChange={(id) => setParkId(id)}
+              />
+            </div>
+            <aside className="card" aria-live="polite">
+              <PlotDetails selected={selected} lots={lots} parkName={parkName} />
+            </aside>
           </div>
-          <aside className="card" aria-live="polite">
-            <PlotDetails selected={selected} lots={lots} parkName={parkName} />
-          </aside>
         </div>
       )}
     </div>

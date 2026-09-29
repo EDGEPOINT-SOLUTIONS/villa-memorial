@@ -24,16 +24,13 @@ import {
   SITE_BOUNDARY_WORLD,
   SITE_SIZE_M,
 } from "@/lib/park-3d/masterplan";
-import { placeholderPlots, PLACEHOLDER_SECTIONS } from "@/lib/park-3d/placeholder-lots";
-import { plotDimensionsMetres, plotBounds } from "@/lib/park-3d/plot-geometry";
 import { pointInPolygon } from "@/components/park3d/geometry";
 import parksFile from "@/lib/fixtures/property/parks.json";
 
 /**
  * The 3D park hangs off ONE conversion (lib/park-3d/coords.ts). These tests pin
- * its contract, the masterplan's calibration, and the fact that the generated
- * placeholder inventory sits on the drawn sections without covering the recorded
- * demo plots.
+ * its contract, the masterplan's calibration, and the fact that the recorded
+ * Villa plots sit on the drawn sections they claim.
  */
 
 const villaPark = (parksFile as { parks: Array<{ id: string; plots: Array<Record<string, unknown>> }> }).parks.find(
@@ -47,10 +44,6 @@ function centreOf(plot: { outline?: number[][]; circle?: { x: number; y: number 
   const xs = (plot.outline ?? []).map((p) => p[0]);
   const ys = (plot.outline ?? []).map((p) => p[1]);
   return { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 };
-}
-
-function insideFrame(point: { x: number; y: number }) {
-  return point.x >= 0 && point.x <= IMAGE_FRAME.width && point.y >= 0 && point.y <= IMAGE_FRAME.height;
 }
 
 describe("image-space ⇄ world conversion", () => {
@@ -147,75 +140,6 @@ describe("masterplan geometry stays inside the drawn parcel", () => {
   });
 });
 
-describe("placeholder inventory", () => {
-  const recorded = villaPark.plots.map((plot) => ({
-    id: String(plot.id),
-    code: String(plot.code),
-    lot_id: (plot.lot_id as string | null) ?? null,
-    status: plot.status as "available",
-    outline: (plot.outline as Array<[number, number]>) ?? undefined,
-  }));
-  const plots = placeholderPlots(recorded, "villa");
-
-  it("generates a clearly-marked grid per labelled section", () => {
-    expect(PLACEHOLDER_SECTIONS.map((s) => s.prefix)).toEqual(["P", "PR", "G", "GN"]);
-    expect(plots.length).toBeGreaterThan(40);
-    for (const plot of plots) {
-      expect(plot.code).toMatch(/^(P|PR|G|GN)-\d{3}$/);
-      expect(plot.id).toBe(`villa-${plot.code.toLowerCase()}`);
-      expect(plot.lot_id).toBeNull();
-      expect(plot.status).toBe("available");
-      expect(plot.typeId).toBeTruthy();
-      expect(plot.outline).toHaveLength(4);
-    }
-    const codes = new Set(plots.map((p) => p.code));
-    expect(codes.size).toBe(plots.length);
-  });
-
-  it("numbers each section from 001 without gaps", () => {
-    for (const section of PLACEHOLDER_SECTIONS) {
-      const codes = plots.filter((p) => p.code.startsWith(`${section.prefix}-`)).map((p) => p.code);
-      const numbers = codes.map((c) => Number(c.split("-")[1]));
-      expect(numbers.length).toBeGreaterThan(0);
-      expect(numbers).toEqual(Array.from({ length: numbers.length }, (_, i) => i + 1));
-    }
-  });
-
-  it("never covers a recorded demo plot", () => {
-    const recordedBounds = recorded.map((r) => plotBounds(r as never)!);
-    const overlaps = (a: ReturnType<typeof plotBounds>, b: ReturnType<typeof plotBounds>) =>
-      a !== null && b !== null && a.minX < b.maxX && a.maxX > b.minX && a.minY < b.maxY && a.maxY > b.minY;
-    for (const plot of plots) {
-      const bounds = plotBounds(plot);
-      expect(bounds).not.toBeNull();
-      for (const other of recordedBounds) {
-        expect(overlaps(bounds, other), `${plot.code} overlaps a recorded plot`).toBe(false);
-      }
-    }
-  });
-
-  it("keeps every placeholder on the parcel and inside the shared frame", () => {
-    const ring = SITE_BOUNDARY_WORLD.map(([x, z]) => ({ x, z }));
-    for (const plot of plots) {
-      const centre = centreOf(plot);
-      expect(insideFrame(centre), `${plot.code} left the store frame`).toBe(true);
-      const world = imageToWorld(centre.x, centre.y);
-      expect(pointInPolygon(world.x, world.z, ring), `${plot.code} is off the property`).toBe(true);
-    }
-  });
-
-  it("derives believable (not invented) dimensions for each placeholder", () => {
-    for (const plot of plots) {
-      const dims = plotDimensionsMetres(plot);
-      expect(dims).not.toBeNull();
-      expect(dims!.width).toBeGreaterThan(1);
-      expect(dims!.width).toBeLessThan(20);
-      expect(dims!.length).toBeGreaterThan(1);
-      expect(dims!.length).toBeLessThan(20);
-      expect(dims!.areaSqm).toBeGreaterThan(1);
-    }
-  });
-});
 
 describe("recorded Villa demo plots sit in the sections they claim", () => {
   const sectionForCode: Record<string, Rect> = {

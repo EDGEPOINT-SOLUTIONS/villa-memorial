@@ -2,11 +2,11 @@
  * Park map plot labels — overview density (captain's home review, 2026-09-21).
  *
  * The captain called the home preview's plot names "text that are so not good in
- * the eye". The placeholder inventory puts ~140 plots on the Villa masterplan,
- * and the home draws them a few pixels apart, so a code on every plot smeared
- * into an unreadable wall. A label is now painted only once its OWN plot is wide
- * enough to carry one (rule in lib/park-maps.ts `labelDensityFor`) — so the
- * canvas, the CSS and this test share one rule.
+ * the eye". A dense lot plan draws its codes only a few pixels apart at the
+ * overview, so a code on every plot smeared into an unreadable wall. A label is
+ * now painted only once its OWN plot is wide enough to carry one (rule in
+ * lib/park-maps.ts `labelDensityFor`) — so the canvas, the CSS and this test
+ * share one rule.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";

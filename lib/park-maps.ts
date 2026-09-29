@@ -7,9 +7,10 @@
  * `lib/fixtures/property/parks.json` (add a row there and it appears).
  *
  * Staff can draw/edit plot areas; customers see the SAME data (one store).
- * The Villa park additionally carries the PLACEHOLDER lot inventory the 3D park
- * renders (§ `lib/park-3d/placeholder-lots.ts`) — same store, either mode can
- * create, move, edit and delete.
+ * The store carries ONLY the recorded plots in `parks.json` — the generated
+ * placeholder inventory was removed 2026-09-30 (captain: keep only the real
+ * lots the lot pages show), so the map, the 3D park, the staff explorer and the
+ * agent map all draw the same recorded records.
  * ⚠ Persistence is DEMO-LOCAL (localStorage): real multi-user sync across
  * devices needs the dev's geometry/maps contract (see
  * docs/08-delivery/notes/lot-geometry-contract-proposal.md). Flagged, not
@@ -18,7 +19,6 @@
 import { useSyncExternalStore } from "react";
 import { LOT_TYPE_PHOTOS } from "@/lib/media";
 import { PARK_TYPES } from "@/lib/park-types";
-import { placeholderPlots } from "@/lib/park-3d/placeholder-lots";
 import parksFile from "@/lib/fixtures/property/parks.json";
 
 export type CircleShape = { x: number; y: number; r: number };
@@ -69,15 +69,12 @@ type RawSeed = {
 const SEED: RawSeed[] = (parksFile as { parks: RawSeed[] }).parks;
 
 /**
- * Seed plots for a park = its recorded demo plots plus, for the Villa park, the
- * PLACEHOLDER inventory the 3D park is built on (`lib/park-3d/placeholder-lots.ts`).
- * Placeholders land in the same store as every other plot, so both modes read and
- * write one list.
+ * Seed plots for a park = its RECORDED plots alone. One store, one picture: the
+ * same records the lot pages list, the 3D park draws and the staff/agent maps
+ * edit. No plot is generated here.
  */
 function seedAreas(park: RawSeed): PlotArea[] {
-  const recorded = normalize(park.plots as never);
-  if (park.id !== "villa") return recorded;
-  return [...recorded, ...placeholderPlots(recorded, park.id)];
+  return normalize(park.plots as never);
 }
 
 function normalize(areas: Array<{ outline: number[][]; } & Omit<PlotArea, "outline">>): PlotArea[] {
@@ -355,10 +352,10 @@ export function circleOverlapsAny(x: number, y: number, r: number, areas: PlotAr
 /**
  * Plot labels at map scale (captain's home review, 2026-09-21).
  *
- * The placeholder inventory puts ~140 plots on the Villa masterplan and the
- * home's preview draws them a few pixels apart, so a code on every plot piled
- * into an unreadable smear — "there are text that are so not good in the eye,
- * the lot names". A label is now painted only once its OWN plot is wide enough
+ * A dense lot plan draws its codes only a few pixels apart at the overview, so a
+ * code on every plot piled into an unreadable smear — "there are text that are
+ * so not good in the eye, the lot names". A label is now painted only once its
+ * OWN plot is wide enough
  * to carry one, so the overview is a plan and the codes arrive as the visitor
  * zooms in:
  *

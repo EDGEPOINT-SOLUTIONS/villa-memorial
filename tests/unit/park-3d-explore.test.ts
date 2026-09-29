@@ -9,16 +9,15 @@ import {
   sectionFacets,
   statusFacets,
 } from "@/lib/park-3d/explore";
-import { placeholderPlots } from "@/lib/park-3d/placeholder-lots";
 import type { PlotArea } from "@/lib/park-maps";
 
 /**
  * The in-experience explorer (search / filters / section list).
  *
  * These are pure reads over the shared store's records: the panel hides and shows
- * plots that already exist, and can never invent or rename one. The placeholder
- * inventory is the real generator (`placeholder-lots.ts`), so the section names
- * the panel shows are the masterplan's own.
+ * plots that already exist, and can never invent or rename one. A section name
+ * comes from the plot's own legend type (the masterplan's own section names), so
+ * the explorer's section list matches the map key and the recorded lot pages.
  */
 
 function plot(partial: Partial<PlotArea> & { code: string }): PlotArea {
@@ -45,31 +44,29 @@ const inventory: PlotArea[] = [
 ];
 
 describe("sections come from the plots' own facts", () => {
-  it("groups placeholder codes under the masterplan's section names", () => {
-    expect(plotSectionLabel(plot({ code: "P-014" }))).toBe("PREMIUM LOTS");
-    expect(plotSectionLabel(plot({ code: "PR-003" }))).toBe("PRIMARY LOTS");
-    expect(plotSectionLabel(plot({ code: "G-002" }))).toBe("GARDEN LOTS");
-    expect(plotSectionLabel(plot({ code: "GN-009" }))).toBe("GARDEN NICHES");
+  it("groups a recorded plot under its legend type's masterplan section", () => {
+    expect(plotSectionLabel(plot({ code: "A-001", typeId: "lt-primary", sectionBlock: "A · 1" }))).toBe("PRIMARY LOTS");
+    expect(plotSectionLabel(plot({ code: "B-001", typeId: "lt-premium", sectionBlock: "B · 1" }))).toBe("PREMIUM LOTS");
+    expect(plotSectionLabel(plot({ code: "C-001", typeId: "lt-niches", sectionBlock: "C · 1" }))).toBe("GARDEN NICHES");
+    expect(plotSectionLabel(plot({ code: "D-001", typeId: "lt-mausoleum", sectionBlock: "D · 1" }))).toBe("MAUSOLEUM");
   });
 
-  it("falls back to the stored section text, then to the legend type", () => {
-    expect(plotSectionLabel(plot({ code: "A-001", sectionBlock: "A · 1" }))).toBe("A");
-    expect(plotSectionLabel(plot({ code: "X-9", typeId: "lt-mausoleum" }))).toBe("MAUSOLEUM");
+  it("falls back to the stored section text, then to Unassigned", () => {
+    expect(plotSectionLabel(plot({ code: "X-9", sectionBlock: "X · 1" }))).toBe("X");
     expect(plotSectionLabel(plot({ code: "X-9" }))).toBe("Unassigned");
   });
 
   it("gives every section a stable, POI-compatible id", () => {
-    expect(plotSectionId(plot({ code: "P-001" }))).toBe("premium-lots");
-    expect(plotSectionId(plot({ code: "GN-004" }))).toBe("garden-niches");
+    expect(plotSectionId(plot({ code: "B-014", typeId: "lt-premium" }))).toBe("premium-lots");
+    expect(plotSectionId(plot({ code: "C-004", typeId: "lt-niches" }))).toBe("garden-niches");
   });
 
   it("counts the facets the panel renders, most populated first", () => {
     const facets = sectionFacets(inventory);
     expect(facets.map((f) => f.id)).toEqual([
       "premium-lots",
-      "a",
-      "garden-niches",
       "primary-lots",
+      "garden-niches",
     ]);
     expect(facets.find((f) => f.id === "premium-lots")?.count).toBe(2);
     expect(statusFacets(inventory).map((f) => `${f.id}:${f.count}`)).toEqual([
@@ -77,18 +74,6 @@ describe("sections come from the plots' own facts", () => {
       "reserved:1",
       "occupied:1",
     ]);
-  });
-
-  it("names the real placeholder inventory from the generator, not a fixture", () => {
-    const generated = placeholderPlots([], "villa");
-    const facets = sectionFacets(generated);
-    expect(facets.map((f) => f.id).sort()).toEqual([
-      "garden-lots",
-      "garden-niches",
-      "premium-lots",
-      "primary-lots",
-    ]);
-    expect(plotSectionLabel(generated[0])).toBe("PREMIUM LOTS");
   });
 });
 

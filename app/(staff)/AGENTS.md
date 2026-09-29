@@ -36,7 +36,8 @@
   `tests/unit/content-pages-store.test.ts`, `tests/unit/pages-and-content-admin.test.tsx`.
 - **The park page (`/map`) is the first WIRED surface**: its hero (eyebrow,
   headline, lead, photo, and the home's background colour + transparency
-  control) + tabs (Park view · Lots) + blocks come from the park document, so an
+  control) + tabs (Map · Lots, rendered as the opening gateway's two actions) + blocks
+  come from the park document, so an
   edit reaches the page on its next request. The Lots listing is a tab of the
   page; `/lots`, `/lots/[id]` and `/lots/price-list-2026` stay as routes
   (captain-confirmed). The tab passes `syncUrl={false}` to `LotListing` — the

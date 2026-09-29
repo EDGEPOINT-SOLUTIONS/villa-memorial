@@ -44,7 +44,12 @@ import { PublicImage, type PublicImageSource } from "@/components/public/public-
  * content document. It does not choose an image's derivative: pass the path (or
  * a `PublicImageSource` for the interior banner) the page resolved.
  */
-export type PublicHeroAction = { label: string; href: string };
+export type PublicHeroAction = {
+  label: string;
+  href: string;
+  /** Mark the action as the current view (renders `aria-current="page"`). */
+  current?: boolean;
+};
 
 type HomeHeroProps = {
   variant: "home";
@@ -163,12 +168,20 @@ function HomeHero({
           {primary || secondary ? (
             <div className="hero-home__actions">
               {primary ? (
-                <a className="btn btn--primary btn--lg" href={primary.href}>
+                <a
+                  className="btn btn--primary btn--lg"
+                  href={primary.href}
+                  aria-current={primary.current ? "page" : undefined}
+                >
                   {primary.label}
                 </a>
               ) : null}
               {secondary ? (
-                <a className="btn btn--secondary btn--lg" href={secondary.href}>
+                <a
+                  className="btn btn--secondary btn--lg"
+                  href={secondary.href}
+                  aria-current={secondary.current ? "page" : undefined}
+                >
                   {secondary.label}
                 </a>
               ) : null}
@@ -213,12 +226,20 @@ function ContentHero({
           {primary || secondary ? (
             <div className="public-hero__actions">
               {primary ? (
-                <a className="btn btn--primary btn--lg" href={primary.href}>
+                <a
+                  className="btn btn--primary btn--lg"
+                  href={primary.href}
+                  aria-current={primary.current ? "page" : undefined}
+                >
                   {primary.label}
                 </a>
               ) : null}
               {secondary ? (
-                <a className="btn btn--secondary btn--lg" href={secondary.href}>
+                <a
+                  className="btn btn--secondary btn--lg"
+                  href={secondary.href}
+                  aria-current={secondary.current ? "page" : undefined}
+                >
                   {secondary.label}
                 </a>
               ) : null}

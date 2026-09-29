@@ -171,7 +171,7 @@ for (const vp of VIEWPORTS) {
           for (const sel of [
             ".anchored-header__explore-trigger",
             ".listing-sheet__toggle",
-            ".park-tabs button",
+            ".pill-toggle",
             ".quick-menu-fab",
             ".anchored-phonebar__btn--explore",
           ]) {

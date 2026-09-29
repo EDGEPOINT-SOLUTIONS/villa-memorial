@@ -529,13 +529,15 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
 ## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
 
 - The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
-  switches between **Map** (the plain masterplan image) and **3D** (the orbit-navigated park,
-  react-three-fiber). The 3D mode owns the whole screen: entering requests full screen from
-  the switch gesture (graceful where the browser refuses) and every control — exit, camera,
-  zoom/frame, section/search/filter list, settings, details — lives inside the experience,
-  never in the page chrome. The product carries ONE park — Villa Memorial Park; the
-demo Loyola Gardens / Golden Haven records were removed 2026-09-21 and no surface
-renders a park switcher (`tests/unit/single-park.test.tsx`).
+  opens on the home's GATEWAY band (eyebrow · visible h1 · one-line lead, with the two view
+  actions **Map** / **Lots** — they replace the old pill tabs; `lib/fixtures/content/pages.json`
+  labels the `tab-view` tab “Map”). The map band below it carries a designed `.home-band-head`
+  and **3D** as ONE outline action. The 3D mode owns the whole screen: entering requests full
+  screen from that action's gesture (graceful where the browser refuses) and every control —
+  exit, camera, zoom/frame, section/search/filter list, settings, details — lives inside the
+  experience, never in the page chrome. The product carries ONE park — Villa Memorial Park;
+  the demo Loyola Gardens / Golden Haven records were removed 2026-09-21 and no surface
+  renders a park switcher (`tests/unit/single-park.test.tsx`).
 - **`lib/park-maps.ts` is the single plot store for both modes** (image-space coordinates,
   shapes, status, type, section/block, linked lot, demo-local localStorage — never claim
   multi-user sync). The ONE image↔world conversion is `lib/park-3d/coords.ts` (store frame
@@ -545,11 +547,11 @@ renders a park switcher (`tests/unit/single-park.test.tsx`).
   editor writes; selection is shared (`components/park-plot-details.tsx` renders the same
   panel in both modes).
 - **The masterplan is the only spatial source of truth**: `public/media/Park map.png` (client
-  asset; do not swap it). No invented sections/roads/buildings/numbers. Placeholder inventory
-  is generated in `lib/park-3d/placeholder-lots.ts` (clearly-marked `P-/PR-/G-/GN-` codes,
-  “Contact for pricing”, every grid configurable there) and the chosen-not-measured values are
-  listed in `ASSUMPTIONS` in `lib/park-3d/masterplan.ts`. The binding contract for this feature
-  is `docs/07-client-villa/park-3d-spec.md` (§0).
+  asset; do not swap it). No invented sections/roads/buildings/numbers, and NO generated plot
+  inventory: the map, the 3D park, the staff explorer and the agent map all read the recorded
+  `parks.json` plots the lot pages list (captain 2026-09-30: keep only the real lots). The
+  chosen-not-measured values are listed in `ASSUMPTIONS` in `lib/park-3d/masterplan.ts`. The
+  binding contract for this feature is `docs/07-client-villa/park-3d-spec.md` (§0).
 - **Plotting is admin-only, and the public map never carries it** (captain, 2026-09-20):
   `app/(public)/map/page.tsx` reads no session and passes no capability — `/map` is VIEW-ONLY
   for everyone, signed in or not, in Map mode and 3D alike; a signed-in administrator plots
@@ -582,7 +584,7 @@ renders a park switcher (`tests/unit/single-park.test.tsx`).
   column, so `.mid-section--map .map-embed .geo-map` drops the shared 540px height for the
   park frame's own 4:3 — keep both rules together.
 - **Plot labels paint only once their own plot is wide enough** (captain's home review,
-  2026-09-21: the ~140 placeholder plots each painted a code in a few pixels, an unreadable smear).
+  2026-09-21: a dense lot plan painted a code on every plot a few pixels apart, an unreadable smear).
   `lib/park-maps.ts` `labelDensityFor(plotWidthPx)` is the one rule — `off` below
   `LABEL_MIN_PLOT_PX`, `code` only, `full` (legend type + owner) above `LABEL_FULL_PLOT_PX`; the
   canvas sets a per-marker `data-label-density` from the plot's own width (circle diameter / bbox)

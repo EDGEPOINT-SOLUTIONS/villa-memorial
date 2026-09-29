@@ -1,5 +1,5 @@
 {
- "provenance": "PROVISIONAL demo park map — Villa Memorial Park only (the captain removed the demo Loyola Gardens / Golden Haven records on 2026-09-21: this product carries ONE park). Villa plots are the recorded demo lots (A=PRIMARY LOTS, B=PREMIUM LOTS, C=GARDEN NICHES, D=MAUSOLEUM) repositioned onto the client masterplan frame (public/media/Park map.png, contain-fitted into the shared 100x75 store frame — see lib/park-3d/coords.ts). Free-form coords; real geometry/media/persistence await the dev contract. The Villa placeholder inventory (P-/PR-/G-/GN- codes) is generated at seed time by lib/park-3d/placeholder-lots.ts, not stored here.",
+ "provenance": "PROVISIONAL demo park map — Villa Memorial Park only (the captain removed the demo Loyola Gardens / Golden Haven records on 2026-09-21: this product carries ONE park). Villa plots are the recorded demo lots (A=PRIMARY LOTS, B=PREMIUM LOTS, C=GARDEN NICHES, D=MAUSOLEUM) repositioned onto the client masterplan frame (public/media/Park map.png, contain-fitted into the shared 100x75 store frame — see lib/park-3d/coords.ts). Free-form coords; real geometry/media/persistence await the dev contract. No plot is generated: the store carries only these recorded plots (the generated placeholder inventory was removed 2026-09-30).",
  "parks": [
   {
    "id": "villa",

@@ -543,20 +543,39 @@ export function ParkMapsView({
       />
 
       {mounted ? (
-        <div className="legend">
-          {legend
-            .filter((e) => typeCount(e.id) > 0)
-            .map((e) => (
-              <span key={e.id} className="legend__item">
-                <i className="dot" style={{ background: e.color }} /> {e.name} · {typeCount(e.id)}
+        // THE MAP KEY — rectangle swatches, not round dots (captain 2026-09-30).
+        // Every plot on the canvas is its own recorded rectangle: its FILL is the
+        // legend type colour and its 2 px EDGE is the status colour. The key uses
+        // that same grammar — type = filled box, status = paper box with a 2 px
+        // status edge — so the key speaks the canvas's language. Every count is a
+        // record count.
+        <div className="map-key">
+          <div className="map-key__group" role="group" aria-label="Plot types">
+            {legend
+              .filter((e) => typeCount(e.id) > 0)
+              .map((e) => (
+                <span key={e.id} className="map-key__item">
+                  <i
+                    aria-hidden
+                    className="map-key__swatch map-key__swatch--type"
+                    style={{ background: e.color }}
+                  />{" "}
+                  {e.name} · {typeCount(e.id)}
+                </span>
+              ))}
+          </div>
+          <span aria-hidden className="map-key__sep" />
+          <div className="map-key__group" role="group" aria-label="Plot statuses">
+            {[...new Set(effectiveAreas.map((a) => a.status))].map((st) => (
+              <span key={st} className="map-key__item">
+                <i
+                  aria-hidden
+                  className={`map-key__swatch map-key__swatch--status map-key__swatch--${stTone(st)}`}
+                />{" "}
+                {st} · {effectiveAreas.filter((a) => a.status === st).length}
               </span>
             ))}
-          <span aria-hidden className="legend__sep" />
-          {[...new Set(effectiveAreas.map((a) => a.status))].map((st) => (
-            <span key={st} className="legend__item">
-              <i className={"dot dot--" + stTone(st)} /> {st} · {effectiveAreas.filter((a) => a.status === st).length}
-            </span>
-          ))}
+          </div>
         </div>
       ) : null}
 
