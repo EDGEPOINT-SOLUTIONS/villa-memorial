@@ -20075,11 +20075,15 @@ a.plan-advisor__phone:hover {
        carries DARK ink, never white.
      · Bands are separated by hairlines and space — never a shadow on every box.
 
-   THE GATEWAY'S ARCH (office, 2026-09-29): the page-wide follow-through frame
-   was removed the same day at the captain's call; the band's self-sizing arch
-   around the words (`.home-gateway__arch`) is the home's only arch, its head
-   now a true circular arc. Band 1 is plain WHITE — its clouds were removed
-   entirely (inbox 031).
+   THE GATEWAY BAND (office, 2026-09-29, restructured in inboxes 032–034): the
+   home carries NO arch and NO clouds anywhere — band 1 is plain WHITE. Its
+   type is a FUNNEL BY SIZE, NOT WEIGHT: the eyebrow is the smallest line
+   (`--text-micro`), the headline is the band's LARGEST at a light weight of
+   the display face (`--text-hero`, weight 500), the lead sits under it
+   (`--text-lg`), then the actions, then the icon row — whose detail lines were
+   removed, leaving each fact's icon and short label only. The band then takes
+   its OWN 2× scale (the `@media (min-width: 48.001rem)` block below), derived
+   from the ladder aliases so only section 1 grows.
 
    Owned by this block. Other public lanes append their own named block and do
    not edit this one. `tests/unit/home-styles.test.ts` fails a `home-*` class
@@ -20125,40 +20129,11 @@ a.plan-advisor__phone:hover {
   padding-block: var(--space-5) var(--space-2);
 }
 
-/* The one decoration band 1 keeps: an arch the words sit inside.
-   THE FRAME derives the arch's width from the content box + breathing room on
-   both sides (inbox 010: the arc must clear the text however it wraps, at every
-   width), so the legs live in the band's side margin, clear of the content.
-   Beyond the section the overflow is clipped, and because the SVG path spans
-   its full viewBox the visible arch is exactly frame-wide. The path in the
-   component is a TRUE CIRCULAR ARC over the legs (office, inbox 031: a real
-   arch head, not the plan's shallow ellipse); the soft sky-blue glow below is
-   static — nothing here animates. Desktop only: below the home's own
-   wide-layout breakpoint (52rem) the arch is not rendered at all. */
-.home-gateway__frame {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 0;
-  width: calc(100% + 2 * var(--space-8));
-  max-width: 100vw;
-  pointer-events: none;
-}
+/* (The arch was REMOVED ENTIRELY at the office's direction (inbox 032): no
+   frame, no head, no legs anywhere on the home. The markup and the
+   `home-gateway__frame` / `home-gateway__arch` rules are gone with it.) */
 
-.home-gateway__arch {
-  display: block;
-  width: 100%;
-  height: auto;
-  color: var(--sky-300);
-  filter: drop-shadow(0 0 6px rgb(58 174 232 / 0.4)); /* soft sky-blue glow */
-}
-
-@media (max-width: 52rem) {
-  .home-gateway__frame {
-    display: none;
-  }
-}
-
+/* Row 1 of the funnel — the eyebrow, the band's smallest line. */
 .home-gateway__place {
   position: relative;
   margin: 0;
@@ -20169,13 +20144,17 @@ a.plan-advisor__phone:hover {
   color: var(--sky-700);
 }
 
+/* Row 2 — the band's LARGEST line, and a LIGHT one (inbox 032: hierarchy by
+   size, not weight). `--text-hero` is the one fluid display size on the
+   ladder (clamp 35.2 → 57.6 at the 80% root); medium 500 keeps it from
+   reading as the old bold statement without losing the display presence. */
 .home-gateway__title {
   position: relative;
   margin: var(--space-4) auto 0;
   max-width: 22ch;
   font-family: var(--font-display);
-  font-size: var(--text-page-title);
-  font-weight: 700;
+  font-size: var(--text-hero);
+  font-weight: 500;
   line-height: var(--leading-tight);
   letter-spacing: -0.015em;
   text-wrap: balance;
@@ -20187,6 +20166,7 @@ a.plan-advisor__phone:hover {
   color: var(--sky-700);
 }
 
+/* Row 3 — support under the headline, clearly smaller than it (inbox 032). */
 .home-gateway__lead {
   position: relative;
   margin: var(--space-4) auto 0;
@@ -20209,6 +20189,52 @@ a.plan-advisor__phone:hover {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* THE GATEWAY'S OWN TYPE SCALE (office, inbox 034: "roughly twice" the band's
+   type and its call). Every step below is DERIVED FROM THE LADDER — one
+   multiplier drives all of it — and it is scoped to this band only, so no
+   other band, the header or any other button moves. Desktop only: phones keep
+   the ladder's own step-down (the tokens map the display roles down below
+   48rem), so the band steps down sensibly instead of clipping.
+     eyebrow   12 → 24px     (2 × --text-micro)
+     headline  57.6 → 92.8px (2 × --text-hero, CAPPED: at a true 2× = 115.2px
+               the two stored lines need ~1450px and the band is 1222px wide,
+               so 7.25rem is the largest size that keeps "Someone has died.
+               Call us" on one line at the widest desktop)
+     lead      16 → 32px     (2 × --text-lg)
+     the call  13.6 → 27.2px label, doubled padding from the same space
+               tokens, the icon riding the label at 1.35em. */
+@media (min-width: 48.001rem) {
+  .home-gateway {
+    --gateway-type-scale: 2;
+    --text-micro: calc(var(--gateway-type-scale) * var(--text-xs));
+    --text-hero: min(
+      calc(var(--gateway-type-scale) * var(--text-display)),
+      7.25rem
+    );
+  }
+
+  /* The lead doubles through its own role slot; the icon row's labels keep the
+     root `--text-body` (they are not part of this pass). */
+  .home-gateway__lead {
+    --text-body: calc(var(--gateway-type-scale) * var(--text-lg));
+    font-size: var(--text-body);
+  }
+
+  /* The primary action grows as a button, not just as text: its padding
+     doubles from the same tokens the base `.btn` uses. */
+  .home-gateway__actions .home-call {
+    --text-ui: calc(var(--gateway-type-scale) * var(--text-md));
+    font-size: var(--text-ui);
+    padding: calc(var(--gateway-type-scale) * var(--space-2))
+      calc(var(--gateway-type-scale) * var(--space-4));
+  }
+
+  .home-gateway__actions .home-call svg {
+    width: 1.35em;
+    height: 1.35em;
+  }
 }
 
 /* The gold call plaque carries near-black ink — the engraved look (plan §6). */
@@ -20250,12 +20276,6 @@ a.plan-advisor__phone:hover {
   display: block;
   font-size: var(--text-body);
   color: var(--color-text-primary);
-}
-
-.home-trust__note {
-  display: block;
-  margin-top: var(--space-1);
-  color: var(--color-text-muted);
 }
 
 

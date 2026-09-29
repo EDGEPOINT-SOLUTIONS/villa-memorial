@@ -166,24 +166,23 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   bar keeps a soft `0 10px 26px -18px rgb(8 28 49 / 0.35)` shadow at every scroll
   position, strengthening in the compressed state.
 
-- **The gateway's arch and clouds (inboxes 023–031, FINAL state):** three
-  directions landed the same day and this is where they settled. (1) The
-  page-wide follow-through arch was built (true semicircular head, legs pinned
-  to the viewport middle, closing on section 7) and then REMOVED at the
-  captain's call — no scroll tracking, nothing animated. (2) The clouds were
-  removed ENTIRELY (inbox 031): band 1 is plain WHITE with no drifting shape,
-  and the removal moved no measurement (they were absolutely positioned and
-  clipped). (3) The band's one decoration is its self-sizing arch around the
-  words, `.home-gateway__frame` / `.home-gateway__arch`, sized from the content
-  box + `2 × --space-8` so the legs live in the band's side margin. Its head is
-  now a TRUE CIRCULAR ARC — viewBox 1000 × 536,
-  `M0,536 L0,268 A600,600 0 0 1 1000,268 L1000,536` — instead of the plan's
-  elliptical sweep: at 1920 that is span 1137, head rise 305, springing
-  height 305 (the curve meets the legs at ~56°, so they read as legs, not as
-  the tail of a sweep), with the feet running past the band's ground line where
-  the band clips them. It carries a soft STATIC sky-blue glow and is desktop
-  only (`display: none` below 52 rem). `tests/unit/home-styles.test.ts` pins
-  the shape, the glow and the absence of clouds.
+- **The gateway band (inboxes 023–032, FINAL state):** the decorations came
+  and went the same day; this is where the band settled. The page-wide
+  follow-through arch was built (true semicircular head, legs pinned to the
+  viewport middle, closing on section 7), then the band's self-sizing arch was
+  restored static with a circular-arc head, and finally (inbox 032) the ARCH
+  WAS REMOVED ENTIRELY along with every cloud: the home has no arch and no
+  drifting shape anywhere, and band 1 is plain WHITE (removing the absolutely
+  positioned decorations moved no measurement). The band is now a FUNNEL BY
+  SIZE, NOT WEIGHT, in this order: eyebrow `--text-micro` (12px) → the band's
+  LARGEST line, the headline at `--text-hero` (the one fluid display size,
+  clamp 35.2 → 57.6px) in **weight 500** instead of 700 → the lead at
+  `--text-lg` (16px) → the two actions → the icon row, whose facts keep their
+  medium icon and short label ONLY (the three detail lines were removed; the
+  labels still read from the store). The headline's sky second sentence keeps
+  its colour emphasis with no extra weight. `tests/unit/home-styles.test.ts`
+  pins the funnel sizes, the light headline, the labels-only icon row and the
+  absence of every arch/cloud token.
 
 - **The former storefront returns BENEATH the blog (inbox 025):** `/blog` leads
   with the blog's own page document (heading · intro · one horizontal row per

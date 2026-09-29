@@ -60,16 +60,14 @@ import type { PlanPricing } from "@/lib/pricing-model";
  * services band prints no amount; the contact form keeps the Data Privacy Act
  * consent line. The home is edited section by section at /staff/landing/home.
  *
- * THE GATEWAY'S ARCH (office, 2026-09-29; the page-wide follow-through arch
- * and every cloud were removed the same day at the office's direction):
- *   · band 1 keeps ONE STILL, self-sizing arch around the headline — a
- *     hairline in the sky palette with a soft static glow, its width derived
- *     from the words it holds (`.home-gateway__frame` / `.home-gateway__arch`
- *     in the stylesheet). The head is a TRUE CIRCULAR ARC over the legs (not
- *     the shallow ellipse of the plan's first path): rise 305 px over a
- *     1137 px span at 1920, so the curve springs from the vertical legs at
- *     ~56° and reads as an arch standing on the band, not a wide sweep;
- *   · the band carries NO clouds and no other decoration — plain white.
+ * THE GATEWAY BAND (office, 2026-09-29; restructured in inbox 032):
+ *   · NO ARCH and NO CLOUDS anywhere on the home — the band is plain white
+ *     with no decoration but its own ladder of type;
+ *   · the band is a FUNNEL BY SIZE, NOT WEIGHT: eyebrow (smallest) → the
+ *     headline (the band's LARGEST type, a light weight of the display face)
+ *     → the lead (smaller than the headline) → the actions → the icon row;
+ *   · the icon row keeps each fact's medium icon and short label only — its
+ *     three detail lines were removed (the labels still read the store).
  */
 
 /* ---------------------------- photograph helpers ---------------------------- */
@@ -176,25 +174,6 @@ export function HomePage({
           ================================================================ */}
       <section className="home-gateway" aria-labelledby="home-gateway-title">
         <div className="home-gateway__inner">
-          <span className="home-gateway__frame" aria-hidden="true">
-            <svg
-              className="home-gateway__arch"
-              viewBox="0 0 1000 536"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            >
-              {/* The path spans the full viewBox, so the ELEMENT's width is the
-                  arch's width — the frame derives that from this content.
-                  THE HEAD IS A TRUE CIRCULAR ARC: rise 268 of the 1000 span
-                  (305 px at the rendered width), radius 600, so the curve
-                  springs from the legs at ~56° instead of blending into them
-                  like the ellipse of the plan's first path. The legs run on
-                  past the band's ground line, where the band's overflow clips
-                  them. */}
-              <path d="M0,536 L0,268 A600,600 0 0 1 1000,268 L1000,536" />
-            </svg>
-          </span>
           {gateway.place ? <p className="home-gateway__place">{gateway.place}</p> : null}
           <h1 id="home-gateway-title" className="home-gateway__title">
             {gateway.headline}{" "}
@@ -217,10 +196,9 @@ export function HomePage({
               return (
                 <li key={fact.id} className="home-trust__item">
                   <Icon size={18} aria-hidden="true" />
-                  <span>
-                    <b>{fact.label}</b>
-                    {fact.note ? <span className="home-trust__note">{fact.note}</span> : null}
-                  </span>
+                  {/* Labels only (inbox 032): the facts' detail lines were
+                      removed; the wording still reads from the store. */}
+                  <b>{fact.label}</b>
                 </li>
               );
             })}

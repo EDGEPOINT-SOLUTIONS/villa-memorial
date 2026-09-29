@@ -264,11 +264,12 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (its title read from the office's own park address) · the first park (the
   arrangement builder and the two chapels) · the four lot types with every recorded
   plot pinned on the masterplan · the five rising plan tiers · the five service
-  tiles · contact with the embedded Google map. The gateway's self-sizing arch
-  (`.home-gateway__frame` — a still circular-arc head over legs, soft sky glow,
-  desktop only) is the home's only decoration: the page-wide follow-through
-  frame and every cloud were removed at the office's direction, and band 1 is
-  plain white. Every figure is a read (pricing store · live catalogue · 2026 sheets);
+  tiles · contact with the embedded Google map. The home carries NO arch and NO
+  clouds anywhere; band 1 is plain white, and its hierarchy is a FUNNEL BY SIZE,
+  NOT WEIGHT — eyebrow at `--text-micro` (12px) → the band's largest line, the
+  headline at `--text-hero` (fluid 35.2 → 57.6px, weight 500) → the lead at
+  `--text-lg` (16px) → the actions → the icon row, whose facts keep their icon +
+  label only. Every figure is a read (pricing store · live catalogue · 2026 sheets);
   the services band prints no amount. `components/public/home-page.tsx` is the map,
   `components/landing/home-sections-editor.tsx` + `/staff/landing/home` is the
   per-section editor, and **the palette is the sky+gold ramps** in `styles/tokens.css`

@@ -83,17 +83,6 @@ function ruleBodies(selector: string): string[] {
   return [...RULES.matchAll(pattern)].map((match) => match[1]);
 }
 
-/** The first block that starts with `marker` AND contains `needle` — the
- *  sheet already holds many `prefers-reduced-motion` blocks, so a bare
- *  `indexOf` would read the wrong one. */
-function blockWith(marker: string, needle: string): string {
-  for (let at = RULES.indexOf(marker); at >= 0; at = RULES.indexOf(marker, at + 1)) {
-    const block = RULES.slice(at, RULES.indexOf("\n}", at));
-    if (block.includes(needle)) return block;
-  }
-  throw new Error(`no ${marker} block containing ${needle}`);
-}
-
 describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
   it("keeps band 1 white: the gateway declares no ground", () => {
     const bodies = ruleBodies(".home-gateway");
@@ -104,39 +93,53 @@ describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
     }
   });
 
-  it("keeps the arc in band 1 only, a still TRUE CIRCULAR ARCH over the words", () => {
-    // The page-wide follow-through frame was removed at the captain's call:
-    // the home carries no `.home-frame` layer at all.
-    expect(SOURCE).not.toContain("home-frame");
-    // The gateway keeps its self-sizing arch, behind the words.
-    expect(SOURCE).toContain('className="home-gateway__frame"');
-    expect(SOURCE).toContain('className="home-gateway__arch"');
-    // A TRUE CIRCULAR ARC over the legs (inbox 031), not the plan's ellipse
-    // sweep: viewBox 1000 × 536, head rise 268 (305px at the rendered width),
-    // radius 600 — the curve springs from the legs at ~56°.
-    expect(SOURCE).toContain('viewBox="0 0 1000 536"');
-    expect(SOURCE).toContain('d="M0,536 L0,268 A600,600 0 0 1 1000,268 L1000,536"');
-    // The frame is absolutely positioned inside the band and sized from the
-    // content box + breathing room, so the arc always clears the words and the
-    // legs live in the band's side margin.
-    const frame = ruleBodies(".home-gateway__frame")[0];
-    expect(frame).toMatch(/position:\s*absolute/);
-    expect(frame).toMatch(/width:\s*calc\(100% \+ 2 \* var\(--space-8\)\)/);
-    // Still, with a static sky-blue glow, and desktop only.
-    const arch = ruleBodies(".home-gateway__arch")[0];
-    expect(arch).toMatch(/color:\s*var\(--sky-300\)/);
-    expect(arch).toMatch(/drop-shadow/);
-    expect(arch).not.toMatch(/animation/);
-    const small = blockWith("@media (max-width: 52rem)", ".home-gateway__frame");
-    expect(small).toMatch(/\.home-gateway__frame\s*\{\s*display:\s*none/);
+  it("carries no arch and no clouds anywhere (office, inbox 032)", () => {
+    // Both decorations were removed entirely — the home has no arch at all
+    // (page frame or gateway) and no drifting shape. Markup, rules and
+    // keyframes are all gone; band 1 is plain white.
+    for (const token of ["home-frame", "home-gateway__frame", "home-gateway__arch", "home-gateway__cloud", "CLOUD_PATH"]) {
+      expect(SOURCE).not.toContain(token);
+    }
+    for (const selector of [".home-frame", ".home-gateway__frame", ".home-gateway__arch", ".home-gateway__cloud", "@keyframes home-cloud-drift"]) {
+      expect(RULES).not.toContain(selector);
+    }
   });
 
-  it("carries no clouds at all (office, inbox 031)", () => {
-    // Removed entirely: no cloud markup, no cloud rules, no drift keyframes —
-    // band 1 is plain white and nothing moves over it.
-    expect(SOURCE).not.toContain("home-gateway__cloud");
-    expect(SOURCE).not.toContain("CLOUD_PATH");
-    expect(RULES).not.toContain(".home-gateway__cloud");
-    expect(RULES).not.toContain("@keyframes home-cloud-drift");
+  it("runs the band as a funnel by size, not weight (inbox 032)", () => {
+    // Row 1 smallest, row 2 the band's LARGEST at a light weight, row 3 under
+    // it — scale carries the hierarchy, never weight.
+    const eyebrow = ruleBodies(".home-gateway__place")[0];
+    const title = ruleBodies(".home-gateway__title")[0];
+    const lead = ruleBodies(".home-gateway__lead")[0];
+    expect(eyebrow).toMatch(/font-size:\s*var\(--text-micro\)/);
+    expect(title).toMatch(/font-size:\s*var\(--text-hero\)/);
+    expect(title).toMatch(/font-weight:\s*500/);
+    expect(lead).toMatch(/font-size:\s*var\(--text-lg\)/);
+    // The icon row keeps its labels and loses its detail lines.
+    expect(SOURCE).not.toContain("fact.note");
+    expect(RULES).not.toContain(".home-trust__note");
+  });
+
+  it("scales the band 2× from the ladder, desktop only (inbox 034)", () => {
+    // One multiplier, scoped to band 1 and to desktop — every step derived
+    // from an existing alias so nothing else in the product moves.
+    const at = RULES.indexOf("--gateway-type-scale: 2;");
+    expect(at, "the gateway scale block exists").toBeGreaterThanOrEqual(0);
+    const block = RULES.slice(RULES.lastIndexOf("@media", at), RULES.indexOf("\n}", at));
+    expect(block).toContain("@media (min-width: 48.001rem)");
+    expect(block).toMatch(/--text-micro:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-xs\)\)/);
+    expect(block).toMatch(/--text-hero:\s*min\(/);
+    // The headline's cap: true 2× (115.2px) would push the first stored line
+    // past the 1222px band, so 7.25rem (92.8px) is the largest that fits.
+    expect(block).toContain("7.25rem");
+    expect(block).toMatch(
+      /--text-body:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-lg\)\)/,
+    );
+    expect(block).toMatch(
+      /--text-ui:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-md\)\)/,
+    );
+    // The call grows as a button: label AND padding, from the same tokens.
+    expect(block).toMatch(/padding:\s*calc\(var\(--gateway-type-scale\) \* var\(--space-2\)\)/);
+    expect(block).toMatch(/calc\(var\(--gateway-type-scale\) \* var\(--space-4\)\)/);
   });
 });

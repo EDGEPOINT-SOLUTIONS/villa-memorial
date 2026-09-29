@@ -262,8 +262,8 @@
     "home": {
       "gateway": {
         "place": "Isabela City, Basilan",
-        "headline": "Someone has died.",
-        "promise": "Call us — we will carry it from here.",
+        "headline": "Someone has died. Call us",
+        "promise": "we will carry it from here.",
         "lead": "A coordinator answers any hour, day or night. We come to you, and we stay with you until the burial is done.",
         "secondary": {
           "label": "What to do right now",
