@@ -20393,7 +20393,9 @@ a.plan-advisor__phone:hover {
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-3xl);
-  font-weight: 700;
+  /* The captain's type rule (2026-09-30): every section title carries the
+     services opening's light display weight — never bold. */
+  font-weight: 500;
   line-height: var(--leading-tight);
   text-wrap: balance;
   color: var(--color-text-primary);
@@ -21282,7 +21284,9 @@ a.plan-advisor__phone:hover {
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-3xl);
-  font-weight: 700;
+  /* The captain's type rule (2026-09-30): every section title carries the
+     services opening's light display weight — never bold. */
+  font-weight: 500;
   line-height: var(--leading-tight);
   text-wrap: balance;
   color: var(--color-text-primary);
