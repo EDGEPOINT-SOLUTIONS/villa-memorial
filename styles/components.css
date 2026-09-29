@@ -20964,10 +20964,13 @@ a.plan-advisor__phone:hover {
    and the overlay is removed. The cloud's geometry, its sky gradient, the
    blurred highlight/underside and the cords/beads/word treatment are the
    reference's own ARTWORK; the skip control is ordinary UI. Motion is the
-   reference's (cords lower on an expo-out curve, the hang sways about its top
-   anchor, the exit dims/stretches/squeezes), shortened: the exit begins at
-   1.7s instead of the demo's 3.8s. The overlay is fixed and out of flow, so no
-   page measurement changes and no scroll is locked. */
+   reference's, rebuilt COMPOSITOR-ONLY (office, inbox 057): the whole hang
+   drops as one translateY gesture whose track carries the decaying sway as
+   follow-through, and the exit recoils on scaleY/translateY/scale — no
+   keyframe animates height, width, a position or a filter, so every frame is
+   a compositor frame. Shortened: the exit begins at 1.7s instead of the
+   demo's 3.8s. The overlay is fixed and out of flow, so no page measurement
+   changes and no scroll is locked. */
 
 .home-intro {
   --home-intro-cw: min(450px, 90vw);
@@ -20985,8 +20988,9 @@ a.plan-advisor__phone:hover {
   animation: home-intro-leave 220ms ease-in both;
 }
 
-/* The hang: anchored 380px above the viewport, the cords grow down from it and
-   the cloud overlaps its own cords by 18% of its width. */
+/* The hang: anchored 380px above the viewport, the cords run their full length
+   from it and the cloud overlaps its own cords by 18% of its width. The enter
+   gesture translates this whole assembly down from above the anchor. */
 .home-intro__hang {
   position: absolute;
   left: 0;
@@ -21003,7 +21007,10 @@ a.plan-advisor__phone:hover {
   display: flex;
   justify-content: space-between;
   padding: 0 28%;
-  height: 0;
+  /* Full length at rest: the assembly drops on a TRANSFORM (the enter
+     gesture below), so no frame of this animation touches layout. */
+  height: var(--home-intro-len);
+  transform-origin: 50% 0;
 }
 
 .home-intro__cord {
@@ -21108,27 +21115,32 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-accent);
 }
 
-/* Enter: the cords lower (expo-out), the hang sways about its top, the words
-   surface. Exit: the words dim, the cords pull a little further then snap up,
-   thin as they go, and the cloud squeezes slightly before returning. */
-.home-intro--enter .home-intro__cords {
-  animation: home-intro-lower 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
+/* Enter — ONE gesture, compositor-only (office, inbox 057). The hang (full-
+   length cords + cloud, as if already lowered) drops in on a single translateY
+   from above its anchor, and the sway rides the same keyframe track as a
+   decaying follow-through that settles: one ease-out curve, no second track
+   racing it. Transform and opacity only — no frame here lays anything out. */
 .home-intro--enter .home-intro__hang {
-  animation: home-intro-sway 1.8s ease-in-out 0.55s forwards;
+  animation: home-intro-drop 1.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 
 .home-intro--enter .home-intro__msg {
   animation: home-intro-surface 0.55s ease-out 0.55s forwards;
+  will-change: transform, opacity;
 }
 
+/* Exit — the recoil keeps its character, still transform-only: the cords
+   stretch 6% past their length on the reference's two beziers, then collapse
+   to nothing from the top while the cloud lifts to the anchor and squeezes;
+   the words dim and the cords thin as before. */
 .home-intro--exit .home-intro__msg {
   animation: home-intro-dim 0.25s ease-in forwards;
 }
 
 .home-intro--exit .home-intro__cords {
-  animation: home-intro-pull 0.85s forwards;
+  animation: home-intro-recoil 0.85s forwards;
+  will-change: transform;
 }
 
 .home-intro--exit .home-intro__cord {
@@ -21136,7 +21148,8 @@ a.plan-advisor__phone:hover {
 }
 
 .home-intro--exit .home-intro__cloud {
-  animation: home-intro-squeeze 0.85s forwards;
+  animation: home-intro-lift 0.85s forwards;
+  will-change: transform;
 }
 
 .home-intro--exit .home-intro__hang {
@@ -21153,35 +21166,34 @@ a.plan-advisor__phone:hover {
   animation: none;
 }
 
-.home-intro--reduced .home-intro__cords {
-  height: var(--home-intro-len);
-}
-
 .home-intro--reduced .home-intro__msg {
   opacity: 1;
 }
 
-@keyframes home-intro-lower {
-  from {
-    height: 0;
-  }
-  to {
-    height: var(--home-intro-len);
-  }
+/* Once the intro is done the promotion is dropped: the final fade runs flat
+   and nothing the home renders inherits a promoted layer (the overlay also
+   unmounts on hand-off, so the home never hosts it at all). */
+.home-intro--reduced .home-intro__hang,
+.home-intro--reduced .home-intro__msg,
+.home-intro--leaving .home-intro__hang,
+.home-intro--leaving .home-intro__cords,
+.home-intro--leaving .home-intro__cloud,
+.home-intro--leaving .home-intro__msg {
+  will-change: auto;
 }
 
-@keyframes home-intro-sway {
+@keyframes home-intro-drop {
   0% {
-    transform: rotate(0);
+    transform: translateY(calc(-1 * var(--home-intro-len))) rotate(0deg);
   }
-  30% {
-    transform: rotate(0.9deg);
+  60% {
+    transform: translateY(0) rotate(0.85deg);
   }
-  65% {
-    transform: rotate(-0.5deg);
+  82% {
+    transform: translateY(0) rotate(-0.35deg);
   }
   100% {
-    transform: rotate(0);
+    transform: translateY(0) rotate(0deg);
   }
 }
 
@@ -21203,17 +21215,17 @@ a.plan-advisor__phone:hover {
   }
 }
 
-@keyframes home-intro-pull {
+@keyframes home-intro-recoil {
   0% {
-    height: var(--home-intro-len);
+    transform: scaleY(1);
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
   }
   32% {
-    height: calc(var(--home-intro-len) + 11vh);
+    transform: scaleY(1.06);
     animation-timing-function: cubic-bezier(0.7, 0, 0.95, 0.45);
   }
   100% {
-    height: 0;
+    transform: scaleY(0);
   }
 }
 
@@ -21226,12 +21238,17 @@ a.plan-advisor__phone:hover {
   }
 }
 
-@keyframes home-intro-squeeze {
+@keyframes home-intro-lift {
+  0% {
+    transform: translateY(0) scale(1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
   32% {
-    transform: scale(0.985, 1.035);
+    transform: translateY(0) scale(0.985, 1.035);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.95, 0.45);
   }
   100% {
-    transform: scale(1);
+    transform: translateY(calc(-1 * var(--home-intro-len))) scale(1);
   }
 }
 

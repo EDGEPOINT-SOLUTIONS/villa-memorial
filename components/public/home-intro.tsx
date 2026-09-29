@@ -19,7 +19,10 @@ import { createPortal } from "react-dom";
  * the 2px `#f3e2b4 → #b8975a` cords at 28%, the 13px gold beads at 28%/72% and
  * 32.4%, the words' vertical gold gradient and shadow at 0.05/0.0633 of the
  * cloud width, the 18% cord overlap, and the reference's sway/surface/dim/
- * pull/thin/squeeze motion.
+ * pull/thin/squeeze character — rebuilt COMPOSITOR-ONLY (office, inbox 057):
+ * the hang drops as one translateY gesture carrying the decaying sway, and the
+ * exit recoils on scaleY/translateY/scale. No keyframe animates height, width,
+ * a position or a filter, so no frame of the intro makes the browser lay out.
  *
  * THE GUARDS ON TOP OF THE REFERENCE (it is a standalone demo):
  *  · NO CDN FONT — the words ride the app's self-hosted display face.

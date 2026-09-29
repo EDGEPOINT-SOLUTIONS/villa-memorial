@@ -223,11 +223,28 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   width, clamped to ladder steps — the one artwork-scale exception the
   typography gate names). The motion is the reference's: the expo-out drop, the
   hang swaying about its TOP anchor, the words surfacing, then the exit dimming
-  the words while the cords pull 11vh further and snap to zero on the reference's
-  two beziers, thin to `scaleX(.6)` and the cloud squeezes to
-  `scale(.985,1.035)`. Deliberate differences from the standalone demo, per the
-  guards: the exit begins at 1.7s (not the demo's 3.8s) and any click/keypress
-  finishes it in ~220ms; the words ride the app's self-hosted display face (no
+  the words while the cords recoil and snap away, thin to `scaleX(.6)` and the
+  cloud squeezes to `scale(.985,1.035)`. **The motion was rebuilt
+  compositor-only (office, inbox 057) after the office read the first build as
+  not smooth**: the cords used to animate `height` (a layout property) while the
+  SVG's Gaussian blurs and the cloud's two drop-shadows re-rasterised every
+  frame. Now the cords sit at their full length at rest and the WHOLE hang drops
+  as one `translateY` gesture (`home-intro-drop`, 1.6s expo-out) whose keyframe
+  track carries the decaying sway as follow-through that settles — one curve, no
+  second animation racing it; the exit recoils on `scaleY(1 → 1.06 → 0)` with the
+  cloud lifting on `translateY` (`home-intro-lift`) to meet the anchor. Every
+  `@keyframes` block in the intro animates only `transform`/`opacity` (grep of
+  the block: `['animation-timing-function', 'opacity', 'transform']`), the
+  filters are set once and never animated, `will-change: transform, opacity` is
+  carried only while the intro runs and dropped on the final fade, and
+  `tests/unit/home-intro.test.tsx` walks every keyframe and fails a
+  layout-triggering property by name. Measured in headless Chromium at
+  1440×900 sampling `requestAnimationFrame` deltas across the intro: before the
+  rebuild p95 33–100ms with 8–22 frames >33ms (worst ~250–1033ms); after, p95
+  16.8ms with 1–2 frames >33ms (worst 133–267ms, the remaining frame being
+  hydration, not the animation). Deliberate differences from the standalone
+  demo, per the guards: the exit begins at 1.7s (not the demo's 3.8s) and any
+  click/keypress finishes it in ~220ms; the words ride the app's self-hosted display face (no
   Google-Fonts Cormorant link — that face is OFL and can be self-hosted like
   Manrope if the office asks); no replay button; the two lines live in
   `home.intro` and are edited in the home editor's zone 00; reduced motion shows

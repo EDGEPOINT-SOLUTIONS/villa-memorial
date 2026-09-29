@@ -125,14 +125,44 @@ describe("the home's entrance sign", () => {
     const words = /\.home-intro__hello,\n\.home-intro__welcome \{[^}]*\}/.exec(CSS)?.[0] ?? "";
     expect(words).toMatch(/color:\s*var\(--gold-200\)/);
     expect(words).toMatch(/background-clip:\s*text/);
-    // The reference's own motion: the cords' height animates inside the fixed
-    // overlay (no page reflow), the hang rotates, the cloud squeezes; nothing
-    // animates a position or a page measurement.
-    const lower = /@keyframes home-intro-lower \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
-    expect(lower).toContain("height: var(--home-intro-len)");
-    const pull = /@keyframes home-intro-pull \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
-    expect(pull).toContain("height: calc(var(--home-intro-len) + 11vh)");
-    const squeeze = /@keyframes home-intro-squeeze \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
-    expect(squeeze).toContain("transform: scale(");
+    // COMPOSITOR-ONLY (office, inbox 057): the whole intro animates transform
+    // and opacity and nothing else. This is the automated form of the grep the
+    // office asked for — every @keyframes block in the intro section is walked
+    // and any layout-triggering property fails the suite by name.
+    const introSection =
+      /the home's entrance overlay[\s\S]*?@keyframes home-intro-leave \{[\s\S]*?\n\}/.exec(CSS)?.[0] ??
+      "";
+    expect(introSection, "the intro's stylesheet section is found").not.toBe("");
+    const keyframes = [...introSection.matchAll(/@keyframes [\w-]+ \{[\s\S]*?\n\}/g)].map(
+      (m) => m[0],
+    );
+    expect(keyframes.length, "the intro declares keyframes").toBeGreaterThan(0);
+    for (const kf of keyframes) {
+      expect(
+        kf,
+        `a layout-triggering property inside a keyframe:\n${kf}`,
+      ).not.toMatch(/\b(height|width|top|left|right|bottom|margin|padding|font-size|filter)\s*:/);
+    }
+    // The reference's character, restored on transforms: the cords sit at full
+    // length at rest and the whole hang drops as ONE gesture whose track
+    // carries the decaying sway; the cords recoil on scaleY and the cloud
+    // lifts back to the anchor while it squeezes.
+    const cords = /\.home-intro__cords \{[^}]*\}/.exec(CSS)?.[0] ?? "";
+    expect(cords).toContain("height: var(--home-intro-len)");
+    expect(cords).toContain("transform-origin: 50% 0");
+    const drop = /@keyframes home-intro-drop \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(drop).toContain("translateY(calc(-1 * var(--home-intro-len)))");
+    expect(drop).toContain("rotate(");
+    const hang = /\.home-intro--enter \.home-intro__hang \{[^}]*\}/.exec(CSS)?.[0] ?? "";
+    expect(hang).toContain("animation: home-intro-drop");
+    expect(hang).toContain("will-change: transform, opacity");
+    const recoil = /@keyframes home-intro-recoil \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(recoil).toContain("scaleY(1.06)");
+    expect(recoil).toContain("scaleY(0)");
+    const lift = /@keyframes home-intro-lift \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(lift).toContain("translateY(calc(-1 * var(--home-intro-len)))");
+    expect(lift).toContain("scale(0.985, 1.035)");
+    // The promotion is dropped once the intro is done.
+    expect(CSS).toMatch(/home-intro--leaving[\s\S]{0,240}will-change: auto/);
   });
 });
