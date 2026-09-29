@@ -204,12 +204,6 @@ export default async function PriceListPage() {
               </Link>
             }
           />
-          <PriceIndexFrom
-            figures={[
-              { label: "Regular · from", value: `${php(planFrom)} / month` },
-              { label: "Senior · from", value: `${php(seniorFrom)} / month` },
-            ]}
-          />
           <h3 className="price-index__subhead">Monthly installments at a glance</h3>
           <MonthlyPriceTable rows={planMonthlyRows} />
           <p className="price-index__note">
