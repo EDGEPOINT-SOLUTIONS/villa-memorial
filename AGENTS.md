@@ -259,6 +259,19 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 ## Eye-friendly public surfaces — the minimalist grammar (captain, 2026-09-21)
 
+- **`/` is the approved home-rebuild plan (2026-09-29), not the `LandingView` catalogue.**
+  Seven sections in order — the gateway · the first park with the arrangement builder
+  and the two chapels · the hero photograph (its title read from the office's park
+  address) · the five rising plan tiers · the five service tiles · the four lot types
+  with every recorded plot pinned on the masterplan · contact with the embedded Google
+  map. Every figure is a read (pricing store · live catalogue · 2026 sheets); the
+  services band prints no amount. `components/public/home-page.tsx` is the map,
+  `components/landing/home-sections-editor.tsx` + `/staff/landing/home` is the
+  per-section editor, and **the palette is the sky+gold ramps** in `styles/tokens.css`
+  (the legacy `--ever-*`/`--brass-*` bridges repoint onto them; gold carries dark ink,
+  never white). The quote basket owns `/quote` (`/cart` and `/checkout` redirect);
+  record: `docs/08-delivery/home-rebuild-design/README.md`. The grammar below still
+  describes the interior public pages and the `/blog` catalogue.
 - **The home is the reference pattern; the captain's `public/media/frontend-home.png`
   guides proportion and rhythm only.** The settled grammar (evidence + measured
   before/after: `docs/08-delivery/eye-friendly-sizing-design/`): a hero of one
@@ -384,12 +397,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the office-arranged state; where one is really sold the public answer is "ask the
   office" (the cart's line fallback says so), never an invented figure.
 - Every sellable product/plan/lot line pairs the same two actions:
-  `components/villa/catalogue-actions.tsx` (Add to cart with the row's exact catalogue
+  `components/villa/catalogue-actions.tsx` (Add to quote with the row's exact catalogue
   SKU/price + the prefilled Request order); the funeral-service lines are
-  Request-for-Quote only (no cart action). Lots are never cart items — `components/villa/price-list-2026.tsx` gives each row
-  Request this lot + a `/map` link. Plan tier × term goes through `lib/plan-selection.ts`
-  (cart only for a monthly, non-senior tier the catalogue carries; every other selection
-  opens the request naming that term's sheet amount).
+  Request-for-Quote only (no quote-basket action). **Lots joined the QUOTE BASKET
+  2026-09-29** (`components/villa/lot-quote-button.tsx`), so a family can ask about a
+  lot and a casket together; `/lots/price-list-2026` keeps Request this lot + `/map`
+  beside it. Plan tier × term goes through `lib/plan-selection.ts`
+  (quote basket only for a monthly, non-senior tier the catalogue carries; every other
+  selection opens the request naming that term's sheet amount).
 - Two open client questions are published as the sheets print them rather than
   reconciled — keep it that way until the client answers: (1) sheet III's chapel table
   computes the senior column at 96% of the regular total (₱1,440/₱3,360 per day) while
