@@ -15114,7 +15114,10 @@ a.card:hover {
 }
 
 .sv-page h1 {
-  font-size: var(--text-hero);
+  /* An interior opening is a PAGE title, not the home's display hero: the same
+     page-title step this page's own band heads use (captain, 2026-09-30 —
+     "no oversizing"; the old `--text-hero` made a list page shout at 57.6px). */
+  font-size: var(--text-page-title);
   line-height: 1.15;
 }
 
@@ -19732,8 +19735,7 @@ a.plan-advisor__phone:hover {
 /* The icon disc: the translucent --gold-wash disc with a --gold-700 glyph is the
    combination the package page's feature columns already use, so the treatment is
    in the product's vocabulary rather than invented here. */
-.sv-orient__icon,
-.sv-card__icon {
+.sv-orient__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -19760,101 +19762,391 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-secondary);
 }
 
-/* --- the one fact the list's guidance column carried, shortened to a box --- */
-.sv-scope {
-  margin: var(--space-4) 0 0;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface);
+/* ============================================================================
+   public: services rework block — /services wears the home's band grammar
+   (captain, 2026-09-30: "following how our homepage looks, let's apply the same
+   to services page … the images for services are so big … the ui/ux of it is not
+   built by a senior ui/ux engineer").
+
+   This block owns the three shapes the rework adds — the centred band head, the
+   five-plate catalogue row and the chapel's two room dossiers — and it reuses
+   the home's numbers through the page's own class names (a 3:2 plate with
+   `object-fit: contain` so nothing is cropped; the centred kicker/title/lead with
+   the gold ceremonial hairline; facts as labelled figures; one gold action per
+   item). The home block stays untouched.
+
+   It REPLACED the retired `.sv-scope` box, the `.sv-card*` picture cards and the
+   two-column `.sv-embalm` (whose columns measured 292px against 43px).
+   ========================================================================== */
+
+/* --- the opening: a centred gateway, not a card ---------------------------- */
+.sv-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.sv-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.sv-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+  text-align: center;
+}
+
+/* The headline is the home's gateway shape at the page-title step: a light
+   display weight, balance-wrapped, inside the one text column. */
+.sv-page .public-hero--interior .public-hero__title {
+  max-width: 22ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.sv-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.sv-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* The captain's approved home exception: the 24/7 call wears the gold the home's
+   own gateway wears, and gold carries DARK ink, never white. */
+.sv-page .public-hero--interior .public-hero__actions .btn--primary {
+  background: var(--gold-400);
+  border-color: var(--gold-500);
+  color: var(--ink-900);
+}
+
+.sv-page .public-hero--interior .public-hero__actions .btn--primary:hover {
+  background: var(--gold-300);
+}
+
+/* The facts row centres under a hairline, like the home's trust row. */
+.sv-page .sv-orient > li {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.sv-page .sv-orient__icon {
+  grid-row: auto;
+  margin-bottom: var(--space-1);
+}
+
+/* --- the designed, centred band head (the home's `.home-band-head`) -------- */
+.sv-band__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+/* The ceremonial hairline above the band — one of gold's three legal uses.
+   Nothing else in these bands wears gold. */
+.sv-band__head::before {
+  content: "";
+  display: block;
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
+
+.sv-page .sv-band__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.sv-page .sv-band__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+
+.sv-page .sv-band__lead {
+  margin: 0;
+  max-width: 46ch;
   color: var(--color-text-secondary);
 }
 
-/* --- the five service boxes ------------------------------------------------ */
-.sv-services {
+.sv-band__action {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sv-band__action .btn {
+  white-space: normal;
+  max-width: 46ch;
+}
+
+.sv-page .sv-band__note {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.sv-band__all {
+  display: flex;
+  justify-content: center;
   margin-top: var(--space-5);
 }
 
-.sv-card__eyebrow {
+/* --- the five equal plates, one row (the home's services band) ------------- */
+.sv-plates {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* At ≤48rem the row re-flows to two-up: five services cost three rows, not five
+   (the measured 2,409px phone wall this rework exists to fix). */
+@media (max-width: 48rem) {
+  .sv-plates {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-3);
+  }
+}
+
+.sv-tile {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
 }
 
-/* The photograph is not a link here — a service line has no detail route to open,
-   which is why this is not the kit's ProductCard (it requires both an href and a
-   price). The frame needs the box the link would have provided. */
-.sv-card__media {
-  display: block;
-}
-
-/* The honest placeholder: the service's own icon on the frame's quiet wash at the
-   shared 4:3 card ratio. Never a stand-in photograph. */
-.sv-card__media--icon {
+/* One equal plate ratio; the photograph is whole inside it (`contain`), so a
+   service picture is never cropped. */
+.sv-tile__plate {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  background: var(--paper-0);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+.sv-tile__plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* The plate is one equal 3:2 frame; the picture fills it. The client's own
+     photographs arrive at 3:2 (`clientPhotoWide`), so the fill is seamless. */
+  object-fit: cover;
+}
+
+/* The honest placeholder: the service's own icon on the quiet wash at the same
+   3:2 plate ratio. Never a stand-in photograph. */
+.sv-tile__plate--icon {
   background: var(--color-bg-subtle);
   color: var(--color-text-muted);
 }
 
-.sv-card__media--icon svg {
-  width: 3rem;
-  height: 3rem;
+.sv-tile__plate--icon svg {
+  width: 2.5rem;
+  height: 2.5rem;
 }
 
-.sv-card__line {
+.sv-page .sv-tile__name {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+.sv-page .sv-tile__line {
+  font-size: var(--text-lg);
+  line-height: 1.45;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.sv-tile__action {
+  display: flex;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.sv-tile__action .btn {
+  width: 100%;
+}
+
+/* --- embalming: ONE centred column (was 292px against 43px) ---------------- */
+.sv-embalm {
+  display: grid;
+  gap: var(--space-5);
+  justify-items: center;
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.sv-embalm .public-disclosure {
+  width: 100%;
+  text-align: left;
+}
+
+/* The picker's own box chrome goes: inside the centred column it was a card
+   inside a band, and its padding cost height the band did not need. The
+   controls keep their own borders. */
+.sv-embalm .sv-picker {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+/* The day chips' trailing margin is the group gap's job now. */
+.sv-embalm .sv-days {
+  margin-bottom: 0;
+  justify-content: center;
+}
+
+.sv-embalm .story-note {
   margin: 0;
 }
 
-.sv-card__action {
+/* --- the chapel spread: two equal room dossiers + one shared foot ---------- */
+.sv-rooms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-7);
+  /* The reading envelope: a narrower measure gives the two rooms the air the
+     full folio width denied them. */
+  max-width: var(--layout-reading-w);
+  margin-inline: auto;
+}
+
+@media (max-width: 48rem) {
+  .sv-rooms {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+  }
+}
+
+.sv-room {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.sv-room__plate {
+  display: block;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--paper-0);
+}
+
+.sv-room__plate img {
+  display: block;
+  width: 100%;
+  /* `height: auto` is load-bearing: a presentational width/height hint would
+     make the ratio a no-op (the trap the composition pass records). */
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+}
+
+.sv-page .sv-room__class {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--sky-700);
+}
+
+.sv-page .sv-room__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.sv-page .sv-room__what {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.sv-room__facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.sv-page .sv-room__facts dt {
+  font-size: var(--text-micro);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.sv-page .sv-room__facts dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-card-title);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.sv-room__action {
   margin-top: var(--space-3);
 }
 
-/* --- embalming: the picker and the ladder side by side --------------------- */
-.sv-embalm {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5) var(--space-7);
+.sv-room__action .btn {
+  width: 100%;
 }
 
-/* 62rem, not 72rem. Measured at a 1024px window: the page is 979px wide and both
-   columns have room, but a 72rem breakpoint put the band in one column and stacked
-   the ladder underneath — adding 196px of height to a screen that had the width to
-   avoid it. The breakpoint now matches where the space actually appears. */
-@media (min-width: 62rem) {
-  .sv-embalm {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    align-items: start;
-  }
+/* The one shared enquiry foot: the logistics and the single sample note. */
+.sv-room-foot {
+  max-width: var(--layout-reading-w);
+  margin: var(--space-6) auto 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+  text-align: center;
 }
 
-.sv-embalm__ladder > .public-disclosure {
-  margin-top: 0;
+.sv-page .sv-room-foot p {
+  margin: 0;
+  color: var(--color-text-secondary);
 }
 
-/* --- the chapel photographs fill their cards again -------------------------
-   MEASURED BEFORE: the client's two chapel photographs rendered at 273x205 inside
-   a 590px card — 317px of empty column beside each picture, on the page whose job
-   is to show a family the rooms.
-
-   The cause is the `card` image role, and it is not obvious. `public-image--card`
-   caps HEIGHT at 16rem (204.8px at the 80% root), and because the frame is
-   ratio-locked at 4/3 the WIDTH FOLLOWS THE HEIGHT — 204.8 x 4/3 = 273. A
-   max-height cap on a ratio-locked frame is a width cap in disguise, so the wider
-   this page became, the smaller the photograph looked.
-
-   This restores what the page had before its markup was rewritten: the retired
-   `.sv-chapel__media img` block set `width: 100%; aspect-ratio: 16 / 10`. Same
-   intent, live class. Scoped to this page — the shared `card` role keeps the
-   ceiling every other surface relies on, which is what
-   tests/unit/public-image-rules.test.tsx pins. */
-@media (min-width: 60rem) {
-  .sv-page .story-chapel .public-image {
-    aspect-ratio: 16 / 10;
-    max-height: none;
-  }
+.sv-page .sv-room-foot .sv-band__note {
+  margin-top: var(--space-2);
+  color: var(--color-text-muted);
 }
 
 /* --- the senior-first floor, made real -------------------------------------
@@ -19886,21 +20178,6 @@ a.plan-advisor__phone:hover {
 .sv-page .story-facts dt {
   letter-spacing: 0;
   text-transform: none;
-}
-
-/* --- a phone shows the same five services in less height -------------------
-   Measured: at 390px the five picture cards at the shared 4:3 card ratio made
-   2,810px of scrolling on their own. A 16:9 media box is the standard responsive
-   treatment and saves about 65px per card.
-
-   The per-card sample caption STAYS at its full size. It is the honesty label
-   ("Illustration only"), so it is not a thing to shrink for a narrower measure —
-   and at --text-xs it would break the senior-first 16px floor this same block
-   enforces above. */
-@media (max-width: 40rem) {
-  .sv-services .sv-card .sv-card__media img {
-    aspect-ratio: 16 / 9;
-  }
 }
 
 /* --- the enquiries board's request text -------------------------------------

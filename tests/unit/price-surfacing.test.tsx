@@ -208,7 +208,7 @@ describe("/services offers a Request for Quote instead of a service price", () =
     }
     expect(html).toContain("Services we provide");
     expect(html).toContain("Embalming — quoted by the day");
-    expect(html).toContain("Chapel — ask us for dates and a quote");
+    expect(html).toContain("Chapel — two rooms for your dates");
     expect(html).toContain("How many days will the viewing be open?");
     expect(html).toMatch(/More than 9/);
   });
@@ -230,14 +230,14 @@ describe("/services offers a Request for Quote instead of a service price", () =
       );
     }
     expect(html).toContain('aria-label="Add to Quote: Embalming — beyond 9 days"');
-    expect((html.match(/aria-label="Add to Quote: Chapel use — /g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Ask for dates: Chapel use — /g) ?? []).length).toBe(2);
     // The centred action adds all five lines, and nothing publishes a figure.
     expect(html).toContain('aria-label="Add all five to Quote: At-need services — all five"');
     expect(html).not.toMatch(/₱/);
   });
 
   it("keeps the chapel cards' names, capacity and photos but no booking dialog", () => {
-    expect((html.match(/class="story-chapel"/g) ?? []).length).toBe(2);
+    expect((html.match(/class="sv-room"/g) ?? []).length).toBe(2);
     expect(html).not.toContain("Check dates &amp; price");
     expect(html).not.toContain('aria-haspopup="dialog"');
   });

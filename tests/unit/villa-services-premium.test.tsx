@@ -120,20 +120,22 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     expect(html).toContain('id="embalming-title"');
     expect(html).toContain("Embalming — quoted by the day");
     expect(html).toContain('id="chapel-title"');
-    expect(html).toContain("Chapel — ask us for dates and a quote");
-    // Each block is a .story-band (the story-lane section grammar).
-    expect((html.match(/class="story-band"/g) ?? []).length).toBeGreaterThanOrEqual(3);
+    expect(html).toContain("Chapel — two rooms for your dates");
+    // Each block is a `.story-band` (the story-lane section grammar) wearing the
+    // reworked, centred `.sv-band` shape (captain, 2026-09-30).
+    expect((html.match(/class="story-band sv-band"/g) ?? []).length).toBeGreaterThanOrEqual(3);
   });
 
-  it("renders one icon card per at-need service, each requesting a quote", () => {
-    // The five lines became picture-first boxes on 2026-09-27 ("more graphics …
-    // use boxes"), so the icon lives on the card rather than on a ledger row. The
-    // assertion's intent is unchanged: one icon per service, and every service
-    // named.
-    expect((html.match(/class="sv-card__icon"/g) ?? []).length).toBeGreaterThanOrEqual(
+  it("renders one plate per at-need service, each requesting a quote", () => {
+    // The five picture cards became FIVE EQUAL PLATES IN ONE ROW on 2026-09-30
+    // (the home's own services band; the repeated "AT-NEED SERVICE" eyebrow and
+    // the icon disc were deleted as noise). The intent is unchanged: one plate
+    // per service, every service named, and one request action each.
+    expect((html.match(/class="sv-tile"/g) ?? []).length).toBeGreaterThanOrEqual(
       ALACARTE_LINES.length,
     );
     for (const line of ALACARTE_LINES) {
+      expect(html, `${line.service} plate`).toContain(`aria-label="Add to Quote: ${line.service}"`);
       expect(html, line.service).toContain(line.service);
       // Request-for-Quote retired every amount (captain 2026-09-21 item 5).
       expect(html, `${line.service} amount`).not.toContain(php(line.amount));
@@ -149,22 +151,25 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     // for the common chapel, a decorated viewing room for the private one.
     expect(html).toContain(clientPhotoWide("chapel-hall-candle-pedestals").src);
     expect(html).toContain(clientPhotoWide("wake-setup-lamp-alcove").src);
-    expect((html.match(/class="story-chapel"/g) ?? []).length).toBe(2);
+    // The chapel is THE CHAPEL SPREAD (captain, 2026-09-30): one dossier per
+    // room, so two `.sv-room` articles, each with its own photograph.
+    expect((html.match(/class="sv-room"/g) ?? []).length).toBe(2);
     expect(html).toContain("Common chapel");
     expect(html).toContain("Private chapel");
     // The photographs carry descriptive alt text…
     expect(html).toContain("alt=\"The chapel hall in the client");
     expect(html).toContain("alt=\"A decorated private viewing room in the client");
-    // …and the sheet's illustration-only label, twice (one per room).
+    // …and the sheet's illustration-only label is printed ONCE, in the shared
+    // enquiry foot, instead of once per card (the same promise, said once).
     expect((unescaped(html).match(new RegExp(escapeRe(CHAPEL_SAMPLE_NOTE), "g")) ?? []).length)
-      .toBeGreaterThanOrEqual(2);
+      .toBeGreaterThanOrEqual(1);
   });
 
-  it("keeps the hero's sample label and drops the guide section (captain 2026-09-21)", () => {
-    // The hero photograph is one of the client's own wake set-ups and is
-    // published under the sheet's sample discipline (lib/client-photos.ts marks
-    // it `illustration-only`), so the label must stay beside it.
-    expect(html).toContain(clientPhotoWide("wake-setup-casket-draped").src);
+  it("keeps the service band's sample label and drops the guide section (captain 2026-09-21; note moved 2026-09-30)", () => {
+    // The opening carries NO photograph now (captain, 2026-09-30 — the imagery
+    // overwhelmed the page), so the client's hero photograph left it. The sample
+    // discipline did NOT: the four sample service plates are labelled by the ONE
+    // note under the band, and the chapel's sample set-ups by the shared foot.
     expect(html).toContain(SERVICE_SAMPLE_NOTE);
     // The three guide pages stay as service entries at their own routes, but
     // the "Guides for what comes next" section left /services.

@@ -4,7 +4,13 @@ import {
   type ClientPhotoId,
 } from "@/lib/client-photos";
 import { COFFIN_SKUS, planTierForPackageSku } from "@/lib/catalogue-skus";
-import { casketSamplePhoto, PLAN_PACKAGES_IMAGE, libraryThumb, libraryThumbSet } from "@/lib/media";
+import {
+  casketSamplePhoto,
+  PARK_PLACE_PHOTOS,
+  PLAN_PACKAGES_IMAGE,
+  libraryThumb,
+  libraryThumbSet,
+} from "@/lib/media";
 import { COFFIN_TIER_PHOTO_IDS, PLAN_TIERS } from "@/lib/villa-pricing";
 
 /**
@@ -152,10 +158,18 @@ const SERVICE_PHOTOS: Readonly<Record<string, CatalogueItemPhoto>> = {
     caption: "A hearse in service. Illustration only.",
   },
   "SRV-VIEWING": sampleOf("wake-setup-lamp-alcove", "The office’s own viewing set-up."),
+  // THE PARK ITSELF IS A PHOTOGRAPH, NOT A POSTER (captain, 2026-09-30). This
+  // entry used to publish the client's marketing COMPOSITION TILE — the park
+  // entrance with a logo lock-up, a title band, the address and two phone
+  // numbers baked into the pixels — on a page that already names the park and
+  // prints the phone. It was the heaviest asset on /services (160 KB) and the
+  // AGENTS.md "a tile is never a page's picture" rule. The gallery's own
+  // photograph-only derivative (the same derivative the lot/section surfaces
+  // publish) is the honest picture: the park's entrance and grounds.
   "SRV-INTERMENT": {
-    id: "memorial-park",
-    src: libraryThumb("/media/the very first memorial park in basilan.jpg", 960),
-    alt: "The entrance and grounds of Villa Memorial Park",
+    id: "park-gate",
+    src: PARK_PLACE_PHOTOS.gate,
+    alt: "The entrance and grounds of Villa Memorial Park, in the client's own photograph",
   },
   "SRV-ORD-COFFIN": sampleOf("casket-white-closed", "A plain coffin the office provides."),
   "CHP-COMMON-DAY": clientPhotoOf(

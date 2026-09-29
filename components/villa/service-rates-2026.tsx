@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { ResultsGrid } from "@/components/kit/results-grid";
-import { ServiceCard } from "@/components/villa/service-card";
 import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
 import { ItemQuoteButton } from "@/components/villa/item-quote-button";
-import { PublicDisclosure, PublicImage, SectionHead } from "@/components/kit";
+import { ServiceIcons, IconChapel } from "@/components/villa/service-icons";
+import { PublicDisclosure } from "@/components/kit";
 import { CHAPEL_CLASS_LABEL, CHAPEL_CLASS_ORDER, type ChapelClass } from "@/lib/chapel-booking";
 import type { ChapelScheduleResource } from "@/lib/api-client/chapel-reservations";
 import type { ContactInfo } from "@/lib/api-client/landing";
@@ -13,35 +12,34 @@ import {
   EMBALMING_EXTRA_DAY_SKU,
   embalmingDaySku,
 } from "@/lib/catalogue-skus";
-import { ALACARTE_SCOPE, CHAPEL_NOTES, EMBALMING_RATES } from "@/lib/villa-pricing";
-import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
-import { clientPhotoWide } from "@/lib/client-photos";
+import { CHAPEL_RATES, EMBALMING_RATES } from "@/lib/villa-pricing";
+import { CHAPEL_SAMPLE_NOTE, SERVICE_SAMPLE_NOTE } from "@/lib/media";
+import { CLIENT_PHOTOS, clientPhotoWide, type ClientPhotoId } from "@/lib/client-photos";
 import { catalogueItemPhoto } from "@/lib/catalogue-imagery";
 
 /**
  * Funeraria memorial services — the client's 2026 service offerings, quoted.
  *
- * Request-for-Quote (captain's minutes, 2026-09-21, item 5): the funeral-service
- * surfaces no longer publish a price. Each service line — the five a-la-carte
- * fees, the embalming day ladder and the two chapel classes — carries ONE
- * "Add to Quote" action (office, inbox 047), which ADDS THE LINE to the quote
- * basket so a family can add several things and send one inquiry. The office
- * prepares a customised quotation from the request.
+ * REBUILT 2026-09-30 (captain: "following how our homepage looks, let's apply
+ * the same to services page … the images for services are so big … the ui/ux of
+ * it is not built by a senior ui/ux engineer"). The page now wears the home's
+ * band grammar: a centred, designed band head per section; equal photographic
+ * plates sized to the home's own service band; facts as labelled figures; one
+ * gold action per item; and ONE shared note per band instead of a caption per
+ * card. The sheets' own scoping headings ("If they will not get the package:")
+ * are gone from the customer page — they are sheet furniture, and /services
+ * publishes no package price for a reader to be "not getting".
  *
- * Nothing is priced here: the line carries no amount, the quote page prints
- * "Quoted on request", and it is an enquiry, never a reservation. The service
- * labels and SKUs still come from the sheet (lib/catalogue-skus.ts) so the
- * basket line names the exact catalogue item the office can quote.
+ * Request-for-Quote (captain's minutes, 2026-09-21, item 5): no amount is
+ * published. Each service line — the five a-la-carte fees, the embalming day
+ * ladder and the two chapel classes — carries ONE action that ADDS THE LINE to
+ * the quote basket so a family can add several things and send one inquiry. The
+ * office prepares a customised quotation from the request.
  *
- * PROVENANCE (lib/villa-pricing.ts holds the sheet map): "2026 price FV
- * website A" (= "PRICE LIST FOR 2026 II") block "If they will not get the
- * package": embalming per day and the five a-la-carte fees. "PRICE LIST FOR
- * 2026 III": chapel use (common & private). The sheet's figures are no longer
- * displayed; they remain the office's transcription source for a quotation.
- *
- * The chapel photographs are the client's own sample set-ups cropped from the
- * TYPES OF COFFIN sheet; the sheet marks them "(Illustration purposes only)", so
- * both cards carry CHAPEL_SAMPLE_NOTE and never claim a fixed room.
+ * PROVENANCE: `lib/villa-pricing.ts` holds the sheet map (`ALACARTE_SCOPE` stays
+ * the office's transcription source even though the page no longer prints it).
+ * The chapel photographs are the client's own sample set-ups; both are marked as
+ * samples ONCE in the band's shared foot.
  */
 
 type QuoteActionProps = {
@@ -81,6 +79,71 @@ const EMBALMING_REQUEST_NOTE =
 /** The two chapel classes are quoted per stay; the office confirms availability. */
 const CHAPEL_QUOTE_NOTE = "Chapel use when the service is not with Villa.";
 
+/**
+ * The chapel stay length, DERIVED from the sheet's own rows (never typed): the
+ * first and last day counts the 2026 chapel table prices.
+ */
+const CHAPEL_STAY_LABEL = `${CHAPEL_RATES[0].days}–${CHAPEL_RATES[CHAPEL_RATES.length - 1].days} days`;
+
+/** The same span read as a modifier ("3–9 day stays"), for the shared foot. */
+const CHAPEL_STAY_SPAN = `${CHAPEL_RATES[0].days}–${CHAPEL_RATES[CHAPEL_RATES.length - 1].days} day`;
+
+/**
+ * The centred, designed band head — the home's `.home-band-head` grammar
+ * (kicker · title · one-line lead · one action) rendered with this page's own
+ * class names so the services lane owns its block. The heading id is what the
+ * band's `aria-labelledby` points at.
+ */
+function ServiceBandHead({
+  id,
+  kicker,
+  title,
+  lead,
+  action,
+}: {
+  id: string;
+  kicker: string;
+  title: string;
+  lead: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="sv-band__head">
+      <p className="sv-band__kicker">{kicker}</p>
+      <h2 id={id} className="sv-band__title">
+        {title}
+      </h2>
+      <p className="sv-band__lead">{lead}</p>
+      {action ? <div className="sv-band__action">{action}</div> : null}
+    </div>
+  );
+}
+
+/**
+ * The plate's photograph. The shared map (`catalogueItemPhoto`) publishes the
+ * CARD crop, and a card is 4:3; the catalogue row here is the home's 3:2 plate,
+ * so a client photograph takes its own 3:2 `wide` derivative instead (the crop
+ * scripts/build-client-photos.mjs publishes for exactly this job). An asset
+ * outside the client set (a composition derivative, the park gate) is used as
+ * stored. The plate fills the frame with `object-fit: cover`, so the five tiles
+ * stay equal and seamless.
+ */
+function platePhoto(sku: string) {
+  const photo = catalogueItemPhoto(sku);
+  if (!photo) return null;
+  if (photo.id in CLIENT_PHOTOS) {
+    const wide = clientPhotoWide(photo.id as ClientPhotoId);
+    return { src: wide.src, srcSet: wide.srcSet, width: wide.width, height: wide.height, alt: photo.alt };
+  }
+  return {
+    src: photo.src,
+    srcSet: photo.srcSet,
+    width: photo.width ?? 960,
+    height: photo.height ?? 640,
+    alt: photo.alt,
+  };
+}
+
 /** The at-need services block: the five a-la-carte lines, each requestable. */
 export function AlacarteServiceRates({
   notes,
@@ -89,43 +152,64 @@ export function AlacarteServiceRates({
   notes: Readonly<Record<string, string>>;
 }) {
   return (
-    <section className="story-band" id="services" aria-labelledby="services-rates-title">
-      <SectionHead
+    <section className="story-band sv-band" id="services" aria-labelledby="services-rates-title">
+      <ServiceBandHead
         id="services-rates-title"
-        kicker={ALACARTE_SCOPE}
+        kicker="At-need services"
         title="Services we provide"
         lead="Five services — ask for the ones you need."
+        action={
+          <Link className="btn btn--secondary" href="/plans">
+            A Villa Memorial Plan already includes all five · See what the plan covers →
+          </Link>
+        }
       />
 
-      {/* BOXES, NOT A LIST (captain, 2026-09-27: "more graphics … use boxes …
-          dont overwhelm visitors"). Each line is a picture-first `.shop-card` —
-          the same box /products, /plans and /lots render — carrying the client's
-          own photograph for that service, its icon, its name and the client's one
-          line. The prose that used to sit beside the list is gone; the one fact a
-          family needs from it is a compact box above the grid. */}
-      <p className="sv-scope">
-        <strong>A Villa Memorial Plan already includes all five.</strong>{" "}
-        <Link href="/plans">See what the plan covers →</Link>
-      </p>
+      {/* FIVE EQUAL PLATES, ONE ROW — the home's own services band (captain,
+          2026-09-30). Each plate is the home's 3:2 shape with `object-fit:
+          contain`, so no photograph is cropped; the client's one line sits under
+          the name and the single gold action closes the tile. At ≤48rem the row
+          re-flows to two-up so five services cost three rows, not five. */}
+      <ul className="sv-plates" aria-label="At-need services">
+        {ALACARTE_LINES.map((fee) => {
+          const photo = platePhoto(fee.sku);
+          const IconShape = ServiceIcons[fee.service] ?? IconChapel;
+          return (
+            <li className="sv-tile" key={fee.sku}>
+              {photo ? (
+                <span className="sv-tile__plate">
+                  {/* The client's own photograph. It is not a link: a service
+                      line has no detail route to open. */}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- the client's own photograph */}
+                  <img
+                    src={photo.src}
+                    srcSet={photo.srcSet}
+                    sizes="(max-width: 48rem) 46vw, 19rem"
+                    alt={photo.alt}
+                    width={photo.width}
+                    height={photo.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </span>
+              ) : (
+                /* The honest placeholder: the service's own icon on the quiet
+                   wash the shared image frame uses, not a stand-in photograph. */
+                <span className="sv-tile__plate sv-tile__plate--icon" aria-hidden="true">
+                  <IconShape />
+                </span>
+              )}
+              <b className="sv-tile__name">{fee.service}</b>
+              <span className="sv-tile__line">{notes[fee.service] ?? ""}</span>
+              <span className="sv-tile__action">
+                <QuoteAction item={fee.service} sku={fee.sku} note={ALACARTE_REQUEST_NOTE} />
+              </span>
+            </li>
+          );
+        })}
+      </ul>
 
-      <ResultsGrid
-        items={ALACARTE_LINES}
-        itemKey={(fee) => fee.sku}
-        label="At-need services"
-        emptyTitle="The service list is being prepared."
-        className="sv-services"
-        renderItem={(fee) => (
-          <ServiceCard
-            name={fee.service}
-            line={notes[fee.service] ?? ""}
-            photo={catalogueItemPhoto(fee.sku)}
-            action={<QuoteAction item={fee.service} sku={fee.sku} note={ALACARTE_REQUEST_NOTE} />}
-          />
-        )}
-      />
-
-      {/* The centred action adds ALL FIVE service lines (office, inbox 047). */}
-      <div className="story-actions">
+      <div className="sv-band__all">
         <ItemQuoteButton
           lines={ALACARTE_LINES.map((fee) => ({
             sku: fee.sku,
@@ -137,6 +221,11 @@ export function AlacarteServiceRates({
           label="Add all five to Quote"
         />
       </div>
+
+      {/* ONE sample note for the whole band — the four sample photographs
+          (retrieval, delivery, viewing, coffin) share it; it replaces the
+          per-card captions the page used to repeat. */}
+      <p className="sv-band__note">{SERVICE_SAMPLE_NOTE}</p>
     </section>
   );
 }
@@ -148,66 +237,69 @@ export function AlacarteServiceRates({
  */
 export function EmbalmingRates({ contact }: { contact: ContactInfo }) {
   return (
-    <section className="story-band" id="embalming" aria-labelledby="embalming-title">
-      <SectionHead
+    <section className="story-band sv-band" id="embalming" aria-labelledby="embalming-title">
+      <ServiceBandHead
         id="embalming-title"
-        kicker={ALACARTE_SCOPE}
+        kicker="Embalming"
         title="Embalming — quoted by the day"
         lead="Includes make-up and dressing; the office confirms the day count."
       />
 
-      {/* Two columns on a wide screen: the choice on the left, the full ladder on
-          the right. It was a stack, which left the right half of a 1440px window
-          empty while the ladder sat folded underneath. */}
+      {/* ONE CENTRED COLUMN (captain, 2026-09-30). The band used to sit in two
+          columns that measured 292 px against 43 px, so the day ladder's summary
+          bar floated alone at the top-right. The choice now leads and the full
+          ladder is a full-width disclosure underneath it. */}
       <div className="sv-embalm">
-        <div>
-          <EmbalmingDayPicker />
-          <p className="story-note">
-            Not sure how many days? Most families choose 3 — call{" "}
-            <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
-          </p>
-        </div>
-
-        <div className="sv-embalm__ladder">
-          <PublicDisclosure summary="See every day count, 3 to 9 days">
-            <ul className="sv-stays" aria-label="Embalming day counts">
-              {EMBALMING_RATES.map((row) => (
-                <li className="sv-stay" key={row.days}>
-                  <span className="sv-stay__days">{row.days} days</span>
-                  <span className="sv-stay__actions">
-                    <QuoteAction
-                      item={`Embalming — ${row.days} days`}
-                      sku={embalmingDaySku(row.days)}
-                      note={EMBALMING_REQUEST_NOTE}
-                    />
-                  </span>
-                </li>
-              ))}
-              <li className="sv-stay">
-                <span className="sv-stay__days">More than 9</span>
+        <EmbalmingDayPicker />
+        <p className="story-note">
+          Not sure how many days? Most families choose 3 — call{" "}
+          <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
+        </p>
+        <PublicDisclosure summary="See every day count, 3 to 9 days">
+          <ul className="sv-stays" aria-label="Embalming day counts">
+            {EMBALMING_RATES.map((row) => (
+              <li className="sv-stay" key={row.days}>
+                <span className="sv-stay__days">{row.days} days</span>
                 <span className="sv-stay__actions">
                   <QuoteAction
-                    item="Embalming — beyond 9 days"
-                    sku={EMBALMING_EXTRA_DAY_SKU}
-                    note={`${EMBALMING_REQUEST_NOTE} More than nine days.`}
+                    item={`Embalming — ${row.days} days`}
+                    sku={embalmingDaySku(row.days)}
+                    note={EMBALMING_REQUEST_NOTE}
                   />
                 </span>
               </li>
-            </ul>
-          </PublicDisclosure>
-        </div>
+            ))}
+            <li className="sv-stay">
+              <span className="sv-stay__days">More than 9</span>
+              <span className="sv-stay__actions">
+                <QuoteAction
+                  item="Embalming — beyond 9 days"
+                  sku={EMBALMING_EXTRA_DAY_SKU}
+                  note={`${EMBALMING_REQUEST_NOTE} More than nine days.`}
+                />
+              </span>
+            </li>
+          </ul>
+        </PublicDisclosure>
       </div>
     </section>
   );
 }
 
 /**
- * The chapel options: one photo card per chapel the park's own record carries.
+ * The chapel options — THE CHAPEL SPREAD (captain, 2026-09-30: "improve the
+ * section Chapel Use … what is your most premium quality design to present that
+ * section"). A family is choosing BETWEEN two rooms, so the band presents a
+ * choice: two equal dossiers (a whole 3:2 photograph, the class label over the
+ * room's name, the client's one line, the two facts a family compares as
+ * labelled figures, and one gold "Ask for dates"), then ONE shared foot that
+ * carries the logistics and the sample note once.
  *
- * THE NAME IS THE PARK'S RECORD: the card title reads the same staff-editable
- * chapel record (lib/api-client/chapel-store.ts) the schedule does — a rename on
- * /staff/schedule lands here. Each card's ONE action asks the office for dates
- * and a quote; a chapel stay is not priced here and is not a quote-basket line.
+ * THE NAME IS THE PARK'S RECORD: the dossier's name reads the same
+ * staff-editable chapel record (lib/api-client/chapel-store.ts) the schedule
+ * does — a rename on /staff/schedule lands here. Each room's ONE action asks the
+ * office for dates and a quote; a chapel stay is not priced here and is not a
+ * quote-basket line until the office confirms it.
  */
 export function ChapelRates({
   chapels,
@@ -235,20 +327,24 @@ export function ChapelRates({
       "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
   };
 
-  // One card per class the park's record carries, in the sheet's class order.
+  // One dossier per class the park's record carries, in the sheet's class order.
   const cards = CHAPEL_CLASS_ORDER.flatMap((chapelClass) => {
     const record = chapels.find((chapel) => chapel.chapel_class === chapelClass);
     return record ? [{ chapelClass, record }] : [];
   });
 
   return (
-    <section className="story-band" id="chapel" aria-labelledby="chapel-title">
-      <SectionHead
+    <section className="story-band sv-band" id="chapel" aria-labelledby="chapel-title">
+      <ServiceBandHead
         id="chapel-title"
-        kicker={CHAPEL_NOTES.scope}
-        title="Chapel — ask us for dates and a quote"
-        lead="Three to nine day stays; the office confirms availability and the price."
-        action={<Link href="/facilities#rooms">See both rooms</Link>}
+        kicker="The chapel"
+        title="Chapel — two rooms for your dates"
+        lead="A shared hall, or a room for your family alone."
+        action={
+          <Link className="btn btn--secondary" href="/facilities#rooms">
+            See both rooms →
+          </Link>
+        }
       />
 
       {cards.length === 0 ? (
@@ -256,44 +352,60 @@ export function ChapelRates({
           The park has not published an active chapel right now — call the office for dates.
         </p>
       ) : (
-        <div className="story-chapels">
-          {cards.map(({ chapelClass, record }) => {
-            const photo = classPhoto[chapelClass];
-            return (
-              <article className="story-chapel" key={record.id}>
-                <div className="story-figure">
-                  <PublicImage
-                    role="card"
-                    className="story-chapel__media"
-                    src={photo.src}
-                    srcSet={photo.srcSet}
-                    sizes="(max-width: 60rem) 92vw, 28rem"
-                    alt={classPhotoAlt[chapelClass]}
-                    width={photo.width}
-                    height={photo.height}
-                  />
-                  <p className="public-image__caption">{CHAPEL_SAMPLE_NOTE}</p>
-                </div>
-                <h3 className="story-chapel__name">{record.name}</h3>
-                <p className="story-chapel__class text-sm text-muted">{CHAPEL_CLASS_LABEL[chapelClass]}</p>
-                <p className="story-chapel__what">{chapelNotes[chapelClass]}</p>
-                <dl className="story-facts">
-                  <div>
-                    <dt>Room fits about</dt>
-                    <dd>{record.capacity} people</dd>
+        <>
+          <div className="sv-rooms">
+            {cards.map(({ chapelClass, record }) => {
+              const photo = classPhoto[chapelClass];
+              return (
+                <article className="sv-room" key={record.id}>
+                  <span className="sv-room__plate">
+                    {/* The client's own photograph, whole: a 3:2 plate takes the
+                        picture's own 3:2 shape, so nothing is cropped. */}
+                    {/* eslint-disable-next-line @next/next/no-img-element -- the client's own photograph */}
+                    <img
+                      src={photo.src}
+                      srcSet={photo.srcSet}
+                      sizes="(max-width: 48rem) 92vw, 29rem"
+                      alt={classPhotoAlt[chapelClass]}
+                      width={photo.width}
+                      height={photo.height}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </span>
+                  <p className="sv-room__class">{CHAPEL_CLASS_LABEL[chapelClass]}</p>
+                  <h3 className="sv-room__name">{record.name}</h3>
+                  <p className="sv-room__what">{chapelNotes[chapelClass]}</p>
+                  <dl className="sv-room__facts">
+                    <div>
+                      <dt>Room fits about</dt>
+                      <dd>{record.capacity} people</dd>
+                    </div>
+                    <div>
+                      <dt>Stay</dt>
+                      <dd>{CHAPEL_STAY_LABEL}</dd>
+                    </div>
+                  </dl>
+                  <div className="sv-room__action">
+                    <QuoteAction
+                      item={`Chapel use — ${record.name}`}
+                      sku={CHAPEL_SKUS[chapelClass]}
+                      note={CHAPEL_QUOTE_NOTE}
+                      label="Ask for dates"
+                    />
                   </div>
-                </dl>
-                <div className="story-actions">
-                  <QuoteAction
-                    item={`Chapel use — ${record.name}`}
-                    sku={CHAPEL_SKUS[chapelClass]}
-                    note={CHAPEL_QUOTE_NOTE}
-                  />
-                </div>
-              </article>
-            );
-          })}
-        </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {/* ONE shared enquiry foot: the logistics and the single sample note,
+              repeated nowhere. */}
+          <div className="sv-room-foot">
+            <p>{CHAPEL_STAY_SPAN} stays · the office confirms availability and the price.</p>
+            <p className="sv-band__note">{CHAPEL_SAMPLE_NOTE}</p>
+          </div>
+        </>
       )}
     </section>
   );
