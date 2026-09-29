@@ -705,6 +705,8 @@ export function LandingBands({
   open,
   posts,
   newsfeed = true,
+  railAssist = true,
+  railActions = true,
 }: LandingViewProps & {
   midElement?: "main" | "div";
   open?: ReactNode;
@@ -713,6 +715,12 @@ export function LandingBands({
    *  own lead listing already shows those posts (office, inbox 048) — the band
    *  there was a duplicate. LandingView keeps it. */
   newsfeed?: boolean;
+  /** The left rail's always-reachable help/24-7 card. OFF on `/blog` — the
+   *  captain removed it there (2026-09-30). */
+  railAssist?: boolean;
+  /** The right rail's quick-action list. OFF on `/blog` — the captain removed
+   *  it there (2026-09-30). */
+  railActions?: boolean;
 }) {
   const mid = (
     <div className="anchored-mid__inner">
@@ -733,7 +741,10 @@ export function LandingBands({
       {/* Amazon-familiar storefront (captain, 2026-09-25): the left rail is
           the departments list, led by the always-reachable help card. */}
       <aside className="anchored-rail anchored-rail--left" aria-label="Departments">
-        <RailPanel config={content.rails.left} lead={<RailAssist contact={content.contact} />} />
+        <RailPanel
+          config={content.rails.left}
+          lead={railAssist ? <RailAssist contact={content.contact} /> : undefined}
+        />
       </aside>
 
       {midElement === "main" ? (
@@ -747,7 +758,7 @@ export function LandingBands({
       {/* The right rail is the short, useful action list (price list, quote,
           plan finder, directions) above the staff-pinned plans & lots. */}
       <aside className="anchored-rail anchored-rail--right" aria-label="Quick actions">
-        <RailPanel config={content.rails.right} lead={<RailActions />} />
+        <RailPanel config={content.rails.right} lead={railActions ? <RailActions /> : undefined} />
       </aside>
     </div>
   );

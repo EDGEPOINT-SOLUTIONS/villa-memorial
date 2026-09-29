@@ -71,6 +71,8 @@ export default async function BlogRoute() {
           mapLive={lots.length > 0}
           sectionCount={sectionCount}
           newsfeed={false}
+          railAssist={false}
+          railActions={false}
           open={
             <section className="mid-section blog-section" aria-label="Blog">
               {blog ? (

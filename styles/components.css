@@ -22438,6 +22438,8 @@ a.plan-advisor__phone:hover {
 .blog-head {
   margin-bottom: var(--space-6);
   padding-bottom: var(--space-4);
+  /* Centred with one CTA (captain, 2026-09-30). */
+  text-align: center;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -22462,11 +22464,15 @@ a.plan-advisor__phone:hover {
 }
 
 .blog-head__lead {
-  margin: var(--space-3) 0 0;
+  margin: var(--space-3) auto 0;
   max-width: var(--measure-prose);
   font-size: var(--text-lg);
   line-height: var(--leading-normal);
   color: var(--color-text-secondary);
+}
+
+.blog-head__cta {
+  margin-top: var(--space-4);
 }
 
 .blog-empty {
