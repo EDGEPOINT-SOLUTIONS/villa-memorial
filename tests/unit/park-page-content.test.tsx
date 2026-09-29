@@ -63,10 +63,11 @@ describe("the park page", () => {
 
   it("prints the recorded-plot counts, never a placeholder count", async () => {
     const html = renderToStaticMarkup(await page());
-    // The 16 recorded plots / 10 available the lot pages also show.
-    expect(html).toContain("16 recorded plots");
-    expect(html).toContain("4 lot types");
-    expect(html).toContain("10 available");
+    // The count row is retired (captain, 2026-09-30); the page must still never
+    // show a placeholder count anywhere.
+    expect(html).not.toContain("16 recorded plots");
+    expect(html).not.toContain("4 lot types");
+    expect(html).not.toContain("10 available");
     // The generated placeholder inventory is gone from the page entirely.
     expect(html).not.toContain("placeholder");
   });

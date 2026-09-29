@@ -22617,37 +22617,6 @@ a.plan-advisor__phone:hover {
   justify-content: center;
 }
 
-/* Band 1's three-fact trust row, under a hairline. Every fact is a record
-   count read by the page, never a claim. */
-.park-facts {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-4) var(--space-6);
-  margin: var(--space-5) 0 0;
-  padding: var(--space-4) 0 0;
-  border-top: 1px solid var(--color-rule);
-  list-style: none;
-}
-
-.park-facts > li {
-  display: grid;
-  justify-items: center;
-  gap: var(--space-1);
-  text-align: center;
-}
-
-.park-facts strong {
-  font-size: var(--text-body);
-  font-weight: 650;
-  color: var(--color-text-primary);
-}
-
-.park-facts span {
-  font-size: var(--text-caption);
-  color: var(--color-text-muted);
-}
-
 /* Band 2 · the map band head — the home's grammar, every section title at the
    page-title step, weight 500, never bold (captain 2026-09-30). */
 .park-page .home-band-head__title {
@@ -22712,10 +22681,6 @@ a.plan-advisor__phone:hover {
 @media (max-width: 40rem) {
   .map-key__sep {
     display: none;
-  }
-
-  .park-facts {
-    gap: var(--space-3) var(--space-5);
   }
 }
 

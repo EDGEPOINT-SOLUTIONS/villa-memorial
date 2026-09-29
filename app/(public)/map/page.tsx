@@ -9,9 +9,8 @@ import { listLots, propertyLiveModeEnabled } from "@/lib/api-client/property";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { buildLotListing, SEED_PARKS } from "@/lib/lot-listing-data";
+import { buildLotListing } from "@/lib/lot-listing-data";
 import { EMPTY_LOT_FILTERS, parseLotFilters, parseLotsSort } from "@/lib/lot-listing";
-import { parkType } from "@/lib/park-types";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { PublicHero } from "@/components/kit";
 import { pageMetadata } from "@/lib/seo";
@@ -77,15 +76,6 @@ const FALLBACK_TABS: PageTab[] = [
   { id: "tab-view", label: "Map", href: "/map", note: null },
   { id: "tab-lots", label: "Lots", href: "/map?tab=lots", note: null },
 ];
-
-/** The plot statuses the shared store can draw — mirrors `lib/park-live-lots.ts`. */
-const DRAWABLE_PLOT_STATUSES = new Set([
-  "available",
-  "reserved",
-  "sold",
-  "occupied",
-  "maintenance",
-]);
 
 export default async function PublicMapPage({
   searchParams,
@@ -172,22 +162,6 @@ export default async function PublicMapPage({
     ? { label: lotsTab.label, href: lotsTab.href }
     : { label: viewTab.label, href: viewTab.href };
 
-  // ---- the park at a glance: every figure is a record count -------------------
-  // The same live overlay the map and the listing use: a linked plot takes its
-  // live lot's status, anything else keeps its recorded status. No count here can
-  // disagree with the legend beside the map.
-  const recordedPlots = SEED_PARKS.flatMap((park) => park.plots);
-  const liveStatusById = new Map(lots.map((lot) => [lot.id, lot.status]));
-  const statusOf = (plot: (typeof recordedPlots)[number]) => {
-    const live = plot.lot_id ? liveStatusById.get(plot.lot_id) : undefined;
-    return live && DRAWABLE_PLOT_STATUSES.has(live) ? live : plot.status;
-  };
-  const recordedCount = recordedPlots.length;
-  const availableCount = recordedPlots.filter((plot) => statusOf(plot) === "available").length;
-  const typeNames = [...new Set(recordedPlots.map((plot) => plot.typeId).filter((t): t is string => Boolean(t)))]
-    .map((typeId) => parkType(typeId).name)
-    .map((name) => name.charAt(0) + name.slice(1).toLowerCase());
-
   const hero = document?.hero;
   const heroEyebrow = hero?.eyebrow.trim() || undefined;
   const heroHeadline = hero?.headline.trim() || "Villa Memorial Park";
@@ -207,21 +181,6 @@ export default async function PublicMapPage({
         primary={primaryAction}
         secondary={secondaryAction}
       />
-
-      <ul className="park-facts" aria-label="The park at a glance">
-        <li>
-          <strong>{recordedCount} recorded plots</strong>
-          <span>the same records the lot pages show</span>
-        </li>
-        <li>
-          <strong>{typeNames.length} lot types</strong>
-          <span>{typeNames.join(" · ")}</span>
-        </li>
-        <li>
-          <strong>{availableCount} available</strong>
-          <span>read from the live lot records</span>
-        </li>
-      </ul>
 
       {activeTab === "lots" && lotData ? (
         <LotListing

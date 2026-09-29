@@ -296,7 +296,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       renderToStaticMarkup(
         await PublicMapPage({ searchParams: Promise.resolve({}) }),
       ),
-    sections: ['data-public-hero="interior"', "park-facts", "home-band-head", "map-shell"],
+    sections: ['data-public-hero="interior"', "home-band-head", "map-shell"],
     requires: ["data-public-hero"],
   },
   {
