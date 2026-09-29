@@ -19756,7 +19756,25 @@ a.plan-advisor__phone:hover {
    two-column `.sv-embalm` (whose columns measured 292px against 43px).
    ========================================================================== */
 
-/* --- the opening: a centred gateway, not a card ---------------------------- */
+/* --- the opening: a centred gateway, not a card ----------------------------
+   THE CARD FRAME IS STRIPPED, SCOPED TO THIS PAGE. The shared opening grammar
+   paints `.public-hero` as a boxed band (white ground, 1px rule, `--radius-lg`
+   padding) with a 2px gold rule across its top — the captain's "gold line on top
+   of the 1st section". The approved plan's opening is the home's gateway: plain
+   paper, no border, no radius, no card background, no gold rule. Only this page
+   opts out; `.page-header`, `.ag-hero` and every other `.public-hero` keep the
+   shared treatment untouched. */
+.sv-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.sv-page .public-hero--interior::before {
+  content: none;
+}
+
 .sv-page .public-hero--interior .public-hero__inner {
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
@@ -19839,9 +19857,19 @@ a.plan-advisor__phone:hover {
   margin-bottom: var(--space-6);
 }
 
-/* (The gold ceremonial hairline that sat above each band head was REMOVED on
-   2026-09-30 at the captain's direction — the band heads open on the kicker
-   alone now.) */
+/* The ceremonial hairline above the band head — the home's own `.home-band-head`
+   grammar, and the approved plan's band head (kicker · title · lead, opened by
+   the gold rule). The captain's "gold line on top of the 1st section" was the
+   OPENING CARD's 2px rule, stripped above; these band heads keep theirs, so
+   /services matches the home. */
+.sv-band__head::before {
+  content: "";
+  display: block;
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
 
 .sv-page .sv-band__kicker {
   margin: 0;
