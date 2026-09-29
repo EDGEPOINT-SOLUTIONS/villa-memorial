@@ -458,14 +458,53 @@ export function HomeSectionsEditor({
         </div>
       </section>
 
-      {/* ====================== 2 · the first park ========================== */}
+      {/* ========================= 2 · hero photograph ======================= */}
+      <section className="ed-section" id="ed-home-2">
+        <header className="ed-section__head">
+          <span className="ed-section__num" aria-hidden="true">
+            03
+          </span>
+          <div className="ed-section__title">
+            <p className="ed-section__kicker">Home · section 2</p>
+            <h2>The hero photograph</h2>
+            <p className="ed-section__hint">
+              The client&apos;s photograph, alone and whole. The page never crops it — the frame takes
+              the picture&apos;s own shape.
+            </p>
+          </div>
+        </header>
+        <div className="ed-section__body">
+          <TextField
+            label="Band kicker (the uppercase line above the title)"
+            htmlFor="home-photo-kicker"
+            value={home.photo.kicker}
+            onChange={(kicker) => update("photo", { ...home.photo, kicker })}
+            hint="The title under it is read from the park address in Brand & 24/7 line."
+          />
+          <ImageField
+            label="Photograph"
+            htmlFor="home-photo-image"
+            value={home.photo.image}
+            onChange={(image) => update("photo", { ...home.photo, image })}
+          />
+          <TextField
+            label="Alt text"
+            htmlFor="home-photo-alt"
+            value={home.photo.alt}
+            onChange={(alt) => update("photo", { ...home.photo, alt })}
+            hint="Describe what the photograph shows — required whenever a picture is published."
+          />
+        </div>
+      </section>
+
+      {/* ====================== 3 · the first park ========================== */}
       <section className="ed-section" id="ed-home-3">
         <header className="ed-section__head">
           <span className="ed-section__num" aria-hidden="true">
             02
           </span>
           <div className="ed-section__title">
-            <p className="ed-section__kicker">Home · section 2</p>
+            <p className="ed-section__kicker">Home · section 3</p>
             <h2>The first park · photograph, builder, chapels</h2>
             <p className="ed-section__hint">
               The park photograph with the arrangement builder beside it and the two chapels under
@@ -732,53 +771,144 @@ export function HomeSectionsEditor({
         </div>
       </section>
 
-      {/* ========================= 3 · hero photograph ======================= */}
-      <section className="ed-section" id="ed-home-2">
+      {/* ======================= 4 · Villa Memorial Park =================== */}
+      <section className="ed-section" id="ed-home-6">
         <header className="ed-section__head">
           <span className="ed-section__num" aria-hidden="true">
-            03
+            06
           </span>
           <div className="ed-section__title">
-            <p className="ed-section__kicker">Home · section 3</p>
-            <h2>The hero photograph</h2>
+            <p className="ed-section__kicker">Home · section 4</p>
+            <h2>Villa Memorial Park</h2>
             <p className="ed-section__hint">
-              The client&apos;s photograph, alone and whole. The page never crops it — the frame takes
-              the picture&apos;s own shape.
+              The four lot types beside the park map, with every recorded plot pinned at its own
+              recorded coordinates. Each tile binds to a live lot family + product row; the figures
+              under the map are read from the pricing store. The app holds no park coordinates of
+              its own — the pins are the plots&apos; own outlines.
             </p>
           </div>
         </header>
         <div className="ed-section__body">
-          <TextField
-            label="Band kicker (the uppercase line above the title)"
-            htmlFor="home-photo-kicker"
-            value={home.photo.kicker}
-            onChange={(kicker) => update("photo", { ...home.photo, kicker })}
-            hint="The title under it is read from the park address in Brand & 24/7 line."
+          <div className="field-grid field-grid--2">
+            <TextField
+              label="Band kicker"
+              htmlFor="home-lots-kicker"
+              value={lots.kicker}
+              onChange={(kicker) => update("lots", { ...lots, kicker })}
+            />
+            <TextField
+              label="Heading"
+              htmlFor="home-lots-heading"
+              value={lots.heading}
+              onChange={(heading) => update("lots", { ...lots, heading })}
+            />
+          </div>
+          <ActionFields
+            legend="Band action"
+            cta={lots.action}
+            onChange={(action) => update("lots", { ...lots, action })}
+            idPrefix="home-lots-action"
           />
-          <ImageField
-            label="Photograph"
-            htmlFor="home-photo-image"
-            value={home.photo.image}
-            onChange={(image) => update("photo", { ...home.photo, image })}
+          <ActionFields
+            legend="The detail panel's request action"
+            cta={lots.quote}
+            onChange={(quote) => update("lots", { ...lots, quote })}
+            idPrefix="home-lots-quote"
           />
-          <TextField
-            label="Alt text"
-            htmlFor="home-photo-alt"
-            value={home.photo.alt}
-            onChange={(alt) => update("photo", { ...home.photo, alt })}
-            hint="Describe what the photograph shows — required whenever a picture is published."
-          />
+          {lots.items.map((tile: HomeLotTile, index) => {
+            const products = lotFamilyProducts(tile.category);
+            return (
+              <div className="ed-card" key={tile.id}>
+                <p className="ed-card__title">Lot type {index + 1}</p>
+                <div className="field-grid field-grid--2">
+                  <SelectField
+                    label="Lot family (the pricing store)"
+                    htmlFor={`home-lot-${tile.id}-category`}
+                    value={tile.category}
+                    options={catalog.lotFamilies.map((family) => ({
+                      value: family.title,
+                      label: `${family.title} — ${family.caption}`,
+                    }))}
+                    onChange={(category) => {
+                      const nextProducts = lotFamilyProducts(category);
+                      update("lots", {
+                        ...lots,
+                        items: lots.items.map((entry) =>
+                          entry.id === tile.id
+                            ? { ...entry, category, product: nextProducts[0] ?? "" }
+                            : entry,
+                        ),
+                      });
+                    }}
+                  />
+                  <SelectField
+                    label="Product row"
+                    htmlFor={`home-lot-${tile.id}-product`}
+                    value={tile.product}
+                    options={products.map((product) => ({ value: product, label: product }))}
+                    onChange={(product) =>
+                      update("lots", {
+                        ...lots,
+                        items: lots.items.map((entry) =>
+                          entry.id === tile.id ? { ...entry, product } : entry,
+                        ),
+                      })
+                    }
+                  />
+                </div>
+                <TextField
+                  label="Tile name"
+                  htmlFor={`home-lot-${tile.id}-label`}
+                  value={tile.label}
+                  onChange={(label) =>
+                    update("lots", {
+                      ...lots,
+                      items: lots.items.map((entry) =>
+                        entry.id === tile.id ? { ...entry, label } : entry,
+                      ),
+                    })
+                  }
+                />
+                <ImageField
+                  label="Photograph (falls back to the client's own photo for the bound family)"
+                  htmlFor={`home-lot-${tile.id}-image`}
+                  value={tile.image}
+                  onChange={(image) =>
+                    update("lots", {
+                      ...lots,
+                      items: lots.items.map((entry) =>
+                        entry.id === tile.id ? { ...entry, image } : entry,
+                      ),
+                    })
+                  }
+                />
+                <TextField
+                  label="Alt text"
+                  htmlFor={`home-lot-${tile.id}-alt`}
+                  value={tile.imageAlt}
+                  onChange={(imageAlt) =>
+                    update("lots", {
+                      ...lots,
+                      items: lots.items.map((entry) =>
+                        entry.id === tile.id ? { ...entry, imageAlt } : entry,
+                      ),
+                    })
+                  }
+                />
+              </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* ======================= 4 · Villa Memorial Plan ==================== */}
+      {/* ======================= 5 · Villa Memorial Plan ==================== */}
       <section className="ed-section" id="ed-home-4">
         <header className="ed-section__head">
           <span className="ed-section__num" aria-hidden="true">
             04
           </span>
           <div className="ed-section__title">
-            <p className="ed-section__kicker">Home · section 4</p>
+            <p className="ed-section__kicker">Home · section 5</p>
             <h2>Villa Memorial Plan</h2>
             <p className="ed-section__hint">
               Five rising tiers with the live monthly rate and the sheet&apos;s own line about what
@@ -839,14 +969,14 @@ export function HomeSectionsEditor({
         </div>
       </section>
 
-      {/* ====================== 5 · Funeraria services ====================== */}
+      {/* ====================== 6 · Funeraria services ====================== */}
       <section className="ed-section" id="ed-home-5">
         <header className="ed-section__head">
           <span className="ed-section__num" aria-hidden="true">
             05
           </span>
           <div className="ed-section__title">
-            <p className="ed-section__kicker">Home · section 5</p>
+            <p className="ed-section__kicker">Home · section 6</p>
             <h2>Funeraria Memorial Services</h2>
             <p className="ed-section__hint">
               Five equal photographic tiles, a request under each, and one centred request for all
@@ -980,136 +1110,6 @@ export function HomeSectionsEditor({
               <Plus size={14} aria-hidden="true" /> Add a service tile
             </Button>
           </div>
-        </div>
-      </section>
-
-      {/* ======================= 6 · Villa Memorial Park =================== */}
-      <section className="ed-section" id="ed-home-6">
-        <header className="ed-section__head">
-          <span className="ed-section__num" aria-hidden="true">
-            06
-          </span>
-          <div className="ed-section__title">
-            <p className="ed-section__kicker">Home · section 6</p>
-            <h2>Villa Memorial Park</h2>
-            <p className="ed-section__hint">
-              The four lot types beside the park map, with every recorded plot pinned at its own
-              recorded coordinates. Each tile binds to a live lot family + product row; the figures
-              under the map are read from the pricing store. The app holds no park coordinates of
-              its own — the pins are the plots&apos; own outlines.
-            </p>
-          </div>
-        </header>
-        <div className="ed-section__body">
-          <div className="field-grid field-grid--2">
-            <TextField
-              label="Band kicker"
-              htmlFor="home-lots-kicker"
-              value={lots.kicker}
-              onChange={(kicker) => update("lots", { ...lots, kicker })}
-            />
-            <TextField
-              label="Heading"
-              htmlFor="home-lots-heading"
-              value={lots.heading}
-              onChange={(heading) => update("lots", { ...lots, heading })}
-            />
-          </div>
-          <ActionFields
-            legend="Band action"
-            cta={lots.action}
-            onChange={(action) => update("lots", { ...lots, action })}
-            idPrefix="home-lots-action"
-          />
-          <ActionFields
-            legend="The detail panel's request action"
-            cta={lots.quote}
-            onChange={(quote) => update("lots", { ...lots, quote })}
-            idPrefix="home-lots-quote"
-          />
-          {lots.items.map((tile: HomeLotTile, index) => {
-            const products = lotFamilyProducts(tile.category);
-            return (
-              <div className="ed-card" key={tile.id}>
-                <p className="ed-card__title">Lot type {index + 1}</p>
-                <div className="field-grid field-grid--2">
-                  <SelectField
-                    label="Lot family (the pricing store)"
-                    htmlFor={`home-lot-${tile.id}-category`}
-                    value={tile.category}
-                    options={catalog.lotFamilies.map((family) => ({
-                      value: family.title,
-                      label: `${family.title} — ${family.caption}`,
-                    }))}
-                    onChange={(category) => {
-                      const nextProducts = lotFamilyProducts(category);
-                      update("lots", {
-                        ...lots,
-                        items: lots.items.map((entry) =>
-                          entry.id === tile.id
-                            ? { ...entry, category, product: nextProducts[0] ?? "" }
-                            : entry,
-                        ),
-                      });
-                    }}
-                  />
-                  <SelectField
-                    label="Product row"
-                    htmlFor={`home-lot-${tile.id}-product`}
-                    value={tile.product}
-                    options={products.map((product) => ({ value: product, label: product }))}
-                    onChange={(product) =>
-                      update("lots", {
-                        ...lots,
-                        items: lots.items.map((entry) =>
-                          entry.id === tile.id ? { ...entry, product } : entry,
-                        ),
-                      })
-                    }
-                  />
-                </div>
-                <TextField
-                  label="Tile name"
-                  htmlFor={`home-lot-${tile.id}-label`}
-                  value={tile.label}
-                  onChange={(label) =>
-                    update("lots", {
-                      ...lots,
-                      items: lots.items.map((entry) =>
-                        entry.id === tile.id ? { ...entry, label } : entry,
-                      ),
-                    })
-                  }
-                />
-                <ImageField
-                  label="Photograph (falls back to the client's own photo for the bound family)"
-                  htmlFor={`home-lot-${tile.id}-image`}
-                  value={tile.image}
-                  onChange={(image) =>
-                    update("lots", {
-                      ...lots,
-                      items: lots.items.map((entry) =>
-                        entry.id === tile.id ? { ...entry, image } : entry,
-                      ),
-                    })
-                  }
-                />
-                <TextField
-                  label="Alt text"
-                  htmlFor={`home-lot-${tile.id}-alt`}
-                  value={tile.imageAlt}
-                  onChange={(imageAlt) =>
-                    update("lots", {
-                      ...lots,
-                      items: lots.items.map((entry) =>
-                        entry.id === tile.id ? { ...entry, imageAlt } : entry,
-                      ),
-                    })
-                  }
-                />
-              </div>
-            );
-          })}
         </div>
       </section>
 

@@ -105,8 +105,8 @@ describe("the landing content document is durable", () => {
 describe("the page documents are durable", () => {
   it("reads the recorded seed documents when nothing has been saved", async () => {
     const docs = await listPageDocuments();
-    // Home is composed from the landing document, the other four are stored.
-    expect(docs.map((d) => d.key)).toEqual(["home", "park", "services", "plans", "coffins"]);
+    // Home is composed from the landing document, the others are stored.
+    expect(docs.map((d) => d.key)).toEqual(["home", "park", "services", "plans", "coffins", "blog"]);
     const park = await getPageDocument("park");
     expect(park?.title).toBe("Villa Memorial Park");
   });
@@ -139,8 +139,8 @@ describe("the page documents are durable", () => {
     await savePageDocument("park", { ...park, hero: { ...park!.hero, headline: "Second" } });
 
     const docs = await listPageDocuments();
-    // Still five documents — a save edits one, it does not add one.
-    expect(docs).toHaveLength(5);
+    // Still six documents — a save edits one, it does not add one.
+    expect(docs).toHaveLength(6);
     expect((await getPageDocument("park"))?.hero.headline).toBe("Second");
   });
 
@@ -157,7 +157,7 @@ describe("the page documents are durable", () => {
   });
 
   it("still exposes the seed for a caller that wants it", () => {
-    expect(seedPageDocuments().map((d) => d.key)).toEqual(["park", "services", "plans", "coffins"]);
+    expect(seedPageDocuments().map((d) => d.key)).toEqual(["park", "services", "plans", "coffins", "blog"]);
   });
 });
 

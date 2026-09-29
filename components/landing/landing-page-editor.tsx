@@ -1093,11 +1093,11 @@ function ctaFields(cta: Cta, onChange: (next: Cta) => void, key: string, labelPr
  */
 const HOME_ZONES: Array<{ id: string; num: string; label: string; hint: string }> = [
   { id: "ed-home-1", num: "01", label: "Section 1 · The gateway", hint: "The centred opening: place, headline, promise, the call and the trust facts." },
-  { id: "ed-home-2", num: "02", label: "Section 2 · The hero photograph", hint: "The client's photograph, alone and whole — never cropped." },
-  { id: "ed-home-3", num: "03", label: "Section 3 · The first park", hint: "The park photograph with the arrangement builder beside it and the two chapels under it." },
-  { id: "ed-home-4", num: "04", label: "Section 4 · Villa Memorial Plan", hint: "Five rising tiers with the live monthly rate and the sheet's own line about each." },
-  { id: "ed-home-5", num: "05", label: "Section 5 · The services", hint: "Five photographic tiles and their quote actions — no amounts on this band." },
-  { id: "ed-home-6", num: "06", label: "Section 6 · Villa Memorial Park", hint: "The four lot types beside the pinned park map and the details under it." },
+  { id: "ed-home-2", num: "02", label: "Section 2 · The hero photograph", hint: "The client's photograph, alone and whole, named from the office's own park address — never cropped." },
+  { id: "ed-home-3", num: "03", label: "Section 3 · The first park", hint: "The pavilion photograph (the band's dominant figure) with the arrangement builder beside it and the two chapels under it." },
+  { id: "ed-home-4", num: "04", label: "Section 4 · Villa Memorial Park", hint: "The four lot types beside the pinned park map and the details under it." },
+  { id: "ed-home-5", num: "05", label: "Section 5 · Villa Memorial Plan", hint: "Five rising tiers with the live monthly rate and the sheet's own line about each." },
+  { id: "ed-home-6", num: "06", label: "Section 6 · The services", hint: "Five photographic tiles and their quote actions — no amounts on this band." },
   { id: "ed-home-7", num: "07", label: "Section 7 · Contact", hint: "The enquiry form and the embedded park map, with its server-side Google key." },
 ];
 
@@ -1110,7 +1110,6 @@ const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: strin
   { id: "ed-plans-lots", num: "12", label: "Plans & lots · home cards", hint: "The home band's cards — a real photo, a name, a type word and a live figure from the 2026 list. You pick the family + product (or the plan tier); the amount is never typed." },
   { id: "ed-plans", num: "13", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
   { id: "ed-map", num: "14", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
-  { id: "ed-blog", num: "15", label: "Blog", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
   { id: "ed-faq", num: "16", label: "FAQ page", hint: "The help page at /faq: the questions families ask most, the answers under each one, and the next-step links that close the page." },
 ];
 
@@ -1329,8 +1328,8 @@ export function LandingPageEditor({
     setNotice(null);
   }
 
-  const { logo, contact, hero, rails, about, plansLots, plans, blog, map, faq } = content;
-  const attention = flags.plansLots + flags.media + flags.faq;
+  const { logo, contact, hero, rails, about, plansLots, plans, map, faq } = content;
+  const attention = flags.plansLots + flags.faq;
 
   const statusLine = busy
     ? "Publishing to the content store…"
@@ -1396,14 +1395,11 @@ export function LandingPageEditor({
                 ? rails.left.items.length + rails.right.items.length
                 : zone.id === "ed-plans-lots"
                   ? plansLots.items.length
-                  : zone.id === "ed-blog"
-                    ? blog.posts.length
-                    : zone.id === "ed-faq"
+                  : zone.id === "ed-faq"
                       ? faq.items.length
                       : null;
             const warn =
               (zone.id === "ed-plans-lots" && flags.plansLots > 0) ||
-              (zone.id === "ed-blog" && (flags.media > 0 || flags.posts > 0)) ||
               (zone.id === "ed-faq" && flags.faq > 0);
             return (
               <li key={zone.id}>
@@ -1579,22 +1575,6 @@ export function LandingPageEditor({
         hint="The interactive map itself always shows the real lot listing; the heading + intro are yours to word. On the home the map renders right above the newsfeed."
       >
         <MapEditor section={map} onChange={(next) => patch((d) => void (d.map = next))} />
-      </EdSection>
-
-      <EdSection
-        id="ed-blog"
-        num="15"
-        title="Blog posts"
-        hint="A caption plus as many photos/videos as you like, laid out like a newsfeed (single / pair / gallery, video inline). No like/share row — by design."
-        badge={
-          flags.media + flags.posts > 0 ? (
-            <span className="ed-chip ed-chip--warn">Needs attention</span>
-          ) : (
-            <CountChip count={blog.posts.length} />
-          )
-        }
-      >
-        <BlogEditor section={blog} onChange={(next) => patch((d) => void (d.blog = next))} />
       </EdSection>
 
       <EdSection

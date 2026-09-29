@@ -13,7 +13,8 @@
       "The plans document's blocks (Phase 2, captain's 2026-09-21 direction: five tiers + per-tier inclusion checklists, no services) record the CURRENT plan copy the page published from lib/villa-pricing.ts: the five tiers' inclusion checklists, the complete memorial package table, eligibility, senior terms and the five plan notes. Stable block ids set the typed reading in lib/plan-content.ts; every string is the client's own (COMPLETE MEMORIAL PACKAGE / TYPES OF COFFIN sheets).",
       "The plans tier cards (captain's 2026-09-21 premium-tier direction) each carry an optional one-line `summary` and an optional `image`. The seeded summaries transcribe the TYPES OF COFFIN sheet's own tier descriptions + lid lines (lib/villa-pricing.ts COFFINS) — no new marketing claim. `image` is null in the seed: the card is premium text-only until staff attach a photograph.",
       "The services document's blocks (Phase 3) carry the service descriptions the page published in code: the five a-la-carte notes (services-alacarte-*) and the two chapel-class copy lines (services-chapel-*). Stable block ids set the typed reading in lib/service-content.ts; a missing block falls back to the same copy. The three guide service entries live in lib/fixtures/content/service-entries.json.",
-      "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store. The cash-assistance table stays a sheet constant (lib/villa-pricing.ts CASH_ASSISTANCE), never a free-text block."
+      "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store. The cash-assistance table stays a sheet constant (lib/villa-pricing.ts CASH_ASSISTANCE), never a free-text block.",
+      "  · blog   ← the landing document's `blog` block, MIGRATED 2026-09-29: the blog is its own page document now (heading · intro · posts), so editing the home cannot change the blog and the landing document no longer owns the posts."
     ]
   },
   "version": 1,
@@ -31,8 +32,18 @@
         "backgroundTransparency": 100
       },
       "tabs": [
-        { "id": "tab-view", "label": "Park view", "href": "/map", "note": null },
-        { "id": "tab-lots", "label": "Lots", "href": "/map?tab=lots", "note": null }
+        {
+          "id": "tab-view",
+          "label": "Park view",
+          "href": "/map",
+          "note": null
+        },
+        {
+          "id": "tab-lots",
+          "label": "Lots",
+          "href": "/map?tab=lots",
+          "note": null
+        }
       ],
       "blocks": [],
       "entries": [],
@@ -56,46 +67,64 @@
           "id": "services-alacarte-retrieval",
           "type": "paragraph",
           "heading": "Retrieval",
-          "body": ["Into our care, first 25 km."]
+          "body": [
+            "Into our care, first 25 km."
+          ]
         },
         {
           "id": "services-alacarte-delivery",
           "type": "paragraph",
           "heading": "Delivery",
-          "body": ["Delivery to the wake or chapel."]
+          "body": [
+            "Delivery to the wake or chapel."
+          ]
         },
         {
           "id": "services-alacarte-viewing",
           "type": "paragraph",
           "heading": "Viewing equipment",
-          "body": ["Lights, curtains and carpets, set up."]
+          "body": [
+            "Lights, curtains and carpets, set up."
+          ]
         },
         {
           "id": "services-alacarte-ord-coffin",
           "type": "paragraph",
           "heading": "ORD coffin",
-          "body": ["A simple plain coffin. Other models: catalogue."]
+          "body": [
+            "A simple plain coffin. Other models: catalogue."
+          ]
         },
         {
           "id": "services-alacarte-interment",
           "type": "paragraph",
           "heading": "Interment",
-          "body": ["Family cars and the graveside trip, staff included."]
+          "body": [
+            "Family cars and the graveside trip, staff included."
+          ]
         },
         {
           "id": "services-chapel-common",
           "type": "paragraph",
           "heading": "Common chapel",
-          "body": ["Shared chapel; several families at once."]
+          "body": [
+            "Shared chapel; several families at once."
+          ]
         },
         {
           "id": "services-chapel-private",
           "type": "paragraph",
           "heading": "Private chapel",
-          "body": ["A room for your family alone."]
+          "body": [
+            "A room for your family alone."
+          ]
         }
       ],
-      "entries": ["death-at-home", "death-at-hospital", "transport"],
+      "entries": [
+        "death-at-home",
+        "death-at-hospital",
+        "transport"
+      ],
       "updated_at": null,
       "updated_by": null
     },
@@ -120,14 +149,46 @@
           "summary": "Wooden or metal coffin with a smooth finish, elegant handles and a half-glass lid.",
           "image": null,
           "items": [
-            { "id": "plans-bronze1-flowers", "label": "Flowers", "checked": true },
-            { "id": "plans-bronze1-tarp", "label": "Tarp", "checked": true },
-            { "id": "plans-bronze1-lapida", "label": "Lapida", "checked": true },
-            { "id": "plans-bronze1-family-car", "label": "Family car", "checked": true },
-            { "id": "plans-bronze1-roses", "label": "One dozen roses", "checked": true },
-            { "id": "plans-bronze1-thank-you", "label": "Thank-you card", "checked": true },
-            { "id": "plans-bronze1-chapel", "label": "Chapel days", "checked": true },
-            { "id": "plans-bronze1-package", "label": "Complete memorial package", "checked": true }
+            {
+              "id": "plans-bronze1-flowers",
+              "label": "Flowers",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-tarp",
+              "label": "Tarp",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-lapida",
+              "label": "Lapida",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-family-car",
+              "label": "Family car",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-roses",
+              "label": "One dozen roses",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-thank-you",
+              "label": "Thank-you card",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-chapel",
+              "label": "Chapel days",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze1-package",
+              "label": "Complete memorial package",
+              "checked": true
+            }
           ]
         },
         {
@@ -138,14 +199,46 @@
           "summary": "Wooden or metal coffin with a smooth finish, elegant handles and a full-glass lid.",
           "image": null,
           "items": [
-            { "id": "plans-bronze2-flowers", "label": "Flowers", "checked": true },
-            { "id": "plans-bronze2-tarp", "label": "Tarp", "checked": true },
-            { "id": "plans-bronze2-lapida", "label": "Lapida", "checked": true },
-            { "id": "plans-bronze2-family-car", "label": "Family car", "checked": true },
-            { "id": "plans-bronze2-roses", "label": "One dozen roses", "checked": true },
-            { "id": "plans-bronze2-thank-you", "label": "Thank-you card", "checked": true },
-            { "id": "plans-bronze2-chapel", "label": "Chapel days", "checked": true },
-            { "id": "plans-bronze2-package", "label": "Complete memorial package", "checked": true }
+            {
+              "id": "plans-bronze2-flowers",
+              "label": "Flowers",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-tarp",
+              "label": "Tarp",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-lapida",
+              "label": "Lapida",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-family-car",
+              "label": "Family car",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-roses",
+              "label": "One dozen roses",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-thank-you",
+              "label": "Thank-you card",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-chapel",
+              "label": "Chapel days",
+              "checked": true
+            },
+            {
+              "id": "plans-bronze2-package",
+              "label": "Complete memorial package",
+              "checked": true
+            }
           ]
         },
         {
@@ -156,14 +249,46 @@
           "summary": "A slightly bigger, more elegant coffin, with a half-glass lid.",
           "image": null,
           "items": [
-            { "id": "plans-silver1-flowers", "label": "Flowers", "checked": true },
-            { "id": "plans-silver1-tarp", "label": "Tarp", "checked": true },
-            { "id": "plans-silver1-lapida", "label": "Lapida", "checked": true },
-            { "id": "plans-silver1-family-car", "label": "Family car", "checked": true },
-            { "id": "plans-silver1-roses", "label": "One dozen roses", "checked": true },
-            { "id": "plans-silver1-thank-you", "label": "Thank-you card", "checked": true },
-            { "id": "plans-silver1-chapel", "label": "Chapel days", "checked": true },
-            { "id": "plans-silver1-package", "label": "Complete memorial package", "checked": true }
+            {
+              "id": "plans-silver1-flowers",
+              "label": "Flowers",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-tarp",
+              "label": "Tarp",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-lapida",
+              "label": "Lapida",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-family-car",
+              "label": "Family car",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-roses",
+              "label": "One dozen roses",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-thank-you",
+              "label": "Thank-you card",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-chapel",
+              "label": "Chapel days",
+              "checked": true
+            },
+            {
+              "id": "plans-silver1-package",
+              "label": "Complete memorial package",
+              "checked": true
+            }
           ]
         },
         {
@@ -174,14 +299,46 @@
           "summary": "A slightly bigger, more elegant coffin, with a cover convertible to full-glass or half-glass.",
           "image": null,
           "items": [
-            { "id": "plans-silver2-flowers", "label": "Flowers", "checked": true },
-            { "id": "plans-silver2-tarp", "label": "Tarp", "checked": true },
-            { "id": "plans-silver2-lapida", "label": "Lapida", "checked": true },
-            { "id": "plans-silver2-family-car", "label": "Family car", "checked": true },
-            { "id": "plans-silver2-roses", "label": "One dozen roses", "checked": true },
-            { "id": "plans-silver2-thank-you", "label": "Thank-you card", "checked": true },
-            { "id": "plans-silver2-chapel", "label": "Chapel days", "checked": true },
-            { "id": "plans-silver2-package", "label": "Complete memorial package", "checked": true }
+            {
+              "id": "plans-silver2-flowers",
+              "label": "Flowers",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-tarp",
+              "label": "Tarp",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-lapida",
+              "label": "Lapida",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-family-car",
+              "label": "Family car",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-roses",
+              "label": "One dozen roses",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-thank-you",
+              "label": "Thank-you card",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-chapel",
+              "label": "Chapel days",
+              "checked": true
+            },
+            {
+              "id": "plans-silver2-package",
+              "label": "Complete memorial package",
+              "checked": true
+            }
           ]
         },
         {
@@ -192,14 +349,46 @@
           "summary": "A special metal coffin, more stylish and sophisticated, with a cover convertible to full-glass or half-glass.",
           "image": null,
           "items": [
-            { "id": "plans-gold-flowers", "label": "Flowers", "checked": true },
-            { "id": "plans-gold-tarp", "label": "Tarp", "checked": true },
-            { "id": "plans-gold-lapida", "label": "Lapida", "checked": true },
-            { "id": "plans-gold-family-car", "label": "Family car", "checked": true },
-            { "id": "plans-gold-roses", "label": "One dozen roses", "checked": true },
-            { "id": "plans-gold-thank-you", "label": "Thank-you card", "checked": true },
-            { "id": "plans-gold-chapel", "label": "Chapel days", "checked": true },
-            { "id": "plans-gold-package", "label": "Complete memorial package", "checked": true }
+            {
+              "id": "plans-gold-flowers",
+              "label": "Flowers",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-tarp",
+              "label": "Tarp",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-lapida",
+              "label": "Lapida",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-family-car",
+              "label": "Family car",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-roses",
+              "label": "One dozen roses",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-thank-you",
+              "label": "Thank-you card",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-chapel",
+              "label": "Chapel days",
+              "checked": true
+            },
+            {
+              "id": "plans-gold-package",
+              "label": "Complete memorial package",
+              "checked": true
+            }
           ]
         },
         {
@@ -207,20 +396,42 @@
           "type": "table",
           "heading": "Complete memorial package includes",
           "caption": null,
-          "columns": ["Included", "What it covers"],
+          "columns": [
+            "Included",
+            "What it covers"
+          ],
           "rows": [
-            ["Retrieval & delivery", "Retrieval of the deceased to the morgue and delivery of the same in casket. Good for the first 25 kms only."],
-            ["Preparation & casketing", "Embalming with make-up and dressing. The type of coffin differs with the plan."],
-            ["Viewing equipment", "State-of-the-Art and classy equipment which includes lights, curtains and carpets."],
-            ["Interment", "Several cars will be ready and bring the deceased to its final destination."],
-            ["Free flowers and tarpaulin", "Free! flowers and tarpaulin are included with the complete memorial package."]
+            [
+              "Retrieval & delivery",
+              "Retrieval of the deceased to the morgue and delivery of the same in casket. Good for the first 25 kms only."
+            ],
+            [
+              "Preparation & casketing",
+              "Embalming with make-up and dressing. The type of coffin differs with the plan."
+            ],
+            [
+              "Viewing equipment",
+              "State-of-the-Art and classy equipment which includes lights, curtains and carpets."
+            ],
+            [
+              "Interment",
+              "Several cars will be ready and bring the deceased to its final destination."
+            ],
+            [
+              "Free flowers and tarpaulin",
+              "Free! flowers and tarpaulin are included with the complete memorial package."
+            ]
           ]
         },
         {
           "id": "plans-eligibility",
           "type": "bullets",
           "heading": "Eligibility for the regular rate",
-          "items": ["Age 1–60 years old", "In good health", "Resident of the Philippines"]
+          "items": [
+            "Age 1–60 years old",
+            "In good health",
+            "Resident of the Philippines"
+          ]
         },
         {
           "id": "plans-senior-terms",
@@ -289,6 +500,122 @@
       "tabs": [],
       "blocks": [],
       "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "blog",
+      "title": "Blog",
+      "hero": {
+        "eyebrow": "",
+        "headline": "",
+        "lead": "",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100,
+        "textColour": null
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "blog": {
+        "heading": "Blog",
+        "intro": "Moments, guides and stories from the park.",
+        "posts": [
+          {
+            "id": "post-golden-hour",
+            "author": "Villa Memorial Park",
+            "date": "2026-09-06",
+            "caption": "A peaceful corner of the garden at golden hour — planning a memorial service with your family is a gift of time and light.",
+            "media": [
+              {
+                "id": "media-post-golden-hour-1",
+                "kind": "photo",
+                "src": "/media/lot-premium.png",
+                "alt": "Premium garden lot at golden hour",
+                "poster": null
+              },
+              {
+                "id": "media-post-golden-hour-2",
+                "kind": "photo",
+                "src": "/media/lot-primary.png",
+                "alt": "Prime garden lot at golden hour",
+                "poster": null
+              },
+              {
+                "id": "media-post-golden-hour-3",
+                "kind": "photo",
+                "src": "/media/lot-garden-niches.png",
+                "alt": "Garden niches at golden hour",
+                "poster": null
+              },
+              {
+                "id": "media-post-golden-hour-4",
+                "kind": "photo",
+                "src": "/media/hero-1.jpg",
+                "alt": "A calm corner of the park",
+                "poster": null
+              }
+            ],
+            "link": "/lots"
+          },
+          {
+            "id": "post-why-families-plan",
+            "author": "Villa Memorial Park",
+            "date": "2026-09-01",
+            "caption": "Why families plan ahead — pre-arranged memorials protect the people you love from hard decisions at a hard time. A short film on the gift of pre-arranged memorials.",
+            "media": [
+              {
+                "id": "media-post-why-families-plan-1",
+                "kind": "video",
+                "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
+                "alt": "Why families plan ahead — short film",
+                "poster": "/media/hero-1.jpg"
+              }
+            ],
+            "link": "/price-list"
+          },
+          {
+            "id": "post-new-niches",
+            "author": "Villa Memorial Park",
+            "date": "2026-08-22",
+            "caption": "Our newest garden niches are open for viewing — walk the grounds in person or online, and ask us about the 2026 list.",
+            "media": [
+              {
+                "id": "media-post-new-niches-1",
+                "kind": "photo",
+                "src": "/media/lot-garden-niches.png",
+                "alt": "New garden niches",
+                "poster": null
+              },
+              {
+                "id": "media-post-new-niches-2",
+                "kind": "photo",
+                "src": "/media/plan-packages.png",
+                "alt": "Plans and packages brochure",
+                "poster": null
+              }
+            ],
+            "link": "/lots/price-list-2026"
+          },
+          {
+            "id": "post-single-moment",
+            "author": "Villa Memorial Park",
+            "date": "2026-08-15",
+            "caption": "One of the reasons families choose Villa — a serene, landscaped resting place close to home, in the first memorial park of Basilan.",
+            "media": [
+              {
+                "id": "media-post-single-moment-1",
+                "kind": "photo",
+                "src": "/media/hero-1.jpg",
+                "alt": "Serene landscaped grounds at Villa Memorial Park",
+                "poster": null
+              }
+            ],
+            "link": "/map"
+          }
+        ]
+      },
       "updated_at": null,
       "updated_by": null
     }

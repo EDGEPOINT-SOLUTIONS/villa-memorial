@@ -68,7 +68,7 @@ function entryParams(key: string) {
 }
 
 describe("Pages & content", () => {
-  it("lists the captain's five documents with one editor home each", async () => {
+  it("lists the documents with one editor home each", async () => {
     sessionHolder.current = session(["catalog:write"]);
     const html = renderToStaticMarkup(await PagesAndContentPage());
     for (const label of [
@@ -77,6 +77,7 @@ describe("Pages & content", () => {
       "Funeraria Memorial Services",
       "Villa Memorial Plan",
       "Coffins &amp; caskets",
+      "Blog",
     ]) {
       expect(html).toContain(label);
     }
@@ -86,6 +87,7 @@ describe("Pages & content", () => {
     expect(html).toContain('href="/staff/landing/services"');
     expect(html).toContain('href="/staff/landing/plans"');
     expect(html).toContain('href="/staff/landing/coffins"');
+    expect(html).toContain('href="/staff/landing/blog"');
   });
 
   it("answers the list with the designed 403 without catalog:write", async () => {

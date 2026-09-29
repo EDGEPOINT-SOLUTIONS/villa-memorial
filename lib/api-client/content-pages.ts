@@ -112,6 +112,7 @@ async function homeDocument(): Promise<PageDocument> {
     tabs: [],
     blocks: [],
     entries: [],
+    blog: null,
     updated_at: landing.updated_at,
     updated_by: null,
   };

@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { PageDocumentEditor, type SkuOption } from "@/components/content/page-document-editor";
+import { BlogDocumentEditor } from "@/components/content/blog-document-editor";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listCatalogItems } from "@/lib/api-client/commerce";
@@ -75,12 +76,19 @@ export default async function PageDocumentAdminPage({ params }: DocParams) {
         </Link>
       </p>
       <PageHeader eyebrow="Commerce · Pages & content" title={def.label} />
-      <PageDocumentEditor
-        initial={document}
-        skuOptions={skuOptions}
-        blocksEnabled={def.blocks}
-        pageRoute={def.route}
-      />
+      {def.key === "blog" ? (
+        <BlogDocumentEditor
+          initial={document}
+          sessionName={session.displayName.split(" ")[0] ?? session.displayName}
+        />
+      ) : (
+        <PageDocumentEditor
+          initial={document}
+          skuOptions={skuOptions}
+          blocksEnabled={def.blocks}
+          pageRoute={def.route}
+        />
+      )}
 
       {def.key === "services" ? (
         <PageSection>

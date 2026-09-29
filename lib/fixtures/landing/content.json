@@ -24,7 +24,8 @@
     "0917 617 8489 is the primary line; the second is the",
     "family/agent surfaces' secondPhone (lib/family/contact.ts). Seeded 2026-09-18 (the",
     "template's 0917 000 1234 is gone); still staff-editable like every contact field.",
-    "HOME SECTIONS (2026-09-29): `home` carries the seven approved home-rebuild sections — the gateway, the hero photograph, the park + arrangement builder + chapels, the five plan tiers' band, the five service tiles, the four lot types with the pinned park map, and the contact band. No amount is authored in it: every figure binds to the pricing store or the 2026 sheets at render, and the save validator checks every binding."
+    "HOME SECTIONS (2026-09-29): `home` carries the seven approved home-rebuild sections — the gateway, the hero photograph, the park + arrangement builder + chapels, the five plan tiers' band, the five service tiles, the four lot types with the pinned park map, and the contact band. No amount is authored in it: every figure binds to the pricing store or the 2026 sheets at render, and the save validator checks every binding.",
+    "BLOG MIGRATION (2026-09-29): the posts moved to the blog page document (lib/fixtures/content/pages.json, key `blog`). This landing document no longer owns them; `blog.heading`/`intro` stay for the retired feed band only."
   ],
   "content": {
     "version": 1,
@@ -252,92 +253,7 @@
     "blog": {
       "heading": "Blog",
       "intro": "Moments, guides and stories from the park.",
-      "posts": [
-        {
-          "id": "post-golden-hour",
-          "author": "Villa Memorial Park",
-          "date": "2026-09-06",
-          "caption": "A peaceful corner of the garden at golden hour — planning a memorial service with your family is a gift of time and light.",
-          "media": [
-            {
-              "kind": "photo",
-              "src": "/media/lot-premium.png",
-              "alt": "Premium garden lot at golden hour",
-              "poster": null
-            },
-            {
-              "kind": "photo",
-              "src": "/media/lot-primary.png",
-              "alt": "Prime garden lot at golden hour",
-              "poster": null
-            },
-            {
-              "kind": "photo",
-              "src": "/media/lot-garden-niches.png",
-              "alt": "Garden niches at golden hour",
-              "poster": null
-            },
-            {
-              "kind": "photo",
-              "src": "/media/hero-1.jpg",
-              "alt": "A calm corner of the park",
-              "poster": null
-            }
-          ],
-          "link": "/lots"
-        },
-        {
-          "id": "post-why-families-plan",
-          "author": "Villa Memorial Park",
-          "date": "2026-09-01",
-          "caption": "Why families plan ahead — pre-arranged memorials protect the people you love from hard decisions at a hard time. A short film on the gift of pre-arranged memorials.",
-          "media": [
-            {
-              "kind": "video",
-              "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-              "alt": "Why families plan ahead — short film",
-              "poster": "/media/hero-1.jpg"
-            }
-          ],
-          "link": "/price-list"
-        },
-        {
-          "id": "post-new-niches",
-          "author": "Villa Memorial Park",
-          "date": "2026-08-22",
-          "caption": "Our newest garden niches are open for viewing — walk the grounds in person or online, and ask us about the 2026 list.",
-          "media": [
-            {
-              "kind": "photo",
-              "src": "/media/lot-garden-niches.png",
-              "alt": "New garden niches",
-              "poster": null
-            },
-            {
-              "kind": "photo",
-              "src": "/media/plan-packages.png",
-              "alt": "Plans and packages brochure",
-              "poster": null
-            }
-          ],
-          "link": "/lots/price-list-2026"
-        },
-        {
-          "id": "post-single-moment",
-          "author": "Villa Memorial Park",
-          "date": "2026-08-15",
-          "caption": "One of the reasons families choose Villa — a serene, landscaped resting place close to home, in the first memorial park of Basilan.",
-          "media": [
-            {
-              "kind": "photo",
-              "src": "/media/hero-1.jpg",
-              "alt": "Serene landscaped grounds at Villa Memorial Park",
-              "poster": null
-            }
-          ],
-          "link": "/map"
-        }
-      ]
+      "posts": []
     },
     "map": {
       "heading": "Browse the grounds, live",

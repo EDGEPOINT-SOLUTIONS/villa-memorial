@@ -13,6 +13,7 @@ import contentFile from "@/lib/fixtures/landing/content.json";
 import { BRAND_NAME } from "@/lib/brand";
 import { buildRailCatalogue, flattenCatalogue } from "@/lib/landing/catalogue";
 import { LOT_PRICE_CATEGORIES, php, planRate } from "@/lib/villa-pricing";
+import { migratedLandingPosts } from "../helpers/migrated-posts";
 
 // The landing save path validates plans-and-lots card families against the
 // pricing store; point it at a path that does not exist so the recorded seed is
@@ -53,7 +54,9 @@ describe("landing fixture follows the approved content model", () => {
     expect(content.plansLots.items.length).toBeGreaterThan(0);
     expect(content.plansLots.kicker.length).toBeGreaterThan(0);
     expect(content.plans.heading.length).toBeGreaterThan(0);
-    expect(content.blog.posts.length).toBeGreaterThan(0);
+    // The posts moved to the blog's own page document (office, 2026-09-29):
+    // this document no longer owns them, so the seed is deliberately empty here.
+    expect(content.blog.posts).toEqual([]);
     expect(content.map.heading.length).toBeGreaterThan(0);
     expect((contentFile as { content: LandingContent }).content.rails.left.heading).toContain(
       "Care",
@@ -201,9 +204,12 @@ describe("landing fixture follows the approved content model", () => {
     const content = await listLandingContent();
     const sparse = cloneDoc(content);
     sparse.plansLots.items = [];
+    // Synthetic posts: the landing READER still accepts a document carrying
+    // them (legacy saves and the unrouted LandingView); the seed no longer does.
+    const sample = (await migratedLandingPosts())[0];
     sparse.blog.posts = [
-      { ...content.blog.posts[0], id: "caption-only", media: [] },
-      { ...content.blog.posts[0], id: "media-post", media: content.blog.posts[0].media },
+      { ...sample, id: "caption-only", media: [] },
+      { ...sample, id: "media-post", media: sample.media },
     ];
     const read = readLandingContent(sparse);
     expect(read.plansLots.items).toEqual([]);
@@ -368,9 +374,9 @@ describe("the FAQ page is content, not JSX", () => {
 });
 
 describe("blog posts carry the optional link the staff sets on the \"/\" editor", () => {
-  it("seed posts ship sensible internal routes so photos open real pages", async () => {
-    const content = await listLandingContent();
-    const byId = Object.fromEntries(content.blog.posts.map((p) => [p.id, p.link]));
+  it("the migrated posts ship sensible internal routes so photos open real pages", async () => {
+    const posts = await migratedLandingPosts();
+    const byId = Object.fromEntries(posts.map((p) => [p.id, p.link]));
     expect(byId["post-golden-hour"]).toBe("/lots");
     expect(byId["post-new-niches"]).toBe("/lots/price-list-2026");
   });
@@ -378,10 +384,11 @@ describe("blog posts carry the optional link the staff sets on the \"/\" editor"
   it("the tolerant reader keeps a usable link and treats blank as no link", async () => {
     const content = await listLandingContent();
     const doc = cloneDoc(content);
+    const sample = (await migratedLandingPosts())[0];
     doc.blog.posts = [
-      { ...doc.blog.posts[0], id: "linked", link: "/map?plot=A-001" },
-      { ...doc.blog.posts[0], id: "blank", link: "   " },
-      { ...doc.blog.posts[0], id: "none", link: null },
+      { ...sample, id: "linked", link: "/map?plot=A-001" },
+      { ...sample, id: "blank", link: "   " },
+      { ...sample, id: "none", link: null },
     ];
     const read = readLandingContent(doc);
     expect(read.blog.posts.find((p) => p.id === "linked")?.link).toBe("/map?plot=A-001");
@@ -504,6 +511,9 @@ describe("landing copy stays inside the product typeface", () => {
   it("the save path refuses an emoji caption and keeps the last good document", async () => {
     const content = await listLandingContent();
     const good = cloneDoc(content);
+    // The emoji gate still applies to a document that carries posts (a legacy
+    // save or the unrouted LandingView); the blog document has its own gate.
+    good.blog.posts = [(await migratedLandingPosts())[0]];
     good.blog.posts[0].caption = "A quiet morning at the park.";
     await saveLandingContent(good);
 

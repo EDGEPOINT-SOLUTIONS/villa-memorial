@@ -123,3 +123,34 @@ bar), `seo` (the quote basket is transactional: no sitemap entry, robots-closed,
 multi-kind accumulation test), `price-surfacing` (lot rows now add to the
 quote), `public-forms-render` (the quote form is the add step), and the four
 render suites that now wrap the lot/quote pages in the shared basket provider.
+
+## 5 · Addendum — the office's later passes (same branch)
+
+- **Final band order (office, 2026-09-29; supersedes the plan's original 4/5/6 order):**
+  1 gateway · 2 the hero photograph ("Sanctuario de Mercedes y Gloria", whole and
+  generous) · 3 the first park (the pavilion photograph dominant at 1.6 : 1
+  against the builder, chapels under it) · 4 Villa Memorial Park (lots + pinned
+  map) · 5 Villa Memorial Plan · 6 Funeraria Memorial Services · 7 Contact.
+  The two grounds bands sit together; the shop bands follow.
+- **Header (inbox 015):** the bar is 5.5rem (4.5rem compressed; phone 4.25 →
+  3.75rem), `--anchored-header-h` follows (4.5625rem / 3.8125rem), and the header
+  mark is 3.5rem (2.75rem on phones) with the wordmark scaled beside it. Scoped
+  to `.anchored-header__bar`, so the footer's brand block keeps the base size.
+- **Blog (inbox 016):** the blog is its own page document (`PageDocument` key
+  `blog`, schema `BlogDocument`: heading · intro · posts), migrated from the
+  landing document — the landing seed now carries **no posts**. `/blog` moved
+  INSIDE `app/(public)` (shared chrome) and renders heading → intro → one
+  horizontal row per post → the one retained former band (About, story/mission/
+  vision, which exists nowhere else). `/staff/landing/blog` is the `[doc]` page
+  with the dedicated `BlogDocumentEditor`; editing one document cannot change the
+  other (`tests/unit/blog-document.test.ts`). `LandingView` is now **unrouted**;
+  its tests inject the migrated posts so the component's contracts stay covered.
+- **Clouds, white ground, nav shadow (inbox 019):** the gateway carries three
+  CSS-only blurred cloud shapes animated with `transform` only, behind the words,
+  clipped by the band, pinned in place under `prefers-reduced-motion`.
+  `--color-bg-page` / `--color-bg-desk` now resolve to `--paper-0`; every public
+  card already carried its own boundary (`.card`'s border + `--shadow-card`,
+  `.shop-card`'s top rule, `.story-band`'s top hairline, the home's own hairlines
+  and borders, the tables' row rules), so no surface needed a new rule. The nav
+  bar keeps a soft `0 10px 26px -18px rgb(8 28 49 / 0.35)` shadow at every scroll
+  position, strengthening in the compressed state.

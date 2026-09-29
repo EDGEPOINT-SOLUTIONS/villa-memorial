@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
+import { LandingView } from "@/components/landing/landing-view";
 import { HomePage } from "@/components/public/home-page";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { listLots } from "@/lib/api-client/property";
@@ -43,6 +43,7 @@ const { default: ProductsPage } = await import("@/app/(public)/products/page");
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
+const { default: BlogRoute } = await import("@/app/(public)/blog/page");
 
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
@@ -99,43 +100,21 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // contact band.
     sections: [
       "home-gateway",
-      "home-park__grid",
       "home-photo",
+      "home-park__grid",
+      "home-lot-types",
       "home-niches",
       "home-plates",
-      "home-lot-types",
       "home-contact__grid",
     ],
   },
   {
-    // The blog (/blog) — where the old anchored catalogue actually renders now.
-    // No hero: the captain removed it (2026-09-27), so the shelf leads.
+    // The blog (/blog) — its OWN page document now (office, 2026-09-29): the
+    // heading and intro lead, then one horizontal row per post, then the one
+    // retained former band (About). It no longer renders LandingView.
     name: "blog (/blog)",
-    render: async () => {
-      const content = await listLandingContent();
-      const props: Omit<LandingViewProps, "planPricing" | "lotCategories"> = {
-        content,
-        mapNode: null,
-        mapLive: false,
-        sectionCount: 0,
-      };
-      return renderToStaticMarkup(
-        LandingView({ ...props, planPricing: { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS }, lotCategories: LOT_PRICE_CATEGORIES }),
-      );
-    },
-    // The storefront order, under the blog's own interior opening: the shelf →
-    // the plan board → the live park map → the About/mission band → the blog
-    // feed → the closing band.
-    sections: [
-      'data-public-hero="interior"',
-      "plan-lot-grid",
-      "plan-board",
-      "mid-section--map",
-      "about-grid",
-      "blog-feed",
-      "next-steps",
-    ],
-    requires: ['data-section-head', 'data-public-disclosure'],
+    render: async () => renderToStaticMarkup(await BlogRoute()),
+    sections: ["blog-head", "blog-rows", "blog-about"],
   },
   {
     name: "plans (/plans)",

@@ -9,6 +9,7 @@ import {
 } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
 import { PLAN_PACKAGES_IMAGE, libraryThumb } from "@/lib/media";
+import { migratedLandingPosts, withMigratedPosts } from "../helpers/migrated-posts";
 import { planLotCardFigures } from "@/lib/landing/plan-lots";
 import {
   LOT_PRICE_CATEGORIES,
@@ -209,7 +210,9 @@ describe("the home renders the anchored catalogue shell", () => {
   });
 
   it("middle sections render products first, story after (Amazon order, captain 2026-09-25)", async () => {
-    const content = await listLandingContent();
+    // The posts moved to the blog document; the view still renders a document
+    // that carries them, so the real migrated posts are injected here.
+    const content = await withMigratedPosts(await listLandingContent());
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
@@ -489,9 +492,10 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
   it("a post WITH a link wraps its photos and caption in that anchor", async () => {
     const content = await listLandingContent();
     const linked = cloneDoc(content);
+    const sample = (await migratedLandingPosts())[0];
     linked.blog.posts = [
       {
-        ...linked.blog.posts[0],
+        ...sample,
         id: "post-linked",
         link: "/price-list",
         caption: "Plan ahead — read the full Villa Memorial Plan.",
@@ -512,8 +516,9 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
   it("a post WITHOUT a link stays fully non-interactive — no photo or caption anchors", async () => {
     const content = await listLandingContent();
     const sparse = cloneDoc(content);
+    const sample = (await migratedLandingPosts())[0];
     sparse.blog.posts = [
-      { ...sparse.blog.posts[0], id: "post-unlinked", link: null, caption: "Just a story.", media: sparse.blog.posts[0].media },
+      { ...sample, id: "post-unlinked", link: null, caption: "Just a story.", media: sample.media },
     ];
     const html = renderToStaticMarkup(
       view({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
@@ -526,13 +531,21 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
   it("videos are never wrapped in the post link (playback must stay native)", async () => {
     const content = await listLandingContent();
     const linked = cloneDoc(content);
-    const videoPost = linked.blog.posts.find((p) => p.media.some((m) => m.kind === "video"));
-    expect(videoPost).toBeDefined();
+    // The migrated posts are all photographs, so the video contract is proven
+    // with a synthetic video post (the model still carries films).
+    const videoPost = {
+      id: "post-video",
+      author: "Villa Memorial Park",
+      date: "2026-09-01",
+      caption: "A walk through the grounds.",
+      media: [{ kind: "video" as const, src: "/media/sample-film.mp4", alt: "A walk through the grounds", poster: null }],
+      link: null,
+    };
     const html = renderToStaticMarkup(
       view({
         content: {
           ...linked,
-          blog: { ...linked.blog, posts: [{ ...(videoPost as (typeof linked.blog.posts)[number]), link: "/services" }] },
+          blog: { ...linked.blog, posts: [{ ...videoPost, link: "/services" }] },
         },
         mapNode: null,
         mapLive: false,

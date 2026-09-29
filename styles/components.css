@@ -9899,7 +9899,7 @@ a.card:hover {
    scrolled, when the bar is compressed — the value below is that compressed
    height, so nothing peeks through the seam. */
 :root {
-  --anchored-header-h: 3.5625rem; /* 57 px = compressed main 56 + the hairline */
+  --anchored-header-h: 4.5625rem; /* 73 px = the compressed main 72 + the hairline */
 }
 
 /* First focusable on every public page — keyboard users go straight to the
@@ -9935,6 +9935,10 @@ a.card:hover {
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--color-rule);
+  /* On a white ground the bar and the page would otherwise merge: the SAME
+     soft, low-alpha idiom the app already uses, present at every scroll
+     position and strong enough only to draw the line (office, 2026-09-29). */
+  box-shadow: 0 10px 26px -18px rgb(8 28 49 / 0.35);
   transition: box-shadow var(--motion-base);
 }
 
@@ -9958,7 +9962,7 @@ a.card:hover {
   max-width: var(--layout-folio-w);
   margin-inline: auto;
   padding: 0 var(--space-5);
-  height: 4.25rem;
+  height: 5.5rem; /* 88 px — the office's thicker bar (2026-09-29) */
   display: grid;
   /* Brand and actions size to their content; the nav takes the middle and can
      scroll when the captain's FULL page names need more room than a narrow
@@ -9970,7 +9974,7 @@ a.card:hover {
 }
 
 .anchored-header--compressed .anchored-header__bar {
-  height: 3.5rem; /* D5: 68 px → 56 px, never hiding */
+  height: 4.5rem; /* D5: 88 px → 72 px, never hiding */
 }
 
 .anchored-header__brand {
@@ -10016,6 +10020,19 @@ a.card:hover {
 }
 
 
+
+/* The HEADER's mark is the office's larger one (2026-09-29): 2.15rem → 3.5rem,
+   with the wordmark scaled beside it so the pair stays balanced. Scoped to the
+   header bar, so the footer's brand block keeps the base size. */
+.anchored-header__bar .brand-mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: var(--text-xl);
+}
+
+.anchored-header__bar .anchored-header__wordmark {
+  font-size: var(--text-xl);
+}
 
 /* Nav sits in the middle auto track of the balanced grid → truly centred in
    the header bar regardless of how wide the brand or the actions are. The
@@ -11769,13 +11786,13 @@ a.card:hover {
    action bar, never squeezed into the header). */
 @media (max-width: 39.999rem) {
   :root {
-    --anchored-header-h: 3.3125rem; /* 53 px = compressed main 52 + the hairline */
+    --anchored-header-h: 3.8125rem; /* 61 px = the compressed main 60 + the hairline */
   }
 
   .anchored-header__bar {
     padding-inline: var(--space-4);
     gap: var(--space-3);
-    height: 3.75rem;
+    height: 4.25rem; /* a thicker phone bar, without eating the screen */
   }
 
   /* Phones: let the brand shrink again so the wordmark's ellipsis engages
@@ -11785,11 +11802,17 @@ a.card:hover {
   }
 
   .anchored-header--compressed .anchored-header__bar {
-    height: 3.25rem;
+    height: 3.75rem;
   }
 
-  .anchored-header__wordmark {
-    font-size: var(--text-md);
+  .anchored-header__bar .brand-mark {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: var(--text-lg);
+  }
+
+  .anchored-header__bar .anchored-header__wordmark {
+    font-size: var(--text-lg);
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -20180,16 +20203,88 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-muted);
 }
 
+
+/* --- the gateway's drifting clouds (office, 2026-09-29) -------------------
+   CSS only — no JavaScript, no downloads: three soft blurred shapes built from
+   the sky palette, animated with TRANSFORM only so the page never reflows. The
+   layer is absolutely positioned inside the band, behind the words and clipped
+   by the band's own overflow, so it changes no measurement anywhere. Under
+   `prefers-reduced-motion` the shapes stay exactly where they are and do not
+   move (the base.css global rule kills the animation; this rule pins them). */
+.home-gateway__clouds {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.home-gateway__cloud {
+  position: absolute;
+  display: block;
+  border-radius: 999px;
+  background: radial-gradient(closest-side, var(--sky-100), transparent 72%);
+  opacity: 0.65;
+  will-change: transform;
+}
+
+.home-gateway__cloud--a {
+  width: 22rem;
+  height: 5rem;
+  top: 14%;
+  left: -18rem;
+  animation: home-cloud-drift 64s linear infinite;
+}
+
+.home-gateway__cloud--b {
+  width: 15rem;
+  height: 4rem;
+  top: 44%;
+  left: -14rem;
+  opacity: 0.5;
+  animation: home-cloud-drift 88s linear infinite;
+  animation-delay: -22s;
+}
+
+.home-gateway__cloud--c {
+  width: 28rem;
+  height: 6rem;
+  top: 68%;
+  left: -24rem;
+  opacity: 0.4;
+  animation: home-cloud-drift 112s linear infinite;
+  animation-delay: -54s;
+}
+
+@keyframes home-cloud-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(calc(100vw + 60rem), 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-gateway__cloud {
+    animation: none;
+  }
+
+  .home-gateway__cloud--a { left: 8%; }
+  .home-gateway__cloud--b { left: 42%; }
+  .home-gateway__cloud--c { left: 62%; }
+}
+
 /* --- 2 · the hero photograph, alone and whole ----------------------------- */
 .home-photo {
   padding-block: clamp(var(--space-5), 4vw, var(--space-7));
 }
 
 .home-photo__figure {
-  /* A considered centrepiece with breathing room, not an edge-to-edge band
-     (office review, 2026-09-29; the operator asked for it a little larger the
-     same day). The frame still takes the picture's own shape. */
-  max-width: 64rem;
+  /* Generous like the pavilion photograph, so the two ground photographs read
+     as a pair (office, 2026-09-29 — the earlier "smaller" was reversed). The
+     picture stays whole and the frame takes its own shape. */
+  max-width: 100%;
   margin-inline: auto;
 }
 
@@ -20245,7 +20340,11 @@ a.plan-advisor__phone:hover {
 
 .home-park__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  /* The pavilion photograph is band 3's dominant figure (office, 2026-09-29):
+     1.6 : 1 against the builder, which stays wide enough for its rows, with the
+     chapels under the photograph and both columns ending on the same line
+     (align-items: stretch). */
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: var(--space-5);
   align-items: stretch;
 }
@@ -20987,5 +21086,179 @@ a.plan-advisor__phone:hover {
   .home-plates,
   .home-chapels {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+/* ============================================================================
+   public: blog block — the blog's own page (/blog)
+
+   The office moved the blog off the former LandingView storefront (2026-09-29):
+   the page leads with the blog document — heading, intro, then ONE HORIZONTAL
+   ROW PER POST (photograph beside text), so a reader scans stories instead of
+   scrolling past posters. The About band under the posts is the one retained
+   former band, reported in the PR status until the office places it.
+   Owned by this block.
+   ========================================================================== */
+
+.blog-page {
+  display: block;
+}
+
+.blog-head {
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.blog-head__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.blog-head__title {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-page-title);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  color: var(--color-text-primary);
+}
+
+.blog-head__lead {
+  margin: var(--space-3) 0 0;
+  max-width: var(--measure-prose);
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.blog-empty {
+  padding: var(--space-5);
+  background: var(--paper-100);
+  border: 1px dashed var(--sky-300);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+}
+
+.blog-rows {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One row per post: media beside text, a hairline between stories. */
+.blog-row {
+  display: grid;
+  grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.blog-row__media {
+  overflow: hidden;
+  background: var(--paper-100);
+  border-radius: var(--radius-md);
+}
+
+.blog-row__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.blog-row__video {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+
+.blog-row__nomedia {
+  display: grid;
+  place-items: center;
+  min-height: 8rem;
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+}
+
+.blog-row__date {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.blog-row__caption {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-primary);
+}
+
+.blog-row__author {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.blog-row__link {
+  margin-top: var(--space-3);
+}
+
+.blog-about {
+  margin-top: var(--space-7);
+  padding-top: var(--space-5);
+  border-top: 2px solid var(--gold-400);
+}
+
+.blog-about__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  color: var(--color-text-primary);
+}
+
+.blog-about__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.blog-about__item h3 {
+  margin: 0;
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.blog-about__item p {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.blog-about__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+@media (max-width: 48rem) {
+  .blog-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
   }
 }

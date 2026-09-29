@@ -35,15 +35,16 @@ import type { PlanPricing } from "@/lib/pricing-model";
  * in order —
  *
  *   1 · the gateway      centred headline and call, three real trust facts
- *   2 · the first park   the park photograph + the arrangement builder + the
- *                        two chapels, side by side
- *   3 · the hero photo   the client's photograph, alone and whole
- *   4 · Villa Memorial Plan   the five rising tiers, live monthly + senior
- *   5 · Funeraria Memorial Services   five equal photographic tiles, a quote
+ *   2 · the hero photo   the client's photograph, alone and whole, named from
+ *                        the office's own park address
+ *   3 · the first park   the pavilion photograph (the band's dominant figure)
+ *                        + the arrangement builder + the two chapels
+ *   4 · Villa Memorial Park   the four lot types beside the park map, every
+ *                        recorded plot pinned at its own coordinates
+ *   5 · Villa Memorial Plan   the five rising tiers, live monthly + senior
+ *   6 · Funeraria Memorial Services   five equal photographic tiles, a quote
  *                        under each and one centred quote for all five — NO
  *                        amount (the client's minute 5)
- *   6 · Villa Memorial Park   the four lot types beside the park map, every
- *                        recorded plot pinned at its own coordinates
  *   7 · Contact          the enquiry form and the embedded Google map
  *
  * DESIGN RULES THAT ARE BINDING (the plan's own):
@@ -163,6 +164,13 @@ export function HomePage({
           1 · THE GATEWAY — centred words and the call.
           ================================================================ */}
       <section className="home-gateway" aria-labelledby="home-gateway-title">
+        {/* Decorative only: drifting clouds built from the sky palette, behind
+            every word, contained by the band, transform-animated. */}
+        <div className="home-gateway__clouds" aria-hidden="true">
+          <span className="home-gateway__cloud home-gateway__cloud--a" />
+          <span className="home-gateway__cloud home-gateway__cloud--b" />
+          <span className="home-gateway__cloud home-gateway__cloud--c" />
+        </div>
         <div className="home-gateway__inner">
           <span className="home-gateway__frame" aria-hidden="true">
             <svg className="home-gateway__arch" viewBox="0 0 560 300" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -205,7 +213,40 @@ export function HomePage({
       </section>
 
       {/* ================================================================
-          2 · THE FIRST PARK — the photograph + the arrangement builder,
+          2 · THE HERO PHOTOGRAPH — alone and whole.
+          ================================================================ */}
+      <section className="home-photo" aria-labelledby="home-photo-title">
+        <div className="home-band-head">
+          <p className="home-band-head__kicker">{home.photo.kicker}</p>
+          <h2 id="home-photo-title" className="home-band-head__title">
+            {parkName}
+          </h2>
+        </div>
+        {heroPhoto ? (
+          <figure className="home-photo__figure">
+            {/* No ratio, no crop: the frame takes the picture's own shape. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={heroPhoto.src}
+              srcSet={heroPhoto.srcSet}
+              sizes={heroPhoto.srcSet ? "(max-width: 75rem) 100vw, 74rem" : undefined}
+              width={heroPhoto.width}
+              height={heroPhoto.height}
+              alt={home.photo.alt}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </figure>
+        ) : (
+          <div className="home-engraved home-engraved--band" role="img" aria-label={home.photo.alt}>
+            {home.photo.alt}
+          </div>
+        )}
+      </section>
+
+      {/* ================================================================
+          3 · THE FIRST PARK — the photograph + the arrangement builder,
               with the two chapels under the photograph.
           ================================================================ */}
       <section className="home-park" aria-label="The first memorial park in Basilan">
@@ -217,7 +258,7 @@ export function HomePage({
                 <img
                   src={parkPhoto.src}
                   srcSet={parkPhoto.srcSet}
-                  sizes={parkPhoto.srcSet ? "(max-width: 52rem) 92vw, 36rem" : undefined}
+                  sizes={parkPhoto.srcSet ? "(max-width: 52rem) 92vw, 44rem" : undefined}
                   width={parkPhoto.width}
                   height={parkPhoto.height}
                   alt={park.imageAlt}
@@ -291,40 +332,22 @@ export function HomePage({
       </section>
 
       {/* ================================================================
-          3 · THE HERO PHOTOGRAPH — alone and whole.
+          4 · VILLA MEMORIAL PARK — four lot types, the pinned map, details.
           ================================================================ */}
-      <section className="home-photo" aria-labelledby="home-photo-title">
-        <div className="home-band-head">
-          <p className="home-band-head__kicker">{home.photo.kicker}</p>
-          <h2 id="home-photo-title" className="home-band-head__title">
-            {parkName}
-          </h2>
-        </div>
-        {heroPhoto ? (
-          <figure className="home-photo__figure">
-            {/* No ratio, no crop: the frame takes the picture's own shape. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={heroPhoto.src}
-              srcSet={heroPhoto.srcSet}
-              sizes={heroPhoto.srcSet ? "(max-width: 75rem) 100vw, 75rem" : undefined}
-              width={heroPhoto.width}
-              height={heroPhoto.height}
-              alt={home.photo.alt}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
-          </figure>
-        ) : (
-          <div className="home-engraved home-engraved--band" role="img" aria-label={home.photo.alt}>
-            {home.photo.alt}
-          </div>
-        )}
-      </section>
+      <HomePlotExplorer
+        kicker={home.lots.kicker}
+        heading={home.lots.heading}
+        action={home.lots.action}
+        quote={home.lots.quote}
+        groups={groups}
+        rows={rows}
+        mapSrc={parkMapSrc}
+        mapAlt={`The Villa Memorial Park map, with all ${plotCount} recorded plots`}
+        figures={figures}
+      />
 
       {/* ================================================================
-          4 · VILLA MEMORIAL PLAN — five rising tiers, live prices.
+          5 · VILLA MEMORIAL PLAN — five rising tiers, live prices.
           ================================================================ */}
       <section className="home-plans" aria-labelledby="home-plans-title">
         <div className="home-band-head">
@@ -365,7 +388,7 @@ export function HomePage({
       </section>
 
       {/* ================================================================
-          5 · FUNERARIA MEMORIAL SERVICES — five equal tiles, no amounts.
+          6 · FUNERARIA MEMORIAL SERVICES — five equal tiles, no amounts.
           ================================================================ */}
       <section className="home-services" aria-labelledby="home-services-title">
         <div className="home-band-head">
@@ -418,21 +441,6 @@ export function HomePage({
           </Link>
         </div>
       </section>
-
-      {/* ================================================================
-          6 · VILLA MEMORIAL PARK — four lot types, the pinned map, details.
-          ================================================================ */}
-      <HomePlotExplorer
-        kicker={home.lots.kicker}
-        heading={home.lots.heading}
-        action={home.lots.action}
-        quote={home.lots.quote}
-        groups={groups}
-        rows={rows}
-        mapSrc={parkMapSrc}
-        mapAlt={`The Villa Memorial Park map, with all ${plotCount} recorded plots`}
-        figures={figures}
-      />
 
       {/* ================================================================
           7 · CONTACT — the enquiry form and the embedded park map.
