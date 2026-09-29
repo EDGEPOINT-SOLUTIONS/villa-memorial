@@ -207,7 +207,7 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   pins the order (blog first, bands after, chrome-free) and
   `public-page-budget.test.tsx` declares the section list.
 
-- **The entrance overlay (office, inboxes 050/051/052):** the home's opening
+- **The entrance overlay (office, inboxes 050/051/052/057/058):** the home's opening
   piece is a real app feature, built to the office's own reference
   (`Villa Funeraria – Cloud Sign.html`, kept in the firstmate home; NOT added
   to the repo). The cloud's geometry is copied exactly: the five circles and the
@@ -215,8 +215,9 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   blurred white highlight and the `#0a2a55` underside clipped by `clipPath
   id="shape"`, and the two drop shadows (`0 36px 32px rgba(15,45,90,.3)`,
   `0 6px 8px rgba(15,45,90,.22)`). The cords are 2px, `linear-gradient(#f3e2b4,
-  #b8975a)`, held `padding: 0 28%`, descending to `380px + 30vh` over 1s on
-  `cubic-bezier(.16,1,.3,1)`; the beads sit at 28%/72% across and 32.4% down at
+  #b8975a)`, held `padding: 0 28%`, full length at rest (`380px + 30vh`) with
+  the whole hang dropping over it on one expo-out transform; the beads sit at
+  28%/72% across and 32.4% down at
   13px with the reference's gold radial. The words carry the reference's
   vertical gold gradient (`#fff3c4 → #ebca77 → #cfa24d`) clipped to the text
   with the soft dark shadow, scaled with the cloud (0.05 and 0.0633 of its
@@ -249,6 +250,31 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   Manrope if the office asks); no replay button; the two lines live in
   `home.intro` and are edited in the home editor's zone 00; reduced motion shows
   the greeting WITHOUT motion for 1.5s (the reference only disables part of its
-  motion); it plays once per session on the home only; the page behind is inert
-  while it is up with focus returning to `#main`, and no layout/scroll/focus
-  trace is left. Total visible ~2.6s.
+  motion); the page behind is inert while it is up with focus returning to
+  `#main`, and no layout/scroll/focus trace is left. Total visible ~2.6s.
+
+  **The sign is the FIRST PAINT of `/` (office, inbox 058).** The first build
+  gated on the client: the home painted, then a `location.replace` hop to
+  `/entrance` — whose client piece returned `null` until hydration — so the
+  office saw the homepage, then a ~2.5s blank wait, before a sign that looked
+  un-animated. Now `app/(public)/page.tsx` reads the `villa_home_intro_seen`
+  cookie BEFORE render and puts the overlay FIRST in the document for an unseen
+  visitor: the server HTML itself carries the sign, the CSS drop runs from the
+  first frame (hydration only arms the timers), and the home is rendered
+  underneath — when the sequence ends the overlay simply unmounts, with nothing
+  to navigate. A returning visitor's request carries the cookie and gets the
+  home alone. Measured in a fresh Chromium profile: the overlay is in the DOM
+  and the drop animation is running at the first sample (~150ms: `translateY`
+  −650, `home-intro-drop:0:running`), the URL never leaves `/`, the session
+  cookie is written when the sequence ends, and a reload serves the home
+  directly. The two keys live in the plain module `lib/home-intro.ts` — a
+  constant exported from the `"use client"` component reaches the server as a
+  client-reference proxy, so `cookieStore.get(INTRO_COOKIE)` read `undefined`
+  and the gate never closed (found and pinned by test). Two fallbacks:
+  `@media (prefers-reduced-motion: reduce)` refuses the motion before hydration
+  (verified with CDP emulation: no animation frame at all, greeting still,
+  gone ~1.5s after hydration), and a CSS self-dismiss keyframe slides the
+  overlay off-screen on `transform` alone if the client never hydrates
+  (verified with scripts disabled: after 4s the overlay sits at `translateY`
+  −909px and the home's own link is what a hit test finds). `/entrance` stays
+  as the blank `noindex` standalone route, handing off to `/` as before.

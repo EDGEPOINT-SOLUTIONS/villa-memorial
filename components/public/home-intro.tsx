@@ -1,17 +1,24 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { INTRO_COOKIE, SEEN_KEY } from "@/lib/home-intro";
 
 /**
- * The home's entrance — the cloud sign (office, inboxes 050/051/052/054).
+ * The home's entrance — the cloud sign (office, inboxes 050/051/052/054/058).
  *
  * Built from the office's own HTML/CSS reference (`Cloud Sign`): a golden
  * cloud on two cords drops over the page, the words surface, then the cords
- * stretch, thin and snap the cloud away. The overlay plays on its OWN blank
- * route (`/entrance`), with no chrome; when it finishes the visitor is handed
- * to the home by REPLACING the history entry, so Back from the home never
- * drops them into the animation again.
+ * stretch, thin and snap the cloud away.
+ *
+ * IT IS THE FIRST PAINT OF `/` (office, inbox 058). The home route reads the
+ * `villa_home_intro_seen` cookie BEFORE render and puts this overlay in the
+ * HTML for an unseen visitor, so the visitor sees the sign — mid-drop, CSS
+ * animation already running — with no homepage flash and no blank hop through
+ * a second route. The overlay takes itself down when the sequence ends; the
+ * home was rendered behind it all along, so nothing navigates. A returning
+ * visitor's request carries the cookie and the home server-renders without it.
+ * `/entrance` still exists as the blank `noindex` demo route for a direct
+ * visit; there the overlay hands off to `/` (replacing the history entry).
  *
  * The matching visual specifics are the reference's: the 400×200 cloud SVG
  * (five circles + the rounded base), the `#7cbcec → #2f6cab` sky gradient, the
@@ -31,13 +38,14 @@ import { createPortal } from "react-dom";
  *    editor; this module only renders them.
  *  · SHORT — the exit begins at 1.7s (the demo: 3.8s); any click or keypress
  *    finishes it in ~220ms.
- *  · ONCE PER SESSION — the home gate sends an unseen visitor to `/entrance`
- *    and a returning visitor straight to the home.
- *  · REDUCED MOTION — the greeting is shown without motion for 1.5s.
- *  · No layout, scroll or focus trace is left behind.
+ *  · ONCE PER SESSION — the cookie (server-visible) plus sessionStorage (its
+ *    fallback when cookies are refused) are written when the sequence ends.
+ *  · REDUCED MOTION — the stylesheet refuses the motion before hydration and
+ *    the greeting sits still for 1.5s.
+ *  · No layout, scroll or focus trace is left behind, and the overlay also
+ *    takes itself down in CSS if the client never hydrates.
  */
 
-export const SEEN_KEY = "villa-home-intro-seen";
 /** The exit begins here — well inside the demo's 3.8 s hold. */
 const EXIT_AT_MS = 1700;
 /** The reference's 850 ms exit chain, with a little slack before removal. */
@@ -47,46 +55,58 @@ const REDUCED_MS = 1500;
 /** A skip's exit fade. */
 const SKIP_MS = 220;
 
-/**
- * The gate the HOME renders: nothing visible. A returning visitor keeps the
- * home (and its metadata is untouched); an unseen visitor is sent to the blank
- * `/entrance` route. `window.location.replace` also replaces the history entry,
- * so the home is not stacked on top of a page that would be skipped on Back.
- * With the session storage unavailable (private mode), the greeting plays.
- */
-export function HomeIntroGate() {
-  useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(SEEN_KEY) === "1";
-    } catch {
-      // Private mode can refuse storage; the greeting plays.
-    }
-    if (!seen) window.location.replace("/entrance");
-  }, []);
-  return null;
+/** Mark the sequence seen for the rest of the browser session. Both halves are
+ *  written: the cookie is what the server reads on the next request, and
+ *  sessionStorage keeps the guard when cookies are refused. */
+function markIntroSeen() {
+  try {
+    document.cookie = `${INTRO_COOKIE}=1; path=/; SameSite=Lax`;
+  } catch {
+    // Cookies refused — sessionStorage still guards the session.
+  }
+  try {
+    sessionStorage.setItem(SEEN_KEY, "1");
+  } catch {
+    // Private mode can refuse storage; the cookie still guards the session.
+  }
 }
 
 /**
- * The entrance route's client piece: mark the session, play the sign, and hand
- * the visitor to the home. A full `location.replace` (not a router push) is
+ * The entrance route's client piece (`/entrance`): play the sign and hand the
+ * visitor to the home. A full `location.replace` (not a router push) is
  * deliberate — the entrance must not stay in the history stack.
  */
 export function EntranceHandoff({ hello, welcome }: { hello: string; welcome: string }) {
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(SEEN_KEY, "1");
-    } catch {
-      // ignored — the greeting still plays this once
-    }
-  }, []);
   return <HomeSign hello={hello} welcome={welcome} onDone={() => window.location.replace("/")} />;
 }
 
 /**
- * The cloud sign itself. It is a page's whole content on `/entrance`, so it
- * portals to the body and covers the viewport; any click or keypress (and the
- * Skip control) finishes it immediately via `onDone`.
+ * The home's overlay: the sign rendered by the route for an unseen visitor. It
+ * unmounts itself when the sequence ends — the home is already on screen
+ * underneath, so there is nothing to navigate to. If the cookie was refused
+ * but this session already played the sign, sessionStorage takes it down
+ * immediately (the server cannot see sessionStorage, so the overlay renders
+ * and this effect removes it before it reads).
+ */
+export function HomeSignOverlay({ hello, welcome }: { hello: string; welcome: string }) {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(SEEN_KEY) === "1") setHidden(true);
+    } catch {
+      // Private mode: the cookie is the only guard; the sign plays.
+    }
+  }, []);
+  if (hidden) return null;
+  return <HomeSign hello={hello} welcome={welcome} onDone={() => setHidden(true)} />;
+}
+
+/**
+ * The cloud sign itself. It is the page's whole first paint on `/` (rendered
+ * server-side inside the home) and the whole content of `/entrance`; the
+ * stylesheet runs the motion from the first frame, and any click or keypress
+ * (and the Skip control) finishes it immediately via `onDone`. Rendering it
+ * inline — not through a portal — is what lets the server paint it.
  */
 export function HomeSign({
   hello,
@@ -97,7 +117,6 @@ export function HomeSign({
   welcome: string;
   onDone: () => void;
 }) {
-  const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<"enter" | "exit">("enter");
   const [leaving, setLeaving] = useState(false);
   const [reduced, setReduced] = useState(false);
@@ -107,12 +126,12 @@ export function HomeSign({
 
   useEffect(() => {
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-    setMounted(true);
   }, []);
 
   // Play: focus the sign (so keys dismiss), arm the phases and any-input skip.
+  // Hydration only arms the timers — the motion itself runs in CSS from the
+  // server-rendered first paint, so a slow bundle never delays the animation.
   useEffect(() => {
-    if (!mounted) return;
     rootRef.current?.focus();
     const enterTimer = window.setTimeout(() => setPhase("exit"), EXIT_AT_MS);
     const exitTimer = window.setTimeout(
@@ -129,21 +148,20 @@ export function HomeSign({
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("click", onClick);
     };
-  }, [mounted, reduced, finish]);
+  }, [reduced, finish]);
 
-  // Leave: fade, then hand the visitor to the home (history replaced).
+  // Leave: mark the session seen, fade, then hand over (the overlay unmounts;
+  // `/entrance` replaces its history entry with the home).
   useEffect(() => {
     if (!leaving) return;
+    markIntroSeen();
     const timer = window.setTimeout(() => {
-      setMounted(false);
       onDone();
     }, SKIP_MS);
     return () => window.clearTimeout(timer);
   }, [leaving, onDone]);
 
-  if (!mounted) return null;
-
-  return createPortal(
+  return (
     <div
       ref={rootRef}
       tabIndex={-1}
@@ -227,7 +245,6 @@ export function HomeSign({
       <button type="button" className="home-intro__skip" onClick={finish}>
         Skip
       </button>
-    </div>,
-    document.body,
+    </div>
   );
 }

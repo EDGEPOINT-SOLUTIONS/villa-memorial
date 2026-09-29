@@ -1,4 +1,7 @@
+import { cookies } from "next/headers";
 import { HomePage } from "@/components/public/home-page";
+import { HomeSignOverlay } from "@/components/public/home-intro";
+import { INTRO_COOKIE } from "@/lib/home-intro";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
@@ -38,8 +41,16 @@ export const dynamic = "force-dynamic";
  *
  * It renders inside `app/(public)/layout.tsx`, so it keeps the same header,
  * footer, phone bar and closing action band as every other public page.
+ *
+ * THE ENTRANCE IS PART OF THIS PAGE (office, inbox 058). The route reads the
+ * session cookie BEFORE render: an unseen visitor gets the cloud-sign overlay
+ * in the very first paint (motion already running in CSS, home rendered
+ * underneath) and a returning visitor gets the home alone. No client-side
+ * redirect, so no homepage flash and no blank hop through a second route.
  */
 export default async function HomeRoute() {
+  const cookieStore = await cookies();
+  const introSeen = cookieStore.get(INTRO_COOKIE)?.value === "1";
   const [content, lots, pricing, catalogItems, plansPage, mapsKey, resources] = await Promise.all([
     listLandingContent(),
     listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
@@ -60,14 +71,22 @@ export default async function HomeRoute() {
     .map((resource) => ({ id: resource.id, name: resource.name, capacity: resource.capacity }));
 
   return (
-    <HomePage
-      content={content}
-      pricing={pricing.plans}
-      lotCategories={pricing.lotCategories}
-      builder={builder}
-      lots={lots}
-      mapSrc={mapSrc}
-      chapelResources={chapelResources}
-    />
+    <>
+      {/* FIRST in the document: the overlay is parsed before the home's own
+          markup, so the first paint is the sign even on a slow parse — no
+          flash of the home it is covering. */}
+      {introSeen ? null : (
+        <HomeSignOverlay hello={content.home.intro.hello} welcome={content.home.intro.welcome} />
+      )}
+      <HomePage
+        content={content}
+        pricing={pricing.plans}
+        lotCategories={pricing.lotCategories}
+        builder={builder}
+        lots={lots}
+        mapSrc={mapSrc}
+        chapelResources={chapelResources}
+      />
+    </>
   );
 }

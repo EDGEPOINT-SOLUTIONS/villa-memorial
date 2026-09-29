@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { HomeCostBuilder } from "@/components/public/home-cost-builder";
-import { HomeIntroGate } from "@/components/public/home-intro";
+
 import { HomePlotExplorer } from "@/components/public/home-plot-explorer";
 import { ItemQuoteButton } from "@/components/villa/item-quote-button";
 import { ALACARTE_LINES } from "@/lib/catalogue-skus";
@@ -172,12 +172,12 @@ export function HomePage({
 
   return (
     <div className="home">
-      {/* The entrance gate (office, inboxes 050-054): the cloud-sign greeting
-          is its own blank route at /entrance now. This gate decides on the
-          client — an unseen visitor is sent there; a returning visitor keeps
-          this real, indexable home page. Its two lines stay in the content
-          store (home.intro) and are edited in the home editor. */}
-      <HomeIntroGate />
+      {/* The entrance overlay is NOT here: the route that renders this page
+          (`app/(public)/page.tsx`) reads the session cookie and puts the
+          cloud sign in the HTML for an unseen visitor, so the home itself
+          stays a server component whose own content never moves. Its two
+          lines stay in the content store (home.intro), edited in the home
+          editor. */}
       {/* ================================================================
           1 · THE GATEWAY — centred words and the call.
           ================================================================ */}

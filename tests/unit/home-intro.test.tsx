@@ -19,8 +19,10 @@ const ROOT = process.cwd();
 const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
 const COMPONENT = read("components/public/home-intro.tsx");
 const HOME = read("components/public/home-page.tsx");
+const HOME_ROUTE = read("app/(public)/page.tsx");
 const ENTRANCE = read("app/entrance/page.tsx");
 const EDITOR = read("components/landing/home-sections-editor.tsx");
+const KEYS = read("lib/home-intro.ts");
 const CSS = read("styles/components.css");
 
 describe("the home's entrance sign", () => {
@@ -36,9 +38,22 @@ describe("the home's entrance sign", () => {
     expect(ENTRANCE).toContain("robots: { index: false, follow: false }");
     // It sits OUTSIDE the (public) group, so it renders no chrome.
     expect(ENTRANCE).not.toContain("PublicShell");
-    // The home renders only the gate; its own content never moves.
-    expect(HOME).toContain("<HomeIntroGate />");
-    expect((HOME.match(/home-intro/g) ?? []).length).toBe(1); // the import only
+    // IT IS THE HOME'S FIRST PAINT (office, inbox 058): the route cookie-gates
+    // the overlay into the server HTML — an unseen visitor gets the sign in
+    // the very first paint, with no redirect and no homepage flash — and the
+    // home component itself never carries it.
+    expect(HOME_ROUTE).toContain("const cookieStore = await cookies()");
+    expect(HOME_ROUTE).toContain("introSeen ? null :");
+    expect(HOME_ROUTE).toContain(
+      "<HomeSignOverlay hello={content.home.intro.hello} welcome={content.home.intro.welcome} />",
+    );
+    expect(HOME_ROUTE).toContain('from "@/components/public/home-intro"');
+    // The overlay is FIRST in the document, so even a slow parse paints the
+    // sign before the home markup it covers.
+    expect(HOME_ROUTE.indexOf("<HomeSignOverlay")).toBeLessThan(
+      HOME_ROUTE.indexOf("<HomePage"),
+    );
+    expect((HOME.match(/home-intro/g) ?? []).length).toBe(0);
     expect(COMPONENT).toContain("{hello ? <p className=\"home-intro__hello\">{hello}</p> : null}");
     // The editor owns both lines (the office rewrites them there).
     expect(EDITOR).toContain('htmlFor="home-intro-hello"');
@@ -47,13 +62,25 @@ describe("the home's entrance sign", () => {
   });
 
   it("hands the visitor over by REPLACING the history entry, once per session", () => {
-    // The gate: unseen → the blank entrance; seen → the home stays.
-    expect(COMPONENT).toContain('window.location.replace("/entrance")');
-    expect(COMPONENT).toContain("sessionStorage.getItem(SEEN_KEY)");
-    // The hand-off: the sign finishes → the home, replacing /entrance in the
-    // history so Back never returns to the animation.
-    expect(COMPONENT).toContain('window.location.replace("/")');
+    // No client redirect at the root any more: the first paint IS the sign.
+    expect(COMPONENT).not.toContain('window.location.replace("/entrance")');
+    // The cookie the server reads is written when the sequence ends; the
+    // sessionStorage half takes the overlay down when cookies are refused.
+    expect(COMPONENT).toContain('sessionStorage.getItem(SEEN_KEY) === "1"');
+    // Server-side gate + client-side fallback for refused cookies. Both keys
+    // live in a PLAIN module: exporting INTRO_COOKIE from the "use client"
+    // component gave the server a client-reference proxy, so the gate read
+    // `undefined` and served the overlay forever — pinned by these two lines.
+    expect(HOME_ROUTE).toContain('cookieStore.get(INTRO_COOKIE)?.value === "1"');
+    expect(HOME_ROUTE).toContain('import { INTRO_COOKIE } from "@/lib/home-intro"');
+    expect(HOME_ROUTE).not.toMatch(/HomeSignOverlay, INTRO_COOKIE/);
+    expect(KEYS).toContain('export const INTRO_COOKIE = "villa_home_intro_seen"');
+    expect(KEYS).toContain('export const SEEN_KEY = "villa-home-intro-seen"');
+    expect(COMPONENT).toContain("document.cookie = `${INTRO_COOKIE}=1; path=/; SameSite=Lax`");
     expect(COMPONENT).toContain("sessionStorage.setItem(SEEN_KEY, \"1\")");
+    // `/entrance` still hands off to the home by replacing its history entry
+    // so Back never returns to the animation.
+    expect(COMPONENT).toContain('window.location.replace("/")');
     // The entrance is not in the sitemap (noindex, not a public page).
     const seo = read("lib/seo.ts");
     expect(seo).not.toContain('"/entrance"');
@@ -61,7 +88,7 @@ describe("the home's entrance sign", () => {
 
   it("plays once per session, home only, and no replay control ships", () => {
     expect(COMPONENT).toContain("sessionStorage");
-    expect(COMPONENT).toContain('SEEN_KEY = "villa-home-intro-seen"');
+    expect(COMPONENT).toContain('from "@/lib/home-intro"');
     // Any input finishes it immediately.
     expect(COMPONENT).toContain('document.addEventListener("keydown"');
     expect(COMPONENT).toContain('document.addEventListener("click"');
@@ -90,6 +117,12 @@ describe("the home's entrance sign", () => {
       /\.home-intro--reduced \.home-intro__hang,\n\.home-intro--reduced \.home-intro__cords,/,
     );
     expect(CSS).toMatch(/home-intro--reduced[\s\S]{0,400}animation: none/);
+    // The stylesheet refuses the motion BEFORE hydration too — a reduced-motion
+    // visitor must never see a moving frame while the class is not set yet.
+    const reduced =
+      /@media \(prefers-reduced-motion: reduce\) \{\s*\.home-intro__hang,[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(reduced).toContain("animation: none");
+    expect(reduced).toContain("animation-duration: 1ms");
   });
 
   it("ships a stylesheet rule for every overlay class, on the role steps", () => {
@@ -164,5 +197,13 @@ describe("the home's entrance sign", () => {
     expect(lift).toContain("scale(0.985, 1.035)");
     // The promotion is dropped once the intro is done.
     expect(CSS).toMatch(/home-intro--leaving[\s\S]{0,240}will-change: auto/);
+    // No-JS fallback: the overlay takes itself down on a transform alone, so
+    // a client that never hydrates neither blocks the page nor animates a
+    // layout property.
+    const selfDismiss = /@keyframes home-intro-self-dismiss \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(selfDismiss).toContain("transform: translateY(-101%)");
+    expect(/\.home-intro \{[^}]*\}/.exec(CSS)?.[0] ?? "").toContain(
+      "animation: home-intro-self-dismiss",
+    );
   });
 });

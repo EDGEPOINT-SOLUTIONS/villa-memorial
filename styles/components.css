@@ -20963,8 +20963,11 @@ a.plan-advisor__phone:hover {
    it), the words surface, then the cords stretch, thin and snap the cloud away
    and the overlay is removed. The cloud's geometry, its sky gradient, the
    blurred highlight/underside and the cords/beads/word treatment are the
-   reference's own ARTWORK; the skip control is ordinary UI. Motion is the
-   reference's, rebuilt COMPOSITOR-ONLY (office, inbox 057): the whole hang
+   reference's own ARTWORK; the skip control is ordinary UI. The sign is the
+   FIRST PAINT of `/` (office, inbox 058): the home route cookie-gates this
+   overlay into the server HTML, so the visitor sees it immediately with the
+   home already behind it — no redirect, no flash, no blank second route.
+   Motion is the reference's, rebuilt COMPOSITOR-ONLY (office, inbox 057): the whole hang
    drops as one translateY gesture whose track carries the decaying sway as
    follow-through, and the exit recoils on scaleY/translateY/scale — no
    keyframe animates height, width, a position or a filter, so every frame is
@@ -20982,6 +20985,16 @@ a.plan-advisor__phone:hover {
   overflow: hidden;
   background: color-mix(in srgb, var(--paper-0) 94%, transparent);
   outline: none;
+  /* No-JS fallback: if the client never hydrates, the overlay leaves on its
+     own — a transform, so it neither paints a frame nor blocks the page it
+     was covering. With JavaScript the leaving class replaces this. */
+  animation: home-intro-self-dismiss 260ms ease-in 2600ms forwards;
+}
+
+@keyframes home-intro-self-dismiss {
+  to {
+    transform: translateY(-101%);
+  }
 }
 
 .home-intro--leaving {
@@ -21168,6 +21181,30 @@ a.plan-advisor__phone:hover {
 
 .home-intro--reduced .home-intro__msg {
   opacity: 1;
+}
+
+/* The stylesheet itself refuses the motion before hydration (and with
+   JavaScript off): a reduced-motion visitor must never see a single moving
+   frame just because the class has not been set yet. */
+@media (prefers-reduced-motion: reduce) {
+  .home-intro__hang,
+  .home-intro__cords,
+  .home-intro__cord,
+  .home-intro__cloud,
+  .home-intro__msg {
+    animation: none;
+  }
+
+  .home-intro__msg {
+    opacity: 1;
+  }
+
+  /* The no-JS fallback still has to take the overlay away, but without motion:
+     the slide's duration goes to a single step, so it disappears, not moves. */
+  .home-intro {
+    animation-duration: 1ms;
+    animation-timing-function: step-end;
+  }
 }
 
 /* Once the intro is done the promotion is dropped: the final fade runs flat
