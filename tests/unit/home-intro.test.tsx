@@ -19,23 +19,44 @@ const ROOT = process.cwd();
 const read = (file: string) => readFileSync(path.join(ROOT, file), "utf8");
 const COMPONENT = read("components/public/home-intro.tsx");
 const HOME = read("components/public/home-page.tsx");
+const ENTRANCE = read("app/entrance/page.tsx");
 const EDITOR = read("components/landing/home-sections-editor.tsx");
 const CSS = read("styles/components.css");
 
-describe("the home's entrance overlay", () => {
-  it("reads its two lines from the home document and renders them from the store", async () => {
+describe("the home's entrance sign", () => {
+  it("is its own blank route, reading its two lines from the home document", async () => {
     const { home } = await listLandingContent();
     expect(home.intro.hello).toBe("Hello,");
     expect(home.intro.welcome).toBe("Welcome to Villa Funeraria");
-    // The home renders the overlay from those stored fields, never typed copy.
-    expect(HOME).toContain(
-      "<HomeIntro hello={home.intro.hello} welcome={home.intro.welcome} />",
+    // The ENTRANCE route renders the sign from those stored fields — never
+    // typed copy — and carries noindex (the home stays the indexable page).
+    expect(ENTRANCE).toContain(
+      "<EntranceHandoff hello={home.intro.hello} welcome={home.intro.welcome} />",
     );
+    expect(ENTRANCE).toContain("robots: { index: false, follow: false }");
+    // It sits OUTSIDE the (public) group, so it renders no chrome.
+    expect(ENTRANCE).not.toContain("PublicShell");
+    // The home renders only the gate; its own content never moves.
+    expect(HOME).toContain("<HomeIntroGate />");
+    expect((HOME.match(/home-intro/g) ?? []).length).toBe(1); // the import only
     expect(COMPONENT).toContain("{hello ? <p className=\"home-intro__hello\">{hello}</p> : null}");
     // The editor owns both lines (the office rewrites them there).
     expect(EDITOR).toContain('htmlFor="home-intro-hello"');
     expect(EDITOR).toContain('htmlFor="home-intro-welcome"');
     expect(EDITOR).toContain('update("intro"');
+  });
+
+  it("hands the visitor over by REPLACING the history entry, once per session", () => {
+    // The gate: unseen → the blank entrance; seen → the home stays.
+    expect(COMPONENT).toContain('window.location.replace("/entrance")');
+    expect(COMPONENT).toContain("sessionStorage.getItem(SEEN_KEY)");
+    // The hand-off: the sign finishes → the home, replacing /entrance in the
+    // history so Back never returns to the animation.
+    expect(COMPONENT).toContain('window.location.replace("/")');
+    expect(COMPONENT).toContain("sessionStorage.setItem(SEEN_KEY, \"1\")");
+    // The entrance is not in the sitemap (noindex, not a public page).
+    const seo = read("lib/seo.ts");
+    expect(seo).not.toContain('"/entrance"');
   });
 
   it("plays once per session, home only, and no replay control ships", () => {
@@ -54,13 +75,11 @@ describe("the home's entrance overlay", () => {
     expect(COMPONENT).not.toMatch(/font-family:\s*"?Cormorant/);
   });
 
-  it("keeps the page behind inert while up and hands focus to the main content", () => {
-    expect(COMPONENT).toContain("shell.inert = true");
-    expect(COMPONENT).toContain("shell.inert = false");
-    expect(COMPONENT).toContain('getElementById("main")');
-    expect(COMPONENT).toContain("focus(");
-    // A dialog that announces itself, with a labelled skip control.
+  it("covers the whole blank page and is dismissed by its own controls", () => {
+    // The sign is the page's whole content: a fixed layer with a labelled
+    // skip control, focused on mount so any key dismisses it.
     expect(COMPONENT).toContain('aria-modal="true"');
+    expect(COMPONENT).toContain("rootRef.current?.focus()");
     expect(COMPONENT).toContain('className="home-intro__skip"');
   });
 

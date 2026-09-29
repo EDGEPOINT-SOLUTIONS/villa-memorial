@@ -52,7 +52,7 @@
 }
 
 .btn--secondary:hover:not(:disabled) {
-  border-color: var(--navy-300);
+  border-color: var(--ink-400);
 }
 
 /* The gateway's secondary action wears the CALL's gold as an outline (office,
@@ -169,7 +169,7 @@ textarea {
 input:not([type="checkbox"]):not([type="radio"]):not(.visually-hidden):hover,
 select:hover,
 textarea:hover {
-  border-color: var(--navy-300);
+  border-color: var(--ink-400);
 }
 
 input:not([type="checkbox"]):not([type="radio"]):not(.visually-hidden):focus,
@@ -1915,7 +1915,7 @@ a.ledger__row:hover .ledger__row-title {
 }
 
 .listing-sheet__toggle:hover {
-  border-color: var(--navy-300);
+  border-color: var(--ink-400);
 }
 
 .listing-sheet__toggle-label {
@@ -1995,7 +1995,7 @@ a.ledger__row:hover .ledger__row-title {
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-width: thin;
-    scrollbar-color: var(--navy-300) transparent;
+    scrollbar-color: var(--color-rule-strong) transparent;
     padding-right: var(--space-1);
   }
 
@@ -8890,7 +8890,7 @@ a.card:hover {
 }
 
 .lot-rec-tabs a:hover {
-  border-color: var(--navy-300);
+  border-color: var(--ink-400);
   color: var(--color-text-primary);
 }
 
@@ -10658,7 +10658,7 @@ a.card:hover {
 
 .anchored-rail:hover {
   scrollbar-width: thin;
-  scrollbar-color: var(--navy-300) transparent;
+  scrollbar-color: var(--color-rule-strong) transparent;
 }
 
 .anchored-rail::-webkit-scrollbar {
@@ -10675,7 +10675,7 @@ a.card:hover {
 }
 
 .anchored-rail:hover::-webkit-scrollbar-thumb {
-  background: var(--navy-300);
+  background: var(--color-rule-strong);
   border: 2px solid transparent;
   background-clip: content-box;
 }
@@ -11616,7 +11616,7 @@ a.card:hover {
 .post-card__caption-link {
   color: inherit;
   text-decoration: underline;
-  text-decoration-color: var(--navy-300);
+  text-decoration-color: var(--color-rule-strong);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
   transition: text-decoration-color var(--motion-fast), color var(--motion-fast);

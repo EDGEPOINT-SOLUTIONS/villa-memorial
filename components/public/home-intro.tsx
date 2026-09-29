@@ -4,39 +4,37 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 /**
- * HomeIntro — the home's opening overlay (office, inboxes 050/051).
+ * The home's entrance — the cloud sign (office, inboxes 050/051/052/054).
  *
- * Built from the office's own HTML/CSS reference
- * (`intro-reference.html`): a golden cloud on two cords drops over the REAL
- * home page (already rendered and scrolling underneath), the words surface,
- * then the cords stretch and snap the cloud away. The cloud's geometry is the
- * reference's 400×200 SVG — five circles and a rounded base, the sky gradient,
- * the blurred white highlight and the darker underside clipped to the
- * silhouette — and the motion is the reference's: the cords lower 1 s on an
- * expo-out curve, the hang sways about its top anchor, the words surface, then
- * the exit dims the words while the cords pull (a little further first), thin
- * and snap up and the cloud squeezes slightly.
+ * Built from the office's own HTML/CSS reference (`Cloud Sign`): a golden
+ * cloud on two cords drops over the page, the words surface, then the cords
+ * stretch, thin and snap the cloud away. The overlay plays on its OWN blank
+ * route (`/entrance`), with no chrome; when it finishes the visitor is handed
+ * to the home by REPLACING the history entry, so Back from the home never
+ * drops them into the animation again.
+ *
+ * The matching visual specifics are the reference's: the 400×200 cloud SVG
+ * (five circles + the rounded base), the `#7cbcec → #2f6cab` sky gradient, the
+ * blurred highlight/underside clipped to the silhouette, the two drop shadows,
+ * the 2px `#f3e2b4 → #b8975a` cords at 28%, the 13px gold beads at 28%/72% and
+ * 32.4%, the words' vertical gold gradient and shadow at 0.05/0.0633 of the
+ * cloud width, the 18% cord overlap, and the reference's sway/surface/dim/
+ * pull/thin/squeeze motion.
  *
  * THE GUARDS ON TOP OF THE REFERENCE (it is a standalone demo):
- *  · NO CDN FONT. The words ride the app's self-hosted display face
- *    (`--font-display`, the client's letterhead serif) at the ladder's role
- *    steps; Cormorant Garamond is OFL and can be self-hosted like Manrope if
- *    the office asks for that exact face.
+ *  · NO CDN FONT — the words ride the app's self-hosted display face.
  *  · NO REPLAY BUTTON; a labelled Skip control instead.
- *  · THE TWO LINES live in the home document (`home.intro`) and are edited in
- *    the home editor.
- *  · SHORTER THAN THE DEMO: the exit begins at 1.7 s (the demo exits at 3.8 s)
- *    and any click or keypress finishes it in ~220 ms.
- *  · ONCE PER SESSION and home only (sessionStorage).
- *  · REDUCED MOTION: the greeting is shown WITHOUT motion for 1.5 s — the
- *    reference only disables part of its motion, and a moving cloud is still
- *    motion; the welcome matters, the motion is decoration.
- *  · While it is up the page behind is inert and focus starts on the overlay;
- *    when it goes, focus lands on the page's main content. Nothing about the
- *    page's layout, scroll or measurements changes.
+ *  · THE TWO LINES live in the home document and are edited in the home
+ *    editor; this module only renders them.
+ *  · SHORT — the exit begins at 1.7s (the demo: 3.8s); any click or keypress
+ *    finishes it in ~220ms.
+ *  · ONCE PER SESSION — the home gate sends an unseen visitor to `/entrance`
+ *    and a returning visitor straight to the home.
+ *  · REDUCED MOTION — the greeting is shown without motion for 1.5s.
+ *  · No layout, scroll or focus trace is left behind.
  */
 
-const SEEN_KEY = "villa-home-intro-seen";
+export const SEEN_KEY = "villa-home-intro-seen";
 /** The exit begins here — well inside the demo's 3.8 s hold. */
 const EXIT_AT_MS = 1700;
 /** The reference's 850 ms exit chain, with a little slack before removal. */
@@ -46,47 +44,80 @@ const REDUCED_MS = 1500;
 /** A skip's exit fade. */
 const SKIP_MS = 220;
 
-export function HomeIntro({ hello, welcome }: { hello: string; welcome: string }) {
+/**
+ * The gate the HOME renders: nothing visible. A returning visitor keeps the
+ * home (and its metadata is untouched); an unseen visitor is sent to the blank
+ * `/entrance` route. `window.location.replace` also replaces the history entry,
+ * so the home is not stacked on top of a page that would be skipped on Back.
+ * With the session storage unavailable (private mode), the greeting plays.
+ */
+export function HomeIntroGate() {
+  useEffect(() => {
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem(SEEN_KEY) === "1";
+    } catch {
+      // Private mode can refuse storage; the greeting plays.
+    }
+    if (!seen) window.location.replace("/entrance");
+  }, []);
+  return null;
+}
+
+/**
+ * The entrance route's client piece: mark the session, play the sign, and hand
+ * the visitor to the home. A full `location.replace` (not a router push) is
+ * deliberate — the entrance must not stay in the history stack.
+ */
+export function EntranceHandoff({ hello, welcome }: { hello: string; welcome: string }) {
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(SEEN_KEY, "1");
+    } catch {
+      // ignored — the greeting still plays this once
+    }
+  }, []);
+  return <HomeSign hello={hello} welcome={welcome} onDone={() => window.location.replace("/")} />;
+}
+
+/**
+ * The cloud sign itself. It is a page's whole content on `/entrance`, so it
+ * portals to the body and covers the viewport; any click or keypress (and the
+ * Skip control) finishes it immediately via `onDone`.
+ */
+export function HomeSign({
+  hello,
+  welcome,
+  onDone,
+}: {
+  hello: string;
+  welcome: string;
+  onDone: () => void;
+}) {
   const [mounted, setMounted] = useState(false);
   const [phase, setPhase] = useState<"enter" | "exit">("enter");
   const [leaving, setLeaving] = useState(false);
   const [reduced, setReduced] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  const dismiss = useCallback(() => setLeaving(true), []);
+  const finish = useCallback(() => setLeaving(true), []);
 
-  // Decide on the client: already seen this session, or the OS motion setting.
   useEffect(() => {
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem(SEEN_KEY) === "1";
-    } catch {
-      // Private mode can refuse storage; the intro simply plays again.
-    }
-    if (seen) return;
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
     setMounted(true);
   }, []);
 
-  // Play: inert the page behind, focus the overlay, arm the phases and the
-  // any-input dismissal.
+  // Play: focus the sign (so keys dismiss), arm the phases and any-input skip.
   useEffect(() => {
     if (!mounted) return;
-    const shell = document.querySelector(".public-shell");
-    if (shell instanceof HTMLElement) shell.inert = true;
     rootRef.current?.focus();
-    try {
-      sessionStorage.setItem(SEEN_KEY, "1");
-    } catch {
-      // ignored — the overlay still plays this once
-    }
     const enterTimer = window.setTimeout(() => setPhase("exit"), EXIT_AT_MS);
     const exitTimer = window.setTimeout(
       () => setLeaving(true),
       reduced ? REDUCED_MS : EXIT_AT_MS + EXIT_MS,
     );
-    const onKey = () => dismiss();
-    const onClick = () => dismiss();
+    const onKey = () => finish();
+    const onClick = () => finish();
     document.addEventListener("keydown", onKey);
     document.addEventListener("click", onClick);
     return () => {
@@ -94,25 +125,18 @@ export function HomeIntro({ hello, welcome }: { hello: string; welcome: string }
       window.clearTimeout(exitTimer);
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("click", onClick);
-      if (shell instanceof HTMLElement) shell.inert = false;
     };
-  }, [mounted, reduced, dismiss]);
+  }, [mounted, reduced, finish]);
 
-  // Leave: fade, remove, and hand focus back to the page's main content.
+  // Leave: fade, then hand the visitor to the home (history replaced).
   useEffect(() => {
     if (!leaving) return;
     const timer = window.setTimeout(() => {
-      const shell = document.querySelector(".public-shell");
-      if (shell instanceof HTMLElement) shell.inert = false;
       setMounted(false);
-      const main = document.getElementById("main");
-      if (main instanceof HTMLElement) {
-        main.tabIndex = -1;
-        main.focus({ preventScroll: true });
-      }
-    }, reduced ? SKIP_MS : SKIP_MS + 0);
+      onDone();
+    }, SKIP_MS);
     return () => window.clearTimeout(timer);
-  }, [leaving, reduced]);
+  }, [leaving, onDone]);
 
   if (!mounted) return null;
 
@@ -197,7 +221,7 @@ export function HomeIntro({ hello, welcome }: { hello: string; welcome: string }
           </div>
         </div>
       </div>
-      <button type="button" className="home-intro__skip" onClick={dismiss}>
+      <button type="button" className="home-intro__skip" onClick={finish}>
         Skip
       </button>
     </div>,
