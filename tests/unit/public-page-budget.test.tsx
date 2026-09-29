@@ -56,6 +56,7 @@ const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
 const { default: BlogRoute } = await import("@/app/(public)/blog/page");
 const { default: PublicMapPage } = await import("@/app/(public)/map/page");
+const { default: ContactPage } = await import("@/app/(public)/contact/page");
 
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
@@ -268,6 +269,23 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       'id="walk"',
     ],
     requires: ["data-section-head", "data-public-image"],
+  },
+  {
+    // The contact surface (captain's Lavish plan, 2026-09-30): the gateway →
+    // the message form → the published lines → the visit spread. The order is
+    // the journey guard's own (`contact-message` → `contact-facts` →
+    // `data-location-block`), so the blueprint pins the same sequence.
+    name: "/contact (reach us)",
+    render: async () =>
+      renderToStaticMarkup(
+        withBaskets( await ContactPage({ searchParams: Promise.resolve({}) }) ),
+      ),
+    sections: [
+      'data-public-hero="interior"',
+      'id="contact-message"',
+      'id="contact-facts"',
+      "data-location-block",
+    ],
   },
   {
     // The park page (captain 2026-09-30): the gateway (Map / Lots actions and

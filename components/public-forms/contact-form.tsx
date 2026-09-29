@@ -45,7 +45,18 @@ function initialValues(prefill: RequestPrefill | null): ContactValues {
  * and published figure the visitor clicked and the message asks the office to
  * confirm — it never claims a reservation or a purchase.
  */
-export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | null }) {
+export function ContactForm({
+  prefill = null,
+  showMessageBlurb = true,
+}: {
+  prefill?: RequestPrefill | null;
+  /**
+   * The message card's one-line blurb. The /contact band head carries the same
+   * sentence (captain's Lavish plan, 2026-09-30), so the page suppresses the
+   * duplicate; the home's embedded form keeps it (the default).
+   */
+  showMessageBlurb?: boolean;
+}) {
   const [values, setValues] = useState<ContactValues>(() => initialValues(prefill));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
@@ -245,9 +256,11 @@ export function ContactForm({ prefill = null }: { prefill?: RequestPrefill | nul
           </span>
           <div>
             <h2 className="capture-section__title">Your message</h2>
-            <p className="capture-section__blurb">
-              A few lines are enough — the coordinator will ask for the rest.
-            </p>
+            {showMessageBlurb ? (
+              <p className="capture-section__blurb">
+                A few lines are enough — the coordinator will ask for the rest.
+              </p>
+            ) : null}
           </div>
         </div>
         <div className="capture-section__body">

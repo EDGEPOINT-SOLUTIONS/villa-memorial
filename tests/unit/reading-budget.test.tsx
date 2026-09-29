@@ -96,6 +96,7 @@ const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: PublicMapPage } = await import("@/app/(public)/map/page");
+const { default: ContactPage } = await import("@/app/(public)/contact/page");
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
@@ -197,6 +198,14 @@ const PAGES: ReadonlyArray<BudgetPage> = [
       renderToStaticMarkup(
         await PublicMapPage({ searchParams: Promise.resolve({}) }),
       ),
+    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    // The reach line (captain's Lavish plan, 2026-09-30): the services gateway
+    // with the gold call, then the form, the published lines and the visit.
+    name: "/contact (reach us)",
+    render: async () =>
+      renderToStaticMarkup(withBaskets( await ContactPage({ searchParams: Promise.resolve({}) }) )),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
