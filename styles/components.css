@@ -20724,10 +20724,10 @@ a.plan-advisor__phone:hover {
   margin-top: var(--space-5);
 }
 
-/* --- the five equal plates, one row (the home's services band) ------------- */
+/* --- the five equal plates, three per row (captain, 2026-09-30) ------------- */
 .sv-plates {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-3);
   margin: 0;
   padding: 0;
@@ -20751,13 +20751,17 @@ a.plan-advisor__phone:hover {
 }
 
 /* One equal plate ratio; the photograph is whole inside it (`contain`), so a
-   service picture is never cropped. */
+   service picture is never cropped. The plate is capped and centred (captain,
+   2026-09-30) so a 3-up row does not inflate the pictures. */
 .sv-tile__plate {
   display: flex;
   align-items: center;
   justify-content: center;
   aspect-ratio: 3 / 2;
   overflow: hidden;
+  width: 100%;
+  max-width: 15rem;
+  margin-inline: auto;
   background: var(--paper-0);
   border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
