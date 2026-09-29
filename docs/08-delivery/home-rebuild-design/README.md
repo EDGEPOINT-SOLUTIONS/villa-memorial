@@ -200,3 +200,20 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   everybody draws as a child"), reused at three sizes, filled `--sky-300` with
   a `--sky-500` edge at the office's 75 % opacity — transform-drifted across
   the band and pinned in place under `prefers-reduced-motion`.
+
+- **The former storefront returns BENEATH the blog (inbox 025):** `/blog` leads
+  with the blog's own page document (heading · intro · one horizontal row per
+  post) and then renders the whole former LandingView layout under it, BANDS
+  ONLY — the left and right rails, the plans-and-lots card grid, the tier board,
+  the live park map, the About band and the newsfeed — through the new
+  `LandingBands` export in `components/landing/landing-view.tsx`. The bands read
+  the landing document and the live stores exactly as before (the landing
+  document carries no blog posts since the 016 migration, so the newsfeed band
+  renders its authored empty state); the blog document stays independent. No
+  second chrome: `LandingBands` renders no header, footer, phone bar or closing
+  action band — `PublicShell` supplies exactly one of each, verified on the
+  rendered page (1 header · 1 footer · 1 phone bar · 1 next-steps · 1 h1).
+  `.blog-storefront` hands the bands back the container's gutter so the rails and
+  middle sheet keep the former page's folio width. `tests/unit/blog-document.test.ts`
+  pins the order (blog first, bands after, chrome-free) and
+  `public-page-budget.test.tsx` declares the section list.

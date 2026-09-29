@@ -36,8 +36,9 @@ const { default: BlogRoute } = await import("@/app/(public)/blog/page");
  * document. These tests pin the two things that matter:
  *   · the posts migrated and the landing document no longer owns them;
  *   · the two documents are independent — editing one cannot change the other;
- *   · `/blog` leads with the blog (heading, then one row per post) and keeps
- *     only the retained About band under it.
+ *   · `/blog` leads with the blog (heading, then one row per post) and then
+ *     restores the whole former LandingView storefront beneath it, bands only
+ *     (inbox 025) — no second header, footer or phone bar.
  */
 describe("the blog is its own page document", () => {
   it("migrated every post and the landing document no longer owns them", async () => {
@@ -73,20 +74,37 @@ describe("the blog is its own page document", () => {
     expect(blogAfter?.blog?.posts[0].caption).toBe("Edited caption");
   });
 
-  it("renders the blog first, one horizontal row per post, then only the retained About band", async () => {
+  it("leads with the blog, then restores the former storefront bands beneath it", async () => {
     const html = renderToStaticMarkup(await BlogRoute());
-    const head = html.indexOf("blog-head");
-    const rows = html.indexOf("blog-rows");
-    const about = html.indexOf("blog-about");
-    expect(head).toBeGreaterThanOrEqual(0);
-    expect(head).toBeLessThan(rows);
-    expect(rows).toBeLessThan(about);
+    // The order is the office's instruction (inbox 025): the posts lead and
+    // the whole former layout follows, bands only.
+    const order = [
+      "blog-head",
+      "blog-rows",
+      "anchored-rail--left",
+      "plan-lot-grid",
+      "plan-board",
+      "mid-section--map",
+      "about-grid",
+    ];
+    const positions = order.map((marker) => html.indexOf(marker));
+    for (let i = 0; i < order.length; i++) {
+      expect(positions[i], `${order[i]} is missing from /blog`).toBeGreaterThanOrEqual(0);
+      if (i > 0) {
+        expect(positions[i], `${order[i]} must follow ${order[i - 1]}`).toBeGreaterThan(
+          positions[i - 1],
+        );
+      }
+    }
     expect((html.match(/class="blog-row"/g) ?? []).length).toBe(4);
-    // The former storefront bands are gone from this page.
-    expect(html).not.toContain("plan-lot-grid");
-    expect(html).not.toContain("plan-board");
-    expect(html).not.toContain("mid-section--map");
-    // Exactly one h1 — the blog's heading.
+    // BANDS ONLY — no doubled chrome. The former page carried its own header,
+    // footer, phone bar and closing action band; this route is inside the
+    // shared shell now, which renders exactly one of each.
+    expect(html).not.toContain("anchored-header");
+    expect(html).not.toContain("anchored-footer");
+    expect(html).not.toContain("anchored-phonebar");
+    expect(html).not.toContain("next-steps");
+    // Exactly one h1 — the blog's heading (the bands add none).
     expect((html.match(/<h1/g) ?? []).length).toBe(1);
   });
 });

@@ -21235,11 +21235,12 @@ a.plan-advisor__phone:hover {
 /* ============================================================================
    public: blog block — the blog's own page (/blog)
 
-   The office moved the blog off the former LandingView storefront (2026-09-29):
-   the page leads with the blog document — heading, intro, then ONE HORIZONTAL
-   ROW PER POST (photograph beside text), so a reader scans stories instead of
-   scrolling past posters. The About band under the posts is the one retained
-   former band, reported in the PR status until the office places it.
+   The office moved the blog off the former LandingView storefront (2026-09-29),
+   then asked for the whole former layout BACK beneath it (inbox 025): the page
+   leads with the blog document — heading, intro, then ONE HORIZONTAL ROW PER
+   POST (photograph beside text) — and `LandingBands` follows it, bands only
+   (rails, plans-and-lots grid, tier board, live map, About band, newsfeed),
+   with no second header, footer or phone bar.
    Owned by this block.
    ========================================================================== */
 
@@ -21358,44 +21359,13 @@ a.plan-advisor__phone:hover {
   margin-top: var(--space-3);
 }
 
-.blog-about {
-  margin-top: var(--space-7);
-  padding-top: var(--space-5);
-  border-top: 2px solid var(--gold-400);
-}
-
-.blog-about__title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-section-title);
-  color: var(--color-text-primary);
-}
-
-.blog-about__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-}
-
-.blog-about__item h3 {
-  margin: 0;
-  font-size: var(--text-body);
-  color: var(--color-text-primary);
-}
-
-.blog-about__item p {
-  margin: var(--space-2) 0 0;
-  font-size: var(--text-caption);
-  line-height: var(--leading-normal);
-  color: var(--color-text-secondary);
-}
-
-.blog-about__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
+/* The restored storefront bands land inside the shared `.public-main`
+   container, whose 1.75rem gutter they would otherwise pay for twice — the
+   negative inline margin hands that gutter back, so the rails and the middle
+   sheet keep the former page's own folio width. Nothing overflows: the
+   container's padding box is the viewport edge at narrow widths. */
+.blog-storefront {
+  margin-inline: calc(-1 * var(--space-5));
 }
 
 @media (max-width: 48rem) {

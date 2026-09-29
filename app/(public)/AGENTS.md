@@ -5,36 +5,31 @@
 > The cross-cutting rules — merge blockers, traps, the component kit, tokens, money and
 > accessibility — stay in the repository-root [`AGENTS.md`](../../AGENTS.md). Read that first.
 
-## Landing page — content-model home (read before touching "/" or its admin)
+## Landing content model — the `/blog` storefront bands (read before touching "/" or "/blog")
 
-- The public home (app/page.tsx) is NOT hand-written JSX sections: it renders
-  `components/landing/landing-view.tsx` from a LandingPage content document
-  (hero · rails · about · services · plans · map · blog copy — the middle column
-  renders the live park map BEFORE the newsfeed; keep that order when editing).
-  Interior pages keep their own routes/layouts and are untouched.
+- The public home (`app/(public)/page.tsx`) renders `components/public/home-page.tsx`,
+  the approved seven-section rebuild (root `AGENTS.md`, record in
+  `docs/08-delivery/home-rebuild-design/`). The former `LandingView` is UNROUTED;
+  its BANDS (`LandingBands` in `components/landing/landing-view.tsx` — both rails +
+  the middle sheet, NO chrome) render beneath the blog document on `/blog` (office,
+  inbox 025): landing-content copy, the live park map, the plans-and-lots grid and
+  the newsfeed, in their original order. The blog's own heading/intro/posts are the
+  blog page document and stay independent of the landing document. The bands never
+  carry a second header, footer, phone bar or closing action band — `PublicShell`
+  owns exactly one of each.
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
   hold UNLIMITED items per side — an empty service-card or blog list is legal).
-  The hero also carries a staff-chosen background colour + transparency
-  (`hero.background` / `hero.backgroundTransparency`; palette, colour validation
-  and the layer helpers live in `lib/landing/hero-background.ts`), an optional
-  `hero.textColour`, and OPTIONAL copy: when `eyebrow`/`headline`/`subline` are
-  all empty the home renders the RAW photograph (`.hero-home--image-only`) with
-  no wash, scrim or gradient, and the park hero does the same
-  (`.hero-premium--image-only`). There is **no constant readability scrim** —
-  100% transparency = the clear photo (`heroBackgroundLayer` returns null); 0% =
-  the ONE `.hero-home__wash` layer solid, BELOW all hero copy. `hero.textColour`
-  paints through the `--hero-text-colour` custom property set on the page shell
-  (`lib/landing/hero-background.ts` → `heroTextColourStyle`); every hero copy
-  rule reads `var(--hero-text-colour, <token>)`, so absent = the shipped ink.
-  The editor control is
-  `components/landing/hero-background-field.tsx` (palette · free input · live
-  preview · 0–100% slider · the free text colour). The rail's oversized lead
+  The LandingView hero machinery is RETIRED from every routed page: its
+  `.hero-home*` hero no longer renders anywhere, and `LandingBands` opens on the
+  blog document. The background helpers stay live where the product still uses
+  them — the park page's wash (`heroBackgroundLayer`, `lib/landing/hero-background.ts`)
+  and the package page's hero text colour (`heroTextColourStyle`); history and
+  evidence in `docs/08-delivery/hero-flexible-design/`. The rail's oversized lead
   image `.rail-item--lead .rail-thumb` is height-capped
   (`clamp(5.5rem, 7vw, 6.5rem)`) so the default rail list fits without a
-  vertical scrollbar — evidence + measured heights in
-  `docs/08-delivery/hero-flexible-design/`.
+  vertical scrollbar.
   The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
   the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the

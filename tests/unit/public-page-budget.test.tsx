@@ -120,12 +120,22 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     ],
   },
   {
-    // The blog (/blog) — its OWN page document now (office, 2026-09-29): the
-    // heading and intro lead, then one horizontal row per post, then the one
-    // retained former band (About). It no longer renders LandingView.
+    // The blog (/blog) — inbox 016 + 025: the blog's OWN page document leads
+    // (heading, intro, one horizontal row per post), then the whole former
+    // LandingView layout returns BENEATH it, bands only — the rails, the
+    // plans-and-lots grid, the tier board, the live park map, the About band
+    // and the newsfeed. No second chrome: PublicShell owns header/footer.
     name: "blog (/blog)",
     render: async () => renderToStaticMarkup(await BlogRoute()),
-    sections: ["blog-head", "blog-rows", "blog-about"],
+    sections: [
+      "blog-head",
+      "blog-rows",
+      "anchored-rail--left",
+      "plan-lot-grid",
+      "plan-board",
+      "mid-section--map",
+      "about-grid",
+    ],
   },
   {
     name: "plans (/plans)",

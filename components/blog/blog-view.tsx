@@ -1,10 +1,9 @@
 import Link from "next/link";
 import { libraryThumb, libraryThumbSet } from "@/lib/media";
 import type { BlogDocument, BlogPostRecord } from "@/lib/content-catalog";
-import type { AboutSection } from "@/lib/api-client/landing";
 
 /**
- * BlogView — `/blog`'s own page (office, 2026-09-29).
+ * BlogView — `/blog`'s own page (office, 2026-09-29; extended 2026-09-29 PM).
  *
  * The blog is its own page document now (`PageDocument` key `blog`, schema
  * `BlogDocument`: heading · intro · posts), and the page leads with it: the
@@ -14,22 +13,13 @@ import type { AboutSection } from "@/lib/api-client/landing";
  * migrated out of the landing document, so editing the home cannot change the
  * blog and vice versa.
  *
- * RETAINED, AND REPORTED: the About band (story · mission · vision) is the one
- * band from the former LandingView that has no other home in the product; it
- * sits under the posts until the office places it. Everything else the old
- * storefront carried has its own route now (/plans, /lots, /map, /products,
- * /builder).
+ * This view is the page's FIRST band only. The office's later answer (inbox
+ * 025) put the whole former LandingView storefront back BENEATH it, bands only
+ * — the page renders `LandingBands` straight after this component, so the
+ * former About band lives there again and this view no longer carries its own
+ * copy of it.
  */
-export function BlogView({
-  blog,
-  about,
-  wordmark,
-}: {
-  blog: BlogDocument;
-  /** The landing document's About copy — the one retained former band. */
-  about: AboutSection;
-  wordmark: string;
-}) {
+export function BlogView({ blog }: { blog: BlogDocument }) {
   return (
     <div className="blog-page">
       <header className="blog-head">
@@ -49,42 +39,6 @@ export function BlogView({
           ))}
         </ul>
       )}
-
-      {/* The one retained band from the former storefront, reported in the PR
-          status: mission/vision copy that exists nowhere else. */}
-      <section className="blog-about" aria-labelledby="blog-about-title">
-        <h2 id="blog-about-title" className="blog-about__title">
-          {about.heading || `About ${wordmark}`}
-        </h2>
-        <div className="blog-about__grid">
-          {about.story ? (
-            <div className="blog-about__item">
-              <h3>Our story</h3>
-              <p>{about.story}</p>
-            </div>
-          ) : null}
-          {about.mission ? (
-            <div className="blog-about__item">
-              <h3>Our mission</h3>
-              <p>{about.mission}</p>
-            </div>
-          ) : null}
-          {about.vision ? (
-            <div className="blog-about__item">
-              <h3>Our vision</h3>
-              <p>{about.vision}</p>
-            </div>
-          ) : null}
-        </div>
-        <div className="blog-about__actions">
-          <Link className="btn btn--secondary" href="/contact">
-            Reach the office
-          </Link>
-          <Link className="btn btn--secondary" href="/map">
-            Walk the grounds
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }

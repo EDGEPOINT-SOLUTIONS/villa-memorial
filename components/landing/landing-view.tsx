@@ -671,6 +671,73 @@ function MapSection({
   );
 }
 
+/* ------------------------------ the storefront ------------------------------ */
+
+/**
+ * LandingBands — the storefront's three-column body: both rails and the middle
+ * sheet, with NONE of the chrome. `/blog` renders the blog first and these
+ * bands beneath it inside the shared `PublicShell` (office, inbox 025), where
+ * the former page's own header, footer and phone bar would be a second set of
+ * them — the one outcome worse than the bug being fixed. The bands read the
+ * landing document and the live stores exactly as `LandingView` always did (the
+ * blog's own part is the page document; the two stay independent).
+ *
+ *   · `midElement="main"` keeps `LandingView`'s own `<main id="main">`; on
+ *     `/blog` the shell already owns the page's main, so the column nests as a
+ *     `<div>`;
+ *   · `open` is the column's opening block. `LandingView` passes the interior
+ *     hero this page has used since 2026-09-27; `/blog` passes none, because
+ *     its first band IS the blog document (heading, intro, posts).
+ */
+export function LandingBands({
+  content,
+  planPricing,
+  lotCategories,
+  mapNode,
+  mapLive,
+  sectionCount,
+  midElement = "div",
+  open,
+}: LandingViewProps & { midElement?: "main" | "div"; open?: ReactNode }) {
+  const mid = (
+    <div className="anchored-mid__inner">
+      {open}
+      {/* Products first, story after (the Amazon order): the plans & lots
+          shelf, then the plan board, then the park map a visitor can walk.
+          The About/mission band and the newsfeed close the column. */}
+      <PlansLotsSection content={content} lotCategories={lotCategories} planPricing={planPricing} />
+      <PlansSection content={content} planPricing={planPricing} />
+      <MapSection content={content} mapNode={mapNode} mapLive={mapLive} sectionCount={sectionCount} />
+      <AboutSection content={content} />
+      <BlogSection content={content} />
+    </div>
+  );
+
+  return (
+    <div className="anchored-grid">
+      {/* Amazon-familiar storefront (captain, 2026-09-25): the left rail is
+          the departments list, led by the always-reachable help card. */}
+      <aside className="anchored-rail anchored-rail--left" aria-label="Departments">
+        <RailPanel config={content.rails.left} lead={<RailAssist contact={content.contact} />} />
+      </aside>
+
+      {midElement === "main" ? (
+        <main id="main" className="anchored-mid">
+          {mid}
+        </main>
+      ) : (
+        <div className="anchored-mid">{mid}</div>
+      )}
+
+      {/* The right rail is the short, useful action list (price list, quote,
+          plan finder, directions) above the staff-pinned plans & lots. */}
+      <aside className="anchored-rail anchored-rail--right" aria-label="Quick actions">
+        <RailPanel config={content.rails.right} lead={<RailActions />} />
+      </aside>
+    </div>
+  );
+}
+
 /* --------------------------------- the view --------------------------------- */
 
 export function LandingView({ content, planPricing, lotCategories, mapNode, mapLive, sectionCount }: LandingViewProps) {
@@ -681,65 +748,36 @@ export function LandingView({ content, planPricing, lotCategories, mapNode, mapL
   return (
     <div className="anchored-page has-phonebar">
       <LandingHeader content={content} />
-      <div className="anchored-grid">
-        {/* Amazon-familiar storefront (captain, 2026-09-25): the left rail is
-            the departments list, led by the always-reachable help card. */}
-        <aside className="anchored-rail anchored-rail--left" aria-label="Departments">
-          <RailPanel config={content.rails.left} lead={<RailAssist contact={content.contact} />} />
-        </aside>
-
-        <main id="main" className="anchored-mid">
-          <div className="anchored-mid__inner">
-            {/* NO HOME HERO HERE (captain, 2026-09-27). This page opened with the
-                old home's hero — the brand lock-up, "Honoring every life with
-                dignity and light", the subline and the two doors ("I need help
-                now" / "Plan ahead"). That is the HOME's argument, and it has a
-                home of its own at `/`; on a page whose job is to list posts it
-                was a second front door competing with the blog itself.
-
-                What replaces it is NOT a smaller hero — it is the same interior
-                opening every other public page uses (`PublicHero` variant
-                "interior": a kicker, the page's `h1`, one lead, no photograph and
-                no actions). Removing the old block outright was not an option:
-                the hero held the page's ONLY `h1`, so `/blog` would have shipped
-                with zero headings and no accessible page title. The budget guard
-                caught exactly that — "blog (/blog) renders exactly one h1" read
-                `0`.
-
-                The wrapper exists because a copy-only interior hero must not keep
-                the desktop two-column track (it would strand an empty column
-                beside the words) — the same reason `.mem-page` overrides it. */}
-            <div className="blog-open">
-              <PublicHero
-                variant="interior"
-                id="blog-title"
-                eyebrow="Blog"
-                title={content.blog.heading}
-                lead={content.blog.intro}
-              />
-            </div>
-            {/* Products first, story after (the Amazon order): the plans & lots
-                shelf, then the plan board, then the park map a visitor can walk.
-                The About/mission band and the newsfeed close the column. */}
-            <PlansLotsSection content={content} lotCategories={lotCategories} planPricing={planPricing} />
-            <PlansSection content={content} planPricing={planPricing} />
-            <MapSection
-              content={content}
-              mapNode={mapNode}
-              mapLive={mapLive}
-              sectionCount={sectionCount}
+      <LandingBands
+        content={content}
+        planPricing={planPricing}
+        lotCategories={lotCategories}
+        mapNode={mapNode}
+        mapLive={mapLive}
+        sectionCount={sectionCount}
+        midElement="main"
+        open={
+          /* NO HOME HERO HERE (captain, 2026-09-27). This page opened with the
+             old home's hero — the brand lock-up, "Honoring every life with
+             dignity and light", the subline and the two doors. That is the
+             HOME's argument; what replaces it is the same interior opening
+             every other public page uses (`PublicHero` variant "interior": a
+             kicker, the page's `h1`, one lead, no photograph and no actions),
+             because the hero held the page's ONLY `h1`. The wrapper exists
+             because a copy-only interior hero must not keep the desktop
+             two-column track (it would strand an empty column beside the
+             words) — the same reason `.mem-page` overrides it. */
+          <div className="blog-open">
+            <PublicHero
+              variant="interior"
+              id="blog-title"
+              eyebrow="Blog"
+              title={content.blog.heading}
+              lead={content.blog.intro}
             />
-            <AboutSection content={content} />
-            <BlogSection content={content} />
           </div>
-        </main>
-
-        {/* The right rail is the short, useful action list (price list, quote,
-            plan finder, directions) above the staff-pinned plans & lots. */}
-        <aside className="anchored-rail anchored-rail--right" aria-label="Quick actions">
-          <RailPanel config={content.rails.right} lead={<RailActions />} />
-        </aside>
-      </div>
+        }
+      />
       {/* The home ends on the same three options every public page ends on
           (F-17) — the band the interior pages get from PublicShell. */}
       <NextSteps contact={content.contact} />
