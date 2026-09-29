@@ -552,6 +552,14 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   `parks.json` plots the lot pages list (captain 2026-09-30: keep only the real lots). The
   chosen-not-measured values are listed in `ASSUMPTIONS` in `lib/park-3d/masterplan.ts`. The
   binding contract for this feature is `docs/07-client-villa/park-3d-spec.md` (§0).
+- **Planting follows the drawing, not a field scatter** (captain 2026-09-30: "put the trees
+  not on the grass… see where trees are"). `components/park3d/planting.ts` places every tree
+  and shrub on the rows and groves traced in `PLANTING_LINES_PX` / `PLANTING_AREAS_PX`
+  (`lib/park-3d/masterplan.ts`) — the boundary belt, both flanks of the roads and paths, the
+  lot-grid dividers, the mausoleum ring and the three groves — and never on the west lawn
+  strips, the future-development parcel, a lot cell or the open grass.
+  `tests/unit/park-3d-planting.test.ts` fails a tree off the property, on a lot/building or on
+  the flat lawn; the density is unchanged (~250 trees / ~220 shrubs).
 - **Plotting is admin-only, and the public map never carries it** (captain, 2026-09-20):
   `app/(public)/map/page.tsx` reads no session and passes no capability — `/map` is VIEW-ONLY
   for everyone, signed in or not, in Map mode and 3D alike; a signed-in administrator plots

@@ -272,6 +272,82 @@ export const GARDEN_DISCS_WORLD = GARDEN_DISCS_PX.map((d) => {
 });
 
 /* ---------------------------------------------------------------------------
+ * 5b. Planting — the rows and groves the illustration draws.
+ *
+ * Trees on the plan are NOT a field scatter: they line the boundary, both
+ * flanks of every road and path, the lot-grid dividers and the mausoleum, and
+ * they fill three landscaped areas (the east garden and two meadows). The flat
+ * lawn — the west strips, the mausoleum forecourt and the open grass by the
+ * entrance — carries none. Each entry below is traced in masterplan pixels and
+ * consumed only by `components/park3d/planting.ts`; nothing is planted anywhere
+ * else.
+ * ------------------------------------------------------------------------- */
+
+export type PxPolyline = ReadonlyArray<readonly [number, number]>;
+
+export type PxPlantingLine = {
+  id: string;
+  /** Row centreline, masterplan px. */
+  path: PxPolyline;
+  /** Perpendicular offset to each planted side, px — a tree line sits just
+   *  outside a road's carriageway. */
+  offsetPx: number;
+  /** Which flanks of the row carry trees. `centre` is a bare divider line. */
+  sides: "both" | "left" | "right" | "centre";
+  /** Along-line spacing between trees, px. */
+  spacingPx: number;
+  /** Position jitter, px. */
+  jitterPx: number;
+  /** `small` is the walking path's dotted row of young trees. */
+  scale: "small" | "standard";
+};
+
+/** Trees ring the mausoleum but leave its forecourt (the front steps) open. */
+export const MAUSOLEUM_RING_PX: PxPolyline = [
+  [560, 662],
+  [556, 600],
+  [558, 540],
+  [612, 530],
+  [700, 530],
+  [746, 540],
+  [752, 600],
+  [750, 662],
+];
+
+/** Rows of planting traced from the masterplan drawing. */
+export const PLANTING_LINES_PX: readonly PxPlantingLine[] = [
+  { id: "loop", path: ROAD_LOOP_PX, offsetPx: ROAD_WIDTH_PX / 2 + 7, sides: "both", spacingPx: 26, jitterPx: 3, scale: "standard" },
+  { id: "spine", path: ROAD_SPINE_PX, offsetPx: ROAD_WIDTH_PX / 2 + 7, sides: "both", spacingPx: 26, jitterPx: 3, scale: "standard" },
+  { id: "entrance", path: ENTRANCE_DRIVE_PX, offsetPx: ENTRANCE_DRIVE_WIDTH_PX / 2 + 7, sides: "right", spacingPx: 30, jitterPx: 3, scale: "standard" },
+  { id: "walk-horizontal", path: WALK_HORIZONTAL_PX, offsetPx: WALK_WIDTH_PX / 2 + 5, sides: "both", spacingPx: 18, jitterPx: 2.5, scale: "small" },
+  { id: "walk-diagonal", path: WALK_DIAGONAL_PX, offsetPx: WALK_WIDTH_PX / 2 + 5, sides: "both", spacingPx: 18, jitterPx: 2.5, scale: "small" },
+  { id: "niche-east", path: NICHE_DRIVE_EAST_PX, offsetPx: NICHE_DRIVE_WIDTH_PX / 2 + 6, sides: "both", spacingPx: 24, jitterPx: 3, scale: "standard" },
+  { id: "niche-west", path: NICHE_DRIVE_WEST_PX, offsetPx: NICHE_DRIVE_WIDTH_PX / 2 + 6, sides: "both", spacingPx: 24, jitterPx: 3, scale: "standard" },
+  { id: "premium-divider-v", path: [[703, 102], [703, 458]], offsetPx: 0, sides: "centre", spacingPx: 30, jitterPx: 2, scale: "standard" },
+  { id: "premium-divider-h", path: [[516, 281], [890, 281]], offsetPx: 0, sides: "centre", spacingPx: 30, jitterPx: 2, scale: "standard" },
+  { id: "primary-north", path: [[594, 700], [791, 700]], offsetPx: 0, sides: "centre", spacingPx: 30, jitterPx: 2, scale: "standard" },
+  { id: "primary-south", path: [[594, 812], [791, 812]], offsetPx: 0, sides: "centre", spacingPx: 30, jitterPx: 2, scale: "standard" },
+  { id: "garden-north", path: [[594, 895], [791, 895]], offsetPx: 0, sides: "centre", spacingPx: 30, jitterPx: 2, scale: "standard" },
+  { id: "garden-south", path: [[594, 1020], [791, 1020]], offsetPx: 0, sides: "centre", spacingPx: 30, jitterPx: 2, scale: "standard" },
+  { id: "mausoleum-ring", path: MAUSOLEUM_RING_PX, offsetPx: 0, sides: "centre", spacingPx: 26, jitterPx: 2.5, scale: "standard" },
+];
+
+export type PxPlantingArea = {
+  id: string;
+  polygon: PxPolyline;
+  spacingPx: number;
+  jitterPx: number;
+  scale: "small" | "standard";
+};
+
+/** Groves traced from the masterplan drawing. */
+export const PLANTING_AREAS_PX: readonly PxPlantingArea[] = [
+  { id: "east-garden", polygon: LANDSCAPED_GARDEN_PX, spacingPx: 22, jitterPx: 5, scale: "standard" },
+  { id: "central-meadow", polygon: [[520, 545], [588, 565], [588, 1000], [505, 1010], [470, 900], [482, 700]], spacingPx: 30, jitterPx: 7, scale: "standard" },
+  { id: "south-meadow", polygon: [[600, 1035], [790, 1042], [838, 1118], [700, 1180], [560, 1130], [520, 1068]], spacingPx: 34, jitterPx: 7, scale: "standard" },
+];
+
+/* ---------------------------------------------------------------------------
  * 6. Points of interest — the named places the navigation menu travels to.
  * `label` is the only copy used; nothing beyond the masterplan's own labels.
  * The camera does not need a stance here: navigating the park is orbit/framing
