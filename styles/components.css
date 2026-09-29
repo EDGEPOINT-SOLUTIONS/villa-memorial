@@ -22764,7 +22764,15 @@ a.plan-advisor__phone:hover {
 }
 
 /* A card-level name wears the SANS face at the home's body step (the display
-   serif is reserved for the h1 and the band titles). */
+   serif is reserved for the h1 and the band titles). The card's whole lower
+   block centres under its photograph (captain, 2026-09-30). */
+.fac-room__class,
+.fac-room__name,
+.fac-room__what,
+.fac-room__facts {
+  text-align: center;
+}
+
 .fac-room__name {
   margin: 0;
   font-family: var(--font-sans);
@@ -22805,11 +22813,12 @@ a.plan-advisor__phone:hover {
 }
 
 /* The action pins to the column's bottom, so both rooms' buttons sit on one line
-   even when a copy line wraps. */
+   even when a copy line wraps — and the row centres with the card. */
 .fac-room__action {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: var(--space-2);
   margin-top: auto;
   padding-top: var(--space-3);
