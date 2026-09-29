@@ -33,6 +33,11 @@ const PUBLIC_DIR = path.join(ROOT, "app", "(public)");
 /** Transactional/account routes are real pages but must never be indexed. */
 const NON_INDEXABLE = new Set(["/cart", "/quote", "/checkout"]);
 
+/** Routes that are only redirects: a redirect is not a public page, so the
+ *  sitemap table must not carry it (captain, 2026-09-30 — the lots listing is
+ *  retired onto the park page's Lots view). */
+const REDIRECT_ONLY = new Set(["/lots"]);
+
 /**
  * Public pages that deliberately live OUTSIDE `app/(public)`, and so are
  * invisible to the directory walk below. EMPTY since 2026-09-29: the blog got
@@ -64,7 +69,7 @@ describe("the sitemap table covers every public page", () => {
     // shared public shell), so the walk finds "/" itself. `/blog` is the one
     // public page that has to stay outside the group — see OUTSIDE_THE_GROUP.
     const fromDisk = [...OUTSIDE_THE_GROUP, ...publicPageRoutes()].filter(
-      (route) => !NON_INDEXABLE.has(route)
+      (route) => !NON_INDEXABLE.has(route) && !REDIRECT_ONLY.has(route)
     );
     const fromTable = PUBLIC_PAGES.map((page) => page.path);
     expect([...fromTable].sort()).toEqual([...fromDisk].sort());

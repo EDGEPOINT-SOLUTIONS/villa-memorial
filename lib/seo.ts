@@ -156,7 +156,8 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   // (next.config.ts) — a redirect is not a public page.
   { path: "/price-list", changeFrequency: "weekly", priority: 0.9 },
   { path: "/products", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/lots", changeFrequency: "weekly", priority: 0.9 },
+  // The old /lots listing is retired (captain, 2026-09-30): the lots view lives
+  // inside the park page at /map?tab=lots, covered by the /map entry below.
   { path: "/lots/price-list-2026", changeFrequency: "monthly", priority: 0.8 },
   { path: "/map", changeFrequency: "weekly", priority: 0.8 },
   { path: "/facilities", changeFrequency: "monthly", priority: 0.8 },
