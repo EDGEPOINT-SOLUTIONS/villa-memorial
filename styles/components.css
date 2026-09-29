@@ -7257,6 +7257,16 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: var(--color-bg-surface-raised);
 }
 
+/* Sticky cells bind to the nearest scroll container, so the desktop frame must
+   stop being one for the Compare row to stick to the page (the captain's
+   follow-up, 2026-09-30). The desktop table fits its frame; phones keep the
+   horizontal scroll, where the header simply rides that container. */
+@media (min-width: 60rem) {
+  .plan-matrix {
+    overflow-x: clip;
+  }
+}
+
 .plan-matrix__table {
   width: 100%;
   border-collapse: collapse;
@@ -7282,7 +7292,10 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .plan-matrix thead th {
   /* The captain's review (2026-09-30): the Compare row wears the CTA gold with
-     white ink. */
+     white ink — and sticks below the site header while the matrix is in view. */
+  position: sticky;
+  top: var(--anchored-header-h);
+  z-index: 3;
   background: var(--gold-400);
   font-size: var(--text-micro);
   font-weight: 700;
@@ -7290,6 +7303,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   text-transform: uppercase;
   text-align: center;
   color: var(--paper-0);
+  /* border-collapse: collapse drops a sticky cell's own border; carry the rule
+     as an inset shadow instead. */
+  box-shadow: inset 0 -1px 0 var(--color-rule);
 }
 
 .plan-matrix thead th:first-child {
