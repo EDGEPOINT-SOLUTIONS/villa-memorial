@@ -377,7 +377,7 @@ describe("blog posts carry the optional link the staff sets on the \"/\" editor"
   it("the migrated posts ship sensible internal routes so photos open real pages", async () => {
     const posts = await migratedLandingPosts();
     const byId = Object.fromEntries(posts.map((p) => [p.id, p.link]));
-    expect(byId["post-golden-hour"]).toBe("/lots");
+    expect(byId["post-golden-hour"]).toBe("/map?tab=lots");
     expect(byId["post-new-niches"]).toBe("/lots/price-list-2026");
   });
 

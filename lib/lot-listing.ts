@@ -202,7 +202,9 @@ export function lotListingQuery(filters: LotFilters, sort: LotsSort): string {
   if (filters.priceMaxCents !== null) sp.set("max", String(Math.round(filters.priceMaxCents / 100)));
   if (sort) sp.set("sort", sort);
   const query = sp.toString();
-  return query ? `/lots?${query}` : "/lots";
+  /* The lots live in the park page's Lots view now (captain, 2026-09-30): the
+     filter/sort state belongs on that route, never the retired /lots one. */
+  return query ? `/map?tab=lots&${query}` : "/map?tab=lots";
 }
 
 /** True when the plot matches every chosen group (OR inside a group). */

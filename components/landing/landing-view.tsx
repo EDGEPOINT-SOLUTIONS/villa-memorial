@@ -391,7 +391,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
           <FooterColumn
             title="Care & Planning"
             links={[
-              { label: "Lots", href: "/lots" },
+              { label: "Lots", href: "/map?tab=lots" },
               { label: "Caskets", href: "/products" },
               { label: "Builder", href: "/builder" },
               { label: "Packages", href: "/plans/PKG-BASIC" },
@@ -532,7 +532,7 @@ function PlansLotsSection({
         kicker={plansLots.kicker}
         title={plansLots.heading}
         lead={plansLots.intro}
-        action={<SeeAll href="/lots">See all lots &amp; plans</SeeAll>}
+        action={<SeeAll href="/map?tab=lots">See all lots &amp; plans</SeeAll>}
       />
       {/* The kit grid + card (AGENTS "new screens render the kit"): `.plan-lot-grid`
           only narrows the shared column floor so five cards read three-across in
@@ -546,7 +546,7 @@ function PlansLotsSection({
         renderItem={(card) => {
           const figures = planLotCardFigures(card, lotCategories, planPricing);
           const src = card.image ?? planLotCardPhoto(card.kind, card.product);
-          const href = card.href || "/lots";
+          const href = card.href || "/map?tab=lots";
           return (
             <ProductCard
               href={href}

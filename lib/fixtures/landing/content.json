@@ -195,7 +195,7 @@
           "product": "Premium Lots",
           "tier": "",
           "text": "",
-          "href": "/lots"
+          "href": "/map?tab=lots"
         },
         {
           "id": "plc-prime-lot",
@@ -206,7 +206,7 @@
           "product": "Prime Lots",
           "tier": "",
           "text": "",
-          "href": "/lots"
+          "href": "/map?tab=lots"
         },
         {
           "id": "plc-garden-niches",
@@ -217,7 +217,7 @@
           "product": "Garden Niches",
           "tier": "",
           "text": "",
-          "href": "/lots"
+          "href": "/map?tab=lots"
         },
         {
           "id": "plc-mausoleum",
@@ -228,7 +228,7 @@
           "product": "Mausoleum",
           "tier": "",
           "text": "",
-          "href": "/lots"
+          "href": "/map?tab=lots"
         },
         {
           "id": "plc-vmp",

@@ -213,7 +213,7 @@ export default async function FacilitiesPage() {
             <Link className="btn btn--secondary" href="/map">
               Open the park map &amp; 3D view
             </Link>
-            <Link className="btn btn--secondary" href="/lots">
+            <Link className="btn btn--secondary" href="/map?tab=lots">
               Browse lots &amp; 2026 prices
             </Link>
           </>

@@ -199,7 +199,7 @@ describe("the home renders the anchored catalogue shell", () => {
       "/services",
       "/plans",
       "/map",
-      "/lots",
+      "/map?tab=lots",
       "/products",
       "/builder",
       "/plans/PKG-BASIC",
@@ -280,9 +280,9 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(html).not.toContain("Services we offer");
     // Five cards, each the kit card, and the band carries ONE "see all" door.
     expect((html.match(/class="shop-card"/g) ?? []).length).toBe(5);
-    expect(html).toContain('class="section-head__link" href="/lots"');
+    expect(html).toContain('class="section-head__link" href="/map?tab=lots"');
     // The card's one action wears the per-item gold rung.
-    expect(html).toContain('class="btn btn--accent btn--sm" href="/lots"');
+    expect(html).toContain('class="btn btn--accent btn--sm" href="/map?tab=lots"');
     // The three type words the captain named.
     expect(html).toContain("Garden lot");
     expect(html).toContain("Structure");

@@ -68,7 +68,6 @@ const { default: QuotePage } = await import("@/app/(public)/quote/page");
 const { default: AppointmentsPage } = await import("@/app/(public)/appointments/page");
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
-const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { default: PriceList2026Page } = await import("@/app/(public)/lots/price-list-2026/page");
 const { SignInCard } = await import("@/components/sign-in-card");
 const { default: PlatformSignInPage } = await import("@/app/(platform)/platform/sign-in/page");
@@ -121,11 +120,6 @@ const PAGES: ReadonlyArray<PageCase> = [
       renderToStaticMarkup(await MemorialSearchPage({ searchParams: Promise.resolve({}) })),
   },
   { name: "/memorials/find", render: async () => renderToStaticMarkup(await FindMyLovedOnePage()) },
-  {
-    name: "/lots",
-    render: async () =>
-      renderToStaticMarkup(await LotsPage({ searchParams: Promise.resolve({}) })),
-  },
   {
     name: "/lots/price-list-2026",
     render: async () =>

@@ -8,7 +8,6 @@ import { CartProvider } from "@/lib/cart/cart-context";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import {
   ALACARTE_SERVICE_FEES,
-  CASKET_INCLUSIONS,
   CASKET_MODELS,
   CHAPEL_RATES,
   COFFINS,
@@ -146,23 +145,11 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
   });
 
   it("publishes sheet III's inclusion row and chapel day rates for every family", () => {
-    for (const row of CASKET_INCLUSIONS) {
-      expect(html, row.family).toContain(row.family);
-      expect(html, `${row.family} common chapel`).toContain(
-        `${php(row.commonChapelPerDay)} / day`,
-      );
-    }
-    // The YES/NO cells are rendered as the sheet's own words.
-    expect((html.match(/>YES</g) ?? []).length).toBe(
-      CASKET_INCLUSIONS.reduce(
-        (n, r) =>
-          n +
-          [r.flowers, r.tarp, r.lapida, r.familyCar, r.dozenRoses, r.thankYouCard].filter(Boolean)
-            .length,
-        0,
-      ),
-    );
-    expect(html).toContain("1,000");
+    // The products page's reference blocks (the five-tier ledger and the
+    // inclusions table) are retired (captain, 2026-09-30): the casket listing is
+    // the page. The inclusion data itself stays pinned by the component's own
+    // tests, so this page-level surface no longer prints it.
+    expect(html).not.toContain("Chapel days");
   });
 });
 

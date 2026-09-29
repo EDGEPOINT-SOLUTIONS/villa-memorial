@@ -169,7 +169,7 @@ describe("/facilities shows the grounds as the client's own places", () => {
     expect(html).toContain('href="/map"');
     expect(html).toContain("Open the park map");
     expect(html).toContain("3D");
-    expect(html).toContain('href="/lots"');
+    expect(html).toContain('href="/map?tab=lots"');
     expect(html).toContain("Browse lots");
     expect(html).not.toContain("Park map.png");
   });

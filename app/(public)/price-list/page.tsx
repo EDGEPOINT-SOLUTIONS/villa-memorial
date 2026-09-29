@@ -452,7 +452,7 @@ export default async function PriceListPage() {
           Compare the <Link href="/plans">five plan tiers</Link>, 2026{" "}
           <Link href="/services">service rates</Link>,{" "}
           <Link href="/products">coffins with prices</Link>, or{" "}
-          <Link href="/lots">browse plots on the map</Link>. Prices are the published 2026 Villa
+          <Link href="/map?tab=lots">browse plots on the map</Link>. Prices are the published 2026 Villa
           rates, confirmed at the office.
         </p>
       </section>

@@ -38,10 +38,10 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("NEXT_NOT_FOUND");
   },
-  usePathname: () => "/lots",
+  usePathname: () => "/map",
 }));
 
-const { default: LotsPage } = await import("@/app/(public)/lots/page");
+const { default: MapPage } = await import("@/app/(public)/map/page");
 const { lotPhoto } = await import("@/lib/lot-imagery");
 const { RefinePanel } = await import("@/components/kit");
 
@@ -86,7 +86,9 @@ function renderPanel(): string {
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
 async function renderPage(params: Record<string, string> = {}): Promise<string> {
-  return renderToStaticMarkup(await LotsPage({ searchParams: Promise.resolve(params) }));
+  return renderToStaticMarkup(
+    await MapPage({ searchParams: Promise.resolve({ tab: "lots", ...params }) }),
+  );
 }
 
 /** Every rendered product card, as markup. */

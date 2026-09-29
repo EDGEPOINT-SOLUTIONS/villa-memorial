@@ -118,8 +118,9 @@ describe("/products is one Amazon-familiar model listing", () => {
   it("keeps honesty to ONE short line per card", () => {
     // The compact label travels with every sample photograph...
     expect(occurrences(html, COFFIN_SAMPLE_NOTE)).toBeGreaterThan(0);
-    // ...and the full substitution sentence prints once, under the tier band.
-    expect(occurrences(html, COFFIN_TIER_NOTE)).toBe(1);
+    // ...and the tier band's substitution sentence is retired with the band
+    // (captain, 2026-09-30).
+    expect(occurrences(html, COFFIN_TIER_NOTE)).toBe(0);
     // The long per-model cover note lives on the detail view, never on a card.
     expect(html).not.toContain(COFFIN_COVER_UNSTATED);
   });

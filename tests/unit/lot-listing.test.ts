@@ -108,11 +108,11 @@ describe("parsing the listing's query string", () => {
       OPTIONS,
     );
     const url = lotListingQuery(filters, "price-desc");
-    expect(url.startsWith("/lots?")).toBe(true);
+    expect(url.startsWith("/map?tab=lots&")).toBe(true);
     const query = Object.fromEntries(new URLSearchParams(url.split("?")[1]));
     expect(parseLotFilters(query, OPTIONS)).toEqual(filters);
     expect(query.sort).toBe("price-desc");
-    expect(lotListingQuery({ ...EMPTY_LOT_FILTERS }, "")).toBe("/lots");
+    expect(lotListingQuery({ ...EMPTY_LOT_FILTERS }, "")).toBe("/map?tab=lots");
   });
 
   it("counts each choice for the Filters (N) badge", () => {

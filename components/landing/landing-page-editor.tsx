@@ -536,7 +536,7 @@ function PlansLotsEditor({
       product: family?.rows.some((r) => r.product === card.product)
         ? card.product
         : family?.rows[0]?.product ?? "",
-      href: card.href || "/lots",
+      href: card.href || "/map?tab=lots",
     });
   }
   function addCard() {
@@ -554,7 +554,7 @@ function PlansLotsEditor({
           product: family?.rows[0]?.product ?? "",
           tier: PLAN_TIERS[0].id,
           text: "",
-          href: "/lots",
+          href: "/map?tab=lots",
         },
       ],
     });

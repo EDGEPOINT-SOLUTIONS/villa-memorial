@@ -69,7 +69,7 @@ export default async function PublicLotDetailPage({
       <div className={`${containerClass("catalogue")} stack-4 catalogue-page`}>
         <h1>Lot not found</h1>
         <ErrorState message="We couldn't find that lot. It may have been removed from public listings." />
-        <Link href="/lots" className="btn btn--secondary btn--sm">
+        <Link href="/map?tab=lots" className="btn btn--secondary btn--sm">
           Back to lots
         </Link>
       </div>
@@ -101,7 +101,7 @@ export default async function PublicLotDetailPage({
         title={lot.lot_number}
         lead={monthlyLead}
         primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
-        secondary={{ label: "Back to lots", href: "/lots" }}
+        secondary={{ label: "Back to lots", href: "/map?tab=lots" }}
       />
 
       <div className="landing__grid landing__grid--pair">

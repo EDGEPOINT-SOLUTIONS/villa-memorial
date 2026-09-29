@@ -10,7 +10,7 @@ import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { buildLotListing, SEED_PARKS } from "@/lib/lot-listing-data";
-import { EMPTY_LOT_FILTERS } from "@/lib/lot-listing";
+import { EMPTY_LOT_FILTERS, parseLotFilters, parseLotsSort } from "@/lib/lot-listing";
 import { parkType } from "@/lib/park-types";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import { PublicHero } from "@/components/kit";
@@ -90,7 +90,13 @@ const DRAWABLE_PLOT_STATUSES = new Set([
 export default async function PublicMapPage({
   searchParams,
 }: {
-  searchParams: Promise<{ park?: string; plot?: string; tab?: string; view?: string }>;
+  searchParams: Promise<{
+    park?: string;
+    plot?: string;
+    tab?: string;
+    view?: string;
+    [key: string]: string | string[] | undefined;
+  }>;
 }) {
   const sp = await searchParams;
   const initialPark = sp.park === "villa" ? "villa" : undefined;
@@ -142,6 +148,18 @@ export default async function PublicMapPage({
 
   const isLotsTab = (tab: PageTab) => tab.href.includes("tab=lots");
   const lotData = activeTab === "lots" ? buildLotListing(lots, pricing?.lotCategories ?? []) : null;
+  // The lots view keeps the retired listing's shareable state: the initial
+  // filters and sort come from the URL so a shared link paints the view it
+  // describes (captain, 2026-09-30 — the listing now lives here).
+  const initialLotFilters = lotData
+    ? parseLotFilters(sp, {
+        parks: lotData.parks.map((park) => park.id),
+        statuses: lotData.statuses.map((status) => status.id),
+        types: lotData.types.map((type) => type.id),
+        sections: lotData.sections,
+      })
+    : { ...EMPTY_LOT_FILTERS };
+  const initialLotSort = parseLotsSort(typeof sp.sort === "string" ? sp.sort : undefined);
 
   // ---- the gateway's two view actions (the old standalone tabs become these) --
   const viewTab = tabs.find((tab) => !isLotsTab(tab)) ?? FALLBACK_TABS[0];
@@ -212,8 +230,8 @@ export default async function PublicMapPage({
           statuses={lotData.statuses}
           types={lotData.types}
           sections={lotData.sections}
-          initialFilters={{ ...EMPTY_LOT_FILTERS }}
-          initialSort=""
+          initialFilters={initialLotFilters}
+          initialSort={initialLotSort}
           syncUrl={false}
         />
       ) : (

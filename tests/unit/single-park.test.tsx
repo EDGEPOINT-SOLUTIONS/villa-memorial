@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import PublicMapPage from "@/app/(public)/map/page";
-import LotsPage from "@/app/(public)/lots/page";
+import MapPage from "@/app/(public)/map/page";
 import { DEMO_TENANTS } from "@/lib/demo-tenants";
 import { parksList } from "@/lib/park-maps";
 
@@ -49,7 +49,7 @@ describe("the product carries Villa Memorial Park alone", () => {
 
   it("renders one band, named Villa Memorial, on /lots", async () => {
     const html = renderToStaticMarkup(
-      await LotsPage({ searchParams: Promise.resolve({}) }),
+      await MapPage({ searchParams: Promise.resolve({ tab: "lots" }) }),
     );
     expect(html.match(/class="cat-band"/g) ?? []).toHaveLength(1);
     expect(html).toContain('aria-label="Villa Memorial"');

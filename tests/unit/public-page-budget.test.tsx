@@ -51,7 +51,7 @@ const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/pa
 // Lane 2 (catalogue & grounds): /products, /lots, the 2026 lot price list,
 // /gallery (plan §5.3/§5.5/§5.8).
 const { default: ProductsPage } = await import("@/app/(public)/products/page");
-const { default: LotsPage } = await import("@/app/(public)/lots/page");
+const { default: MapPage } = await import("@/app/(public)/map/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
 const { default: BlogRoute } = await import("@/app/(public)/blog/page");
@@ -223,7 +223,8 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   },
   {
     // plan §5.3: hero → collection index → grid → "Show all N" → the reference
-    // band → the inclusions → the closing band. Lane 2's catalogue envelope.
+    // band → the catalogue listing. Lane 2's catalogue envelope; the old
+    // five-tier reference and inclusions blocks are retired (captain, 2026-09-30).
     name: "/products (coffins & caskets)",
     render: async () =>
       renderToStaticMarkup(
@@ -235,17 +236,15 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       'data-public-hero="interior"',
       "listing-layout",
       'class="shop-grid casket-grid"',
-      "coffin-tiers-title",
-      "casket-inclusions-title",
     ],
-    requires: ["data-section-head", "data-public-disclosure"],
+    requires: ["data-section-head"],
   },
   {
     // plan §5.3: hero → the sticky rail / phone sheet → the plot bands, each
     // band's over-threshold plots behind one "Show all N".
     name: "/lots (memorial lots)",
     render: async () =>
-      renderToStaticMarkup(await LotsPage({ searchParams: Promise.resolve({}) })),
+      renderToStaticMarkup(await MapPage({ searchParams: Promise.resolve({ tab: "lots" }) })),
     sections: ['data-public-hero="interior"', "listing-layout", "cat-band", "public-disclosure"],
     requires: ["data-public-disclosure"],
   },

@@ -47,7 +47,7 @@ vi.mock("next/navigation", () => ({
 
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
-const { default: LotsPage } = await import("@/app/(public)/lots/page");
+const { default: MapPage } = await import("@/app/(public)/map/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
 const { default: LotDetailPage } = await import("@/app/(public)/lots/[id]/page");
 const { PENDING_TERM_LABEL, LOT_TERM_LABEL } = await import("@/lib/monthly-pricing");
@@ -73,7 +73,7 @@ describe("/plans leads with the monthly plan rate and names the pending term", (
 describe("/lots leads each plot card with its section family's monthly figure", () => {
   it("shows the monthly installment, the 72-month term and the recorded total", async () => {
     const html = renderToStaticMarkup(
-      await LotsPage({ searchParams: Promise.resolve({ park: "villa" }) }),
+      await MapPage({ searchParams: Promise.resolve({ tab: "lots", park: "villa" }) }),
     );
     const card = firstCardOf(html);
     const at = (needle: string) => card.indexOf(needle);

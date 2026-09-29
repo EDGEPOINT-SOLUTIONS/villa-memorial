@@ -192,12 +192,11 @@ describe("defect 4 — one class, one declaration", () => {
     expect(ledger?.body).not.toMatch(/background\s*:/);
   });
 
-  it("the products tier band renders the ledger row's classes, and /products has no .tier-row", () => {
+  it("the products page carries no top-level .tier-row", () => {
     const page = read("app/(public)/products/page.tsx");
-    expect(page).toContain('className="tier-ledger__row"');
-    expect(page).toContain('className="tier-ledger__media"');
-    expect(page).toContain('className="tier-ledger__body"');
+    // The sheet's five-tier ledger band is retired (captain, 2026-09-30).
     expect(page).not.toContain('className="tier-row"');
+    expect(page).not.toContain('className="tier-ledger__row"');
     // The segmented control keeps its own name and its own consumer.
     const selector = read("app/(public)/plans/[sku]/plan-term-selector.tsx");
     expect(selector).toContain('className="tier-row"');

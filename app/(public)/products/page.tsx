@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
-import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
+import { PublicHero, SectionHead } from "@/components/kit";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { buildCasketListing, casketFacetIds, parseCasketFilters, parseCasketsSort } from "@/lib/casket-listing";
-import { COFFINS, COFFIN_TIER_NOTE, php } from "@/lib/villa-pricing";
-import { CasketInclusionTable } from "@/components/villa/casket-catalogue";
+import { php } from "@/lib/villa-pricing";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { heroTextColourStyle } from "@/lib/landing/hero-background";
@@ -37,9 +35,9 @@ export const dynamic = "force-dynamic";
  * grid of `ProductCard`s, the same grammar /lots uses. The first eight matches
  * render; the rest sit in one "Show all N" disclosure (plan §3 R8).
  *
- * The sheet's five-tier reference and the per-family inclusions each sit behind
- * their own disclosure. Every figure, photograph, SKU and detail route is
- * unchanged — the server half shapes the rows (`buildCasketListing`) and the
+ * The sheet's five-tier reference and the per-family inclusions blocks are
+ * retired (captain, 2026-09-30). Every figure, photograph, SKU and detail route
+ * is unchanged — the server half shapes the rows (`buildCasketListing`) and the
  * client half (`./products-listing.tsx`) filters and sorts them in place.
  *
  * Provenance for every figure: lib/villa-pricing.ts; for every photograph:
@@ -72,7 +70,6 @@ export default async function ProductsPage({
   const facetIds = casketFacetIds(caskets);
   const initialFilters = parseCasketFilters(params, facetIds);
   const initialSort = parseCasketsSort(typeof params.sort === "string" ? params.sort : undefined);
-  const [leadTier, ...higherTiers] = COFFINS;
   const priceBy = new Map(catalogItems.map((line) => [line.sku, line.display_price]));
   const priceOf = (sku: string) => priceBy.get(sku) ?? null;
   // The "from" figure is the cheapest casket the LIVE catalogue sells, read off the same
@@ -130,75 +127,6 @@ export default async function ProductsPage({
         )}
       </section>
 
-      <section className="catalogue-band" aria-labelledby="coffin-tiers-title">
-        <SectionHead
-          id="coffin-tiers-title"
-          kicker="Reference"
-          title="The five coffin tiers"
-        />
-        <PublicDisclosure summary="Show the five tiers">
-          {/* The entry tier leads at full size, the four steps above it follow as
-              hairline rows, each with its photograph, lid line and description. */}
-          <div className="ledger">
-            <article className="ledger__lead">
-              <figure className="ledger__media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
-                <img src={leadTier.photo} alt={`${leadTier.tier} casket`} loading="lazy" />
-              </figure>
-              <div className="ledger__body">
-                <p className="ledger__eyebrow">The entry tier</p>
-                <h3 className="ledger__title">{leadTier.tier}</h3>
-                <p className="ledger__note">{leadTier.description}</p>
-                <p className="ledger__note">
-                  <strong>Lid:</strong> {leadTier.lid}
-                </p>
-              </div>
-            </article>
-            <ul className="ledger__list">
-              {higherTiers.map((coffin) => (
-                <li className="ledger__entry" key={coffin.tier}>
-                  <article className="tier-ledger__row">
-                    <figure className="tier-ledger__media">
-                      {/* eslint-disable-next-line @next/next/no-img-element -- uploaded casket photo */}
-                      <img src={coffin.photo} alt="" loading="lazy" />
-                    </figure>
-                    <div className="tier-ledger__body">
-                      <h3 className="ledger__row-title">{coffin.tier}</h3>
-                      <p className="ledger__row-meta">{coffin.description}</p>
-                      <p className="ledger__row-meta">
-                        <strong>Lid:</strong> {coffin.lid}
-                      </p>
-                    </div>
-                  </article>
-                </li>
-              ))}
-            </ul>
-          </div>
-          <p className="text-sm text-muted">{COFFIN_TIER_NOTE}</p>
-        </PublicDisclosure>
-      </section>
-
-      <section className="catalogue-band" aria-labelledby="casket-inclusions-title">
-        <SectionHead
-          id="casket-inclusions-title"
-          kicker="Inclusions"
-          title="What is included per family"
-        />
-        <PublicDisclosure summary="Show the inclusions table">
-          <CasketInclusionTable />
-        </PublicDisclosure>
-      </section>
-
-      <p className="text-sm text-muted">
-        Every casket model above is included in the{" "}
-        <Link href="/plans">Villa Memorial Plan</Link>; senior citizens enjoy the{" "}
-        <Link href="/price-list">senior plan</Link> with free flowers.
-      </p>
-      <p className="text-sm text-muted">
-        See the <Link href="/services">memorial service rates</Link> (embalming, retrieval,
-        delivery, viewing and interment) or the{" "}
-        <Link href="/lots/price-list-2026">2026 lot price list</Link>.
-      </p>
     </div>
   );
 }
