@@ -181,7 +181,6 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".home-pin", why: "the home map's status pins (functional indicators)" },
   { match: ".home-legend__dot", why: "the home map's legend dots (functional indicators)" },
   { match: ".home-engraved", why: "the home's authored empty state (plan M5)" },
-  { match: ".home-intro__cloud", why: "the entrance overlay's drawn cloud (artwork, office inbox 050)" },
   { match: ".home-service__cta", why: "the per-service request control's hover state" },
   { match: ".topbar-avatar", why: "the topbar identity avatar disc" },
 ];

@@ -44,11 +44,14 @@ describe("the home's entrance overlay", () => {
     // Any input finishes it immediately.
     expect(COMPONENT).toContain('document.addEventListener("keydown"');
     expect(COMPONENT).toContain('document.addEventListener("click"');
-    // The demo's replay button is deliberately NOT shipped.
-    expect(COMPONENT).not.toContain("Replay");
-    // No CDN font and no third typeface: the words ride the app's display face.
-    expect(COMPONENT).not.toContain("fonts.googleapis");
-    expect(COMPONENT).not.toContain("Cormorant");
+    // The demo's replay button is deliberately NOT shipped (the doc comment
+    // documents the decision; no replay LABEL exists in the markup).
+    expect(COMPONENT).not.toMatch(/>\s*Replay\s*</);
+    // No CDN font and no third typeface: the words ride the app's display
+    // face. (The doc comment records the Cormorant decision; no font link or
+    // family declaration for it exists.)
+    expect(COMPONENT).not.toMatch(/fonts\.googleapis|fonts\.gstatic/);
+    expect(COMPONENT).not.toMatch(/font-family:\s*"?Cormorant/);
   });
 
   it("keeps the page behind inert while up and hands focus to the main content", () => {
@@ -63,24 +66,28 @@ describe("the home's entrance overlay", () => {
 
   it("honours reduced motion by showing the greeting without motion", () => {
     expect(COMPONENT).toContain('matchMedia("(prefers-reduced-motion: reduce)")');
-    expect(CSS).toMatch(/\.home-intro--reduced \.home-intro__rig/);
+    expect(CSS).toMatch(/\.home-intro--reduced \.home-intro__hang/);
     expect(CSS).toMatch(
-      /\.home-intro--reduced \.home-intro__rig,\n\.home-intro--reduced \.home-intro__cord,\n\.home-intro--reduced \.home-intro__copy \{\n  animation: none;/,
+      /\.home-intro--reduced \.home-intro__hang,\n\.home-intro--reduced \.home-intro__cords,/,
     );
+    expect(CSS).toMatch(/home-intro--reduced[\s\S]{0,400}animation: none/);
   });
 
   it("ships a stylesheet rule for every overlay class, on the role steps", () => {
     const defined = new Set([...CSS.matchAll(/\.([A-Za-z_][\w-]*)/g)].map((m) => m[1]));
     for (const cls of [
       "home-intro",
+      "home-intro--enter",
+      "home-intro--exit",
       "home-intro--leaving",
       "home-intro--reduced",
-      "home-intro__rig",
+      "home-intro__hang",
+      "home-intro__cords",
       "home-intro__cord",
       "home-intro__bead",
       "home-intro__cloud",
-      "home-intro__shade",
-      "home-intro__copy",
+      "home-intro__svg",
+      "home-intro__msg",
       "home-intro__hello",
       "home-intro__welcome",
       "home-intro__skip",
@@ -88,12 +95,25 @@ describe("the home's entrance overlay", () => {
       expect(defined.has(cls), cls).toBe(true);
     }
     const hello = /\.home-intro__hello \{[^}]*\}/.exec(CSS)?.[0] ?? "";
-    expect(hello).toMatch(/font-size:\s*var\(--text-/);
-    // Gold text is the accent INK role — never a decorative gold tint.
-    expect(hello).toMatch(/color:\s*var\(--color-text-accent\)/);
-    // The motion is transform/opacity only.
+    // The reference's proportional size (0.05 × the cloud width), clamped to
+    // ladder steps — the gate names this one artwork-scale exception.
+    expect(hello).toMatch(
+      /font-size:\s*clamp\(var\(--text-\w+\), calc\(var\(--home-intro-cw\) \* 0\.05\), var\(--text-/,
+    );
+    // The reference's gold gradient text over the blue cloud, with the inverse
+    // gold token as the flat fallback (the token reserved for dark surfaces) —
+    // never a light-ground gold tint.
+    const words = /\.home-intro__hello,\n\.home-intro__welcome \{[^}]*\}/.exec(CSS)?.[0] ?? "";
+    expect(words).toMatch(/color:\s*var\(--gold-200\)/);
+    expect(words).toMatch(/background-clip:\s*text/);
+    // The reference's own motion: the cords' height animates inside the fixed
+    // overlay (no page reflow), the hang rotates, the cloud squeezes; nothing
+    // animates a position or a page measurement.
     const lower = /@keyframes home-intro-lower \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
-    expect(lower).toContain("transform: translate(");
-    expect(lower).not.toMatch(/\b(top|left|width|height|margin|padding):/);
+    expect(lower).toContain("height: var(--home-intro-len)");
+    const pull = /@keyframes home-intro-pull \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(pull).toContain("height: calc(var(--home-intro-len) + 11vh)");
+    const squeeze = /@keyframes home-intro-squeeze \{[\s\S]*?\n\}/.exec(CSS)?.[0] ?? "";
+    expect(squeeze).toContain("transform: scale(");
   });
 });

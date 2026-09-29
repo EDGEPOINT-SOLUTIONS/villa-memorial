@@ -207,17 +207,31 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   pins the order (blog first, bands after, chrome-free) and
   `public-page-budget.test.tsx` declares the section list.
 
-- **The entrance overlay (office, inbox 050):** the home's opening piece is a real
-  app feature, not the supplied standalone demo. `components/public/home-intro.tsx`
-  (client) portals a fixed overlay over the REAL page — a golden cloud on two
-  cords lowers, settles, the two staff-editable lines surface in the accent ink,
-  then the cords stretch/thin and snap the cloud away; the overlay is removed and
-  the page underneath is exactly as it was. It plays ONCE PER SESSION on the home
-  only (sessionStorage), any click/keypress finishes it in ~220 ms, and the full
-  animation is 2.3 s (the demo's ~4.5 s hold halved). Reduced motion shows the
-  greeting WITHOUT motion for 1.5 s rather than skipping it. While it is up the
-  `.public-shell` is inert and focus sits on the overlay; on removal focus moves
-  to `#main`. Copy lives in `home.intro` (hello · welcome) and is edited in the
-  home editor's zone 00 ("The entrance"); the words ride the app's display face
-  (no CDN font — Cormorant Garamond is OFL and could be self-hosted if the office
-  wants that face specifically).
+- **The entrance overlay (office, inboxes 050/051/052):** the home's opening
+  piece is a real app feature, built to the office's own reference
+  (`Villa Funeraria – Cloud Sign.html`, kept in the firstmate home; NOT added
+  to the repo). The cloud's geometry is copied exactly: the five circles and the
+  rounded base in a 400×200 viewBox, the `#7cbcec → #2f6cab` sky gradient, the
+  blurred white highlight and the `#0a2a55` underside clipped by `clipPath
+  id="shape"`, and the two drop shadows (`0 36px 32px rgba(15,45,90,.3)`,
+  `0 6px 8px rgba(15,45,90,.22)`). The cords are 2px, `linear-gradient(#f3e2b4,
+  #b8975a)`, held `padding: 0 28%`, descending to `380px + 30vh` over 1s on
+  `cubic-bezier(.16,1,.3,1)`; the beads sit at 28%/72% across and 32.4% down at
+  13px with the reference's gold radial. The words carry the reference's
+  vertical gold gradient (`#fff3c4 → #ebca77 → #cfa24d`) clipped to the text
+  with the soft dark shadow, scaled with the cloud (0.05 and 0.0633 of its
+  width, clamped to ladder steps — the one artwork-scale exception the
+  typography gate names). The motion is the reference's: the expo-out drop, the
+  hang swaying about its TOP anchor, the words surfacing, then the exit dimming
+  the words while the cords pull 11vh further and snap to zero on the reference's
+  two beziers, thin to `scaleX(.6)` and the cloud squeezes to
+  `scale(.985,1.035)`. Deliberate differences from the standalone demo, per the
+  guards: the exit begins at 1.7s (not the demo's 3.8s) and any click/keypress
+  finishes it in ~220ms; the words ride the app's self-hosted display face (no
+  Google-Fonts Cormorant link — that face is OFL and can be self-hosted like
+  Manrope if the office asks); no replay button; the two lines live in
+  `home.intro` and are edited in the home editor's zone 00; reduced motion shows
+  the greeting WITHOUT motion for 1.5s (the reference only disables part of its
+  motion); it plays once per session on the home only; the page behind is inert
+  while it is up with focus returning to `#main`, and no layout/scroll/focus
+  trace is left. Total visible ~2.6s.

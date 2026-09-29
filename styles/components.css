@@ -20957,15 +20957,22 @@ a.plan-advisor__phone:hover {
 }
 
 
-/* --- the home's entrance overlay (office, inbox 050) -----------------------
-   A golden cloud on two cords lowers over the REAL home page (rendered and
-   scrolling underneath), the two staff-editable greeting lines surface, then
-   the cords pull the cloud back up and the overlay is removed. The cloud,
-   cords, bead and shade are ARTWORK (the cloud keeps its own drawn gradients);
-   the words ride the display face and the accent ink role, and the skip control
-   is ordinary UI. Transform/opacity only; fixed and out of flow, so no page
-   measurement changes and no scroll is locked. */
+/* --- the home's entrance overlay (office, inboxes 050/051) -----------------
+   Built from the office's own reference (intro-reference.html): a golden cloud
+   on two cords drops over the REAL home page (rendered and scrolling behind
+   it), the words surface, then the cords stretch, thin and snap the cloud away
+   and the overlay is removed. The cloud's geometry, its sky gradient, the
+   blurred highlight/underside and the cords/beads/word treatment are the
+   reference's own ARTWORK; the skip control is ordinary UI. Motion is the
+   reference's (cords lower on an expo-out curve, the hang sways about its top
+   anchor, the exit dims/stretches/squeezes), shortened: the exit begins at
+   1.7s instead of the demo's 3.8s. The overlay is fixed and out of flow, so no
+   page measurement changes and no scroll is locked. */
+
 .home-intro {
+  --home-intro-cw: min(450px, 90vw);
+  --home-intro-off: 380px;
+  --home-intro-len: calc(380px + 30vh);
   position: fixed;
   inset: 0;
   z-index: 120; /* above the header (40) and the phone bar (55) */
@@ -20978,107 +20985,109 @@ a.plan-advisor__phone:hover {
   animation: home-intro-leave 220ms ease-in both;
 }
 
-/* The rig carries the cords, the cloud and the shade as one hanging unit: it
-   starts above the viewport, lowers, settles, and is snapped back up. */
-.home-intro__rig {
+/* The hang: anchored 380px above the viewport, the cords grow down from it and
+   the cloud overlaps its own cords by 18% of its width. */
+.home-intro__hang {
   position: absolute;
-  top: 0;
-  left: 50%;
-  width: min(36rem, 92vw);
-  height: 100%;
-  pointer-events: none;
-  animation: home-intro-lower 2300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  top: calc(-1 * var(--home-intro-off));
+  width: var(--home-intro-cw);
+  transform-origin: 50% 0;
+}
+
+.home-intro__cords {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 28%;
+  height: 0;
 }
 
 .home-intro__cord {
-  position: absolute;
-  top: 0;
-  width: 1px;
-  height: 40vh;
-  background: var(--gold-500);
-  animation: home-intro-cord 2300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  width: 2px;
+  background: linear-gradient(#f3e2b4, #b8975a);
 }
 
-.home-intro__cord--left {
-  left: 26%;
+.home-intro__cloud {
+  position: relative;
+  z-index: 1;
+  width: var(--home-intro-cw);
+  margin-top: calc(var(--home-intro-cw) * -0.18);
+  filter: drop-shadow(0 36px 32px rgb(15 45 90 / 0.3))
+    drop-shadow(0 6px 8px rgb(15 45 90 / 0.22));
 }
 
-.home-intro__cord--right {
-  right: 26%;
+.home-intro__svg {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
-/* The bead where each cord meets the cloud. */
 .home-intro__bead {
   position: absolute;
-  top: calc(40vh - 0.45rem);
-  width: 0.55rem;
-  height: 0.55rem;
+  top: 32.4%;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--gold-200), var(--gold-500));
-  box-shadow: 0 1px 3px rgb(8 28 49 / 0.25);
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at 35% 30%, #fff6d8, #d3ad62 55%, #8a6a30);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.45);
 }
 
 .home-intro__bead--left {
-  left: calc(26% - 0.2rem);
+  left: 28%;
 }
 
 .home-intro__bead--right {
-  right: calc(26% - 0.2rem);
+  left: 72%;
 }
 
-/* The cloud — artwork: its own drawn sky/cream lobes over a warm under-shade. */
-.home-intro__cloud {
+/* The words: the reference's gold vertical gradient (artwork, over the blue
+   cloud) with a soft dark shadow for readability; the flat fallback is the
+   inverse-gold token reserved for text on dark surfaces. They ride the app's
+   self-hosted display face at the ladder's role steps — never a CDN font. */
+.home-intro__msg {
   position: absolute;
-  top: 40vh;
-  left: 50%;
-  width: min(26rem, 84vw);
-  height: clamp(5.5rem, 13vw, 8rem);
-  transform: translateX(-50%);
-  background:
-    radial-gradient(ellipse 70% 60% at 50% 26%, var(--sky-50), transparent 72%),
-    radial-gradient(circle at 30% 64%, var(--paper-0) 0 34%, transparent 35%),
-    radial-gradient(circle at 55% 44%, var(--paper-0) 0 46%, transparent 47%),
-    radial-gradient(circle at 79% 64%, var(--paper-0) 0 30%, transparent 31%),
-    radial-gradient(ellipse 78% 54% at 54% 82%, var(--gold-100) 0 92%, transparent 93%);
-  background-repeat: no-repeat;
-  filter: drop-shadow(0 18px 22px rgb(8 28 49 / 0.14));
-}
-
-/* The shade the cloud throws on the page under it. */
-.home-intro__shade {
-  position: absolute;
-  top: calc(40vh + clamp(5.5rem, 13vw, 8rem) + 0.4rem);
-  left: 50%;
-  width: min(22rem, 70vw);
-  height: 1.4rem;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse at center, rgb(8 28 49 / 0.16), transparent 70%);
-}
-
-/* The two greeting lines — surface after the cloud settles, leave with it. */
-.home-intro__copy {
-  position: absolute;
-  top: 58vh;
-  left: 50%;
-  width: min(38rem, 90vw);
+  left: 6%;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-8%);
   text-align: center;
-  animation: home-intro-surface 2300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  font-family: var(--font-display);
+  opacity: 0;
+  filter: drop-shadow(0 1px 1px rgb(8 30 65 / 0.6));
 }
 
-.home-intro__hello {
+.home-intro__hello,
+.home-intro__welcome {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-section-title);
-  line-height: var(--leading-tight);
-  color: var(--color-text-accent);
+  color: var(--gold-200);
+  background: linear-gradient(180deg, #fff3c4 0%, #ebca77 50%, #cfa24d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* The reference scales both lines with the cloud (0.05 and 0.0633 of its
+   width); these are the ONE proportional sizes on the site, clamped to ladder
+   steps at both ends, and are named in the typography gate as artwork text. */
+.home-intro__hello {
+  font-size: clamp(var(--text-body), calc(var(--home-intro-cw) * 0.05), var(--text-section-title));
+  font-style: italic;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 
 .home-intro__welcome {
-  margin: var(--space-2) 0 0;
-  font-family: var(--font-display);
-  font-size: var(--text-card-title);
-  letter-spacing: 0.02em;
-  color: var(--color-text-accent);
+  margin-top: 4px;
+  font-size: clamp(var(--text-body), calc(var(--home-intro-cw) * 0.0633), var(--text-page-title));
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.04em;
+  text-wrap: balance;
 }
 
 /* Ordinary UI: the one control, so nobody is held at the door. */
@@ -21099,89 +21108,136 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-accent);
 }
 
-/* Reduced motion: the greeting is shown, without motion (not skipped). */
-.home-intro--reduced .home-intro__rig,
-.home-intro--reduced .home-intro__cord,
-.home-intro--reduced .home-intro__copy {
+/* Enter: the cords lower (expo-out), the hang sways about its top, the words
+   surface. Exit: the words dim, the cords pull a little further then snap up,
+   thin as they go, and the cloud squeezes slightly before returning. */
+.home-intro--enter .home-intro__cords {
+  animation: home-intro-lower 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.home-intro--enter .home-intro__hang {
+  animation: home-intro-sway 1.8s ease-in-out 0.55s forwards;
+}
+
+.home-intro--enter .home-intro__msg {
+  animation: home-intro-surface 0.55s ease-out 0.55s forwards;
+}
+
+.home-intro--exit .home-intro__msg {
+  animation: home-intro-dim 0.25s ease-in forwards;
+}
+
+.home-intro--exit .home-intro__cords {
+  animation: home-intro-pull 0.85s forwards;
+}
+
+.home-intro--exit .home-intro__cord {
+  animation: home-intro-thin 0.85s forwards;
+}
+
+.home-intro--exit .home-intro__cloud {
+  animation: home-intro-squeeze 0.85s forwards;
+}
+
+.home-intro--exit .home-intro__hang {
   animation: none;
 }
 
-.home-intro--reduced .home-intro__rig {
-  transform: translate(-50%, 0);
+/* Reduced motion: the greeting is shown WITHOUT motion (the reference only
+   disables part of its own motion; a lowering cloud is still motion). */
+.home-intro--reduced .home-intro__hang,
+.home-intro--reduced .home-intro__cords,
+.home-intro--reduced .home-intro__cord,
+.home-intro--reduced .home-intro__cloud,
+.home-intro--reduced .home-intro__msg {
+  animation: none;
 }
 
-.home-intro--reduced .home-intro__copy {
+.home-intro--reduced .home-intro__cords {
+  height: var(--home-intro-len);
+}
+
+.home-intro--reduced .home-intro__msg {
   opacity: 1;
-  transform: translate(-50%, 0);
 }
 
 @keyframes home-intro-lower {
-  0% {
-    transform: translate(-50%, -88%);
+  from {
+    height: 0;
   }
-  44% {
-    transform: translate(-50%, 0);
-  }
-  50% {
-    transform: translate(-50%, 3%);
-  }
-  56% {
-    transform: translate(-50%, 0);
-  }
-  76% {
-    transform: translate(-50%, 0);
-  }
-  100% {
-    transform: translate(-50%, -118%);
+  to {
+    height: var(--home-intro-len);
   }
 }
 
-/* The recoil: the cords stretch and thin just before the cloud snaps up. */
-@keyframes home-intro-cord {
-  0%,
-  74% {
-    transform: scaleY(1) scaleX(1);
+@keyframes home-intro-sway {
+  0% {
+    transform: rotate(0);
   }
-  80% {
-    transform: scaleY(1.1) scaleX(0.55);
+  30% {
+    transform: rotate(0.9deg);
   }
-  92%,
+  65% {
+    transform: rotate(-0.5deg);
+  }
   100% {
-    transform: scaleY(1) scaleX(1);
+    transform: rotate(0);
   }
 }
 
 @keyframes home-intro-surface {
-  0%,
-  42% {
+  from {
     opacity: 0;
-    transform: translate(-50%, 0.8rem);
   }
-  58% {
+  to {
     opacity: 1;
-    transform: translate(-50%, 0);
   }
-  80% {
+}
+
+@keyframes home-intro-dim {
+  from {
     opacity: 1;
-    transform: translate(-50%, 0);
   }
-  94%,
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes home-intro-pull {
+  0% {
+    height: var(--home-intro-len);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  32% {
+    height: calc(var(--home-intro-len) + 11vh);
+    animation-timing-function: cubic-bezier(0.7, 0, 0.95, 0.45);
+  }
   100% {
-    opacity: 0;
-    transform: translate(-50%, -0.6rem);
+    height: 0;
+  }
+}
+
+@keyframes home-intro-thin {
+  32% {
+    transform: scaleX(0.6);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes home-intro-squeeze {
+  32% {
+    transform: scale(0.985, 1.035);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
 @keyframes home-intro-leave {
   to {
     opacity: 0;
-    transform: translateY(-4%);
-  }
-}
-
-@media (max-width: 40rem) {
-  .home-intro__copy {
-    top: 54vh;
   }
 }
 
