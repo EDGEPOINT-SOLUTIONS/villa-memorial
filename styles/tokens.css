@@ -6,10 +6,10 @@
    the seven prompts of the aitooltiphub.com UI guide; the decisions below are the
    answer to each, and the reason each one is here:
 
-     · Give Color Meaning (P06) — the accent is now a SINGLE rationed colour that
-       means "call the office". It is not decoration. The brand colour stopped
-       being a blue control tint and became a deep evergreen, because this is a
-       garden memorial park: the product's own photographs are the brand.
+     · Give Color Meaning (P06) — the accent is a SINGLE rationed colour that
+       means "call the office". It is not decoration. The 2026-09-29 home plan
+       repointed the brand to the saturated sky (#1b93d6) and the accent to real
+       gold (#e8b92f): "sky blue is sky blue, and gold is gold".
      · Scale the Type (P05) — the ladder has real jumps now (12 · 14 · 17 · 20 ·
        24 · 32 · 44 · 72). The old ladder's steps were 1.1× apart, which is why
        headings, body and labels all read at the same level.
@@ -20,6 +20,7 @@
        The website and the contract a family signs now share one voice.
      · Sharpen the Message (P01) — the accent carries exactly one highlighted
        phrase per headline, so this file defines ONE accent and nothing else.
+       GOLD NEVER CARRIES WHITE TEXT; it carries dark ink.
 
    Consumption rule (unchanged, and enforced): never type a raw value in a view.
    Add the role here first, then consume it. tests/unit/typography-system.test.ts
@@ -52,36 +53,70 @@
   --paper-200: #f4efe6;
   --paper-300: #eae3d6;
 
-  /* --- Brand: deep evergreen ----------------------------------------------
-     The park is a garden. Green is not a decorative choice — it is what the
-     client's own photographs are made of, and it is what "a place of rest"
-     looks like. This ladder replaces the old sky-blue control colour. */
-  --ever-50: #f1f6f3;
-  --ever-100: #dce9e2;
-  --ever-200: #b8d3c6;
-  --ever-300: #8db6a3;
-  --ever-400: #5f937b;
-  --ever-500: #3f755c;
-  --ever-600: #2f5c47;
-  --ever-700: #264a39;
-  --ever-800: #1c392c;
-  --ever-900: #152c22;
-  --ever-950: #0c1a14;
+  /* --- Brand: THE SKY (home-rebuild plan, 2026-09-29) ---------------------
+     The captain's approved plan replaces the evergreen brand with a saturated
+     sky: "Pastel was the mistake. A washed-out blue … read as a government
+     form." #1b93d6 (500) is THE SKY — display type, the arch, the niche fills,
+     every heavy surface. 600 and deeper are the working steps that carry small
+     text (4.7:1+ on the warm paper); 400 and lighter are for big type and fills
+     that carry no small text. The legacy `--ever-*` names below REPOINT here, so
+     the ~5,500 `var()` references across components.css adopt the sky by
+     editing one bridge, never 22k lines. Leave the 3D park scene's own
+     `--scene-*` materials alone. */
+  --sky-50: #eaf6fd;
+  --sky-100: #d0ecfb;
+  --sky-200: #a5dcf7;
+  --sky-300: #6fc7f0;
+  --sky-400: #3aaee8;
+  --sky-500: #1b93d6;
+  --sky-600: #1477b4;
+  --sky-700: #0f5d8e;
+  --sky-800: #0b4468;
+  --sky-900: #072f49;
+  --sky-950: #041e2f;
 
-  /* --- Accent: brass — THE ONE ACTION -------------------------------------
-     Rationed by rule, not by taste. Legal uses, and there are only three:
-       1. the office's phone number / the call action,
-       2. ONE highlighted phrase per headline,
-       3. the ceremonial hairline above a band.
-     Never a surface, never a data colour, never body text. 500 is the fill;
-     700 is the only brass ink dark enough to pass AA on paper. */
-  --brass-100: #fbf3e0;
-  --brass-200: #f4e3bd;
-  --brass-300: #e7cb8c;
-  --brass-400: #d4ab56;
-  --brass-500: #b8842a;
-  --brass-600: #966719;
-  --brass-700: #6d4b11;
+  /* The legacy brand names (evergreen) now resolve to the sky. They stay so a
+     rule that says `--ever-700` paints the new brand without a rewrite. Do NOT
+     use these in new work — reach for `--sky-*`. */
+  --ever-50: var(--sky-50);
+  --ever-100: var(--sky-100);
+  --ever-200: var(--sky-200);
+  --ever-300: var(--sky-300);
+  --ever-400: var(--sky-400);
+  --ever-500: var(--sky-500);
+  --ever-600: var(--sky-600);
+  --ever-700: var(--sky-700);
+  --ever-800: var(--sky-800);
+  --ever-900: var(--sky-900);
+  --ever-950: var(--sky-950);
+
+  /* --- Accent: GOLD — THE ONE ACTION (home-rebuild plan, 2026-09-29) ------
+     The approved plan prints real metal, not a dusty brass tint. The legacy
+     `--brass-*` names below REPOINT onto this ramp, so every existing accent
+     reference adopts it by editing one bridge. Rationed by rule: the call
+     plaque, the keystone, the one ceremonial hairline. GOLD NEVER CARRIES
+     WHITE TEXT — that measures 1.9:1. It carries dark ink (--ink-900 at
+     9.6:1), which is also what makes it read as engraved.
+     Gold as SMALL TEXT needs 700 or deeper; everything lighter is a surface. */
+  --gold-50: #fff8e1;
+  --gold-100: #fdeec0;
+  --gold-200: #fadf8e;
+  --gold-300: #f2cb55;
+  --gold-400: #e8b92f;
+  --gold-500: #d9a417;
+  --gold-600: #b8860b;
+  --gold-700: #93690a;
+  --gold-800: #6e4e08;
+
+  /* The legacy accent names repoint onto the gold ramp. */
+  --brass-100: var(--gold-100);
+  --brass-200: var(--gold-200);
+  --brass-300: var(--gold-300);
+  --brass-400: var(--gold-400);
+  --brass-500: var(--gold-500);
+  --brass-600: var(--gold-600);
+  --brass-700: var(--gold-700);
+  --brass-800: var(--gold-800);
 
   /* --- Status (unchanged in spirit: desaturated, never shouting) ----------- */
   --sage-500: #6f8f6a;
@@ -124,7 +159,7 @@
      primitive names. Rather than leave the product wearing the old palette
      while 21k lines are migrated, each legacy name is REDEFINED here onto the
      new ramps. So: a rule that says `--granite-200` now paints warm paper, and
-     a rule that says `--sky-600` now paints evergreen.
+     a rule that says `--sky-600` paints the sky.
 
      These are aliases, not decisions. Do NOT use them in new work — reach for
      `--ink-*`, `--paper-*`, `--ever-*` and `--brass-*` above. The bridge is
@@ -146,18 +181,8 @@
   --marble-200: var(--paper-200);
   --marble-300: var(--paper-300);
 
-  --sky-50: var(--ever-50);
-  --sky-100: var(--ever-100);
-  --sky-200: var(--ever-200);
-  --sky-300: var(--ever-300);
-  --sky-400: var(--ever-400);
-  --sky-500: var(--ever-500);
-  --sky-600: var(--ever-600);
-  --sky-700: var(--ever-700);
-  --sky-800: var(--ever-800);
-  --sky-900: var(--ever-900);
-  --sky-950: var(--ever-950);
-
+  /* `--sky-*` is NOT bridged here any more: it is a real ramp above, and the
+     legacy `--ever-*`/`--navy-*` names are the ones that alias onto it. */
   --navy-50: var(--ever-50);
   --navy-100: var(--ever-100);
   --navy-200: var(--ever-200);
@@ -168,15 +193,6 @@
   --navy-800: var(--ever-800);
   --navy-900: var(--ever-900);
   --navy-950: var(--ever-950);
-
-  --gold-100: var(--brass-100);
-  --gold-200: var(--brass-200);
-  --gold-300: var(--brass-300);
-  --gold-400: var(--brass-400);
-  --gold-500: var(--brass-500);
-  --gold-600: var(--brass-600);
-  --gold-700: var(--brass-700);
-  --gold-800: var(--brass-700);
 
   /* --- Semantic roles ------------------------------------------------------ */
   --color-bg-page: var(--paper-100);
@@ -200,8 +216,8 @@
   --color-rule-strong: var(--ink-300);
   --color-rule-inverse: rgb(255 255 255 / 0.1);
 
-  /* Brand roles. `sky` names are kept for the legacy bridge; the brand is
-     evergreen and `--color-brand*` are the names new work should use. */
+  /* Brand roles. The `sky` names are the brand itself now; `--color-brand*` is
+     the name new work should use. */
   --color-brand: var(--ever-700);
   --color-brand-strong: var(--ever-900);
   --color-brand-soft: var(--ever-100);
@@ -216,14 +232,17 @@
   --color-sky-soft: var(--ever-100);
   --color-on-sky: var(--ink-900);
 
-  /* The one accent. */
+  /* The one accent. `--color-text-accent` is the DEEPEST gold (800) so small
+     accent text clears AA on every paper ground, including the warm paper-200
+     wash (6.6:1) — gold-700 is 4.3:1 there, and the typography guard measures
+     --paper-200. Everything lighter than 700 is a surface. */
   --color-accent: var(--brass-500);
   --color-accent-strong: var(--brass-700);
   --color-accent-soft: var(--brass-300);
-  --color-text-accent: var(--brass-700);
+  --color-text-accent: var(--gold-800);
 
-  /* ONE focus ring, every surface: a dark evergreen ring clears 3:1 on paper,
-     and the halo keeps it visible on the dark evergreen bands. */
+  /* ONE focus ring, every surface: the dark sky ring clears 3:1 on paper, and
+     the marble halo keeps it visible on the deep sky bands. */
   --color-focus-ring: var(--ever-700);
   --color-focus-ring-halo: var(--paper-50);
 

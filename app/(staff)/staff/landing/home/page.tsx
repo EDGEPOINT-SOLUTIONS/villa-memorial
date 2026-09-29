@@ -5,8 +5,15 @@ import { ForbiddenState, ErrorState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { listCatalogItems } from "@/lib/api-client/commerce";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { listResources } from "@/lib/api-client/scheduling";
+import { planContentFromDocument } from "@/lib/plan-content";
+import { builderCatalog } from "@/lib/service-builder-catalog";
 import { LandingPageEditor } from "@/components/landing/landing-page-editor";
+import type { HomeEditorCatalog } from "@/components/landing/home-sections-editor";
+import { chapelClassOf } from "@/lib/chapel-booking";
 
 export const metadata: Metadata = { title: "Home — Pages & content — Admin Portal" };
 
@@ -37,9 +44,18 @@ export default async function LandingHomeAdminPage() {
 
   let content;
   let pricing;
+  let catalogItems: Awaited<ReturnType<typeof listCatalogItems>> = [];
+  let resources: Awaited<ReturnType<typeof listResources>> = [];
   try {
-    content = await listLandingContent();
-    pricing = await loadPricingDocument();
+    [content, pricing] = await Promise.all([listLandingContent(), loadPricingDocument()]);
+    // The live-store choices the home editor offers: the catalogue's casket
+    // models, the five a-la-carte services, the chapel resources and the lot
+    // families. Each is best-effort — an unavailable store degrades to the
+    // recorded seed's choices rather than failing the editor.
+    [catalogItems, resources] = await Promise.all([
+      listCatalogItems().catch(() => []),
+      listResources().catch(() => []),
+    ]);
   } catch {
     return (
       <>
@@ -50,6 +66,33 @@ export default async function LandingHomeAdminPage() {
       </>
     );
   }
+
+  const plansPage = await getPageDocument("plans").catch(() => null);
+  const catalog = builderCatalog(
+    pricing,
+    planContentFromDocument(plansPage).notes.contestability,
+    catalogItems,
+  );
+  const homeCatalog: HomeEditorCatalog = {
+    casketModels: catalog.caskets.map((casket) => ({
+      model: casket.model,
+      collection: casket.collection,
+    })),
+    services: catalog.services.map((service) => service.label),
+    chapels: resources
+      .filter((resource) => resource.resource_type === "chapel")
+      .map((resource) => ({
+        id: resource.id,
+        name: resource.name,
+        capacity: resource.capacity,
+        kind: chapelClassOf(resource, []),
+      })),
+    lotFamilies: pricing.lotCategories.map((family) => ({
+      title: family.title,
+      caption: family.caption,
+      products: family.rows.map((row) => row.product),
+    })),
+  };
 
   return (
     <div className="stack-4">
@@ -71,6 +114,7 @@ export default async function LandingHomeAdminPage() {
         initialContent={content}
         lotCategories={pricing.lotCategories}
         planPricing={pricing.plans}
+        homeCatalog={homeCatalog}
         sessionName={session.displayName.split(" ")[0] ?? session.displayName}
       />
     </div>

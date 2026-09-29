@@ -491,6 +491,17 @@ export function libraryThumbSet(src: string): string | undefined {
   return LIBRARY_THUMB_WIDTHS.map((w) => `${libraryThumb(src, w)} ${w}w`).join(", ");
 }
 
+/**
+ * The 480/720 srcset for a published composition derivative (the park place
+ * photographs `PARK_PLACE_PHOTOS` names), or undefined for anything else. The
+ * composition pass publishes both widths for every derivative; a caller that
+ * already holds the -720 path gets the pair without rebuilding the rule.
+ */
+export function compositionThumbSet(src: string): string | undefined {
+  if (!src.startsWith("/media/composition/") || !src.endsWith("-720.webp")) return undefined;
+  return `${src.replace("-720.webp", "-480.webp")} 480w, ${src} 720w`;
+}
+
 /** Matched on the DECODED path, because the library stores the aerial encoded. */
 function hasLibraryThumb(src: string): boolean {
   const decoded = safeDecode(src);

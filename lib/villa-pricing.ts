@@ -457,3 +457,14 @@ export const CHAPEL_NOTES = {
   seniorPerDay: "Sheet footnote: senior rate is ₱1,800/day common, ₱4,200/day private.",
   privateChapelOnly: "Chapel only: ₱700 groceries, 3-day minimum.",
 };
+
+/**
+ * Sheet III's own miscellaneous fee, printed as a sentence under both of its
+ * tables: "PhP 1,000 is added as miscellaneous fee to cover for any incidental
+ * expense. Add this to the rates." The sheet prints no numeric column for it,
+ * so this constant exists for the surfaces that must ADD it — the home's
+ * arrangement builder shows the all-in three-day chapel totals exactly as the
+ * approved home plan prints them (₱4,500 + ₱1,000 = ₱5,500 common,
+ * ₱10,500 + ₱1,000 = ₱11,500 private), and never as a typed number.
+ */
+export const CHAPEL_MISC_FEE = 1000;

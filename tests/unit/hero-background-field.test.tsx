@@ -39,20 +39,19 @@ describe("the hero background colour changer", () => {
   });
 
   it("marks the document's colour as pressed and previews it at the chosen transparency", () => {
-    // `#3f755c` is the new palette's "Evergreen" swatch. The old fixture was
-    // `#3f97d1`, the retired sky-blue brand — a colour no swatch carries any
-    // more, so nothing would have matched and the pressed state would have
-    // silently stopped being exercised.
+    // `#1b93d6` is the new palette's "Sky" swatch (the home-rebuild plan's brand,
+    // 2026-09-29). The fixture must be a colour the palette still carries — an
+    // orphan value would silently stop exercising the pressed state.
     const html = renderToStaticMarkup(
       <HeroBackgroundField
-        hero={hero({ background: "#3f755c", backgroundTransparency: 25 })}
+        hero={hero({ background: "#1b93d6", backgroundTransparency: 25 })}
         onChange={() => {}}
       />,
     );
     expect(html).toContain('aria-pressed="true"');
     expect(html).toContain("25%");
-    expect(html).toContain("Previewing #3f755c at 25% transparency");
-    expect(html).toContain('value="#3f755c"');
+    expect(html).toContain("Previewing #1b93d6 at 25% transparency");
+    expect(html).toContain('value="#1b93d6"');
   });
 
   it("offers the hero text colour input and shows the chosen ink", () => {

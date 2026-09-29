@@ -57,7 +57,19 @@ import { mediaLabel } from "@/lib/media";
 import { isValidCssColor } from "@/lib/landing/hero-background";
 import { planLotCardFigures } from "@/lib/landing/plan-lots";
 import { type LotCategory, type PlanPricing } from "@/lib/pricing-model";
-import { LOT_PRICE_CATEGORIES, PLAN_TIERS, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
+import {
+  ALACARTE_SERVICE_FEES,
+  CASKET_MODELS,
+  LOT_PRICE_CATEGORIES,
+  PLAN_TIERS,
+  SENIOR_PAYMENTS,
+  VMP_PAYMENTS,
+} from "@/lib/villa-pricing";
+import { planRateOf } from "@/lib/pricing-model";
+import {
+  HomeSectionsEditor,
+  type HomeEditorCatalog,
+} from "@/components/landing/home-sections-editor";
 
 const clone = <T,>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 function uid(prefix: string): string {
@@ -1074,16 +1086,32 @@ function ctaFields(cta: Cta, onChange: (next: Cta) => void, key: string, labelPr
 
 /* Navigable zones — numbering mirrors the section cards below and the public
    page order (the live park map card sits before the blog/newsfeed card). */
+/**
+ * The seven home sections as navigator zones — the approved home-rebuild plan's
+ * order, and the FIRST thing the editor opens on. Their detailed editors are one
+ * `HomeSectionsEditor` above the rest of the document.
+ */
+const HOME_ZONES: Array<{ id: string; num: string; label: string; hint: string }> = [
+  { id: "ed-home-1", num: "01", label: "Section 1 · The gateway", hint: "The centred opening: place, headline, promise, the call and the trust facts." },
+  { id: "ed-home-2", num: "02", label: "Section 2 · The hero photograph", hint: "The client's photograph, alone and whole — never cropped." },
+  { id: "ed-home-3", num: "03", label: "Section 3 · The first park", hint: "The park photograph with the arrangement builder beside it and the two chapels under it." },
+  { id: "ed-home-4", num: "04", label: "Section 4 · Villa Memorial Plan", hint: "Five rising tiers with the live monthly rate and the sheet's own line about each." },
+  { id: "ed-home-5", num: "05", label: "Section 5 · The services", hint: "Five photographic tiles and their quote actions — no amounts on this band." },
+  { id: "ed-home-6", num: "06", label: "Section 6 · Villa Memorial Park", hint: "The four lot types beside the pinned park map and the details under it." },
+  { id: "ed-home-7", num: "07", label: "Section 7 · Contact", hint: "The enquiry form and the embedded park map, with its server-side Google key." },
+];
+
 const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: string }> = [
-  { id: "ed-brand", num: "01", label: "Brand & 24/7 line", hint: "Wordmark + mark, and the phone visitors can reach any hour." },
-  { id: "ed-hero", num: "02", label: "Hero", hint: "The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead." },
-  { id: "ed-rails", num: "03", label: "Fixed rails", hint: "The pinned side columns that stay frozen beside the scrolling home — any number of items each." },
-  { id: "ed-about", num: "04", label: "About · Mission · Vision", hint: "The family-run soul of the park, with a real photo — the trust section." },
-  { id: "ed-plans-lots", num: "05", label: "Plans & lots · home cards", hint: "The home band's cards — a real photo, a name, a type word and a live figure from the 2026 list. You pick the family + product (or the plan tier); the amount is never typed." },
-  { id: "ed-plans", num: "06", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
-  { id: "ed-map", num: "07", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
-  { id: "ed-blog", num: "08", label: "Blog", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
-  { id: "ed-faq", num: "09", label: "FAQ page", hint: "The help page at /faq: the questions families ask most, the answers under each one, and the next-step links that close the page." },
+  ...HOME_ZONES,
+  { id: "ed-brand", num: "08", label: "Brand & 24/7 line", hint: "Wordmark + mark, and the phone visitors can reach any hour. The home's gateway call action is bound to this line." },
+  { id: "ed-hero", num: "09", label: "Hero", hint: "The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead." },
+  { id: "ed-rails", num: "10", label: "Fixed rails", hint: "The pinned side columns that stay frozen beside the scrolling home — any number of items each." },
+  { id: "ed-about", num: "11", label: "About · Mission · Vision", hint: "The family-run soul of the park, with a real photo — the trust section." },
+  { id: "ed-plans-lots", num: "12", label: "Plans & lots · home cards", hint: "The home band's cards — a real photo, a name, a type word and a live figure from the 2026 list. You pick the family + product (or the plan tier); the amount is never typed." },
+  { id: "ed-plans", num: "13", label: "Plan ahead · VMP board", hint: "The Villa Memorial Plan board: promo card, payment-mode switch and the five tiers × four terms, all read live from the 2026 payment-mode tables." },
+  { id: "ed-map", num: "14", label: "Park map copy", hint: "The interactive map itself always shows the real lot listing — the heading + intro are yours to word." },
+  { id: "ed-blog", num: "15", label: "Blog", hint: "Rich posts laid out like a newsfeed — single / pair / gallery, video inline. No like/share row — by design." },
+  { id: "ed-faq", num: "16", label: "FAQ page", hint: "The help page at /faq: the questions families ask most, the answers under each one, and the next-step links that close the page." },
 ];
 
 function formatStamp(iso: string | null): string {
@@ -1098,9 +1126,14 @@ export function LandingPageEditor({
   sessionName,
   lotCategories,
   planPricing,
+  homeCatalog,
 }: {
   initialContent: LandingContent;
   sessionName?: string;
+  /** Live-store choices for the seven home sections (catalogue, chapel resources,
+   *  lot families). Omitted → the recorded seed's models/families, so static
+   *  tests still render the editor. */
+  homeCatalog?: HomeEditorCatalog;
   /**
    * The CURRENT pricing store slices (app/(staff)/staff/landing loads them). The
    * editor's service-card price lines and rail catalogue derive from these so a
@@ -1112,6 +1145,26 @@ export function LandingPageEditor({
 }) {
   const categories = lotCategories ?? LOT_PRICE_CATEGORIES;
   const pricing = planPricing ?? { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS };
+  // The plan band's live monthlies for the editor's read-only price view.
+  const homePlanPricing = Object.fromEntries(
+    PLAN_TIERS.map((tier) => [
+      tier.id,
+      {
+        monthly: planRateOf(pricing, tier.id, "monthly", false),
+        seniorMonthly: planRateOf(pricing, tier.id, "monthly", true),
+      },
+    ]),
+  );
+  const homeChoices: HomeEditorCatalog = homeCatalog ?? {
+    casketModels: CASKET_MODELS.map((model) => ({ model: model.model, collection: model.collection })),
+    services: ALACARTE_SERVICE_FEES.map((fee) => fee.service),
+    chapels: [],
+    lotFamilies: LOT_PRICE_CATEGORIES.map((family) => ({
+      title: family.title,
+      caption: family.caption,
+      products: family.rows.map((row) => row.product),
+    })),
+  };
   const [content, setContent] = useState<LandingContent>(() => clone(initialContent));
   const savedJson = useRef(JSON.stringify(initialContent));
   const [busy, setBusy] = useState(false);
@@ -1375,9 +1428,19 @@ export function LandingPageEditor({
       </div>
 
       {/* 3 · The document, zone by zone */}
+      {/* THE SEVEN HOME SECTIONS — the approved home-rebuild plan, edited one
+          section at a time. Everything below still edits the other public
+          surfaces that share this document (/blog, the FAQ page, the chrome). */}
+      <HomeSectionsEditor
+        home={content.home}
+        onChange={(next) => patch((d) => void (d.home = next))}
+        catalog={homeChoices}
+        planPricing={homePlanPricing}
+      />
+
       <EdSection
         id="ed-brand"
-        num="01"
+        num="08"
         title="Brand & 24/7 line"
         hint="The mark that sits top-left in the header and in the hero, and the phone visitors can reach any hour."
         badge={
@@ -1417,7 +1480,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-hero"
-        num="02"
+        num="09"
         title="Hero"
         hint="The first thing a grieving or planning family reads — two clear doors: need help now, or plan ahead."
       >
@@ -1442,7 +1505,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-rails"
-        num="03"
+        num="10"
         title="Fixed rails"
         hint="The two pinned side columns flanking the home. Each can hold any number of real services, plans, products or links — the rail scrolls when the list grows, so nothing ever breaks the page."
         badge={<span className="ed-chip">{rails.left.items.length + rails.right.items.length} pinned</span>}
@@ -1471,7 +1534,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-about"
-        num="04"
+        num="11"
         title="About · Mission · Vision"
         hint="The family-run soul of the park, with a real photo — the trust section."
       >
@@ -1480,7 +1543,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-plans-lots"
-        num="05"
+        num="12"
         title="Memorial plans & garden lots"
         hint="The home band that replaced “What we do”: pick each card's 2026 lot family + product (or the plan tier), set its photo and link, and write the plan's supporting line — every figure is read live from the 2026 list, never typed."
         badge={
@@ -1501,7 +1564,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-plans"
-        num="06"
+        num="13"
         title="Plan ahead — Villa Memorial Plan board"
         hint="The prototype's plan board: the promo figure beside the payment-mode switch, the five tiers × four terms, the senior-rate footnote and the underwriting logos. Every figure is read live from lib/villa-pricing.ts — you word the kicker, heading, intro and footnote."
         badge={<span className="ed-chip">2026 tables</span>}
@@ -1511,7 +1574,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-map"
-        num="07"
+        num="14"
         title="Live park map copy"
         hint="The interactive map itself always shows the real lot listing; the heading + intro are yours to word. On the home the map renders right above the newsfeed."
       >
@@ -1520,7 +1583,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-blog"
-        num="08"
+        num="15"
         title="Blog posts"
         hint="A caption plus as many photos/videos as you like, laid out like a newsfeed (single / pair / gallery, video inline). No like/share row — by design."
         badge={
@@ -1536,7 +1599,7 @@ export function LandingPageEditor({
 
       <EdSection
         id="ed-faq"
-        num="09"
+        num="16"
         title="FAQ page — /faq"
         hint="The questions families ask most, the answer under each one and the next-step links that close the page. The page's layout is fixed; every word below is yours."
         badge={

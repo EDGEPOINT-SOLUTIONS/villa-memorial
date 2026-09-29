@@ -20,11 +20,16 @@ const CSS = ["styles/components.css", "styles/base.css", "styles/utilities.css"]
   .map((file) => readFileSync(path.join(ROOT, file), "utf8"))
   .join("\n");
 
-/** Every `home…` class token a `className=` literal or template names. */
+/** Every `home…` class token a `className=` literal or template names. A
+ *  template's `${…}` expressions are stripped first: they are code, and their
+ *  tokens (`home-niche${index`) are not class names. Conditional classes inside
+ *  an expression are checked by the exact-rule half when they are literals in
+ *  the stylesheet's own vocabulary. */
 function homeTokens(source: string): string[] {
   const found = new Set<string>();
   for (const match of source.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`\})/g)) {
-    for (const token of (match[1] ?? match[2] ?? "").split(/\s+/)) {
+    const raw = (match[1] ?? match[2] ?? "").replace(/\$\{[^}]*\}/g, " ");
+    for (const token of raw.split(/\s+/)) {
       if (/^home(-|$)/.test(token)) found.add(token);
     }
   }
@@ -49,12 +54,15 @@ describe("the home ships its stylesheet", () => {
   });
 
   it("covers every section the page blueprint pins", () => {
+    // The seven sections of the approved home-rebuild plan (2026-09-29).
     for (const section of [
-      "home-hero",
-      "home-qualify",
-      "home-fork",
+      "home-gateway",
+      "home-photo",
       "home-park",
-      "home-feel",
+      "home-plans",
+      "home-services",
+      "home-lots",
+      "home-contact",
     ]) {
       expect(defined.has(section), section).toBe(true);
     }

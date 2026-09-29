@@ -4,7 +4,10 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
 import { HomePage } from "@/components/public/home-page";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { listLots } from "@/lib/api-client/property";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { homeMapEmbed } from "@/lib/home-model";
+import { builderCatalog } from "@/lib/service-builder-catalog";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
 import { CartProvider } from "@/lib/cart/cart-context";
 
@@ -68,47 +71,40 @@ type Blueprint = {
 
 const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
-    // The REAL home. This blueprint used to render `LandingView` and call it
-    // "home (/)", which was true until the new home landed at `/` — after that it
-    // measured the OLD home under the new page's name, and it only kept passing
-    // because landing-view.tsx still rendered a hero. Removing that hero
-    // (captain, 2026-09-27) exposed it: "home (/) renders exactly one h1" failed
-    // against a component that is not on `/` at all.
-    //
-    // It now renders the page `/` actually serves.
+    // The REAL home, rebuilt 2026-09-29 to the captain's approved home-rebuild
+    // plan: seven sections in the plan's order. The blueprint is updated to the
+    // new sections in the same PR that changed them (the file's own rule).
     name: "home (/)",
     render: async () => {
-      const [content, pricing] = await Promise.all([
+      const [content, pricing, lots] = await Promise.all([
         listLandingContent(),
         loadPricingDocument(),
+        listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
       ]);
       return renderToStaticMarkup(
         HomePage({
           content,
-          planPricing: pricing.plans,
+          pricing: pricing.plans,
           lotCategories: pricing.lotCategories,
-          mapNode: null,
+          builder: builderCatalog(pricing, "", []),
+          lots,
+          mapSrc: homeMapEmbed(null, content.contact.parkAddress).src,
+          chapelResources: [],
         }),
       );
     },
-    // The home's own argument, in order: the promise → who it is for → the two
-    // doors → the park → what it feels like. The blog band used to close it and
-    // was removed by the captain on 2026-09-27 — `/blog` keeps the full feed and
-    // is still linked from the header's "Explore more" menu and the footer, so
-    // the page no longer reprints three posts and nothing became unreachable.
+    // The approved plan's seven sections, in order: the gateway → the hero
+    // photograph → the first park with the builder and chapels → the five plan
+    // tiers → the five service tiles → the lot types with the pinned map → the
+    // contact band.
     sections: [
-      "home-hero",
-      "home-trust",
-      "home-qualify",
-      "home-fork",
-      "home-process",
-      "home-services",
-      "home-caskets",
-      "home-plans",
-      "home-park",
-      "home-gallery",
-      "home-feel",
-      "home-faq",
+      "home-gateway",
+      "home-photo",
+      "home-park__grid",
+      "home-niches",
+      "home-plates",
+      "home-lot-types",
+      "home-contact__grid",
     ],
   },
   {
