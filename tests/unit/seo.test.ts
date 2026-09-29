@@ -37,11 +37,15 @@ const NON_INDEXABLE = new Set(["/cart", "/checkout"]);
  * Public pages that deliberately live OUTSIDE `app/(public)`, and so are
  * invisible to the directory walk below.
  *
+ *   /     — the home (2026-09-29) carries its OWN header nav and footer (the
+ *           captain's reference page), whose links are in-page anchors that
+ *           exist only on `/`. It lives in the `(home)` route group so it does
+ *           not inherit PublicShell's shared chrome.
  *   /blog — the former home, moved verbatim (2026-09-27). It renders
  *           LandingView, which carries its OWN anchored header and footer, so it
  *           has to sit outside the group that would paint a second pair.
  */
-const OUTSIDE_THE_GROUP = ["/blog"];
+const OUTSIDE_THE_GROUP = ["/", "/blog"];
 
 function publicPageRoutes(dir = PUBLIC_DIR, prefix = ""): string[] {
   const routes: string[] = [];
@@ -62,9 +66,9 @@ function publicPageRoutes(dir = PUBLIC_DIR, prefix = ""): string[] {
 
 describe("the sitemap table covers every public page", () => {
   it("lists every static public route and no transactional one", () => {
-    // Since 2026-09-27 the home lives INSIDE `app/(public)` (it renders on the
-    // shared public shell), so the walk finds "/" itself. `/blog` is the one
-    // public page that has to stay outside the group — see OUTSIDE_THE_GROUP.
+    // The home (`/`) and `/blog` both render their own chrome and live outside
+    // `app/(public)` — see OUTSIDE_THE_GROUP; the walk finds every other public
+    // page.
     const fromDisk = [...OUTSIDE_THE_GROUP, ...publicPageRoutes()].filter(
       (route) => !NON_INDEXABLE.has(route)
     );
@@ -255,15 +259,15 @@ describe("/sitemap.xml and /robots.txt", () => {
 });
 
 describe("the JSON-LD block is rendered on the public surfaces", () => {
-  it("the home is inside the (public) group, so the layout renders it for the home too", () => {
-    // Before 2026-09-27 the home was `app/page.tsx` and had to render its own
-    // JsonLd. It now lives in the group, so there is exactly ONE place that
-    // renders the structured data — the shared layout asserted below — and the
-    // home must NOT carry a second copy (two LocalBusiness blocks on one page is
-    // a duplicate-entity signal to a crawler).
+  it("the rebuilt home (outside the (public) group) renders its own JsonLd exactly once", () => {
+    // The home (2026-09-29) is in the `(home)` group so it does not inherit the
+    // shared `(public)` layout — which also means that layout's JsonLd does NOT
+    // reach it. The home renders the structured data itself, and must render it
+    // EXACTLY once: two LocalBusiness blocks on one page is a duplicate-entity
+    // signal to a crawler.
     expect(existsSync(path.join(ROOT, "app", "page.tsx"))).toBe(false);
-    const home = readFileSync(path.join(ROOT, "app", "(public)", "page.tsx"), "utf8");
-    expect(home).not.toContain("<JsonLd");
+    const home = readFileSync(path.join(ROOT, "app", "(home)", "page.tsx"), "utf8");
+    expect(home.match(/<JsonLd/g)?.length ?? 0).toBe(1);
   });
 
   it("the shared public layout renders it on every interior page", () => {
