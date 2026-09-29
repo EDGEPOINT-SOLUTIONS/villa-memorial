@@ -105,9 +105,11 @@ describe("the page frame and the drawn clouds (office 2026-09-29)", () => {
   });
 
   it("draws ONE page arch, in its own layer behind everything", () => {
-    // One frame element per page, with its crown and both legs.
+    // One frame element per page, with its semicircular head, shaft and legs.
     expect((SOURCE.match(/className="home-frame"/g) ?? []).length).toBe(1);
+    expect(SOURCE).toContain('className="home-frame__head"');
     expect(SOURCE).toContain('className="home-frame__crown"');
+    expect(SOURCE).toContain('className="home-frame__shaft"');
     expect(SOURCE).toContain('className="home-frame__leg home-frame__leg--left"');
     expect(SOURCE).toContain('className="home-frame__leg home-frame__leg--right"');
     // The frame paints at -1 inside `.home`'s own stacking context, so a
@@ -117,22 +119,51 @@ describe("the page frame and the drawn clouds (office 2026-09-29)", () => {
     expect(home).toMatch(/position:\s*relative/);
     expect(home).toMatch(/z-index:\s*0/);
     expect(ruleBodies(".home-frame").join("\n")).toMatch(/z-index:\s*-1/);
-    // It is decoration in the flow's own space: inset in `.home`, never
-    // measuring into a band.
-    expect(ruleBodies(".home-frame").join("\n")).toMatch(/inset:\s*0/);
   });
 
-  it("grows the legs with the scroll, and stays complete without it", () => {
-    // The supported case starts at zero length and animates to the full leg.
-    const supports = blockWith("@supports (animation-timeline: scroll())", ".home-frame__leg");
-    expect(supports).toContain("animation-timeline: scroll(root block)");
-    expect(supports).toMatch(/transform:\s*scaleY\(0\)/);
-    const grow = blockWith("@keyframes home-frame-grow", "scaleY(1)");
-    expect(grow).toMatch(/transform:\s*scaleY\(1\)/);
-    // The fallback is the DEFAULT state: no animation, complete frame.
+  it("stands the arch in the page's own margin, as a true semicircle", () => {
+    // Twenty-eight pixels each side (--space-5, inside the office's 20-40px
+    // range): the legs run in the margin, clear of a full-width picture.
+    const frame = ruleBodies(".home-frame").join("\n");
+    expect(frame).toMatch(/inset:\s*0 calc\(-1 \* var\(--space-5\)\)/);
+    // The head is a SEMICIRCLE over the legs, not the shallow dome: its height
+    // is half the arch width, and the drawn path's radius is half the span, so
+    // the curve meets the legs at vertical tangents.
+    expect(ruleBodies(".home-frame__head").join("\n")).toMatch(/padding-top:\s*50%/);
+    expect(SOURCE).toContain('viewBox="0 0 1000 500"');
+    expect(SOURCE).toContain('d="M0,500 A500,500 0 0 1 1000,500"');
+    // Desktop only: below the home's own wide-layout breakpoint (52rem) the
+    // frame is absent altogether — nothing rendered, nothing animating.
+    const small = blockWith("@media (max-width: 52rem)", ".home-frame");
+    expect(small).toMatch(/\.home-frame\s*\{\s*display:\s*none/);
+    // The glow is on the static head and the leg line itself, never a
+    // JavaScript animation.
+    expect(ruleBodies(".home-frame__head").join("\n")).toMatch(/drop-shadow/);
+    expect(ruleBodies(".home-frame__leg")[0]).toMatch(/drop-shadow/);
+  });
+
+  it("tracks the visitor's middle, and closes on the last section's ground", () => {
+    // The leg's paint is pinned to the viewport and cut at the viewport's
+    // middle — the reader's eye-line — so it follows continuously with the
+    // scroll: no thresholds, no JavaScript, no animation-timeline dependency.
+    const leg = ruleBodies(".home-frame__leg")[0];
+    expect(leg).toMatch(/background-attachment:\s*fixed/);
+    expect(leg).toMatch(/linear-gradient\(\s*180deg,\s*var\(--home-frame-ink\) 0 50%/);
+    expect(leg).toMatch(/background-size:\s*100% 100vh/);
+    // The leg's own box supplies the arch's ends — it starts on the springing
+    // line (the shaft's top) and stops at the frame's bottom, the last
+    // section's ground, so the frame closes there and never runs past it.
+    const shaft = ruleBodies(".home-frame__shaft").join("\n");
+    expect(shaft).toMatch(/position:\s*relative/);
+    expect(shaft).toMatch(/flex:\s*1/);
+    expect(leg).toMatch(/top:\s*0/);
+    expect(leg).toMatch(/bottom:\s*0/);
+    // Reduced motion: complete and still — a solid full-height leg, not the
+    // viewport-fixed tracking paint.
     const reduced = blockWith("@media (prefers-reduced-motion: reduce)", ".home-frame__leg");
-    expect(reduced).toMatch(/animation:\s*none/);
-    expect(reduced).toMatch(/transform:\s*scaleY\(1\)/);
+    expect(reduced).toMatch(/background-image:\s*none/);
+    expect(reduced).toMatch(/background-color:\s*var\(--home-frame-ink\)/);
+    expect(reduced).toMatch(/background-attachment:\s*scroll/);
   });
 
   it("draws the clouds as one reused silhouette, filled from the sky ramp", () => {
@@ -142,10 +173,12 @@ describe("the page frame and the drawn clouds (office 2026-09-29)", () => {
     for (const variant of ["a", "b", "c"]) {
       expect(SOURCE).toContain(`className="home-gateway__cloud home-gateway__cloud--${variant}"`);
     }
-    // Drawn, not washed: a sky fill with a deeper edge — and no background.
+    // Drawn, not washed: a sky fill with a deeper edge, at the office's 75%
+    // opacity — and no background.
     const cloud = ruleBodies(".home-gateway__cloud").join("\n");
     expect(cloud).toMatch(/fill:\s*var\(--sky-/);
     expect(cloud).toMatch(/stroke:\s*var\(--sky-/);
+    expect(cloud).toMatch(/opacity:\s*0\.75/);
     expect(cloud).not.toMatch(/background/);
     // The drift is transform-only, so the band never reflows while it moves.
     const drift = blockWith("@keyframes home-cloud-drift", "translate3d");

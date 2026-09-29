@@ -166,20 +166,37 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   bar keeps a soft `0 10px 26px -18px rgb(8 28 49 / 0.35)` shadow at every scroll
   position, strengthening in the compressed state.
 
-- **The page's own arch frame (inbox 023) and the drawn clouds (inbox 024):**
-  `.home-frame` is the ONE arch for the whole page — a half-ellipse crown across
-  the content width (the widest band's edges) with two hairline legs that grow
-  downward with the scroll (`@supports (animation-timeline: scroll())` +
-  `scroll(root block)` + `animation-range: 0% 100%`, transform-only `scaleY` on
-  1px legs), painted at `z-index: -1` inside `.home`'s own stacking context so
-  it runs behind every section, card and photograph: an opaque full-width band
-  covers the legs and they reappear below, never a line across a picture. No
-  scroll-driven support and `prefers-reduced-motion` both mean the frame is
-  complete and still at rest — the degradation is the default, not a half-drawn
-  arch. The band's old self-sizing headline arch was retired into the page frame
-  (the office asked for one arch; two in the same band would fight). Section 1 is
-  now WHITE ONLY: the sky wash was removed with its `page-backgrounds` allowlist
-  entries, and the clouds are DRAWN silhouettes — one four-lobe path on a flat
-  base (the office's "cloud everybody draws as a child"), reused at three sizes,
-  filled `--sky-300` with a `--sky-500` edge — transform-drifted across the band
-  and pinned in place under `prefers-reduced-motion`.
+- **The page's own arch frame (inbox 023, refined by 026/027/028) and the drawn
+  clouds (inbox 024/026):** `.home-frame` is the ONE arch for the whole page.
+  Its head is a TRUE SEMICIRCLE (SVG `M0,500 A500,500`, height = half the span
+  via `padding-top: 50%`, so the curve meets the legs at vertical tangents — an
+  arch standing on the page, not the shallow elliptical dome of the first
+  cut). The frame spans the content width **plus `--space-5` (28 px) each
+  side** (inside the office's 20-40 px range), so the legs run in the page's
+  own margin; it does not exist below 52 rem — the home's wide-layout
+  breakpoint — via `display: none` (nothing rendered, nothing animating, no
+  measurement moved). The legs TRACK THE VISITOR: each 1 px leg's paint is
+  pinned to the viewport (`background-attachment: fixed`) and cut at the
+  viewport's middle, the reader's eye-line, so the ends glide down with the
+  scroll continuously — no JavaScript, no thresholds, no layout shift — while
+  the element's own box supplies the ends: it starts at the springing line and
+  stops at the frame's bottom (the last section's ground), where the frame
+  CLOSES and never runs past. The head stays at the top of the page; the whole
+  frame paints at `z-index: -1` inside `.home`'s own stacking context so it
+  runs behind every section, card and photograph: an opaque full-width band
+  covers the legs and they reappear below, never a line across a picture. The
+  line carries a soft STATIC sky-blue glow (`drop-shadow` on the head and on
+  the leg element itself — it follows whatever the leg has painted, so the
+  halo tracks the line; never an animated blur). Under `prefers-reduced-motion`
+  the viewport-fixed paint is replaced by solid full-height legs: the arch is
+  drawn complete and still. (The first cut used a scroll-timeline `scaleY`
+  animation; the office's 50 %-viewport tracking and the section-ground close
+  are exact and simpler as the fixed-background paint, verified in a real
+  Chromium at 1920 and 390.) The band's old self-sizing headline arch was
+  retired into the page frame (the office asked for one arch; two in the same
+  band would fight). Section 1 is now WHITE ONLY: the sky wash was removed with
+  its `page-backgrounds` allowlist entries, and the clouds are DRAWN
+  silhouettes — one four-lobe path on a flat base (the office's "cloud
+  everybody draws as a child"), reused at three sizes, filled `--sky-300` with
+  a `--sky-500` edge at the office's 75 % opacity — transform-drifted across
+  the band and pinned in place under `prefers-reduced-motion`.

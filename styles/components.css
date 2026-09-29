@@ -20108,50 +20108,87 @@ a.plan-advisor__phone:hover {
   border-bottom: 0;
 }
 
-/* --- the page's arch frame (office, 2026-09-29) ---------------------------
-   ONE arch for the whole home, not one per band. The crown spans the page's
-   own content width (the widest band's edges, because it is inset in `.home`)
-   and stays at the top of the page; the two legs grow downward as the visitor
+/* --- the page's arch frame (office, 2026-09-29; refined same day) ----------
+   ONE arch for the whole home, not one per band. It spans the page's own
+   content width PLUS a margin each side (`--space-5`, so both legs run in the
+   page's side margin, clearly visible beside the content rather than hugging
+   it), its head is a TRUE SEMICIRCLE over the vertical legs, and the curve
+   stays at the top of the page while the legs grow downward as the visitor
    scrolls and stop on the last band's ground, where the footer area begins.
    Decoration in its own layer, exactly:
-     · absolutely positioned `inset: 0` — it measures into nothing and shifts
-       no band, ever;
+     · absolutely positioned — it measures into nothing and shifts no band;
      · z-index -1 in `.home`'s stacking context — behind every section and
        photograph (an opaque full-width band covers the legs; they reappear
-       below), never over text;
+       below), never over text or a picture;
      · transform-only motion (scaleY on 1px legs), so the page never reflows;
-     · a hairline in the sky palette, never gold (gold stays the ritual
-       accent: the call and the band hairline).
+     · a hairline in the sky palette with a soft static glow, never gold (gold
+       stays the ritual accent: the call and the band hairline).
    The gateway's clouds are a child layer of band 1, so they paint above it. */
 .home-frame {
-  --home-frame-rise: clamp(3.5rem, 6vw, 7rem);
+  /* The glow is a static shadow/blur, never an animated one. */
+  --home-frame-glow: rgb(58 174 232 / 0.4); /* sky-400 at 40% */
+  --home-frame-ink: var(--sky-300);
   position: absolute;
-  inset: 0;
+  inset: 0 calc(-1 * var(--space-5));
   z-index: -1;
   pointer-events: none;
-  color: var(--sky-300);
+  display: flex;
+  flex-direction: column;
+  color: var(--home-frame-ink);
+}
+
+/* The head is half as tall as the arch is wide (percentage padding resolves
+   against the containing block's INLINE size), which is exactly a semicircle
+   over the legs — the curve meets them at vertical tangents, so the form is an
+   arch standing on the page, never a shallow elliptical dome sitting on it. */
+.home-frame__head {
+  position: relative;
+  width: 100%;
+  padding-top: 50%;
+  filter: drop-shadow(0 0 6px var(--home-frame-glow));
 }
 
 .home-frame__crown {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: var(--home-frame-rise);
-  border: 1px solid currentColor;
-  border-bottom: 0;
-  /* A half-ellipse between the two legs: the curve meets each edge at the
-     crown's foot, where the legs begin. */
-  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
+/* The shaft holds the vertical legs below the springing line; it takes the
+   remaining height of the frame, wherever the page ends. */
+.home-frame__shaft {
+  position: relative;
+  flex: 1;
+  width: 100%;
+}
+
+/* THE LEG TRACKS THE VISITOR (office, 2026-09-29). Its paint is pinned to the
+   viewport (`background-attachment: fixed`) and cut at the viewport's middle,
+   so it follows the reader's own eye-line continuously — scroll-linked by
+   construction, never threshold-triggered, no JavaScript, no layout. The
+   element's own box supplies the arch's two ends: it starts at the springing
+   line (the shaft's top) and stops at the frame's bottom, which is the last
+   section's ground — so the paint can never run above the springing or below
+   the section, and at the end of the page the frame CLOSES on that edge. */
 .home-frame__leg {
   position: absolute;
-  top: var(--home-frame-rise);
+  top: 0;
   bottom: 0;
   width: 1px;
-  background: currentColor;
-  transform-origin: top;
+  background-image: linear-gradient(
+    180deg,
+    var(--home-frame-ink) 0 50%,
+    transparent 50% 100%
+  );
+  background-size: 100% 100vh;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* The static glow (office: "a shadow or a blur on one element", never an
+     animated blur): the drop-shadow follows whatever the leg has painted, so
+     the halo tracks with the line. */
+  filter: drop-shadow(0 0 5px var(--home-frame-glow));
 }
 
 .home-frame__leg--left {
@@ -20162,36 +20199,27 @@ a.plan-advisor__phone:hover {
   right: 0;
 }
 
-/* Scroll-driven where the browser supports it (Chrome and the Chromium
-   family; the office's review browser): the legs draw downward with the
-   scroll and complete with the page. Everywhere else NO animation runs and
-   the frame is already complete at rest — the degradation is the default
-   state, never a half-drawn arch, and the page is never gated on the motion. */
-@supports (animation-timeline: scroll()) {
-  .home-frame__leg {
-    transform: scaleY(0);
-    animation: home-frame-grow linear both;
-    animation-timeline: scroll(root block);
-    animation-range: 0% 100%;
-  }
-
-  @keyframes home-frame-grow {
-    from {
-      transform: scaleY(0);
-    }
-    to {
-      transform: scaleY(1);
-    }
+/* Desktop only (office, 2026-09-29): below the home's own wide-layout
+   breakpoint — 52rem, the width where every multi-column band
+   (`.home-park__grid`, `.home-lots__grid`, `.home-contact__grid`) goes
+   single-column — the arch is absent altogether. `display: none` renders
+   nothing and animates nothing, so a phone pays nothing for it, and the
+   element was always absolutely positioned so no measurement moves at any
+   width. */
+@media (max-width: 52rem) {
+  .home-frame {
+    display: none;
   }
 }
 
-/* Reduced motion: the arch is drawn complete and still (the global base.css
-   rule only shortens time-based animation, so the scroll-driven legs need
-   this explicit stop). */
+/* Reduced motion (office, 2026-09-29): the arch is drawn COMPLETE and still —
+   the legs become solid full-height lines from the springing line to the last
+   section's ground, with no viewport-fixed tracking paint. */
 @media (prefers-reduced-motion: reduce) {
   .home-frame__leg {
-    animation: none;
-    transform: scaleY(1);
+    background-image: none;
+    background-color: var(--home-frame-ink);
+    background-attachment: scroll;
   }
 }
 
@@ -20339,6 +20367,7 @@ a.plan-advisor__phone:hover {
   display: block;
   aspect-ratio: 240 / 100;
   height: auto;
+  opacity: 0.75;
   fill: var(--sky-300);
   stroke: var(--sky-500);
   stroke-width: 1.5;
@@ -20357,7 +20386,6 @@ a.plan-advisor__phone:hover {
   width: 16rem;
   top: 42%;
   left: -16rem;
-  opacity: 0.9;
   animation: home-cloud-drift 88s linear infinite;
   animation-delay: -22s;
 }
@@ -20366,7 +20394,6 @@ a.plan-advisor__phone:hover {
   width: 32rem;
   top: 66%;
   left: -28rem;
-  opacity: 0.75;
   animation: home-cloud-drift 112s linear infinite;
   animation-delay: -54s;
 }

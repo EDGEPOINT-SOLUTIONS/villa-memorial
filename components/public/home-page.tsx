@@ -61,10 +61,12 @@ import type { PlanPricing } from "@/lib/pricing-model";
  * consent line. The home is edited section by section at /staff/landing/home.
  *
  * THE PAGE'S OWN LAYER (office, 2026-09-29):
- *   · `.home-frame` — ONE arch for the whole page, not one per band. Its crown
- *     spans the page's content width and its legs grow down with the scroll,
- *     behind every section and photograph, `.home-frame` in the stylesheet
- *     carries the construction and the degradation rules;
+ *   · `.home-frame` — ONE arch for the whole page, not one per band. It spans
+ *     the content width plus a margin, its head is a TRUE SEMICIRCLE over two
+ *     vertical legs that track the reader's eye-line down the page and close
+ *     on the last section's ground; it runs behind every section and
+ *     photograph, and it exists on desktop only — `.home-frame` in the
+ *     stylesheet carries the construction, the glow and the degradation rules;
  *   · the gateway's clouds are DRAWN (one blue silhouette path, reused three
  *     times), not soft washes, because the band is white now and the office
  *     asked for the cloud everybody draws — the small headline arch was
@@ -177,15 +179,34 @@ export function HomePage({
 
   return (
     <div className="home">
-      {/* The page's ONE arch, decoration only: the crown spans the content
-          width at the top of the page, the legs grow with the scroll and end
-          on the last band's ground. Behind every section (z-index: -1 in the
-          stylesheet), so an opaque band or a whole photograph covers the legs
-          and they reappear below — never a line across a picture. */}
+      {/* The page's ONE arch, decoration only: a semicircular head spans the
+          content width plus a margin (`--space-5` each side, in the page's own
+          margin), the vertical legs track the reader's eye-line as they scroll
+          and close on the last band's ground. Behind every section (z-index:
+          -1 in the stylesheet), so an opaque band or a whole photograph covers
+          the legs and they reappear below — never a line across a picture. */}
       <div className="home-frame" aria-hidden="true">
-        <div className="home-frame__crown" />
-        <div className="home-frame__leg home-frame__leg--left" />
-        <div className="home-frame__leg home-frame__leg--right" />
+        <div className="home-frame__head">
+          <svg
+            className="home-frame__crown"
+            viewBox="0 0 1000 500"
+            preserveAspectRatio="none"
+          >
+            {/* A TRUE semicircle: radius = half the span, so the curve meets
+                the legs at vertical tangents — an arch standing on the page. */}
+            <path
+              d="M0,500 A500,500 0 0 1 1000,500"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.25}
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
+        </div>
+        <div className="home-frame__shaft">
+          <div className="home-frame__leg home-frame__leg--left" />
+          <div className="home-frame__leg home-frame__leg--right" />
+        </div>
       </div>
       {/* ================================================================
           1 · THE GATEWAY — centred words and the call.
