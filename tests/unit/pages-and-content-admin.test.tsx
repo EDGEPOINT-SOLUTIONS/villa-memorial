@@ -131,15 +131,13 @@ describe("Pages & content", () => {
     expect(html).toContain("Content blocks");
     // …and the three guide pages are service entries, each with its own editor.
     expect(html).toContain("Service entries");
-    expect(html).toContain('href="/staff/landing/service-entry/death-at-home"');
-    expect(html).toContain('href="/staff/landing/service-entry/death-at-hospital"');
     expect(html).toContain('href="/staff/landing/service-entry/transport"');
   });
 
   it("renders the service-entry editor for one guide and 404s an unknown key", async () => {
     sessionHolder.current = session(["catalog:write"]);
-    const html = renderToStaticMarkup(await ServiceEntryAdminPage(entryParams("death-at-home")));
-    expect(html).toContain("Death at home");
+    const html = renderToStaticMarkup(await ServiceEntryAdminPage(entryParams("transport")));
+    expect(html).toContain("Transport");
     expect(html).toContain("Service entry");
     expect(html).toContain("Hero photograph");
     expect(html).toContain("Content blocks");

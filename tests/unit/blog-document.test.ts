@@ -98,7 +98,10 @@ describe("the blog is its own page document", () => {
         );
       }
     }
-    expect((html.match(/class="blog-row"/g) ?? []).length).toBe(4);
+    expect((html.match(/<li class="blog-row[^"]*"/g) ?? []).length).toBe(4);
+    // The rows alternate their sides — picture left, picture right (captain,
+    // 2026-09-30), so two of the four carry the flip.
+    expect((html.match(/class="blog-row blog-row--flip"/g) ?? []).length).toBe(2);
     // The newsfeed band is GONE (inbox 048): it repeated the posts above, so
     // no second feed and no post cards render.
     expect(html).not.toContain('aria-label="Blog posts"');

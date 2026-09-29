@@ -42,10 +42,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
-const { default: DeathAtHomePage, generateMetadata } = await import(
-  "@/app/(public)/services/death-at-home/page"
-);
-const { default: TransportPage } = await import("@/app/(public)/transport/page");
+const { default: TransportPage, generateMetadata } = await import("@/app/(public)/transport/page");
 
 async function renderGuide(page: () => Promise<ReactNode>): Promise<string> {
   return renderToStaticMarkup(await page());
@@ -60,15 +57,13 @@ describe("the service guide entries drive their routes and the /services cards",
   let servicesBefore: string;
 
   beforeAll(async () => {
-    before = await renderGuide(DeathAtHomePage);
+    before = await renderGuide(TransportPage);
     servicesBefore = await renderServices();
   });
 
   it("renders the guide page from its entry", () => {
-    expect(before).toContain("Death at home");
-    expect(before).toContain(
-      "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
-    );
+    expect(before).toContain("Transport");
+    expect(before).toContain("Dignified transport from home or hospital to the service venue");
     // The route keeps its structure: the help band's outline action, now the
     // human contact door (the former /immediate-assistance target was removed —
     // office, inbox 040).
@@ -85,36 +80,29 @@ describe("the service guide entries drive their routes and the /services cards",
   });
 
   it("lands an edit on the guide page and nowhere on /services", async () => {
-    const seed = seedServiceEntries().find((entry) => entry.key === "death-at-home")!;
+    const seed = seedServiceEntries().find((entry) => entry.key === "transport")!;
     await saveServiceEntry(
-      "death-at-home",
+      "transport",
       {
         ...seed,
-        title: "Death at home, revised",
+        title: "Transport, revised",
         summary: "A revised lead sentence the office wrote.",
       },
       "editor@vm.demo",
     );
 
-    const page = await renderGuide(DeathAtHomePage);
-    expect(page).toContain("Death at home, revised");
+    const page = await renderGuide(TransportPage);
+    expect(page).toContain("Transport, revised");
     expect(page).toContain("A revised lead sentence the office wrote.");
     expect(page).not.toContain("you should not have to manage the next steps alone");
 
     const services = await renderServices();
     // The guide section is gone, so the edited entry has no card to reach.
-    expect(services).not.toContain("Death at home, revised");
+    expect(services).not.toContain("Transport, revised");
     expect(services).not.toContain("you should not have to manage the next steps alone");
 
     // The route's head reads the same entry.
     const metadata = await generateMetadata();
-    expect(String(metadata.title)).toContain("Death at home, revised");
-  });
-
-  it("keeps the transport route on its own entry", async () => {
-    const html = await renderGuide(TransportPage);
-    expect(html).toContain("Transport");
-    expect(html).toContain("Dignified transport from home or hospital to the service venue");
-    expect(html).toContain('href="/price-list"');
+    expect(String(metadata.title)).toContain("Transport, revised");
   });
 });

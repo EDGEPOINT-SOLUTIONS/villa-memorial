@@ -317,12 +317,7 @@ export const WAKESETUP_CASKET_IMAGE = clientPhotoWide("wake-setup-casket-draped"
 export const WAKESETUP_ALCOVE_IMAGE = clientPhotoWide("wake-setup-lamp-alcove").src;
 export const WAKESETUP_FLOWERS_IMAGE = clientPhotoWide("wake-setup-flower-bank").src;
 
-/** At-need service photos (uploaded). */
-export const DEATH_AT_HOME_IMAGE = "/media/death_at_home.jpg";
-export const DEATH_AT_HOSPITAL_IMAGE = "/media/death_at_hospital.jpg";
-
-/**
- * Landing page media library — the REAL uploaded assets a staff editor may attach
+/** Landing page media library — the REAL uploaded assets a staff editor may attach
  * to rails, plan cards, hero/about photos and blog posts. Labelled so pickers can
  * show a human name next to each thumbnail. Same store feeds every editor picker.
  */
@@ -330,8 +325,6 @@ export const MEDIA_LIBRARY: ReadonlyArray<{ src: string; label: string }> = [
   { src: HERO_IMAGE, label: "Park grounds — golden hour" },
   { src: VILLA_PARK_AERIAL, label: "Villa Memorial Park — aerial" },
   { src: "/media/at_need_services.jpg", label: "At-need care" },
-  { src: DEATH_AT_HOME_IMAGE, label: "Death at home" },
-  { src: DEATH_AT_HOSPITAL_IMAGE, label: "Death at hospital" },
   { src: PLAN_PACKAGES_IMAGE, label: "Plans & packages" },
   { src: TRANSPORT_IMAGE, label: "Transport fleet" },
   { src: COFFIN_BRONZE, label: "Bronze casket" },
@@ -468,8 +461,6 @@ const LIBRARY_THUMB_SOURCES: ReadonlyArray<string> = [
   LOT_TYPE_PHOTOS["lt-mausoleum"],
   PLAN_PACKAGES_IMAGE,
   VIEWING_CARE_IMAGE,
-  DEATH_AT_HOME_IMAGE,
-  DEATH_AT_HOSPITAL_IMAGE,
   COFFIN_GOLD,
   COFFIN_BRONZE,
   COFFIN_SILVER,

@@ -4,9 +4,10 @@
  * fields pass).
  *
  * WHAT LIVES HERE
- *   · The three guide pages the captain confirmed stay as service entries under
- *     Funeraria Memorial Services: death-at-home · death-at-hospital ·
- *     transport. Each is a CatalogueEntry of kind `service`; the seed is
+ *   · The guide pages that stay as service entries under Funeraria Memorial
+ *     Services — transport alone since the captain retired the death-at-home and
+ *     death-at-hospital pages (2026-09-30). Each is a CatalogueEntry of kind
+ *     `service`; the seed is
  *     lib/fixtures/content/service-entries.json, recorded from the pages' current
  *     copy (see its `_provenance`).
  *   · The item entries (casket models + packages): the authored half of the
@@ -32,7 +33,7 @@
  * `validateCatalogueEntry` (lib/content-catalog.ts) is the save rule, run with
  * the LIVE catalogue SKUs and the pricing store's rate refs, so a price binding
  * that names a withdrawn SKU is refused rather than silently orphaned. Only the
- * three known service keys and the casket/package SKUs are writable here.
+ * known service key and the casket/package SKUs are writable here.
  */
 import {
   createJournalLock,

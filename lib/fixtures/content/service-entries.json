@@ -3,69 +3,17 @@
     "status": "RECORDED SEED — app-authored service entries for the content catalogue (Phase 3 of data/villa-content-catalog-plan/report.md, captain review 2026-09-21). NOT a service response: no content contract exists, so this fixture store is the write path in fixture mode (see lib/api-client/content-entries.ts).",
     "date": "2026-09-21",
     "sources": [
-      "The captain's §10 answer 3: the three guide pages stay as SERVICE ENTRIES under Funeraria Memorial Services.",
+      "The captain's §10 answer 3: the guide pages stay as SERVICE ENTRIES under Funeraria Memorial Services. The captain retired the death-at-home and death-at-hospital pages on 2026-09-30, leaving transport.",
       "Every string here is the CURRENT PAGE COPY transcribed from the live guide pages, so the entry starts as what visitors already read — never new marketing copy. The story-lane pass (2026-09-22) COMPRESSED each summary to the captain's ≤30-word paragraph budget; the wording keeps the same meaning:",
-      "  · death-at-home   ← app/(public)/services/death-at-home/page.tsx (title / lead / figcaption / photo)",
-      "  · death-at-hospital ← app/(public)/services/death-at-hospital/page.tsx",
       "  · transport       ← app/(public)/transport/page.tsx (the client's own karwahe photograph)",
-      "`blocks` is EMPTY for all three: the pre-migration pages carried only their hero, so no body copy is invented here. Staff add blocks in Pages & content → Funeraria Memorial Services.",
-      "The routes stay exactly where they were (captain answer 2/3): /services/death-at-home · /services/death-at-hospital · /transport."
+      "`blocks` is EMPTY: the pre-migration page carried only its hero, so no body copy is invented here. Staff add blocks in Pages & content → Funeraria Memorial Services.",
+      "The route stays exactly where it was: /transport."
     ],
-    "imagery": "The hero photographs are the client's own material, exactly as the pages published them (lib/media.ts's DEATH_AT_HOME_IMAGE / DEATH_AT_HOSPITAL_IMAGE, and lib/client-photos.ts's hearse-carriage-gold-side). No withheld photograph (HELD_CLIENT_PHOTOS) is referenced."
+    "imagery": "The hero photograph is the client's own material, exactly as the page published it (lib/client-photos.ts's hearse-carriage-gold-side). No withheld photograph (HELD_CLIENT_PHOTOS) is referenced."
   },
   "version": 1,
   "updated_at": null,
   "entries": [
-    {
-      "id": "svc-guide-death-at-home",
-      "kind": "service",
-      "sku": null,
-      "key": "death-at-home",
-      "title": "Death at home",
-      "summary": "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
-      "group": "Services · At home",
-      "media": {
-        "hero": "/media/death_at_home.jpg",
-        "gallery": [
-          {
-            "id": "img-death-at-home-hero",
-            "src": "/media/death_at_home.jpg",
-            "alt": "Death at home",
-            "caption": "Caring coordination when it happens at home.",
-            "sample": false
-          }
-        ]
-      },
-      "blocks": [],
-      "price": { "kind": "quoteOnly" },
-      "updated_at": null,
-      "updated_by": null
-    },
-    {
-      "id": "svc-guide-death-at-hospital",
-      "kind": "service",
-      "sku": null,
-      "key": "death-at-hospital",
-      "title": "Death at hospital",
-      "summary": "When a loved one passes in hospital, we liaise with the facility, handle the transfer and preparation, and coordinate with the venue.",
-      "group": "Services · In care",
-      "media": {
-        "hero": "/media/death_at_hospital.jpg",
-        "gallery": [
-          {
-            "id": "img-death-at-hospital-hero",
-            "src": "/media/death_at_hospital.jpg",
-            "alt": "Death at hospital",
-            "caption": "Liaising with facilities, so you can focus on family.",
-            "sample": false
-          }
-        ]
-      },
-      "blocks": [],
-      "price": { "kind": "quoteOnly" },
-      "updated_at": null,
-      "updated_by": null
-    },
     {
       "id": "svc-guide-transport",
       "kind": "service",
@@ -87,7 +35,9 @@
         ]
       },
       "blocks": [],
-      "price": { "kind": "quoteOnly" },
+      "price": {
+        "kind": "quoteOnly"
+      },
       "updated_at": null,
       "updated_by": null
     }

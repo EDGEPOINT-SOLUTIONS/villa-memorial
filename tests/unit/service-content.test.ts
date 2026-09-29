@@ -57,12 +57,8 @@ describe("the service page content reading", () => {
 describe("the guide service entries", () => {
   const entries = (seedEntries as { entries: unknown[] }).entries.map((raw) => readCatalogueEntry(raw));
 
-  it("names the captain-confirmed three routes once", () => {
-    expect(SERVICE_ENTRY_DEFS.map((def) => def.route)).toEqual([
-      "/services/death-at-home",
-      "/services/death-at-hospital",
-      "/transport",
-    ]);
+  it("names the captain-confirmed route once", () => {
+    expect(SERVICE_ENTRY_DEFS.map((def) => def.route)).toEqual(["/transport"]);
     expect(serviceEntryDefForRoute("/transport")?.key).toBe("transport");
     expect(serviceEntryDef("not-a-guide")).toBeUndefined();
   });

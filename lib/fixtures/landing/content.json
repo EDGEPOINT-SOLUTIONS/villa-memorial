@@ -66,24 +66,6 @@
         "heading": "Care & services",
         "items": [
           {
-            "id": "rl-death-at-home",
-            "kind": "service",
-            "title": "Death at home",
-            "caption": "Immediate care · 24/7",
-            "price": null,
-            "image": "/media/death_at_home.jpg",
-            "href": "/services/death-at-home"
-          },
-          {
-            "id": "rl-death-at-hospital",
-            "kind": "service",
-            "title": "Death at hospital",
-            "caption": "Coordination & transport",
-            "price": null,
-            "image": "/media/death_at_hospital.jpg",
-            "href": "/services/death-at-hospital"
-          },
-          {
             "id": "rl-viewing",
             "kind": "service",
             "title": "Viewing & wake set-up",

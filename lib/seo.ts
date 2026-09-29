@@ -147,8 +147,6 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
   { path: "/services", changeFrequency: "weekly", priority: 0.9 },
   { path: "/builder", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/services/death-at-home", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/services/death-at-hospital", changeFrequency: "monthly", priority: 0.7 },
   { path: "/plans", changeFrequency: "weekly", priority: 0.9 },
   // The consolidated price list (captain 2026-09-21): the plan sub-pages
   // (/plans/villa-memorial-plan, /plans/senior-benefits, /plans/compare) and

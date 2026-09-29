@@ -13,8 +13,6 @@ import { planRateOf, type LotCategory, type PlanPricing } from "@/lib/pricing-mo
 import {
   COFFIN_BRONZE,
   COFFIN_SILVER,
-  DEATH_AT_HOME_IMAGE,
-  DEATH_AT_HOSPITAL_IMAGE,
   LOT_GARDEN_NICHES,
   LOT_MAUSOLEUM,
   LOT_PREMIUM,
@@ -92,22 +90,6 @@ export function buildRailCatalogue(options?: {
     {
       label: "Services",
       entries: [
-        {
-          kind: "service",
-          title: "Death at home",
-          caption: "Immediate care · 24/7",
-          price: null,
-          image: DEATH_AT_HOME_IMAGE,
-          href: "/services/death-at-home",
-        },
-        {
-          kind: "service",
-          title: "Death at hospital",
-          caption: "Coordination & transport",
-          price: null,
-          image: DEATH_AT_HOSPITAL_IMAGE,
-          href: "/services/death-at-hospital",
-        },
         {
           kind: "service",
           title: "Hearse & transport",

@@ -51,43 +51,12 @@ export type ServiceEntryDef = {
 };
 
 /**
- * The three guide pages the captain confirmed stay as service entries under
- * Funeraria Memorial Services (§10, answer 3). Order is the page's own listing
- * order; the keys are the entry identities the store saves by.
+ * The guide pages that stay as service entries under Funeraria Memorial
+ * Services — transport alone since the captain retired the death-at-home and
+ * death-at-hospital pages (2026-09-30). Order is the page's own listing order;
+ * the keys are the entry identities the store saves by.
  */
 export const SERVICE_ENTRY_DEFS: ReadonlyArray<ServiceEntryDef> = [
-  {
-    key: "death-at-home",
-    route: "/services/death-at-home",
-    eyebrow: "Services · At home",
-    fallbackTitle: "Death at home",
-    fallbackSummary:
-      "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
-    fallbackLead: "One call starts everything — we come to you.",
-    steps: [
-      { title: "Call us", body: "Any hour — a coordinator answers and stays with you." },
-      { title: "We come to you", body: "Our team brings your loved one into our care." },
-      { title: "We handle the rest", body: "Transport, preparation and the service, at your pace." },
-    ],
-    secondaryHref: "/plans",
-    secondaryLabel: "Memorial plans",
-  },
-  {
-    key: "death-at-hospital",
-    route: "/services/death-at-hospital",
-    eyebrow: "Services · In care",
-    fallbackTitle: "Death at hospital",
-    fallbackSummary:
-      "When a loved one passes in hospital, we liaise with the facility, handle the transfer and preparation, and coordinate with the venue.",
-    fallbackLead: "We liaise with the hospital, so you can be with family.",
-    steps: [
-      { title: "Call us", body: "Any hour — a coordinator answers and stays with you." },
-      { title: "We handle the ward", body: "Our team arranges the transfer and the paperwork." },
-      { title: "We bring them into our care", body: "Preparation and the service follow, arranged with you." },
-    ],
-    secondaryHref: "/plans",
-    secondaryLabel: "Memorial plans",
-  },
   {
     key: "transport",
     route: "/transport",
