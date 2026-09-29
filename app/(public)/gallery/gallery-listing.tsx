@@ -1,109 +1,200 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  ListingShell,
-  PublicImage,
-  RefinePanel,
-  SectionHead,
-  type RefineGroup,
-} from "@/components/kit";
-import { GALLERY_GROUPS } from "@/lib/gallery";
+  GALLERY_GROUPS,
+  GALLERY_PHOTO_COUNT,
+  GALLERY_PROVENANCE_NOTE,
+  GALLERY_SAMPLE_NOTE,
+  type GalleryPhoto,
+} from "@/lib/gallery";
+import { PhotoViewer } from "@/components/public/photo-viewer";
 
 /**
- * The gallery's photo sets as a listing (captain 2026-09-25): a sticky left rail
- * that stays in view while scrolling, collapsing to a filter sheet on a phone,
- * and the same even picture-first grid in the results column.
+ * The gallery wall — the set index, the three bands of right-sized plates, and
+ * the one viewer that opens a photograph (captain's approved /gallery plan,
+ * 2026-09-30).
  *
- * The sets are three (Park & grounds · Care & facilities · Chapels & viewing);
- * checking one narrows the wall in place — no navigation, and the sheet closes
- * on the sheet's own commit. Unfiltered, every set renders in the client's order.
+ * WHY IT LOOKS LIKE THIS
+ *  · The wall replaced the storefront `ListingShell` + `RefinePanel` rail. A
+ *    gallery is browsed, not filtered: the sets are an in-page index, nothing is
+ *    hidden by it, and a phone no longer needs a control mislabelled "Filters".
+ *  · Every plate is a button. The picture is the client's own 4:3 catalogue crop
+ *    drawn in a 4:3 frame — the WHOLE published frame, never re-cropped — and
+ *    tapping it opens the viewer at that photograph.
+ *  · The one full sample sentence prints once per band; each sample plate keeps
+ *    the short `Sample` chip, so the label can never leave the sample.
+ *
+ * It is `use client` only for the viewer and the set-index scroll-spy. The wall
+ * still renders (and lists every plate) with JavaScript off; only the enlarge
+ * step needs it.
  */
 export function GalleryListing() {
-  const [selected, setSelected] = useState<string[]>([]);
-
-  const toggle = (_groupKey: string, id: string) =>
-    setSelected((current) =>
-      current.includes(id) ? current.filter((value) => value !== id) : [...current, id],
+  // The flat photograph list, in wall order, with each plate's set heading.
+  const { photos, groupLabels, groups } = useMemo(() => {
+    const flat = GALLERY_GROUPS.flatMap((group) =>
+      group.photos.map((photo) => ({ photo, group: group.heading })),
     );
+    // Each group's starting offset in the flat list, so a plate opens at its own
+    // photograph without the wall passing an index per tile.
+    let offset = 0;
+    const withOffsets = GALLERY_GROUPS.map((group) => {
+      const start = offset;
+      offset += group.photos.length;
+      return { group, start };
+    });
+    return {
+      photos: flat.map((entry) => entry.photo),
+      groupLabels: flat.map((entry) => entry.group),
+      groups: withOffsets,
+    };
+  }, []);
 
-  const shown =
-    selected.length === 0
-      ? GALLERY_GROUPS
-      : GALLERY_GROUPS.filter((group) => selected.includes(group.id));
-  const photoCount = shown.reduce((total, group) => total + group.photos.length, 0);
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [currentSet, setCurrentSet] = useState<string>(GALLERY_GROUPS[0]?.id ?? "park");
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const groups: RefineGroup[] = [
-    {
-      key: "sets",
-      title: "Photo sets",
-      options: GALLERY_GROUPS.map((group) => ({ id: group.id, label: group.heading })),
-      counts: Object.fromEntries(GALLERY_GROUPS.map((group) => [group.id, group.photos.length])),
-      selected,
-    },
-  ];
+  // Scroll-spy: the set index marks the section in view. It is navigation, never
+  // a filter — every band stays in the document.
+  useEffect(() => {
+    const nodes = Object.values(sectionRefs.current).filter(Boolean) as HTMLElement[];
+    if (nodes.length === 0 || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]?.target.id) setCurrentSet(visible[0].target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 },
+    );
+    for (const node of nodes) observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  const close = useCallback(() => setOpenIndex(null), []);
 
   return (
-    <ListingShell
-      railLabel="Gallery sets"
-      railActiveCount={selected.length}
-      sheetAction={{
-        label: `Show ${photoCount} photo${photoCount === 1 ? "" : "s"}`,
-        onClick: () => {},
-      }}
-      rail={
-        <RefinePanel
-          title="Browse the gallery"
-          groups={groups}
-          onToggle={toggle}
-          onClear={() => setSelected([])}
-          activeCount={selected.length}
-        />
-      }
-    >
-      {shown.map((group) => {
-        const single = group.photos.length === 1;
-        return (
+    <>
+      <nav className="gal-nav" aria-label="Gallery sets">
+        <ul>
+          {GALLERY_GROUPS.map((group) => (
+            <li key={group.id}>
+              <a
+                href={`#${group.id}`}
+                aria-current={currentSet === group.id ? "true" : undefined}
+              >
+                {group.kicker}
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="gal-nav__count">{GALLERY_PHOTO_COUNT} photographs</p>
+      </nav>
+
+      <div className="gal-wall" id="wall">
+        {groups.map(({ group, start }) => (
           <section
-            className="catalogue-band"
-            id={group.id}
             key={group.id}
+            id={group.id}
+            className="gal-set"
             aria-labelledby={`${group.id}-title`}
+            ref={(node) => {
+              sectionRefs.current[group.id] = node;
+            }}
           >
-            <SectionHead
-              id={`${group.id}-title`}
-              kicker={group.kicker}
-              title={group.heading}
-              lead={group.intro}
-            />
-            <div className={single ? "gal-feature" : "gal-cards"}>
-              {group.photos.map((photo) => (
-                <PublicImage
-                  key={photo.src}
-                  role={single ? "band-lead" : "gallery-tile"}
-                  src={photo.src}
-                  srcSet={photo.srcSet}
-                  sizes={photo.sizes}
-                  alt={photo.alt}
-                  width={photo.width}
-                  height={photo.height}
-                  caption={
-                    <>
-                      <span className="gal-cap__desc">{photo.caption}</span>
-                      {photo.note ? (
-                        <>
-                          {" "}
-                          <span className="gal-figure__note">{photo.note}</span>
-                        </>
-                      ) : null}
-                    </>
-                  }
-                />
-              ))}
+            <div className="home-band-head">
+              <p className="home-band-head__kicker">{group.kicker}</p>
+              <h2 id={`${group.id}-title`} className="home-band-head__title">
+                {group.heading}
+              </h2>
+              <p className="home-band-head__lead">{group.intro}</p>
             </div>
+
+            <ul
+              className={`gal-plates${
+                group.photos.every((photo) => photo.frame === "wide") ? " gal-plates--wide" : ""
+              }${group.photos.length === 1 ? " gal-plates--one" : ""}`}
+            >
+              {group.photos.map((photo, i) => (
+                <li key={photo.id}>
+                  <GalleryPlate
+                    photo={photo}
+                    position={start + i + 1}
+                    total={photos.length}
+                    onOpen={() => setOpenIndex(start + i)}
+                  />
+                </li>
+              ))}
+            </ul>
+
+            {group.photos.some((photo) => photo.sample) ? (
+              <p className="gal-set__note">{GALLERY_SAMPLE_NOTE}</p>
+            ) : null}
           </section>
-        );
-      })}
-    </ListingShell>
+        ))}
+
+        <p className="gal-provenance">{GALLERY_PROVENANCE_NOTE}</p>
+      </div>
+
+      <PhotoViewer
+        photos={photos}
+        index={openIndex}
+        groupLabels={groupLabels}
+        onClose={close}
+        onNavigate={setOpenIndex}
+      />
+    </>
+  );
+}
+
+/**
+ * One plate. The picture is the client's published 4:3 crop drawn whole in a 4:3
+ * frame; the button that opens the viewer covers it and carries the accessible
+ * name. The caption sits under the frame so a phone can reduce it without
+ * touching the picture.
+ */
+function GalleryPlate({
+  photo,
+  position,
+  total,
+  onOpen,
+}: {
+  photo: GalleryPhoto;
+  position: number;
+  total: number;
+  onOpen: () => void;
+}) {
+  const wide = photo.frame === "wide";
+  const role = wide ? "interior-hero" : "gallery-plate";
+  return (
+    <figure
+      className={`public-image public-image--${role} gal-plate${wide ? " gal-plate--wide" : ""}`}
+      data-public-image={role}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={photo.src}
+        srcSet={photo.srcSet}
+        sizes={photo.sizes}
+        width={photo.width}
+        height={photo.height}
+        alt={photo.alt}
+        loading="lazy"
+        decoding="async"
+      />
+      <button
+        type="button"
+        className="gal-plate__open"
+        onClick={onOpen}
+        aria-label={`Open photograph ${position} of ${total} — ${photo.caption}`}
+      >
+        <span className="visually-hidden">Open</span>
+      </button>
+      <figcaption className="gal-plate__caption">
+        {photo.sample ? <span className="gal-plate__chip">Sample</span> : null}
+        <span className="gal-plate__desc">{photo.caption}</span>
+      </figcaption>
+    </figure>
   );
 }

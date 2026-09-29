@@ -12,3 +12,4 @@ export { PublicHero, type PublicHeroAction, type PublicHeroProps } from "./publi
 export { SectionHead } from "./section-head";
 export { PublicDisclosure } from "./public-disclosure";
 export { PublicImage, type PublicImageProps, type PublicImageSource, type PublicImageRole } from "./public-image";
+export { PhotoViewer } from "./photo-viewer";

@@ -126,6 +126,7 @@ export type PublicImageRole =
   | "card"
   | "pdp-main"
   | "gallery-tile"
+  | "gallery-plate"
   | "map";
 
 export type ImageCeiling = {
@@ -180,6 +181,11 @@ export const IMAGE_CEILINGS: Readonly<Record<PublicImageRole, ImageCeiling>> = {
     ratio: "3 / 2",
     maxRem: 16,
     use: "a gallery tile",
+  },
+  "gallery-plate": {
+    ratio: "4 / 3",
+    maxRem: 18,
+    use: "a gallery wall plate — the whole 4:3 catalogue crop, never re-cropped",
   },
   map: {
     ratio: "1 / 1",

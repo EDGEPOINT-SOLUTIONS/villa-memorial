@@ -49,6 +49,7 @@ export {
   SectionHead,
   PublicDisclosure,
   PublicImage,
+  PhotoViewer,
   type PublicHeroAction,
   type PublicHeroProps,
   type PublicImageProps,

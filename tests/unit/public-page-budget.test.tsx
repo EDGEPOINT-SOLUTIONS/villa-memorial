@@ -258,7 +258,9 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     requires: ["data-public-disclosure"],
   },
   {
-    // plan §5.8: hero → three grouped photograph grids → the one /map entry.
+    // plan §5.8: gateway → three bands of whole, right-sized photograph plates
+    // → the one /map entry. Each band carries a designed home-band head; every
+    // plate is a 4:3 whole-image frame.
     name: "/gallery (grounds)",
     render: async () => renderToStaticMarkup(await GalleryPage()),
     sections: [
@@ -268,7 +270,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       'id="chapels"',
       'id="walk"',
     ],
-    requires: ["data-section-head", "data-public-image"],
+    requires: ["data-public-image"],
   },
   {
     // The contact surface (captain's Lavish plan, 2026-09-30): the gateway →
