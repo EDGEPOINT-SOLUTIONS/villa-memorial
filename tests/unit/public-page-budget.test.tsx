@@ -174,7 +174,15 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "builder (/builder)",
     render: async () =>
       renderToStaticMarkup(withBaskets( await BuilderPage())),
-    sections: ['data-public-hero="interior"', 'class="sb-layout"'],
+    // The approved 2026-09-30 composition: the gateway opening + the trust
+    // row, the designed band head, then the questions and the one sheet.
+    sections: [
+      'data-public-hero="interior"',
+      'class="plan-orient"',
+      'class="sb-band"',
+      'class="sb-layout"',
+    ],
+    requires: ["data-section-head"],
   },
   {
     name: "package detail (/plans/PKG-BASIC)",

@@ -17342,18 +17342,16 @@ a.card:hover {
 /* ===========================================================================
    Smart Service Builder (F-05) — the public configurator (/builder)
    ---------------------------------------------------------------------------
-   The screen a family works out what it needs on, and the one public screen
-   that updates without a page load. It follows the public storefront's
-   senior-first reading scale (18px body, nothing a family reads below 16px,
-   every price with its unit, every target at least 44px) and the same folio
-   grammar as /services: numbered capture sections, one sticky rail.
+   The approved 2026-09-30 composition. The page wears the home's grammar: a
+   plain opening gateway (no card, no gold rule — the scoped opt-out below, the
+   same one /services and /plans make), a designed band head, the home's option
+   rows (label left, the sheet's figure hard right, tabular), a single sticky
+   "Your arrangement" sheet, and the plan as its own instalment band. The six
+   per-step "So far …" repeats are gone because the sheet now moves above the
+   questions on a phone instead of falling 3,760px below them.
 
-   Two layout facts worth keeping:
-    · the estimate rail is STICKY under the header
-      (--anchored-header-h) on a desktop and static on a phone, where each step
-      header repeats the running figure instead;
-    · .sb-jump is the phone's one-tap line to the estimate — hidden wherever the
-      sticky rail exists, so the figure is never printed twice on one screen.
+   Owner: this builder block. The Phase-0 grammar block is never edited here;
+   the `.sb-*` names are used by components/builder/* only.
    ========================================================================= */
 
 .sb-page {
@@ -17362,14 +17360,124 @@ a.card:hover {
   color: var(--color-text-primary);
 }
 
-/* The page's opening sentence (the reading-budget lead). */
-.sb-hero__lead {
-  margin: var(--space-3) 0 0;
-  max-width: 40rem;
+/* --- the opening: the home gateway, not the shared boxed band ------------- */
+.sb-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.sb-page .public-hero--interior::before {
+  content: none;
+}
+
+.sb-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.sb-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.sb-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+  text-align: center;
+}
+
+/* The gateway headline at the page-title step: a light display weight,
+   balance-wrapped, inside one text column (the home's own gateway shape). */
+.sb-page .public-hero--interior .public-hero__title {
+  max-width: 22ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.sb-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
   font-size: var(--text-lg);
+  text-align: center;
+}
+
+.sb-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* The captain's approved home exception: the 24/7 call wears the gold the
+   home's own gateway wears, and gold carries DARK ink, never white. */
+.sb-page .public-hero--interior .public-hero__actions .btn--primary {
+  background: var(--gold-400);
+  border-color: var(--gold-500);
+  color: var(--ink-900);
+}
+
+.sb-page .public-hero--interior .public-hero__actions .btn--primary:hover {
+  background: var(--gold-300);
+}
+
+/* --- the designed band head (the home's `.home-band-head` grammar) -------- */
+.sb-band {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  margin: var(--space-6) 0 var(--space-5);
+}
+
+.sb-band::before {
+  content: "";
+  display: block;
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
+
+.sb-band__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* The captain's first-section rule (2026-09-30): every section title on the
+   page is the display face, 35.2px, weight 500, normal style, never bold. */
+.sb-band__title,
+.sb-step__title,
+.sb-plan__title,
+.sb-estimate__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+
+.sb-band__lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
   color: var(--color-text-secondary);
 }
 
+/* --- the workbench: the questions and the one sheet ----------------------- */
 .sb-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 26rem;
@@ -17381,63 +17489,42 @@ a.card:hover {
 .sb-main {
   min-width: 0;
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
-.sb-jump {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 600;
-}
-
-.sb-jump a {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border-strong);
-  border-radius: 999px;
-  background: var(--color-bg-surface-raised);
-  color: var(--color-text-primary);
-  text-decoration: none;
-}
-
-/* --- one question per numbered card ---------------------------------------- */
-
+/* --- a step: a numbered question, no card chrome -------------------------- */
 .sb-step {
   scroll-margin-top: calc(var(--anchored-header-h) + var(--space-4));
-}
-
-.sb-step .capture-section__head {
-  flex-wrap: wrap;
-  row-gap: var(--space-3);
+  display: grid;
+  gap: var(--space-4);
 }
 
 .sb-step__head {
-  min-width: 0;
-  flex: 1 1 12rem;
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
 }
 
-/* The running total, repeated in every step: on a phone the sticky rail is not
-   there, so the figure has to travel with the questions. */
-.sb-step__sofar {
-  margin: 0 0 0 auto;
+.sb-step__num {
   flex: none;
-  display: grid;
-  justify-items: end;
-  gap: 0.1rem;
-  font-size: var(--text-md);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--color-text-accent);
+}
+
+.sb-step__blurb {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
-.sb-step__sofar strong {
-  font-family: var(--font-serif);
-  font-size: var(--text-lg);
-  color: var(--color-text-primary);
+.sb-step__body {
+  display: grid;
+  gap: var(--space-4);
 }
 
-/* --- a question, its legend and its choices -------------------------------- */
-
+/* --- a question, its legend and its option rows --------------------------- */
 .sb-group {
   margin: 0;
   padding: 0;
@@ -17451,31 +17538,31 @@ a.card:hover {
   padding: 0 0 var(--space-2);
   border-bottom: 1px solid var(--color-rule);
   font-family: var(--font-sans);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--color-text-secondary);
+  color: var(--sky-700);
 }
 
-.sb-choices {
+.sb-opts {
   display: grid;
-  gap: var(--space-3);
-  margin-top: var(--space-4);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
 }
 
-.sb-choices--2 {
+.sb-opts--2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.sb-choice {
+.sb-opt {
   display: flex;
   gap: var(--space-3);
-  align-items: flex-start;
-  min-height: 3rem;
-  padding: var(--space-3) var(--space-4);
+  align-items: center;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-sm);
   background: var(--color-bg-surface-raised);
   cursor: pointer;
   transition:
@@ -17483,105 +17570,123 @@ a.card:hover {
     background-color var(--motion-fast);
 }
 
-.sb-choice:hover {
+.sb-opt:hover {
   border-color: var(--color-border-strong);
-  background: var(--color-bg-surface-raised);
 }
 
-.sb-choice:has(input:checked) {
+.sb-opt:has(input:checked) {
   border-color: var(--color-sky-strong);
   background: var(--sky-100);
   box-shadow: inset 0 0 0 1px var(--color-sky-strong);
 }
 
-.sb-choice input {
+.sb-opt input {
   flex: none;
   width: 1.25rem;
   height: 1.25rem;
-  margin: 0.15rem 0 0;
-  accent-color: var(--color-sky-strong);
-}
-
-.sb-choice__text {
-  display: grid;
-  gap: var(--space-1);
-  min-width: 0;
-}
-
-.sb-choice__title {
-  font-size: var(--text-lg);
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-.sb-choice__meta {
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
-
-/* --- the preparation ladder: one chip per sheet row ------------------------ */
-
-.sb-days {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-}
-
-.sb-day {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: 3rem;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-  cursor: pointer;
-}
-
-.sb-day:hover {
-  border-color: var(--color-border-strong);
-}
-
-.sb-day:has(input:checked) {
-  border-color: var(--color-sky-strong);
-  background: var(--sky-100);
-  box-shadow: inset 0 0 0 1px var(--color-sky-strong);
-}
-
-.sb-day input {
-  flex: none;
-  width: 1.15rem;
-  height: 1.15rem;
   margin: 0;
   accent-color: var(--color-sky-strong);
 }
 
-.sb-day__text {
+.sb-opt__label {
+  flex: 1;
+  min-width: 0;
   display: grid;
   gap: 0.1rem;
 }
 
-.sb-day__figure {
-  font-size: var(--text-md);
-  font-weight: 700;
+.sb-opt__title {
+  font-size: var(--text-body);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text-primary);
 }
 
-.sb-day__price {
-  font-size: var(--text-md);
+.sb-opt__detail {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.sb-opt__amount {
+  flex: none;
+  font-size: var(--text-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--color-text-primary);
+}
+
+/* --- the chapel rooms: the client's own photographs, one card each -------- */
+.sb-rooms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.sb-room {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast);
+}
+
+.sb-room:hover {
+  border-color: var(--color-border-strong);
+}
+
+.sb-room:has(input:checked) {
+  border-color: var(--color-sky-strong);
+  box-shadow: inset 0 0 0 1px var(--color-sky-strong);
+}
+
+.sb-room > input {
+  justify-self: start;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--color-sky-strong);
+}
+
+.sb-room__body {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.sb-room__name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.sb-room__rate {
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
-/* --- fields, amounts, notes ------------------------------------------------ */
+.sb-room__stay {
+  font-size: var(--text-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
 
+/* --- fields, the picked casket, amounts, notes ---------------------------- */
 .sb-field {
   display: grid;
   gap: var(--space-2);
 }
 
 .sb-field > label {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   font-weight: 600;
   color: var(--color-text-secondary);
 }
@@ -17599,11 +17704,18 @@ a.card:hover {
 
 .sb-picked {
   display: grid;
-  gap: var(--space-2);
+  grid-template-columns: minmax(0, 12rem) minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
   padding: var(--space-4);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-md);
   background: var(--color-bg-surface-raised);
+}
+
+.sb-picked__detail {
+  display: grid;
+  gap: var(--space-2);
 }
 
 .sb-picked__title {
@@ -17612,12 +17724,12 @@ a.card:hover {
   gap: var(--space-3);
   align-items: baseline;
   margin: 0;
-  font-size: var(--text-lg);
+  font-size: var(--text-body);
   font-weight: 600;
 }
 
 .sb-picked__price {
-  font-size: var(--text-md);
+  font-size: var(--text-body);
   font-weight: 700;
   color: var(--color-text-accent);
 }
@@ -17636,13 +17748,13 @@ a.card:hover {
   border: 1px solid var(--color-border-strong);
   border-radius: 999px;
   background: var(--color-bg-surface-raised);
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
 .sb-amount {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-body);
   color: var(--color-text-secondary);
 }
 
@@ -17653,7 +17765,7 @@ a.card:hover {
 
 .sb-note {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   line-height: 1.55;
   color: var(--color-text-secondary);
 }
@@ -17666,8 +17778,13 @@ a.card:hover {
 }
 
 .sb-total-chip {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
+}
+
+.sb-office-items {
+  display: grid;
+  gap: var(--space-2);
 }
 
 .sb-sources {
@@ -17675,8 +17792,39 @@ a.card:hover {
   border-top: 1px solid var(--color-rule);
 }
 
-/* --- the estimate rail ----------------------------------------------------- */
+/* --- band 3 · the plan, its own instalment band --------------------------- */
+.sb-plan {
+  scroll-margin-top: calc(var(--anchored-header-h) + var(--space-4));
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
+}
 
+.sb-plan__head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.sb-plan__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sky-700);
+}
+
+.sb-plan__lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+/* --- the estimate sheet: the page's one loud object ----------------------- */
 .sb-side {
   min-width: 0;
   position: sticky;
@@ -17689,9 +17837,15 @@ a.card:hover {
   padding: var(--space-5);
 }
 
-.sb-estimate__title {
+.sb-estimate__head {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.sb-estimate__caption {
   margin: 0;
-  font-size: var(--text-xl);
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
 }
 
 .sb-estimate__total {
@@ -17701,7 +17855,7 @@ a.card:hover {
 }
 
 .sb-estimate__total-label {
-  font-size: var(--text-md);
+  font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -17709,7 +17863,7 @@ a.card:hover {
 }
 
 .sb-estimate__total-amount {
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-text-primary);
@@ -17720,8 +17874,25 @@ a.card:hover {
 .sb-estimate__pending,
 .sb-estimate__owned {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
+}
+
+.sb-estimate__more {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.sb-estimate__more-summary {
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.sb-estimate__more-body {
+  display: grid;
+  gap: var(--space-4);
 }
 
 .sb-estimate__lines {
@@ -17748,23 +17919,23 @@ a.card:hover {
 }
 
 .sb-estimate__line-label {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   font-weight: 600;
 }
 
 .sb-estimate__line-detail {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
 .sb-estimate__line-flag {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   font-weight: 600;
   color: var(--color-text-accent);
 }
 
 .sb-estimate__line-amount {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -17776,7 +17947,7 @@ a.card:hover {
 
 .sb-estimate__covered-title {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   font-weight: 700;
   color: var(--color-text-accent);
 }
@@ -17792,7 +17963,7 @@ a.card:hover {
 }
 
 .sb-estimate__monthly-label {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   font-weight: 600;
 }
 
@@ -17802,7 +17973,7 @@ a.card:hover {
 }
 
 .sb-estimate__monthly-note {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
@@ -17815,16 +17986,8 @@ a.card:hover {
 }
 
 .sb-estimate__quotes li {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
-}
-
-.sb-estimate__note {
-  margin: 0;
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-rule);
-  font-size: var(--text-md);
-  font-weight: 600;
 }
 
 .sb-estimate__actions {
@@ -17840,14 +18003,14 @@ a.card:hover {
 .sb-estimate__arranged-figure,
 .sb-arranged__title {
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   font-size: var(--text-xl);
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .sb-estimate__arranged-text {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
@@ -17855,6 +18018,9 @@ a.card:hover {
   display: grid;
   gap: var(--space-4);
   padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface-raised);
 }
 
 .sb-arranged__text {
@@ -17862,33 +18028,66 @@ a.card:hover {
   font-size: var(--text-lg);
 }
 
-/* --- phone: one column, the steps first, the same figure in every header ---- */
-
+/* --- desktop: the sheet caps to its sticky room --------------------------- */
 @media (min-width: 62.001rem) {
-  .sb-jump {
+  .sb-side {
+    max-height: calc(100vh - var(--anchored-header-h) - var(--space-6));
+    max-height: calc(100dvh - var(--anchored-header-h) - var(--space-6));
+    overflow: auto;
+  }
+
+  /* The ledger is always open on a desktop; the summary is the phone's.
+     A closed `<details>` hides its content in two different ways across
+     engines (a child `display: none`, or `content-visibility` on
+     `::details-content`), so both are overridden here. */
+  .sb-estimate__more > summary {
     display: none;
+  }
+
+  .sb-estimate__more::details-content {
+    content-visibility: visible;
   }
 }
 
+/* --- tablet / phone: one column, the sheet first and sticky --------------- */
 @media (max-width: 62rem) {
   .sb-layout {
     grid-template-columns: minmax(0, 1fr);
   }
 
   .sb-side {
-    position: static;
+    order: -1;
+    position: sticky;
+    top: calc(var(--anchored-header-h) + var(--space-2));
+    z-index: 1;
+    max-height: calc(100vh - var(--anchored-header-h) - var(--space-4));
+    max-height: calc(100dvh - var(--anchored-header-h) - var(--space-4));
+    overflow: auto;
+  }
+
+  /* The folded ledger: the compact sheet keeps the total and the actions
+     reachable while the questions scroll. */
+  .sb-estimate__more:not([open]) > .sb-estimate__more-body {
+    display: none;
   }
 }
 
 @media (max-width: 44rem) {
-  .sb-choices--2,
-  .sb-field-grid {
-    grid-template-columns: 1fr;
+  .sb-opts--2,
+  .sb-rooms,
+  .sb-field-grid,
+  .sb-picked {
+    grid-template-columns: minmax(0, 1fr);
   }
+}
 
-  .sb-step__sofar {
-    margin-left: 0;
-    justify-items: start;
+/* --- ≤40rem: every control reaches the product's 44px touch floor --------- */
+@media (max-width: 40rem) {
+  .sb-opt,
+  .sb-page .sb-field .select,
+  .sb-page .sb-field .input,
+  .sb-estimate__actions .btn {
+    min-height: 44px;
   }
 }
 
