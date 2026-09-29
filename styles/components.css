@@ -15085,10 +15085,17 @@ a.card:hover {
      · one plain-language "Need help? Call" path that never scrolls away.
    ========================================================================== */
 
-/* --- Senior-first reading base -------------------------------------------- */
+/* --- the reading base: the HOME's own ladder ------------------------------
+   Captain, 2026-09-30: "the font of the services page should be consistent, we
+   will all use the fonts we used in the home page." This page used to carry its
+   own senior-first scale (a 16px body) and read differently from the home
+   because of it; it now consumes the home's own role steps — body
+   `--text-body` (13.6px), secondary `--text-caption` (13px), labels
+   `--text-micro` (12px), the ladder's floor — and the home's two faces: the
+   display serif for headings, Manrope for everything else. */
 .sv-page {
-  font-size: var(--text-lg); /* 18px */
-  line-height: 1.65;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
   color: var(--color-text-primary);
   background: var(--color-bg-surface-raised);
 }
@@ -15100,15 +15107,14 @@ a.card:hover {
 .sv-page td,
 .sv-page th,
 .sv-page figcaption {
-  font-size: var(--text-lg);
-  line-height: 1.62;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
 }
 
-/* Secondary copy stays 16px and uses navy-700 (9.6:1 on white) — never the
-   13px/5.2:1 muted grey the live page uses. */
+/* Secondary copy at the home's caption step, in the secondary ink. */
 .sv-page .sv-note,
 .sv-page .sv-small {
-  font-size: var(--text-md);
+  font-size: var(--text-caption);
   line-height: 1.6;
   color: var(--color-text-secondary);
 }
@@ -15131,11 +15137,12 @@ a.card:hover {
   line-height: 1.25;
 }
 
-/* Buttons: min 48 px tall, 17px label, and full width where a card stacks. */
+/* Buttons: the senior touch size (min 48 px tall) but the home's own label step
+   (`--text-md`, 13.6px) — the page's type now matches the home's. */
 .sv-page .btn {
   min-height: 3rem;
   padding: 0.7rem 1.25rem;
-  font-size: var(--text-lg);
+  font-size: var(--text-md);
   font-weight: 600;
   gap: var(--space-2);
 }
@@ -15174,38 +15181,8 @@ a.card:hover {
   padding-block: var(--space-4) var(--space-7);
 }
 
-/* --- Breadcrumb ------------------------------------------------------------ */
-.sv-breadcrumb {
-  margin: var(--space-3) 0 var(--space-2);
-}
-
-.sv-breadcrumb ol {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  align-items: center;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--text-md);
-  color: var(--color-text-secondary);
-}
-
-.sv-breadcrumb li + li::before {
-  content: "/";
-  margin-right: var(--space-2);
-  color: var(--color-text-muted);
-}
-
-.sv-breadcrumb a {
-  color: var(--color-text-secondary);
-  font-weight: 600;
-}
-
-.sv-breadcrumb [aria-current="page"] {
-  color: var(--color-text-primary);
-  font-weight: 700;
-}
+/* (The breadcrumb left this page on 2026-09-30 — the captain asked for it gone,
+   and its four rules went with the markup.) */
 
 /* --- Hero ------------------------------------------------------------------ */
 .sv-hero {
@@ -19842,6 +19819,16 @@ a.plan-advisor__phone:hover {
   margin-bottom: var(--space-1);
 }
 
+/* The facts row is the home's trust row: a 12px bold label over a caption line. */
+.sv-page .sv-orient__label {
+  font-size: var(--text-micro);
+  font-weight: 650;
+}
+
+.sv-page .sv-orient__text {
+  font-size: var(--text-caption);
+}
+
 /* --- the designed, centred band head (the home's `.home-band-head`) -------- */
 .sv-band__head {
   display: flex;
@@ -19852,16 +19839,9 @@ a.plan-advisor__phone:hover {
   margin-bottom: var(--space-6);
 }
 
-/* The ceremonial hairline above the band — one of gold's three legal uses.
-   Nothing else in these bands wears gold. */
-.sv-band__head::before {
-  content: "";
-  display: block;
-  width: min(18rem, 60%);
-  height: 1px;
-  margin-bottom: var(--space-1);
-  background: var(--gold-hairline);
-}
+/* (The gold ceremonial hairline that sat above each band head was REMOVED on
+   2026-09-30 at the captain's direction — the band heads open on the kicker
+   alone now.) */
 
 .sv-page .sv-band__kicker {
   margin: 0;
@@ -19972,8 +19952,10 @@ a.plan-advisor__phone:hover {
   height: 2.5rem;
 }
 
+/* The home's plate roles: `.home-service__name` is a 13.6px bold name and its
+   supporting copy sits at the caption step. */
 .sv-page .sv-tile__name {
-  font-size: var(--text-lg);
+  font-size: var(--text-body);
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
@@ -19981,7 +19963,7 @@ a.plan-advisor__phone:hover {
 }
 
 .sv-page .sv-tile__line {
-  font-size: var(--text-lg);
+  font-size: var(--text-caption);
   line-height: 1.45;
   text-align: center;
   color: var(--color-text-secondary);
@@ -20011,6 +19993,17 @@ a.plan-advisor__phone:hover {
 .sv-embalm .public-disclosure {
   width: 100%;
   text-align: left;
+}
+
+/* The Add-to-Quote action is CENTRED under the picker (captain, 2026-09-30).
+   `.sv-picker__actions` is a two-column grid, so a single button landed in the
+   left cell and read off-centre; as a centred flex row it centres for one action
+   or two. */
+.sv-embalm .sv-picker__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-5);
 }
 
 /* The picker's own box chrome goes: inside the centred column it was a card
@@ -20084,10 +20077,13 @@ a.plan-advisor__phone:hover {
   color: var(--sky-700);
 }
 
+/* A card-level name wears the SANS face on the home (`.home-chapel__name`,
+   `.home-service__name` are 13.6px Manrope); the display serif is reserved for
+   the band titles and the h1. The dossier follows the home. */
 .sv-page .sv-room__name {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-card-title);
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
   font-weight: 700;
   line-height: var(--leading-tight);
   color: var(--color-text-primary);
@@ -20095,6 +20091,7 @@ a.plan-advisor__phone:hover {
 
 .sv-page .sv-room__what {
   margin: 0;
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
@@ -20149,36 +20146,14 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-muted);
 }
 
-/* --- the senior-first floor, made real -------------------------------------
-   The rule is documented as non-negotiable — "18px body, nothing under 16px in
-   page content" — and on this page it was not true. Measured on the live page,
-   SEVEN elements sat under it and NO TEST checked the floor at all, which is why
-   it drifted:
-
-     13.6px  .sv-small         "How many days will the viewing be open?"
-     13.6px  .sv-note          "Package includes embalming — no fixed day count."
-     12.0px  .story-facts dt   "Room fits about"  (uppercase, letter-spaced)
-     13.6px  .story-facts dd   "120 people" / "60 people"
-     13.6px  .story-help p     "Questions about a service, chapel dates…"
-
-   On a page whose readers are often older, the floor IS the design. Scoped to
-   `.sv-page`: `.story-facts` and `.story-help` are shared with /facilities
-   and the guides, and this pass owns /services alone. */
-.sv-page .sv-note,
-.sv-page .sv-small,
-.sv-page .story-facts dt,
-.sv-page .story-facts dd,
-.sv-page .story-help p {
-  font-size: var(--text-lg);
-}
-
-/* The facts label was 12px UPPERCASE with letter-spacing — a treatment that only
-   works small. At 16px it would shout, so it reads as plain text and keeps the
-   muted colour that marks it as a label. */
-.sv-page .story-facts dt {
-  letter-spacing: 0;
-  text-transform: none;
-}
+/* --- the type floor is the ladder's, not a page-local 16px ------------------
+   This block used to force /services's small copy up to 16px (the "senior-first
+   floor"). On 2026-09-30 the captain moved the page onto the home's type scale
+   ("we will all use the fonts we used in the home page"), so the floor is the
+   ladder's own 12px step — exactly what the home ships — and the page-local
+   override is DELETED rather than left to fight the base. `.story-facts` and
+   `.story-help` left this page with the old chapel cards and the second closing
+   band; they remain /facilities' and the guides' shapes. */
 
 /* --- the enquiries board's request text -------------------------------------
    2026-09-27: the board rendered only a row's `topic`, so a Request-for-Quote reached

@@ -68,14 +68,8 @@ export default async function ServicesPage() {
   return (
     <div className="sv-page">
       <div className="sv-main">
-        <nav className="sv-breadcrumb" aria-label="Breadcrumb">
-          <ol>
-            <li>
-              <Link href="/">Home</Link>
-            </li>
-            <li aria-current="page">Funeraria Memorial Services</li>
-          </ol>
-        </nav>
+        {/* No breadcrumb (captain, 2026-09-30): the page opens directly on the
+            gateway band, exactly as the home does. */}
 
         {/* The page opens on the home's gateway grammar: one sentence, one gold
             call, and the three facts a family needs before any list is useful. */}
