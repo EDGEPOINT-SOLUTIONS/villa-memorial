@@ -10042,7 +10042,8 @@ a.card:hover {
   font-size: var(--text-sm);
   font-weight: 700;
   line-height: 1.2; /* fits the 2.75rem row */
-  color: var(--color-text-secondary);
+  /* Black, not the quiet secondary ink (captain, 2026-09-30). */
+  color: var(--color-text-primary);
   text-decoration: none;
   white-space: nowrap;
   transition: color var(--motion-fast), background-color var(--motion-fast);
@@ -10116,6 +10117,15 @@ a.card:hover {
 
 .anchored-header--compressed .anchored-header__bar {
   height: 4.5rem; /* D5: 88 px → 72 px, never hiding */
+}
+
+/* The captain's wider side margin on BOTH rows (2026-09-30): desktop only —
+   every narrower width keeps its tuned padding, and phones keep their own. */
+@media (min-width: 75rem) {
+  .anchored-header__topbar,
+  .anchored-header__bar {
+    padding-inline: var(--space-7);
+  }
 }
 
 .anchored-header__brand {
@@ -10220,7 +10230,8 @@ a.card:hover {
   font: inherit;
   font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--color-text-secondary); /* 10.3:1 on white — AAA */
+  /* Black, not the quiet secondary ink (captain, 2026-09-30). */
+  color: var(--color-text-primary); /* ink on white — AAA */
   text-decoration: none;
   cursor: pointer;
   white-space: nowrap;
@@ -19982,7 +19993,7 @@ a.plan-advisor__phone:hover {
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
-  padding-block: var(--space-5) var(--space-2);
+  padding-block: var(--space-3) var(--space-2);
 }
 
 /* (The arch was REMOVED ENTIRELY at the office's direction (inbox 032): no
@@ -20048,40 +20059,42 @@ a.plan-advisor__phone:hover {
 }
 
 /* THE GATEWAY'S OWN TYPE SCALE (office, inbox 034; corrected to 1.5 in inbox
-   036: one and a half times the ORIGINAL sizes). Every step below is DERIVED
-   FROM THE LADDER — one multiplier drives all of it — and it is scoped to this
-   band only, so no other band, the header or any other button moves. Desktop
-   only: phones keep the ladder's own step-down (the tokens map the display
-   roles down below 48rem), so the band steps down sensibly instead of
-   clipping.
-     eyebrow   12 → 18px     (1.5 × --text-micro)
-     headline  57.6 → 86.4px (1.5 × --text-hero); the true 2× cap is gone:
-               at 1.5× "Someone has died. Call us" is ~1087px, inside the
-               band's 1222px, so the size is honestly 1.5×
-     lead      16 → 24px     (1.5 × --text-lg)
-     the call  13.6 → 20.4px label, 1.5× padding from the same space tokens,
-               the icon riding the label at 1.35em. */
+   036; every style then stepped down 10px on the captain's direction,
+   2026-09-30). One multiplier drives the display scale and each role then
+   drops 10px, floored at the ladder's 12px step; it is scoped to this band
+   only, so no other band, the header or any other button moves. Desktop only:
+   phones keep the ladder's own step-down (the tokens map the display roles
+   down below 48rem), so the band steps down sensibly instead of clipping.
+     eyebrow   18 → 12px     (the floor holds: 18 − 10 = 8)
+     headline  86.4 → 76.4px (1.5 × --text-display − 10px)
+     lead      24 → 14px     (1.5 × --text-lg − 10px)
+     the call  20.4 → 12px   (the floor holds: 20.4 − 10 = 10.4), padding
+               unchanged from the same space tokens, the icon riding the label
+               at 1.35em. */
 @media (min-width: 48.001rem) {
-  .home-gateway {
-    --gateway-type-scale: 1.5;
-    --text-micro: calc(var(--gateway-type-scale) * var(--text-xs));
-    --text-hero: calc(var(--gateway-type-scale) * var(--text-display));
+  /* The band's own reduced top gap (captain, 2026-09-30): the shared
+     `.home > section` padding stays untouched for every other band. */
+  .home > .home-gateway {
+    padding-top: var(--space-7);
   }
 
-  /* The lead doubles through its own role slot; the icon row's labels keep the
-     root `--text-body` (they are not part of this pass). */
+  .home-gateway {
+    --gateway-type-scale: 1.5;
+    --text-hero: calc(var(--gateway-type-scale) * var(--text-display) - 10px);
+  }
+
+  /* The lead drops 10px through its own role slot. */
   .home-gateway__lead {
-    --text-body: calc(var(--gateway-type-scale) * var(--text-lg));
+    --text-body: calc(var(--gateway-type-scale) * var(--text-lg) - 10px);
     font-size: var(--text-body);
   }
 
-  /* BOTH actions in the row grow as buttons, not just as text — and they grow
-     together (office, inbox 041/043): same label size, same scaled padding,
-     same height. The call keeps the solid gold fill; Build keeps the gold
-     outline. */
+  /* BOTH actions in the row keep their scaled padding and height; only the
+     label steps down 10px and is floored at the ladder's 12px. The call keeps
+     the solid gold fill; Build keeps the gold outline. */
   .home-gateway__actions .home-call,
   .home-gateway__actions .btn--gold-outline {
-    --text-ui: calc(var(--gateway-type-scale) * var(--text-md));
+    --text-ui: max(var(--text-xs), calc(var(--gateway-type-scale) * var(--text-md) - 10px));
     font-size: var(--text-ui);
     padding: calc(var(--gateway-type-scale) * var(--space-2))
       calc(var(--gateway-type-scale) * var(--space-4));
@@ -20118,7 +20131,8 @@ a.plan-advisor__phone:hover {
   align-items: center;
   gap: var(--space-2);
   text-align: center;
-  font-size: var(--text-caption);
+  /* Stepped to the 12px floor with the band (captain, 2026-09-30). */
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
 }
 
@@ -20131,7 +20145,8 @@ a.plan-advisor__phone:hover {
 
 .home-trust__item b {
   display: block;
-  font-size: var(--text-body);
+  /* Stepped to the 12px floor with the band (captain, 2026-09-30). */
+  font-size: var(--text-xs);
   color: var(--color-text-primary);
 }
 
@@ -20924,7 +20939,10 @@ a.plan-advisor__phone:hover {
   }
 
   .home-gateway__trust {
-    grid-template-columns: minmax(0, 1fr);
+    /* The captain keeps the three facts in ONE row on phones (2026-09-30):
+       three centred columns with a tighter gap; the labels wrap inside them. */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
   }
 }
 
@@ -21087,7 +21105,11 @@ a.plan-advisor__phone:hover {
   filter: drop-shadow(0 1px 1px rgb(8 30 65 / 0.6));
 }
 
-.home-intro__hello,
+/* The reference scales the words with the cloud (0.0633 of its width); it is
+   the ONE proportional size on the site, clamped to ladder steps at both ends,
+   and is named in the typography gate as artwork text. The sign's only line now
+   (the greeting line was removed, captain 2026-09-30), stepped down a little
+   from the reference's own factor. */
 .home-intro__welcome {
   margin: 0;
   color: var(--gold-200);
@@ -21095,21 +21117,7 @@ a.plan-advisor__phone:hover {
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-}
-
-/* The reference scales both lines with the cloud (0.05 and 0.0633 of its
-   width); these are the ONE proportional sizes on the site, clamped to ladder
-   steps at both ends, and are named in the typography gate as artwork text. */
-.home-intro__hello {
-  font-size: clamp(var(--text-body), calc(var(--home-intro-cw) * 0.05), var(--text-section-title));
-  font-style: italic;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-}
-
-.home-intro__welcome {
-  margin-top: 4px;
-  font-size: clamp(var(--text-body), calc(var(--home-intro-cw) * 0.0633), var(--text-page-title));
+  font-size: clamp(var(--text-body), calc(var(--home-intro-cw) * 0.056), var(--text-page-title));
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: 0.04em;

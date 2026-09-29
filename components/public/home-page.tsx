@@ -175,8 +175,8 @@ export function HomePage({
       {/* The entrance overlay is NOT here: the route that renders this page
           (`app/(public)/page.tsx`) reads the session cookie and puts the
           cloud sign in the HTML for an unseen visitor, so the home itself
-          stays a server component whose own content never moves. Its two
-          lines stay in the content store (home.intro), edited in the home
+          stays a server component whose own content never moves. Its welcome
+          line stays in the content store (home.intro), edited in the home
           editor. */}
       {/* ================================================================
           1 · THE GATEWAY — centred words and the call.

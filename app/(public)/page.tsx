@@ -76,7 +76,7 @@ export default async function HomeRoute() {
           markup, so the first paint is the sign even on a slow parse — no
           flash of the home it is covering. */}
       {introSeen ? null : (
-        <HomeSignOverlay hello={content.home.intro.hello} welcome={content.home.intro.welcome} />
+        <HomeSignOverlay welcome={content.home.intro.welcome} />
       )}
       <HomePage
         content={content}

@@ -15,8 +15,8 @@ import { BRAND_NAME } from "@/lib/brand";
  * the animation. It plays once per session; a returning visitor gets the home
  * directly.
  *
- * The two lines are marquee copy from the home content document (`home.intro`)
- * and are edited in the home editor; this page only reads them.
+ * The welcome line is marquee copy from the home content document (`home.intro`)
+ * and is edited in the home editor; this page only reads it.
  */
 export const metadata: Metadata = {
   title: `Welcome — ${BRAND_NAME}`,
@@ -30,5 +30,5 @@ export const dynamic = "force-dynamic";
 
 export default async function EntrancePage() {
   const { home } = await listLandingContent();
-  return <EntranceHandoff hello={home.intro.hello} welcome={home.intro.welcome} />;
+  return <EntranceHandoff welcome={home.intro.welcome} />;
 }

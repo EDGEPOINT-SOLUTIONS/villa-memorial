@@ -35,8 +35,8 @@ import { INTRO_COOKIE, SEEN_KEY } from "@/lib/home-intro";
  * THE GUARDS ON TOP OF THE REFERENCE (it is a standalone demo):
  *  · NO CDN FONT — the words ride the app's self-hosted display face.
  *  · NO REPLAY BUTTON; a labelled Skip control instead.
- *  · THE TWO LINES live in the home document and are edited in the home
- *    editor; this module only renders them.
+ *  · THE WELCOME LINE lives in the home document and is edited in the home
+ *    editor; this module only renders it.
  *  · SHORT — the exit begins at 1.7s (the demo: 3.8s); any click or keypress
  *    finishes it in ~220ms.
  *  · ONCE PER SESSION — the cookie (server-visible) plus sessionStorage (its
@@ -77,8 +77,8 @@ function markIntroSeen() {
  * visitor to the home. A full `location.replace` (not a router push) is
  * deliberate — the entrance must not stay in the history stack.
  */
-export function EntranceHandoff({ hello, welcome }: { hello: string; welcome: string }) {
-  return <HomeSign hello={hello} welcome={welcome} onDone={() => window.location.replace("/")} />;
+export function EntranceHandoff({ welcome }: { welcome: string }) {
+  return <HomeSign welcome={welcome} onDone={() => window.location.replace("/")} />;
 }
 
 /**
@@ -89,7 +89,7 @@ export function EntranceHandoff({ hello, welcome }: { hello: string; welcome: st
  * immediately (the server cannot see sessionStorage, so the overlay renders
  * and this effect removes it before it reads).
  */
-export function HomeSignOverlay({ hello, welcome }: { hello: string; welcome: string }) {
+export function HomeSignOverlay({ welcome }: { welcome: string }) {
   // While this overlay is up the home underneath stays hidden and inert; the
   // play effect in HomeSign owns that attribute and removes it on unmount.
   const [hidden, setHidden] = useState(false);
@@ -101,7 +101,7 @@ export function HomeSignOverlay({ hello, welcome }: { hello: string; welcome: st
     }
   }, []);
   if (hidden) return null;
-  return <HomeSign hello={hello} welcome={welcome} onDone={() => setHidden(true)} />;
+  return <HomeSign welcome={welcome} onDone={() => setHidden(true)} />;
 }
 
 /**
@@ -112,11 +112,9 @@ export function HomeSignOverlay({ hello, welcome }: { hello: string; welcome: st
  * inline — not through a portal — is what lets the server paint it.
  */
 export function HomeSign({
-  hello,
   welcome,
   onDone,
 }: {
-  hello: string;
   welcome: string;
   onDone: () => void;
 }) {
@@ -248,7 +246,6 @@ export function HomeSign({
           <span className="home-intro__bead home-intro__bead--left" />
           <span className="home-intro__bead home-intro__bead--right" />
           <div className="home-intro__msg">
-            {hello ? <p className="home-intro__hello">{hello}</p> : null}
             <p className="home-intro__welcome">{welcome}</p>
           </div>
         </div>

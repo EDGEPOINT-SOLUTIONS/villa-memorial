@@ -120,27 +120,31 @@ describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
     expect(RULES).not.toContain(".home-trust__note");
   });
 
-  it("scales the band 1.5× from the ladder, desktop only (inbox 034/036)", () => {
-    // One multiplier, scoped to band 1 and to desktop — every step derived
-    // from an existing alias so nothing else in the product moves. The 2×
-    // cap is gone: at 1.5× the headline genuinely is 1.5× (86.4px) and fits.
+  it("steps the band down 10px from its 1.5× scale, desktop only (captain, 2026-09-30)", () => {
+    // One multiplier drives the display scale and each role then drops 10px,
+    // scoped to band 1 and to desktop — nothing else in the product moves. The
+    // small steps meet the ladder's 12px floor instead of going under it.
     const at = RULES.indexOf("--gateway-type-scale: 1.5;");
     expect(at, "the gateway scale block exists").toBeGreaterThanOrEqual(0);
     const block = RULES.slice(RULES.lastIndexOf("@media", at), RULES.indexOf("\n}", at));
     expect(block).toContain("@media (min-width: 48.001rem)");
-    expect(block).toMatch(/--text-micro:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-xs\)\)/);
+    // The eyebrow drops the 1.5× override entirely: it renders the ladder's
+    // 12px micro step (18 − 10 = 8, floored).
+    expect(block).not.toMatch(/--text-micro/);
     expect(block).toMatch(
-      /--text-hero:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-display\)\)/,
+      /--text-hero:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-display\) - 10px\)/,
     );
     expect(block).not.toContain("min(");
     expect(block).toMatch(
-      /--text-body:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-lg\)\)/,
+      /--text-body:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-lg\) - 10px\)/,
     );
     expect(block).toMatch(
-      /--text-ui:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-md\)\)/,
+      /--text-ui:\s*max\(var\(--text-xs\), calc\(var\(--gateway-type-scale\) \* var\(--text-md\) - 10px\)\)/,
     );
-    // The call grows as a button: label AND padding, from the same tokens.
+    // The call grows as a button: padding from the same tokens (unchanged).
     expect(block).toMatch(/padding:\s*calc\(var\(--gateway-type-scale\) \* var\(--space-2\)\)/);
     expect(block).toMatch(/calc\(var\(--gateway-type-scale\) \* var\(--space-4\)\)/);
+    // The band's own reduced top gap rides the same desktop block.
+    expect(block).toMatch(/\.home > \.home-gateway \{\s*padding-top:\s*var\(--space-7\);\s*\}/);
   });
 });

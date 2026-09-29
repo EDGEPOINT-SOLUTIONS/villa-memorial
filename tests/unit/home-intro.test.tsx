@@ -33,7 +33,7 @@ describe("the home's entrance sign", () => {
     // The ENTRANCE route renders the sign from those stored fields — never
     // typed copy — and carries noindex (the home stays the indexable page).
     expect(ENTRANCE).toContain(
-      "<EntranceHandoff hello={home.intro.hello} welcome={home.intro.welcome} />",
+      "<EntranceHandoff welcome={home.intro.welcome} />",
     );
     expect(ENTRANCE).toContain("robots: { index: false, follow: false }");
     // It sits OUTSIDE the (public) group, so it renders no chrome.
@@ -45,7 +45,7 @@ describe("the home's entrance sign", () => {
     expect(HOME_ROUTE).toContain("const cookieStore = await cookies()");
     expect(HOME_ROUTE).toContain("introSeen ? null :");
     expect(HOME_ROUTE).toContain(
-      "<HomeSignOverlay hello={content.home.intro.hello} welcome={content.home.intro.welcome} />",
+      "<HomeSignOverlay welcome={content.home.intro.welcome} />",
     );
     expect(HOME_ROUTE).toContain('from "@/components/public/home-intro"');
     // The overlay is FIRST in the document, so even a slow parse paints the
@@ -54,7 +54,11 @@ describe("the home's entrance sign", () => {
       HOME_ROUTE.indexOf("<HomePage"),
     );
     expect((HOME.match(/home-intro/g) ?? []).length).toBe(0);
-    expect(COMPONENT).toContain("{hello ? <p className=\"home-intro__hello\">{hello}</p> : null}");
+    // The sign renders ONE line now (the "Hello," greeting was removed on the
+    // captain's direction, 2026-09-30); the stored hello field stays for the
+    // editor but never reaches the sign.
+    expect(COMPONENT).toContain('<p className="home-intro__welcome">{welcome}</p>');
+    expect(COMPONENT).not.toContain("home-intro__hello");
     // The editor owns both lines (the office rewrites them there).
     expect(EDITOR).toContain('htmlFor="home-intro-hello"');
     expect(EDITOR).toContain('htmlFor="home-intro-welcome"');
@@ -149,22 +153,22 @@ describe("the home's entrance sign", () => {
       "home-intro__cloud",
       "home-intro__svg",
       "home-intro__msg",
-      "home-intro__hello",
       "home-intro__welcome",
       "home-intro__skip",
     ]) {
       expect(defined.has(cls), cls).toBe(true);
     }
-    const hello = /\.home-intro__hello \{[^}]*\}/.exec(CSS)?.[0] ?? "";
-    // The reference's proportional size (0.05 × the cloud width), clamped to
-    // ladder steps — the gate names this one artwork-scale exception.
-    expect(hello).toMatch(
-      /font-size:\s*clamp\(var\(--text-\w+\), calc\(var\(--home-intro-cw\) \* 0\.05\), var\(--text-/,
+    // The reference's proportional size, stepped down a little from 0.0633 to
+    // 0.056 of the cloud width (captain, 2026-09-30), clamped to ladder steps —
+    // the gate names this one artwork-scale exception.
+    const welcome = /\.home-intro__welcome \{[^}]*\}/.exec(CSS)?.[0] ?? "";
+    expect(welcome).toMatch(
+      /font-size:\s*clamp\(var\(--text-\w+\), calc\(var\(--home-intro-cw\) \* 0\.056\), var\(--text-/,
     );
     // The reference's gold gradient text over the blue cloud, with the inverse
     // gold token as the flat fallback (the token reserved for dark surfaces) —
     // never a light-ground gold tint.
-    const words = /\.home-intro__hello,\n\.home-intro__welcome \{[^}]*\}/.exec(CSS)?.[0] ?? "";
+    const words = welcome;
     expect(words).toMatch(/color:\s*var\(--gold-200\)/);
     expect(words).toMatch(/background-clip:\s*text/);
     // COMPOSITOR-ONLY (office, inbox 057): the whole intro animates transform
