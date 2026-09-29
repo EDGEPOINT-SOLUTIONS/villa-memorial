@@ -10732,6 +10732,17 @@ a.card:hover {
   transition: color var(--motion-fast), background-color var(--motion-fast);
 }
 
+/* The captain's separator (2026-09-30): a quiet grey rule between each page
+   link in both rows, so the doors stay legible without relying on spacing
+   alone. */
+.anchored-header__nav-track > a:not(:last-child)::after,
+.anchored-header__topnav > a:not(:last-child)::after {
+  content: "|";
+  margin-left: var(--space-2);
+  font-weight: 400;
+  color: var(--color-border-strong);
+}
+
 .anchored-header__nav-track > a:hover,
 .anchored-header__explore-trigger:hover,
 .anchored-header__explore-trigger[aria-expanded="true"] {
@@ -23369,7 +23380,9 @@ a.plan-advisor__phone:hover {
 .price-index__from-value {
   font-family: var(--font-display);
   font-weight: 500;
-  font-size: var(--text-3xl);
+  /* Restrained like every other figure (captain, 2026-09-30): the from-figures
+     were display-sized. */
+  font-size: var(--text-2xl);
   line-height: 1.05;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
@@ -23625,7 +23638,7 @@ a.plan-advisor__phone:hover {
   }
 
   .price-index__from-value {
-    font-size: var(--text-2xl);
+    font-size: var(--text-xl);
   }
 
   .price-index-page .logo-row img {
