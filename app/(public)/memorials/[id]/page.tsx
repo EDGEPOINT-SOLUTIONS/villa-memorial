@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
 import { ErrorState } from "@/components/ui/states";
 import { listLandingContent, type ContactInfo } from "@/lib/api-client/landing";
+import { listLots } from "@/lib/api-client/property";
 import { findPublishedMemorial } from "@/lib/api-client/memorials";
 import {
   MEMORIAL_FIND_HREF,
@@ -66,6 +67,9 @@ export const dynamic = "force-dynamic";
 export default async function MemorialPage({ params }: MemorialParams) {
   const { id } = await params;
   const { contact } = await listLandingContent();
+  // The plot's linked lot (for the finder band); a read failure must not take
+  // the memorial down — the map falls back to the plot's own recorded facts.
+  const lots = await listLots().catch(() => []);
 
   let memorial: PublishedMemorial | null = null;
   let readFailed = false;
@@ -105,18 +109,7 @@ export default async function MemorialPage({ params }: MemorialParams) {
 
   return (
     <div className="mem-page">
-      <nav className="mem-crumbs" aria-label="Breadcrumb">
-        <ol>
-          <li>
-            <Link href="/">Home</Link>
-          </li>
-          <li>
-            <Link href="/memorials">Digital memorial search</Link>
-          </li>
-          <li aria-current="page">{memorial.name}</li>
-        </ol>
-      </nav>
-      <MemorialProfile memorial={memorial} contact={contact} />
+      <MemorialProfile memorial={memorial} contact={contact} lots={lots} />
     </div>
   );
 }

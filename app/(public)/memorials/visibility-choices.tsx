@@ -8,11 +8,15 @@ import { MEMORIAL_VISIBILITY } from "@/lib/memorials";
  * that a private or family-only memorial exists without appearing. One component
  * renders this list on the search page and on the unavailable memorial page, so
  * the two surfaces cannot describe the choices differently.
+ *
+ * `title` is optional: the search page already heads the explainer ("What this
+ * search can show"), so it passes an empty title and the tiers sit directly
+ * under it. The unavailable page keeps its own heading.
  */
 export function VisibilityChoices({ title = "What a family can choose" }: { title?: string }) {
   return (
     <div className="mem-choices">
-      <h2 className="text-lg">{title}</h2>
+      {title ? <h2 className="text-lg">{title}</h2> : null}
       <ul className="mem-choices__list">
         {MEMORIAL_VISIBILITY.map((choice) => (
           <li className={`mem-choice mem-choice--${choice.id}`} key={choice.id}>

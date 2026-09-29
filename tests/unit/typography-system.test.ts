@@ -256,7 +256,6 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         // at the shared page-title step. That page renders `PublicHero` now, so
         // its h1 is owned by `.public-hero__title` (page-title) and one heading
         // has exactly one role.
-        ".mem-profile__name",
       ],
     },
   ],
@@ -269,6 +268,10 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".paper-hero__title",
         ".ag-hero__title",
         ".pdp-buy__title",
+        // The memorial profile's name is the visitor's name, but the captain's
+        // 2026-09-30 rule sets every interior title at the page-title step
+        // (35.2px / weight 500) — not the home hero's display rung.
+        ".mem-profile__name",
       ],
     },
     { file: "styles/base.css", selectors: ["h1"] },

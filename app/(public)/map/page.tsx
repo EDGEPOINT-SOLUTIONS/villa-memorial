@@ -90,12 +90,14 @@ const DRAWABLE_PLOT_STATUSES = new Set([
 export default async function PublicMapPage({
   searchParams,
 }: {
-  searchParams: Promise<{ park?: string; plot?: string; tab?: string }>;
+  searchParams: Promise<{ park?: string; plot?: string; tab?: string; view?: string }>;
 }) {
   const sp = await searchParams;
   const initialPark = sp.park === "villa" ? "villa" : undefined;
   const initialPlot = sp.plot?.trim() || undefined;
   const activeTab = sp.tab === "lots" ? "lots" : "view";
+  // `?view=3d` — the memorial's finder opens the 3D park framed on the plot.
+  const initialMode = sp.view === "3d" ? ("3d" as const) : undefined;
 
   let lots;
   try {
@@ -219,6 +221,7 @@ export default async function PublicMapPage({
           lots={lots}
           initialPark={initialPark}
           initialPlot={initialPlot}
+          initialMode={initialMode}
           enable3d
           bandHead={{
             kicker: "The park map",

@@ -127,6 +127,11 @@ type BudgetPage = {
   render: () => Promise<string>;
   /** The page's opening lead paragraph (the one-line answer). */
   openingLead: RegExp;
+  /**
+   * An action beside the opening sentence. Defaults to a `.btn` anchor (a
+   * hero's link); a page opened by its own form passes a `.btn` button.
+   */
+  openingAction?: RegExp;
 };
 
 const PAGES: ReadonlyArray<BudgetPage> = [
@@ -195,12 +200,16 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
+    // Captain 2026-09-30: the SEARCH is the first element, with the privacy
+    // explainer beside it — so the opening sentence is the explainer's lead and
+    // the action is the form's own submit button.
     name: "/memorials (search)",
     render: async () =>
       renderToStaticMarkup(
         await MemorialSearchPage({ searchParams: Promise.resolve({}) }),
       ),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="section-head__lead">([\s\S]*?)<\/p>/,
+    openingAction: /<button\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
   },
   {
     name: "/memorials/find (find my loved one)",
@@ -311,10 +320,11 @@ describe("the public pages keep the reading budget", () => {
       });
 
       it("keeps an action beside the opening sentence", () => {
-        // The lead sits in the hero; the primary action is the hero's first link.
+        // The lead sits in the opening band; the primary action is its first
+        // link (hero pages) or the form's own submit (the memorial search).
         const hero = html.slice(0, html.indexOf("</section>"));
-        expect(hero, `${page.name}: no button anchor in the hero`).toMatch(
-          /<a\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
+        expect(hero, `${page.name}: no button action in the opening`).toMatch(
+          page.openingAction ?? /<a\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
         );
       });
     });

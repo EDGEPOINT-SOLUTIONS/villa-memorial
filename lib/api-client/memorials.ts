@@ -90,6 +90,7 @@ function toRestingPlace(raw: unknown): MemorialRestingPlace | null {
     park: requiredString(r.park, "resting_place.park"),
     section: requiredString(r.section, "resting_place.section"),
     lot: requiredString(r.lot, "resting_place.lot"),
+    plot: optionalString(r.plot),
   };
 }
 

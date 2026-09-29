@@ -186,6 +186,13 @@ export type MemorialRestingPlace = {
   park: string;
   section: string;
   lot: string;
+  /**
+   * The plot's stable code on the park map (e.g. "A-001"), when the family
+   * published one. The map deep-link (`/map?plot=`) keys on this code, so the
+   * resting place can be found on the masterplan and in the 3D park without
+   * matching display text (the record's `lot` is a label like "A-01").
+   */
+  plot?: string | null;
 };
 
 /**
@@ -221,6 +228,30 @@ export function memorialRestingLine(memorial: PublishedMemorial): string | null 
   ]
     .filter(Boolean)
     .join(" · ");
+}
+
+/**
+ * The plot's stable code for the map, or null when the record carries none.
+ * This is the ONLY bridge from a memorial to the park map: a page must never
+ * guess a plot from the resting-place text.
+ */
+export function memorialPlotCode(memorial: PublishedMemorial): string | null {
+  const plot = memorial.resting_place?.plot;
+  return typeof plot === "string" && plot.trim().length > 0 ? plot.trim() : null;
+}
+
+/**
+ * The ONE action a found memorial offers: the 3D park opened on the plot
+ * (`view=3d`). Null when the family published no plot, so the page renders an
+ * honest fallback instead of a dead button.
+ *
+ * `park=villa` is the product's ONE park (components/public-park-map.tsx —
+ * `VILLA_PARK_ID`); the record's `park` is a display name, never the id.
+ */
+export function memorialPlotHref(memorial: PublishedMemorial): string | null {
+  const plot = memorialPlotCode(memorial);
+  if (!plot) return null;
+  return `/map?park=villa&plot=${encodeURIComponent(plot)}&view=3d`;
 }
 
 /* ---------------------------------------------------------------- matching */

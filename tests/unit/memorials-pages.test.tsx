@@ -60,13 +60,13 @@ async function renderMemorial(id: string): Promise<string> {
 }
 
 describe("the memorial search (/memorials)", () => {
-  it("renders one h1 and puts the rules before the search form", async () => {
+  it("renders one h1 and puts the search first, with the explainer beside it", async () => {
     const html = await renderSearch({});
     expect(h1Count(html)).toBe(1);
-    const rules = html.indexOf('id="rules"');
     const form = html.indexOf("<form");
-    expect(rules).toBeGreaterThan(-1);
-    expect(form).toBeGreaterThan(rules);
+    const rules = html.indexOf('id="rules"');
+    expect(form).toBeGreaterThan(-1);
+    expect(rules).toBeGreaterThan(form);
   });
 
   it("publishes the three visibility choices in the visitor's terms", async () => {
@@ -210,6 +210,25 @@ describe("the published memorial profile (test-only record)", () => {
     expect(html).toContain(`src="${TEST_MEMORIAL_WITH_PHOTO.photo?.src}"`);
     expect(html).toContain(`alt="${TEST_MEMORIAL_WITH_PHOTO.photo?.alt}"`);
     expect(html).not.toContain("mem-profile__mark");
+  });
+
+  it("pins the plot and offers the 3D finder only when the record carries one", async () => {
+    const { contact } = await listLandingContent();
+    const withPlot = {
+      ...TEST_MEMORIAL,
+      resting_place: { ...TEST_MEMORIAL.resting_place!, plot: "A-001" },
+    };
+    const html = renderToStaticMarkup(
+      createElement(MemorialProfile, { memorial: withPlot, contact }),
+    );
+    expect(html).toContain("View this lot in the 3D map");
+    expect(html).toContain("/map?park=villa&amp;plot=A-001&amp;view=3d");
+
+    // No plot code → no map, no dead button — the honest fallback.
+    const noPlot = renderToStaticMarkup(
+      createElement(MemorialProfile, { memorial: TEST_MEMORIAL, contact }),
+    );
+    expect(noPlot).not.toContain("View this lot in the 3D map");
   });
 
   it("keeps the page's own prose inside the answer-at-a-glance rule", () => {

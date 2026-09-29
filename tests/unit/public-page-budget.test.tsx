@@ -193,12 +193,12 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     requires: ["data-public-disclosure"],
   },
   {
-    // plan §5.9: hero → the privacy rules (one line + the shared disclosure) →
-    // the search. The rules keep `id="rules"` before the form (the test's pin).
+    // The captain's 2026-09-30 direction: the SEARCH comes first (no hero card),
+    // then the privacy explainer with it (`id="rules"`), then the results.
     name: "/memorials (digital memorial search)",
     render: async () =>
       renderToStaticMarkup(await MemorialSearchPage({ searchParams: Promise.resolve({}) })),
-    sections: ['data-public-hero="interior"', 'id="rules"', 'id="search"'],
+    sections: ['id="search"', 'id="rules"'],
     requires: ["data-section-head", "data-public-disclosure"],
   },
   {

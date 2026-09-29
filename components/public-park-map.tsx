@@ -76,12 +76,15 @@ export function PublicParkMap({
   lots,
   initialPark,
   initialPlot,
+  initialMode,
   enable3d = false,
   bandHead,
 }: {
   lots: Lot[];
   initialPark?: string;
   initialPlot?: string;
+  /** `?view=3d` — start in the 3D park (the memorial's finder). */
+  initialMode?: "map" | "3d";
   /** Opt-in: only the park page hosts the 3D park and its designed band head. */
   enable3d?: boolean;
   /**
@@ -93,7 +96,7 @@ export function PublicParkMap({
 }) {
   const [selected, setSelected] = useState<{ area: PlotArea; parkId: string } | null>(null);
   const [parkId, setParkId] = useState<string>(() => initialPark ?? VILLA_PARK_ID);
-  const [mode, setMode] = useState<"map" | "3d">("map");
+  const [mode, setMode] = useState<"map" | "3d">(initialMode ?? "map");
   const [fullscreen, setFullscreen] = useState<"on" | "off" | "refused">("off");
   /**
    * Bumped on every selection, so the 3D camera frames the chosen plot even when
@@ -137,6 +140,18 @@ export function PublicParkMap({
     setSelected({ area, parkId: pId });
     setSelectionSeq((seq) => seq + 1);
   }, []);
+
+  /**
+   * `?view=3d` deep link (the memorial's finder): select the plot so the 3D
+   * camera frames it. Full screen stays a separate tap — a URL cannot grant it
+   * because the browser requires a user gesture.
+   */
+  useEffect(() => {
+    if (mode !== "3d" || selected || !initialPlot) return;
+    const code = initialPlot.toUpperCase();
+    const area = villaAreas.find((a) => a.code.toUpperCase() === code);
+    if (area) selectArea(area, VILLA_PARK_ID);
+  }, [mode, selected, initialPlot, villaAreas, selectArea]);
 
   /* --- full screen is the 3D mode's frame (spec §3) ---------------------- */
   useEffect(() => {

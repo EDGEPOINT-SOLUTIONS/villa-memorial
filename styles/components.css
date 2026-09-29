@@ -17154,14 +17154,9 @@ a.card:hover {
 
 .mem-profile__hero {
   display: grid;
-  grid-template-columns: 20rem minmax(0, 1fr);
+  grid-template-columns: 18rem minmax(0, 1fr);
   gap: clamp(var(--space-5), 4vw, var(--space-7));
   align-items: start;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface);
-  box-shadow: var(--shadow-card-rest);
 }
 
 @media (max-width: 54rem) {
@@ -17173,21 +17168,23 @@ a.card:hover {
 .mem-profile__portrait {
   margin: 0;
   width: 100%;
-  max-width: 20rem;
+  max-width: 18rem;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-bg-subtle);
   display: grid;
   place-items: center;
 }
 
+/* The photograph is shown WHOLE — a landscape family photo letterboxes on the
+   bone ground instead of losing two-thirds of its width (captain, 2026-09-30). */
 .mem-profile__portrait img {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .mem-profile__mark {
@@ -17207,7 +17204,8 @@ a.card:hover {
 .mem-profile__name {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--text-hero);
+  font-size: var(--text-page-title);
+  font-weight: 500;
   line-height: 1.12;
   color: var(--color-text-primary);
 }
@@ -17239,11 +17237,8 @@ a.card:hover {
 .mem-profile__published {
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-5) var(--space-6);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-  box-shadow: var(--shadow-card-rest);
+  padding-top: clamp(var(--space-5), 3vw, var(--space-6));
+  border-top: 1px solid var(--color-border);
 }
 
 .mem-profile__word {
@@ -17265,6 +17260,82 @@ a.card:hover {
   margin: 0;
   font-size: var(--text-md);
   line-height: 1.55;
+  color: var(--color-text-secondary);
+}
+
+/* --- The search-first opening and the explainer with it (captain 2026-09-30) */
+.mem-open {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mem-open__eyebrow {
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--sky-700);
+}
+
+.mem-show,
+.mem-results-section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mem-result__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.mem-staffed {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  text-align: center;
+  padding-top: clamp(var(--space-5), 3vw, var(--space-6));
+  border-top: 1px solid var(--color-border);
+}
+
+.mem-staffed__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+/* --- The finder: the plot pinned on the masterplan ------------------------- */
+.mem-plot {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.mem-plot__map {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--bone);
+}
+
+.mem-plot__facts {
+  margin: 0;
+}
+
+.mem-plot__action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.mem-plot__note {
+  margin: 0;
+  font-size: var(--text-md);
   color: var(--color-text-secondary);
 }
 

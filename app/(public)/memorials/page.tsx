@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EyeOff, Search } from "lucide-react";
+import { EyeOff, MapPin, Search } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
-import { PublicDisclosure, PublicHero, SectionHead } from "@/components/kit";
+import { PublicDisclosure, SectionHead } from "@/components/kit";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPublishedMemorials } from "@/lib/api-client/memorials";
 import {
@@ -18,6 +18,7 @@ import {
   hasMemorialSearch,
   matchMemorials,
   memorialFirstLine,
+  memorialPlotHref,
   memorialRestingLine,
   parseMemorialSearch,
   type PublishedMemorial,
@@ -51,23 +52,21 @@ export const dynamic = "force-dynamic";
  * Digital Memorial Search — /memorials (screen-inventory "Digital Memorial
  * Search", F-04).
  *
- * THE RULES COME BEFORE THE RESULTS. This is not a park directory: the page
- * states what is searchable and what is deliberately never shown, then offers
- * one search over the memorials families have chosen to publish. An empty query
- * lists nobody (`matchMemorials` refuses it), a failed match names every reason
- * it may exist — including a private memorial — without confirming anything,
- * and the demo store publishes no one at all, which the page says plainly.
+ * THE SEARCH COMES FIRST (captain, 2026-09-30, inbox 002: "what they will see
+ * first should be the search bar… no other shenanigans"). The page opens on the
+ * search itself — no hero, no card, no breadcrumb. The compact privacy
+ * explainer sits WITH the search (inbox 003): the heading "What this search can
+ * show", the three tiers in a visitor's terms, and one disclosure holding the
+ * searchable / never-shown lists.
  *
- * Public-minimal identity pass (lane 4, Phase 0 contract): the page opens on the
- * shared `PublicHero`, answers the privacy question in ONE line, and keeps the
- * full rules + the three visibility choices behind the shared `PublicDisclosure`
- * — the six-paragraph rules wall and the "five things a family decides" band are
- * gone. A reading envelope, a calm label scale; no bespoke hero family.
+ * A FOUND MEMORIAL SHOWS THE WAY (captain, 2026-09-30): each result carries the
+ * resting line and, when the family published a plot, ONE action —
+ * `View this lot in the 3D map` — that opens the 3D park already framed on the
+ * plot. The full lot + pinned map + facts live on the memorial page.
  *
- * No person is ever fabricated here: every name comes from a record whose
- * visibility is `published` (lib/api-client/memorials.ts drops every other
- * record), and `tests/unit/memorials-pages.test.tsx` asserts the unavailable
- * fixture state leaks no name.
+ * NO PERSON IS EVER FABRICATED: every name comes from a record whose visibility
+ * is `published` (lib/api-client/memorials.ts drops every other record), and an
+ * empty query lists nobody.
  */
 export default async function MemorialSearchPage({
   searchParams,
@@ -90,73 +89,12 @@ export default async function MemorialSearchPage({
 
   return (
     <div className="mem-page">
-      <nav className="mem-crumbs" aria-label="Breadcrumb">
-        <ol>
-          <li>
-            <Link href="/">Home</Link>
-          </li>
-          <li aria-current="page">Digital memorial search</li>
-        </ol>
-      </nav>
+      {/* The interactive surface leads, so the page's one h1 is for assistive
+          tech and SEO only (the `/map` precedent). */}
+      <h1 className="visually-hidden">Find a memorial</h1>
 
-      <PublicHero
-        variant="interior"
-        id="memorials-title"
-        eyebrow="Digital memorial search"
-        title="Find a memorial"
-        lead="Search the memorials families have published."
-        primary={{ label: "Search by name", href: "#search" }}
-        secondary={{ label: "Find my loved one", href: MEMORIAL_FIND_HREF }}
-      />
-
-      {/* The rules come first (id="rules"), and they answer in one line; the
-          full vocabulary and the family's three choices sit behind the shared
-          disclosure so the search is the next thing a visitor reaches. */}
-      <section id="rules" aria-labelledby="rules-title">
-        <SectionHead
-          id="rules-title"
-          kicker="Before you search"
-          title="What this search can show"
-          lead="Only what a family publishes appears — private and family-only memorials never show."
-        />
-        <PublicDisclosure summary="What is searchable, and what is never shown">
-          <div className="mem-rules__grid">
-            <div className="mem-rule-card">
-              <div className="mem-rule-card__head">
-                <Search size={18} aria-hidden="true" />
-                <h3>Searchable</h3>
-              </div>
-              <ul className="mem-list">
-                {MEMORIAL_SEARCHABLE.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="mem-rule-card mem-rule-card--never">
-              <div className="mem-rule-card__head">
-                <EyeOff size={18} aria-hidden="true" />
-                <h3>Never shown</h3>
-              </div>
-              <ul className="mem-list">
-                {MEMORIAL_NEVER_SHOWN.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          {/* The three choices the family portal names, in a visitor's terms —
-              so a visitor understands why they may not find someone. */}
-          <VisibilityChoices />
-        </PublicDisclosure>
-      </section>
-
-      <section id="search" aria-labelledby="search-title">
-        <SectionHead
-          id="search-title"
-          kicker="Search"
-          title="Search by name and dates"
-          lead="Enter what you know; every field is optional."
-        />
+      <section id="search" className="mem-open" aria-label="Search memorials">
+        <p className="mem-open__eyebrow">Digital memorial search</p>
         <form className="mem-search__form" method="get" action="/memorials" role="search">
           <div className="field-grid field-grid--3">
             <div className="field">
@@ -209,7 +147,46 @@ export default async function MemorialSearchPage({
             ) : null}
           </div>
         </form>
+      </section>
 
+      {/* The privacy explainer, WITH the search (captain's exact copy). */}
+      <section id="rules" className="mem-show" aria-labelledby="rules-title">
+        <SectionHead
+          id="rules-title"
+          kicker="Before you search"
+          title="What this search can show"
+          lead="Only what a family publishes appears."
+        />
+        <VisibilityChoices title="" />
+        <PublicDisclosure summary="What exactly is searchable, and what is never shown">
+          <div className="mem-rules__grid">
+            <div className="mem-rule-card">
+              <div className="mem-rule-card__head">
+                <Search size={18} aria-hidden="true" />
+                <h3>Searchable</h3>
+              </div>
+              <ul className="mem-list">
+                {MEMORIAL_SEARCHABLE.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="mem-rule-card mem-rule-card--never">
+              <div className="mem-rule-card__head">
+                <EyeOff size={18} aria-hidden="true" />
+                <h3>Never shown</h3>
+              </div>
+              <ul className="mem-list">
+                {MEMORIAL_NEVER_SHOWN.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </PublicDisclosure>
+      </section>
+
+      <section className="mem-results-section" aria-label="Search results">
         <div className="mem-results" aria-live="polite">
           {readFailed ? (
             <ErrorState message="The memorial search could not be read just now. Call the office and a person will look for you." />
@@ -227,21 +204,31 @@ export default async function MemorialSearchPage({
                   : `${results.length} memorials match.`}
               </p>
               <ul className="mem-results__list">
-                {results.map((memorial) => (
-                  <li className="mem-result" key={memorial.id}>
-                    <div>
-                      <h3 className="mem-result__name">{memorial.name}</h3>
-                      <p className="mem-result__dates">{memorial.life_dates.display}</p>
-                      {memorialRestingLine(memorial) ? (
-                        <p className="mem-result__place">{memorialRestingLine(memorial)}</p>
-                      ) : null}
-                      <p className="mem-result__line">{memorialFirstLine(memorial)}</p>
-                    </div>
-                    <Link className="btn btn--secondary" href={`/memorials/${memorial.id}`}>
-                      View memorial
-                    </Link>
-                  </li>
-                ))}
+                {results.map((memorial) => {
+                  const resting = memorialRestingLine(memorial);
+                  const plotHref = memorialPlotHref(memorial);
+                  return (
+                    <li className="mem-result" key={memorial.id}>
+                      <div>
+                        <h3 className="mem-result__name">{memorial.name}</h3>
+                        <p className="mem-result__dates">{memorial.life_dates.display}</p>
+                        {resting ? <p className="mem-result__place">{resting}</p> : null}
+                        <p className="mem-result__line">{memorialFirstLine(memorial)}</p>
+                      </div>
+                      <div className="mem-result__actions">
+                        <Link className="btn btn--secondary" href={`/memorials/${memorial.id}`}>
+                          View memorial
+                        </Link>
+                        {plotHref ? (
+                          <Link className="btn btn--accent" href={plotHref}>
+                            <MapPin size={16} aria-hidden="true" />
+                            View this lot in the 3D map
+                          </Link>
+                        ) : null}
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </>
           ) : published.length === 0 ? (
@@ -257,13 +244,25 @@ export default async function MemorialSearchPage({
         </div>
       </section>
 
-      {/* The office line is the page's own end note; the shared closing band
-          (PublicShell → NextSteps) is the one action layer above the footer. */}
-      <p className="mem-service-note mem-service-note--foot">
-        The office only ever confirms a memorial a family has published. Call{" "}
-        <a href={contact.phoneHref}>{contact.phoneDisplay}</a> and a person will
-        look with you.
-      </p>
+      {/* ONE staffed closing band: the visitor who cannot find someone gets a
+          human door, and the service note prints here once. */}
+      <section className="mem-staffed" aria-labelledby="memorials-staffed-title">
+        <SectionHead
+          id="memorials-staffed-title"
+          kicker="If you cannot find them"
+          title="A person will look with you"
+          lead="We search the office record and confirm only what a family has published."
+        />
+        <div className="mem-staffed__actions">
+          <a className="btn btn--accent" href={contact.phoneHref}>
+            Call {contact.phoneDisplay}
+          </a>
+          <Link className="btn btn--secondary" href={MEMORIAL_FIND_HREF}>
+            Find my loved one
+          </Link>
+        </div>
+        <p className="mem-service-note">{MEMORIAL_SERVICE_NOTE}</p>
+      </section>
     </div>
   );
 }

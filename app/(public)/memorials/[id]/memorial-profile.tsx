@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { SectionHead } from "@/components/kit";
+import { MemorialPlot } from "@/components/memorials/memorial-plot";
+import type { Lot } from "@/lib/api-client/property";
 import type { ContactInfo } from "@/lib/api-client/landing";
 import { monogram } from "@/lib/family/family-view";
 import {
   memorialFirstLine,
+  memorialPlotCode,
   memorialRestingLine,
   type PublishedMemorial,
 } from "@/lib/memorials";
@@ -17,24 +20,29 @@ import {
  * record. The living are never shown: the only contact on the page is the office
  * line, and no relative, address or date of birth appears anywhere.
  *
- * Public-minimal identity pass (lane 4, Phase 0 contract): the portrait leads the
- * record, then the shared `SectionHead` grammar carries the family's words, the
- * resting place and the publish note — no bespoke section heads.
+ * THE FINDER (captain, 2026-09-30): "Where they rest" no longer stops at a text
+ * line. When the record carries a plot code the band PINS the plot on the park
+ * masterplan, lists the lot's own facts, and offers ONE action — `View this lot
+ * in the 3D map` — that opens the 3D park already framed on the plot, so a
+ * family never hunts for it. When the family published no plot, the band says so
+ * and prints the office line; it never invents a pin.
  *
- * `tests/unit/memorials-pages.test.tsx` renders this component directly with a
- * test record — the fixture store publishes no one (nothing may be fabricated),
- * so the shape is proven here without a real person ever reaching a page.
+ * The portrait is shown WHOLE (`object-fit: contain`), never cropped: on this
+ * page the photograph is a person.
  */
 export function MemorialProfile({
   memorial,
   contact,
+  lots = [],
 }: {
   memorial: PublishedMemorial;
   contact: ContactInfo;
+  lots?: Lot[];
 }) {
   const firstLine = memorialFirstLine(memorial);
   const more = memorial.remembrance.slice(1);
   const place = memorialRestingLine(memorial);
+  const plot = memorialPlotCode(memorial);
   const initials = monogram(memorial.name);
 
   return (
@@ -95,9 +103,18 @@ export function MemorialProfile({
         <p className="mem-profile__place-line">
           {place ?? "The family has not published a resting place."}
         </p>
-        <p className="mem-service-note">
-          From the office record — ask the office for directions before a visit.
-        </p>
+        {plot ? (
+          <>
+            <MemorialPlot plotCode={plot} lots={lots} />
+            <p className="mem-service-note">
+              From the office record — ask the office for directions before a visit.
+            </p>
+          </>
+        ) : (
+          <p className="mem-service-note">
+            From the office record — ask the office for directions before a visit.
+          </p>
+        )}
       </section>
 
       <section className="mem-profile__published" aria-labelledby="memorial-published-title">
