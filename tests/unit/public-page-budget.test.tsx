@@ -5,8 +5,6 @@ import { LandingView, type LandingViewProps } from "@/components/landing/landing
 import { HomePage } from "@/components/public/home-page";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { listLots } from "@/lib/api-client/property";
-import { homePlotInventory } from "@/lib/home-park-inventory";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
 import { CartProvider } from "@/lib/cart/cart-context";
 
@@ -80,38 +78,37 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // It now renders the page `/` actually serves.
     name: "home (/)",
     render: async () => {
-      const [content, pricing, lots] = await Promise.all([
+      const [content, pricing] = await Promise.all([
         listLandingContent(),
         loadPricingDocument(),
-        listLots().catch(() => []),
       ]);
       return renderToStaticMarkup(
         HomePage({
           content,
           planPricing: pricing.plans,
           lotCategories: pricing.lotCategories,
-          inventory: homePlotInventory(lots),
+          mapNode: null,
         }),
       );
     },
-    // The rebuilt home (2026-09-29) follows the captain's reference page:
-    // the promise → the trust rule → the two doors → the first hour → the
-    // services → the casket collections → the plans → the park + plot map →
-    // the family-page promise → the FAQ → the closing band. The home now carries
-    // its OWN chrome (the reference's header/footer), so it is a `(home)` route
-    // outside `PublicShell`; the markers below are the home's own scope.
+    // The home's own argument, in order: the promise → who it is for → the two
+    // doors → the park → what it feels like. The blog band used to close it and
+    // was removed by the captain on 2026-09-27 — `/blog` keeps the full feed and
+    // is still linked from the header's "Explore more" menu and the footer, so
+    // the page no longer reprints three posts and nothing became unreachable.
     sections: [
-      'data-vf-section="hero"',
-      'data-vf-section="trust"',
-      'data-vf-section="fork"',
-      'data-vf-section="process"',
-      'data-vf-section="services"',
-      'data-vf-section="caskets"',
-      'data-vf-section="plans"',
-      'data-vf-section="park"',
-      'data-vf-section="feel"',
-      'data-vf-section="faq"',
-      'data-vf-section="talk"',
+      "home-hero",
+      "home-trust",
+      "home-qualify",
+      "home-fork",
+      "home-process",
+      "home-services",
+      "home-caskets",
+      "home-plans",
+      "home-park",
+      "home-gallery",
+      "home-feel",
+      "home-faq",
     ],
   },
   {
