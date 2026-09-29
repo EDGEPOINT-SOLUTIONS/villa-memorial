@@ -60,25 +60,17 @@ import type { PlanPricing } from "@/lib/pricing-model";
  * services band prints no amount; the contact form keeps the Data Privacy Act
  * consent line. The home is edited section by section at /staff/landing/home.
  *
- * THE PAGE'S OWN LAYER (office, 2026-09-29):
- *   · `.home-frame` — ONE arch for the whole page, not one per band. It spans
- *     the content width plus a margin, its head is a TRUE SEMICIRCLE over two
- *     vertical legs that track the reader's eye-line down the page and close
- *     on the last section's ground; it runs behind every section and
- *     photograph, and it exists on desktop only — `.home-frame` in the
- *     stylesheet carries the construction, the glow and the degradation rules;
- *   · the gateway's clouds are DRAWN (one blue silhouette path, reused three
- *     times), not soft washes, because the band is white now and the office
- *     asked for the cloud everybody draws — the small headline arch was
- *     retired into the page frame rather than leaving two arches in band 1.
+ * THE GATEWAY'S ARCH (office, 2026-09-29; the page-wide follow-through arch
+ * and every cloud were removed the same day at the office's direction):
+ *   · band 1 keeps ONE STILL, self-sizing arch around the headline — a
+ *     hairline in the sky palette with a soft static glow, its width derived
+ *     from the words it holds (`.home-gateway__frame` / `.home-gateway__arch`
+ *     in the stylesheet). The head is a TRUE CIRCULAR ARC over the legs (not
+ *     the shallow ellipse of the plan's first path): rise 305 px over a
+ *     1137 px span at 1920, so the curve springs from the vertical legs at
+ *     ~56° and reads as an arch standing on the band, not a wide sweep;
+ *   · the band carries NO clouds and no other decoration — plain white.
  */
-
-/** The one drawn cumulus silhouette, reused by all three clouds: four rounded
- *  lobes (two small shoulders, a tall centre, a low right dome) on a flat base.
- *  Generated on a 240 × 100 viewBox and painted by the stylesheet's sky fill. */
-const CLOUD_PATH =
-  "M23.03,100 A30,30 0 0 1 43.99,44.60 A46,46 0 0 1 130.28,39.88 " +
-  "A36,36 0 0 1 182.95,55.51 A26,26 0 0 1 209.86,100 Z";
 
 /* ---------------------------- photograph helpers ---------------------------- */
 
@@ -179,53 +171,30 @@ export function HomePage({
 
   return (
     <div className="home">
-      {/* The page's ONE arch, decoration only: a semicircular head spans the
-          content width plus a margin (`--space-5` each side, in the page's own
-          margin), the vertical legs track the reader's eye-line as they scroll
-          and close on the last band's ground. Behind every section (z-index:
-          -1 in the stylesheet), so an opaque band or a whole photograph covers
-          the legs and they reappear below — never a line across a picture. */}
-      <div className="home-frame" aria-hidden="true">
-        <div className="home-frame__head">
-          <svg
-            className="home-frame__crown"
-            viewBox="0 0 1000 500"
-            preserveAspectRatio="none"
-          >
-            {/* A TRUE semicircle: radius = half the span, so the curve meets
-                the legs at vertical tangents — an arch standing on the page. */}
-            <path
-              d="M0,500 A500,500 0 0 1 1000,500"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.25}
-              vectorEffect="non-scaling-stroke"
-            />
-          </svg>
-        </div>
-        <div className="home-frame__shaft">
-          <div className="home-frame__leg home-frame__leg--left" />
-          <div className="home-frame__leg home-frame__leg--right" />
-        </div>
-      </div>
       {/* ================================================================
           1 · THE GATEWAY — centred words and the call.
           ================================================================ */}
       <section className="home-gateway" aria-labelledby="home-gateway-title">
-        {/* Decorative only: three drawn clouds (one path, reused), behind
-            every word, contained by the band, transform-animated. */}
-        <div className="home-gateway__clouds" aria-hidden="true">
-          <svg className="home-gateway__cloud home-gateway__cloud--a" viewBox="0 0 240 100">
-            <path d={CLOUD_PATH} />
-          </svg>
-          <svg className="home-gateway__cloud home-gateway__cloud--b" viewBox="0 0 240 100">
-            <path d={CLOUD_PATH} />
-          </svg>
-          <svg className="home-gateway__cloud home-gateway__cloud--c" viewBox="0 0 240 100">
-            <path d={CLOUD_PATH} />
-          </svg>
-        </div>
         <div className="home-gateway__inner">
+          <span className="home-gateway__frame" aria-hidden="true">
+            <svg
+              className="home-gateway__arch"
+              viewBox="0 0 1000 536"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
+              {/* The path spans the full viewBox, so the ELEMENT's width is the
+                  arch's width — the frame derives that from this content.
+                  THE HEAD IS A TRUE CIRCULAR ARC: rise 268 of the 1000 span
+                  (305 px at the rendered width), radius 600, so the curve
+                  springs from the legs at ~56° instead of blending into them
+                  like the ellipse of the plan's first path. The legs run on
+                  past the band's ground line, where the band's overflow clips
+                  them. */}
+              <path d="M0,536 L0,268 A600,600 0 0 1 1000,268 L1000,536" />
+            </svg>
+          </span>
           {gateway.place ? <p className="home-gateway__place">{gateway.place}</p> : null}
           <h1 id="home-gateway-title" className="home-gateway__title">
             {gateway.headline}{" "}

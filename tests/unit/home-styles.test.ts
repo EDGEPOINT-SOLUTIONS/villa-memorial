@@ -94,7 +94,7 @@ function blockWith(marker: string, needle: string): string {
   throw new Error(`no ${marker} block containing ${needle}`);
 }
 
-describe("the page frame and the drawn clouds (office 2026-09-29)", () => {
+describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
   it("keeps band 1 white: the gateway declares no ground", () => {
     const bodies = ruleBodies(".home-gateway");
     expect(bodies.length, "the .home-gateway rules exist").toBeGreaterThan(0);
@@ -104,85 +104,39 @@ describe("the page frame and the drawn clouds (office 2026-09-29)", () => {
     }
   });
 
-  it("draws ONE page arch, in its own layer behind everything", () => {
-    // One frame element per page, with its semicircular head, shaft and legs.
-    expect((SOURCE.match(/className="home-frame"/g) ?? []).length).toBe(1);
-    expect(SOURCE).toContain('className="home-frame__head"');
-    expect(SOURCE).toContain('className="home-frame__crown"');
-    expect(SOURCE).toContain('className="home-frame__shaft"');
-    expect(SOURCE).toContain('className="home-frame__leg home-frame__leg--left"');
-    expect(SOURCE).toContain('className="home-frame__leg home-frame__leg--right"');
-    // The frame paints at -1 inside `.home`'s own stacking context, so a
-    // section, card or photograph always covers the legs and the decoration
-    // never lands on top of content.
-    const home = ruleBodies(".home").join("\n");
-    expect(home).toMatch(/position:\s*relative/);
-    expect(home).toMatch(/z-index:\s*0/);
-    expect(ruleBodies(".home-frame").join("\n")).toMatch(/z-index:\s*-1/);
+  it("keeps the arc in band 1 only, a still TRUE CIRCULAR ARCH over the words", () => {
+    // The page-wide follow-through frame was removed at the captain's call:
+    // the home carries no `.home-frame` layer at all.
+    expect(SOURCE).not.toContain("home-frame");
+    // The gateway keeps its self-sizing arch, behind the words.
+    expect(SOURCE).toContain('className="home-gateway__frame"');
+    expect(SOURCE).toContain('className="home-gateway__arch"');
+    // A TRUE CIRCULAR ARC over the legs (inbox 031), not the plan's ellipse
+    // sweep: viewBox 1000 × 536, head rise 268 (305px at the rendered width),
+    // radius 600 — the curve springs from the legs at ~56°.
+    expect(SOURCE).toContain('viewBox="0 0 1000 536"');
+    expect(SOURCE).toContain('d="M0,536 L0,268 A600,600 0 0 1 1000,268 L1000,536"');
+    // The frame is absolutely positioned inside the band and sized from the
+    // content box + breathing room, so the arc always clears the words and the
+    // legs live in the band's side margin.
+    const frame = ruleBodies(".home-gateway__frame")[0];
+    expect(frame).toMatch(/position:\s*absolute/);
+    expect(frame).toMatch(/width:\s*calc\(100% \+ 2 \* var\(--space-8\)\)/);
+    // Still, with a static sky-blue glow, and desktop only.
+    const arch = ruleBodies(".home-gateway__arch")[0];
+    expect(arch).toMatch(/color:\s*var\(--sky-300\)/);
+    expect(arch).toMatch(/drop-shadow/);
+    expect(arch).not.toMatch(/animation/);
+    const small = blockWith("@media (max-width: 52rem)", ".home-gateway__frame");
+    expect(small).toMatch(/\.home-gateway__frame\s*\{\s*display:\s*none/);
   });
 
-  it("stands the arch in the page's own margin, as a true semicircle", () => {
-    // Twenty-eight pixels each side (--space-5, inside the office's 20-40px
-    // range): the legs run in the margin, clear of a full-width picture.
-    const frame = ruleBodies(".home-frame").join("\n");
-    expect(frame).toMatch(/inset:\s*0 calc\(-1 \* var\(--space-5\)\)/);
-    // The head is a SEMICIRCLE over the legs, not the shallow dome: its height
-    // is half the arch width, and the drawn path's radius is half the span, so
-    // the curve meets the legs at vertical tangents.
-    expect(ruleBodies(".home-frame__head").join("\n")).toMatch(/padding-top:\s*50%/);
-    expect(SOURCE).toContain('viewBox="0 0 1000 500"');
-    expect(SOURCE).toContain('d="M0,500 A500,500 0 0 1 1000,500"');
-    // Desktop only: below the home's own wide-layout breakpoint (52rem) the
-    // frame is absent altogether — nothing rendered, nothing animating.
-    const small = blockWith("@media (max-width: 52rem)", ".home-frame");
-    expect(small).toMatch(/\.home-frame\s*\{\s*display:\s*none/);
-    // The glow is on the static head and the leg line itself, never a
-    // JavaScript animation.
-    expect(ruleBodies(".home-frame__head").join("\n")).toMatch(/drop-shadow/);
-    expect(ruleBodies(".home-frame__leg")[0]).toMatch(/drop-shadow/);
-  });
-
-  it("tracks the visitor's middle, and closes on the last section's ground", () => {
-    // The leg's paint is pinned to the viewport and cut at the viewport's
-    // middle — the reader's eye-line — so it follows continuously with the
-    // scroll: no thresholds, no JavaScript, no animation-timeline dependency.
-    const leg = ruleBodies(".home-frame__leg")[0];
-    expect(leg).toMatch(/background-attachment:\s*fixed/);
-    expect(leg).toMatch(/linear-gradient\(\s*180deg,\s*var\(--home-frame-ink\) 0 50%/);
-    expect(leg).toMatch(/background-size:\s*100% 100vh/);
-    // The leg's own box supplies the arch's ends — it starts on the springing
-    // line (the shaft's top) and stops at the frame's bottom, the last
-    // section's ground, so the frame closes there and never runs past it.
-    const shaft = ruleBodies(".home-frame__shaft").join("\n");
-    expect(shaft).toMatch(/position:\s*relative/);
-    expect(shaft).toMatch(/flex:\s*1/);
-    expect(leg).toMatch(/top:\s*0/);
-    expect(leg).toMatch(/bottom:\s*0/);
-    // Reduced motion: complete and still — a solid full-height leg, not the
-    // viewport-fixed tracking paint.
-    const reduced = blockWith("@media (prefers-reduced-motion: reduce)", ".home-frame__leg");
-    expect(reduced).toMatch(/background-image:\s*none/);
-    expect(reduced).toMatch(/background-color:\s*var\(--home-frame-ink\)/);
-    expect(reduced).toMatch(/background-attachment:\s*scroll/);
-  });
-
-  it("draws the clouds as one reused silhouette, filled from the sky ramp", () => {
-    // One shape, reused by three clouds: a single path constant, three uses.
-    expect(SOURCE).toContain("const CLOUD_PATH");
-    expect((SOURCE.match(/d=\{CLOUD_PATH\}/g) ?? []).length).toBe(3);
-    for (const variant of ["a", "b", "c"]) {
-      expect(SOURCE).toContain(`className="home-gateway__cloud home-gateway__cloud--${variant}"`);
-    }
-    // Drawn, not washed: a sky fill with a deeper edge, at the office's 75%
-    // opacity — and no background.
-    const cloud = ruleBodies(".home-gateway__cloud").join("\n");
-    expect(cloud).toMatch(/fill:\s*var\(--sky-/);
-    expect(cloud).toMatch(/stroke:\s*var\(--sky-/);
-    expect(cloud).toMatch(/opacity:\s*0\.75/);
-    expect(cloud).not.toMatch(/background/);
-    // The drift is transform-only, so the band never reflows while it moves.
-    const drift = blockWith("@keyframes home-cloud-drift", "translate3d");
-    expect(drift).toMatch(/transform:\s*translate3d/);
-    expect(drift).not.toMatch(/\b(left|top|width|height|margin|padding):/);
+  it("carries no clouds at all (office, inbox 031)", () => {
+    // Removed entirely: no cloud markup, no cloud rules, no drift keyframes —
+    // band 1 is plain white and nothing moves over it.
+    expect(SOURCE).not.toContain("home-gateway__cloud");
+    expect(SOURCE).not.toContain("CLOUD_PATH");
+    expect(RULES).not.toContain(".home-gateway__cloud");
+    expect(RULES).not.toContain("@keyframes home-cloud-drift");
   });
 });

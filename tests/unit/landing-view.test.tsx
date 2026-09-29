@@ -405,10 +405,14 @@ describe("the landing hero is RETIRED from this view (captain, 2026-09-27)", () 
 });
 
 describe("the rails fit without a vertical scrollbar", () => {
-  it("caps the lead image so the default rail list fits its viewport height", () => {
+  it("sizes the lead image so its long title clears the FEATURED badge", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
     const block = /\.rail-item--lead \.rail-thumb \{[^}]*\}/.exec(css)?.[0] ?? "";
-    expect(block).toContain("height: clamp(");
+    // The 9.5rem floor clears the FEATURED badge for a two-line title (inbox
+    // 029); 7vw lets the band grow a little on very wide screens. The 10rem cap
+    // keeps it well under the 14rem band the captain rejected for forcing a
+    // rail scrollbar, and the measured rail still fits its viewport cap.
+    expect(block).toContain("height: clamp(9.5rem, 7vw, 10rem)");
     expect(block).not.toContain("height: 14rem");
   });
 

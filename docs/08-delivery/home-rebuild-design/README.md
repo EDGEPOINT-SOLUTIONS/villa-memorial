@@ -166,40 +166,24 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   bar keeps a soft `0 10px 26px -18px rgb(8 28 49 / 0.35)` shadow at every scroll
   position, strengthening in the compressed state.
 
-- **The page's own arch frame (inbox 023, refined by 026/027/028) and the drawn
-  clouds (inbox 024/026):** `.home-frame` is the ONE arch for the whole page.
-  Its head is a TRUE SEMICIRCLE (SVG `M0,500 A500,500`, height = half the span
-  via `padding-top: 50%`, so the curve meets the legs at vertical tangents — an
-  arch standing on the page, not the shallow elliptical dome of the first
-  cut). The frame spans the content width **plus `--space-5` (28 px) each
-  side** (inside the office's 20-40 px range), so the legs run in the page's
-  own margin; it does not exist below 52 rem — the home's wide-layout
-  breakpoint — via `display: none` (nothing rendered, nothing animating, no
-  measurement moved). The legs TRACK THE VISITOR: each 1 px leg's paint is
-  pinned to the viewport (`background-attachment: fixed`) and cut at the
-  viewport's middle, the reader's eye-line, so the ends glide down with the
-  scroll continuously — no JavaScript, no thresholds, no layout shift — while
-  the element's own box supplies the ends: it starts at the springing line and
-  stops at the frame's bottom (the last section's ground), where the frame
-  CLOSES and never runs past. The head stays at the top of the page; the whole
-  frame paints at `z-index: -1` inside `.home`'s own stacking context so it
-  runs behind every section, card and photograph: an opaque full-width band
-  covers the legs and they reappear below, never a line across a picture. The
-  line carries a soft STATIC sky-blue glow (`drop-shadow` on the head and on
-  the leg element itself — it follows whatever the leg has painted, so the
-  halo tracks the line; never an animated blur). Under `prefers-reduced-motion`
-  the viewport-fixed paint is replaced by solid full-height legs: the arch is
-  drawn complete and still. (The first cut used a scroll-timeline `scaleY`
-  animation; the office's 50 %-viewport tracking and the section-ground close
-  are exact and simpler as the fixed-background paint, verified in a real
-  Chromium at 1920 and 390.) The band's old self-sizing headline arch was
-  retired into the page frame (the office asked for one arch; two in the same
-  band would fight). Section 1 is now WHITE ONLY: the sky wash was removed with
-  its `page-backgrounds` allowlist entries, and the clouds are DRAWN
-  silhouettes — one four-lobe path on a flat base (the office's "cloud
-  everybody draws as a child"), reused at three sizes, filled `--sky-300` with
-  a `--sky-500` edge at the office's 75 % opacity — transform-drifted across
-  the band and pinned in place under `prefers-reduced-motion`.
+- **The gateway's arch and clouds (inboxes 023–031, FINAL state):** three
+  directions landed the same day and this is where they settled. (1) The
+  page-wide follow-through arch was built (true semicircular head, legs pinned
+  to the viewport middle, closing on section 7) and then REMOVED at the
+  captain's call — no scroll tracking, nothing animated. (2) The clouds were
+  removed ENTIRELY (inbox 031): band 1 is plain WHITE with no drifting shape,
+  and the removal moved no measurement (they were absolutely positioned and
+  clipped). (3) The band's one decoration is its self-sizing arch around the
+  words, `.home-gateway__frame` / `.home-gateway__arch`, sized from the content
+  box + `2 × --space-8` so the legs live in the band's side margin. Its head is
+  now a TRUE CIRCULAR ARC — viewBox 1000 × 536,
+  `M0,536 L0,268 A600,600 0 0 1 1000,268 L1000,536` — instead of the plan's
+  elliptical sweep: at 1920 that is span 1137, head rise 305, springing
+  height 305 (the curve meets the legs at ~56°, so they read as legs, not as
+  the tail of a sweep), with the feet running past the band's ground line where
+  the band clips them. It carries a soft STATIC sky-blue glow and is desktop
+  only (`display: none` below 52 rem). `tests/unit/home-styles.test.ts` pins
+  the shape, the glow and the absence of clouds.
 
 - **The former storefront returns BENEATH the blog (inbox 025):** `/blog` leads
   with the blog's own page document (heading · intro · one horizontal row per
@@ -207,9 +191,12 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   ONLY — the left and right rails, the plans-and-lots card grid, the tier board,
   the live park map, the About band and the newsfeed — through the new
   `LandingBands` export in `components/landing/landing-view.tsx`. The bands read
-  the landing document and the live stores exactly as before (the landing
-  document carries no blog posts since the 016 migration, so the newsfeed band
-  renders its authored empty state); the blog document stays independent. No
+  the landing document and the live stores exactly as before, with ONE pointed
+  exception (inbox 031): the newsfeed band is given the BLOG page document's
+  posts, because the landing document no longer owns them and the band was
+  rendering its empty state under a page that lists the posts. That does repeat
+  the same posts the page leads with — the office was given the two options
+  (the band shows the remaining posts, or it goes) and has not chosen yet. No
   second chrome: `LandingBands` renders no header, footer, phone bar or closing
   action band — `PublicShell` supplies exactly one of each, verified on the
   rendered page (1 header · 1 footer · 1 phone bar · 1 next-steps · 1 h1).

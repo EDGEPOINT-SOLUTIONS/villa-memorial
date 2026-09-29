@@ -10699,11 +10699,15 @@ a.card:hover {
   display: block;
   position: relative;
   width: 100%;
-  /* The lead keeps its full-width presence but is no longer 14rem tall: at
-     1440×900 that pushed the left rail's content 108px past its viewport-
-     bounded height and forced a vertical scrollbar (captain 2026-09-21). The
-     capped band keeps the default rail list fitting without scrolling. */
-  height: clamp(5.5rem, 7vw, 6.5rem);
+  /* Tall enough that the card's text block never rides up into the FEATURED
+     badge (office, inbox 029): the title's first line used to sit behind the
+     badge on a long title and was unreadable. The floor (9.5rem) clears the
+     badge for a two-line title at every width the rail renders at; 7vw lets
+     the band grow a little on very wide screens. Still ~45px shorter than the
+     14rem band the captain rejected in 2026-09-21 for forcing a rail
+     scrollbar — measured rail content 754px against its ~789px cap at
+     1440×900, so the default list still fits. */
+  height: clamp(9.5rem, 7vw, 10rem);
   border: 0;
   border-radius: 0;
 }
@@ -20071,11 +20075,11 @@ a.plan-advisor__phone:hover {
        carries DARK ink, never white.
      · Bands are separated by hairlines and space — never a shadow on every box.
 
-   THE PAGE'S OWN LAYER (office, 2026-09-29): `.home-frame` is the ONE arch
-   that frames the whole page — crown at the top, legs grown by the scroll,
-   behind everything, over nothing. Band 1 is white only now, so its clouds
-   are DRAWN silhouettes in the sky ramp (the SVG path lives in the component,
-   the paint here), not soft washes.
+   THE GATEWAY'S ARCH (office, 2026-09-29): the page-wide follow-through frame
+   was removed the same day at the captain's call; the band's self-sizing arch
+   around the words (`.home-gateway__arch`) is the home's only arch, its head
+   now a true circular arc. Band 1 is plain WHITE — its clouds were removed
+   entirely (inbox 031).
 
    Owned by this block. Other public lanes append their own named block and do
    not edit this one. `tests/unit/home-styles.test.ts` fails a `home-*` class
@@ -20092,11 +20096,6 @@ a.plan-advisor__phone:hover {
      measures (the gateway's 22ch title, 44ch lead, band leads) stay unchanged. */
   max-width: var(--layout-folio-w);
   margin-inline: auto;
-  /* The frame's own stacking context: `.home-frame` paints at -1, ABOVE the
-     shell's white ground but BELOW every section, card and photograph, so the
-     decoration can never land on top of content. */
-  position: relative;
-  z-index: 0;
 }
 
 .home > section {
@@ -20106,121 +20105,6 @@ a.plan-advisor__phone:hover {
 
 .home > section:last-child {
   border-bottom: 0;
-}
-
-/* --- the page's arch frame (office, 2026-09-29; refined same day) ----------
-   ONE arch for the whole home, not one per band. It spans the page's own
-   content width PLUS a margin each side (`--space-5`, so both legs run in the
-   page's side margin, clearly visible beside the content rather than hugging
-   it), its head is a TRUE SEMICIRCLE over the vertical legs, and the curve
-   stays at the top of the page while the legs grow downward as the visitor
-   scrolls and stop on the last band's ground, where the footer area begins.
-   Decoration in its own layer, exactly:
-     · absolutely positioned — it measures into nothing and shifts no band;
-     · z-index -1 in `.home`'s stacking context — behind every section and
-       photograph (an opaque full-width band covers the legs; they reappear
-       below), never over text or a picture;
-     · transform-only motion (scaleY on 1px legs), so the page never reflows;
-     · a hairline in the sky palette with a soft static glow, never gold (gold
-       stays the ritual accent: the call and the band hairline).
-   The gateway's clouds are a child layer of band 1, so they paint above it. */
-.home-frame {
-  /* The glow is a static shadow/blur, never an animated one. */
-  --home-frame-glow: rgb(58 174 232 / 0.4); /* sky-400 at 40% */
-  --home-frame-ink: var(--sky-300);
-  position: absolute;
-  inset: 0 calc(-1 * var(--space-5));
-  z-index: -1;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  color: var(--home-frame-ink);
-}
-
-/* The head is half as tall as the arch is wide (percentage padding resolves
-   against the containing block's INLINE size), which is exactly a semicircle
-   over the legs — the curve meets them at vertical tangents, so the form is an
-   arch standing on the page, never a shallow elliptical dome sitting on it. */
-.home-frame__head {
-  position: relative;
-  width: 100%;
-  padding-top: 50%;
-  filter: drop-shadow(0 0 6px var(--home-frame-glow));
-}
-
-.home-frame__crown {
-  position: absolute;
-  inset: 0;
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* The shaft holds the vertical legs below the springing line; it takes the
-   remaining height of the frame, wherever the page ends. */
-.home-frame__shaft {
-  position: relative;
-  flex: 1;
-  width: 100%;
-}
-
-/* THE LEG TRACKS THE VISITOR (office, 2026-09-29). Its paint is pinned to the
-   viewport (`background-attachment: fixed`) and cut at the viewport's middle,
-   so it follows the reader's own eye-line continuously — scroll-linked by
-   construction, never threshold-triggered, no JavaScript, no layout. The
-   element's own box supplies the arch's two ends: it starts at the springing
-   line (the shaft's top) and stops at the frame's bottom, which is the last
-   section's ground — so the paint can never run above the springing or below
-   the section, and at the end of the page the frame CLOSES on that edge. */
-.home-frame__leg {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background-image: linear-gradient(
-    180deg,
-    var(--home-frame-ink) 0 50%,
-    transparent 50% 100%
-  );
-  background-size: 100% 100vh;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  /* The static glow (office: "a shadow or a blur on one element", never an
-     animated blur): the drop-shadow follows whatever the leg has painted, so
-     the halo tracks with the line. */
-  filter: drop-shadow(0 0 5px var(--home-frame-glow));
-}
-
-.home-frame__leg--left {
-  left: 0;
-}
-
-.home-frame__leg--right {
-  right: 0;
-}
-
-/* Desktop only (office, 2026-09-29): below the home's own wide-layout
-   breakpoint — 52rem, the width where every multi-column band
-   (`.home-park__grid`, `.home-lots__grid`, `.home-contact__grid`) goes
-   single-column — the arch is absent altogether. `display: none` renders
-   nothing and animates nothing, so a phone pays nothing for it, and the
-   element was always absolutely positioned so no measurement moves at any
-   width. */
-@media (max-width: 52rem) {
-  .home-frame {
-    display: none;
-  }
-}
-
-/* Reduced motion (office, 2026-09-29): the arch is drawn COMPLETE and still —
-   the legs become solid full-height lines from the springing line to the last
-   section's ground, with no viewport-fixed tracking paint. */
-@media (prefers-reduced-motion: reduce) {
-  .home-frame__leg {
-    background-image: none;
-    background-color: var(--home-frame-ink);
-    background-attachment: scroll;
-  }
 }
 
 /* --- 1 · the gateway ------------------------------------------------------ */
@@ -20241,9 +20125,40 @@ a.plan-advisor__phone:hover {
   padding-block: var(--space-5) var(--space-2);
 }
 
-/* (The band's old self-sizing headline arch was retired into `.home-frame`
-   when the page frame landed — the office asked for ONE arch, and two arches
-   in the same band would have read as a fight.) */
+/* The one decoration band 1 keeps: an arch the words sit inside.
+   THE FRAME derives the arch's width from the content box + breathing room on
+   both sides (inbox 010: the arc must clear the text however it wraps, at every
+   width), so the legs live in the band's side margin, clear of the content.
+   Beyond the section the overflow is clipped, and because the SVG path spans
+   its full viewBox the visible arch is exactly frame-wide. The path in the
+   component is a TRUE CIRCULAR ARC over the legs (office, inbox 031: a real
+   arch head, not the plan's shallow ellipse); the soft sky-blue glow below is
+   static — nothing here animates. Desktop only: below the home's own
+   wide-layout breakpoint (52rem) the arch is not rendered at all. */
+.home-gateway__frame {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  width: calc(100% + 2 * var(--space-8));
+  max-width: 100vw;
+  pointer-events: none;
+}
+
+.home-gateway__arch {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--sky-300);
+  filter: drop-shadow(0 0 6px rgb(58 174 232 / 0.4)); /* soft sky-blue glow */
+}
+
+@media (max-width: 52rem) {
+  .home-gateway__frame {
+    display: none;
+  }
+}
+
 .home-gateway__place {
   position: relative;
   margin: 0;
@@ -20344,78 +20259,11 @@ a.plan-advisor__phone:hover {
 }
 
 
-/* --- the gateway's drawn clouds (office, 2026-09-29) ----------------------
-   Section 1 is WHITE ONLY — no wash, no gradient — so each cloud is a drawn
-   silhouette in the sky ramp: one SVG path (four lobes on a flat base, the
-   office's "cloud everybody draws as a child"), reused at three sizes and
-   filled sky-300 with a deeper sky-500 edge, which is what keeps it clearly
-   visible on white. The SHAPE is in `components/public/home-page.tsx`; the
-   PAINT and the drift live here.
-   Transform-only animation, behind the words and clipped by the band, so no
-   measurement changes. Under `prefers-reduced-motion` base.css stops the
-   animation and this block pins each cloud at a visible position. */
-.home-gateway__clouds {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.home-gateway__cloud {
-  position: absolute;
-  display: block;
-  aspect-ratio: 240 / 100;
-  height: auto;
-  opacity: 0.75;
-  fill: var(--sky-300);
-  stroke: var(--sky-500);
-  stroke-width: 1.5;
-  stroke-linejoin: round;
-  will-change: transform;
-}
-
-.home-gateway__cloud--a {
-  width: 24rem;
-  top: 12%;
-  left: -20rem;
-  animation: home-cloud-drift 64s linear infinite;
-}
-
-.home-gateway__cloud--b {
-  width: 16rem;
-  top: 42%;
-  left: -16rem;
-  animation: home-cloud-drift 88s linear infinite;
-  animation-delay: -22s;
-}
-
-.home-gateway__cloud--c {
-  width: 32rem;
-  top: 66%;
-  left: -28rem;
-  animation: home-cloud-drift 112s linear infinite;
-  animation-delay: -54s;
-}
-
-@keyframes home-cloud-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(calc(100vw + 70rem), 0, 0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .home-gateway__cloud {
-    animation: none;
-  }
-
-  .home-gateway__cloud--a { left: 6%; }
-  .home-gateway__cloud--b { left: 40%; }
-  .home-gateway__cloud--c { left: 58%; }
-}
+/* (The gateway's clouds were REMOVED ENTIRELY at the office's direction
+   (inbox 031): band 1 is plain white — no wash, no drifting shape, no
+   decoration but the arch. Removing them moved no measurement: they were
+   absolutely positioned and clipped by the band. The `home-gateway__cloud*`
+   rules and their drift keyframes are gone with the markup.) */
 
 /* --- 2 · the hero photograph, alone and whole ----------------------------- */
 .home-photo {

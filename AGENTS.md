@@ -264,10 +264,11 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   (its title read from the office's own park address) · the first park (the
   arrangement builder and the two chapels) · the four lot types with every recorded
   plot pinned on the masterplan · the five rising plan tiers · the five service
-  tiles · contact with the embedded Google map. ONE arch frames the whole page
-  (`.home-frame`: a true semicircular head at the top, legs that track the reader's
-  eye-line down the page and close on the last section's ground — desktop only,
-  behind every section and photograph, never a line across a picture). Every figure is a read (pricing store · live catalogue · 2026 sheets);
+  tiles · contact with the embedded Google map. The gateway's self-sizing arch
+  (`.home-gateway__frame` — a still circular-arc head over legs, soft sky glow,
+  desktop only) is the home's only decoration: the page-wide follow-through
+  frame and every cloud were removed at the office's direction, and band 1 is
+  plain white. Every figure is a read (pricing store · live catalogue · 2026 sheets);
   the services band prints no amount. `components/public/home-page.tsx` is the map,
   `components/landing/home-sections-editor.tsx` + `/staff/landing/home` is the
   per-section editor, and **the palette is the sky+gold ramps** in `styles/tokens.css`

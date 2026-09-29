@@ -611,8 +611,19 @@ function PlansSection({ content, planPricing }: { content: LandingContent; planP
   );
 }
 
-function BlogSection({ content }: { content: LandingContent }) {
+function BlogSection({
+  content,
+  posts,
+}: {
+  content: LandingContent;
+  /** Post override: on `/blog` the band renders the BLOG page document's own
+   *  posts (inbox 031 — the landing document no longer owns them, and the band
+   *  must not show its empty state under a page that lists posts). `LandingView`
+   *  leaves this undefined and the band reads the landing document as before. */
+  posts?: BlogPost[];
+}) {
   const { blog, logo } = content;
+  const list = posts ?? blog.posts;
   // Newsfeed composition (captain 2026-09-21): ONE post per column. The feed is
   // a single row of equal columns — each story its own column — instead of a
   // spanning lead over a two-up grid that left two posts stacked in one column.
@@ -624,11 +635,11 @@ function BlogSection({ content }: { content: LandingContent }) {
   // screen. `aria-label` names the region because its heading is now elsewhere.
   return (
     <section className="mid-section" aria-label="Blog posts">
-      {blog.posts.length === 0 ? (
+      {list.length === 0 ? (
         <p className="mid-empty">Stories will appear here once staff publishes the first post.</p>
       ) : (
         <div className="blog-feed">
-          {blog.posts.map((post) => (
+          {list.map((post) => (
             <BlogPostCard key={post.id} post={post} brand={logo.wordmark} />
           ))}
         </div>
@@ -698,7 +709,8 @@ export function LandingBands({
   sectionCount,
   midElement = "div",
   open,
-}: LandingViewProps & { midElement?: "main" | "div"; open?: ReactNode }) {
+  posts,
+}: LandingViewProps & { midElement?: "main" | "div"; open?: ReactNode; posts?: BlogPost[] }) {
   const mid = (
     <div className="anchored-mid__inner">
       {open}
@@ -709,7 +721,7 @@ export function LandingBands({
       <PlansSection content={content} planPricing={planPricing} />
       <MapSection content={content} mapNode={mapNode} mapLive={mapLive} sectionCount={sectionCount} />
       <AboutSection content={content} />
-      <BlogSection content={content} />
+      <BlogSection content={content} posts={posts} />
     </div>
   );
 
