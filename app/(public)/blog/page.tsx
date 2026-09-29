@@ -59,20 +59,9 @@ export default async function BlogRoute() {
 
   return (
     <>
-      <div className="container--reading blog-page">
-        {blog ? (
-          <BlogView blog={blog} />
-        ) : (
-          <EmptyState
-            title="The blog is not configured"
-            hint="Pages & content → Blog publishes its heading, intro and posts."
-          />
-        )}
-      </div>
-      {/* The former storefront, bands only, beneath the blog. The negative
-          inline margin restores the former page's full folio width: this route
-          sits inside the shared `.container`, whose gutter the bands would
-          otherwise pay for twice (`.blog-storefront` in the blog CSS block). */}
+      {/* The blog is the middle column's first section (captain, 2026-09-30):
+          the original rails-and-middle design, the blog first, then the story,
+          the plans and the rest beneath it. */}
       <div className="blog-storefront">
         <LandingBands
           content={content}
@@ -82,6 +71,18 @@ export default async function BlogRoute() {
           mapLive={lots.length > 0}
           sectionCount={sectionCount}
           newsfeed={false}
+          open={
+            <section className="mid-section blog-section" aria-label="Blog">
+              {blog ? (
+                <BlogView blog={blog} />
+              ) : (
+                <EmptyState
+                  title="The blog is not configured"
+                  hint="Pages & content → Blog publishes its heading, intro and posts."
+                />
+              )}
+            </section>
+          }
         />
       </div>
     </>

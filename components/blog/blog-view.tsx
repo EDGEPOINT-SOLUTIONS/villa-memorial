@@ -23,7 +23,6 @@ export function BlogView({ blog }: { blog: BlogDocument }) {
   return (
     <div className="blog-page">
       <header className="blog-head">
-        <p className="blog-head__kicker">From the grounds</p>
         <h1 className="blog-head__title">{blog.heading}</h1>
         {blog.intro ? <p className="blog-head__lead">{blog.intro}</p> : null}
       </header>

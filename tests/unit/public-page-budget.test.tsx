@@ -131,9 +131,9 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "blog (/blog)",
     render: async () => renderToStaticMarkup(await BlogRoute()),
     sections: [
+      "anchored-rail--left",
       "blog-head",
       "blog-rows",
-      "anchored-rail--left",
       "plan-lot-grid",
       "plan-board",
       "mid-section--map",

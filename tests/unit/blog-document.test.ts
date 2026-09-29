@@ -74,15 +74,16 @@ describe("the blog is its own page document", () => {
     expect(blogAfter?.blog?.posts[0].caption).toBe("Edited caption");
   });
 
-  it("leads with the blog, then restores the former storefront bands beneath it", async () => {
+  it("puts the blog as the middle column's first section, then the storefront bands", async () => {
     const html = renderToStaticMarkup(await BlogRoute());
-    // The order is the office's instruction (inbox 025): the posts lead and
-    // the whole former layout follows, bands only — MINUS the newsfeed band,
+    // The order is the captain's direction (2026-09-30): the original
+    // rails-and-middle design, the blog as the middle's FIRST section, then
+    // the story, the plans and the rest beneath it — MINUS the newsfeed band,
     // which repeated the posts the page already lists (office, inbox 048).
     const order = [
+      "anchored-rail--left",
       "blog-head",
       "blog-rows",
-      "anchored-rail--left",
       "plan-lot-grid",
       "plan-board",
       "mid-section--map",
