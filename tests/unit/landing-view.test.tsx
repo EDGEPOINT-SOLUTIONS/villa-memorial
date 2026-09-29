@@ -156,18 +156,13 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(menu).toContain("Price list");
     expect(menu).not.toContain(">Memorials</strong>");
     expect(nav).not.toContain('href="/builder"');
-    // The footer keeps the same destinations, de-duplicated (captain,
-    // 2026-09-21): the plan has ONE entry (Care & planning), and the park's
-    // one clear entry is the contact block's map link, never a second
-    // "Villa Memorial Park" beside the brand wordmark.
+    // The footer's columns follow the office's own lists (inbox 049): the
+    // Explore column now carries the plan and the park BY NAME, so the contact
+    // block's "Map & directions" is a second, deliberate way to the map.
     expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
     expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');
+    expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
     expect(html).toContain('<a href="/map">Map &amp; directions →</a>');
-    // The park's ONE footer entry is the contact block's map link — never a
-    // second "Villa Memorial Park" beside the brand wordmark. (The header bar
-    // legitimately carries the top-level name; scope this to the footer.)
-    const footer = html.slice(html.indexOf('<footer class="anchored-footer"'));
-    expect(footer).not.toContain('<a href="/map">Villa Memorial Park</a>');
   });
 
   it("the footer lists one entry per destination and uses the live page names", async () => {
@@ -186,11 +181,30 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
     const labels = links.map((link) => link.label);
     expect(new Set(labels).size).toBe(labels.length);
-    // Labels match the live pages, not the retired wording.
-    expect(labels).toContain("Coffins & caskets");
-    expect(labels).toContain("Memorial lots");
-    expect(labels).not.toContain("Products & caskets");
-    expect(labels).not.toContain("Browse the lots");
+    // The office's exact columns and wording (inbox 049) — four Explore links
+    // then five Care & Planning links, and nothing else.
+    expect(labels).toEqual([
+      "Home",
+      "Funeraria Memorial Services",
+      "Villa Memorial Plan",
+      "Villa Memorial Park",
+      "Lots",
+      "Caskets",
+      "Builder",
+      "Packages",
+      "Price list",
+    ]);
+    expect(links.map((link) => link.href)).toEqual([
+      "/",
+      "/services",
+      "/plans",
+      "/map",
+      "/lots",
+      "/products",
+      "/builder",
+      "/plans/PKG-BASIC",
+      "/price-list",
+    ]);
   });
 
   it("the left rail leads with the always-reachable help card (captain, 2026-09-25)", async () => {

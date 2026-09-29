@@ -371,37 +371,31 @@ export function LandingFooter({ content }: { content: LandingContent }) {
             </p>
           </div>
 
-          {/* Quick links — the browse destinations. ONE entry per location:
-              the plan lives in “Care & planning” (below) and the park has its
-              one clear entry in the contact block's “Visit the park / Map &
-              directions”, so neither repeats here (captain, 2026-09-21). */}
+          {/* THE TWO LINK COLUMNS, EXACTLY (office, inbox 049): four Explore
+              links and five Care & Planning links, in the office's own order
+              and wording, and nothing else. Every removed route stays live —
+              this is the footer pruned, not pages deleted. */}
           <FooterColumn
             title="Explore"
             links={[
               { label: "Home", href: "/" },
               { label: "Funeraria Memorial Services", href: "/services" },
-              { label: "Smart Service Builder", href: "/builder" },
-              { label: "Memorial lots", href: "/lots" },
-              { label: "Coffins & caskets", href: "/products" },
-              { label: "Facilities", href: "/facilities" },
-              { label: "Transport", href: "/transport" },
-              { label: "Photo gallery & virtual tour", href: "/gallery" },
-              { label: "Blog", href: "/blog" },
-              { label: "Digital memorial search", href: "/memorials" },
-              { label: "Find my loved one", href: "/memorials/find" },
+              { label: "Villa Memorial Plan", href: "/plans" },
+              { label: "Villa Memorial Park", href: "/map" },
             ]}
           />
 
-          {/* Services & plans links — the planning products, the guide pages
-              and the published prices. This is the plan's ONE footer entry. */}
+          {/* “Packages” has no /packages route in this app; it points at the
+              real package surface the plan board's footnote links to — the
+              Basic package detail page. */}
           <FooterColumn
-            title="Care & planning"
+            title="Care & Planning"
             links={[
-              { label: "Death at home", href: "/services/death-at-home" },
-              { label: "Death at hospital", href: "/services/death-at-hospital" },
-              { label: "Villa Memorial Plan", href: "/plans" },
+              { label: "Lots", href: "/lots" },
+              { label: "Caskets", href: "/products" },
+              { label: "Builder", href: "/builder" },
+              { label: "Packages", href: "/plans/PKG-BASIC" },
               { label: "Price list", href: "/price-list" },
-              { label: "2026 lot price list", href: "/lots/price-list-2026" },
             ]}
           />
 

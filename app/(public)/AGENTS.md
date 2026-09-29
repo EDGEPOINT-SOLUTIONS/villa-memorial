@@ -518,7 +518,8 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   screen ends on the office — the staff-editable 24/7 number plus the existing `/contact`
   request path (`buildRequestHref`, with the arrangement written into the note).
 - **Nav/SEO**: `Builder` in the grouped "Explore more" menu (`EXPLORE_MORE_LINKS`),
-  the footer's Explore column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
+  the footer's Care & Planning column (office, inbox 049), and `/builder` in
+  `lib/seo.ts` `PUBLIC_PAGES`
   (indexable — a selling surface, unlike the memorial pages).
 - Evidence: `tests/unit/service-builder.test.ts` (sheet figures, store-read rates, the senior
   rules, the covered total, the request note), `tests/unit/service-builder-page.test.tsx`
