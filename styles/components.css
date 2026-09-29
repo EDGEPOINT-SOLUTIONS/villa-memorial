@@ -7133,7 +7133,9 @@ because the shared `.ag-appt` rule comes later in this file. */
   margin: 0;
   font-family: var(--font-display);
   font-size: var(--text-3xl);
-  font-weight: 700;
+  /* The captain's review (2026-09-30): every section title matches the first
+     section title's light display weight — never bold. */
+  font-weight: 500;
   line-height: var(--leading-tight);
   text-wrap: balance;
   color: var(--color-text-primary);
@@ -7358,7 +7360,8 @@ because the shared `.ag-appt` rule comes later in this file. */
 .plan-included__list {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-2) var(--space-5);
+  /* A little more air between the rows (captain, 2026-09-30). */
+  gap: var(--space-3) var(--space-5);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -7367,7 +7370,7 @@ because the shared `.ag-appt` rule comes later in this file. */
 .plan-included__item {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   font-size: var(--text-body);
   color: var(--color-text-primary);
 }
@@ -7378,10 +7381,12 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .plan-included__note {
-  margin: var(--space-4) 0 0;
+  /* Centred and given a little more room above (captain, 2026-09-30). */
+  margin: var(--space-5) auto 0;
   max-width: var(--measure-prose);
   font-size: var(--text-caption);
   color: var(--color-text-secondary);
+  text-align: center;
 }
 
 /* --- add-ons -------------------------------------------------------------- */

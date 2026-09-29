@@ -192,7 +192,7 @@ export function PlanInclusions({
           const Icon = INCLUSION_ICONS[label] ?? Package;
           return (
             <li key={label} className="plan-included__item">
-              <Icon size={20} aria-hidden="true" />
+              <Icon size={25} aria-hidden="true" />
               <span>{label}</span>
             </li>
           );
