@@ -11,11 +11,11 @@
 > ("not wired yet" / "coming soon", naming what unblocks it) · ❌ absent.
 > When a contract lands, change the page **and** its row here in the same PR.
 
-## Public site — `app/(public)`
+## Public site — `app/(public)` + the home's `(home)` group
 
 | Route | What it serves |
 |---|---|
-| `/` | ✅ content-model home (editable LandingPage document; live park map in the middle column) |
+| `/` | ✅ the captain's reference home (rebuilt 2026-09-29): its OWN header nav + footer (in-page anchors, so it lives in `app/(home)`, outside `PublicShell`), sky/white/black palette, Young Serif + Figtree, the arched hero, the trust rule, the fork, the steps, the services, the four casket collections (client photographs), the five plan tiers' live monthly, the view-only plot-dot map (available/reserved/sold computed from the plot store), the family-page promise, the FAQ details and the closing band. Every fact reads from the landing/pricing/lot stores. Record + before/after: [`home-redesign-design/`](../home-redesign-design/README.md) |
 | `/services`, `/services/death-at-home`, `/services/death-at-hospital`, `/transport` | ✅ Request-for-Quote service list (captain's minutes 2026-09-21, item 5): no displayed price; the five a-la-carte fees, the embalming day counts and the chapel classes each carry ONE quote action to `/quote` |
 | `/facilities` | ✅ the park's rooms (chapel classes with sample photographs + a quote action, no displayed rate) and the masterplan's grounds list; no room name/capacity/count (an open client question, said on the page) |
 | `/products`, `/products/[sku]` | ✅ 24 casket models from the 2026 sheet; sample imagery labelled illustrative. The detail page renders the item entry's editable rich description, gallery viewer + thumbnail rail and specs table (durable `content-entries` store; no gallery falls back to the rule-derived sample figure) |

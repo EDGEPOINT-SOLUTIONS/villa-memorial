@@ -3,30 +3,33 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 
 /**
- * The home ships a stylesheet — the regression this pins.
+ * The home ships its stylesheet — the regression this pins.
  *
- * The rebuilt home (`components/public/home-page.tsx`, 2026-09-27) shipped its
- * markup with NO CSS: `git log -S "home-fork" -- styles/components.css` is empty,
- * so `/` rendered as raw, unstyled HTML for the life of the rebuild. Nothing
- * caught it — `public-page-budget` only checks that the sections RENDER, not that
- * they are styled. This is the class check the home was missing, the same shape as
- * `admin-portal-sweep.test.ts` for the staff portal: every `home-*` class used in
- * the component must have a rule (or be a styled BEM root) in the stylesheets.
+ * The home is the ONE public surface with its own design language and its own
+ * scoped stylesheet (`styles/home.css`, rebuilt 2026-09-29 to the captain's
+ * reference page). Its classes all carry the `vf-` (Villa Funeraria) prefix and
+ * are scoped under `.vf-home`, so nothing on the home can reach another page.
+ *
+ * The reproduction this guards: the previous home (`components/public/home-page.tsx`,
+ * 2026-09-27) shipped its markup with NO CSS — `git log -S "home-fork" --
+ * styles/components.css` is empty — so `/` rendered as raw, unstyled HTML.
+ * Nothing caught it. This is the class check that was missing: every `vf-` class
+ * a home component names must have a rule in `styles/home.css`.
  */
 
 const ROOT = process.cwd();
-const SOURCE = readFileSync(path.join(ROOT, "components/public/home-page.tsx"), "utf8");
-const CSS = ["styles/components.css", "styles/base.css", "styles/utilities.css"]
-  .map((file) => readFileSync(path.join(ROOT, file), "utf8"))
-  .join("\n");
+const SOURCES = [
+  "components/public/home-page.tsx",
+  "components/public/home-plot-map.tsx",
+].map((file) => readFileSync(path.join(ROOT, file), "utf8"));
+const CSS = readFileSync(path.join(ROOT, "styles/home.css"), "utf8");
 
-/** Every `home…` class token a `className=` literal or template names. */
-function homeTokens(source: string): string[] {
+/** Every `vf-…` identifier a home component names (dynamic BEM suffixes included). */
+function vfTokens(source: string): string[] {
   const found = new Set<string>();
-  for (const match of source.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`\})/g)) {
-    for (const token of (match[1] ?? match[2] ?? "").split(/\s+/)) {
-      if (/^home(-|$)/.test(token)) found.add(token);
-    }
+  for (const match of source.matchAll(/(?<!data-)\bvf-[a-z0-9-]+/g)) {
+    const token = match[0].replace(/-+$/, "");
+    if (token.length > 3) found.add(token);
   }
   return [...found];
 }
@@ -36,27 +39,34 @@ describe("the home ships its stylesheet", () => {
   const namespaces = new Set<string>();
   for (const m of CSS.matchAll(/\.([A-Za-z_][\w-]*?)__/g)) namespaces.add(m[1]);
   for (const m of CSS.matchAll(/\.([A-Za-z_][\w-]*?)--/g)) namespaces.add(m[1]);
+  const tokens = [...new Set(SOURCES.flatMap(vfTokens))];
 
-  it("uses a real set of home classes (the check cannot pass vacuously)", () => {
-    expect(homeTokens(SOURCE).length).toBeGreaterThan(20);
+  it("uses a real set of vf- classes (the check cannot pass vacuously)", () => {
+    expect(tokens.length).toBeGreaterThan(20);
   });
 
-  it("every home class has a rule, or is a styled BEM root", () => {
-    const offenders = homeTokens(SOURCE)
+  it("every vf- class has a rule, or is a styled BEM root", () => {
+    const offenders = tokens
       .filter((token) => !defined.has(token) && !namespaces.has(token))
       .sort();
     expect(offenders, `no stylesheet rule for:\n${offenders.join("\n")}`).toEqual([]);
   });
 
-  it("covers every section the page blueprint pins", () => {
-    for (const section of [
-      "home-hero",
-      "home-qualify",
-      "home-fork",
-      "home-park",
-      "home-feel",
+  it("covers every band the home blueprint pins", () => {
+    for (const band of [
+      "vf-hero",
+      "vf-trust",
+      "vf-two",
+      "vf-steps",
+      "vf-services",
+      "vf-caskets",
+      "vf-plans",
+      "vf-park",
+      "vf-feel",
+      "vf-cta",
+      "vf-footer",
     ]) {
-      expect(defined.has(section), section).toBe(true);
+      expect(defined.has(band), band).toBe(true);
     }
   });
 });
