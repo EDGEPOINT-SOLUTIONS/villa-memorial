@@ -1101,6 +1101,27 @@ const HOME_ZONES: Array<{ id: string; num: string; label: string; hint: string }
   { id: "ed-home-7", num: "07", label: "Section 7 · Contact", hint: "The enquiry form and the embedded park map, with its server-side Google key." },
 ];
 
+/**
+ * WHICH EDITOR OWNS WHICH ZONES (office, inbox 048).
+ *
+ * The two pages that share this document have their own editors, and an editor
+ * shows only what ITS page renders:
+ *   · home       — the new home's own seven sections, plus the shared brand /
+ *                  24-7 chrome the home's header, footer and call read;
+ *   · storefront — the former storefront's sections, which render on /blog
+ *                  (its restored bands): Hero · Fixed rails · About ·
+ *                  plans-and-lots · the plan board · the park map copy;
+ *   · faq        — the FAQ page at /faq, which is not a /blog band at all;
+ *   · all        — every zone (the whole document, for tests and static use).
+ */
+export type LandingEditorMode = "all" | "home" | "storefront" | "faq";
+
+const MODE_ZONE_IDS: Record<Exclude<LandingEditorMode, "all">, readonly string[]> = {
+  home: [...HOME_ZONES.map((zone) => zone.id), "ed-brand"],
+  storefront: ["ed-hero", "ed-rails", "ed-about", "ed-plans-lots", "ed-plans", "ed-map"],
+  faq: ["ed-faq"],
+};
+
 const SECTION_ZONES: Array<{ id: string; num: string; label: string; hint: string }> = [
   ...HOME_ZONES,
   { id: "ed-brand", num: "08", label: "Brand & 24/7 line", hint: "Wordmark + mark, and the phone visitors can reach any hour. The home's gateway call action is bound to this line." },
@@ -1126,9 +1147,13 @@ export function LandingPageEditor({
   lotCategories,
   planPricing,
   homeCatalog,
+  mode = "all",
 }: {
   initialContent: LandingContent;
   sessionName?: string;
+  /** Which page's zones this editor shows (inbox 048). Default `all`: the whole
+   *  document, as the earlier single editor showed it. */
+  mode?: LandingEditorMode;
   /** Live-store choices for the seven home sections (catalogue, chapel resources,
    *  lot families). Omitted → the recorded seed's models/families, so static
    *  tests still render the editor. */
@@ -1168,7 +1193,21 @@ export function LandingPageEditor({
   const savedJson = useRef(JSON.stringify(initialContent));
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<{ tone: "success" | "danger"; msg: string } | null>(null);
-  const [activeZone, setActiveZone] = useState(SECTION_ZONES[0].id);
+  // The zones THIS editor owns — the navigator, the scroll-spy and the rendered
+  // sections all use this list, so no editor shows another page's fields.
+  const zones =
+    mode === "all"
+      ? SECTION_ZONES
+      : SECTION_ZONES.filter((zone) => MODE_ZONE_IDS[mode].includes(zone.id));
+  const shows = (id: string) => zones.some((zone) => zone.id === id);
+  const consoleCopy: Record<LandingEditorMode, { title: string; live: string; status: string }> = {
+    all: { title: "Public pages · / and /faq", live: "/", status: "the pages at / and /faq" },
+    home: { title: "The public home · /", live: "/", status: "the home at /" },
+    storefront: { title: "The blog's storefront · /blog", live: "/blog", status: "the bands on /blog" },
+    faq: { title: "The FAQ page · /faq", live: "/faq", status: "the page at /faq" },
+  };
+  const copy = consoleCopy[mode];
+  const [activeZone, setActiveZone] = useState(zones[0]?.id ?? SECTION_ZONES[0].id);
 
   const dirty = useMemo(() => JSON.stringify(content) !== savedJson.current, [content]);
   const lastSaved = content.updated_at;
@@ -1207,11 +1246,13 @@ export function LandingPageEditor({
       },
       { rootMargin: "-96px 0px -62% 0px", threshold: 0 },
     );
-    for (const zone of SECTION_ZONES) {
+    for (const zone of zones) {
       const el = document.getElementById(zone.id);
       if (el) observer.observe(el);
     }
     return () => observer.disconnect();
+    // `zones` is derived from `mode`, which is fixed for the editor's life.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   function scrollToZone(id: string) {
@@ -1336,8 +1377,8 @@ export function LandingPageEditor({
     : dirty
       ? "Unsaved changes — the live pages still show the last published version."
       : lastSaved
-        ? `Published ${formatStamp(lastSaved)} — the pages at / and /faq show this document.`
-        : "Seed content — the pages currently show the recorded starter document.";
+        ? `Published ${formatStamp(lastSaved)} — ${copy.status} show this document.`
+        : `Seed content — ${copy.status} currently show the recorded starter document.`;
 
   return (
     <div className="stack-4">
@@ -1350,7 +1391,7 @@ export function LandingPageEditor({
             {busy ? <Loader2 size={15} aria-hidden="true" /> : dirty ? null : <Check size={15} aria-hidden="true" />}
           </span>
           <div className="ed-console__copy">
-            <p className="ed-console__title">Public pages · / and /faq</p>
+            <p className="ed-console__title">{copy.title}</p>
             <p className="ed-console__sub">
               {sessionName ? `Good day, ${sessionName} — ` : ""}
               {statusLine}
@@ -1358,7 +1399,7 @@ export function LandingPageEditor({
           </div>
         </div>
         <div className="ed-console__actions">
-          <a href="/" target="_blank" rel="noreferrer" className="btn btn--ghost btn--sm ed-console__live">
+          <a href={copy.live} target="_blank" rel="noreferrer" className="btn btn--ghost btn--sm ed-console__live">
             <ExternalLink size={14} aria-hidden="true" /> View live page
           </a>
           {dirty ? (
@@ -1387,9 +1428,9 @@ export function LandingPageEditor({
         {notice ? <Alert tone={notice.tone}>{notice.msg}</Alert> : null}
 
         {/* 2 · Section navigator — one tap to any zone, page order, live counts */}
-        <nav className="ed-nav" aria-label="Landing page sections">
+        <nav className="ed-nav" aria-label="Page sections">
         <ul>
-          {SECTION_ZONES.map((zone) => {
+          {zones.map((zone) => {
             const count =
               zone.id === "ed-rails"
                 ? rails.left.items.length + rails.right.items.length
@@ -1423,17 +1464,17 @@ export function LandingPageEditor({
       </nav>
       </div>
 
-      {/* 3 · The document, zone by zone */}
-      {/* THE SEVEN HOME SECTIONS — the approved home-rebuild plan, edited one
-          section at a time. Everything below still edits the other public
-          surfaces that share this document (/blog, the FAQ page, the chrome). */}
-      <HomeSectionsEditor
-        home={content.home}
-        onChange={(next) => patch((d) => void (d.home = next))}
-        catalog={homeChoices}
-        planPricing={homePlanPricing}
-      />
+      {/* 3 · The document, zone by zone — only the zones this mode owns. */}
+      {shows("ed-home-1") ? (
+        <HomeSectionsEditor
+          home={content.home}
+          onChange={(next) => patch((d) => void (d.home = next))}
+          catalog={homeChoices}
+          planPricing={homePlanPricing}
+        />
+      ) : null}
 
+      {shows("ed-brand") ? (
       <EdSection
         id="ed-brand"
         num="08"
@@ -1473,7 +1514,9 @@ export function LandingPageEditor({
           <TextField label="Park address" htmlFor="contact-park-address" value={contact.parkAddress} onChange={(v) => patch((d) => void (d.contact.parkAddress = v))} />
         </div>
       </EdSection>
+      ) : null}
 
+      {shows("ed-hero") ? (
       <EdSection
         id="ed-hero"
         num="09"
@@ -1498,7 +1541,9 @@ export function LandingPageEditor({
         {ctaFields(hero.primaryCta, (next) => patch((d) => void (d.hero.primaryCta = next)), "primary", "I need help now button")}
         {ctaFields(hero.secondaryCta, (next) => patch((d) => void (d.hero.secondaryCta = next)), "secondary", "Plan ahead button")}
       </EdSection>
+      ) : null}
 
+      {shows("ed-rails") ? (
       <EdSection
         id="ed-rails"
         num="10"
@@ -1527,7 +1572,9 @@ export function LandingPageEditor({
           </div>
         </div>
       </EdSection>
+      ) : null}
 
+      {shows("ed-about") ? (
       <EdSection
         id="ed-about"
         num="11"
@@ -1537,6 +1584,8 @@ export function LandingPageEditor({
         <AboutEditor section={about} onChange={(next) => patch((d) => void (d.about = next))} />
       </EdSection>
 
+      ) : null}
+      {shows("ed-plans-lots") ? (
       <EdSection
         id="ed-plans-lots"
         num="12"
@@ -1558,6 +1607,8 @@ export function LandingPageEditor({
         />
       </EdSection>
 
+      ) : null}
+      {shows("ed-plans") ? (
       <EdSection
         id="ed-plans"
         num="13"
@@ -1568,6 +1619,8 @@ export function LandingPageEditor({
         <PlanBoardEditor section={plans} onChange={(next) => patch((d) => void (d.plans = next))} />
       </EdSection>
 
+      ) : null}
+      {shows("ed-map") ? (
       <EdSection
         id="ed-map"
         num="14"
@@ -1577,6 +1630,8 @@ export function LandingPageEditor({
         <MapEditor section={map} onChange={(next) => patch((d) => void (d.map = next))} />
       </EdSection>
 
+      ) : null}
+      {shows("ed-faq") ? (
       <EdSection
         id="ed-faq"
         num="16"
@@ -1592,6 +1647,7 @@ export function LandingPageEditor({
       >
         <FaqEditor section={faq} onChange={(next) => patch((d) => void (d.faq = next))} />
       </EdSection>
+      ) : null}
 
       {/* 4 · Closing publish row — the same obvious action, repeated at the end of the document */}
       <div className="ed-publish-row">
@@ -1599,8 +1655,8 @@ export function LandingPageEditor({
           {attention > 0
             ? `${attention} item${attention === 1 ? "" : "s"} flagged for review — the amber markers above show what to check.`
             : dirty
-              ? "Your edits are ready to go live on the public pages."
-              : "This document matches what visitors see on / and /faq. Nothing to publish."}
+              ? `Your edits are ready to publish to ${copy.status}.`
+              : `This document matches ${copy.status}. Nothing to publish.`}
         </p>
         <div className="row" style={{ gap: "var(--space-2)" }}>
           {dirty ? (
@@ -1745,14 +1801,6 @@ export function BlogAdminEditor({ initialContent }: { initialContent: LandingCon
 
       {notice ? <Alert tone={notice.tone}>{notice.msg}</Alert> : null}
 
-      <EdSection
-        id="blog-posts"
-        num="—"
-        title="Blog posts"
-        hint="A caption plus as many photos or videos as you like. The newest post leads the home band; every post also appears on /blog."
-      >
-        <BlogEditor section={content.blog} onChange={(next) => setContent((prev) => ({ ...prev, blog: next }))} />
-      </EdSection>
     </div>
   );
 }

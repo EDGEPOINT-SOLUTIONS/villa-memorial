@@ -13,10 +13,11 @@
   its BANDS (`LandingBands` in `components/landing/landing-view.tsx` — both rails +
   the middle sheet, NO chrome) render beneath the blog document on `/blog` (office,
   inbox 025): landing-content copy, the live park map, the plans-and-lots grid and
-  the newsfeed, in their original order. The newsfeed band is the one exception:
-  on `/blog` it is pointed at the BLOG page document's posts (inbox 031), because
-  the landing document no longer owns them — everything else reads as before, and
-  the two documents stay independent. The bands never
+  the storefront bands, in their original order — MINUS the newsfeed band, which
+  repeated the posts the page already lists above it and was removed (office,
+  inbox 048). The blog page's own lead listing reads the BLOG page document; the
+  restored bands read the landing document and the live stores, and the two
+  documents stay independent. The bands never
   carry a second header, footer, phone bar or closing action band — `PublicShell`
   owns exactly one of each.
 - Content lives in the fixture store like every module: recorded seed at

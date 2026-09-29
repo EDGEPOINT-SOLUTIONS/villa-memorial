@@ -710,7 +710,16 @@ export function LandingBands({
   midElement = "div",
   open,
   posts,
-}: LandingViewProps & { midElement?: "main" | "div"; open?: ReactNode; posts?: BlogPost[] }) {
+  newsfeed = true,
+}: LandingViewProps & {
+  midElement?: "main" | "div";
+  open?: ReactNode;
+  posts?: BlogPost[];
+  /** The newsfeed band (the landing document's posts). OFF on `/blog`, whose
+   *  own lead listing already shows those posts (office, inbox 048) — the band
+   *  there was a duplicate. LandingView keeps it. */
+  newsfeed?: boolean;
+}) {
   const mid = (
     <div className="anchored-mid__inner">
       {open}
@@ -721,7 +730,7 @@ export function LandingBands({
       <PlansSection content={content} planPricing={planPricing} />
       <MapSection content={content} mapNode={mapNode} mapLive={mapLive} sectionCount={sectionCount} />
       <AboutSection content={content} />
-      <BlogSection content={content} posts={posts} />
+      {newsfeed ? <BlogSection content={content} posts={posts} /> : null}
     </div>
   );
 

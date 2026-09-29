@@ -70,12 +70,11 @@ export default async function PagesAndContentPage() {
         <EmptyState title="No page documents yet" hint="The seeded pages appear here." />
       ) : (
         <div className="landing__grid">
-          {/* The Blog is not a page document — it is a region of the Home
-              document — but the office asked for it to be first-class here,
-              because "open the home editor and scroll to zone 08" is not an
-              answer to "where do I write a post?". Its own editor at
-              /staff/landing/blog renders the same BlogEditor on the same
-              document, so this card adds a door, never a second implementation. */}
+          {/* The Blog owns everything /blog renders (office, inbox 048): its own
+              page document (the posts lead) AND the former storefront's landing
+              sections, which the restored bands beneath the posts render. Its
+              editor at /staff/landing/blog shows both, each saving through its
+              own document. */}
           <section className="card" aria-labelledby="page-doc-blog">
             <div className="card__body stack-3">
               <div>
@@ -87,15 +86,44 @@ export default async function PagesAndContentPage() {
                 </h2>
               </div>
               <p className="text-sm text-muted" style={{ margin: 0 }}>
-                The posts the office publishes — a caption plus photos or video.
+                The posts the office publishes (a caption plus photos or video) and the
+                storefront sections that render beneath them — rails, About,
+                plans-and-lots, the plan board and the park map copy.
+              </p>
+              <p className="text-sm text-muted" style={{ margin: 0 }}>
+                {byKey.get("blog")?.updated_at
+                  ? `Last saved ${new Date(byKey.get("blog")!.updated_at!).toLocaleString()}`
+                  : "Seed copy — not yet edited"}
+              </p>
+              <Link href="/staff/landing/blog" className="btn btn--primary btn--sm">
+                Edit the blog
+              </Link>
+            </div>
+          </section>
+
+          {/* The FAQ has its own page and its own editor (inbox 048): the block
+              used to sit inside the home editor, which made it look like part of
+              the home. */}
+          <section className="card" aria-labelledby="page-doc-faq">
+            <div className="card__body stack-3">
+              <div>
+                <p className="eyebrow-label" style={{ marginBottom: "var(--space-1)" }}>
+                  /faq
+                </p>
+                <h2 id="page-doc-faq" className="text-lg" style={{ margin: 0 }}>
+                  FAQ
+                </h2>
+              </div>
+              <p className="text-sm text-muted" style={{ margin: 0 }}>
+                The questions families ask most, their answers and the next-step links.
               </p>
               <p className="text-sm text-muted" style={{ margin: 0 }}>
                 {byKey.get("home")?.updated_at
                   ? `Last saved ${new Date(byKey.get("home")!.updated_at!).toLocaleString()}`
                   : "Seed copy — not yet edited"}
               </p>
-              <Link href="/staff/landing/blog" className="btn btn--primary btn--sm">
-                Edit the blog
+              <Link href="/staff/landing/faq" className="btn btn--primary btn--sm">
+                Edit the FAQ
               </Link>
             </div>
           </section>

@@ -18,10 +18,12 @@ import { chapelClassOf } from "@/lib/chapel-booking";
 export const metadata: Metadata = { title: "Home — Pages & content — Admin Portal" };
 
 /**
- * The Home document — the existing full editor (brand, hero, rails, about,
- * service cards, plan board, map copy, blog, FAQ). Pages & content lists five
- * documents; Home is the one that already had its own editor, so it keeps it
- * (see lib/content-catalog.ts PAGE_DOCUMENTS: home.editor === "landing").
+ * The Home document — the editor for THE HOME PAGE ONLY (office, inbox 048):
+ * the new home's own seven sections plus the shared brand / 24-7 chrome its
+ * header, footer and call read. The former storefront's sections (Hero, rails,
+ * About, plans-and-lots, the plan board, the park map copy) moved to the blog
+ * editor, which owns the page that renders them, and the FAQ moved to
+ * /staff/landing/faq, the page it drives.
  *
  * The public home at / AND the FAQ page at /faq render ONLY from the content
  * document this page edits. Saving POSTs the whole document through the BFF
@@ -111,6 +113,7 @@ export default async function LandingHomeAdminPage() {
         }
       />
       <LandingPageEditor
+        mode="home"
         initialContent={content}
         lotCategories={pricing.lotCategories}
         planPricing={pricing.plans}

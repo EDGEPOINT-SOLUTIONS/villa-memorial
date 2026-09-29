@@ -184,21 +184,24 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   pins the funnel sizes, the light headline, the labels-only icon row and the
   absence of every arch/cloud token.
 
-- **The former storefront returns BENEATH the blog (inbox 025):** `/blog` leads
-  with the blog's own page document (heading · intro · one horizontal row per
-  post) and then renders the whole former LandingView layout under it, BANDS
-  ONLY — the left and right rails, the plans-and-lots card grid, the tier board,
-  the live park map, the About band and the newsfeed — through the new
-  `LandingBands` export in `components/landing/landing-view.tsx`. The bands read
-  the landing document and the live stores exactly as before, with ONE pointed
-  exception (inbox 031): the newsfeed band is given the BLOG page document's
-  posts, because the landing document no longer owns them and the band was
-  rendering its empty state under a page that lists the posts. That does repeat
-  the same posts the page leads with — the office was given the two options
-  (the band shows the remaining posts, or it goes) and has not chosen yet. No
+- **The former storefront returns BENEATH the blog (inbox 025; resolved by
+  048):** `/blog` leads with the blog's own page document (heading · intro · one
+  horizontal row per post) and then renders the whole former LandingView layout
+  under it, BANDS ONLY — the left and right rails, the plans-and-lots card grid,
+  the tier board, the live park map and the About band — through the
+  `LandingBands` export in `components/landing/landing-view.tsx`. The newsfeed
+  band, which for a time repeated the posts the page already leads with, was
+  REMOVED at the office's direction (inbox 048 — the options put to them were
+  "remaining posts or the band goes"; they chose the band goes); the blog's lead
+  listing is the page's only post list. The bands read the landing document and
+  the live stores as before, and the two documents stay independent. No
   second chrome: `LandingBands` renders no header, footer, phone bar or closing
   action band — `PublicShell` supplies exactly one of each, verified on the
   rendered page (1 header · 1 footer · 1 phone bar · 1 next-steps · 1 h1).
+  Editor ownership (inbox 048): the HOME editor shows only the home's seven own
+  sections plus the shared brand/24-7 chrome; the BLOG editor owns the posts lead
+  and the storefront bands (Hero · rails · About · plans-and-lots · plan board ·
+  park map copy); the FAQ has its own editor at `/staff/landing/faq`.
   `.blog-storefront` hands the bands back the container's gutter so the rails and
   middle sheet keep the former page's folio width. `tests/unit/blog-document.test.ts`
   pins the order (blog first, bands after, chrome-free) and

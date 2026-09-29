@@ -137,7 +137,6 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       "plan-board",
       "mid-section--map",
       "about-grid",
-      "blog-feed",
     ],
   },
   {

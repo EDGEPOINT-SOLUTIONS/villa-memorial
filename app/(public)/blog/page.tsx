@@ -32,9 +32,9 @@ export const dynamic = "force-dynamic";
  *   2 · the former LandingView layout, BANDS ONLY, via `LandingBands` — both
  *       staff-editable rails, the plans-and-lots card grid, the tier board, the
  *       live park map, the About band and the newsfeed chrome — read from the
- *       landing document and the live stores exactly as they always were. The
- *       newsfeed band is pointed at THIS page's blog document (inbox 031), so
- *       it renders the real posts instead of its empty state.
+ *       landing document and the live stores exactly as they always were —
+ *       MINUS the newsfeed band: it repeated the posts this page already lists
+ *       (office, inbox 048), so it is not rendered here. Nothing else changed.
  *
  * NO DOUBLED CHROME: `LandingBands` renders the content of the former page, not
  * its header, footer or phone bar. This route lives inside `app/(public)/`, so
@@ -81,7 +81,7 @@ export default async function BlogRoute() {
           mapNode={mapNode}
           mapLive={lots.length > 0}
           sectionCount={sectionCount}
-          posts={document?.blog?.posts}
+          newsfeed={false}
         />
       </div>
     </>

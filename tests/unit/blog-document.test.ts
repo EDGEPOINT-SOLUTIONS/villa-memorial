@@ -77,10 +77,8 @@ describe("the blog is its own page document", () => {
   it("leads with the blog, then restores the former storefront bands beneath it", async () => {
     const html = renderToStaticMarkup(await BlogRoute());
     // The order is the office's instruction (inbox 025): the posts lead and
-    // the whole former layout follows, bands only. The newsfeed band now reads
-    // the BLOG page document (inbox 031), so it renders the real posts too —
-    // the same posts that lead the page (reported: the band may instead show
-    // the remaining posts or go; the office decides).
+    // the whole former layout follows, bands only — MINUS the newsfeed band,
+    // which repeated the posts the page already lists (office, inbox 048).
     const order = [
       "blog-head",
       "blog-rows",
@@ -89,7 +87,6 @@ describe("the blog is its own page document", () => {
       "plan-board",
       "mid-section--map",
       "about-grid",
-      "blog-feed",
     ];
     const positions = order.map((marker) => html.indexOf(marker));
     for (let i = 0; i < order.length; i++) {
@@ -101,8 +98,10 @@ describe("the blog is its own page document", () => {
       }
     }
     expect((html.match(/class="blog-row"/g) ?? []).length).toBe(4);
-    // The band's newsfeed cards, from the same blog document (4 posts).
-    expect((html.match(/class="post-card"/g) ?? []).length).toBe(4);
+    // The newsfeed band is GONE (inbox 048): it repeated the posts above, so
+    // no second feed and no post cards render.
+    expect(html).not.toContain('aria-label="Blog posts"');
+    expect((html.match(/class="post-card"/g) ?? []).length).toBe(0);
     // BANDS ONLY — no doubled chrome. The former page carried its own header,
     // footer, phone bar and closing action band; this route is inside the
     // shared shell now, which renders exactly one of each.

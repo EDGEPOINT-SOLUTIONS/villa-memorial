@@ -83,7 +83,7 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     route: "/",
     editor: "landing",
     blocks: false,
-    hint: "The home page and the FAQ — the full editor that already runs this document.",
+    hint: "The home page's own seven sections. Its former storefront sections are edited with /blog; the FAQ has its own editor at /staff/landing/faq.",
   },
   {
     key: "park",
