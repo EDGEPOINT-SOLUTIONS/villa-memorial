@@ -68,3 +68,88 @@ describe("the home ships its stylesheet", () => {
     }
   });
 });
+
+/** Comments carry prose ("the wash was removed"), so strip them before the
+ *  declarations below are read. */
+const RULES = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+
+/** Every top-level rule body for an exact selector (a base rule plus any media
+ *  or supports re-declaration). */
+function ruleBodies(selector: string): string[] {
+  const pattern = new RegExp(
+    `(?:^|\\n)\\s*${selector.replace(/\./g, "\\.")}\\s*\\{([^}]*)\\}`,
+    "g",
+  );
+  return [...RULES.matchAll(pattern)].map((match) => match[1]);
+}
+
+/** The first block that starts with `marker` AND contains `needle` — the
+ *  sheet already holds many `prefers-reduced-motion` blocks, so a bare
+ *  `indexOf` would read the wrong one. */
+function blockWith(marker: string, needle: string): string {
+  for (let at = RULES.indexOf(marker); at >= 0; at = RULES.indexOf(marker, at + 1)) {
+    const block = RULES.slice(at, RULES.indexOf("\n}", at));
+    if (block.includes(needle)) return block;
+  }
+  throw new Error(`no ${marker} block containing ${needle}`);
+}
+
+describe("the page frame and the drawn clouds (office 2026-09-29)", () => {
+  it("keeps band 1 white: the gateway declares no ground", () => {
+    const bodies = ruleBodies(".home-gateway");
+    expect(bodies.length, "the .home-gateway rules exist").toBeGreaterThan(0);
+    for (const body of bodies) {
+      // No wash, no gradient, no tint — the clouds carry the sky alone.
+      expect(body, ".home-gateway paints a ground").not.toMatch(/background/);
+    }
+  });
+
+  it("draws ONE page arch, in its own layer behind everything", () => {
+    // One frame element per page, with its crown and both legs.
+    expect((SOURCE.match(/className="home-frame"/g) ?? []).length).toBe(1);
+    expect(SOURCE).toContain('className="home-frame__crown"');
+    expect(SOURCE).toContain('className="home-frame__leg home-frame__leg--left"');
+    expect(SOURCE).toContain('className="home-frame__leg home-frame__leg--right"');
+    // The frame paints at -1 inside `.home`'s own stacking context, so a
+    // section, card or photograph always covers the legs and the decoration
+    // never lands on top of content.
+    const home = ruleBodies(".home").join("\n");
+    expect(home).toMatch(/position:\s*relative/);
+    expect(home).toMatch(/z-index:\s*0/);
+    expect(ruleBodies(".home-frame").join("\n")).toMatch(/z-index:\s*-1/);
+    // It is decoration in the flow's own space: inset in `.home`, never
+    // measuring into a band.
+    expect(ruleBodies(".home-frame").join("\n")).toMatch(/inset:\s*0/);
+  });
+
+  it("grows the legs with the scroll, and stays complete without it", () => {
+    // The supported case starts at zero length and animates to the full leg.
+    const supports = blockWith("@supports (animation-timeline: scroll())", ".home-frame__leg");
+    expect(supports).toContain("animation-timeline: scroll(root block)");
+    expect(supports).toMatch(/transform:\s*scaleY\(0\)/);
+    const grow = blockWith("@keyframes home-frame-grow", "scaleY(1)");
+    expect(grow).toMatch(/transform:\s*scaleY\(1\)/);
+    // The fallback is the DEFAULT state: no animation, complete frame.
+    const reduced = blockWith("@media (prefers-reduced-motion: reduce)", ".home-frame__leg");
+    expect(reduced).toMatch(/animation:\s*none/);
+    expect(reduced).toMatch(/transform:\s*scaleY\(1\)/);
+  });
+
+  it("draws the clouds as one reused silhouette, filled from the sky ramp", () => {
+    // One shape, reused by three clouds: a single path constant, three uses.
+    expect(SOURCE).toContain("const CLOUD_PATH");
+    expect((SOURCE.match(/d=\{CLOUD_PATH\}/g) ?? []).length).toBe(3);
+    for (const variant of ["a", "b", "c"]) {
+      expect(SOURCE).toContain(`className="home-gateway__cloud home-gateway__cloud--${variant}"`);
+    }
+    // Drawn, not washed: a sky fill with a deeper edge — and no background.
+    const cloud = ruleBodies(".home-gateway__cloud").join("\n");
+    expect(cloud).toMatch(/fill:\s*var\(--sky-/);
+    expect(cloud).toMatch(/stroke:\s*var\(--sky-/);
+    expect(cloud).not.toMatch(/background/);
+    // The drift is transform-only, so the band never reflows while it moves.
+    const drift = blockWith("@keyframes home-cloud-drift", "translate3d");
+    expect(drift).toMatch(/transform:\s*translate3d/);
+    expect(drift).not.toMatch(/\b(left|top|width|height|margin|padding):/);
+  });
+});

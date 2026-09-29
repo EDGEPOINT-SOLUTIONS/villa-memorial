@@ -59,7 +59,24 @@ import type { PlanPricing } from "@/lib/pricing-model";
  * from the pricing store, plot pins from the plot records' own outlines. The
  * services band prints no amount; the contact form keeps the Data Privacy Act
  * consent line. The home is edited section by section at /staff/landing/home.
+ *
+ * THE PAGE'S OWN LAYER (office, 2026-09-29):
+ *   · `.home-frame` — ONE arch for the whole page, not one per band. Its crown
+ *     spans the page's content width and its legs grow down with the scroll,
+ *     behind every section and photograph, `.home-frame` in the stylesheet
+ *     carries the construction and the degradation rules;
+ *   · the gateway's clouds are DRAWN (one blue silhouette path, reused three
+ *     times), not soft washes, because the band is white now and the office
+ *     asked for the cloud everybody draws — the small headline arch was
+ *     retired into the page frame rather than leaving two arches in band 1.
  */
+
+/** The one drawn cumulus silhouette, reused by all three clouds: four rounded
+ *  lobes (two small shoulders, a tall centre, a low right dome) on a flat base.
+ *  Generated on a 240 × 100 viewBox and painted by the stylesheet's sky fill. */
+const CLOUD_PATH =
+  "M23.03,100 A30,30 0 0 1 43.99,44.60 A46,46 0 0 1 130.28,39.88 " +
+  "A36,36 0 0 1 182.95,55.51 A26,26 0 0 1 209.86,100 Z";
 
 /* ---------------------------- photograph helpers ---------------------------- */
 
@@ -160,25 +177,34 @@ export function HomePage({
 
   return (
     <div className="home">
+      {/* The page's ONE arch, decoration only: the crown spans the content
+          width at the top of the page, the legs grow with the scroll and end
+          on the last band's ground. Behind every section (z-index: -1 in the
+          stylesheet), so an opaque band or a whole photograph covers the legs
+          and they reappear below — never a line across a picture. */}
+      <div className="home-frame" aria-hidden="true">
+        <div className="home-frame__crown" />
+        <div className="home-frame__leg home-frame__leg--left" />
+        <div className="home-frame__leg home-frame__leg--right" />
+      </div>
       {/* ================================================================
           1 · THE GATEWAY — centred words and the call.
           ================================================================ */}
       <section className="home-gateway" aria-labelledby="home-gateway-title">
-        {/* Decorative only: drifting clouds built from the sky palette, behind
+        {/* Decorative only: three drawn clouds (one path, reused), behind
             every word, contained by the band, transform-animated. */}
         <div className="home-gateway__clouds" aria-hidden="true">
-          <span className="home-gateway__cloud home-gateway__cloud--a" />
-          <span className="home-gateway__cloud home-gateway__cloud--b" />
-          <span className="home-gateway__cloud home-gateway__cloud--c" />
+          <svg className="home-gateway__cloud home-gateway__cloud--a" viewBox="0 0 240 100">
+            <path d={CLOUD_PATH} />
+          </svg>
+          <svg className="home-gateway__cloud home-gateway__cloud--b" viewBox="0 0 240 100">
+            <path d={CLOUD_PATH} />
+          </svg>
+          <svg className="home-gateway__cloud home-gateway__cloud--c" viewBox="0 0 240 100">
+            <path d={CLOUD_PATH} />
+          </svg>
         </div>
         <div className="home-gateway__inner">
-          <span className="home-gateway__frame" aria-hidden="true">
-            <svg className="home-gateway__arch" viewBox="0 0 560 300" fill="none" stroke="currentColor" strokeWidth="1.5">
-              {/* The path spans the full viewBox, so the ELEMENT's width is the
-                  arch's width — the frame derives that from this content. */}
-              <path d="M0,300 L0,150 A280,150 0 0 1 560,150 L560,300" />
-            </svg>
-          </span>
           {gateway.place ? <p className="home-gateway__place">{gateway.place}</p> : null}
           <h1 id="home-gateway-title" className="home-gateway__title">
             {gateway.headline}{" "}

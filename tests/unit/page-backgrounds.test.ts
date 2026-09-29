@@ -183,8 +183,6 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".home-legend__dot", why: "the home map's legend dots (functional indicators)" },
   { match: ".home-engraved", why: "the home's authored empty state (plan M5)" },
   { match: ".home-service__cta", why: "the per-service request control's hover state" },
-  { match: ".home-gateway__cloud", why: "the gateway's decorative drifting clouds (sky wash, behind the words, office 2026-09-29)" },
-  { match: ".home-gateway", why: "the gateway band's very light sky wash so the white clouds read on the white page (office 2026-09-29)" },
   { match: ".topbar-avatar", why: "the topbar identity avatar disc" },
 ];
 

@@ -165,3 +165,21 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   and borders, the tables' row rules), so no surface needed a new rule. The nav
   bar keeps a soft `0 10px 26px -18px rgb(8 28 49 / 0.35)` shadow at every scroll
   position, strengthening in the compressed state.
+
+- **The page's own arch frame (inbox 023) and the drawn clouds (inbox 024):**
+  `.home-frame` is the ONE arch for the whole page — a half-ellipse crown across
+  the content width (the widest band's edges) with two hairline legs that grow
+  downward with the scroll (`@supports (animation-timeline: scroll())` +
+  `scroll(root block)` + `animation-range: 0% 100%`, transform-only `scaleY` on
+  1px legs), painted at `z-index: -1` inside `.home`'s own stacking context so
+  it runs behind every section, card and photograph: an opaque full-width band
+  covers the legs and they reappear below, never a line across a picture. No
+  scroll-driven support and `prefers-reduced-motion` both mean the frame is
+  complete and still at rest — the degradation is the default, not a half-drawn
+  arch. The band's old self-sizing headline arch was retired into the page frame
+  (the office asked for one arch; two in the same band would fight). Section 1 is
+  now WHITE ONLY: the sky wash was removed with its `page-backgrounds` allowlist
+  entries, and the clouds are DRAWN silhouettes — one four-lobe path on a flat
+  base (the office's "cloud everybody draws as a child"), reused at three sizes,
+  filled `--sky-300` with a `--sky-500` edge — transform-drifted across the band
+  and pinned in place under `prefers-reduced-motion`.

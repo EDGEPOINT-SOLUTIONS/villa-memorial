@@ -20071,6 +20071,12 @@ a.plan-advisor__phone:hover {
        carries DARK ink, never white.
      · Bands are separated by hairlines and space — never a shadow on every box.
 
+   THE PAGE'S OWN LAYER (office, 2026-09-29): `.home-frame` is the ONE arch
+   that frames the whole page — crown at the top, legs grown by the scroll,
+   behind everything, over nothing. Band 1 is white only now, so its clouds
+   are DRAWN silhouettes in the sky ramp (the SVG path lives in the component,
+   the paint here), not soft washes.
+
    Owned by this block. Other public lanes append their own named block and do
    not edit this one. `tests/unit/home-styles.test.ts` fails a `home-*` class
    used without a rule; `tests/unit/page-backgrounds.test.ts` carries this
@@ -20086,6 +20092,11 @@ a.plan-advisor__phone:hover {
      measures (the gateway's 22ch title, 44ch lead, band leads) stay unchanged. */
   max-width: var(--layout-folio-w);
   margin-inline: auto;
+  /* The frame's own stacking context: `.home-frame` paints at -1, ABOVE the
+     shell's white ground but BELOW every section, card and photograph, so the
+     decoration can never land on top of content. */
+  position: relative;
+  z-index: 0;
 }
 
 .home > section {
@@ -20095,6 +20106,93 @@ a.plan-advisor__phone:hover {
 
 .home > section:last-child {
   border-bottom: 0;
+}
+
+/* --- the page's arch frame (office, 2026-09-29) ---------------------------
+   ONE arch for the whole home, not one per band. The crown spans the page's
+   own content width (the widest band's edges, because it is inset in `.home`)
+   and stays at the top of the page; the two legs grow downward as the visitor
+   scrolls and stop on the last band's ground, where the footer area begins.
+   Decoration in its own layer, exactly:
+     · absolutely positioned `inset: 0` — it measures into nothing and shifts
+       no band, ever;
+     · z-index -1 in `.home`'s stacking context — behind every section and
+       photograph (an opaque full-width band covers the legs; they reappear
+       below), never over text;
+     · transform-only motion (scaleY on 1px legs), so the page never reflows;
+     · a hairline in the sky palette, never gold (gold stays the ritual
+       accent: the call and the band hairline).
+   The gateway's clouds are a child layer of band 1, so they paint above it. */
+.home-frame {
+  --home-frame-rise: clamp(3.5rem, 6vw, 7rem);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  color: var(--sky-300);
+}
+
+.home-frame__crown {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--home-frame-rise);
+  border: 1px solid currentColor;
+  border-bottom: 0;
+  /* A half-ellipse between the two legs: the curve meets each edge at the
+     crown's foot, where the legs begin. */
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+.home-frame__leg {
+  position: absolute;
+  top: var(--home-frame-rise);
+  bottom: 0;
+  width: 1px;
+  background: currentColor;
+  transform-origin: top;
+}
+
+.home-frame__leg--left {
+  left: 0;
+}
+
+.home-frame__leg--right {
+  right: 0;
+}
+
+/* Scroll-driven where the browser supports it (Chrome and the Chromium
+   family; the office's review browser): the legs draw downward with the
+   scroll and complete with the page. Everywhere else NO animation runs and
+   the frame is already complete at rest — the degradation is the default
+   state, never a half-drawn arch, and the page is never gated on the motion. */
+@supports (animation-timeline: scroll()) {
+  .home-frame__leg {
+    transform: scaleY(0);
+    animation: home-frame-grow linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0% 100%;
+  }
+
+  @keyframes home-frame-grow {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+}
+
+/* Reduced motion: the arch is drawn complete and still (the global base.css
+   rule only shortens time-based animation, so the scroll-driven legs need
+   this explicit stop). */
+@media (prefers-reduced-motion: reduce) {
+  .home-frame__leg {
+    animation: none;
+    transform: scaleY(1);
+  }
 }
 
 /* --- 1 · the gateway ------------------------------------------------------ */
@@ -20107,36 +20205,17 @@ a.plan-advisor__phone:hover {
 .home-gateway__inner {
   position: relative;
   /* fit-content = the content's OWN width (the h1's 22ch and the lead's 44ch
-     caps, or the widest child), never a magic number — so the arch below is
-     always derived from what it holds. */
+     caps, or the widest child), never a magic number — the one text column
+     the band centres around. */
   width: fit-content;
   max-width: 100%;
   margin-inline: auto;
   padding-block: var(--space-5) var(--space-2);
 }
 
-/* The one decorative line the plan draws: an arch the words sit inside.
-   THE FRAME derives the arch's width from the content box + breathing room on
-   both sides (inbox 010: the arc must clear the text however it wraps, at every
-   width). Beyond the section the overflow is clipped, and because the SVG path
-   spans its full viewBox the visible arch is exactly frame-wide. */
-.home-gateway__frame {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 0;
-  width: calc(100% + 2 * var(--space-8));
-  max-width: 100vw;
-  pointer-events: none;
-}
-
-.home-gateway__arch {
-  display: block;
-  width: 100%;
-  height: auto;
-  color: var(--sky-300);
-}
-
+/* (The band's old self-sizing headline arch was retired into `.home-frame`
+   when the page frame landed — the office asked for ONE arch, and two arches
+   in the same band would have read as a fight.) */
 .home-gateway__place {
   position: relative;
   margin: 0;
@@ -20237,21 +20316,16 @@ a.plan-advisor__phone:hover {
 }
 
 
-/* --- the gateway's drifting clouds (office, 2026-09-29) -------------------
-   CSS only — no JavaScript, no downloads. Each cloud is ONE element painted as
-   a CLUSTER OF OVERLAPPING LOBES: three white puffs of different sizes joined
-   into one silhouette, over a soft grey-blue underside (sky-200) that gives the
-   cumulus its shaded base. Transform-only animation, behind the words and
-   clipped by the band, so no measurement changes.
-   ON WHITE: a white cloud needs a sky to sit against, so the BAND (never the
-   page) carries a very light wash from --sky-50 to white; the lobes' white tops
-   read against the tint and the grey-blue underside separates them lower down.
-   Under `prefers-reduced-motion` the shapes stay put (base.css stops the
-   animation) and this block pins them at visible positions. */
-.home-gateway {
-  background: linear-gradient(180deg, var(--sky-50), var(--paper-0) 78%);
-}
-
+/* --- the gateway's drawn clouds (office, 2026-09-29) ----------------------
+   Section 1 is WHITE ONLY — no wash, no gradient — so each cloud is a drawn
+   silhouette in the sky ramp: one SVG path (four lobes on a flat base, the
+   office's "cloud everybody draws as a child"), reused at three sizes and
+   filled sky-300 with a deeper sky-500 edge, which is what keeps it clearly
+   visible on white. The SHAPE is in `components/public/home-page.tsx`; the
+   PAINT and the drift live here.
+   Transform-only animation, behind the words and clipped by the band, so no
+   measurement changes. Under `prefers-reduced-motion` base.css stops the
+   animation and this block pins each cloud at a visible position. */
 .home-gateway__clouds {
   position: absolute;
   inset: 0;
@@ -20263,20 +20337,17 @@ a.plan-advisor__phone:hover {
 .home-gateway__cloud {
   position: absolute;
   display: block;
-  /* three lobes first (painted on top), the shaded base last (behind them). */
-  background-image:
-    radial-gradient(circle at 30% 58%, var(--paper-0) 0 34%, transparent 35%),
-    radial-gradient(circle at 55% 42%, var(--paper-0) 0 44%, transparent 45%),
-    radial-gradient(circle at 79% 60%, var(--paper-0) 0 30%, transparent 31%),
-    radial-gradient(ellipse 74% 46% at 54% 78%, var(--sky-200) 0 92%, transparent 93%);
-  background-repeat: no-repeat;
-  filter: drop-shadow(0 8px 10px rgb(7 47 73 / 0.07));
+  aspect-ratio: 240 / 100;
+  height: auto;
+  fill: var(--sky-300);
+  stroke: var(--sky-500);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
   will-change: transform;
 }
 
 .home-gateway__cloud--a {
   width: 24rem;
-  height: 8rem;
   top: 12%;
   left: -20rem;
   animation: home-cloud-drift 64s linear infinite;
@@ -20284,30 +20355,18 @@ a.plan-advisor__phone:hover {
 
 .home-gateway__cloud--b {
   width: 16rem;
-  height: 5.5rem;
   top: 42%;
   left: -16rem;
   opacity: 0.9;
-  background-image:
-    radial-gradient(circle at 34% 56%, var(--paper-0) 0 36%, transparent 37%),
-    radial-gradient(circle at 58% 40%, var(--paper-0) 0 40%, transparent 41%),
-    radial-gradient(ellipse 72% 44% at 52% 76%, var(--sky-200) 0 92%, transparent 93%);
   animation: home-cloud-drift 88s linear infinite;
   animation-delay: -22s;
 }
 
 .home-gateway__cloud--c {
   width: 32rem;
-  height: 10rem;
   top: 66%;
   left: -28rem;
   opacity: 0.75;
-  background-image:
-    radial-gradient(circle at 24% 60%, var(--paper-0) 0 30%, transparent 31%),
-    radial-gradient(circle at 47% 40%, var(--paper-0) 0 42%, transparent 43%),
-    radial-gradient(circle at 70% 52%, var(--paper-0) 0 36%, transparent 37%),
-    radial-gradient(circle at 88% 66%, var(--paper-0) 0 26%, transparent 27%),
-    radial-gradient(ellipse 78% 48% at 55% 78%, var(--sky-200) 0 92%, transparent 93%);
   animation: home-cloud-drift 112s linear infinite;
   animation-delay: -54s;
 }
