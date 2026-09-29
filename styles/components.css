@@ -55,6 +55,16 @@
   border-color: var(--ink-400);
 }
 
+/* The captain's hover pass (2026-09-30): the public transparent/outline actions
+   answer in the real gold the call wears — ink label on the fill — instead of
+   only darkening the border. Scoped to the public shell, so the admin and
+   platform shells keep their neutral hover. */
+.public-shell .btn--secondary:hover:not(:disabled) {
+  border-color: var(--gold-600);
+  background: var(--gold-400);
+  color: var(--color-text-primary);
+}
+
 /* The gateway's secondary action wears the CALL's gold as an outline (office,
    inbox 041), so the pair reads as a deliberate set: the call keeps the solid
    gold fill, this one only the edge. EXPLICIT, SINGLE-SURFACE OVERRIDE of the
@@ -10355,13 +10365,27 @@ a.card:hover {
   font-size: var(--text-lg);
   font-weight: 700;
   text-decoration: none;
-  transition: background-color var(--motion-fast), border-color var(--motion-fast);
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast);
 }
 
+/* The captain's hover pass (2026-09-30): the basket chips answer with the deep
+   premium sky and white ink, not the pale wash. */
 .anchored-header__cart:hover,
 .anchored-header__quote:hover {
-  background: var(--sky-50);
+  background: var(--sky-600);
   border-color: var(--sky-600);
+  color: var(--paper-0);
+}
+
+/* The count badges invert on the hovered chip so they stay legible against the
+   deep fill. */
+.anchored-header__cart:hover .anchored-header__cart-count,
+.anchored-header__quote:hover .anchored-header__quote-count {
+  background: var(--paper-0);
+  color: var(--sky-700);
 }
 
 .anchored-header__cart-count,
