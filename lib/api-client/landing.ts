@@ -832,7 +832,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
       label: str(t.label) || service,
       image: nullableStr(t.image),
       imageAlt: str(t.imageAlt),
-      quote: cta(t.quote, { label: "Request a quote", href: "/quote" }),
+      quote: cta(t.quote, { label: "Add to Quote", href: "/quote" }),
     };
   };
 

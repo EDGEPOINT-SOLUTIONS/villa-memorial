@@ -94,15 +94,17 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
         listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
       ]);
       return renderToStaticMarkup(
-        HomePage({
-          content,
-          pricing: pricing.plans,
-          lotCategories: pricing.lotCategories,
-          builder: builderCatalog(pricing, "", []),
-          lots,
-          mapSrc: homeMapEmbed(null, content.contact.parkAddress).src,
-          chapelResources: [],
-        }),
+        withBaskets(
+          HomePage({
+            content,
+            pricing: pricing.plans,
+            lotCategories: pricing.lotCategories,
+            builder: builderCatalog(pricing, "", []),
+            lots,
+            mapSrc: homeMapEmbed(null, content.contact.parkAddress).src,
+            chapelResources: [],
+          }),
+        ),
       );
     },
     // The approved plan's seven sections, in order: the gateway → the hero

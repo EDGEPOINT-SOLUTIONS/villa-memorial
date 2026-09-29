@@ -216,7 +216,7 @@ describe("the home renders the anchored catalogue shell", () => {
     );
     for (const [href, label] of [
       ["/price-list", "Price list"],
-      ["/quote", "Request a quote"],
+      ["/quote", "Start a quote"],
       ["/builder", "Plan finder"],
       ["/map", "Directions &amp; park map"],
     ] as const) {

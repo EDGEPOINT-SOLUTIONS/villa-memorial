@@ -3,6 +3,8 @@ import { ArrowRight, Clock, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { HomeCostBuilder } from "@/components/public/home-cost-builder";
 import { HomePlotExplorer } from "@/components/public/home-plot-explorer";
+import { ItemQuoteButton } from "@/components/villa/item-quote-button";
+import { ALACARTE_LINES } from "@/lib/catalogue-skus";
 import { directionsUrl } from "@/lib/location-map";
 import {
   COFFINS,
@@ -425,18 +427,40 @@ export function HomePage({
                   )}
                 </span>
                 <p className="home-service__name">{tile.label}</p>
-                <Link className="home-service__cta" href={tile.quote.href}>
-                  {tile.quote.label}
-                  <span className="visually-hidden"> for {tile.label}</span>
-                </Link>
+                {/* The action ADDS THE LINE to the quote basket (office, inbox
+                    047); its label is the staff-editable one from the content
+                    store. The SKU is the a-la-carte sheet line the tile names,
+                    so the office quotes the exact catalogue item. */}
+                <ItemQuoteButton
+                  lines={[
+                    {
+                      sku:
+                        ALACARTE_LINES.find((fee) => fee.service === tile.service)?.sku ??
+                        `QUOTE-${tile.service.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}`,
+                      name: tile.service,
+                      itemType: "service",
+                      detail: "A-la-carte service — applies when the family does not take a package.",
+                    },
+                  ]}
+                  name={tile.label}
+                  label={tile.quote.label}
+                />
               </li>
             );
           })}
         </ul>
+        {/* The centred action adds ALL FIVE service lines (inbox 047). */}
         <div className="home-services__all">
-          <Link className="btn btn--accent" href={home.services.allQuote.href}>
-            {home.services.allQuote.label}
-          </Link>
+          <ItemQuoteButton
+            lines={ALACARTE_LINES.map((fee) => ({
+              sku: fee.sku,
+              name: fee.service,
+              itemType: "service" as const,
+              detail: "A-la-carte service — applies when the family does not take a package.",
+            }))}
+            name="At-need services — all five"
+            label={home.services.allQuote.label}
+          />
         </div>
       </section>
 

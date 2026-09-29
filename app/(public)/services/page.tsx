@@ -38,7 +38,7 @@ export const dynamic = "force-dynamic";
  * client's 24/7 line — read from the landing content document, never typed.
  *
  * REQUEST-FOR-QUOTE (captain's minutes, 2026-09-21, item 5): the page no longer
- * publishes a price. Every service line offers ONE "Request a quote" action,
+ * publishes a price. Every service line offers ONE "Add to Quote" action,
  * which opens the public quote form prefilled with the service the visitor
  * asked about (components/villa/service-rates-2026.tsx · lib/public-forms/
  * request-prefill.ts). The office prepares a customised quotation. No amount
@@ -100,7 +100,7 @@ export default async function ServicesPage() {
           lead={page?.hero.lead.trim() || undefined}
           textColour={page?.hero.textColour ?? null}
           primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
-          secondary={{ label: "Request a quote", href: buildQuoteHref({ item: "Funeral services" }) }}
+          secondary={{ label: "Start a quote", href: buildQuoteHref({ item: "Funeral services" }) }}
           image={heroPhoto}
         >
           {/* The hero photograph is one of the client's own wake set-ups and is

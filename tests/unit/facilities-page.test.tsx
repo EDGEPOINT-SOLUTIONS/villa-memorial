@@ -61,7 +61,7 @@ const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 
 async function renderFacilities(): Promise<string> {
-  return renderToStaticMarkup(await FacilitiesPage());
+  return renderToStaticMarkup(withBaskets( await FacilitiesPage()));
 }
 
 async function renderServices(): Promise<string> {
@@ -107,13 +107,12 @@ describe("/facilities shows the rooms a family is choosing between", () => {
     const { contact } = await listLandingContent();
     const html = await renderFacilities();
 
-    // One Request-for-Quote action and one call per room.
-    expect((html.match(/Request a quote/g) ?? []).length).toBe(2);
-    expect(html).toContain('href="/quote?');
-    // Two identical-visible actions would be ambiguous to a screen reader:
-    // the visually hidden span names the room first.
-    expect(html).toContain("Ask about the Common chapel:");
-    expect(html).toContain("Ask about the Private chapel:");
+    // One Add-to-Quote action and one call per room (office, inbox 047): the
+    // button adds the chapel line to the basket and its accessible name names
+    // the room, so two identical-visible actions stay unambiguous.
+    expect((html.match(/>Add to Quote</g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Add to Quote: Chapel use — /g) ?? []).length).toBe(2);
+    expect(html).not.toContain('href="/quote?');
     expect((html.match(new RegExp(escapeRe(`Call ${contact.phoneDisplay}`), "g")) ?? []).length)
       .toBeGreaterThanOrEqual(2);
   });

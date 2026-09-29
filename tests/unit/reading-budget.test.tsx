@@ -171,9 +171,9 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   },
   {
     name: "/facilities",
-    // The rooms page has no cart action (its next step is the 24/7 call), so it
-    // renders without the cart context.
-    render: async () => renderToStaticMarkup(await FacilitiesPage()),
+    // The rooms page's next step is an Add-to-Quote chapel line (office, inbox
+    // 047), so it needs the baskets like every other commerce surface.
+    render: async () => renderToStaticMarkup(withBaskets( await FacilitiesPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {

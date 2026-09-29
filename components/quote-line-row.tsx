@@ -161,7 +161,16 @@ export function QuoteLineRow({
               <h4 className="quote-line-details__name">{line.name}</h4>
               <p className="quote-line-details__desc">{description}</p>
               {detail ? (
-                <Link href={`/plans/${line.sku}`} className="btn btn--secondary btn--sm">
+                <Link
+                  // A package's detail page is /plans/[sku]; every other
+                  // catalogue line (services, add-ons) is /products/[sku].
+                  href={
+                    line.itemType === "package"
+                      ? `/plans/${line.sku}`
+                      : `/products/${line.sku}`
+                  }
+                  className="btn btn--secondary btn--sm"
+                >
                   View full details
                 </Link>
               ) : isLot ? (

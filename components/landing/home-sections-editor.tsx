@@ -1102,7 +1102,7 @@ export function HomeSectionsEditor({
                     label: "New service",
                     image: null,
                     imageAlt: "",
-                    quote: { label: "Request a quote", href: "/quote" },
+                    quote: { label: "Add to Quote", href: "/quote" },
                   } satisfies HomeServiceTile),
                 })
               }

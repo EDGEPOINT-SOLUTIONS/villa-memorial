@@ -141,7 +141,7 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     expect(html).not.toContain('class="story-total"');
     expect(html).not.toContain(php(19500));
     expect(html).not.toContain("send the whole set as one request");
-    expect(html).toContain("Request a quote for all five");
+    expect(html).toContain("Add all five to Quote");
   });
 
   it("gives the common and private chapel their own sample photograph", () => {
@@ -187,7 +187,7 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     // The card reads the park's own chapel record for its name and capacity.
     expect(html).toContain(chapelName.common);
     expect(html).toContain(chapelName.private);
-    expect(html).toContain("Request a quote");
+    expect(html).toContain("Add to Quote");
   });
 
   it("leads with one hero and a call bar — no subnav or steps (captain 2026-09-21)", () => {

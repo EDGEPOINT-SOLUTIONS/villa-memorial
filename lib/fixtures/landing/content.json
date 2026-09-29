@@ -356,7 +356,7 @@
           "href": "/services"
         },
         "allQuote": {
-          "label": "Request a quote for all five",
+          "label": "Add all five to Quote",
           "href": "/quote?item=At-need+services+%E2%80%94+all+five"
         },
         "items": [
@@ -367,7 +367,7 @@
             "image": "/media/at_need_services.jpg",
             "imageAlt": "A funeral attendant holding a single rose beside a casket",
             "quote": {
-              "label": "Request a quote",
+              "label": "Add to Quote",
               "href": "/quote?item=Retrieval"
             }
           },
@@ -378,7 +378,7 @@
             "image": "/media/transport.jpg",
             "imageAlt": "A hearse carrying a floral arrangement",
             "quote": {
-              "label": "Request a quote",
+              "label": "Add to Quote",
               "href": "/quote?item=Delivery"
             }
           },
@@ -389,7 +389,7 @@
             "image": "/media/client/wake-setup-lamp-alcove-wide-960.webp",
             "imageAlt": "A decorated viewing alcove with purple and white drapes, hanging flowers and lit lamp stands",
             "quote": {
-              "label": "Request a quote",
+              "label": "Add to Quote",
               "href": "/quote?item=Viewing+equipment"
             }
           },
@@ -400,7 +400,7 @@
             "image": "/media/client/casket-white-closed-wide-960.webp",
             "imageAlt": "A plain white casket with silver ornaments, photographed closed on its bier",
             "quote": {
-              "label": "Request a quote",
+              "label": "Add to Quote",
               "href": "/quote?item=ORD+coffin"
             }
           },
@@ -411,7 +411,7 @@
             "image": "/media/client/chapel-hall-candle-pedestals-wide-960.webp",
             "imageAlt": "The chapel hall with its candle pedestals",
             "quote": {
-              "label": "Request a quote",
+              "label": "Add to Quote",
               "href": "/quote?item=Interment"
             }
           }
@@ -425,7 +425,7 @@
           "href": "/map"
         },
         "quote": {
-          "label": "Request a quote",
+          "label": "Start a quote",
           "href": "/quote?item=Memorial+lot"
         },
         "items": [

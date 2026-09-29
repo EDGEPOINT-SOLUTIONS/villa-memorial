@@ -179,7 +179,7 @@ function RailAssist({ contact }: { contact: ContactInfo }) {
  */
 const RAIL_ACTIONS = [
   { href: "/price-list", label: "Price list", hint: "2026 coffins, services & plans", Icon: FileText },
-  { href: "/quote", label: "Request a quote", hint: "We reply with real figures", Icon: MessageCircle },
+  { href: "/quote", label: "Start a quote", hint: "We reply with real figures", Icon: MessageCircle },
   { href: "/builder", label: "Plan finder", hint: "Build an estimate in minutes", Icon: Calculator },
   { href: "/map", label: "Directions & park map", hint: "Find your way to the park", Icon: MapPin },
 ] as const;
@@ -460,7 +460,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
         <div className="anchored-footer__bottom">
           <span>
             © {year} {logo.wordmark}. All rights reserved. · <a href="/quote">Your quote</a> ·{" "}
-            <a href="/quote">Request a quote</a>
+            <a href="/quote">Start a quote</a>
           </span>
           <span className="anchored-footer__portals">
             <a href="/client/login">Family sign-in</a>

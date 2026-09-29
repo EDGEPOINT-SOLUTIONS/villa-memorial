@@ -13,9 +13,9 @@ import { clientPhotoWide } from "@/lib/client-photos";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
 import { CHAPEL_NOTES } from "@/lib/villa-pricing";
 import { CHAPEL_SKUS } from "@/lib/catalogue-skus";
-import { buildQuoteHref } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 import { PublicHero, PublicImage, SectionHead } from "@/components/kit";
+import { ItemQuoteButton } from "@/components/villa/item-quote-button";
 import { StoryHelpBand } from "@/components/villa/story-ui";
 
 export const metadata: Metadata = pageMetadata({
@@ -165,21 +165,23 @@ export default async function FacilitiesPage() {
               <p className="story-room__suits">
                 {room.suitedTo} · shared with {room.sharedWith.toLowerCase()}
               </p>
-              {/* One next step per room: ask the office for dates and a quote.
-                  The 24/7 number is the staff-editable landing content — never
-                  typed into this page. */}
+              {/* One next step per room: ADD THE CHAPEL LINE to the quote
+                  basket (office, inbox 047 — the line is quoted by hand, so it
+                  carries no amount). The 24/7 number is the staff-editable
+                  landing content — never typed into this page. */}
               <div className="story-actions">
-                <Link
-                  className="btn btn--accent btn--sm"
-                  href={buildQuoteHref({
-                    item: `Chapel use — ${room.name}`,
-                    sku: CHAPEL_SKUS[room.key],
-                    note: "Chapel use when the service is not with Villa.",
-                  })}
-                >
-                  <span className="visually-hidden">Ask about the {room.name}: </span>
-                  Request a quote
-                </Link>
+                <ItemQuoteButton
+                  lines={[
+                    {
+                      sku: CHAPEL_SKUS[room.key],
+                      name: `Chapel use — ${room.name}`,
+                      itemType: "service",
+                      detail: "Chapel use when the service is not with Villa.",
+                    },
+                  ]}
+                  name={`Chapel use — ${room.name}`}
+                  label="Add to Quote"
+                />
                 <a className="btn btn--secondary btn--sm" href={contact.phoneHref}>
                   <span className="visually-hidden">Ask about the {room.name}: </span>
                   Call {contact.phoneDisplay}
