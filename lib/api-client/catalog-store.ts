@@ -6,7 +6,7 @@
  * WHY A FILE STORE (same reasoning as lib/api-client/order-store.ts)
  * Catalogue edits are the office's own facts — the SKU, name, type, price,
  * photo and published state of everything the storefront sells. They must
- * survive a restart and they must be what the storefront, cart and checkout
+ * survive a restart and they must be what the storefront, the quote basket and the office
  * read on the next request, so they are persisted as a small append-only event
  * journal on disk:
  *

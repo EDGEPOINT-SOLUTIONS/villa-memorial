@@ -126,7 +126,7 @@ export function pageMetadata({
 
 /**
  * The public routes the sitemap publishes, with their crawl hints. Only the
- * site's real public pages belong here: transactional/account routes (/cart,
+ * site's real public pages belong here: transactional/account routes (/quote,
  * /checkout, /orders, the sign-in doors, the staff/family/agent portals) are
  * deliberately absent and disallowed in app/robots.ts.
  *
@@ -171,7 +171,9 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   { path: "/faq", changeFrequency: "monthly", priority: 0.6 },
   { path: "/transport", changeFrequency: "monthly", priority: 0.5 },
   { path: "/contact", changeFrequency: "monthly", priority: 0.7 },
-  { path: "/quote", changeFrequency: "monthly", priority: 0.5 },
+  // /quote (the quote basket) and the retired /cart + /checkout are
+  // transactional: real pages, never indexed (see NON_INDEXABLE in the SEO
+  // test and the robots disallow list).
   { path: "/appointments", changeFrequency: "monthly", priority: 0.5 },
 ];
 

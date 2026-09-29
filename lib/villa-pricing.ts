@@ -1,7 +1,7 @@
 /**
  * Villa Funeraria — real 2026 public product & price content (as provided).
  * Display content only; storefront CHECKOUT continues to run on the frozen
- * commerce contract items (this data never drives cart math).
+ * commerce contract items (this data never drives quote-basket math).
  *
  * Provenance — every figure in this module is transcribed from the client's own
  * 2026 sheets (`/home/gab/firstmate/data/villa-memorial-media-originals/`, also

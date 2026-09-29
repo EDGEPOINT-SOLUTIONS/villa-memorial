@@ -279,8 +279,11 @@ export type HomeGatewaySection = {
   facts: HomeFact[];
 };
 
-/** Section 2 · the hero photograph, alone and whole. */
+/** Section 2 · the hero photograph, alone and whole. The band's title is read
+ *  from the office's own park address (the place name, not a typed string). */
 export type HomePhotoSection = {
+  /** The uppercase kicker above the title. */
+  kicker: string;
   image: string | null;
   alt: string;
 };
@@ -328,6 +331,7 @@ export type HomeParkSection = {
 /** Section 4 · Villa Memorial Plan — heading + one action; the five tiers read
  *  the pricing store and the TYPES OF COFFIN sheet's own tier lines. */
 export type HomePlansSection = {
+  kicker: string;
   heading: string;
   action: Cta;
 };
@@ -347,6 +351,7 @@ export type HomeServiceTile = {
 /** Section 5 · Funeraria Memorial Services. NO amount ever renders here —
  *  the client's minute 5 is explicit; every line is a request. */
 export type HomeServicesSection = {
+  kicker: string;
   heading: string;
   action: Cta;
   /** The one centred action for all five services. */
@@ -370,6 +375,7 @@ export type HomeLotTile = {
 /** Section 6 · Villa Memorial Park — the 2×2 lot types, the pinned park map and
  *  the detail line under it. */
 export type HomeLotsSection = {
+  kicker: string;
   heading: string;
   action: Cta;
   /** The detail panel's request action. */
@@ -379,6 +385,7 @@ export type HomeLotsSection = {
 
 /** Section 7 · Contact — the enquiry form and the embedded park map. */
 export type HomeContactSection = {
+  kicker: string;
   heading: string;
   lead: string;
   mapTitle: string;
@@ -527,6 +534,7 @@ function authoredText(content: LandingContent): string[] {
     push(f.label);
     push(f.note);
   }
+  push(home.photo.kicker);
   push(home.photo.alt);
   push(home.park.imageAlt);
   push(home.park.chapelsHeading);
@@ -540,8 +548,10 @@ function authoredText(content: LandingContent): string[] {
     push(c.caption);
   }
   push(home.park.chapelsAction.label);
+  push(home.plans.kicker);
   push(home.plans.heading);
   push(home.plans.action.label);
+  push(home.services.kicker);
   push(home.services.heading);
   push(home.services.action.label);
   push(home.services.allQuote.label);
@@ -550,6 +560,7 @@ function authoredText(content: LandingContent): string[] {
     push(t.imageAlt);
     push(t.quote.label);
   }
+  push(home.lots.kicker);
   push(home.lots.heading);
   push(home.lots.action.label);
   push(home.lots.quote.label);
@@ -557,6 +568,7 @@ function authoredText(content: LandingContent): string[] {
     push(t.label);
     push(t.imageAlt);
   }
+  push(home.contact.kicker);
   push(home.contact.heading);
   push(home.contact.lead);
   push(home.contact.mapTitle);
@@ -753,6 +765,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
   };
 
   const photo: HomePhotoSection = {
+    kicker: text(photoRaw, "kicker", fallback.photo.kicker),
     image: nullableStr(photoRaw.image),
     alt: text(photoRaw, "alt", fallback.photo.alt),
   };
@@ -804,6 +817,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
   };
 
   const plans: HomePlansSection = {
+    kicker: text(plansRaw, "kicker", fallback.plans.kicker),
     heading: text(plansRaw, "heading", fallback.plans.heading),
     action: cta(plansRaw.action, fallback.plans.action),
   };
@@ -823,6 +837,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
   };
 
   const services: HomeServicesSection = {
+    kicker: text(servicesRaw, "kicker", fallback.services.kicker),
     heading: text(servicesRaw, "heading", fallback.services.heading),
     action: cta(servicesRaw.action, fallback.services.action),
     allQuote: cta(servicesRaw.allQuote, fallback.services.allQuote),
@@ -844,6 +859,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
   };
 
   const lots: HomeLotsSection = {
+    kicker: text(lotsRaw, "kicker", fallback.lots.kicker),
     heading: text(lotsRaw, "heading", fallback.lots.heading),
     action: cta(lotsRaw.action, fallback.lots.action),
     quote: cta(lotsRaw.quote, fallback.lots.quote),
@@ -851,6 +867,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
   };
 
   const contact: HomeContactSection = {
+    kicker: text(contactRaw, "kicker", fallback.contact.kicker),
     heading: text(contactRaw, "heading", fallback.contact.heading),
     lead: text(contactRaw, "lead", fallback.contact.lead),
     mapTitle: text(contactRaw, "mapTitle", fallback.contact.mapTitle),
@@ -1190,14 +1207,17 @@ export function validateLandingContent(
   if (!home.park.chapelsAction.label.trim() || !home.park.chapelsAction.href.trim()) {
     return { ok: false, error: "The chapels' action needs a label and a destination." };
   }
-  if (!home.plans.heading.trim()) {
-    return { ok: false, error: "The plan band's heading can't be empty." };
+  if (!home.photo.kicker.trim()) {
+    return { ok: false, error: "The hero photograph band needs its kicker." };
+  }
+  if (!home.plans.kicker.trim() || !home.plans.heading.trim()) {
+    return { ok: false, error: "The plan band's kicker and heading can't be empty." };
   }
   if (!home.plans.action.label.trim() || !home.plans.action.href.trim()) {
     return { ok: false, error: "The plan band's action needs a label and a destination." };
   }
-  if (!home.services.heading.trim()) {
-    return { ok: false, error: "The services band's heading can't be empty." };
+  if (!home.services.kicker.trim() || !home.services.heading.trim()) {
+    return { ok: false, error: "The services band's kicker and heading can't be empty." };
   }
   if (!home.services.action.label.trim() || !home.services.action.href.trim()) {
     return { ok: false, error: "The services band's action needs a label and a destination." };
@@ -1223,8 +1243,8 @@ export function validateLandingContent(
       return { ok: false, error: `“${tile.label}” needs a request action with a label and a destination.` };
     }
   }
-  if (!home.lots.heading.trim()) {
-    return { ok: false, error: "The park band's heading can't be empty." };
+  if (!home.lots.kicker.trim() || !home.lots.heading.trim()) {
+    return { ok: false, error: "The park band's kicker and heading can't be empty." };
   }
   if (!home.lots.action.label.trim() || !home.lots.action.href.trim()) {
     return { ok: false, error: "The park band's action needs a label and a destination." };
@@ -1253,8 +1273,8 @@ export function validateLandingContent(
       return { ok: false, error: `“${tile.label}” publishes a photograph, so it needs alt text.` };
     }
   }
-  if (!home.contact.heading.trim() || !home.contact.lead.trim()) {
-    return { ok: false, error: "The contact band needs its heading and one lead line." };
+  if (!home.contact.kicker.trim() || !home.contact.heading.trim() || !home.contact.lead.trim()) {
+    return { ok: false, error: "The contact band needs its kicker, heading and one lead line." };
   }
   if (!home.contact.mapTitle.trim()) {
     return { ok: false, error: "The embedded map needs its title." };

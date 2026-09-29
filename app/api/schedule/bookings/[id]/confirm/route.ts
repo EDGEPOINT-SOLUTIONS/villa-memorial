@@ -7,7 +7,7 @@ import { requireSchedulingScope } from "@/app/api/schedule/_guard";
  * BFF: POST /api/schedule/bookings/:id/confirm — the office accepts a chapel
  * stay (scope `scheduling:write`).
  *
- * This is what turns a storefront cart hold ("still only in a customer's cart")
+ * This is what turns a storefront quote hold ("still only in a customer's quote")
  * into a confirmed booking in the admin view: booking-events-v1 has no such
  * status, so the confirmation record is app-authored
  * (lib/api-client/chapel-admin.ts). It does NOT touch the frozen booking row —

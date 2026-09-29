@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import {
   listLandingContent,
   saveLandingContent,
@@ -147,7 +147,7 @@ describe("the contact surface states the office's published facts before the for
   it("renders both hotlines as labelled tel: links, both addresses and the form doors", async () => {
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
     const { contact } = await listLandingContent();
-    const html = renderToStaticMarkup(createElement(CartProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ContactPage({
       searchParams: Promise.resolve({}),
     })));
 
@@ -188,7 +188,7 @@ describe("the contact surface states the office's published facts before the for
     await saveLandingContent(edited);
 
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
-    const html = renderToStaticMarkup(createElement(CartProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ContactPage({
       searchParams: Promise.resolve({}),
     })));
     expect(html).toContain("Call 0999 333 4444");
@@ -209,7 +209,7 @@ describe("the contact surface states the office's published facts before the for
     await saveLandingContent(cleared);
 
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
-    const html = renderToStaticMarkup(createElement(CartProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ContactPage({
       searchParams: Promise.resolve({}),
     })));
     expect(html).not.toContain("Second line");
@@ -225,10 +225,10 @@ describe("the detail pages' advisor cards carry the real, staff-editable line", 
     const { contact } = await listLandingContent();
 
     const planHtml = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-PREMIUM" }) })),
+      createElement(QuoteBasketProvider, null, await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-PREMIUM" }) })),
     );
     const casketHtml = renderToStaticMarkup(
-      createElement(CartProvider, null, await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) })),
+      createElement(QuoteBasketProvider, null, await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) })),
     );
 
     for (const html of [planHtml, casketHtml]) {

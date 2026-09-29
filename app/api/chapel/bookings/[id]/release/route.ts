@@ -3,7 +3,7 @@ import { ApiError } from "@/lib/api-client/api-error";
 import { releaseOnlineChapelBooking } from "@/lib/api-client/chapel-reservations";
 
 /**
- * BFF: POST /api/chapel/bookings/:id/release — give a cart-created chapel hold
+ * BFF: POST /api/chapel/bookings/:id/release — give a quote-created chapel hold
  * back to the schedule (the customer removed the line).
  *
  * Only bookings this flow created are releasable (the online title marker,

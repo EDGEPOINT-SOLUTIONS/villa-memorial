@@ -269,7 +269,7 @@ export function formatBlockRange(block: Pick<ChapelBlock, "from" | "to">): strin
 /* ========================== operator booking state ========================= */
 
 /**
- * The operator's view of a booking. `hold` is the storefront's cart reservation
+ * The operator's view of a booking. `hold` is the storefront's quote reservation
  * (booking-events-v1 has no such status — the online title marker plus the
  * absence of a staff confirmation is what identifies it); `confirmed` is a
  * staff-confirmed booking or one a placed order claimed; `cancelled` is the
@@ -278,7 +278,7 @@ export function formatBlockRange(block: Pick<ChapelBlock, "from" | "to">): strin
 export type ChapelBookingStatus = "hold" | "confirmed" | "cancelled";
 
 export const CHAPEL_BOOKING_STATUS_LABEL: Record<ChapelBookingStatus, string> = {
-  hold: "In a cart",
+  hold: "In a quote",
   confirmed: "Confirmed",
   cancelled: "Cancelled",
 };
@@ -340,7 +340,7 @@ export type ChapelDayCell = {
   status: ChapelDayStatus;
   /** Day belongs to a confirmed booking (staff-confirmed or claimed by an order). */
   booked: boolean;
-  /** Day is held by a booking that is still only in a customer's cart. */
+  /** Day is held by a booking that is still only in a customer's quote. */
   held: boolean;
   /** Day sits inside an operator-entered closure. */
   blocked: boolean;

@@ -459,7 +459,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
 
         <div className="anchored-footer__bottom">
           <span>
-            © {year} {logo.wordmark}. All rights reserved. · <a href="/cart">Cart</a> ·{" "}
+            © {year} {logo.wordmark}. All rights reserved. · <a href="/quote">Your quote</a> ·{" "}
             <a href="/quote">Request a quote</a>
           </span>
           <span className="anchored-footer__portals">

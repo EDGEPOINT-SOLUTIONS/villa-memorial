@@ -1,6 +1,8 @@
 import { type AnchorHTMLAttributes, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 
 /**
  * Monthly-first pricing on the plan and lot SURFACES (Villa Memorial minutes,
@@ -108,7 +110,11 @@ describe("the price lists open with the monthly-first summary", () => {
   });
 
   it("/lots/price-list-2026 prints the monthly-first summary for every family", async () => {
-    const html = renderToStaticMarkup(await LotPriceListPage());
+    // The rows carry the add-to-quote control, so the page renders inside the
+    // shared basket (the app provides it in the public shell).
+    const html = renderToStaticMarkup(
+      createElement(QuoteBasketProvider, null, await LotPriceListPage()),
+    );
     expect(html).toContain("Monthly installments");
     expect((html.match(/class="table installment-table"/g) ?? []).length).toBe(1);
     expect(html).toContain("₱1,920.00 / month");

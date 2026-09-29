@@ -1,18 +1,18 @@
 "use client";
 
 /**
- * The chapel booking step — a chapel is never a one-click cart item.
+ * The chapel booking step — a chapel is never a one-click quote item.
  *
- * `ChapelBookingButton` replaces the plain Add-to-cart control for chapel
+ * `ChapelBookingButton` replaces the plain Add-to-quote control for chapel
  * lines: it opens this dialog, where the customer chooses the chapel, a start
  * date and a 3–9 day stay, sees every day of the range and what that exact
  * range costs, and only then adds it. The dialog reads availability from the
  * park's own schedule through /api/chapel/schedule (never a guess), re-checks
- * server-side on Add to cart, and holds the range (a scheduling booking) for as
- * long as the cart line lives. Removing the line releases the hold.
+ * server-side on Add to quote, and holds the range (a scheduling booking) for as
+ * long as the quote line lives. Removing the line releases the hold.
  *
  * Rules live in lib/chapel-booking.ts; the calls in lib/chapel-booking-api.ts.
- * The "Request order" path stays beside Add to cart — the same prefilled
+ * The "Request order" path stays beside Add to quote — the same prefilled
  * capture every other price-list line offers (senior rates, questions).
  *
  * Accessibility: modal dialog semantics (role/aria-modal/aria-labelledby), focus
@@ -26,7 +26,7 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import type { Resource } from "@/lib/api-client/scheduling";
-import { useCart, type CartLine } from "@/lib/cart/cart-context";
+import { useQuoteBasket, type QuoteLine } from "@/lib/quote-basket/quote-basket-context";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { CHAPEL_NOTES, php } from "@/lib/villa-pricing";
 import {
@@ -55,11 +55,11 @@ import {
   type ChapelScheduleData,
 } from "@/lib/chapel-booking-api";
 
-/** The catalogue facts a booking line needs (CartLine without the quantity). */
+/** The catalogue facts a booking line needs (QuoteLine without the quantity). */
 export type ChapelCatalogueItem = {
   sku: string;
   name: string;
-  itemType: CartLine["itemType"];
+  itemType: QuoteLine["itemType"];
   unitPriceCents: number;
   currency: string;
 };
@@ -69,7 +69,7 @@ export type ChapelBookingButtonProps = {
   chapelClass: ChapelClass;
   /** Pre-set stay length (a 3–9 day row passes its own day count). */
   days?: number;
-  /** The catalogue entries the cart line may use, per class. */
+  /** The catalogue entries the quote line may use, per class. */
   items: Partial<Record<ChapelClass, ChapelCatalogueItem>>;
   /** Visible button label; defaults to "Book common/private chapel dates". */
   label?: string;
@@ -114,7 +114,7 @@ export function ChapelBookingDialog({
   initialDays: number;
   items: Partial<Record<ChapelClass, ChapelCatalogueItem>>;
 }) {
-  const cart = useCart();
+  const quote = useQuoteBasket();
   const titleId = useId();
   const startId = useId();
   const daysId = useId();
@@ -250,7 +250,7 @@ export function ChapelBookingDialog({
         days: check.days,
       });
       const line = bookingToChapelLine(booking, chapelClass);
-      cart.add(
+      quote.add(
         {
           sku: catalogue.sku,
           name: catalogue.name,
@@ -317,17 +317,17 @@ export function ChapelBookingDialog({
         <div className="booking-modal__body">
           {reserved ? (
             <div className="stack-3">
-              <Alert tone="success" title="Dates held — added to your cart">
+              <Alert tone="success" title="Dates held — added to your quote">
                 {reserved.resourceName} · {chapelBookingLineSummary(reserved)}
                 {prices ? ` · ${php(prices.regular)}` : ""}
               </Alert>
               <p className="text-sm text-muted">
                 The park&rsquo;s schedule holds these dates while the line stays in your
-                cart. Removing the line releases them; placing the order keeps them.
+                quote. Removing the line releases them; placing the order keeps them.
               </p>
               <div className="booking-modal__actions">
-                <Link href="/cart" className="btn btn--primary btn--sm">
-                  View cart
+                <Link href="/quote" className="btn btn--primary btn--sm">
+                  View your quote
                 </Link>
                 <Button variant="secondary" size="sm" onClick={onClose}>
                   Keep browsing
@@ -576,7 +576,7 @@ export function ChapelBookingDialog({
                   disabled={!check?.ok || reserving || !catalogue}
                   onClick={() => void onReserve()}
                 >
-                  {reserving ? "Holding the dates…" : "Add to cart"}
+                  {reserving ? "Holding the dates…" : "Add to quote"}
                 </Button>
                 <Link href={requestHref} className="btn btn--secondary btn--sm">
                   Request order
@@ -587,7 +587,7 @@ export function ChapelBookingDialog({
               </div>
               <p className="field__hint">
                 {catalogue
-                  ? "Adding to cart holds these dates in the park's schedule until you remove the line or place the order. Nothing is charged here."
+                  ? "Adding to quote holds these dates in the park's schedule until you remove the line or place the order. Nothing is charged here."
                   : "This chapel line is not offered online right now — send the office a request instead."}
               </p>
             </div>

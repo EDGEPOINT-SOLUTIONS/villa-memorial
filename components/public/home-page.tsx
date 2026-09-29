@@ -35,9 +35,9 @@ import type { PlanPricing } from "@/lib/pricing-model";
  * in order —
  *
  *   1 · the gateway      centred headline and call, three real trust facts
- *   2 · the hero photo   the client's photograph, alone and whole
- *   3 · the first park   the park photograph + the arrangement builder + the
+ *   2 · the first park   the park photograph + the arrangement builder + the
  *                        two chapels, side by side
+ *   3 · the hero photo   the client's photograph, alone and whole
  *   4 · Villa Memorial Plan   the five rising tiers, live monthly + senior
  *   5 · Funeraria Memorial Services   five equal photographic tiles, a quote
  *                        under each and one centred quote for all five — NO
@@ -147,6 +147,10 @@ export function HomePage({
   const parkPhoto = park.image ? photo(park.image) : null;
   const parkMapSrc = PARK_MAP_DERIVATIVE;
   const plotCount = recordedPlotCount(groups);
+  // Section 2's title is READ from the office's own recorded address (its place
+  // name), never a new typed string — the same name the gate sign carries.
+  const parkName =
+    contact.parkAddress.split(",")[0]?.trim() || contact.location || "Villa Memorial Park";
 
   const directions: Cta = {
     label: home.contact.directionsLabel,
@@ -201,34 +205,7 @@ export function HomePage({
       </section>
 
       {/* ================================================================
-          2 · THE HERO PHOTOGRAPH — alone and whole.
-          ================================================================ */}
-      <section className="home-photo" aria-label="The grounds of Villa Funeraria">
-        {heroPhoto ? (
-          <figure className="home-photo__figure">
-            {/* No ratio, no crop: the frame takes the picture's own shape. */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={heroPhoto.src}
-              srcSet={heroPhoto.srcSet}
-              sizes={heroPhoto.srcSet ? "(max-width: 75rem) 100vw, 75rem" : undefined}
-              width={heroPhoto.width}
-              height={heroPhoto.height}
-              alt={home.photo.alt}
-              loading="eager"
-              fetchPriority="high"
-              decoding="async"
-            />
-          </figure>
-        ) : (
-          <div className="home-engraved home-engraved--band" role="img" aria-label={home.photo.alt}>
-            {home.photo.alt}
-          </div>
-        )}
-      </section>
-
-      {/* ================================================================
-          3 · THE FIRST PARK — the photograph + the arrangement builder,
+          2 · THE FIRST PARK — the photograph + the arrangement builder,
               with the two chapels under the photograph.
           ================================================================ */}
       <section className="home-park" aria-label="The first memorial park in Basilan">
@@ -296,6 +273,7 @@ export function HomePage({
             <div className="home-park__chapels-action">
               <Link className="btn btn--secondary" href={park.chapelsAction.href}>
                 {park.chapelsAction.label}
+                <ArrowRight size={16} aria-hidden="true" />
               </Link>
             </div>
           </div>
@@ -313,15 +291,50 @@ export function HomePage({
       </section>
 
       {/* ================================================================
+          3 · THE HERO PHOTOGRAPH — alone and whole.
+          ================================================================ */}
+      <section className="home-photo" aria-labelledby="home-photo-title">
+        <div className="home-band-head">
+          <p className="home-band-head__kicker">{home.photo.kicker}</p>
+          <h2 id="home-photo-title" className="home-band-head__title">
+            {parkName}
+          </h2>
+        </div>
+        {heroPhoto ? (
+          <figure className="home-photo__figure">
+            {/* No ratio, no crop: the frame takes the picture's own shape. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={heroPhoto.src}
+              srcSet={heroPhoto.srcSet}
+              sizes={heroPhoto.srcSet ? "(max-width: 75rem) 100vw, 75rem" : undefined}
+              width={heroPhoto.width}
+              height={heroPhoto.height}
+              alt={home.photo.alt}
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+            />
+          </figure>
+        ) : (
+          <div className="home-engraved home-engraved--band" role="img" aria-label={home.photo.alt}>
+            {home.photo.alt}
+          </div>
+        )}
+      </section>
+
+      {/* ================================================================
           4 · VILLA MEMORIAL PLAN — five rising tiers, live prices.
           ================================================================ */}
       <section className="home-plans" aria-labelledby="home-plans-title">
         <div className="home-band-head">
+          <p className="home-band-head__kicker">{home.plans.kicker}</p>
           <h2 id="home-plans-title" className="home-band-head__title">
             {home.plans.heading}
           </h2>
           <Link className="btn btn--secondary home-band-head__cta" href={home.plans.action.href}>
             {home.plans.action.label}
+            <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
         <div className="home-niches">
@@ -356,11 +369,13 @@ export function HomePage({
           ================================================================ */}
       <section className="home-services" aria-labelledby="home-services-title">
         <div className="home-band-head">
+          <p className="home-band-head__kicker">{home.services.kicker}</p>
           <h2 id="home-services-title" className="home-band-head__title">
             {home.services.heading}
           </h2>
           <Link className="btn btn--secondary home-band-head__cta" href={home.services.action.href}>
             {home.services.action.label}
+            <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </div>
         <ul className="home-plates">
@@ -408,6 +423,7 @@ export function HomePage({
           6 · VILLA MEMORIAL PARK — four lot types, the pinned map, details.
           ================================================================ */}
       <HomePlotExplorer
+        kicker={home.lots.kicker}
         heading={home.lots.heading}
         action={home.lots.action}
         quote={home.lots.quote}
@@ -423,6 +439,7 @@ export function HomePage({
           ================================================================ */}
       <section className="home-contact" aria-labelledby="home-contact-title">
         <div className="home-band-head">
+          <p className="home-band-head__kicker">{home.contact.kicker}</p>
           <h2 id="home-contact-title" className="home-band-head__title">
             {home.contact.heading}
           </h2>
@@ -449,6 +466,7 @@ export function HomePage({
             <p className="home-contact__note">{home.contact.mapNote}</p>
             <a className="btn btn--secondary" href={directions.href}>
               {directions.label}
+              <ArrowRight size={16} aria-hidden="true" />
             </a>
           </div>
         </div>

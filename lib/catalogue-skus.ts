@@ -103,7 +103,7 @@ export const CHAPEL_PER_DAY = {
  * PROVISIONAL tier → package mapping. The client's plan sheet prices five
  * tiers, but the platform catalogue (and the package pages) sell three
  * packages; PKG-BASIC was already documented as the Bronze 1 plan. Until the
- * importer names every tier, only these three tiers have a cart SKU and the
+ * importer names every tier, only these three tiers have a quote-basket SKU and the
  * others route to the request path (the plan's five-tier schedule itself is
  * published on lib/villa-pricing.ts and every rate is requestable).
  */

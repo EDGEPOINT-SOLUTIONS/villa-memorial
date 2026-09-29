@@ -15,7 +15,7 @@ import { php, PLAN_TIERS, PLAN_TERMS, type PaymentRow } from "@/lib/villa-pricin
  *
  * Every amount is ACTIONABLE: each tier × term cell links to the prefilled
  * request naming the tier, the payment mode and the published amount the visitor
- * clicked. The cart itself only prices the monthly amortization (the catalogue's
+ * clicked. The quote basket itself only prices the monthly amortization (the catalogue's
  * plan SKUs), so the other terms, the tiers without a SKU and the senior rates
  * are requested from the office — an enquiry, never a reservation.
  */

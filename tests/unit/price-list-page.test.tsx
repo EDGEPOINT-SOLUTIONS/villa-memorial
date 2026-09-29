@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { planContentFromDocument } from "@/lib/plan-content";
@@ -29,7 +29,7 @@ vi.mock("next/link", () => ({
 const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 
 async function renderPage(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage()));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await PriceListPage()));
 }
 
 describe("the consolidated Price list page", () => {

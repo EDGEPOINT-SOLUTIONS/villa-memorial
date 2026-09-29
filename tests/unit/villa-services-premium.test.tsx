@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import {
   listLandingContent,
   saveLandingContent,
@@ -67,7 +67,7 @@ const { default: CasketDetailPage, generateMetadata } = await import(
 );
 
 async function renderWithCart(page: ReactNode): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, page));
 }
 
 /** Server pages that render cart buttons need the cart context wrapper. */
@@ -172,7 +172,7 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     expect(html).not.toContain("3 days — senior citizen");
     expect(html).not.toContain("Check dates &amp; price");
     expect(html).not.toContain('aria-haspopup="dialog"');
-    expect(html).not.toContain("Add to cart");
+    expect(html).not.toContain("Add to quote");
     // The card reads the park's own chapel record for its name and capacity.
     expect(html).toContain(chapelName.common);
     expect(html).toContain(chapelName.private);
@@ -278,11 +278,11 @@ describe("the casket detail view renders the model's own data", () => {
     expect(html).toContain("pdp-below");
     // The buy box carries the variant selector and the one primary action.
     expect(html).toContain("Choose a model");
-    expect(html).toContain("Add to cart");
+    expect(html).toContain("Add to quote");
   });
 
   it("keeps both real actions and the illustrative sample photograph", () => {
-    expect(html).toContain('aria-label="Add to cart: White Rose Full casket"');
+    expect(html).toContain('aria-label="Add to quote: White Rose Full casket"');
     expect(html).toContain("Request order");
     const sample = casketSamplePhoto({ collection: "The White Rose Collection", model: "White Rose Full" });
     // The detail figure takes the FEATURE (3:2) crop of the model's chosen

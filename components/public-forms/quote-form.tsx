@@ -31,14 +31,14 @@ function initialValues(prefill: RequestPrefill | null): QuoteValues {
 /**
  * Public Request-for-Quote form on the shared capture shell.
  *
- * The funeral-service surfaces no longer publish a price: each service sends
- * the visitor here with the service they clicked, and this form records what
- * the office needs to prepare a customised quotation — the client's name and
- * contact details, the requested service, a preferred date when one applies,
- * and any additional requirements.
+ * TWO MODES, ONE FORM (the office's quote-basket direction, 2026-09-29):
+ *  · `onAdd` set — the form is the ADD STEP of the quote basket: its fields stay
+ *    exactly as they were, but the submit adds this line to the basket instead
+ *    of sending it on its own ("Request quote" becomes "Add to my quote");
+ *  · `onAdd` unset — the form sends a single inquiry as it always has.
  *
  * The submit gate is lib/public-forms/validation.ts, run here for field-level
- * feedback and again on the server as the veto. A passed submission is POSTed to
+ * feedback and again on the server as the veto. A sent submission is POSTed to
  * `POST /api/inquiries`, which records it in the office's durable journal
  * (lib/api-client/inquiry-store.ts) and hands back the reference the family is
  * shown. The staff inquiries board reads the same journal, so a request appears
@@ -48,12 +48,22 @@ function initialValues(prefill: RequestPrefill | null): QuoteValues {
  * rather than pretending: the form then tells the family to call, and never
  * claims a delivery that did not happen.
  */
-export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null }) {
+export function QuoteForm({
+  prefill = null,
+  onAdd,
+  addLabel = "Add to my quote",
+}: {
+  prefill?: RequestPrefill | null;
+  /** When set, the submit adds the line to the quote basket instead of sending. */
+  onAdd?: (values: QuoteValues) => void;
+  addLabel?: string;
+}) {
   const [values, setValues] = useState<QuoteValues>(() => initialValues(prefill));
   const [errors, setErrors] = useState<FieldErrors>({});
   const [formError, setFormError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [captured, setCaptured] = useState<{ reference: string } | null>(null);
+  const [addedName, setAddedName] = useState<string | null>(null);
 
   function change<K extends keyof QuoteValues>(key: K, value: QuoteValues[K]) {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -74,6 +84,14 @@ export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null 
     }
     setErrors({});
     setFormError(null);
+    // THE ADD STEP: this line joins the quote basket; the basket sends the whole
+    // inquiry later, so the family can ask about several things at once.
+    if (onAdd) {
+      setAddedName(values.service || prefill?.item || "This request");
+      onAdd(values);
+      setValues(initialValues(prefill));
+      return;
+    }
     setPending(true);
     try {
       // 2026-09-27: this posts to the office. It used to call
@@ -110,6 +128,23 @@ export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null 
     } finally {
       setPending(false);
     }
+  }
+
+  if (addedName) {
+    return (
+      <div className="stack">
+        <Alert tone="success" title="Added to your quote.">
+          <strong>{addedName}</strong> is in your quote. Add anything else your family is
+          asking about, then send the whole list in one go below. Nothing is reserved and
+          nothing is ordered — the office confirms every quotation by hand.
+        </Alert>
+        <div className="capture-actions">
+          <Button type="button" variant="secondary" onClick={() => setAddedName(null)}>
+            Add another item
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   if (captured) {
@@ -334,7 +369,7 @@ export function QuoteForm({ prefill = null }: { prefill?: RequestPrefill | null 
 
       <div className="capture-actions">
         <Button type="submit" disabled={pending}>
-          {pending ? "Requesting…" : "Request quote"}
+          {pending ? "Requesting…" : onAdd ? addLabel : "Request quote"}
         </Button>
       </div>
     </form>

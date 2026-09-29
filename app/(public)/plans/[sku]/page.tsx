@@ -27,8 +27,8 @@ import {
   TRANSPORT_IMAGE,
 } from "@/lib/media";
 import { PlanTermSelector } from "./plan-term-selector";
-import type { TierCartItem } from "./plan-term-selector";
-import { AddToCartControl } from "./add-to-cart";
+import type { TierQuoteItem } from "./plan-term-selector";
+import { AddToQuoteControl } from "./add-to-quote";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 import { PriceList2026Module } from "./price-list-2026-module";
@@ -82,7 +82,7 @@ const TYPE_LABEL: Record<string, string> = {
  * price (lib/catalogue-skus.ts). Tiers without a SKU stay request-only, and the
  * selector falls back to the request path for them.
  */
-async function packageTierItems(): Promise<TierCartItem[]> {
+async function packageTierItems(): Promise<TierQuoteItem[]> {
   try {
     const items = await listCatalogItems();
     const bySku = new Map(items.map((i) => [i.sku, i]));
@@ -93,7 +93,7 @@ async function packageTierItems(): Promise<TierCartItem[]> {
         ? [
             {
               tier: id,
-              cartItem: {
+              quoteItem: {
                 sku: found.sku,
                 name: found.name,
                 itemType: found.item_type,
@@ -105,7 +105,7 @@ async function packageTierItems(): Promise<TierCartItem[]> {
         : [];
     });
   } catch {
-    // The page's own SKU still adds to the cart; other tiers fall back to the
+    // The page's own SKU still adds to the quote; other tiers fall back to the
     // request path, so a catalogue hiccup never breaks the plan page.
     return [];
   }
@@ -166,7 +166,7 @@ export default async function PlanDetailPage({
   const { contact } = content;
   const plan = planContentFromDocument(plansPage);
 
-  const cartItem = {
+  const quoteItem = {
     sku: item.sku,
     name: item.name,
     itemType: item.item_type,
@@ -329,11 +329,11 @@ export default async function PlanDetailPage({
                   {/* eslint-disable-next-line @next/next/no-img-element -- uploaded client sheet */}
                   <img
                     src={DOC_PRICE_LIST_2026_II}
-                    alt="Price list II — casket collections with SRP, discount and discounted price, plus a-la-carte rates"
+                    alt="Price list II — casket collections with SRP, discount and discounted price, plus a-la-quotee rates"
                   />
                   <figcaption>
                     PRICE LIST II — casket collections (Dynasty / White Rose / Crown) with SRP,
-                    discount and discounted price, plus a-la-carte rates when a family does not
+                    discount and discounted price, plus a-la-quotee rates when a family does not
                     take a package (embalming by day, retrieval, delivery, viewing equipment,
                     coffin, interment).
                   </figcaption>
@@ -367,7 +367,7 @@ export default async function PlanDetailPage({
             <section className="buy-card" aria-labelledby="buy-title">
               <PlanTermSelector
                 pricing={pricing.plans}
-                item={cartItem}
+                item={quoteItem}
                 ownTier={planTierForPackageSku(item.sku) ?? "bronze1"}
                 tierItems={tierItems}
               />
@@ -406,8 +406,8 @@ export default async function PlanDetailPage({
 
   /* ------------------------------------------------------------------------
    * Services / add-ons keep the premium hero (unchanged), with the storefront's
-   * two actions on the sticky card: Add to cart for this SKU, plus the
-   * prefilled Request order for anything the cart cannot settle.
+   * two actions on the sticky card: Add to quote for this SKU, plus the
+   * prefilled Request order for anything the quote cannot settle.
    * --------------------------------------------------------------------- */
   return (
     <div className="stack-4">
@@ -450,7 +450,7 @@ export default async function PlanDetailPage({
                   <div className="detail-sticky__price">{item.display_price}</div>
                 </div>
                 <div className="detail-sticky__actions">
-                  <AddToCartControl item={cartItem} />
+                  <AddToQuoteControl item={quoteItem} />
                   <Link
                     href={buildRequestHref({
                       item: item.name,
@@ -462,8 +462,8 @@ export default async function PlanDetailPage({
                   >
                     Request order
                   </Link>
-                  <Link href="/cart" className="btn btn--secondary btn--sm btn--block">
-                    View cart
+                  <Link href="/quote" className="btn btn--secondary btn--sm btn--block">
+                    View your quote
                   </Link>
                 </div>
               </div>

@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 
 // The buy card's add control calls useRouter ("Go to checkout"); the server
 // render under test only needs the hook to resolve.
@@ -29,16 +29,16 @@ const item = {
 
 function render(props: Parameters<typeof PlanTermSelector>[0]) {
   return renderToStaticMarkup(
-    createElement(CartProvider, null, createElement(PlanTermSelector, props)),
+    createElement(QuoteBasketProvider, null, createElement(PlanTermSelector, props)),
   );
 }
 
 describe("the plan buy card opens on the page's own tier", () => {
-  it("shows the sheet's monthly amount and the real add-to-cart control", () => {
+  it("shows the sheet's monthly amount and the real add-to-quote control", () => {
     const html = render({ pricing, item, ownTier: "bronze1" });
     expect(html).toContain(`${php2(planRate("bronze1", "monthly"))}`);
     expect(html).toContain("/ month");
-    expect(html).toContain("Add to cart");
+    expect(html).toContain("Add to quote");
     expect(html).toContain("PKG-BASIC");
     for (const tier of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
       expect(html).toContain(tier);

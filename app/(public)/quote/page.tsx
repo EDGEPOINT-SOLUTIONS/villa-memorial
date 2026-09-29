@@ -1,28 +1,25 @@
-import type { Metadata } from "next";
-import { QuoteForm } from "@/components/public-forms/quote-form";
+import { QuoteBasketPage } from "@/components/public-forms/quote-basket-page";
 import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
 import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = pageMetadata({
-  title: "Request a quote — Villa Funeraria",
+export const metadata = pageMetadata({
+  title: "Your quote — Villa Funeraria",
   description:
-    "Funeral services are quoted for your family, not priced on a page. Tell us what you need and the park office prepares a written quotation — a request for the office, never a reservation.",
+    "Ask about a service, a plan, a casket or a lot — add each one to your quote and the office sends one written quotation back. A request for the office, never a reservation.",
   path: "/quote",
 });
 
 /**
- * Public Request-for-Quote (the funeral-service capture).
+ * The public QUOTE PAGE (/quote) — the quote basket the office asked for
+ * (2026-09-29): the cart stopped being a cart, because the office takes
+ * inquiries, not orders.
  *
- * The service pages no longer publish prices: each service sends the visitor
- * here with the service they clicked. The form records the client's name and
- * contact details, the requested service, a preferred date when one applies and
- * any additional requirements, then lands in the demo-local inquiry store the
- * staff board reads (no crm-families contract exists, so nothing is sent to a
- * server and the confirmation says so).
+ * The page owns the basket; the per-item quote form is the step that adds a line
+ * to it. `?item=` (and `?note=`) arrive from a service page's Request-for-Quote
+ * action through lib/public-forms/request-prefill.ts, so the form opens on
+ * exactly the item the visitor clicked and adds it in one submit.
  *
- * `?item=` (and `?note=`) arrive from a service page's Request-for-Quote action
- * through lib/public-forms/request-prefill.ts, so the form opens on exactly the
- * service the visitor asked about.
+ * The OLD /cart and /checkout URLs redirect here (their route files are stubs).
  */
 export default async function Page({
   searchParams,
@@ -32,20 +29,8 @@ export default async function Page({
   const prefill = parseRequestPrefill(await searchParams);
 
   return (
-    <div className="plan-flow--reading stack-4">
-      <div className="page-header">
-        <div className="page-header__text">
-          <p className="page-header__eyebrow">Reach us</p>
-          <h1>Request a quote</h1>
-          <p className="page-header__lead">
-            Tell us what you need and the park office prepares a written
-            quotation — services are quoted, not priced on a page.
-          </p>
-        </div>
-      </div>
-      <div className="page-section" style={{ maxWidth: "46rem" }}>
-        <QuoteForm prefill={prefill} />
-      </div>
+    <div className="plan-flow--reading">
+      <QuoteBasketPage prefill={prefill} />
     </div>
   );
 }

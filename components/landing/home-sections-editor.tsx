@@ -458,46 +458,14 @@ export function HomeSectionsEditor({
         </div>
       </section>
 
-      {/* ========================= 2 · hero photograph ======================= */}
-      <section className="ed-section" id="ed-home-2">
+      {/* ====================== 2 · the first park ========================== */}
+      <section className="ed-section" id="ed-home-3">
         <header className="ed-section__head">
           <span className="ed-section__num" aria-hidden="true">
             02
           </span>
           <div className="ed-section__title">
             <p className="ed-section__kicker">Home · section 2</p>
-            <h2>The hero photograph</h2>
-            <p className="ed-section__hint">
-              The client&apos;s photograph, alone and whole. The page never crops it — the frame takes
-              the picture&apos;s own shape.
-            </p>
-          </div>
-        </header>
-        <div className="ed-section__body">
-          <ImageField
-            label="Photograph"
-            htmlFor="home-photo-image"
-            value={home.photo.image}
-            onChange={(image) => update("photo", { ...home.photo, image })}
-          />
-          <TextField
-            label="Alt text"
-            htmlFor="home-photo-alt"
-            value={home.photo.alt}
-            onChange={(alt) => update("photo", { ...home.photo, alt })}
-            hint="Describe what the photograph shows — required whenever a picture is published."
-          />
-        </div>
-      </section>
-
-      {/* ====================== 3 · the first park ========================== */}
-      <section className="ed-section" id="ed-home-3">
-        <header className="ed-section__head">
-          <span className="ed-section__num" aria-hidden="true">
-            03
-          </span>
-          <div className="ed-section__title">
-            <p className="ed-section__kicker">Home · section 3</p>
             <h2>The first park · photograph, builder, chapels</h2>
             <p className="ed-section__hint">
               The park photograph with the arrangement builder beside it and the two chapels under
@@ -764,6 +732,45 @@ export function HomeSectionsEditor({
         </div>
       </section>
 
+      {/* ========================= 3 · hero photograph ======================= */}
+      <section className="ed-section" id="ed-home-2">
+        <header className="ed-section__head">
+          <span className="ed-section__num" aria-hidden="true">
+            03
+          </span>
+          <div className="ed-section__title">
+            <p className="ed-section__kicker">Home · section 3</p>
+            <h2>The hero photograph</h2>
+            <p className="ed-section__hint">
+              The client&apos;s photograph, alone and whole. The page never crops it — the frame takes
+              the picture&apos;s own shape.
+            </p>
+          </div>
+        </header>
+        <div className="ed-section__body">
+          <TextField
+            label="Band kicker (the uppercase line above the title)"
+            htmlFor="home-photo-kicker"
+            value={home.photo.kicker}
+            onChange={(kicker) => update("photo", { ...home.photo, kicker })}
+            hint="The title under it is read from the park address in Brand & 24/7 line."
+          />
+          <ImageField
+            label="Photograph"
+            htmlFor="home-photo-image"
+            value={home.photo.image}
+            onChange={(image) => update("photo", { ...home.photo, image })}
+          />
+          <TextField
+            label="Alt text"
+            htmlFor="home-photo-alt"
+            value={home.photo.alt}
+            onChange={(alt) => update("photo", { ...home.photo, alt })}
+            hint="Describe what the photograph shows — required whenever a picture is published."
+          />
+        </div>
+      </section>
+
       {/* ======================= 4 · Villa Memorial Plan ==================== */}
       <section className="ed-section" id="ed-home-4">
         <header className="ed-section__head">
@@ -781,12 +788,20 @@ export function HomeSectionsEditor({
           </div>
         </header>
         <div className="ed-section__body">
-          <TextField
-            label="Heading"
-            htmlFor="home-plans-heading"
-            value={home.plans.heading}
-            onChange={(heading) => update("plans", { ...home.plans, heading })}
-          />
+          <div className="field-grid field-grid--2">
+            <TextField
+              label="Band kicker"
+              htmlFor="home-plans-kicker"
+              value={home.plans.kicker}
+              onChange={(kicker) => update("plans", { ...home.plans, kicker })}
+            />
+            <TextField
+              label="Heading"
+              htmlFor="home-plans-heading"
+              value={home.plans.heading}
+              onChange={(heading) => update("plans", { ...home.plans, heading })}
+            />
+          </div>
           <ActionFields
             legend="Band action"
             cta={home.plans.action}
@@ -841,12 +856,20 @@ export function HomeSectionsEditor({
           </div>
         </header>
         <div className="ed-section__body">
-          <TextField
-            label="Heading"
-            htmlFor="home-services-heading"
-            value={services.heading}
-            onChange={(heading) => update("services", { ...services, heading })}
-          />
+          <div className="field-grid field-grid--2">
+            <TextField
+              label="Band kicker"
+              htmlFor="home-services-kicker"
+              value={services.kicker}
+              onChange={(kicker) => update("services", { ...services, kicker })}
+            />
+            <TextField
+              label="Heading"
+              htmlFor="home-services-heading"
+              value={services.heading}
+              onChange={(heading) => update("services", { ...services, heading })}
+            />
+          </div>
           <ActionFields
             legend="Band action"
             cta={services.action}
@@ -978,12 +1001,20 @@ export function HomeSectionsEditor({
           </div>
         </header>
         <div className="ed-section__body">
-          <TextField
-            label="Heading"
-            htmlFor="home-lots-heading"
-            value={lots.heading}
-            onChange={(heading) => update("lots", { ...lots, heading })}
-          />
+          <div className="field-grid field-grid--2">
+            <TextField
+              label="Band kicker"
+              htmlFor="home-lots-kicker"
+              value={lots.kicker}
+              onChange={(kicker) => update("lots", { ...lots, kicker })}
+            />
+            <TextField
+              label="Heading"
+              htmlFor="home-lots-heading"
+              value={lots.heading}
+              onChange={(heading) => update("lots", { ...lots, heading })}
+            />
+          </div>
           <ActionFields
             legend="Band action"
             cta={lots.action}
@@ -1100,6 +1131,12 @@ export function HomeSectionsEditor({
         </header>
         <div className="ed-section__body">
           <div className="field-grid field-grid--2">
+            <TextField
+              label="Band kicker"
+              htmlFor="home-contact-kicker"
+              value={home.contact.kicker}
+              onChange={(kicker) => update("contact", { ...home.contact, kicker })}
+            />
             <TextField
               label="Heading"
               htmlFor="home-contact-heading"

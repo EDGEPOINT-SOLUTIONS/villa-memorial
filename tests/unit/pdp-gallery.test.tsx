@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { PdpGallery } from "@/components/villa/pdp-gallery";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { richTextToHtml } from "@/lib/richtext";
@@ -65,7 +65,7 @@ function renderGallery(images: ContentImage[]): string {
 }
 
 function renderCart(page: ReactNode): string {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, page));
 }
 
 describe("the product-detail gallery viewer", () => {

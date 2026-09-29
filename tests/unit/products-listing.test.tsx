@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import {
   CASKET_MODELS,
   COFFIN_COVER_UNSTATED,
@@ -44,7 +44,7 @@ const { default: ProductsPage } = await import("@/app/(public)/products/page");
 /** Render the page with a query, as the server half would. */
 async function renderProducts(params: Record<string, string> = {}): Promise<string> {
   return renderToStaticMarkup(
-    createElement(CartProvider, null, await ProductsPage({ searchParams: Promise.resolve(params) })),
+    createElement(QuoteBasketProvider, null, await ProductsPage({ searchParams: Promise.resolve(params) })),
   );
 }
 
@@ -93,10 +93,10 @@ describe("/products is one Amazon-familiar model listing", () => {
     expect(html).toContain('class="public-disclosure');
   });
 
-  it("gives every card exactly one primary action (the gold Add to cart)", () => {
+  it("gives every card exactly one primary action (the gold Add to quote)", () => {
     for (const card of cards(html)) {
       expect(occurrences(card, "btn--accent"), "one primary action per card").toBe(1);
-      expect(card).toContain("Add to cart");
+      expect(card).toContain("Add to quote");
       // The secondary paths are quiet links, not a second and third button row.
       expect(card).toContain("catalogue-actions__link");
       expect(card).toContain("Request order");

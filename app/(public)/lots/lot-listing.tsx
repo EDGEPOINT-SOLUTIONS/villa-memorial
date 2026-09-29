@@ -299,9 +299,9 @@ export function LotListing({
  *
  * ONE CARD ACTION (captain follow-up, 2026-09-21). Every card dresses its one
  * action in the shop grammar's PRIMARY rung — `.btn--accent` (the gold the
- * catalogue already gives a card's main action: `Add to cart` on /products,
+ * catalogue already gives a card's main action: `Add to quote` on /products,
  * /plans, /packages) — instead of the page-level `.btn--primary` (sky) it used
- * before. There is no cart action on a lot, so the card's single action owns
+ * before. There is no quote action on a lot, so the card's single action owns
  * the primary slot. The label keeps the two honest destinations (a published
  * lot page vs the park map) but reads as ONE grammar: the shared core "View
  * this lot", with the map destination spelled out only where that is where it

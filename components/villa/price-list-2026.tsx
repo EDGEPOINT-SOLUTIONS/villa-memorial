@@ -10,7 +10,9 @@
  * never authors a number, and an office edit through /staff/pricing is what it
  * prints.
  *
- * Lots are NOT cart items (a lot needs a buyer, a block/lot number and a signed
+ * Lots join the QUOTE BASKET as their own kind of line (office, 2026-09-29):
+ * they never merge into a stock line, because a lot needs a buyer, a block/lot
+ * number and a signed
  * purchase agreement), so every row carries the two honest actions instead:
  * "Request this lot" — the prefilled contact capture naming the category, the
  * row and the published selling price — and "See it on the map". A request is an
@@ -18,6 +20,7 @@
  */
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
+import { LotQuoteButton } from "@/components/villa/lot-quote-button";
 import { PublicDisclosure } from "@/components/public";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import type { LotCategory, LotPriceRow } from "@/lib/pricing-model";
@@ -87,6 +90,12 @@ export function PriceList2026Tables({
                     <td>
                       <div className="lot-row__name">{r.product}</div>
                       <div className="lot-row__actions">
+                        <LotQuoteButton
+                          category={cat.title}
+                          product={r.product}
+                          area={r.area}
+                          sellingPrice={r.regular.selling}
+                        />
                         <Link href={lotRequestHref(cat.title, r)}>Request this lot</Link>
                         <Link href="/map">See it on the map</Link>
                       </div>

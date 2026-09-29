@@ -25,7 +25,7 @@ import {
   isOnlineChapelBooking,
   toChapelBookingLine,
 } from "@/lib/chapel-booking";
-import { releaseChapelCartLine } from "@/lib/chapel-booking-api";
+import { releaseChapelQuoteLine } from "@/lib/chapel-booking-api";
 
 /**
  * The chapel booking step's rule set — the tests the captain's brief asks for:
@@ -399,7 +399,7 @@ describe("removing a chapel cart line releases the dates", () => {
   it("cancels the reservation before dropping the line", async () => {
     const released: string[] = [];
     const removed: string[] = [];
-    const result = await releaseChapelCartLine(line, "chapel:booking-9", (k) => removed.push(k), async (id) => {
+    const result = await releaseChapelQuoteLine(line, "chapel:booking-9", (k) => removed.push(k), async (id) => {
       released.push(id);
     });
     expect(released).toEqual(["booking-9"]);
@@ -409,7 +409,7 @@ describe("removing a chapel cart line releases the dates", () => {
 
   it("still removes the line when the release call fails, and reports it", async () => {
     const removed: string[] = [];
-    const result = await releaseChapelCartLine(line, "chapel:booking-9", (k) => removed.push(k), async () => {
+    const result = await releaseChapelQuoteLine(line, "chapel:booking-9", (k) => removed.push(k), async () => {
       throw new Error("Could not reach the park schedule.");
     });
     expect(removed).toEqual(["chapel:booking-9"]);
@@ -420,7 +420,7 @@ describe("removing a chapel cart line releases the dates", () => {
   it("does not call the schedule for an ordinary line", async () => {
     let called = false;
     const removed: string[] = [];
-    const result = await releaseChapelCartLine({}, "PKG-BASIC", (k) => removed.push(k), async () => {
+    const result = await releaseChapelQuoteLine({}, "PKG-BASIC", (k) => removed.push(k), async () => {
       called = true;
     });
     expect(called).toBe(false);

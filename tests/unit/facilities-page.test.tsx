@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import {
   listLandingContent,
   saveLandingContent,
@@ -54,7 +54,7 @@ async function renderFacilities(): Promise<string> {
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage()));
 }
 
 describe("/facilities shows the rooms a family is choosing between", () => {

@@ -28,7 +28,7 @@ import { catalogueItemPhoto } from "@/lib/catalogue-imagery";
  * (`/quote`) prefilled with the service the visitor asked about. The office
  * prepares a customised quotation from the request.
  *
- * Nothing is priced here and no cart item is created: the request is the ONE
+ * Nothing is priced here and no quote item is created: the request is the ONE
  * action, and it is an enquiry, never a reservation. The service labels and
  * SKUs still come from the sheet (lib/catalogue-skus.ts) so the request carries
  * the exact catalogue line the office can quote.
@@ -202,7 +202,7 @@ export function EmbalmingRates({ contact }: { contact: ContactInfo }) {
  * THE NAME IS THE PARK'S RECORD: the card title reads the same staff-editable
  * chapel record (lib/api-client/chapel-store.ts) the schedule does — a rename on
  * /staff/schedule lands here. Each card's ONE action asks the office for dates
- * and a quote; a chapel stay is not priced here and is not a cart item.
+ * and a quote; a chapel stay is not priced here and is not a quote-basket line.
  */
 export function ChapelRates({
   chapels,

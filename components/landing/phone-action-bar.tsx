@@ -39,6 +39,11 @@ export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
           <LifeBuoy size={18} aria-hidden="true" />
           Get help
         </a>
+        {/* Blog is a top-level page now (office, 2026-09-29): reachable from the
+            bar itself, not only inside the Explore more sheet. */}
+        <a className="anchored-phonebar__btn anchored-phonebar__btn--blog" href="/blog">
+          Blog
+        </a>
         <button
           type="button"
           className="anchored-phonebar__btn anchored-phonebar__btn--explore"

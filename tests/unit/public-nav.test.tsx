@@ -37,15 +37,17 @@ describe("the public bar", () => {
   it("carries the five top-level pages, marks only the current page and groups the rest under Explore more", async () => {
     const { logo } = await chrome();
     const html = renderToStaticMarkup(
-      createElement(SiteHeaderBar, { brand: logo, currentPath: "/plans", cartCount: 2 }),
+      createElement(SiteHeaderBar, { brand: logo, currentPath: "/plans", quoteCount: 2 }),
     );
-    // The captain's 2026-09-21 top-level bar: Home first, the full page names,
-    // plus Contact. Lots is gone (it lives inside Villa Memorial Park).
+    // The captain's 2026-09-21 top-level bar, plus Blog (office, 2026-09-29):
+    // six items, Home first, the full page names, Blog before Contact. Lots is
+    // gone (it lives inside Villa Memorial Park).
     expect(SITE_NAV_LINKS.map((link) => [link.href, link.label])).toEqual([
       ["/", "Home"],
       ["/services", "Funeraria Memorial Services"],
       ["/plans", "Villa Memorial Plan"],
       ["/map", "Villa Memorial Park"],
+      ["/blog", "Blog"],
       ["/contact", "Contact"],
     ]);
     for (const [href, label] of [
@@ -53,6 +55,7 @@ describe("the public bar", () => {
       ["/services", "Funeraria Memorial Services"],
       ["/plans", "Villa Memorial Plan"],
       ["/map", "Villa Memorial Park"],
+      ["/blog", "Blog"],
       ["/contact", "Contact"],
     ] as const) {
       const aria = href === "/plans" ? ' aria-current="page"' : "";
@@ -62,7 +65,7 @@ describe("the public bar", () => {
     expect(html).toContain('href="/plans" aria-current="page">Villa Memorial Plan</a>');
     expect(html.match(/aria-current="page"/g)).toHaveLength(1);
     // The removed standalone links leave the top-level bar entirely: the bar's
-    // chips before the dropdown are only the five destinations, and the
+    // chips before the dropdown are only the six destinations, and the
     // secondary pages live inside the Explore more menu.
     const nav = html.slice(html.indexOf('class="anchored-header__nav"'), html.indexOf("</nav>"));
     const topLevel = nav.slice(0, nav.indexOf("anchored-header__explore"));
@@ -72,12 +75,9 @@ describe("the public bar", () => {
     expect(topLevel).not.toContain('href="/gallery"');
     expect(topLevel).not.toContain('href="/memorials"');
     expect(topLevel).not.toContain('href="/price-list"');
-    // The grouped Explore more menu: disclosure trigger, hidden menu, exact items.
-    // "News from the park" (/blog) leads: the blog is staff-editable landing
-    // content, and until it was added here it sat in the sitemap while being
-    // reachable from nowhere in the UI — which is how a whole surface gets lost.
+    // The grouped Explore more menu: disclosure trigger, hidden menu, exact
+    // items. Blog LEFT it for the top-level row (office, 2026-09-29).
     expect(EXPLORE_MORE_LINKS.map((item) => [item.href, item.title])).toEqual([
-      ["/blog", "Blog"],
       ["/builder", "Builder"],
       ["/facilities", "Facilities"],
       ["/gallery", "Gallery"],
@@ -95,15 +95,28 @@ describe("the public bar", () => {
     }
   });
 
-  it("renders the cart as an icon with its count, never a text link", async () => {
-    const { logo } = await chrome();
+  it("renders a LABELLED quote action with its count, never a trolley icon", async () => {
+    // The office's direction (2026-09-29): the trolley glyph was the one thing
+    // on the page that still said "shop". The action now says what it is, stays
+    // visible when the basket is empty, and wears sky/outline — never gold,
+    // which is rationed to the office's phone number.
+    const { logo, contact } = await chrome();
     const html = renderToStaticMarkup(
-      createElement(SiteHeaderBar, { brand: logo, cartCount: 3 }),
+      createElement(SiteHeaderBar, { brand: logo, quoteCount: 3 }),
     );
-    expect(html).toContain('class="anchored-header__cart"');
-    expect(html).toContain('aria-label="Cart, 3 items"');
-    expect(html).toContain('class="anchored-header__cart-count"');
-    expect(html).not.toContain(">Cart</a>");
+    expect(html).toContain('class="anchored-header__quote"');
+    expect(html).toContain('aria-label="Your quote, 3 lines"');
+    expect(html).toContain(">Your quote<");
+    expect(html).toContain('class="anchored-header__quote-count"');
+    expect(html).toContain("3 lines in your quote");
+    expect(html).not.toContain("shopping-cart");
+    // Visible with no count too, so the page is findable before anything is added.
+    const empty = renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo }));
+    expect(empty).toContain('href="/quote"');
+    expect(empty).toContain(">Your quote<");
+    expect(empty).not.toContain('class="anchored-header__quote-count"');
+    // The one gold control in the header stays the office's phone line.
+    expect(contact.phoneHref.length).toBeGreaterThan(0);
   });
 
   it("places the skip link before the header and targets the main content", async () => {
@@ -127,6 +140,10 @@ describe("the phone action bar", () => {
     expect(html).toContain("Get help");
     // F-01: the bottom bar is the phone's one-tap door to the assistance page.
     expect(html).toContain('anchored-phonebar__btn--help" href="/immediate-assistance"');
+    // Blog is a top-level target on the bar itself (office, 2026-09-29), not
+    // only inside the Explore more sheet.
+    expect(html).toContain('anchored-phonebar__btn--blog" href="/blog"');
+    expect(html).toContain(">Blog</a>");
     expect(html).toContain("Explore more");
     expect(html).not.toContain("Plan ahead");
     expect(html).toContain('aria-haspopup="dialog"');

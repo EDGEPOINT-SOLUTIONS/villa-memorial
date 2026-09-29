@@ -9,13 +9,13 @@
  *                 Services · Villa Memorial Plan · Villa Memorial Park ·
  *                 Contact) · the grouped "Explore more" menu (Builder ·
  *                 Facilities · Gallery · Memorials · Price list) · quiet
- *                 Sign in · cart icon + count.
+ *                 Sign in · the labelled quote action + count.
  *
  * Rendered by BOTH the premium home (LandingView, framework-free under the
  * repo's node tests) and every other public page (PublicShell). One component
  * + one class set is what keeps the bar identical when a visitor navigates:
- * same brand row, same destinations (Home first, Cart never a text link among
- * the pages).
+ * same brand row, same destinations (Home first, the quote action never a text
+ * link among the pages).
  *
  * Framework-free on purpose (plain <a>/<button>, no next/link, no router): the
  * bar is also rendered by react-dom/server in unit tests and must never
@@ -26,7 +26,7 @@
  * matching link gets aria-current; the home renders the same bar unhighlighted.
  */
 /* eslint-disable @next/next/no-html-link-for-pages -- shared framework-free public bar (see landing-view.tsx rationale) */
-import { ChevronDown, ShoppingCart } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import type { LogoConfig } from "@/lib/api-client/landing";
 import { BrandMark } from "@/components/landing/brand-mark";
 import { HeaderBehavior } from "@/components/landing/header-behavior";
@@ -44,6 +44,9 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Funeraria Memorial Services", href: "/services" },
   { label: "Villa Memorial Plan", href: "/plans" },
   { label: "Villa Memorial Park", href: "/map" },
+  // Blog is a TOP-LEVEL page now (office, 2026-09-29): it left the Explore more
+  // menu, six items fit the row, and the phone bar carries it directly too.
+  { label: "Blog", href: "/blog" },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -54,7 +57,6 @@ export const SITE_NAV_LINKS: ReadonlyArray<{ label: string; href: string }> = [
  * summary, not new claims.
  */
 export const EXPLORE_MORE_LINKS: ReadonlyArray<{ title: string; note: string; href: string }> = [
-  { title: "Blog", note: "Photographs, films and notes from the grounds", href: "/blog" },
   { title: "Builder", note: "Build the arrangement and see the 2026 total", href: "/builder" },
   { title: "Facilities", note: "Chapels, viewing rooms and the grounds", href: "/facilities" },
   { title: "Gallery", note: "Photographs of the park and a walk-through", href: "/gallery" },
@@ -70,15 +72,15 @@ function isCurrent(pathname: string, href: string): boolean {
 export function SiteHeaderBar({
   brand,
   currentPath,
-  cartCount,
+  quoteCount,
 }: {
   brand: LogoConfig;
   /** Pathname of the rendered page; omit to render with no active link (home). */
   currentPath?: string;
-  /** Live cart line count (client surfaces only); shown as the cart badge. */
-  cartCount?: number;
+  /** Live quote line count (client surfaces only); shown as the quote badge. */
+  quoteCount?: number;
 }) {
-  const hasCart = cartCount !== undefined && cartCount > 0;
+  const hasQuoteLines = quoteCount !== undefined && quoteCount > 0;
   // A grouped page still shows its wayfinding cue: the trigger is marked
   // current while one of its four pages is open (the menu item itself carries
   // aria-current="page").
@@ -152,25 +154,34 @@ export function SiteHeaderBar({
             <a className="anchored-header__signin" href="/login">
               Sign in
             </a>
-            {/* The cart is a place you return to, not a page you browse: an
-                icon with its count beside Sign in (D2). */}
+            {/* The quote action, LABELLED (office, 2026-09-29): the trolley
+                glyph was the one thing on the page that still said "shop", so
+                the action says what it is and stays visible even when the
+                basket is empty. Sky/outline — gold is rationed to the office's
+                phone number and never competes with it. */}
             <a
-              className="anchored-header__cart"
-              href="/cart"
-              aria-label={hasCart ? `Cart, ${cartCount} item${cartCount === 1 ? "" : "s"}` : "Cart"}
+              className="anchored-header__quote"
+              href="/quote"
+              aria-label={
+                hasQuoteLines
+                  ? `Your quote, ${quoteCount} line${quoteCount === 1 ? "" : "s"}`
+                  : "Your quote"
+              }
             >
-              <ShoppingCart size={21} aria-hidden="true" />
-              {hasCart ? (
-                <span className="anchored-header__cart-count" aria-hidden="true">
-                  {cartCount}
+              Your quote
+              {hasQuoteLines ? (
+                <span className="anchored-header__quote-count" aria-hidden="true">
+                  {quoteCount}
                 </span>
               ) : null}
             </a>
-            {/* One atomic status line for a cart that changes while the visitor
+            {/* One atomic status line for a quote that changes while the visitor
                 is on the page (WCAG 2.4.6 contextual updates): the visible badge
                 is aria-hidden, this is what a screen reader hears. */}
             <span className="visually-hidden" role="status">
-              {hasCart ? `${cartCount} item${cartCount === 1 ? "" : "s"} in cart` : ""}
+              {hasQuoteLines
+                ? `${quoteCount} line${quoteCount === 1 ? "" : "s"} in your quote`
+                : ""}
             </span>
           </div>
         </div>

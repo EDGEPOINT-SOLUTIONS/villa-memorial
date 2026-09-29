@@ -126,7 +126,7 @@ describe("the builder ends in the office's hands", () => {
 
   it("does not offer a cart action — the office confirms the arrangement", async () => {
     const html = await renderBuilder();
-    expect(html).not.toContain("Add to cart");
+    expect(html).not.toContain("Add to quote");
   });
 });
 

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import {
   ALACARTE_SERVICE_FEES,
@@ -26,7 +26,7 @@ import {
  * The 2026 price list must be SEEN and SELLABLE, not just stored: these render
  * tests walk the exact components /products and /services mount and assert that
  * every figure the client's sheets carry actually reaches the markup AND that
- * every line carries the two real actions (Add to cart with the exact catalogue
+ * every line carries the two real actions (Add to quote with the exact catalogue
  * SKU/price, or the prefilled request). tests/unit/villa-pricing.test.ts pins
  * the transcribed numbers; this file pins that they are published and clickable.
  *
@@ -98,7 +98,7 @@ function quoteLinksBySku(html: string): Map<string, URLSearchParams> {
 
 /** Server pages that render cart buttons need the cart context wrapper. */
 async function renderWithCart(page: ReactNode): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, page));
 }
 
 describe("/products publishes the whole 2026 casket catalogue", () => {
@@ -126,13 +126,13 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
     expect(html).toMatch(/published price/i);
   });
 
-  it("gives every model an Add to cart (exact catalogue SKU) and a Request order link", () => {
+  it("gives every model an Add to quote (exact catalogue SKU) and a Request order link", () => {
     const bySku = requestLinksBySku(html);
     for (const m of CASKET_MODELS) {
       const sku = coffinSku(m.model);
-      // Add to cart — the button announces the exact catalogue item.
+      // Add to quote — the button announces the exact catalogue item.
       expect(html, `${m.model} add button`).toContain(
-        `aria-label="Add to cart: ${m.model} casket"`,
+        `aria-label="Add to quote: ${m.model} casket"`,
       );
       // Request order — prefilled with the exact SKU and the sheet's SRP.
       const request = bySku.get(sku);
@@ -207,7 +207,7 @@ describe("/services offers a Request for Quote instead of a service price", () =
     }
     // Nothing priced at all remains on the page.
     expect(html).not.toMatch(/₱/);
-    expect(html).not.toContain("Add to cart");
+    expect(html).not.toContain("Add to quote");
     expect(html).not.toContain("Request order");
   });
 
@@ -319,7 +319,7 @@ describe("the plan payment tables render on every plan surface", () => {
     const plans = seedPageDocuments().find((doc) => doc.key === "plans")!;
     const content = planContentFromDocument(plans);
     const planHtml = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlansPage()),
+      createElement(QuoteBasketProvider, null, await PlansPage()),
     );
     for (const tier of content.tiers) expect(planHtml).toContain(tier.heading);
     expect(planHtml).toContain("The five tiers — what each one includes");
@@ -327,7 +327,7 @@ describe("the plan payment tables render on every plan surface", () => {
     expect(planHtml).not.toContain("2026 rates — five tiers, four payment terms");
 
     const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PriceListPage()),
+      createElement(QuoteBasketProvider, null, await PriceListPage()),
     );
     for (const rows of [VMP_PAYMENTS, SENIOR_PAYMENTS]) {
       for (const row of rows) {
@@ -350,14 +350,14 @@ describe("the plan payment tables render on every plan surface", () => {
   it("/plans shows the five tiers and no longer cards the service catalogue", async () => {
     const items = await listCatalogItems();
     const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlansPage()),
+      createElement(QuoteBasketProvider, null, await PlansPage()),
     );
     // The captain's Phase-2 direction: the mixed 42-item catalogue left this
     // page. Services and caskets (add-ons) belong to /services and /products.
     const services = items.filter((item) => item.item_type === "service" || item.item_type === "add_on");
     for (const item of services) {
       expect(html, `${item.sku} must not be on /plans`).not.toContain(
-        `aria-label="Add to cart: ${item.name.replace(/&/g, "&amp;")}"`,
+        `aria-label="Add to quote: ${item.name.replace(/&/g, "&amp;")}"`,
       );
     }
     // The five client tiers render, one checklist each.
@@ -376,11 +376,15 @@ describe("the plan payment tables render on every plan surface", () => {
   });
 });
 
-describe("/lots/price-list-2026 makes every lot row a request, never a cart line", () => {
+describe("/lots/price-list-2026 adds a lot to the QUOTE BASKET and keeps the request", () => {
   let html: string;
 
   beforeAll(async () => {
-    html = renderToStaticMarkup(await LotsPriceListPage());
+    // The page's rows now carry the add-to-quote control, which needs the
+    // shared basket (the app provides it in the public shell).
+    html = renderToStaticMarkup(
+      createElement(QuoteBasketProvider, null, await LotsPriceListPage()),
+    );
   });
 
   it("keeps every 2026 lot figure the client's sheet prints", () => {
@@ -393,6 +397,15 @@ describe("/lots/price-list-2026 makes every lot row a request, never a cart line
         expect(html).toContain(php(r.regular.monthly));
       }
     }
+  });
+
+  it("offers an Add to quote control per row (the office's 2026-09-29 direction)", () => {
+    const rows = LOT_PRICE_CATEGORIES.reduce((n, cat) => n + cat.rows.length, 0);
+    // One control per row (the aria-label is the reliable count; the visible
+    // label repeats it).
+    expect((html.match(/aria-label="Add to quote:/g) ?? []).length).toBe(rows);
+    // Every row still keeps its own request + map link beside it.
+    expect((html.match(/Request this lot/g) ?? []).length).toBe(rows);
   });
 
   it("offers Request this lot with the category and price, plus a map link", () => {
@@ -408,7 +421,8 @@ describe("/lots/price-list-2026 makes every lot row a request, never a cart line
     }
     expect(html).toContain("See it on the map");
     expect(html).toContain('href="/map"');
-    // Lots are NOT cart items: no Add-to-cart control on this page.
-    expect(html).not.toContain("Add to cart");
+    // Lots join the QUOTE BASKET now (office, 2026-09-29) — the add control
+    // sits beside the request, and neither reserves anything.
+    expect(html).toContain("Add to quote");
   });
 });

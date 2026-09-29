@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { CartProvider, useCart } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider, useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
 import type { LandingContent } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
 import { NextSteps } from "@/components/landing/next-steps";
@@ -18,21 +18,21 @@ import { LandingFooter } from "@/components/landing/landing-view";
  * fed from the same landing content document (logo wordmark + uploaded mark).
  * Interior pages add two client-only niceties the framework-free
  * home can't: an active-link highlight (aria-current via usePathname) and the
- * live cart count. Everything else — brand row, page links, grouped Explore
- * more, cart icon, phone bottom action bar — is identical on every public
+ * live quote count. Everything else — brand row, page links, grouped Explore
+ * more, quote icon, phone bottom action bar — is identical on every public
  * page, so the navigation never changes while navigating between pages.
  *
  * Pass flush for full-bleed heroes: the page supplies its own containers.
  */
 function PublicChromeHeader({ content }: { content: LandingContent }) {
   const pathname = usePathname();
-  const { lines, ready } = useCart();
+  const { lines, ready } = useQuoteBasket();
   const count = ready ? lines.reduce((s, l) => s + l.quantity, 0) : 0;
   return (
     <SiteHeaderBar
       brand={content.logo}
       currentPath={pathname}
-      cartCount={count > 0 ? count : undefined}
+      quoteCount={count > 0 ? count : undefined}
     />
   );
 }
@@ -60,7 +60,7 @@ export function PublicShell({
   flush?: boolean;
 }) {
   return (
-    <CartProvider>
+    <QuoteBasketProvider>
       <div className="public-shell has-phonebar">
         <PublicChromeHeader content={content} />
         <main
@@ -76,6 +76,6 @@ export function PublicShell({
         <PhoneActionBar contact={content.contact} />
         <LandingFooter content={content} />
       </div>
-    </CartProvider>
+    </QuoteBasketProvider>
   );
 }

@@ -1,18 +1,20 @@
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
-import { CartLineRow } from "@/components/cart-line-row";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { QuoteLineRow } from "@/components/quote-line-row";
 import { CatalogueAddButton } from "@/components/catalogue-add-button";
 
 /**
- * Render-level contracts for the two cart/checkout UX additions, executed
- * through react-dom/server (the repo's node test environment):
- *  - the catalogue card "Add to cart" control renders for a card item;
- *  - the cart line expand control reveals REAL catalogue details by SKU
- *    (description · type · recap · totals), with a graceful hidden state.
+ * Render-level contracts for the QUOTE BASKET (the 2026-09-29 rename of the
+ * cart), executed through react-dom/server (the repo's node test environment):
+ *  - the catalogue card "Add to quote" control renders for a card item;
+ *  - a quote line's expand control reveals REAL catalogue details by SKU
+ *    (description · type · recap · totals), with a graceful hidden state;
+ *  - lines of DIFFERENT KINDS accumulate in the one basket and submit as ONE
+ *    inquiry (the office's whole point of the change).
  */
-const cartLine = (over: Partial<Parameters<typeof CartLineRow>[0]["line"]> = {}) => ({
+const cartLine = (over: Partial<Parameters<typeof QuoteLineRow>[0]["line"]> = {}) => ({
   sku: "PKG-BASIC",
   name: "Basic Package",
   itemType: "package" as const,
@@ -24,7 +26,7 @@ const cartLine = (over: Partial<Parameters<typeof CartLineRow>[0]["line"]> = {})
 
 const row = (line: ReturnType<typeof cartLine>, open: boolean) =>
   renderToStaticMarkup(
-    createElement(CartLineRow, {
+    createElement(QuoteLineRow, {
       line,
       open,
       onToggle() {},
@@ -33,11 +35,11 @@ const row = (line: ReturnType<typeof cartLine>, open: boolean) =>
     }),
   );
 
-describe("catalogue card add-to-cart button", () => {
-  it("renders an accessible Add to cart control labelled with the real item", () => {
+describe("catalogue card add-to-quote button", () => {
+  it("renders an accessible Add to quote control labelled with the real item", () => {
     const html = renderToStaticMarkup(
       createElement(
-        CartProvider,
+        QuoteBasketProvider,
         null,
         createElement(CatalogueAddButton, {
           item: {
@@ -50,8 +52,8 @@ describe("catalogue card add-to-cart button", () => {
         }),
       ),
     );
-    expect(html).toContain("Add to cart");
-    expect(html).toContain('aria-label="Add to cart: Premium Package"');
+    expect(html).toContain("Add to quote");
+    expect(html).toContain('aria-label="Add to quote: Premium Package"');
   });
 
   it("keeps the card's View link untouched (button is the extra action)", () => {
@@ -59,7 +61,7 @@ describe("catalogue card add-to-cart button", () => {
     // the "View this item" detail link; assert the control carries no href.
     const html = renderToStaticMarkup(
       createElement(
-        CartProvider,
+        QuoteBasketProvider,
         null,
         createElement(CatalogueAddButton, {
           item: {
@@ -83,7 +85,7 @@ describe("cart line expand control shows the item's details again", () => {
     expect(html).toContain('aria-expanded="false"');
     expect(html).toContain("Show details for Basic Package");
     // Details content is in the DOM but the row is hidden until expanded.
-    expect(html).toContain('class="cart-line-details-row" hidden=""');
+    expect(html).toContain('class="quote-line-details-row" hidden=""');
   });
 
   it("open: reveals the REAL catalogue description, type, recap and totals", () => {
@@ -93,7 +95,7 @@ describe("cart line expand control shows the item's details again", () => {
     // only when a family does NOT take a package.
     expect(html).toContain("Casket (standard), embalming included, delivery within city");
     expect(html).toContain('aria-expanded="true"');
-    expect(html).not.toContain("cart-line-details-row\" hidden");
+    expect(html).not.toContain("quote-line-details-row\" hidden");
     expect(html).toContain("Hide details for Basic Package");
     // Type badge + the recap facts the row itself carries (unit/qty/total).
     expect(html).toContain(">Package</span>");
@@ -161,5 +163,93 @@ describe("cart line expand control shows the item's details again", () => {
     expect(html).toContain("no longer published in the online catalogue");
     expect(html).toContain("the office can still arrange it");
     expect(html).toContain("Retired Add-on");
+  });
+});
+
+
+describe("several kinds of line accumulate and submit together", () => {
+  it("adds a product, a quoted service, a lot and a chapel stay without merging", async () => {
+    const { addQuoteLine, quoteLineKey } = await import(
+      "@/lib/quote-basket/quote-basket-context"
+    );
+    let lines: ReturnType<typeof addQuoteLine> = [];
+    lines = addQuoteLine(lines, {
+      sku: "PKG-BASIC",
+      name: "Basic Package",
+      itemType: "package",
+      unitPriceCents: 60000,
+      currency: "PHP",
+    });
+    lines = addQuoteLine(lines, {
+      sku: "REQ-RETRIEVAL",
+      name: "Retrieval",
+      itemType: "service",
+      unitPriceCents: 0,
+      currency: "PHP",
+      detail: "Same week as the burial",
+    });
+    lines = addQuoteLine(lines, {
+      sku: "LOT-PREMIUM-LOTS",
+      name: "Premium Lots — memorial lot",
+      itemType: "lot",
+      unitPriceCents: 11400000,
+      currency: "PHP",
+      detail: "2.5 sqm · 1. Lot Only · lot only",
+    });
+    lines = addQuoteLine(lines, {
+      sku: "CHP-COMMON-DAY",
+      name: "Chapel use — common chapel, per day",
+      itemType: "service",
+      unitPriceCents: 150000,
+      currency: "PHP",
+      booking: {
+        bookingId: "booking-9",
+        resourceId: "10000000-0000-4000-8000-0000000000c1",
+        resourceName: "Chapel A",
+        chapelClass: "common",
+        startDate: "2026-09-20",
+        endDate: "2026-09-23",
+        days: 3,
+      },
+    });
+
+    // Every kind is its own line, chapel stays keyed by their reservation id.
+    expect(lines.map((line) => line.itemType)).toEqual([
+      "package",
+      "service",
+      "lot",
+      "service",
+    ]);
+    expect(new Set(lines.map(quoteLineKey)).size).toBe(4);
+
+    const { buildQuoteInquiry } = await import("@/lib/quote-basket/quote-submit");
+    const submission = buildQuoteInquiry(
+      lines,
+      { full_name: "Juan Dela Cruz", email: "juan@example.test", phone: "" },
+      { consent: true, notes: "Please call after 6pm." },
+    );
+    // One inquiry names every line; the office board sees the whole ask.
+    expect(submission.lineCount).toBe(4);
+    expect(submission.values.service).toContain("Basic Package");
+    expect(submission.values.service).toContain("Retrieval");
+    expect(submission.values.service).toContain("Premium Lots");
+    expect(submission.values.service).toContain("Chapel use");
+    expect(submission.values.notes).toContain("Same week as the burial");
+    expect(submission.values.notes).toContain("2.5 sqm");
+    expect(submission.values.notes).toContain("Please call after 6pm.");
+    expect(submission.values.consent).toBe(true);
+  });
+
+  it("never merges a lot into another line and never prints a weight for a quoted line", async () => {
+    const { addQuoteLine } = await import("@/lib/quote-basket/quote-basket-context");
+    const lot = {
+      sku: "LOT-PREMIUM-LOTS",
+      name: "Premium Lots — memorial lot",
+      itemType: "lot" as const,
+      unitPriceCents: 11400000,
+      currency: "PHP",
+    };
+    const twice = addQuoteLine(addQuoteLine([], lot), lot);
+    expect(twice).toHaveLength(2);
   });
 });

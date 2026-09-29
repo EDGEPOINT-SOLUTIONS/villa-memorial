@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { listChapelRecords, saveChapelRecord } from "@/lib/api-client/chapel-store";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
 
@@ -35,7 +35,7 @@ vi.mock("next/navigation", () => ({
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage()));
 }
 
 describe("a chapel-record rename reaches the card and the booking dialog", () => {

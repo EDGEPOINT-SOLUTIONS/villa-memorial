@@ -42,7 +42,7 @@ export const dynamic = "force-dynamic";
  * which opens the public quote form prefilled with the service the visitor
  * asked about (components/villa/service-rates-2026.tsx · lib/public-forms/
  * request-prefill.ts). The office prepares a customised quotation. No amount
- * and no cart action lives on this page: plan and lot pricing are separate lanes.
+ * and no quote-basket action lives on this page: plan and lot pricing are separate lanes.
  *
  * CONTENT HOMES:
  *  · the page document (Pages & content → Funeraria Memorial Services) holds the

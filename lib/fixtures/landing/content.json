@@ -373,7 +373,8 @@
       },
       "photo": {
         "image": "/media/hero-1.jpg",
-        "alt": "The grounds of Villa Funeraria"
+        "alt": "The grounds of Villa Funeraria",
+        "kicker": "The first memorial park"
       },
       "park": {
         "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg",
@@ -429,7 +430,8 @@
         "action": {
           "label": "Explore Page",
           "href": "/plans"
-        }
+        },
+        "kicker": "Plan ahead"
       },
       "services": {
         "heading": "Funeraria Memorial Services",
@@ -497,7 +499,8 @@
               "href": "/quote?item=Interment"
             }
           }
-        ]
+        ],
+        "kicker": "Funeraria services"
       },
       "lots": {
         "heading": "Villa Memorial Park",
@@ -542,14 +545,16 @@
             "image": null,
             "imageAlt": "Mausoleums at the memorial park"
           }
-        ]
+        ],
+        "kicker": "The grounds"
       },
       "contact": {
         "heading": "Contact",
         "lead": "A coordinator answers any hour, day or night — a person, not a queue.",
         "mapTitle": "Where to find Villa Memorial Park",
         "mapNote": "The pin is Google's reading of the park's address. The app holds no coordinates until the office supplies them — call the office if you need the exact gate.",
-        "directionsLabel": "Get directions"
+        "directionsLabel": "Get directions",
+        "kicker": "Reach us"
       }
     },
     "faq": {

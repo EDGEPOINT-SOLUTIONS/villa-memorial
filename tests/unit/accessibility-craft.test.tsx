@@ -3,7 +3,7 @@ import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react"
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 
 /**
  * The F-16 accessibility/craft guard.
@@ -78,13 +78,13 @@ const PAGES: ReadonlyArray<PageCase> = [
   {
     name: "/services",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage())),
   },
   {
     name: "/plans",
     render: async () =>
       renderToStaticMarkup(
-        createElement(CartProvider, null, await PlansPage()),
+        createElement(QuoteBasketProvider, null, await PlansPage()),
       ),
   },
   {
@@ -100,7 +100,13 @@ const PAGES: ReadonlyArray<PageCase> = [
   {
     name: "/quote",
     render: async () =>
-      renderToStaticMarkup(await QuotePage({ searchParams: Promise.resolve({}) })),
+      renderToStaticMarkup(
+        createElement(
+          QuoteBasketProvider,
+          null,
+          await QuotePage({ searchParams: Promise.resolve({}) }),
+        ),
+      ),
   },
   { name: "/appointments", render: async () => renderToStaticMarkup(AppointmentsPage()) },
   {
@@ -120,7 +126,10 @@ const PAGES: ReadonlyArray<PageCase> = [
   },
   {
     name: "/lots/price-list-2026",
-    render: async () => renderToStaticMarkup(await PriceList2026Page()),
+    render: async () =>
+      renderToStaticMarkup(
+        createElement(QuoteBasketProvider, null, await PriceList2026Page()),
+      ),
   },
   {
     name: "sign-in card (all doors)",

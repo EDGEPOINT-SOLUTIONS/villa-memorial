@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
 
 /**
@@ -124,7 +124,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/services",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
@@ -137,7 +137,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     render: async () =>
       renderToStaticMarkup(
         createElement(
-          CartProvider,
+          QuoteBasketProvider,
           null,
           await PlansPage(),
         ),
@@ -147,7 +147,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/price-list",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await PriceListPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
@@ -163,7 +163,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     render: async () =>
       renderToStaticMarkup(
         createElement(
-          CartProvider,
+          QuoteBasketProvider,
           null,
           await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) }),
         ),
@@ -180,7 +180,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/gallery",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await GalleryPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await GalleryPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {

@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import type { Session } from "@/lib/auth/types";
 
@@ -76,7 +76,7 @@ function session(scopes: string[]): Session {
 }
 
 function renderCart(page: ReactNode): string {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, page));
 }
 
 describe("an item entry reaches the storefront", () => {

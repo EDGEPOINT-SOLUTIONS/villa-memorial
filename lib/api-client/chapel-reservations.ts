@@ -129,7 +129,7 @@ export async function reserveChapelStay(input: ChapelReservationInput): Promise<
 }
 
 /**
- * Release an online hold — the counterpart of `reserveChapelStay` for a cart
+ * Release an online hold — the counterpart of `reserveChapelStay` for a quote
  * line the customer removes. Staff-made bookings (no online marker) are refused
  * with 403; an already-cancelled hold is returned as-is (idempotent).
  */

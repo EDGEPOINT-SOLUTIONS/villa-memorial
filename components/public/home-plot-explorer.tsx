@@ -18,6 +18,7 @@
  */
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { php } from "@/lib/villa-pricing";
 import type { Cta, HomeLotTile } from "@/lib/api-client/landing";
 import type { HomeLotGroup, HomeLotRow } from "@/lib/home-model";
@@ -25,6 +26,7 @@ import type { HomeLotGroup, HomeLotRow } from "@/lib/home-model";
 export type HomeLotFigure = { tileId: string; src: string | null; srcSet?: string };
 
 export function HomePlotExplorer({
+  kicker,
   heading,
   action,
   quote,
@@ -34,6 +36,7 @@ export function HomePlotExplorer({
   mapAlt,
   figures,
 }: {
+  kicker: string;
   heading: string;
   action: Cta;
   quote: Cta;
@@ -67,11 +70,13 @@ export function HomePlotExplorer({
   return (
     <section className="home-lots" aria-labelledby="home-lots-title">
       <div className="home-band-head">
+        <p className="home-band-head__kicker">{kicker}</p>
         <h2 id="home-lots-title" className="home-band-head__title">
           {heading}
         </h2>
         <Link className="btn btn--secondary home-band-head__cta" href={action.href}>
           {action.label}
+          <ArrowRight size={16} aria-hidden="true" />
         </Link>
       </div>
 

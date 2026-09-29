@@ -2,27 +2,27 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { cartLineKey, useCart, type CartLine } from "@/lib/cart/cart-context";
+import { quoteLineKey, useQuoteBasket, type QuoteLine } from "@/lib/quote-basket/quote-basket-context";
 import { chapelBookingLineSummary } from "@/lib/chapel-booking";
-import { releaseChapelCartLine } from "@/lib/chapel-booking-api";
+import { releaseChapelQuoteLine } from "@/lib/chapel-booking-api";
 import { formatMinorUnits } from "@/lib/money";
 
 /**
- * "In your cart" — the state the page shows after a successful add (approved
+ * "In your quote" — the state the page shows after a successful add (approved
  * 2026-09-16 services design, question Q3).
  *
- * Today only the header's tiny cart count changes after an add, so a family
+ * Today only the header's quote count changes after an add, so a family
  * that books a chapel and keeps reading cannot tell whether it worked. This
  * chip answers that in place, on the exact line that was added: the held dates
  * and the price for a chapel stay, or the quantity for a service line.
  *
  * Removing a chapel line releases the dates it holds through the SAME helper
- * the cart page uses (lib/chapel-booking-api.releaseChapelCartLine) — the
+ * the quote basket page uses (lib/chapel-booking-api.releaseChapelQuoteLine) — the
  * services page never invents its own release logic. A failed release keeps the
  * line removed and says plainly that the office must confirm (same rule as the
- * cart page).
+ * quote page).
  */
-export function InCartNotice({
+export function InQuoteNotice({
   sku,
   unit = "line",
 }: {
@@ -31,12 +31,12 @@ export function InCartNotice({
   /** Singular noun for a non-chapel line's unit ("line", "stay"). */
   unit?: string;
 }) {
-  const cart = useCart();
+  const basket = useQuoteBasket();
   const [releaseError, setReleaseError] = useState<string | null>(null);
-  if (!cart.ready) return null;
-  const found = cart.lines.find((entry) => entry.sku === sku);
+  if (!basket.ready) return null;
+  const found = basket.lines.find((entry) => entry.sku === sku);
   if (!found) return null;
-  const line: CartLine = found;
+  const line: QuoteLine = found;
 
   const quantity = line.booking
     ? chapelBookingLineSummary(line.booking)
@@ -44,31 +44,31 @@ export function InCartNotice({
 
   async function remove() {
     setReleaseError(null);
-    const result = await releaseChapelCartLine(line, cartLineKey(line), cart.remove);
+    const result = await releaseChapelQuoteLine(line, quoteLineKey(line), basket.remove);
     if (result.error) setReleaseError(result.error);
   }
 
   return (
-    <div className="sv-cartrow">
+    <div className="sv-quoterow">
       <p className="sv-cardchip">
-        <span aria-hidden="true">✓</span> In your cart
+        <span aria-hidden="true">✓</span> In your quote
       </p>
-      <div className="sv-cartchip">
+      <div className="sv-quotechip">
         <b>{quantity}</b>
         <span>
           {line.booking
-            ? "Dates held while the line stays in your cart."
+            ? "Dates held while the line stays in your quote."
             : `${formatMinorUnits(line.unitPriceCents, line.currency)} each.`}
         </span>
       </div>
       {releaseError ? (
-        <p className="sv-cartrow__error" role="alert">
+        <p className="sv-quoterow__error" role="alert">
           {releaseError} Please call the park office so they can free the chapel dates.
         </p>
       ) : null}
-      <div className="sv-cartrow__actions">
-        <Link href="/cart" className="btn btn--primary btn--sm">
-          View cart
+      <div className="sv-quoterow__actions">
+        <Link href="/quote" className="btn btn--primary btn--sm">
+          View your quote
         </Link>
         <button type="button" className="btn btn--secondary btn--sm" onClick={() => void remove()}>
           Remove

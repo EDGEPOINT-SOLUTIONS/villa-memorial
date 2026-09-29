@@ -40,7 +40,7 @@
  * removed from the sellable catalogue rather than published at an invented
  * figure (WITHDRAWN_CATALOG_ITEMS below records which SKUs went and why, for
  * the platform-parity track). Where one is genuinely sold, the honest public
- * state is "ask the office": the cart's line-details fallback says so for a
+ * state is "ask the office": the quote basket's line-details fallback says so for a
  * stale line, and nothing re-adds a price.
  */
 import {
@@ -170,7 +170,7 @@ export function catalogPriceSources(): CatalogPriceSource[] {
   // package sheet · the monthly amortization of each tier the catalogue carries.
   for (const tier of PLAN_TIERS) {
     const sku = planTierPackageSku(tier.id);
-    if (!sku) continue; // tiers without a cart SKU go through the request path
+    if (!sku) continue; // tiers without a quote-basket SKU go through the request path
     sources.push({
       sku,
       document: "packageSheet",

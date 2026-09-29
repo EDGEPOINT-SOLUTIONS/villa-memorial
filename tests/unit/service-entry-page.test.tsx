@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { saveServiceEntry, seedServiceEntries } from "@/lib/api-client/content-entries";
 
 /**
@@ -41,7 +41,7 @@ async function renderGuide(page: () => Promise<ReactNode>): Promise<string> {
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage()));
 }
 
 describe("the service guide entries drive their routes and the /services cards", () => {

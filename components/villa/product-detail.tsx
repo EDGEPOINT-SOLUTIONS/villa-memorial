@@ -15,7 +15,7 @@
  * THE BUY BOX. Collection eyebrow · the selected variant's h1 · its one-line
  * lead · the P2 variant selector · the live catalogue price (and the model's
  * sheet senior line) · the honest availability/trust lines · the ONE primary
- * action (Add to cart) with Request order beside it.
+ * action (Add to quote) with Request order beside it.
  *
  * BELOW THE FOLD. Everything here comes from the catalogue entry: the typed rich
  * description, the authored feature bullets (`bullets` blocks), the formatted
@@ -230,7 +230,7 @@ export function ProductDetail({
               <div className="detail-sticky__label">Published 2026 price</div>
               <div className="detail-sticky__price">{variant.item.display_price}</div>
               {/* The senior figure comes from the VARIANT'S CATALOGUE ROW, not the hardcoded
-                  sheet model: it is the price the cart charges and the one a staff edit in
+                  sheet model: it is the price the quote charges and the one a staff edit in
                   /staff/catalog moves. A variant with no recorded senior price prints no
                   senior line rather than ₱0. */}
               {variant.item.senior_price_cents != null && variant.item.senior_price_cents > 0 ? (

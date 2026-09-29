@@ -1,7 +1,7 @@
 /**
  * Presentation-only money helpers. The frozen rule: integer minor units
  * (`*_cents`) everywhere; `display_price` strings from APIs are shown as-is,
- * never parsed. This formatter exists for pure-UI surfaces (cart previews).
+ * never parsed. This formatter exists for pure-UI surfaces (quote previews).
  */
 export function formatMinorUnits(
   cents: number,
@@ -17,7 +17,7 @@ export function formatMinorUnits(
   }).format(cents / 100);
 }
 
-/** Cart preview subtotal — display only; servers re-price authoritatively. */
+/** Quote preview subtotal — display only; servers re-price authoritatively. */
 export function previewSubtotal(
   lines: Array<{ unitPriceCents: number; quantity: number }>,
 ): number {

@@ -9,7 +9,7 @@ import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { homeMapEmbed } from "@/lib/home-model";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 
 // The lane's pages are server components that render next/link + next/navigation;
 // the home proof surface does not, so the harness supplies the same mocks the
@@ -99,8 +99,8 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // contact band.
     sections: [
       "home-gateway",
-      "home-photo",
       "home-park__grid",
+      "home-photo",
       "home-niches",
       "home-plates",
       "home-lot-types",
@@ -140,7 +140,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
     name: "plans (/plans)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await PlansPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await PlansPage())),
     // The Lane-3 blueprint: the shared interior hero, then the five-card tier row.
     sections: ['data-public-hero="interior"', 'class="plan-tiers"'],
     requires: ["data-section-head"],
@@ -148,7 +148,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
     name: "price list (/price-list)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await PriceListPage())),
     // Hero, then the four disclosed bands in the blueprint's order.
     sections: [
       'data-public-hero="interior"',
@@ -163,7 +163,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
     name: "builder (/builder)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await BuilderPage())),
+      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await BuilderPage())),
     sections: ['data-public-hero="interior"', 'class="sb-layout"'],
   },
   {
@@ -171,7 +171,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     render: async () =>
       renderToStaticMarkup(
         createElement(
-          CartProvider,
+          QuoteBasketProvider,
           null,
           await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-BASIC" }) }),
         ),
@@ -220,7 +220,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     render: async () =>
       renderToStaticMarkup(
         createElement(
-          CartProvider,
+          QuoteBasketProvider,
           null,
           await ProductsPage({ searchParams: Promise.resolve({}) }),
         ),
@@ -260,7 +260,10 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // plan §5.3/§5.5: hero → the family photographs → the four rate tables, the
     // first open and the rest disclosed.
     name: "/lots/price-list-2026 (lot price list)",
-    render: async () => renderToStaticMarkup(await LotPriceListPage()),
+    render: async () =>
+      renderToStaticMarkup(
+        createElement(QuoteBasketProvider, null, await LotPriceListPage()),
+      ),
     sections: ['data-public-hero="interior"', "lot-rates-title", "public-disclosure", "price-table"],
     requires: ["data-public-image", "data-public-disclosure"],
   },

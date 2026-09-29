@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { getProductLine, saveProductLine } from "@/lib/api-client/product-lines";
 import { activeVariant, ProductDetail, type PdpVariant } from "@/components/villa/product-detail";
@@ -70,7 +70,7 @@ afterEach(async () => {
 });
 
 function renderCart(page: ReactNode): string {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, page));
 }
 
 async function renderDetail(sku: string): Promise<string> {
@@ -282,7 +282,7 @@ describe("the imagery fallback", () => {
     };
     const html = renderToStaticMarkup(
       createElement(
-        CartProvider,
+        QuoteBasketProvider,
         null,
         createElement(ProductDetail, {
           lineName: "A manual line",

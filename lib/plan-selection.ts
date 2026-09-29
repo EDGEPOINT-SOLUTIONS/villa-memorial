@@ -27,12 +27,12 @@ import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
 import { buildRequestHref, type RequestPrefill } from "@/lib/public-forms/request-prefill";
 
 export type PlanSelectionAction =
-  | { kind: "cart"; sku: string }
+  | { kind: "quote"; sku: string }
   | { kind: "request"; href: string; prefill: RequestPrefill };
 
 /**
  * The prefilled request for a tier × term × senior selection — used for every
- * selection the cart cannot take, and as the fallback when a catalogue lookup
+ * selection the quote basket cannot take, and as the fallback when a catalogue lookup
  * hiccups, so the visitor always lands on the same request with the amount they
  * saw.
  */
@@ -78,7 +78,7 @@ export function planSelectionAction({
   const sku = planTierPackageSku(tier);
 
   if (sku && term === "monthly" && !senior) {
-    return { kind: "cart", sku };
+    return { kind: "quote", sku };
   }
 
   return planRequestAction({ pricing, tier, term, senior, sku });
