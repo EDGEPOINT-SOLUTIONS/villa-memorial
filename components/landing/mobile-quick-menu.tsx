@@ -106,6 +106,9 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
               <a href="/gallery" onClick={() => setOpen(false)}>
                 Photo gallery
               </a>
+              <a href="/products" onClick={() => setOpen(false)}>
+                Products
+              </a>
               <a href="/memorials" onClick={() => setOpen(false)}>
                 Digital memorial search
               </a>

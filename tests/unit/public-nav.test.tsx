@@ -48,7 +48,7 @@ describe("the public header", () => {
     expect(html.match(/<header /g)).toHaveLength(1);
   });
 
-  it("puts Contact · Blog · Memorials and Login in the upper row", async () => {
+  it("puts Contact · Blog · Memorials · Products and Login in the upper row", async () => {
     const { logo } = await chrome();
     const html = renderToStaticMarkup(
       createElement(SiteHeaderBar, { brand: logo, currentPath: "/plans" }),
@@ -57,6 +57,7 @@ describe("the public header", () => {
       ["/contact", "Contact"],
       ["/blog", "Blog"],
       ["/memorials", "Memorials"],
+      ["/products", "Products"],
     ]);
     const topbar = html.slice(
       html.indexOf('class="anchored-header__topbar"'),
@@ -65,6 +66,7 @@ describe("the public header", () => {
     expect(topbar).toContain('href="/contact">Contact</a>');
     expect(topbar).toContain('href="/blog">Blog</a>');
     expect(topbar).toContain('href="/memorials">Memorials</a>');
+    expect(topbar).toContain('href="/products">Products</a>');
     // Login took the main bar's "Sign in" and now lives up here.
     expect(topbar).toContain('class="anchored-header__login" href="/login">Login</a>');
     expect(html).not.toContain("Sign in");

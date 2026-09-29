@@ -44,14 +44,16 @@ import { BrandMark } from "@/components/landing/brand-mark";
 import { HeaderBehavior } from "@/components/landing/header-behavior";
 
 /**
- * The upper row's doorways (office, inbox 035): the three pages that no longer
+ * The upper row's doorways (office, inbox 035): the four pages that no longer
  * sit among the main bar's destinations. They are still top-level pages — they
- * simply moved up one row.
+ * simply moved up one row. Products joined beside Memorials at the captain's
+ * direction (2026-09-30).
  */
 export const SITE_TOP_LINKS: ReadonlyArray<{ label: string; href: string }> = [
   { label: "Contact", href: "/contact" },
   { label: "Blog", href: "/blog" },
   { label: "Memorials", href: "/memorials" },
+  { label: "Products", href: "/products" },
 ];
 
 /**
