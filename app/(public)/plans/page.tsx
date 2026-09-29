@@ -125,7 +125,6 @@ function rateRows(
     return {
       key: term.id,
       label: term.label,
-      unit: term.per,
       highlight: highlightMonthly && term.id === "monthly",
       cells: columns.map((column) => (row ? php(row[column.content.tier]) : "—")),
     };

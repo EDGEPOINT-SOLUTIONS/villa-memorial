@@ -93,8 +93,6 @@ export function PlanOrient() {
 export type PlanMatrixRow = {
   key: string;
   label: string;
-  /** The unit under the row label ("/ month"), when the row is a rate. */
-  unit?: string;
   /** One cell per tier, in tier order. */
   cells: ReadonlyArray<ReactNode>;
   /** The headline row (the regular monthly figure) gets the gold marker. */
@@ -141,7 +139,6 @@ export function PlanComparisonMatrix({
                 <tr key={row.key} className={row.highlight ? "is-highlight" : undefined}>
                   <th scope="row">
                     {row.label}
-                    {row.unit ? <span className="plan-matrix__unit">{row.unit}</span> : null}
                   </th>
                   {row.cells.map((cell, index) => (
                     <td key={index} data-plan-col={index}>

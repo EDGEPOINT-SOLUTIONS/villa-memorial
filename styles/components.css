@@ -7281,13 +7281,15 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 .plan-matrix thead th {
-  background: var(--color-bg-subtle);
+  /* The captain's review (2026-09-30): the Compare row wears the CTA gold with
+     white ink. */
+  background: var(--gold-400);
   font-size: var(--text-micro);
   font-weight: 700;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   text-align: center;
-  color: var(--color-text-secondary);
+  color: var(--paper-0);
 }
 
 .plan-matrix thead th:first-child {
@@ -7303,13 +7305,6 @@ because the shared `.ag-appt` rule comes later in this file. */
 .plan-matrix tbody td {
   text-align: center;
   color: var(--color-text-primary);
-}
-
-.plan-matrix__unit {
-  display: block;
-  font-size: var(--text-micro);
-  font-weight: 400;
-  color: var(--color-text-muted);
 }
 
 /* A group header is the premium sky at full strength, carrying paper ink. */
@@ -7400,7 +7395,10 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  align-items: flex-start;
+  /* The captain's review (2026-09-30): the add-on cards centre their icon,
+     title, body and action. */
+  align-items: center;
+  text-align: center;
   padding: var(--space-5);
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-md);
