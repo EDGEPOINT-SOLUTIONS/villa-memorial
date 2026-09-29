@@ -260,6 +260,10 @@
       "intro": "Zoom, pan and click every plot — walk the park before you visit."
     },
     "home": {
+      "intro": {
+        "hello": "Hello,",
+        "welcome": "Welcome to Villa Funeraria"
+      },
       "gateway": {
         "place": "Isabela City, Basilan",
         "headline": "Someone has died. Call us",

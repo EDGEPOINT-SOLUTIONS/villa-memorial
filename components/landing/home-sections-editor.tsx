@@ -284,6 +284,10 @@ export function HomeSectionsEditor({
   }
 
   /* --- section 1 -------------------------------------------------------- */
+  /* --- the entrance overlay (office, inbox 050) ------------------------- */
+  const intro = home.intro;
+
+  /* --- section 1 -------------------------------------------------------- */
   const gateway = home.gateway;
   function factButtons(facts: HomeFact[], index: number, id: string) {
     const current = facts[index];
@@ -350,6 +354,43 @@ export function HomeSectionsEditor({
 
   return (
     <div className="stack-4">
+      {/* ======================= the entrance overlay ======================= */}
+      <section className="ed-section" id="ed-home-intro">
+        <header className="ed-section__head">
+          <span className="ed-section__num" aria-hidden="true">
+            00
+          </span>
+          <div className="ed-section__title">
+            <p className="ed-section__kicker">Home · the entrance</p>
+            <h2>The entrance</h2>
+            <p className="ed-section__hint">
+              The opening overlay on a visitor&apos;s first arrival at the home: a golden cloud
+              lowers on two cords, these two lines surface, then the cords pull it away. It plays
+              once per session and any click or key skips it. Only these words are editable — the
+              cloud and the cords are fixed design.
+            </p>
+          </div>
+        </header>
+        <div className="ed-section__body">
+          <div className="field-grid field-grid--2">
+            <TextField
+              label="Greeting line"
+              htmlFor="home-intro-hello"
+              value={intro.hello}
+              onChange={(hello) => update("intro", { ...intro, hello })}
+              hint="The first line, e.g. “Hello,”. Empty hides it."
+            />
+            <TextField
+              label="Welcome line"
+              htmlFor="home-intro-welcome"
+              value={intro.welcome}
+              onChange={(welcome) => update("intro", { ...intro, welcome })}
+              hint="The line under it, e.g. “Welcome to Villa Funeraria”."
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ============================ 1 · gateway ============================ */}
       <section className="ed-section" id="ed-home-1">
         <header className="ed-section__head">

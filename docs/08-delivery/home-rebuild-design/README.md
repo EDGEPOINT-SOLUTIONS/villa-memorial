@@ -206,3 +206,18 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   middle sheet keep the former page's folio width. `tests/unit/blog-document.test.ts`
   pins the order (blog first, bands after, chrome-free) and
   `public-page-budget.test.tsx` declares the section list.
+
+- **The entrance overlay (office, inbox 050):** the home's opening piece is a real
+  app feature, not the supplied standalone demo. `components/public/home-intro.tsx`
+  (client) portals a fixed overlay over the REAL page — a golden cloud on two
+  cords lowers, settles, the two staff-editable lines surface in the accent ink,
+  then the cords stretch/thin and snap the cloud away; the overlay is removed and
+  the page underneath is exactly as it was. It plays ONCE PER SESSION on the home
+  only (sessionStorage), any click/keypress finishes it in ~220 ms, and the full
+  animation is 2.3 s (the demo's ~4.5 s hold halved). Reduced motion shows the
+  greeting WITHOUT motion for 1.5 s rather than skipping it. While it is up the
+  `.public-shell` is inert and focus sits on the overlay; on removal focus moves
+  to `#main`. Copy lives in `home.intro` (hello · welcome) and is edited in the
+  home editor's zone 00 ("The entrance"); the words ride the app's display face
+  (no CDN font — Cormorant Garamond is OFL and could be self-hosted if the office
+  wants that face specifically).

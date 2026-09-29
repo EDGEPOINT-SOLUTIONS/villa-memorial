@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { HomeCostBuilder } from "@/components/public/home-cost-builder";
+import { HomeIntro } from "@/components/public/home-intro";
 import { HomePlotExplorer } from "@/components/public/home-plot-explorer";
 import { ItemQuoteButton } from "@/components/villa/item-quote-button";
 import { ALACARTE_LINES } from "@/lib/catalogue-skus";
@@ -171,6 +172,11 @@ export function HomePage({
 
   return (
     <div className="home">
+      {/* The entrance overlay (office, inbox 050): once per session, home only,
+          skippable, reduced-motion aware, and removed when it finishes — the
+          real page below never changes. Its two lines are staff-editable in
+          the home editor (home.intro). */}
+      <HomeIntro hello={home.intro.hello} welcome={home.intro.welcome} />
       {/* ================================================================
           1 · THE GATEWAY — centred words and the call.
           ================================================================ */}

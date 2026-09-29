@@ -20957,6 +20957,234 @@ a.plan-advisor__phone:hover {
 }
 
 
+/* --- the home's entrance overlay (office, inbox 050) -----------------------
+   A golden cloud on two cords lowers over the REAL home page (rendered and
+   scrolling underneath), the two staff-editable greeting lines surface, then
+   the cords pull the cloud back up and the overlay is removed. The cloud,
+   cords, bead and shade are ARTWORK (the cloud keeps its own drawn gradients);
+   the words ride the display face and the accent ink role, and the skip control
+   is ordinary UI. Transform/opacity only; fixed and out of flow, so no page
+   measurement changes and no scroll is locked. */
+.home-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 120; /* above the header (40) and the phone bar (55) */
+  overflow: hidden;
+  background: color-mix(in srgb, var(--paper-0) 94%, transparent);
+  outline: none;
+}
+
+.home-intro--leaving {
+  animation: home-intro-leave 220ms ease-in both;
+}
+
+/* The rig carries the cords, the cloud and the shade as one hanging unit: it
+   starts above the viewport, lowers, settles, and is snapped back up. */
+.home-intro__rig {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(36rem, 92vw);
+  height: 100%;
+  pointer-events: none;
+  animation: home-intro-lower 2300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.home-intro__cord {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 40vh;
+  background: var(--gold-500);
+  animation: home-intro-cord 2300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.home-intro__cord--left {
+  left: 26%;
+}
+
+.home-intro__cord--right {
+  right: 26%;
+}
+
+/* The bead where each cord meets the cloud. */
+.home-intro__bead {
+  position: absolute;
+  top: calc(40vh - 0.45rem);
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--gold-200), var(--gold-500));
+  box-shadow: 0 1px 3px rgb(8 28 49 / 0.25);
+}
+
+.home-intro__bead--left {
+  left: calc(26% - 0.2rem);
+}
+
+.home-intro__bead--right {
+  right: calc(26% - 0.2rem);
+}
+
+/* The cloud — artwork: its own drawn sky/cream lobes over a warm under-shade. */
+.home-intro__cloud {
+  position: absolute;
+  top: 40vh;
+  left: 50%;
+  width: min(26rem, 84vw);
+  height: clamp(5.5rem, 13vw, 8rem);
+  transform: translateX(-50%);
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 26%, var(--sky-50), transparent 72%),
+    radial-gradient(circle at 30% 64%, var(--paper-0) 0 34%, transparent 35%),
+    radial-gradient(circle at 55% 44%, var(--paper-0) 0 46%, transparent 47%),
+    radial-gradient(circle at 79% 64%, var(--paper-0) 0 30%, transparent 31%),
+    radial-gradient(ellipse 78% 54% at 54% 82%, var(--gold-100) 0 92%, transparent 93%);
+  background-repeat: no-repeat;
+  filter: drop-shadow(0 18px 22px rgb(8 28 49 / 0.14));
+}
+
+/* The shade the cloud throws on the page under it. */
+.home-intro__shade {
+  position: absolute;
+  top: calc(40vh + clamp(5.5rem, 13vw, 8rem) + 0.4rem);
+  left: 50%;
+  width: min(22rem, 70vw);
+  height: 1.4rem;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgb(8 28 49 / 0.16), transparent 70%);
+}
+
+/* The two greeting lines — surface after the cloud settles, leave with it. */
+.home-intro__copy {
+  position: absolute;
+  top: 58vh;
+  left: 50%;
+  width: min(38rem, 90vw);
+  text-align: center;
+  animation: home-intro-surface 2300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.home-intro__hello {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  line-height: var(--leading-tight);
+  color: var(--color-text-accent);
+}
+
+.home-intro__welcome {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  letter-spacing: 0.02em;
+  color: var(--color-text-accent);
+}
+
+/* Ordinary UI: the one control, so nobody is held at the door. */
+.home-intro__skip {
+  position: absolute;
+  right: 1.25rem;
+  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.home-intro__skip:hover {
+  color: var(--color-text-accent);
+}
+
+/* Reduced motion: the greeting is shown, without motion (not skipped). */
+.home-intro--reduced .home-intro__rig,
+.home-intro--reduced .home-intro__cord,
+.home-intro--reduced .home-intro__copy {
+  animation: none;
+}
+
+.home-intro--reduced .home-intro__rig {
+  transform: translate(-50%, 0);
+}
+
+.home-intro--reduced .home-intro__copy {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@keyframes home-intro-lower {
+  0% {
+    transform: translate(-50%, -88%);
+  }
+  44% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 3%);
+  }
+  56% {
+    transform: translate(-50%, 0);
+  }
+  76% {
+    transform: translate(-50%, 0);
+  }
+  100% {
+    transform: translate(-50%, -118%);
+  }
+}
+
+/* The recoil: the cords stretch and thin just before the cloud snaps up. */
+@keyframes home-intro-cord {
+  0%,
+  74% {
+    transform: scaleY(1) scaleX(1);
+  }
+  80% {
+    transform: scaleY(1.1) scaleX(0.55);
+  }
+  92%,
+  100% {
+    transform: scaleY(1) scaleX(1);
+  }
+}
+
+@keyframes home-intro-surface {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translate(-50%, 0.8rem);
+  }
+  58% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  80% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  94%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -0.6rem);
+  }
+}
+
+@keyframes home-intro-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-4%);
+  }
+}
+
+@media (max-width: 40rem) {
+  .home-intro__copy {
+    top: 54vh;
+  }
+}
+
 /* ============================================================================
    public: blog block — the blog's own page (/blog)
 

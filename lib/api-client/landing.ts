@@ -396,7 +396,17 @@ export type HomeContactSection = {
   directionsLabel: string;
 };
 
+/** The entrance overlay's marquee copy (office, inbox 050). Two lines only:
+ *  the greeting and the welcome; the animation itself owns the rest. */
+export type HomeIntroSection = {
+  /** The first line ("Hello,"). */
+  hello: string;
+  /** The welcome line ("Welcome to Villa Funeraria"). */
+  welcome: string;
+};
+
 export type HomeSections = {
+  intro: HomeIntroSection;
   gateway: HomeGatewaySection;
   photo: HomePhotoSection;
   park: HomeParkSection;
@@ -735,6 +745,7 @@ function readHomeFact(raw: unknown, index: number): HomeFact | null {
  *  approved plan rather than rendering a broken band. */
 function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
   const r = asRecord(raw);
+  const introRaw = asRecord(r.intro);
   const gatewayRaw = asRecord(r.gateway);
   const photoRaw = asRecord(r.photo);
   const parkRaw = asRecord(r.park);
@@ -754,6 +765,11 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
     return rawList.map(read).filter((x): x is T => x !== null);
   };
   const cta = (objValue: unknown, fallbackValue: Cta): Cta => readCta(objValue, fallbackValue);
+
+  const intro: HomeIntroSection = {
+    hello: text(introRaw, "hello", fallback.intro.hello),
+    welcome: text(introRaw, "welcome", fallback.intro.welcome),
+  };
 
   const gateway: HomeGatewaySection = {
     place: text(gatewayRaw, "place", fallback.gateway.place),
@@ -875,7 +891,7 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
     directionsLabel: text(contactRaw, "directionsLabel", fallback.contact.directionsLabel),
   };
 
-  return { gateway, photo, park, plans, services, lots, contact };
+  return { intro, gateway, photo, park, plans, services, lots, contact };
 }
 
 /** Full tolerant read of a content document (used by the page + editor + BFF). */

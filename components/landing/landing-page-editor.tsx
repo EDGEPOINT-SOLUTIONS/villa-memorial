@@ -1092,6 +1092,7 @@ function ctaFields(cta: Cta, onChange: (next: Cta) => void, key: string, labelPr
  * `HomeSectionsEditor` above the rest of the document.
  */
 const HOME_ZONES: Array<{ id: string; num: string; label: string; hint: string }> = [
+  { id: "ed-home-intro", num: "00", label: "The entrance", hint: "The opening overlay's two lines — a golden cloud on two cords, shown once per session on the home." },
   { id: "ed-home-1", num: "01", label: "Section 1 · The gateway", hint: "The centred opening: place, headline, promise, the call and the trust facts." },
   { id: "ed-home-2", num: "02", label: "Section 2 · The hero photograph", hint: "The client's photograph, alone and whole, named from the office's own park address — never cropped." },
   { id: "ed-home-3", num: "03", label: "Section 3 · The first park", hint: "The pavilion photograph (the band's dominant figure) with the arrangement builder beside it and the two chapels under it." },
