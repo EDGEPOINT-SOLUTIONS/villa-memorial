@@ -36,8 +36,8 @@ export function BlogView({ blog }: { blog: BlogDocument }) {
         </p>
       ) : (
         <ul className="blog-rows">
-          {blog.posts.map((post) => (
-            <BlogRow key={post.id} post={post} />
+          {blog.posts.map((post, index) => (
+            <BlogRow key={post.id} post={post} flip={index % 2 === 1} />
           ))}
         </ul>
       )}
@@ -45,8 +45,10 @@ export function BlogView({ blog }: { blog: BlogDocument }) {
   );
 }
 
-/** One post — a wide horizontal row: its media beside its text. */
-function BlogRow({ post }: { post: BlogPostRecord }) {
+/** One post — a wide horizontal row: its media beside its text. Rows alternate
+ *  their sides (`flip`) so a run of stories stays balanced: the first leads
+ *  with its picture, the next mirrors it (captain, 2026-09-30). */
+function BlogRow({ post, flip = false }: { post: BlogPostRecord; flip?: boolean }) {
   const first = post.media[0];
   const photo = first && first.kind === "photo" ? first : null;
   const video = first && first.kind === "video" ? first : null;
@@ -58,7 +60,7 @@ function BlogRow({ post }: { post: BlogPostRecord }) {
     </>
   );
   return (
-    <li className="blog-row">
+    <li className={flip ? "blog-row blog-row--flip" : "blog-row"}>
       <div className="blog-row__media">
         {photo ? (
           // The picture is whole: the frame takes its own shape, never a crop.

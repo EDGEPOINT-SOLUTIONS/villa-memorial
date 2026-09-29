@@ -22524,6 +22524,18 @@ a.plan-advisor__phone:hover {
   border-radius: var(--radius-md);
 }
 
+/* Alternating balance (captain, 2026-09-30): the first story leads with its
+   picture, the next mirrors it — photograph right, words left — and so on down
+   the list. The picture keeps its 20rem column on both sides; phones drop the
+   swap and stack every row picture-first. */
+.blog-row--flip {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 20rem);
+}
+
+.blog-row--flip .blog-row__media {
+  order: 2;
+}
+
 .blog-row__photo {
   display: block;
   width: 100%;
@@ -22584,6 +22596,11 @@ a.plan-advisor__phone:hover {
   .blog-row {
     grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
+  }
+
+  /* A phone stacks every row picture-first, however the desktop row alternates. */
+  .blog-row--flip .blog-row__media {
+    order: 0;
   }
 }
 
