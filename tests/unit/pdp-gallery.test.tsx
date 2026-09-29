@@ -5,11 +5,22 @@ import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import { PdpGallery } from "@/components/villa/pdp-gallery";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { richTextToHtml } from "@/lib/richtext";
 import { COFFIN_SAMPLE_NOTE } from "@/lib/villa-pricing";
 import type { ContentImage } from "@/lib/content-catalog";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The product-detail gallery (report §6): the main viewer with its thumbnail
@@ -65,7 +76,7 @@ function renderGallery(images: ContentImage[]): string {
 }
 
 function renderCart(page: ReactNode): string {
-  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, page));
+  return renderToStaticMarkup(withBaskets( page));
 }
 
 describe("the product-detail gallery viewer", () => {

@@ -2,8 +2,19 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import { QuoteLineRow } from "@/components/quote-line-row";
-import { CatalogueAddButton } from "@/components/catalogue-add-button";
+import { LotQuoteButton } from "@/components/villa/lot-quote-button";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * Render-level contracts for the QUOTE BASKET (the 2026-09-29 rename of the
@@ -15,6 +26,9 @@ import { CatalogueAddButton } from "@/components/catalogue-add-button";
  *    inquiry (the office's whole point of the change).
  */
 const cartLine = (over: Partial<Parameters<typeof QuoteLineRow>[0]["line"]> = {}) => ({
+  // A row-rendering fixture: the row prints whatever catalogue detail its SKU
+  // resolves to. (The BASKET rule is enforced in addQuoteLine/addCartLine, not
+  // here — a legacy stored line may still carry a catalogue SKU.)
   sku: "PKG-BASIC",
   name: "Basic Package",
   itemType: "package" as const,
@@ -35,51 +49,39 @@ const row = (line: ReturnType<typeof cartLine>, open: boolean) =>
     }),
   );
 
-describe("catalogue card add-to-quote button", () => {
-  it("renders an accessible Add to quote control labelled with the real item", () => {
+describe("the quote-only lot control", () => {
+  it("renders an accessible Add to quote control named for the lot", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        QuoteBasketProvider,
-        null,
-        createElement(CatalogueAddButton, {
-          item: {
-            sku: "PKG-PREMIUM",
-            name: "Premium Package",
-            itemType: "package",
-            unitPriceCents: 152000,
-            currency: "PHP",
-          },
+      withBaskets(
+        createElement(LotQuoteButton, {
+          category: "1. Lot Only",
+          product: "Premium Lots",
+          area: 2.5,
+          sellingPrice: 114000,
         }),
       ),
     );
     expect(html).toContain("Add to quote");
-    expect(html).toContain('aria-label="Add to quote: Premium Package"');
+    expect(html).toContain('aria-label="Add to quote: Premium Lots lot"');
   });
 
-  it("keeps the card's View link untouched (button is the extra action)", () => {
-    // The button component is only the add action — the card page still owns
-    // the "View this item" detail link; assert the control carries no href.
+  it("is the add action only — the row still owns its request and map links", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        QuoteBasketProvider,
-        null,
-        createElement(CatalogueAddButton, {
-          item: {
-            sku: "SRV-DELIVERY",
-            name: "Delivery",
-            itemType: "service",
-            unitPriceCents: 250000,
-            currency: "PHP",
-          },
+      withBaskets(
+        createElement(LotQuoteButton, {
+          category: "1. Lot Only",
+          product: "Mausoleum",
+          area: 24,
+          sellingPrice: 1073000,
         }),
       ),
     );
     expect(html).not.toContain("href=");
-    expect(html).toContain('<button');
+    expect(html).toContain("<button");
   });
 });
 
-describe("cart line expand control shows the item's details again", () => {
+describe("a quote line's expand control shows the item's details again", () => {
   it("closed: toggle announces Show details and the details row stays hidden", () => {
     const html = row(cartLine(), false);
     expect(html).toContain('aria-expanded="false"');
@@ -168,18 +170,11 @@ describe("cart line expand control shows the item's details again", () => {
 
 
 describe("several kinds of line accumulate and submit together", () => {
-  it("adds a product, a quoted service, a lot and a chapel stay without merging", async () => {
+  it("adds a quoted service, a lot and a chapel stay without merging", async () => {
     const { addQuoteLine, quoteLineKey } = await import(
       "@/lib/quote-basket/quote-basket-context"
     );
     let lines: ReturnType<typeof addQuoteLine> = [];
-    lines = addQuoteLine(lines, {
-      sku: "PKG-BASIC",
-      name: "Basic Package",
-      itemType: "package",
-      unitPriceCents: 60000,
-      currency: "PHP",
-    });
     lines = addQuoteLine(lines, {
       sku: "REQ-RETRIEVAL",
       name: "Retrieval",
@@ -213,14 +208,9 @@ describe("several kinds of line accumulate and submit together", () => {
       },
     });
 
-    // Every kind is its own line, chapel stays keyed by their reservation id.
-    expect(lines.map((line) => line.itemType)).toEqual([
-      "package",
-      "service",
-      "lot",
-      "service",
-    ]);
-    expect(new Set(lines.map(quoteLineKey)).size).toBe(4);
+    // Every quote-only kind is its own line, chapel stays keyed by reservation id.
+    expect(lines.map((line) => line.itemType)).toEqual(["service", "lot", "service"]);
+    expect(new Set(lines.map(quoteLineKey)).size).toBe(3);
 
     const { buildQuoteInquiry } = await import("@/lib/quote-basket/quote-submit");
     const submission = buildQuoteInquiry(
@@ -228,9 +218,7 @@ describe("several kinds of line accumulate and submit together", () => {
       { full_name: "Juan Dela Cruz", email: "juan@example.test", phone: "" },
       { consent: true, notes: "Please call after 6pm." },
     );
-    // One inquiry names every line; the office board sees the whole ask.
-    expect(submission.lineCount).toBe(4);
-    expect(submission.values.service).toContain("Basic Package");
+    expect(submission.lineCount).toBe(3);
     expect(submission.values.service).toContain("Retrieval");
     expect(submission.values.service).toContain("Premium Lots");
     expect(submission.values.service).toContain("Chapel use");
@@ -240,7 +228,7 @@ describe("several kinds of line accumulate and submit together", () => {
     expect(submission.values.consent).toBe(true);
   });
 
-  it("never merges a lot into another line and never prints a weight for a quoted line", async () => {
+  it("never merges a lot into another line", async () => {
     const { addQuoteLine } = await import("@/lib/quote-basket/quote-basket-context");
     const lot = {
       sku: "LOT-PREMIUM-LOTS",
@@ -251,5 +239,47 @@ describe("several kinds of line accumulate and submit together", () => {
     };
     const twice = addQuoteLine(addQuoteLine([], lot), lot);
     expect(twice).toHaveLength(2);
+  });
+
+  it("THE RULE: a priced item lands in the cart, a quote-only item in the quote basket", async () => {
+    const { addQuoteLine } = await import("@/lib/quote-basket/quote-basket-context");
+    const { addCartLine } = await import("@/lib/cart/cart-context");
+    const priced = {
+      sku: "PKG-BASIC",
+      name: "Basic Package",
+      itemType: "package" as const,
+      unitPriceCents: 60000,
+      currency: "PHP",
+    };
+    const quoted = {
+      sku: "REQ-RETRIEVAL",
+      name: "Retrieval",
+      itemType: "service" as const,
+      unitPriceCents: 0,
+      currency: "PHP",
+    };
+    const lot = {
+      sku: "LOT-PREMIUM-LOTS",
+      name: "Premium Lots — memorial lot",
+      itemType: "lot" as const,
+      unitPriceCents: 11400000,
+      currency: "PHP",
+    };
+
+    // The cart takes the priced item and refuses the quote-only ones.
+    expect(addCartLine([], priced)).toHaveLength(1);
+    expect(addCartLine([], quoted)).toHaveLength(0);
+    expect(addCartLine([], lot)).toHaveLength(0);
+    // The quote basket takes the quote-only items and refuses the priced one.
+    expect(addQuoteLine([], quoted)).toHaveLength(1);
+    expect(addQuoteLine([], lot)).toHaveLength(1);
+    expect(addQuoteLine([], priced)).toHaveLength(0);
+    // Neither basket holds the other's line: adding a priced line to the quote
+    // basket is a no-op (the cart's copy stays exactly as it was), and adding a
+    // quote-only line to the cart is a no-op in the same way.
+    const cartLines = addCartLine([], priced);
+    expect(addQuoteLine(cartLines, priced)).toHaveLength(cartLines.length);
+    const quoteLines = addQuoteLine([], lot);
+    expect(addCartLine(quoteLines, lot)).toHaveLength(quoteLines.length);
   });
 });

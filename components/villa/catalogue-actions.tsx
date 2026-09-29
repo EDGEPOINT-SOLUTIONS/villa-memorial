@@ -2,17 +2,17 @@ import Link from "next/link";
 import { CatalogueAddButton } from "@/components/catalogue-add-button";
 import { buildRequestHref, type RequestPrefill } from "@/lib/public-forms/request-prefill";
 import { formatMinorUnits } from "@/lib/money";
-import type { QuoteLine } from "@/lib/quote-basket/quote-basket-context";
+import type { CartLine } from "@/lib/cart/cart-context";
 
 /**
  * The storefront's two actions for one price-list line, together:
- *   · "Add to quote" — the shared CatalogueAddButton, fed the EXACT catalogue
+ *   · "Add to cart" — the shared CatalogueAddButton, fed the EXACT catalogue
  *     sku/name/type/price the row publishes (never a hand-typed shape);
- *   · "Request order" — the prefilled contact capture for anything the quote
+ *   · "Request order" — the prefilled contact capture for anything the cart
  *     cannot settle (senior conditions, day counts, availability). It is an
  *     enquiry; nothing is reserved.
  *
- * Used by /products (casket cards) and /services (a-la-quotee and embalming
+ * Used by /products (casket cards) and /services (a-la-carte and embalming
  * lines) so every sellable line offers the same pair. Chapel lines are the
  * documented exception: they open the booking step
  * (components/chapel-booking-dialog.tsx) instead of a straight add.
@@ -25,7 +25,7 @@ export function CatalogueActions({
   displayPrice,
   secondaryAsLink = false,
 }: {
-  item: Omit<QuoteLine, "quantity">;
+  item: Omit<CartLine, "quantity">;
   /** Extra request context; item/sku/price default to the catalogue facts. */
   prefill?: Partial<RequestPrefill>;
   /** Add more than one unit of a per-day line (e.g. N embalming days). */
@@ -41,7 +41,7 @@ export function CatalogueActions({
   /**
    * Render Request order as a quiet text link instead of the secondary button.
    * A CARD passes this when the row already has one primary action (the casket
-   * listing's Add to quote) and its detail link; a full row/page keeps the two
+   * listing's Add to cart) and its detail link; a full row/page keeps the two
    * buttons. The href and its prefill are identical either way.
    */
   secondaryAsLink?: boolean;

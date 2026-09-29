@@ -111,7 +111,8 @@
   — never a per-plot price.
 - `/lots` runs on the catalogue's **one control ladder** (captain follow-up,
   2026-09-21): a card's single action is `.btn--accent` (the gold primary rung,
-  matching `Add to cart` on the other catalogue cards — not the page-level sky
+  matching `Add to cart` on the priced catalogue cards (a lot itself is
+  quote-only, so `/lots` has no cart action) — not the page-level sky
   `.btn--primary`), every supporting action is `.btn--secondary`, and the
   panel's commit (`Go` / `Show N lots`) is `.btn--primary` full-size on both
   surfaces. The rail Clear and the no-results Clear are the same control; the
@@ -338,11 +339,11 @@
   facts/prices/inclusions come from the catalogue entry + `lib/villa-pricing.ts` — never
   typed into the view. `tests/unit/villa-services-premium.test.tsx` pins the grouping,
   the illustrative labels and the detail content.
-- Known storefront a11y debt (pre-existing, visible on every catalogue surface):
-  `CatalogueAddButton`'s aria-label ("Add <item> to cart") does not contain its visible
-  text ("Add to cart"), so Lighthouse flags WCAG 2.5.3 label-content-name-mismatch. Fix
-  the label and its pinned test strings (`price-surfacing`, `cart-catalogue`,
-  `villa-services-premium`) in one sweep.
+- WCAG 2.5.3 label-content-name (fixed): every add control's accessible name must START
+  with its visible label — `CatalogueAddButton` renders `` `${label}: ${item.name}` `` and
+  `LotQuoteButton` renders `Add to quote: <product> lot`, both matching their visible text.
+  `price-surfacing`, `cart-catalogue`, `quote-basket` and `villa-services-premium` pin the
+  strings, so a label reworded without its aria-label fails there.
 
 ## Immediate assistance — `/immediate-assistance` (read before touching it or its entry points)
 
@@ -475,9 +476,10 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   item 5):** each chapel card carries one `Request a quote` action to `/quote`, not the
   booking step. The booking flow itself still lives here —
   `components/chapel-booking-dialog.tsx` (choose chapel → start date + 3–9 day stay →
-  per-day availability → exact range price → Add to cart) — but nothing on a public service
-  page links it any more; re-linking it is a product decision. Never re-add a direct chapel
-  Add-to-cart button.
+  per-day availability → exact range price → Add to quote) — but nothing on a public service
+  page links it any more; re-linking it is a product decision. A chapel stay is QUOTE-ONLY
+  (no published amount the office will stand behind), so it lands in the quote basket and
+  never in the cart; never re-add a direct chapel Add-to-cart button.
 - **One rules home: `lib/chapel-booking.ts`** (pure, client+server): the 3–9 day bound,
   UTC-midnight calendar windows, per-day occupancy (a range is bookable only when no
   confirmed booking and no blocked date touches any of its days), prices read through
@@ -485,13 +487,15 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   and the booking metadata a cart line carries. Server orchestration (chapel slice of
   the schedule, reserve, release) is `lib/api-client/chapel-reservations.ts`; the BFF
   routes are `/api/chapel/schedule`, `/api/chapel/bookings`,
-  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).- **Reserve on add, release on remove**: Add to cart creates a scheduling booking
+  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).- **Reserve on add, release on remove**: **Add to quote** creates a scheduling booking
   (title marker `Online chapel booking`), removing the line cancels it; the booking is
   re-checked against a fresh schedule and rolled back if the service flags a race
-  (scheduling v1 flags conflicts instead of blocking — cut line #3). The cart line is
-  keyed by `lineId` (`cartLineKey` in `lib/cart/cart-context.tsx`) so two stays of the
-  same class coexist; checkout still sends only `{sku, quantity}` with quantity = days
-  and the per-day unit price, so the server-repriced order totals the stay.
+  (scheduling v1 flags conflicts instead of blocking — cut line #3). The QUOTE line is
+  keyed by `lineId` (`quoteLineKey` in `lib/quote-basket/quote-basket-context.tsx`) so
+  two stays of the same class coexist. Chapels are quote-only, so they never reach the
+  priced cart/checkout; the quote page submits the whole basket as one inquiry, and the
+  office confirms the stay by hand (`claimChapelQuoteLines` links a hold to an order only
+  for a legacy cart line that still carries one).
 - **PLACEHOLDER config**: which chapels exist, their names, classes and closed dates come
   from the staff screen below (durable store) — `CHAPEL_CLASS_RULES` in
   `lib/chapel-booking.ts` is now only the fallback for a resource the park's own records do

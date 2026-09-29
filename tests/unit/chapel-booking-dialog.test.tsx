@@ -2,12 +2,23 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import {
   ChapelBookingButton,
   ChapelBookingDialog,
   type ChapelCatalogueItem,
 } from "@/components/chapel-booking-dialog";
 import { CHAPEL_NOTES } from "@/lib/villa-pricing";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The chapel booking step's render contract, executed through
@@ -38,9 +49,7 @@ const ITEMS: Record<"common" | "private", ChapelCatalogueItem> = {
 describe("the chapel action", () => {
   it("is a dialog trigger, not an add-to-quote, and renders no closed dialog", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        QuoteBasketProvider,
-        null,
+      withBaskets(
         createElement(ChapelBookingButton, {
           chapelClass: "common",
           days: 3,
@@ -60,9 +69,7 @@ describe("the chapel action", () => {
 describe("the booking dialog's steps", () => {
   it("lays out chapel, dates and price with the sheet's figures and fee note", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        QuoteBasketProvider,
-        null,
+      withBaskets(
         createElement(ChapelBookingDialog, {
           open: true,
           onClose() {},
@@ -96,9 +103,7 @@ describe("the booking dialog's steps", () => {
 
   it("opens the private chapel's own per-day rate when the caller came from it", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        QuoteBasketProvider,
-        null,
+      withBaskets(
         createElement(ChapelBookingDialog, {
           open: true,
           onClose() {},

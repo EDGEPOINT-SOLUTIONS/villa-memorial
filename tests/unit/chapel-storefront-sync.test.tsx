@@ -2,8 +2,19 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import { listChapelRecords, saveChapelRecord } from "@/lib/api-client/chapel-store";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The chapel record is the ONE source for a chapel's name (content-catalogue
@@ -35,7 +46,7 @@ vi.mock("next/navigation", () => ({
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(withBaskets( await ServicesPage()));
 }
 
 describe("a chapel-record rename reaches the card and the booking dialog", () => {

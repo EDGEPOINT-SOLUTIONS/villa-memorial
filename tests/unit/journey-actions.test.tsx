@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import {
   listLandingContent,
   saveLandingContent,
@@ -14,6 +15,16 @@ import { NextSteps } from "@/components/landing/next-steps";
 import { LandingFooter, LandingView } from "@/components/landing/landing-view";
 import { PublicShell } from "@/components/ui/public-shell";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * F-17 — the journey fixes (captain, 2026-09-18): the closing action layer and
@@ -147,7 +158,7 @@ describe("the contact surface states the office's published facts before the for
   it("renders both hotlines as labelled tel: links, both addresses and the form doors", async () => {
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
     const { contact } = await listLandingContent();
-    const html = renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(withBaskets( await ContactPage({
       searchParams: Promise.resolve({}),
     })));
 
@@ -188,7 +199,7 @@ describe("the contact surface states the office's published facts before the for
     await saveLandingContent(edited);
 
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
-    const html = renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(withBaskets( await ContactPage({
       searchParams: Promise.resolve({}),
     })));
     expect(html).toContain("Call 0999 333 4444");
@@ -209,7 +220,7 @@ describe("the contact surface states the office's published facts before the for
     await saveLandingContent(cleared);
 
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
-    const html = renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(withBaskets( await ContactPage({
       searchParams: Promise.resolve({}),
     })));
     expect(html).not.toContain("Second line");
@@ -225,10 +236,10 @@ describe("the detail pages' advisor cards carry the real, staff-editable line", 
     const { contact } = await listLandingContent();
 
     const planHtml = renderToStaticMarkup(
-      createElement(QuoteBasketProvider, null, await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-PREMIUM" }) })),
+      withBaskets( await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-PREMIUM" }) })),
     );
     const casketHtml = renderToStaticMarkup(
-      createElement(QuoteBasketProvider, null, await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) })),
+      withBaskets( await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) })),
     );
 
     for (const html of [planHtml, casketHtml]) {

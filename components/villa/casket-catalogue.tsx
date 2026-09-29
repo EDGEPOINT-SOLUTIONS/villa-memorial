@@ -18,7 +18,7 @@ import {
  *  - CasketCard: one model in the shop grammar. The client's photograph leads at
  *    the column's full width, then the family, the model name, ONE short
  *    supporting line (the cover its own name states), the regular SRP, one
- *    compact senior-citizen line and ONE primary action (Add to quote on the
+ *    compact senior-citizen line and ONE primary action (Add to cart on the
  *    exact catalogue SKU/price) with the quieter Request order beside it. The
  *    photograph and the title are the detail path; the SKU, the long cover note
  *    and the full substitution sentence live on /products/[sku].
@@ -47,8 +47,8 @@ function amount(n: number): string {
   return php(n);
 }
 
-/** The catalogue shape the shared quote pair takes. */
-function quoteItemOf(item: CasketListingItem["item"]) {
+/** The catalogue shape the shared cart pair takes. */
+function cartItemOf(item: CasketListingItem["item"]) {
   return {
     sku: item.sku,
     name: item.name,
@@ -62,7 +62,7 @@ function quoteItemOf(item: CasketListingItem["item"]) {
  * The prefilled request every casket line carries — the LIVE catalogue's two prices.
  *
  * 2026-09-27: these were read from the hardcoded sheet model. The card and this message
- * now quote the same figures the quote charges, so an edit in /staff/catalog moves all
+ * now quote the same figures the cart charges, so an edit in /staff/catalog moves all
  * three together.
  */
 function casketRequest(item: CasketListingItem) {
@@ -88,8 +88,8 @@ function coverLine(model: CasketListingItem["modelRecord"]): string {
  * The detail view owns the SKU, the long cover note and the full caption.
  *
  * Every figure comes from the LISTING — that is, from the live catalogue. This card used
- * to print `model.srp` / `model.seniorPrice` from the hardcoded sheet list while the quote
- * charged the catalogue, so a staff price edit would have made the headline and the quote
+ * to print `model.srp` / `model.seniorPrice` from the hardcoded sheet list while the cart
+ * charged the catalogue, so a staff price edit would have made the headline and the cart
  * disagree on the same card.
  */
 export function CasketCard({ item }: { item: CasketListingItem }) {
@@ -115,7 +115,7 @@ export function CasketCard({ item }: { item: CasketListingItem }) {
       actions={
         <>
           <CatalogueActions
-            item={quoteItemOf(item.item)}
+            item={cartItemOf(item.item)}
             displayPrice={item.item.display_price}
             prefill={casketRequest(item)}
             secondaryAsLink

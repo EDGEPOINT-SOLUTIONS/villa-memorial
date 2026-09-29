@@ -4,6 +4,17 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The F-16 accessibility/craft guard.
@@ -78,13 +89,13 @@ const PAGES: ReadonlyArray<PageCase> = [
   {
     name: "/services",
     render: async () =>
-      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage())),
+      renderToStaticMarkup(withBaskets( await ServicesPage())),
   },
   {
     name: "/plans",
     render: async () =>
       renderToStaticMarkup(
-        createElement(QuoteBasketProvider, null, await PlansPage()),
+        withBaskets( await PlansPage()),
       ),
   },
   {
@@ -101,9 +112,7 @@ const PAGES: ReadonlyArray<PageCase> = [
     name: "/quote",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          QuoteBasketProvider,
-          null,
+        withBaskets(
           await QuotePage({ searchParams: Promise.resolve({}) }),
         ),
       ),
@@ -128,7 +137,7 @@ const PAGES: ReadonlyArray<PageCase> = [
     name: "/lots/price-list-2026",
     render: async () =>
       renderToStaticMarkup(
-        createElement(QuoteBasketProvider, null, await PriceList2026Page()),
+        withBaskets( await PriceList2026Page()),
       ),
   },
   {

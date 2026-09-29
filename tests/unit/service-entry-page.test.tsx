@@ -2,7 +2,18 @@ import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import { saveServiceEntry, seedServiceEntries } from "@/lib/api-client/content-entries";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * A service-entry edit reaches the guide page (content-catalogue Phase 3): the
@@ -41,7 +52,7 @@ async function renderGuide(page: () => Promise<ReactNode>): Promise<string> {
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(withBaskets( await ServicesPage()));
 }
 
 describe("the service guide entries drive their routes and the /services cards", () => {

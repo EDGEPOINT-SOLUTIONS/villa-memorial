@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import {
   listLandingContent,
   saveLandingContent,
@@ -19,6 +20,16 @@ import {
   WAKESETUP_ALCOVE_IMAGE,
   libraryThumb,
 } from "@/lib/media";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The Facilities page (screen inventory P25) — the park's rooms and grounds.
@@ -54,7 +65,7 @@ async function renderFacilities(): Promise<string> {
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(withBaskets( await ServicesPage()));
 }
 
 describe("/facilities shows the rooms a family is choosing between", () => {

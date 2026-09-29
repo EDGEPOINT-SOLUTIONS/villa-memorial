@@ -2,7 +2,18 @@ import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The reading budget (captain, 2026-09-18 — client review: "too wordy; it
@@ -124,7 +135,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/services",
     render: async () =>
-      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await ServicesPage())),
+      renderToStaticMarkup(withBaskets( await ServicesPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
@@ -136,9 +147,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/plans",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          QuoteBasketProvider,
-          null,
+        withBaskets(
           await PlansPage(),
         ),
       ),
@@ -147,7 +156,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/price-list",
     render: async () =>
-      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await PriceListPage())),
+      renderToStaticMarkup(withBaskets( await PriceListPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
@@ -162,9 +171,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/products/[sku] (casket detail)",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          QuoteBasketProvider,
-          null,
+        withBaskets(
           await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) }),
         ),
       ),
@@ -180,7 +187,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/gallery",
     render: async () =>
-      renderToStaticMarkup(createElement(QuoteBasketProvider, null, await GalleryPage())),
+      renderToStaticMarkup(withBaskets( await GalleryPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {

@@ -70,23 +70,34 @@ so the key never rides the landing document and never reaches public JavaScript.
 `GOOGLE_MAPS_API_KEY` (environment) wins over the store; the editor says which
 mode is live. No key → the plan's keyless classic embed.
 
-## 3 · The quote basket (office direction, same day)
+## 3 · The quote basket + the cart (office direction, same day; cart restored 2026-09-29)
 
-The cart is a **quote basket** now:
+**Two baskets, one rule.** A line with a PUBLISHED price (a casket, a plan, anything the
+store prices) goes to the **cart**, which keeps `/cart` and `/checkout` as real pages and
+its order flow. A line the office quotes by hand (a service line, a lot, a chapel stay, a
+typed request) goes to the **quote basket** at `/quote`. The rule is enforced at the store:
+`addCartLine` refuses a lot, a booking or a zero-price line; `addQuoteLine` refuses a
+priced non-lot, non-booking line; `tests/unit/quote-basket.test.tsx` proves both directions
+and that neither basket holds the other's line. The header carries both labelled counts,
+neither in gold.
 
-- every "Add to cart" control says **Add to quote**; the header's trolley icon
-  was replaced by a labelled **Your quote** action (sky/outline — never gold),
-  visible with no count, showing `Your quote · N` when lines exist; the phone
-  bar carries **Blog** directly (below);
-- `/quote` owns the basket; the old single-item form is the **add step**
-  ("Add to my quote"), its fields and layout unchanged; a line can be a product,
-  a service, an **lot** (new `LotQuoteButton` on `/lots/price-list-2026`) or a
-  **chapel stay** (unique, never merged, released when removed);
+The **quote basket** itself:
+
+- the header carries TWO labelled actions — **Cart** and **Your quote** — each
+  visible with no count and showing `Cart · N` / `Your quote · N` with lines,
+  both sky/outline (never gold); the trolley glyph stays retired; the phone bar
+  carries **Blog** directly (below);
+- `/quote` owns the quote basket; the old single-item form is the **add step**
+  ("Add to my quote"), its fields and layout unchanged; a quote line can be a
+  service the office quotes, a **lot** (`LotQuoteButton` on
+  `/lots/price-list-2026`) or a **chapel stay** (unique, never merged, released
+  when removed);
 - the send step posts **one** Request-for-Quote (`buildQuoteInquiry` →
   `POST /api/inquiries`, kind "quote") naming every line; nothing is an order
   and the page says so;
-- `/cart` and `/checkout` are redirect stubs to `/quote` and stay noindex /
-  robots-disallowed; `/checkout`'s order placement is gone;
+- `/cart` and `/checkout` are REAL pages again for priced lines (office,
+  2026-09-29) with their order flow; only the quote-only surfaces send to
+  `/quote`;
 - tests renamed and re-pointed (`tests/unit/quote-basket.test.tsx`), with a new
   test proving lines of different kinds accumulate and submit together and the
   chapel hold/release contract kept.

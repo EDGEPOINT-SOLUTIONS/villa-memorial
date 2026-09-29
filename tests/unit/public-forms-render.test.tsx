@@ -2,9 +2,20 @@ import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import ContactPage from "@/app/(public)/contact/page";
 import QuotePage from "@/app/(public)/quote/page";
 import AppointmentsPage from "@/app/(public)/appointments/page";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * Route render contracts for the three public "Reach us" forms. These render
@@ -72,9 +83,7 @@ describe("contact route renders the shared capture shell", () => {
 
 const quoteHtml = async (params: Record<string, string | string[]> = {}) =>
   renderToStaticMarkup(
-    createElement(
-      QuoteBasketProvider,
-      null,
+    withBaskets(
       await QuotePage({ searchParams: Promise.resolve(params) }),
     ),
   );

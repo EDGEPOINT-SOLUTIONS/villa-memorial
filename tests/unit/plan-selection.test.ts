@@ -8,7 +8,7 @@ const PRICING = SEED_PRICING.plans;
 
 /**
  * The plan buy card's selection contract: every tier × term × senior choice is
- * actionable, and the split between "quote" and "request" is exactly the
+ * actionable, and the split between "cart" and "request" is exactly the
  * catalogue's coverage — the catalogue prices the monthly amortization, so the
  * monthly selection of a tier it carries goes to the cart and everything else
  * opens the prefilled request (never a dead end, never a wrong amount).
@@ -22,15 +22,15 @@ function requestParams(action: ReturnType<typeof planSelectionAction>) {
 describe("plan tier × term selection", () => {
   it("sends a monthly, non-senior selection on a catalogue tier to the cart", () => {
     expect(planSelectionAction({ pricing: PRICING, tier: "bronze1", term: "monthly", senior: false })).toEqual({
-      kind: "quote",
+      kind: "cart",
       sku: "PKG-BASIC",
     });
     expect(planSelectionAction({ pricing: PRICING, tier: "silver1", term: "monthly", senior: false })).toEqual({
-      kind: "quote",
+      kind: "cart",
       sku: "PKG-STANDARD",
     });
     expect(planSelectionAction({ pricing: PRICING, tier: "gold", term: "monthly", senior: false })).toEqual({
-      kind: "quote",
+      kind: "cart",
       sku: "PKG-PREMIUM",
     });
   });
@@ -72,7 +72,7 @@ describe("plan tier × term selection", () => {
     for (const tier of ["bronze1", "silver1", "gold"] as const) {
       for (const term of PLAN_TERMS) {
         const action = planSelectionAction({ pricing: PRICING, tier, term: term.id, senior: false });
-        if (action.kind === "quote") continue; // monthly on a carried tier
+        if (action.kind === "cart") continue; // monthly on a carried tier
         const prefill = requestParams(action);
         expect(prefill.price).toBe(`${php2(planRate(tier, term.id))} ${term.per}`);
       }

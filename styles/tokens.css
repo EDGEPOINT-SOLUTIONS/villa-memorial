@@ -195,12 +195,17 @@
   --navy-950: var(--ever-950);
 
   /* --- Semantic roles ------------------------------------------------------ */
-  --color-bg-page: var(--paper-100);
+  /* WHITE PAGE GROUND (office, 2026-09-29): the page and the desk are the same
+     white as a card, so every card keeps its boundary through the shared
+     `.card` border + `--shadow-card` (and the home's own boxes each carry a
+     hairline). The deliberate paper tints (`--paper-50/200`, empty states,
+     tinted band grounds) stay as they are. */
+  --color-bg-page: var(--paper-0);
   --color-bg-surface: var(--paper-0);
   --color-bg-surface-raised: var(--paper-0);
   --color-bg-inverse: var(--ever-900);
   --color-bg-subtle: var(--paper-200);
-  --color-bg-desk: var(--paper-100);
+  --color-bg-desk: var(--paper-0);
 
   --color-text-primary: var(--ink-900);
   --color-text-secondary: var(--ink-700);

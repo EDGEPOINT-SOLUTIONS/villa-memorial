@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import type { QuoteLine } from "@/lib/quote-basket/quote-basket-context";
+import type { CartLine } from "@/lib/cart/cart-context";
 import { planRequestAction, planSelectionAction } from "@/lib/plan-selection";
 import {
   PLAN_TERM_DEFS,
@@ -15,10 +15,10 @@ import {
 import { PENDING_TERM_LABEL } from "@/lib/monthly-pricing";
 import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
 import { planTierPackageSku } from "@/lib/catalogue-skus";
-import { AddToQuoteControl } from "./add-to-quote";
+import { AddToCartControl } from "./add-to-cart";
 
 /** One plan tier that the catalogue can actually price (else the request path). */
-export type TierQuoteItem = { tier: PlanTier; quoteItem: Omit<QuoteLine, "quantity"> };
+export type TierCartItem = { tier: PlanTier; cartItem: Omit<CartLine, "quantity"> };
 
 type Props = {
   /**
@@ -27,12 +27,12 @@ type Props = {
    * published rates, never a build-time constant.
    */
   pricing: PlanPricing;
-  /** The catalogue item this page sells (the quote line for the page's own SKU). */
-  item: Omit<QuoteLine, "quantity">;
+  /** The catalogue item this page sells (the cart line for the page's own SKU). */
+  item: Omit<CartLine, "quantity">;
   /** The tier this page's package corresponds to (e.g. PKG-BASIC = Bronze 1). */
   ownTier: PlanTier;
   /** Tiers that have a catalogue SKU (lib/catalogue-skus.ts → PLAN_TIER_PACKAGE_SKUS). */
-  tierItems?: TierQuoteItem[];
+  tierItems?: TierCartItem[];
 };
 
 /**
@@ -44,7 +44,7 @@ type Props = {
  * Every amount comes through lib/villa-pricing.ts (`planRate`), so the four
  * term buttons, the headline price and the senior-citizen switch can never
  * disagree with the client's payment-mode sheets. Every tier × term stays
- * actionable — lib/plan-selection.ts decides per selection whether the quote
+ * actionable — lib/plan-selection.ts decides per selection whether the cart
  * takes it (the catalogue prices the monthly amortization) or the prefilled
  * request opens. A request is an enquiry, never a reservation.
  */
@@ -58,8 +58,8 @@ export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Pro
   const tierName = PLAN_TIERS.find((t) => t.id === tier)?.name ?? "Bronze 1";
   const action = planSelectionAction({ pricing, tier, term, senior });
 
-  const quoteItem = tier === ownTier ? item : tierItems.find((t) => t.tier === tier)?.quoteItem;
-  // "request" carries the selection's own prefill; the quote case only falls
+  const cartItem = tier === ownTier ? item : tierItems.find((t) => t.tier === tier)?.cartItem;
+  // "request" carries the selection's own prefill; the cart case only falls
   // back here when the catalogue lookup hiccuped, so build the same request.
   const requestHref =
     action.kind === "request"
@@ -70,7 +70,7 @@ export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Pro
     <>
       <div className="buy-card__chips">
         <Badge tone="accent">{item.itemType === "package" ? "Package" : "Service"}</Badge>
-        <Badge tone="neutral">{action.kind === "quote" ? action.sku : item.sku}</Badge>
+        <Badge tone="neutral">{action.kind === "cart" ? action.sku : item.sku}</Badge>
       </div>
 
       <div>
@@ -134,15 +134,15 @@ export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Pro
       </label>
 
       <div className="plan-buy-actions">
-        {action.kind === "quote" && quoteItem ? (
-          <AddToQuoteControl
+        {action.kind === "cart" && cartItem ? (
+          <AddToCartControl
             withIcon
             item={{
-              sku: quoteItem.sku,
-              name: quoteItem.name,
-              itemType: quoteItem.itemType,
-              unitPriceCents: quoteItem.unitPriceCents,
-              currency: quoteItem.currency,
+              sku: cartItem.sku,
+              name: cartItem.name,
+              itemType: cartItem.itemType,
+              unitPriceCents: cartItem.unitPriceCents,
+              currency: cartItem.currency,
             }}
           />
         ) : (
@@ -154,14 +154,14 @@ export function PlanTermSelector({ pricing, item, ownTier, tierItems = [] }: Pro
             Request this plan — {php2(amount)} {termDef.per}
           </Link>
         )}
-        <Link href="/quote" className="btn btn--secondary btn--block">
-          View your quote
+        <Link href="/cart" className="btn btn--secondary btn--block">
+          View cart
         </Link>
       </div>
 
       <p className="plan-note">
-        {action.kind === "quote"
-          ? "The quote takes the published monthly amortization; the office confirms the plan and the first payment date."
+        {action.kind === "cart"
+          ? "The cart takes the published monthly amortization; the office confirms the plan and the first payment date."
           : "The office confirms this term and the final price — the request opens with everything you chose, and nothing is reserved."}
       </p>
       <p className="plan-note">

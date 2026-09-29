@@ -9,7 +9,8 @@
  *                 Services · Villa Memorial Plan · Villa Memorial Park ·
  *                 Contact) · the grouped "Explore more" menu (Builder ·
  *                 Facilities · Gallery · Memorials · Price list) · quiet
- *                 Sign in · the labelled quote action + count.
+ *                 Sign in · the labelled cart action + count · the labelled
+ *                 quote action + count.
  *
  * Rendered by BOTH the premium home (LandingView, framework-free under the
  * repo's node tests) and every other public page (PublicShell). One component
@@ -72,14 +73,18 @@ function isCurrent(pathname: string, href: string): boolean {
 export function SiteHeaderBar({
   brand,
   currentPath,
+  cartCount,
   quoteCount,
 }: {
   brand: LogoConfig;
   /** Pathname of the rendered page; omit to render with no active link (home). */
   currentPath?: string;
-  /** Live quote line count (client surfaces only); shown as the quote badge. */
+  /** Live CART line count (priced items) — the cart action's count. */
+  cartCount?: number;
+  /** Live quote-basket line count (quote-only items) — the quote action's count. */
   quoteCount?: number;
 }) {
+  const hasCartLines = cartCount !== undefined && cartCount > 0;
   const hasQuoteLines = quoteCount !== undefined && quoteCount > 0;
   // A grouped page still shows its wayfinding cue: the trigger is marked
   // current while one of its four pages is open (the menu item itself carries
@@ -154,11 +159,26 @@ export function SiteHeaderBar({
             <a className="anchored-header__signin" href="/login">
               Sign in
             </a>
-            {/* The quote action, LABELLED (office, 2026-09-29): the trolley
-                glyph was the one thing on the page that still said "shop", so
-                the action says what it is and stays visible even when the
-                basket is empty. Sky/outline — gold is rationed to the office's
-                phone number and never competes with it. */}
+            {/* TWO BASKETS, TWO LABELLED ACTIONS (office, 2026-09-29): priced
+                items live in the cart (the cart page and its checkout), items
+                the office quotes by hand live in the quote basket. Both stay
+                visible when empty; both wear the sky/outline treatment — gold
+                is rationed to the office's phone number and never competes with
+                it. The trolley glyph stays retired. */}
+            <a
+              className="anchored-header__cart"
+              href="/cart"
+              aria-label={
+                hasCartLines ? `Cart, ${cartCount} item${cartCount === 1 ? "" : "s"}` : "Cart"
+              }
+            >
+              Cart
+              {hasCartLines ? (
+                <span className="anchored-header__cart-count" aria-hidden="true">
+                  {cartCount}
+                </span>
+              ) : null}
+            </a>
             <a
               className="anchored-header__quote"
               href="/quote"
@@ -175,13 +195,19 @@ export function SiteHeaderBar({
                 </span>
               ) : null}
             </a>
-            {/* One atomic status line for a quote that changes while the visitor
-                is on the page (WCAG 2.4.6 contextual updates): the visible badge
-                is aria-hidden, this is what a screen reader hears. */}
+            {/* One atomic status line for both baskets as they change while the
+                visitor is on the page (WCAG 2.4.6 contextual updates): the
+                visible badges are aria-hidden, this is what a screen reader
+                hears. */}
             <span className="visually-hidden" role="status">
-              {hasQuoteLines
-                ? `${quoteCount} line${quoteCount === 1 ? "" : "s"} in your quote`
-                : ""}
+              {[
+                hasCartLines ? `${cartCount} item${cartCount === 1 ? "" : "s"} in the cart` : "",
+                hasQuoteLines
+                  ? `${quoteCount} line${quoteCount === 1 ? "" : "s"} in your quote`
+                  : "",
+              ]
+                .filter(Boolean)
+                .join("; ")}
             </span>
           </div>
         </div>

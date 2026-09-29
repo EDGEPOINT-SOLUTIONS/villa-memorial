@@ -197,6 +197,12 @@ export function addQuoteLine(
   line: Omit<QuoteLine, "quantity">,
   quantity = 1,
 ): QuoteLine[] {
+  // THE MIRROR OF THE CART'S RULE (office, 2026-09-29): a line with a published
+  // figure that is neither a lot nor a chapel booking belongs in the CART, so
+  // the quote basket ignores it rather than holding the same thing twice.
+  if (!line.booking && line.itemType !== "lot" && line.unitPriceCents > 0) {
+    return [...lines];
+  }
   const qty = Math.min(Math.max(quantity, 1), MAX_QTY);
   if (line.booking) {
     return [...lines, { ...line, lineId: line.lineId ?? line.booking.bookingId, quantity: qty }];
