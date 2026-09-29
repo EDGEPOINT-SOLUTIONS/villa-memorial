@@ -5349,6 +5349,11 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-family: var(--font-sans);
   font-size: var(--text-xs);
   background: var(--color-bg-subtle);
+  /* The captain's fix (2026-09-30): Leaflet's panes (z-index 400+) and its
+     controls (1000) escaped the map's stacking context and painted over the
+     sticky header as the page scrolled; isolation contains every internal
+     z-index inside the map frame, so the chrome always stays on top. */
+  isolation: isolate;
 }
 
 /* Leaflet's zoom buttons ship Lucida Console, its popup close button ships
