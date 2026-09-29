@@ -152,7 +152,7 @@ describe("wrapping capsule controls at 390", () => {
 });
 
 describe("wide data tables stay reachable at 390", () => {
-  const panClasses = [".table-wrapper", ".pl-scroll", ".plan-scroll", ".pricing-editor__scroll"];
+  const panClasses = [".table-wrapper", ".pl-scroll", ".plan-scroll", ".pricing-editor__scroll", ".plan-matrix"];
 
   it("every pan container declares a horizontal scroll", () => {
     const missing = panClasses.filter((selector) => {

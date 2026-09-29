@@ -94,10 +94,12 @@ describe("public pages read the saved plan rates", () => {
   });
 
   it("/plans prints the edited monthly tier rate; /price-list prints the edited schedule cells", async () => {
-    // The tier card prints the live monthly (Bronze 1 regular ₱619.00).
+    // The tier column prints the live monthly (Bronze 1 regular ₱619) and its
+    // annual equivalent (₱7,428) — whole pesos in the columns (the captain
+    // approved Q5); the exact centavos stay where the catalogue carts the item.
     const plans = await renderWithCart(await PlansPage());
-    expect(plans).toContain("₱619.00");
-    expect(plans).not.toContain("₱7,428");
+    expect(plans).toContain("₱619");
+    expect(plans).toContain("₱7,428");
     // The 2026 payment-mode tables now live on the consolidated Price list page.
     const html = await renderWithCart(await PriceListPage());
     expect(html).toContain("₱7,428");
@@ -169,6 +171,7 @@ describe("a refused edit never reaches the public pages", () => {
     expect(priceList).toContain("₱600");
     expect(priceList).not.toContain("₱7,428");
     const plans = await renderWithCart(await PlansPage());
-    expect(plans).toContain("₱600.00");
+    expect(plans).toContain("₱600");
+    expect(plans).not.toContain("₱619");
   });
 });

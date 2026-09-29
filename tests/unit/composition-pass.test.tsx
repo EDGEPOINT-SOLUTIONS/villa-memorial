@@ -246,9 +246,11 @@ describe("a catalogue prints a photograph only where one exists", () => {
     // Captain, 2026-09-21 (Phase 2 of the content-catalogue plan): the plan page
     // shows the five tiers with their inclusion checklists; the flat 42-item
     // catalogue left it. Its cards move to /packages, /services and /products.
+    // Rebuilt 2026-09-30: the five tier columns head "Compare the five tiers" and
+    // the inclusion checklist is printed ONCE in the shared band.
     expect(html).not.toContain('class="shop-card"');
     expect(html).not.toContain('class="day-ladder"');
-    expect(html).toContain("The five tiers — what each one includes");
+    expect(html).toContain("Compare the five tiers");
     for (const tier of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
       expect(html, tier).toContain(tier);
     }

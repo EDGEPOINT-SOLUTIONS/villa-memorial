@@ -202,4 +202,27 @@ describe("defect 4 — one class, one declaration", () => {
     const selector = read("app/(public)/plans/[sku]/plan-term-selector.tsx");
     expect(selector).toContain('className="tier-row"');
   });
+
+  it("the plans sections own `.plan-section`, never the landing promo's `.plan-band`", () => {
+    // The plans redesign (2026-09-30) first reused `.plan-band`, whose older
+    // owner is the landing page's promo-figure grid — source order silently
+    // applied its two-column template to every /plans section, shrink-wrapping
+    // the five-tier row to 600px inside the 960px envelope. The namespaced
+    // section class keeps the two owners apart.
+    const page = read("app/(public)/plans/page.tsx");
+    expect(page).toContain('className="plan-section');
+    expect(page).not.toContain('className="plan-band"');
+    const sections = declarationRules.filter(
+      (r) => r.topLevel && r.selector === ".plan-section",
+    );
+    expect(sections.length).toBe(1);
+    // `.plan-band` stays the landing page's promo-figure grid — one owner.
+    const bands = declarationRules.filter(
+      (r) => r.topLevel && r.selector === ".plan-band",
+    );
+    expect(bands.length).toBe(1);
+    expect(bands[0].body).toMatch(
+      /grid-template-columns\s*:\s*minmax\(0,\s*0\.72fr\)\s+minmax\(0,\s*1\.28fr\)/,
+    );
+  });
 });

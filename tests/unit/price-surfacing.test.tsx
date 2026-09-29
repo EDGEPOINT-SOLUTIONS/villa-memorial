@@ -304,14 +304,14 @@ describe("the plan payment tables render on every plan surface", () => {
     expect(seniorGold!.get("note")).toMatch(/Senior-citizen rates/);
   });
 
-  it("/plans prints the five tier checklists; /price-list prints the schedules, cash assistance, eligibility and the notes", async () => {
+  it("/plans prints the five tier columns; /price-list prints the schedules, cash assistance, eligibility and the notes", async () => {
     const plans = seedPageDocuments().find((doc) => doc.key === "plans")!;
     const content = planContentFromDocument(plans);
     const planHtml = renderToStaticMarkup(
       withBaskets( await PlansPage()),
     );
     for (const tier of content.tiers) expect(planHtml).toContain(tier.heading);
-    expect(planHtml).toContain("The five tiers — what each one includes");
+    expect(planHtml).toContain("Compare the five tiers");
     // The 2026 payment tables left the tier page (captain, 2026-09-21).
     expect(planHtml).not.toContain("2026 rates — five tiers, four payment terms");
 
@@ -349,11 +349,11 @@ describe("the plan payment tables render on every plan surface", () => {
         `aria-label="Add to cart: ${item.name.replace(/&/g, "&amp;")}"`,
       );
     }
-    // The five client tiers render, one checklist each.
+    // The five client tiers render, one column each.
     for (const tier of ["Bronze 1", "Bronze 2", "Silver 1", "Silver 2", "Gold"]) {
       expect(html, tier).toContain(tier);
     }
-    expect(html).toContain("The five tiers — what each one includes");
+    expect(html).toContain("Compare the five tiers");
     // The hero's trimmed chips (captain, 2026-09-21): only View packages and
     // Coffins & caskets remain; the four retired chips are gone.
     expect(html).toContain('href="/plans/PKG-BASIC">View packages</a>');

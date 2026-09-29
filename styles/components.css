@@ -6131,6 +6131,11 @@ because the shared `.ag-appt` rule comes later in this file. */
    only carry the design. */
 .plan-page {
   display: grid;
+  /* One constrained column: without this the single auto track sizes to the
+     widest child's max-content, so the phone page pans sideways (the /plans
+     redesign's matrix + tier rail). `minmax(0, 1fr)` pins the track to the
+     container; each pan surface (`overflow-x: auto`) scrolls internally. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
 }
 
@@ -6893,25 +6898,23 @@ because the shared `.ag-appt` rule comes later in this file. */
   font-size: var(--text-sm);
 }
 
-/* --- Plan tiers: one column of premium tier cards ----------------------------
-   Captain 2026-09-21: "make the 5 tier in one column… the dropdown inclusion is
-   displayed already in the card, not a dropdown, it's the best practice." Each
-   card is the client's approved pricing-page anatomy: tier name · a "Starting
-   from" subtitle · the LIVE monthly rate · a one-line description · one enquiry
-   action · the inclusion checklist printed under "Key features:".
+/* --- The plan tiers: five equal columns, one height -------------------------
+   Rebuilt 2026-09-30 (`villa-plans-redesign-plan`; the captain approved the
+   Revision 4 board). Five equal columns, ONE height: a small 3:2 coffin
+   photograph, the tier name, its one-line coffin description, the LIVE regular
+   monthly figure with its annual equivalent, the lid and the cash assistance,
+   then ONE gold enquiry. The inclusion checklist is NOT here — the five tiers
+   share it, so the page prints it once (the old page's defect was repeating it
+   five times). The grid stretches every card and bottom-aligns the action, so a
+   longer lid or description never makes one card taller than its siblings.
 
-   Layout: the five tiers are ONE comparison row on desktop, never a stack and
-   never a squeeze — `.plan-tiers` is 1 column on phones, 2 from 40rem, 3 from
-   60rem, 4 from 72rem, and the single row of five from 86rem (where five cards
-   are each ≥ ~15.5rem, so no "Key features:" line wraps). Every card is one
-   vertical stack: an optional 16:9 photograph leads, then the name · "Starting
-   from" · the live rate · the one-line summary · the action, then "Key
-   features:" one line per row. The name and the rate step down one ladder rung
-   on the five-row so nothing clips at ~253px. */
+   PREMIUM PALETTE ONLY (captain 2026-09-30): saturated sky and rich gold, never
+   a pastel tint or wash. The card's spine is the premium gold. */
 .plan-tiers {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
+  align-items: stretch;
 }
 
 .plan-tier {
@@ -6919,11 +6922,13 @@ because the shared `.ag-appt` rule comes later in this file. */
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100%;
   overflow: hidden;
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-lg);
   background: var(--color-bg-surface-raised);
   box-shadow: var(--shadow-card);
+  transition: border-color 0.14s ease, transform 0.14s ease;
 }
 
 /* One gold hairline marks the card's spine — decorative, carries no text. */
@@ -6934,46 +6939,57 @@ because the shared `.ag-appt` rule comes later in this file. */
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--gold-300);
+  background: var(--gold-500);
 }
 
-.plan-tier__intro,
-.plan-tier__features {
-  display: grid;
+/* The tier↔matrix reading aid: hovering or focusing a column lifts it while its
+   matrix column is marked. No colour beyond the premium gold. */
+.plan-tier.is-active {
+  border-color: var(--gold-500);
+  transform: translateY(-2px);
+}
+
+.plan-tier__media {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  background: var(--color-bg-subtle);
+  border-bottom: 1px solid var(--color-rule);
+}
+
+/* The picture is WHOLE (never cropped): the frame takes a 3:2 box and the
+   photograph fits inside it. */
+.plan-tier__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.plan-tier__body {
+  display: flex;
+  flex-direction: column;
   gap: var(--space-2);
-  align-content: start;
+  flex: 1;
   min-width: 0;
   padding: var(--space-5) var(--space-4);
 }
 
-.plan-tier__features {
-  /* Bottom-align the feature blocks in the row so their "Key features:"
-     headers line up across the five cards, whatever the summary length. */
-  margin-top: auto;
-  border-top: 1px solid var(--color-rule);
-}
-
-/* A photo-led card tightens the intro's top padding a step — the picture
-   already separates the body from the card's top edge. */
-.plan-tier--media .plan-tier__intro {
-  padding-top: var(--space-4);
-}
-
 .plan-tier__name {
   margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-2xl);
-  line-height: 1.1;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  line-height: 1.15;
   color: var(--color-text-primary);
 }
 
-.plan-tier__subtitle {
+.plan-tier__desc {
   margin: 0;
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-accent);
+  min-height: 3.6em;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 
 .plan-tier__price {
@@ -6982,7 +6998,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   align-items: baseline;
   gap: var(--space-2);
   margin: 0;
-  font-family: var(--font-serif);
+  font-family: var(--font-display);
   /* Body size plus ONE step (captain 2026-09-25: 28px+ bold figures read fake). */
   font-size: var(--text-lg);
   line-height: 1;
@@ -6997,90 +7013,58 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-muted);
 }
 
-/* The payment-term line under the rate — supporting, smaller than the figure
-   (minutes item 8, 2026-09-21; sizing per captain 2026-09-25). */
-.plan-tier__term {
+.plan-tier__annual {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
-  font-size: var(--text-sm);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
-.plan-tier__summary {
+.plan-tier__annual svg {
+  flex: 0 0 auto;
+  color: var(--sky-700);
+}
+
+.plan-tier__facts {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.plan-tier__fact {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
   margin: 0;
-  max-width: 42ch;
+  font-size: var(--text-caption);
+  line-height: var(--leading-normal);
   color: var(--color-text-secondary);
 }
 
-.plan-tier__actions {
-  margin-top: var(--space-3);
-}
-
-.plan-tier__actions .btn {
-  width: 100%;
-}
-
-.plan-tier__features-title {
-  margin: 0;
-  font-size: var(--text-xs);
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-.plan-tier__list {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.plan-tier__list li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-2);
-  align-items: baseline;
-  color: var(--color-text-primary);
-}
-
-.plan-tier__mark {
+.plan-tier__fact svg {
+  flex: 0 0 auto;
+  margin-top: 2px;
   color: var(--color-text-accent);
-  font-weight: 700;
 }
 
-/* The optional photograph. The panel always leads the card at 16:9 (a wrapper
-   ratio, safe); the picture fills it with `object-fit: cover`. On the five-row
-   an attached photo makes its card the tallest in the row — the grid stretches
-   the others to match, so the row stays tidy with no placeholder hole. */
-.plan-tier__media {
-  position: relative;
-  margin: 0;
-  min-width: 0;
-  overflow: hidden;
-  aspect-ratio: 16 / 9;
-  background: var(--color-bg-subtle);
+.plan-tier__fact b {
+  color: var(--color-text-primary);
+  font-weight: 650;
 }
 
-.plan-tier__media img {
-  display: block;
+.plan-tier__act {
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+.plan-tier__act .btn {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
-.plan-tier__caption {
-  position: absolute;
-  inset: auto 0 0 0;
-  padding: var(--space-2) var(--space-3);
-  background: rgb(13 44 66 / 0.82);
-  color: var(--color-text-inverse);
-  font-size: var(--text-xs);
-}
-
-/* Wrap deliberately above the phone: 2 across from 40rem, 3 from 60rem, 4 from
-   72rem, and the single deliberate comparison row of five from 86rem. */
+/* Wrap deliberately: 2 across from 40rem, 3 from 60rem, 4 from 72rem, and the
+   single comparison row of five from 86rem. */
 @media (min-width: 40rem) {
   .plan-tiers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7103,11 +7087,488 @@ because the shared `.ag-appt` rule comes later in this file. */
   .plan-tiers {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+}
 
-  /* Step the card NAME down one rung so the ~253px five-row card stays
-     legible; the rate already sits at body+1 (captain 2026-09-25). */
-  .plan-tier__name {
-    font-size: var(--text-xl);
+/* --- the plan section head (the home's `.home-band-head` grammar) ----------
+   Named `.plan-section`, NOT `.plan-band`: `.plan-band` is the landing page's
+   promo-figure grid (a top-level rule further down this sheet), and reusing the
+   name re-templated every section on /plans into its two-column grid — the
+   "one class, one declaration" trap. A namespaced section class keeps the two
+   owners apart. */
+.plan-section {
+  margin-top: var(--space-7);
+}
+
+.plan-section__head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+/* The ceremonial hairline above the section head — the home's own grammar, and
+   the approved plan's band head (kicker · title · lead, opened by the gold
+   rule). */
+.plan-section__head::before {
+  content: "";
+  display: block;
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
+
+.plan-section__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.plan-section__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+
+.plan-section__lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-body);
+  color: var(--color-text-secondary);
+}
+
+.plan-section__note {
+  margin: var(--space-4) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* --- the opening: the home's gateway, not the shared boxed band ------------
+   The Phase 0 grammar paints every `.public-hero` as a boxed band (white ground,
+   1px rule, a 2px gold rule). The approved plan's opening is the home gateway:
+   plain paper, no border, centred. Same opt-out the services lane makes, scoped
+   to THIS page — `.plan-flow.plan-page` matches the /plans listing only; the two
+   SKU pages carry `.plan-page` alone. */
+.plan-flow.plan-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.plan-flow.plan-page .public-hero--interior::before {
+  content: none;
+}
+
+.plan-flow.plan-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.plan-flow.plan-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.plan-flow.plan-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+  text-align: center;
+}
+
+/* The gateway headline at the page-title step: a light display weight, balance-
+   wrapped, inside one text column (the home's own gateway shape). */
+.plan-flow.plan-page .public-hero--interior .public-hero__title {
+  max-width: 22ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.plan-flow.plan-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.plan-flow.plan-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* --- orientation facts ---------------------------------------------------- */
+.plan-orient {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5) 0 0;
+  border-top: 1px solid var(--color-border);
+  list-style: none;
+  text-align: center;
+}
+
+.plan-orient li {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: center;
+}
+
+.plan-orient__icon {
+  display: inline-flex;
+  color: var(--sky-700);
+}
+
+.plan-orient__label {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+.plan-orient__text {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+/* --- the comparison matrix ------------------------------------------------ */
+/* A fixed layout so the five tier columns are EQUAL whatever a cell contains;
+   the label column takes 26% and each tier an equal 14.8%. The wrapper scrolls
+   on a phone and is keyboard-reachable (tabIndex, set in the view). */
+.plan-matrix {
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+}
+
+.plan-matrix__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--text-sm);
+}
+
+.plan-matrix__col--label {
+  width: 26%;
+}
+
+.plan-matrix__col--tier {
+  width: 14.8%;
+}
+
+.plan-matrix th,
+.plan-matrix td {
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-rule);
+  overflow-wrap: anywhere;
+  vertical-align: middle;
+}
+
+.plan-matrix thead th {
+  background: var(--color-bg-subtle);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.plan-matrix thead th:first-child {
+  text-align: left;
+}
+
+.plan-matrix tbody th[scope="row"] {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.plan-matrix tbody td {
+  text-align: center;
+  color: var(--color-text-primary);
+}
+
+.plan-matrix__unit {
+  display: block;
+  font-size: var(--text-micro);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* A group header is the premium sky at full strength, carrying paper ink. */
+.plan-matrix__group th {
+  background: var(--sky-700);
+  color: var(--paper-0);
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+/* The regular monthly row is the headline the tier columns print — a gold rule
+   ties it back, never a pastel wash. */
+.plan-matrix tbody tr.is-highlight th[scope="row"] {
+  box-shadow: inset 3px 0 0 var(--gold-500);
+}
+
+.plan-matrix tbody tr.is-highlight td,
+.plan-matrix tbody tr.is-highlight th[scope="row"] {
+  background: var(--color-bg-subtle);
+}
+
+/* The tier↔matrix reading aid (set by the client wrapper). */
+.plan-matrix [data-plan-col].is-highlighted {
+  box-shadow: inset 0 0 0 2px var(--gold-500);
+}
+
+.plan-matrix td img {
+  display: block;
+  width: 100%;
+  max-width: 92px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
+  margin-inline: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-subtle);
+}
+
+.plan-matrix__none {
+  color: var(--color-text-muted);
+}
+
+/* --- the shared inclusions ------------------------------------------------ */
+.plan-included__list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan-included__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-body);
+  color: var(--color-text-primary);
+}
+
+.plan-included__item svg {
+  flex: 0 0 auto;
+  color: var(--color-text-accent);
+}
+
+.plan-included__note {
+  margin: var(--space-4) 0 0;
+  max-width: var(--measure-prose);
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+/* --- add-ons -------------------------------------------------------------- */
+.plan-addons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.plan-addon {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: flex-start;
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  transition: border-color 0.14s ease;
+}
+
+.plan-addon:hover {
+  border-color: var(--sky-600);
+}
+
+.plan-addon__icon {
+  display: grid;
+  place-items: center;
+  width: 2.375rem;
+  height: 2.375rem;
+  border-radius: 999px;
+  background: var(--sky-700);
+  color: var(--paper-0);
+}
+
+.plan-addon__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  color: var(--color-text-primary);
+}
+
+.plan-addon__body {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.plan-addon__action {
+  margin-top: auto;
+}
+
+/* --- FAQ ------------------------------------------------------------------ */
+.plan-faq {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.plan-faq__item {
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+}
+
+.plan-faq__item[open] {
+  border-color: var(--sky-600);
+}
+
+.plan-faq__q {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  list-style: none;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.plan-faq__q::-webkit-details-marker {
+  display: none;
+}
+
+.plan-faq__q:hover {
+  background: var(--color-bg-subtle);
+}
+
+.plan-faq__icon {
+  display: grid;
+  place-items: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 999px;
+  background: var(--gold-500);
+  color: var(--ink-900);
+  flex: 0 0 auto;
+}
+
+.plan-faq__q-text {
+  flex: 1;
+}
+
+.plan-faq__chevron {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  transition: transform 0.18s ease;
+}
+
+.plan-faq__item[open] .plan-faq__chevron {
+  transform: rotate(180deg);
+  color: var(--sky-700);
+}
+
+.plan-faq__a {
+  margin: 0;
+  padding: 0 var(--space-4) var(--space-4) calc(var(--space-4) + 1.625rem + var(--space-3));
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* --- phone ---------------------------------------------------------------- */
+@media (max-width: 40rem) {
+  /* The five tiers become ONE horizontal snap rail of equal-height columns (the
+     approved board's phone behaviour) rather than five stacked full cards — the
+     old 2,535 px band. The cards stay links-first, so Tab reaches the rail. */
+  .plan-tiers {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: var(--space-2);
+    align-items: stretch;
+  }
+
+  .plan-tier {
+    flex: 0 0 76%;
+    min-width: 76%;
+    scroll-snap-align: start;
+  }
+
+  /* The matrix pans sideways (the approved board's phone behaviour) instead of
+     crushing five columns into a phone: a pan floor keeps every tier column
+     readable, and the row label stays put while the tiers scroll. The sticky
+     cells need an opaque ground so scrolled cells cannot show through. */
+  .plan-matrix__table {
+    min-width: 48rem;
+  }
+
+  .plan-matrix thead th:first-child,
+  .plan-matrix tbody th[scope="row"] {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--color-bg-surface-raised);
+  }
+
+  .plan-matrix tbody tr.is-highlight th[scope="row"] {
+    background: var(--color-bg-subtle);
+  }
+
+  .plan-orient {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    text-align: left;
+  }
+
+  .plan-orient li {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    justify-items: start;
+    column-gap: var(--space-3);
+  }
+
+  .plan-orient__icon {
+    grid-row: span 2;
+  }
+
+  .plan-included__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .plan-addons {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

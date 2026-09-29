@@ -185,6 +185,13 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".topbar-avatar", why: "the topbar identity avatar disc" },
   { match: ".ed-nav__btn--active", why: "the staff editor's active-section control state" },
   { match: ".platform-bar", why: "the platform operator's own top bar — that surface's chrome" },
+  // The approved plans redesign (2026-09-30, Revision 4 board: "Im good with the
+  // plans page, please implement it"): the comparison matrix's group header is
+  // one full-strength sky bar and each add-on card leads with a sky icon disc.
+  // These are the page's only two structural sky grounds, part of the approved
+  // design and named here in the PR that ships it (the home block's own rule).
+  { match: ".plan-matrix__group", why: "the plan comparison's group header bar (approved plan)" },
+  { match: ".plan-addon__icon", why: "the plan add-on cards' sky icon discs (approved plan)" },
 ];
 
 function allowed(selector: string): boolean {

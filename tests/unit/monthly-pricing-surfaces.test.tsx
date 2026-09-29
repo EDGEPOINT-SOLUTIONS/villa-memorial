@@ -59,14 +59,14 @@ function firstCardOf(html: string): string {
 }
 
 describe("/plans leads with the monthly plan rate and names the pending term", () => {
-  it("prints the monthly installment on every tier card, with the honest pending term", async () => {
+  it("prints the monthly installment on every tier column, with the honest pending term once", async () => {
     const html = renderToStaticMarkup(await PlansPage());
-    // Every tier card carries a monthly figure and the pending-term wording.
+    // Every tier column carries a monthly figure (whole pesos; the exact
+    // centavos stay where the catalogue carts the item).
     expect((html.match(/class="plan-tier__price"/g) ?? []).length).toBe(5);
-    expect((html.match(/class="plan-tier__term"/g) ?? []).length).toBe(5);
-    expect((html.match(/Payment term pending Villa Funeraria confirmation/g) ?? []).length).toBe(5);
-    // The seed's Bronze 1 regular monthly rate.
-    expect(html).toContain("₱600.00");
+    expect(html).toContain("₱600");
+    // The unrecorded plan term is named honestly, exactly once, in the band note.
+    expect(html.split(PENDING_TERM_LABEL).length - 1).toBe(1);
   });
 });
 

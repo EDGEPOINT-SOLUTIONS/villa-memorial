@@ -143,9 +143,14 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "plans (/plans)",
     render: async () =>
       renderToStaticMarkup(withBaskets( await PlansPage())),
-    // The Lane-3 blueprint: the shared interior hero, then the five-card tier row.
-    sections: ['data-public-hero="interior"', 'class="plan-tiers"'],
-    requires: ["data-section-head"],
+    // The rebuilt pricing surface: the shared interior hero, then the five tier
+    // columns, the comparison matrix and the FAQ accordion, in order.
+    sections: [
+      'data-public-hero="interior"',
+      'class="plan-tiers"',
+      'class="plan-matrix"',
+      'class="plan-faq"',
+    ],
   },
   {
     name: "price list (/price-list)",
