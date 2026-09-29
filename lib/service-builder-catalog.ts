@@ -73,7 +73,7 @@ function includesFor(family: CasketFamily): string[] {
  * The 24 sheet models, in the sheet's own order, with their two price columns.
  *
  * 2026-09-27: the figures come from the LIVE CATALOGUE (the record the staff admin edits
- * and the cart charges), joined by SKU. They used to be read from the hardcoded sheet
+ * and the quote basket charges), joined by SKU. They used to be read from the hardcoded sheet
  * model, which meant an office price edit moved the product pages and not this estimate —
  * the builder would have quoted a family a price the office no longer sells at.
  *

@@ -57,7 +57,7 @@ export type CasketListingItem = {
   seniorPriceCents: number;
   seniorDiscountCents: number;
   currency: string;
-  /** The catalogue entry, for the cart action and its display price. */
+  /** The catalogue entry, for the quote action and its display price. */
   item: CatalogItem;
   /** The sheet model, for the request prefill. */
   modelRecord: CasketModel;
@@ -82,11 +82,11 @@ export const EMPTY_CASKET_FILTERS: CasketFilters = {
  *
  * WHERE THE FIGURE COMES FROM (changed 2026-09-27). Filters and printed prices now read
  * the CATALOGUE — `item.unit_price_cents` and `item.senior_price_cents` — because the
- * catalogue is the live selling record the staff admin edits and the CART charges. A
+ * catalogue is the live selling record the staff admin edits and the quote basket charges. A
  * surface that printed the sheet constant instead was showing a number the admin could not
- * change, while the cart charged one they could: the two agreed only because a fixture
+ * change, while the quote basket charged one they could: the two agreed only because a fixture
  * contract pins the catalogue's seed to the sheet, so the first real price edit would have
- * made the card and the cart disagree in front of a family.
+ * made the card and the quote basket disagree in front of a family.
  *
  * The sheet still owns provenance — it is what the catalogue's recorded seed is pinned
  * back to (`tests/fixture-contract/catalog-sources.test.ts`) and what orders the models.

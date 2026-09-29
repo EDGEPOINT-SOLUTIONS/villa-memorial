@@ -2,7 +2,7 @@
 
 /**
  * Chapel bookings (staff Schedule): every booking against a chapel — the stays a
- * customer is holding in a cart, the confirmed ones (with the order that claimed
+ * customer is holding in a quote, the confirmed ones (with the order that claimed
  * them, when checkout linked one), and the cancellations with their reason.
  *
  * The operator's two verbs live here: Confirm (the office accepts a storefront
@@ -31,7 +31,7 @@ const STATUS_TONE: Record<ChapelBookingStatus, "warning" | "success" | "neutral"
 
 const FILTERS: Array<{ key: "all" | ChapelBookingStatus; label: string }> = [
   { key: "all", label: "All" },
-  { key: "hold", label: "In carts" },
+  { key: "hold", label: "In quotes" },
   { key: "confirmed", label: "Confirmed" },
   { key: "cancelled", label: "Cancelled" },
 ];
@@ -109,7 +109,7 @@ export function ChapelBookings({
       <div className="card__header row row--space">
         <h3>Chapel bookings</h3>
         <span className="text-sm text-muted">
-          {counts.hold} in cart{counts.hold === 1 ? "" : "s"} · {counts.confirmed} confirmed ·{" "}
+          {counts.hold} in quote{counts.hold === 1 ? "" : "s"} · {counts.confirmed} confirmed ·{" "}
           {counts.cancelled} cancelled
         </span>
       </div>
@@ -132,7 +132,7 @@ export function ChapelBookings({
         {shown.length === 0 ? (
           <p className="text-sm text-muted">
             {bookings.length === 0
-              ? "No chapel booking yet — storefront holds appear here the moment a customer adds a stay to their cart."
+              ? "No chapel booking yet — storefront holds appear here the moment a customer adds a stay to their quote."
               : "Nothing in this filter."}
           </p>
         ) : (
@@ -167,7 +167,7 @@ export function ChapelBookings({
                       ) : isOnlineChapelBooking(booking.title) ? (
                         <span className="text-muted">
                           {booking.status === "hold"
-                            ? "Cart hold — no contact yet"
+                            ? "Quote hold — no contact yet"
                             : "Storefront hold — no contact"}
                         </span>
                       ) : (
@@ -210,7 +210,7 @@ export function ChapelBookings({
 
         {canWrite ? (
           <Alert tone="info">
-            A cart hold already reserves the dates. <strong>Confirm</strong> tells the storefront
+            A quote hold already reserves the dates. <strong>Confirm</strong> tells the storefront
             the office accepted the stay; <strong>Cancel</strong> frees the dates and records why.
           </Alert>
         ) : null}

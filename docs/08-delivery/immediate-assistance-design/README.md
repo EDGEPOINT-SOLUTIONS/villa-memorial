@@ -1,5 +1,13 @@
 # Immediate assistance — implementation record (F-01, 2026-09-18)
 
+> **REMOVED 2026-09-29 (office, inbox 040).** The route
+> `app/(public)/immediate-assistance/` was deleted and every pointer rewired: the
+> phone bar's "Get help" now opens `/contact`, the guide pages' "Immediate
+> assistance" outline action points at `/contact`, and the sitemap entry and the
+> `PublicShell` closing-band exemption went with it. This document is the
+> HISTORICAL design record of that screen — it describes what was built, not a
+> live route.
+
 **Route:** `/immediate-assistance` (`app/(public)/immediate-assistance/page.tsx`).
 **Brief:** checklist F-01 — "Give the hardest moment its own screen: someone has just died
 and a family member is on their phone at midnight."

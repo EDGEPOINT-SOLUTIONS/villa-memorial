@@ -1,9 +1,14 @@
-import type { ReactNode } from "react";
 import { HomePage } from "@/components/public/home-page";
+import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { listLots } from "@/lib/api-client/property";
-import { PublicParkMap } from "@/components/public-park-map";
+import { listResources } from "@/lib/api-client/scheduling";
+import { resolveGoogleMapsKey } from "@/lib/api-client/site-config";
+import { homeMapEmbed } from "@/lib/home-model";
+import { planContentFromDocument } from "@/lib/plan-content";
+import { builderCatalog } from "@/lib/service-builder-catalog";
 import { SITE_DESCRIPTION, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -12,44 +17,57 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-// Reads the content, pricing and lot stores per request — a staff edit must
-// never leave the busiest page in the product serving stale HTML.
+// Reads the content, pricing, lot and catalogue stores per request — a staff
+// edit must never leave the busiest page in the product serving stale HTML.
 export const dynamic = "force-dynamic";
 
 /**
- * The public home — REBUILT 2026-09-27 to the seven prompts of the
- * aitooltiphub.com UI guide. `components/public/home-page.tsx` carries the
- * section-by-section mapping to those prompts; this file only gathers the data
- * and hands it over.
+ * The public home — rebuilt to the approved home-rebuild plan (2026-09-29).
  *
- * WHAT MOVED: the previous home was the three-column "anchored catalogue"
- * (LandingView) — rails, band stack, newsfeed. It now lives verbatim at
- * `/blog` (`app/blog/page.tsx`), per the captain's instruction, so nothing was
- * lost. This route renders inside `app/(public)/layout.tsx`, which means it gets
- * the SAME header, footer, phone bar and closing action band as every other
- * public page — one chrome for the whole site, and no second closing grammar.
+ * This route only GATHERS what the seven sections render, all of it from the
+ * stores that own it:
+ *   · the landing content document — the sections' words, actions and pictures,
+ *     edited per section at /staff/landing/home;
+ *   · the pricing store — the five plan monthlies and every lot family figure;
+ *   · the live catalogue + the 2026 sheets — the builder's options;
+ *   · the plot records — every recorded plot's own outline, for the map pins;
+ *   · the server-side site config — the Google Maps key, read HERE and turned
+ *     into the embed URL before the page serialises, so the key never reaches
+ *     public JavaScript. With no key the map falls back to the keyless classic
+ *     embed the plan uses.
  *
- * The new home is deliberately NOT a catalogue: it argues (who it is for → the
- * fork → why us → what it feels like) and sends the catalogue elsewhere.
+ * It renders inside `app/(public)/layout.tsx`, so it keeps the same header,
+ * footer, phone bar and closing action band as every other public page.
  */
 export default async function HomeRoute() {
-  const [content, lots, pricing] = await Promise.all([
+  const [content, lots, pricing, catalogItems, plansPage, mapsKey, resources] = await Promise.all([
     listLandingContent(),
     listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
     loadPricingDocument(),
+    listCatalogItems().catch(() => []),
+    getPageDocument("plans").catch(() => null),
+    resolveGoogleMapsKey(),
+    listResources().catch(() => []),
   ]);
 
-  // The live park map, rendered inside the home's winner band. The home is
-  // VIEW-ONLY for everyone, exactly like /map (public-map-view-only.test.tsx).
-  const mapNode: ReactNode =
-    lots.length > 0 ? <PublicParkMap lots={lots} initialPark="villa" /> : null;
+  // The catalogue is the LIVE selling record, so the builder's options quote what
+  // the office actually charges today; the 2026 sheet is the module's fallback.
+  const builder = builderCatalog(pricing, planContentFromDocument(plansPage).notes.contestability, catalogItems);
+  const mapSrc = homeMapEmbed(mapsKey.key, content.contact.parkAddress).src;
+  // The chapel card's capacity is a scheduling fact, not page copy.
+  const chapelResources = resources
+    .filter((resource) => resource.resource_type === "chapel")
+    .map((resource) => ({ id: resource.id, name: resource.name, capacity: resource.capacity }));
 
   return (
     <HomePage
       content={content}
-      planPricing={pricing.plans}
+      pricing={pricing.plans}
       lotCategories={pricing.lotCategories}
-      mapNode={mapNode}
+      builder={builder}
+      lots={lots}
+      mapSrc={mapSrc}
+      chapelResources={chapelResources}
     />
   );
 }

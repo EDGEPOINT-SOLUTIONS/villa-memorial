@@ -2,7 +2,7 @@
 
 /**
  * Chapel availability (staff Schedule): one chapel's month at a glance — free,
- * held (still in a customer's cart), booked and closed — plus the operator's
+ * held (still in a customer's quote), booked and closed — plus the operator's
  * maintenance closures.
  *
  * An operator closes a date range here and the customer booking step sees it on
@@ -43,7 +43,7 @@ export type ChapelAvailabilityWindow = {
 
 const DAY_STATE_LABEL: Record<ChapelDayCell["status"], string> = {
   free: "Free",
-  held: "In a cart",
+  held: "In a quote",
   booked: "Booked",
   blocked: "Closed",
 };
@@ -186,7 +186,7 @@ export function ChapelAvailability({
     <div className="card">
       <div className="card__header row row--space">
         <h3>Chapel availability</h3>
-        <span className="text-sm text-muted">free · in a cart · booked · closed</span>
+        <span className="text-sm text-muted">free · in a quote · booked · closed</span>
       </div>
       <div className="card__body stack-4">
         {notice ? <Alert tone="success" title={notice} /> : null}

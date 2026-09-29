@@ -4,7 +4,7 @@
  * Why this module exists: a chapel is not a one-click product. The customer must
  * choose a chapel, a start date and a 3–9 day stay, see that EVERY day in the
  * range is free, see what that exact range costs, and only then put it in the
- * cart. All of those decisions are pure functions here so the dialog, the BFF
+ * quote. All of those decisions are pure functions here so the dialog, the BFF
  * route and the tests share ONE rule set — the route handler stays a thin
  * fetch/check/proxy with no rules of its own. This module is the single source
  * of truth for
@@ -16,7 +16,7 @@
  *    *flags*, it does not block — KEB-D3-03 cut line #3),
  *  · the client's 2026 chapel prices (read from lib/villa-pricing.ts, never
  *    restated here),
- *  · and the booking metadata a cart line carries.
+ *  · and the booking metadata a quote line carries.
  *
  * Availability source: `resources` (one resource per chapel) + `bookings` from
  * the scheduling module (lib/api-client/scheduling.ts), read through the server
@@ -157,7 +157,7 @@ export function calendarDateOf(iso: string): string {
   return t.toISOString().slice(0, 10);
 }
 
-/** "Sep 20, 2026" — the dialog and cart labels (deterministic locale). */
+/** "Sep 20, 2026" — the dialog and quote labels (deterministic locale). */
 export function formatCalendarDate(date: string): string {
   if (!isCalendarDate(date)) return date;
   const [y, m, d] = date.split("-").map(Number);
@@ -208,9 +208,9 @@ export function formatChapelStayRange(startDate: string, endDateExclusive: strin
 /* ------------------------------- pricing ---------------------------------- */
 
 export type ChapelStayPrices = {
-  /** The sheet's per-day rate for this class (the cart line's unit price). */
+  /** The sheet's per-day rate for this class (the quote line's unit price). */
   perDay: number;
-  /** The sheet's 3–9 day regular total for this stay (what the cart charges). */
+  /** The sheet's 3–9 day regular total for this stay (what the quote charges). */
   regular: number;
   /** The sheet's senior-citizen column total for this stay (office-applied). */
   senior: number;
@@ -488,12 +488,12 @@ export function chapelRefusalStatus(refusal: ChapelAvailabilityRefusal): number 
   }
 }
 
-/* --------------------------- the cart line model -------------------------- */
+/* --------------------------- the quote line model -------------------------- */
 
 /**
- * What a chapel cart line carries: the reservation the cart holds, its chapel,
+ * What a chapel quote line carries: the reservation the quote holds, its chapel,
  * its range and its day count. The line's unit price stays the catalogue's
- * per-day SKU price (the cart/checkout contract re-prices SKU × quantity), and
+ * per-day SKU price (the quote/checkout contract re-prices SKU × quantity), and
  * `days` is the quantity, so the placed order totals the whole stay.
  */
 export type ChapelBookingLine = {
@@ -508,7 +508,7 @@ export type ChapelBookingLine = {
   days: number;
 };
 
-/** Tolerant reader for the booking metadata persisted with a cart line. */
+/** Tolerant reader for the booking metadata persisted with a quote line. */
 export function toChapelBookingLine(raw: unknown): ChapelBookingLine | null {
   if (typeof raw !== "object" || raw === null) return null;
   const r = raw as Record<string, unknown>;
@@ -533,7 +533,7 @@ export function toChapelBookingLine(raw: unknown): ChapelBookingLine | null {
   };
 }
 
-/** The reservation fields the cart metadata needs (a full `Booking` satisfies it). */
+/** The reservation fields the quote metadata needs (a full `Booking` satisfies it). */
 export type ReservationLike = {
   id: string;
   resource_id: string;
@@ -542,7 +542,7 @@ export type ReservationLike = {
   ends_at: string;
 };
 
-/** The cart metadata for a reservation the scheduling module confirmed. */
+/** The quote metadata for a reservation the scheduling module confirmed. */
 export function bookingToChapelLine(booking: ReservationLike, chapelClass: ChapelClass): ChapelBookingLine {
   const startDate = calendarDateOf(booking.starts_at);
   const endDate = calendarDateOf(booking.ends_at);
@@ -561,7 +561,7 @@ export function bookingToChapelLine(booking: ReservationLike, chapelClass: Chape
   };
 }
 
-/** "Sep 20 – 22, 2026 · 3 days" — the cart line's booking summary. */
+/** "Sep 20 – 22, 2026 · 3 days" — the quote line's booking summary. */
 export function chapelBookingLineSummary(line: ChapelBookingLine): string {
   return `${formatChapelStayRange(line.startDate, line.endDate)} · ${line.days} ${
     line.days === 1 ? "day" : "days"
@@ -573,7 +573,7 @@ export function chapelBookingLineSummary(line: ChapelBookingLine): string {
 /**
  * The title marker every online storefront reservation carries. Staff see it on
  * the schedule, and `releaseOnlineChapelBooking` only releases bookings with it
- * (a storefront visitor may drop the hold their cart created — never a
+ * (a storefront visitor may drop the hold their quote created — never a
  * staff-made booking). A customer booking contract with ownership tokens is the
  * open contract question.
  */
@@ -604,7 +604,7 @@ export function chapelBookingInput(range: ChapelAvailabilityOk): {
   };
 }
 
-/* ------------------------------ cart helpers ------------------------------ */
+/* ------------------------------ quote helpers ------------------------------ */
 
 /**
  * The parenthesised price facts for the request path: the sheet's regular and

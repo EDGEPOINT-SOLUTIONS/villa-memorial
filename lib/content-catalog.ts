@@ -43,7 +43,7 @@ import { unrenderableGlyphs } from "@/lib/text-gate";
 
 /* ------------------------------ page documents ----------------------------- */
 
-export type PageDocumentKey = "home" | "park" | "services" | "plans" | "coffins";
+export type PageDocumentKey = "home" | "park" | "services" | "plans" | "coffins" | "blog";
 
 export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "home",
@@ -51,6 +51,7 @@ export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "services",
   "plans",
   "coffins",
+  "blog",
 ] as const;
 
 export type PageDocumentDef = {
@@ -82,7 +83,7 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     route: "/",
     editor: "landing",
     blocks: false,
-    hint: "The home page and the FAQ — the full editor that already runs this document.",
+    hint: "The home page's own seven sections. Its former storefront sections are edited with /blog; the FAQ has its own editor at /staff/landing/faq.",
   },
   {
     key: "park",
@@ -115,6 +116,14 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     editor: "page",
     blocks: true,
     hint: "The casket catalogue hero and its page copy. Each casket model's own description and detail blocks are edited on its catalogue entry.",
+  },
+  {
+    key: "blog",
+    label: "Blog",
+    route: "/blog",
+    editor: "page",
+    blocks: false,
+    hint: "The blog's own document — its heading, intro and posts (photographs, films and notes from the grounds). One row per post on the page.",
   },
 ];
 
@@ -322,12 +331,46 @@ export const CONTENT_BLOCK_TYPES: ReadonlyArray<{
   { type: "links", label: "Links", hint: "Related pages and next steps." },
 ];
 
+/** One photograph/video attached to a blog post. */
+export type BlogMediaItem = {
+  id: string;
+  kind: "photo" | "video";
+  src: string;
+  alt: string;
+  poster: string | null;
+};
+
+/** One blog post — the blog's own schema (office, 2026-09-29). */
+export type BlogPostRecord = {
+  id: string;
+  author: string;
+  /** The calendar day the post carries, ISO `YYYY-MM-DD`. */
+  date: string;
+  caption: string;
+  media: BlogMediaItem[];
+  /** The route the post's photograph/caption opens; null keeps it unclickable. */
+  link: string | null;
+};
+
+/** The blog page's own document: a heading, an intro and the posts. */
+export type BlogDocument = {
+  heading: string;
+  intro: string;
+  posts: BlogPostRecord[];
+};
+
 export type PageDocument = {
   key: PageDocumentKey;
   title: string;
   hero: PageHero;
   tabs: PageTab[];
   blocks: ContentBlock[];
+  /**
+   * The blog's own posts, when this is the blog document. The landing content
+   * document no longer owns posts (2026-09-29): the blog is its own page
+   * document, so editing the home cannot change the blog and vice versa.
+   */
+  blog: BlogDocument | null;
   /** Ordered references to catalogue entries shown on this page (keys/SKUs). */
   entries: string[];
   updated_at: string | null;
@@ -601,6 +644,50 @@ export function readProductLine(raw: unknown): ProductLine {
  * this on the seed; the editor calls it on the stored JSON. It never throws —
  * the save path runs `validatePageDocument` and refuses bad input.
  */
+function readBlogMedia(raw: unknown): BlogMediaItem | null {
+  if (!isRecord(raw)) return null;
+  const src = readTrimmed(raw.src);
+  if (!src) return null;
+  const kind = raw.kind === "video" ? "video" : "photo";
+  return {
+    id: readTrimmed(raw.id) || contentId("media"),
+    kind,
+    src,
+    alt: readTrimmed(raw.alt),
+    poster: readNullableStr(raw.poster),
+  };
+}
+
+function readBlogPost(raw: unknown): BlogPostRecord | null {
+  if (!isRecord(raw)) return null;
+  const caption = readTrimmed(raw.caption);
+  const media = readArray(raw.media)
+    .map(readBlogMedia)
+    .filter((item): item is BlogMediaItem => item !== null);
+  // Drop only rows with no words and no picture at all; anything else is kept
+  // so the validator names its problem rather than the post vanishing on save.
+  if (!caption && media.length === 0) return null;
+  return {
+    id: readTrimmed(raw.id) || contentId("post"),
+    author: readTrimmed(raw.author) || "Villa Memorial Park",
+    date: readTrimmed(raw.date),
+    caption,
+    media,
+    link: readNullableStr(raw.link),
+  };
+}
+
+export function readBlogDocument(raw: unknown): BlogDocument | null {
+  if (!isRecord(raw)) return null;
+  return {
+    heading: readTrimmed(raw.heading),
+    intro: readTrimmed(raw.intro),
+    posts: readArray(raw.posts)
+      .map(readBlogPost)
+      .filter((post): post is BlogPostRecord => post !== null),
+  };
+}
+
 export function readPageDocument(raw: unknown): PageDocument {
   const r = isRecord(raw) ? raw : {};
   const keyRaw = readTrimmed(r.key);
@@ -631,6 +718,7 @@ export function readPageDocument(raw: unknown): PageDocument {
       .map((block) => readContentBlock(block).block)
       .filter((block): block is ContentBlock => block !== null),
     entries: readArray(r.entries).map((v) => readTrimmed(v)).filter(Boolean),
+    blog: readBlogDocument(r.blog),
     updated_at: readNullableStr(r.updated_at),
     updated_by: readNullableStr(r.updated_by),
   };
@@ -1229,6 +1317,17 @@ function authoredTexts(document: PageDocument): string[] {
     document.hero.headline,
     document.hero.lead,
     ...document.tabs.flatMap((tab) => [tab.label, tab.note ?? ""]),
+    ...(document.blog
+      ? [
+          document.blog.heading,
+          document.blog.intro,
+          ...document.blog.posts.flatMap((post) => [
+            post.author,
+            post.caption,
+            ...post.media.map((item) => item.alt),
+          ]),
+        ]
+      : []),
     ...authoredBlockTexts(document.blocks),
   ].filter(Boolean);
 }
@@ -1305,6 +1404,26 @@ export function validatePageDocument(
   if (document.entries.length > CONTENT_ENTRIES_MAX) errors.push(`A page keeps at most ${CONTENT_ENTRIES_MAX} entries.`);
   if (document.entries.some((entry) => entry.trim().length === 0)) errors.push("An entry reference can't be empty.");
   if (!uniqueStrings(document.entries)) errors.push("Two entries repeat.");
+
+  if (document.blog) {
+    const blog = document.blog;
+    if (!blog.heading.trim()) errors.push("The blog heading can't be empty.");
+    if (blog.posts.length === 0) errors.push("The blog needs at least one post.");
+    blog.posts.forEach((post, i) => {
+      if (!post.caption.trim()) errors.push(`Blog post ${i + 1} needs its caption.`);
+      if (!post.author.trim()) errors.push(`Blog post ${i + 1} needs its author.`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(post.date)) {
+        errors.push(`Blog post ${i + 1} needs its date as YYYY-MM-DD.`);
+      }
+      if (post.link !== null && !HREF_PATTERN.test(post.link)) {
+        errors.push(`Blog post ${i + 1}'s link must start with /, # or https://.`);
+      }
+      post.media.forEach((item, j) => {
+        if (!item.src.trim()) errors.push(`Blog post ${i + 1}'s media ${j + 1} needs a source.`);
+      });
+    });
+    if (!uniqueStrings(blog.posts.map((post) => post.id))) errors.push("Two blog posts share an id.");
+  }
 
   errors.push(...glyphErrors(authoredTexts(document)));
 

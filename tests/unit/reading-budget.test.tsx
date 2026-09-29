@@ -1,8 +1,19 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The reading budget (captain, 2026-09-18 — client review: "too wordy; it
@@ -16,7 +27,7 @@ import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
  *  · list items stay short too, so prose cannot move into a list.
  *
  * Scope: the public content pages that joined this guard — /services, /plans,
- * /immediate-assistance, /facilities, /gallery and the digital-memorial
+ * /facilities, /gallery and the digital-memorial
  * search/find/detail screens (F-04) — plus the agent portal's
  * lead record (F-09); each page joined in the PR that added it (a room page is
  * read at a glance; the lead record must answer the person, the state and the
@@ -82,9 +93,6 @@ const { default: BuilderPage } = await import("@/app/(public)/builder/page");
 const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku]/page");
-const { default: ImmediateAssistancePage } = await import(
-  "@/app/(public)/immediate-assistance/page"
-);
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
@@ -124,7 +132,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/services",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
+      renderToStaticMarkup(withBaskets( await ServicesPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
@@ -136,9 +144,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/plans",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          CartProvider,
-          null,
+        withBaskets(
           await PlansPage(),
         ),
       ),
@@ -147,12 +153,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   {
     name: "/price-list",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage())),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
-  },
-  {
-    name: "/immediate-assistance",
-    render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
+      renderToStaticMarkup(withBaskets( await PriceListPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
@@ -162,9 +163,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/products/[sku] (casket detail)",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          CartProvider,
-          null,
+        withBaskets(
           await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) }),
         ),
       ),
@@ -172,15 +171,15 @@ const PAGES: ReadonlyArray<BudgetPage> = [
   },
   {
     name: "/facilities",
-    // The rooms page has no cart action (its next step is the 24/7 call), so it
-    // renders without the cart context.
-    render: async () => renderToStaticMarkup(await FacilitiesPage()),
+    // The rooms page's next step is an Add-to-Quote chapel line (office, inbox
+    // 047), so it needs the baskets like every other commerce surface.
+    render: async () => renderToStaticMarkup(withBaskets( await FacilitiesPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/gallery",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await GalleryPage())),
+      renderToStaticMarkup(withBaskets( await GalleryPage())),
     openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
   },
   {

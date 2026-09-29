@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import {
   listLandingContent,
@@ -19,6 +20,16 @@ import {
   WAKESETUP_ALCOVE_IMAGE,
   libraryThumb,
 } from "@/lib/media";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The Facilities page (screen inventory P25) — the park's rooms and grounds.
@@ -50,11 +61,11 @@ const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page
 const { default: ServicesPage } = await import("@/app/(public)/services/page");
 
 async function renderFacilities(): Promise<string> {
-  return renderToStaticMarkup(await FacilitiesPage());
+  return renderToStaticMarkup(withBaskets( await FacilitiesPage()));
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(withBaskets( await ServicesPage()));
 }
 
 describe("/facilities shows the rooms a family is choosing between", () => {
@@ -96,13 +107,12 @@ describe("/facilities shows the rooms a family is choosing between", () => {
     const { contact } = await listLandingContent();
     const html = await renderFacilities();
 
-    // One Request-for-Quote action and one call per room.
-    expect((html.match(/Request a quote/g) ?? []).length).toBe(2);
-    expect(html).toContain('href="/quote?');
-    // Two identical-visible actions would be ambiguous to a screen reader:
-    // the visually hidden span names the room first.
-    expect(html).toContain("Ask about the Common chapel:");
-    expect(html).toContain("Ask about the Private chapel:");
+    // One Add-to-Quote action and one call per room (office, inbox 047): the
+    // button adds the chapel line to the basket and its accessible name names
+    // the room, so two identical-visible actions stay unambiguous.
+    expect((html.match(/>Add to Quote</g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Add to Quote: Chapel use — /g) ?? []).length).toBe(2);
+    expect(html).not.toContain('href="/quote?');
     expect((html.match(new RegExp(escapeRe(`Call ${contact.phoneDisplay}`), "g")) ?? []).length)
       .toBeGreaterThanOrEqual(2);
   });
@@ -221,28 +231,28 @@ describe("/facilities reads the staff-editable 24/7 line", () => {
 });
 
 describe("/facilities is reachable from the public chrome and stays one page", () => {
-  it("is linked from the public bar and the footer", async () => {
+  it("stays reachable from the public bar's Explore more menu", async () => {
     const { logo } = await listLandingContent();
-    const chrome = [
-      renderToStaticMarkup(createElement(SiteHeaderBar, { brand: logo, currentPath: "/facilities" })),
-      renderToStaticMarkup(createElement(LandingFooter, { content: await listLandingContent() })),
-    ];
-    for (const html of chrome) {
-      expect(html).toContain('href="/facilities"');
-    }
-    // Facilities now lives in the grouped "Explore more" menu, so it is still
-    // linked from the public bar (the footer keeps its own entry); the
-    // top-level chips no longer carry it.
-    const nav = chrome[0].slice(
-      chrome[0].indexOf('class="anchored-header__nav"'),
-      chrome[0].indexOf("</nav>"),
+    const header = renderToStaticMarkup(
+      createElement(SiteHeaderBar, { brand: logo, currentPath: "/facilities" }),
     );
-    const topLevel = nav.slice(0, nav.indexOf("anchored-header__explore"));
+    // Facilities left the footer's pruned columns (office, inbox 049) and the
+    // top-level chips; the grouped "Explore more" menu is its door in the
+    // public chrome, and every removed route stays live.
+    const footer = renderToStaticMarkup(
+      createElement(LandingFooter, { content: await listLandingContent() }),
+    );
+    expect(footer).not.toContain('href="/facilities"');
+    expect(header).toContain('class="anchored-header__explore-menu"');
+    expect(header).toContain('href="/facilities" aria-current="page"><strong>Facilities</strong>');
+    // The top-level main-bar chips do not carry it (search the MAIN nav, whose
+    // closing tag must be looked up after its start — the utility row's nav
+    // comes first in the document).
+    const navStart = header.indexOf('class="anchored-header__nav"');
+    const topLevel = header.slice(navStart, header.indexOf("</nav>", navStart));
     expect(topLevel).not.toContain('href="/facilities"');
-    expect(chrome[0]).toContain('class="anchored-header__explore-menu"');
-    expect(chrome[0]).toContain('href="/facilities" aria-current="page"><strong>Facilities</strong>');
     // The trigger is marked current while a grouped page is open.
-    expect(chrome[0]).toContain('data-anchored-explore-trigger="true" aria-current="true"');
+    expect(header).toContain('data-anchored-explore-trigger="true" aria-current="true"');
   });
 
   it("renders one h1 and keeps every visual decision in tokens", async () => {

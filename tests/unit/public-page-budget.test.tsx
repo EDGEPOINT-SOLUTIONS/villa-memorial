@@ -1,12 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { LandingView, type LandingViewProps } from "@/components/landing/landing-view";
+import { LandingView } from "@/components/landing/landing-view";
 import { HomePage } from "@/components/public/home-page";
 import { listLandingContent } from "@/lib/api-client/landing";
+import { listLots } from "@/lib/api-client/property";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { homeMapEmbed } from "@/lib/home-model";
+import { builderCatalog } from "@/lib/service-builder-catalog";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 // The lane's pages are server components that render next/link + next/navigation;
 // the home proof surface does not, so the harness supplies the same mocks the
@@ -40,6 +54,7 @@ const { default: ProductsPage } = await import("@/app/(public)/products/page");
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
 const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
+const { default: BlogRoute } = await import("@/app/(public)/blog/page");
 
 /**
  * The public page budget / section blueprint — Phase 0's home proof surface.
@@ -68,83 +83,66 @@ type Blueprint = {
 
 const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
-    // The REAL home. This blueprint used to render `LandingView` and call it
-    // "home (/)", which was true until the new home landed at `/` — after that it
-    // measured the OLD home under the new page's name, and it only kept passing
-    // because landing-view.tsx still rendered a hero. Removing that hero
-    // (captain, 2026-09-27) exposed it: "home (/) renders exactly one h1" failed
-    // against a component that is not on `/` at all.
-    //
-    // It now renders the page `/` actually serves.
+    // The REAL home, rebuilt 2026-09-29 to the captain's approved home-rebuild
+    // plan: seven sections in the plan's order. The blueprint is updated to the
+    // new sections in the same PR that changed them (the file's own rule).
     name: "home (/)",
     render: async () => {
-      const [content, pricing] = await Promise.all([
+      const [content, pricing, lots] = await Promise.all([
         listLandingContent(),
         loadPricingDocument(),
+        listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
       ]);
       return renderToStaticMarkup(
-        HomePage({
-          content,
-          planPricing: pricing.plans,
-          lotCategories: pricing.lotCategories,
-          mapNode: null,
-        }),
+        withBaskets(
+          HomePage({
+            content,
+            pricing: pricing.plans,
+            lotCategories: pricing.lotCategories,
+            builder: builderCatalog(pricing, "", []),
+            lots,
+            mapSrc: homeMapEmbed(null, content.contact.parkAddress).src,
+            chapelResources: [],
+          }),
+        ),
       );
     },
-    // The home's own argument, in order: the promise → who it is for → the two
-    // doors → the park → what it feels like. The blog band used to close it and
-    // was removed by the captain on 2026-09-27 — `/blog` keeps the full feed and
-    // is still linked from the header's "Explore more" menu and the footer, so
-    // the page no longer reprints three posts and nothing became unreachable.
+    // The approved plan's seven sections, in order: the gateway → the hero
+    // photograph → the first park with the builder and chapels → the five plan
+    // tiers → the five service tiles → the lot types with the pinned map → the
+    // contact band.
     sections: [
-      "home-hero",
-      "home-trust",
-      "home-qualify",
-      "home-fork",
-      "home-process",
-      "home-services",
-      "home-caskets",
-      "home-plans",
-      "home-park",
-      "home-gallery",
-      "home-feel",
-      "home-faq",
+      "home-gateway",
+      "home-photo",
+      "home-park__grid",
+      "home-lot-types",
+      "home-niches",
+      "home-plates",
+      "home-contact__grid",
     ],
   },
   {
-    // The blog (/blog) — where the old anchored catalogue actually renders now.
-    // No hero: the captain removed it (2026-09-27), so the shelf leads.
+    // The blog (/blog) — inbox 016 + 025: the blog's OWN page document leads
+    // (heading, intro, one horizontal row per post), then the whole former
+    // LandingView layout returns BENEATH it, bands only — the rails, the
+    // plans-and-lots grid, the tier board, the live park map, the About band
+    // and the newsfeed. No second chrome: PublicShell owns header/footer.
     name: "blog (/blog)",
-    render: async () => {
-      const content = await listLandingContent();
-      const props: Omit<LandingViewProps, "planPricing" | "lotCategories"> = {
-        content,
-        mapNode: null,
-        mapLive: false,
-        sectionCount: 0,
-      };
-      return renderToStaticMarkup(
-        LandingView({ ...props, planPricing: { regular: VMP_PAYMENTS, senior: SENIOR_PAYMENTS }, lotCategories: LOT_PRICE_CATEGORIES }),
-      );
-    },
-    // The storefront order, under the blog's own interior opening: the shelf →
-    // the plan board → the live park map → the About/mission band → the blog
-    // feed → the closing band.
+    render: async () => renderToStaticMarkup(await BlogRoute()),
     sections: [
-      'data-public-hero="interior"',
+      "blog-head",
+      "blog-rows",
+      "anchored-rail--left",
       "plan-lot-grid",
       "plan-board",
       "mid-section--map",
       "about-grid",
-      "blog-feed",
-      "next-steps",
     ],
-    requires: ['data-section-head', 'data-public-disclosure'],
   },
   {
     name: "plans (/plans)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await PlansPage())),
+      renderToStaticMarkup(withBaskets( await PlansPage())),
     // The Lane-3 blueprint: the shared interior hero, then the five-card tier row.
     sections: ['data-public-hero="interior"', 'class="plan-tiers"'],
     requires: ["data-section-head"],
@@ -152,7 +150,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
     name: "price list (/price-list)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage())),
+      renderToStaticMarkup(withBaskets( await PriceListPage())),
     // Hero, then the four disclosed bands in the blueprint's order.
     sections: [
       'data-public-hero="interior"',
@@ -167,16 +165,14 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
     name: "builder (/builder)",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await BuilderPage())),
+      renderToStaticMarkup(withBaskets( await BuilderPage())),
     sections: ['data-public-hero="interior"', 'class="sb-layout"'],
   },
   {
     name: "package detail (/plans/PKG-BASIC)",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          CartProvider,
-          null,
+        withBaskets(
           await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-BASIC" }) }),
         ),
       ),
@@ -223,9 +219,7 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "/products (coffins & caskets)",
     render: async () =>
       renderToStaticMarkup(
-        createElement(
-          CartProvider,
-          null,
+        withBaskets(
           await ProductsPage({ searchParams: Promise.resolve({}) }),
         ),
       ),
@@ -264,7 +258,10 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // plan §5.3/§5.5: hero → the family photographs → the four rate tables, the
     // first open and the rest disclosed.
     name: "/lots/price-list-2026 (lot price list)",
-    render: async () => renderToStaticMarkup(await LotPriceListPage()),
+    render: async () =>
+      renderToStaticMarkup(
+        withBaskets( await LotPriceListPage()),
+      ),
     sections: ['data-public-hero="interior"', "lot-rates-title", "public-disclosure", "price-table"],
     requires: ["data-public-image", "data-public-disclosure"],
   },

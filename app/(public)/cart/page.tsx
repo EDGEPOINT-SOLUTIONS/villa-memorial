@@ -7,7 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CartLineRow } from "@/components/cart-line-row";
 import { cartLineKey, useCart, type CartLine } from "@/lib/cart/cart-context";
-import { releaseChapelCartLine } from "@/lib/chapel-booking-api";
+import { releaseChapelQuoteLine } from "@/lib/chapel-booking-api";
 import { formatMinorUnits, previewSubtotal } from "@/lib/money";
 
 /**
@@ -27,7 +27,7 @@ export default function CartPage() {
 
   async function removeLine(line: CartLine) {
     setReleaseError(null);
-    const result = await releaseChapelCartLine(
+    const result = await releaseChapelQuoteLine(
       line,
       cartLineKey(line),
       cart.remove,

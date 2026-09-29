@@ -20,11 +20,16 @@ const CSS = ["styles/components.css", "styles/base.css", "styles/utilities.css"]
   .map((file) => readFileSync(path.join(ROOT, file), "utf8"))
   .join("\n");
 
-/** Every `home…` class token a `className=` literal or template names. */
+/** Every `home…` class token a `className=` literal or template names. A
+ *  template's `${…}` expressions are stripped first: they are code, and their
+ *  tokens (`home-niche${index`) are not class names. Conditional classes inside
+ *  an expression are checked by the exact-rule half when they are literals in
+ *  the stylesheet's own vocabulary. */
 function homeTokens(source: string): string[] {
   const found = new Set<string>();
   for (const match of source.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`\})/g)) {
-    for (const token of (match[1] ?? match[2] ?? "").split(/\s+/)) {
+    const raw = (match[1] ?? match[2] ?? "").replace(/\$\{[^}]*\}/g, " ");
+    for (const token of raw.split(/\s+/)) {
       if (/^home(-|$)/.test(token)) found.add(token);
     }
   }
@@ -49,14 +54,93 @@ describe("the home ships its stylesheet", () => {
   });
 
   it("covers every section the page blueprint pins", () => {
+    // The seven sections of the approved home-rebuild plan (2026-09-29).
     for (const section of [
-      "home-hero",
-      "home-qualify",
-      "home-fork",
+      "home-gateway",
+      "home-photo",
       "home-park",
-      "home-feel",
+      "home-plans",
+      "home-services",
+      "home-lots",
+      "home-contact",
     ]) {
       expect(defined.has(section), section).toBe(true);
     }
+  });
+});
+
+/** Comments carry prose ("the wash was removed"), so strip them before the
+ *  declarations below are read. */
+const RULES = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
+
+/** Every top-level rule body for an exact selector (a base rule plus any media
+ *  or supports re-declaration). */
+function ruleBodies(selector: string): string[] {
+  const pattern = new RegExp(
+    `(?:^|\\n)\\s*${selector.replace(/\./g, "\\.")}\\s*\\{([^}]*)\\}`,
+    "g",
+  );
+  return [...RULES.matchAll(pattern)].map((match) => match[1]);
+}
+
+describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
+  it("keeps band 1 white: the gateway declares no ground", () => {
+    const bodies = ruleBodies(".home-gateway");
+    expect(bodies.length, "the .home-gateway rules exist").toBeGreaterThan(0);
+    for (const body of bodies) {
+      // No wash, no gradient, no tint — the clouds carry the sky alone.
+      expect(body, ".home-gateway paints a ground").not.toMatch(/background/);
+    }
+  });
+
+  it("carries no arch and no clouds anywhere (office, inbox 032)", () => {
+    // Both decorations were removed entirely — the home has no arch at all
+    // (page frame or gateway) and no drifting shape. Markup, rules and
+    // keyframes are all gone; band 1 is plain white.
+    for (const token of ["home-frame", "home-gateway__frame", "home-gateway__arch", "home-gateway__cloud", "CLOUD_PATH"]) {
+      expect(SOURCE).not.toContain(token);
+    }
+    for (const selector of [".home-frame", ".home-gateway__frame", ".home-gateway__arch", ".home-gateway__cloud", "@keyframes home-cloud-drift"]) {
+      expect(RULES).not.toContain(selector);
+    }
+  });
+
+  it("runs the band as a funnel by size, not weight (inbox 032)", () => {
+    // Row 1 smallest, row 2 the band's LARGEST at a light weight, row 3 under
+    // it — scale carries the hierarchy, never weight.
+    const eyebrow = ruleBodies(".home-gateway__place")[0];
+    const title = ruleBodies(".home-gateway__title")[0];
+    const lead = ruleBodies(".home-gateway__lead")[0];
+    expect(eyebrow).toMatch(/font-size:\s*var\(--text-micro\)/);
+    expect(title).toMatch(/font-size:\s*var\(--text-hero\)/);
+    expect(title).toMatch(/font-weight:\s*500/);
+    expect(lead).toMatch(/font-size:\s*var\(--text-lg\)/);
+    // The icon row keeps its labels and loses its detail lines.
+    expect(SOURCE).not.toContain("fact.note");
+    expect(RULES).not.toContain(".home-trust__note");
+  });
+
+  it("scales the band 1.5× from the ladder, desktop only (inbox 034/036)", () => {
+    // One multiplier, scoped to band 1 and to desktop — every step derived
+    // from an existing alias so nothing else in the product moves. The 2×
+    // cap is gone: at 1.5× the headline genuinely is 1.5× (86.4px) and fits.
+    const at = RULES.indexOf("--gateway-type-scale: 1.5;");
+    expect(at, "the gateway scale block exists").toBeGreaterThanOrEqual(0);
+    const block = RULES.slice(RULES.lastIndexOf("@media", at), RULES.indexOf("\n}", at));
+    expect(block).toContain("@media (min-width: 48.001rem)");
+    expect(block).toMatch(/--text-micro:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-xs\)\)/);
+    expect(block).toMatch(
+      /--text-hero:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-display\)\)/,
+    );
+    expect(block).not.toContain("min(");
+    expect(block).toMatch(
+      /--text-body:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-lg\)\)/,
+    );
+    expect(block).toMatch(
+      /--text-ui:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-md\)\)/,
+    );
+    // The call grows as a button: label AND padding, from the same tokens.
+    expect(block).toMatch(/padding:\s*calc\(var\(--gateway-type-scale\) \* var\(--space-2\)\)/);
+    expect(block).toMatch(/calc\(var\(--gateway-type-scale\) \* var\(--space-4\)\)/);
   });
 });

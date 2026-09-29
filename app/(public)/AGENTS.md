@@ -5,36 +5,34 @@
 > The cross-cutting rules — merge blockers, traps, the component kit, tokens, money and
 > accessibility — stay in the repository-root [`AGENTS.md`](../../AGENTS.md). Read that first.
 
-## Landing page — content-model home (read before touching "/" or its admin)
+## Landing content model — the `/blog` storefront bands (read before touching "/" or "/blog")
 
-- The public home (app/page.tsx) is NOT hand-written JSX sections: it renders
-  `components/landing/landing-view.tsx` from a LandingPage content document
-  (hero · rails · about · services · plans · map · blog copy — the middle column
-  renders the live park map BEFORE the newsfeed; keep that order when editing).
-  Interior pages keep their own routes/layouts and are untouched.
+- The public home (`app/(public)/page.tsx`) renders `components/public/home-page.tsx`,
+  the approved seven-section rebuild (root `AGENTS.md`, record in
+  `docs/08-delivery/home-rebuild-design/`). The former `LandingView` is UNROUTED;
+  its BANDS (`LandingBands` in `components/landing/landing-view.tsx` — both rails +
+  the middle sheet, NO chrome) render beneath the blog document on `/blog` (office,
+  inbox 025): landing-content copy, the live park map, the plans-and-lots grid and
+  the storefront bands, in their original order — MINUS the newsfeed band, which
+  repeated the posts the page already lists above it and was removed (office,
+  inbox 048). The blog page's own lead listing reads the BLOG page document; the
+  restored bands read the landing document and the live stores, and the two
+  documents stay independent. The bands never
+  carry a second header, footer, phone bar or closing action band — `PublicShell`
+  owns exactly one of each.
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
   hold UNLIMITED items per side — an empty service-card or blog list is legal).
-  The hero also carries a staff-chosen background colour + transparency
-  (`hero.background` / `hero.backgroundTransparency`; palette, colour validation
-  and the layer helpers live in `lib/landing/hero-background.ts`), an optional
-  `hero.textColour`, and OPTIONAL copy: when `eyebrow`/`headline`/`subline` are
-  all empty the home renders the RAW photograph (`.hero-home--image-only`) with
-  no wash, scrim or gradient, and the park hero does the same
-  (`.hero-premium--image-only`). There is **no constant readability scrim** —
-  100% transparency = the clear photo (`heroBackgroundLayer` returns null); 0% =
-  the ONE `.hero-home__wash` layer solid, BELOW all hero copy. `hero.textColour`
-  paints through the `--hero-text-colour` custom property set on the page shell
-  (`lib/landing/hero-background.ts` → `heroTextColourStyle`); every hero copy
-  rule reads `var(--hero-text-colour, <token>)`, so absent = the shipped ink.
-  The editor control is
-  `components/landing/hero-background-field.tsx` (palette · free input · live
-  preview · 0–100% slider · the free text colour). The rail's oversized lead
+  The LandingView hero machinery is RETIRED from every routed page: its
+  `.hero-home*` hero no longer renders anywhere, and `LandingBands` opens on the
+  blog document. The background helpers stay live where the product still uses
+  them — the park page's wash (`heroBackgroundLayer`, `lib/landing/hero-background.ts`)
+  and the package page's hero text colour (`heroTextColourStyle`); history and
+  evidence in `docs/08-delivery/hero-flexible-design/`. The rail's oversized lead
   image `.rail-item--lead .rail-thumb` is height-capped
   (`clamp(5.5rem, 7vw, 6.5rem)`) so the default rail list fits without a
-  vertical scrollbar — evidence + measured heights in
-  `docs/08-delivery/hero-flexible-design/`.
+  vertical scrollbar.
   The three-column anchored shell (fixed 17rem rails + centred 50rem middle) and
   the rail/footer/section styles live in the "anchored catalogue home" block of
   `styles/components.css`; below 75rem the rails collapse into the
@@ -111,7 +109,8 @@
   — never a per-plot price.
 - `/lots` runs on the catalogue's **one control ladder** (captain follow-up,
   2026-09-21): a card's single action is `.btn--accent` (the gold primary rung,
-  matching `Add to cart` on the other catalogue cards — not the page-level sky
+  matching `Add to cart` on the priced catalogue cards (a lot itself is
+  quote-only, so `/lots` has no cart action) — not the page-level sky
   `.btn--primary`), every supporting action is `.btn--secondary`, and the
   panel's commit (`Go` / `Show N lots`) is `.btn--primary` full-size on both
   surfaces. The rail Clear and the no-results Clear are the same control; the
@@ -149,10 +148,10 @@
   `components/landing/next-steps.tsx`, rendered by `PublicShell` (interior pages)
   and `LandingView` (home) from the landing contact document — call the office
   (primary, a real `tel:` link with a “Call …” label), ask a question (`/contact`),
-  start the arrangement (`/builder`). `/immediate-assistance` is the one documented
-  exemption: it IS the call-first screen (F-01) and renders no band. Never add a
-  second closing grammar or a per-page CTA list; a new public page inherits it
-  from the shell.
+  start the arrangement (`/builder`). EVERY public page gets it: the former
+  /immediate-assistance exemption went with that page (office, inbox 040). Never
+  add a second closing grammar or a per-page CTA list; a new public page inherits
+  it from the shell.
 - **The contact surface is `/contact`**: the message form comes FIRST and the
   office's published facts CLOSE the page — both hotlines, the main-office and park
   addresses, availability, then the directions card last — plus the
@@ -338,34 +337,23 @@
   facts/prices/inclusions come from the catalogue entry + `lib/villa-pricing.ts` — never
   typed into the view. `tests/unit/villa-services-premium.test.tsx` pins the grouping,
   the illustrative labels and the detail content.
-- Known storefront a11y debt (pre-existing, visible on every catalogue surface):
-  `CatalogueAddButton`'s aria-label ("Add <item> to cart") does not contain its visible
-  text ("Add to cart"), so Lighthouse flags WCAG 2.5.3 label-content-name-mismatch. Fix
-  the label and its pinned test strings (`price-surfacing`, `cart-catalogue`,
-  `villa-services-premium`) in one sweep.
+- WCAG 2.5.3 label-content-name (fixed): every add control's accessible name must START
+  with its visible label — `CatalogueAddButton` renders `` `${label}: ${item.name}` `` and
+  `LotQuoteButton` renders `Add to quote: <product> lot`, both matching their visible text.
+  `price-surfacing`, `cart-catalogue`, `quote-basket` and `villa-services-premium` pin the
+  strings, so a label reworded without its aria-label fails there.
 
-## Immediate assistance — `/immediate-assistance` (read before touching it or its entry points)
+## Immediate assistance — REMOVED (office, 2026-09-29, inbox 040)
 
-- The F-01 screen (captain 2026-09-18): the hardest moment gets its own page. Its content
-  order is the contract — the enormous `tel:` call first (read from the landing document's
-  contact region, zone 01; never typed), then four numbered steps, then one reassurance line,
-  then the secondary alternatives (location · `/contact` · `/client/login`). Full width
-  belongs to the call; nothing else asks for a decision. One `h1`, no motion, tokens only.
-  Honest states: the content document carries no street address and no office hours, so they
-  are omitted — never invent a second number or a schedule.
-- Entry points are the phone bar's `anchored-phonebar__btn--help` target (mobile;
-  the approved D3 bar carries three targets — recorded in
-  `docs/08-delivery/public-nav-design/README.md` §4) and the guide pages'
-  "Immediate assistance" buttons. The retired header utility row's
-  `anchored-header__assist` chip and the home rail's `rail-call__assist` link are
-  both gone (captain 2026-09-21); the phone bar's "Call 24/7" is the one-tap call.
-  Never add a nav menu entry.
-- It is a reading-budget page: `tests/unit/reading-budget.test.tsx` renders it (paragraphs
-  ≤ 30 words, opening sentence ≤ 12, list items ≤ 30) and the phone number + step 1 must
-  stay above the fold at 390 px (evidence + screenshots under
-  `docs/08-delivery/immediate-assistance-design/`). `tests/unit/immediate-assistance.test.tsx`
-  pins the call-first order, the doc-driven number, the steps and the honest omissions;
-  `lib/seo.ts` publishes the route in `PUBLIC_PAGES` and `sitemap.xml`.
+- The route `app/(public)/immediate-assistance/` is DELETED; the old URL answers
+  as not-found (no redirect stub was added — the office can ask for one). Its
+  entry points were rewired, not left dangling: the phone bar's
+  `anchored-phonebar__btn--help` "Get help" opens `/contact`, and the guide
+  pages' "Immediate assistance" outline action points at `/contact`. The sitemap
+  entry in `lib/seo.ts` and `PublicShell`'s closing-band exemption went with it.
+  The historical design record is
+  `docs/08-delivery/immediate-assistance-design/` — read it as history, never as
+  a live route.
 
 ## Facilities page — `/facilities` (the rooms a family is choosing between)
 
@@ -475,9 +463,10 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   item 5):** each chapel card carries one `Request a quote` action to `/quote`, not the
   booking step. The booking flow itself still lives here —
   `components/chapel-booking-dialog.tsx` (choose chapel → start date + 3–9 day stay →
-  per-day availability → exact range price → Add to cart) — but nothing on a public service
-  page links it any more; re-linking it is a product decision. Never re-add a direct chapel
-  Add-to-cart button.
+  per-day availability → exact range price → Add to quote) — but nothing on a public service
+  page links it any more; re-linking it is a product decision. A chapel stay is QUOTE-ONLY
+  (no published amount the office will stand behind), so it lands in the quote basket and
+  never in the cart; never re-add a direct chapel Add-to-cart button.
 - **One rules home: `lib/chapel-booking.ts`** (pure, client+server): the 3–9 day bound,
   UTC-midnight calendar windows, per-day occupancy (a range is bookable only when no
   confirmed booking and no blocked date touches any of its days), prices read through
@@ -485,13 +474,15 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   and the booking metadata a cart line carries. Server orchestration (chapel slice of
   the schedule, reserve, release) is `lib/api-client/chapel-reservations.ts`; the BFF
   routes are `/api/chapel/schedule`, `/api/chapel/bookings`,
-  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).- **Reserve on add, release on remove**: Add to cart creates a scheduling booking
+  `/api/chapel/bookings/[id]/release` — handlers stay rules-free (AGENTS rule 1).- **Reserve on add, release on remove**: **Add to quote** creates a scheduling booking
   (title marker `Online chapel booking`), removing the line cancels it; the booking is
   re-checked against a fresh schedule and rolled back if the service flags a race
-  (scheduling v1 flags conflicts instead of blocking — cut line #3). The cart line is
-  keyed by `lineId` (`cartLineKey` in `lib/cart/cart-context.tsx`) so two stays of the
-  same class coexist; checkout still sends only `{sku, quantity}` with quantity = days
-  and the per-day unit price, so the server-repriced order totals the stay.
+  (scheduling v1 flags conflicts instead of blocking — cut line #3). The QUOTE line is
+  keyed by `lineId` (`quoteLineKey` in `lib/quote-basket/quote-basket-context.tsx`) so
+  two stays of the same class coexist. Chapels are quote-only, so they never reach the
+  priced cart/checkout; the quote page submits the whole basket as one inquiry, and the
+  office confirms the stay by hand (`claimChapelQuoteLines` links a hold to an order only
+  for a legacy cart line that still carries one).
 - **PLACEHOLDER config**: which chapels exist, their names, classes and closed dates come
   from the staff screen below (durable store) — `CHAPEL_CLASS_RULES` in
   `lib/chapel-booking.ts` is now only the fallback for a resource the park's own records do
@@ -527,7 +518,8 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
   screen ends on the office — the staff-editable 24/7 number plus the existing `/contact`
   request path (`buildRequestHref`, with the arrangement written into the note).
 - **Nav/SEO**: `Builder` in the grouped "Explore more" menu (`EXPLORE_MORE_LINKS`),
-  the footer's Explore column, and `/builder` in `lib/seo.ts` `PUBLIC_PAGES`
+  the footer's Care & Planning column (office, inbox 049), and `/builder` in
+  `lib/seo.ts` `PUBLIC_PAGES`
   (indexable — a selling surface, unlike the memorial pages).
 - Evidence: `tests/unit/service-builder.test.ts` (sheet figures, store-read rates, the senior
   rules, the covered total, the request note), `tests/unit/service-builder-page.test.tsx`

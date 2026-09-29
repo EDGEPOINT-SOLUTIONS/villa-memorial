@@ -13,7 +13,7 @@ import { parseCss, readStyle } from "../helpers/css-rules";
  * The rule (plan §4.6, captain call 4):
  *   1 commit  sky   — the PAGE's commitment (Pay/Send/Book/Search/Sign in);
  *                     ≤ 1 per band, ≤ 1 above the fold;
- *   2 item    gold  — per-ITEM commerce (Add to cart / Request / Check dates);
+ *   2 item    gold  — per-ITEM commerce (Add to quote / Request / Check dates);
  *                     one per row;
  *   3 support outline — back, nav, filters' Clear.
  *
@@ -53,7 +53,7 @@ describe("the home hero is the proof surface", () => {
       brandName: "Villa Memorial Park",
       headline: "Honoring every life with dignity and light.",
       subline: "You are not alone.",
-      primary: { label: "I need help now", href: "/immediate-assistance" },
+      primary: { label: "I need help now", href: "/contact" },
       secondary: { label: "Plan ahead", href: "/plans" },
     }),
   );

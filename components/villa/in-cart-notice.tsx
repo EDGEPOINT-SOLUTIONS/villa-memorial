@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { cartLineKey, useCart, type CartLine } from "@/lib/cart/cart-context";
 import { chapelBookingLineSummary } from "@/lib/chapel-booking";
-import { releaseChapelCartLine } from "@/lib/chapel-booking-api";
+import { releaseChapelQuoteLine } from "@/lib/chapel-booking-api";
 import { formatMinorUnits } from "@/lib/money";
 
 /**
@@ -44,7 +44,7 @@ export function InCartNotice({
 
   async function remove() {
     setReleaseError(null);
-    const result = await releaseChapelCartLine(line, cartLineKey(line), cart.remove);
+    const result = await releaseChapelQuoteLine(line, cartLineKey(line), cart.remove);
     if (result.error) setReleaseError(result.error);
   }
 

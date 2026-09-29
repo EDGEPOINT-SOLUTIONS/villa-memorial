@@ -30,6 +30,11 @@ import {
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { isValidCssColor, readHeroTextColour, readHeroTransparency } from "@/lib/landing/hero-background";
 import { PLAN_TIER_IDS, type LotCategory, type PlanTier } from "@/lib/pricing-model";
+import {
+  ALACARTE_SERVICE_FEES,
+  CASKET_MODELS,
+  EMBALMING_RATES,
+} from "@/lib/villa-pricing";
 import contentFile from "@/lib/fixtures/landing/content.json";
 
 export type RailItemKind = "product" | "service" | "plan" | "link";
@@ -233,6 +238,196 @@ export type FaqSection = {
   links: Cta[];
 };
 
+/* ===========================================================================
+ * THE HOME'S SEVEN SECTIONS — the approved home-rebuild plan (2026-09-29)
+ *
+ * The plan of record is the captain's `villa-home-restructure` artifact: seven
+ * sections in order — the gateway, the hero photograph, the park with the
+ * arrangement builder and the two chapels, the five plan tiers, the five
+ * service tiles, the four lot types with the park map, and the contact band.
+ * This model is the editable half of it: each section's own words, actions,
+ * pictures and live bindings, edited per section at /staff/landing/home.
+ *
+ * LIVE BINDINGS (validated against the stores at save, read at render):
+ *   · builder casket models ← the 24 sheet models joined to the live catalogue
+ *   · builder preparation days ← the sheet's 3–9 day embalming ladder
+ *   · builder chapel / five services ← the sheet's chapel rates and a-la-carte fees
+ *   · plan tiers ← the pricing store (five tiers, live monthly + senior)
+ *   · service tiles ← the five a-la-carte services
+ *   · lot tiles ← the pricing store's lot families
+ * ========================================================================= */
+
+export type HomeFact = {
+  id: string;
+  /** The fact's own label ("Answered any hour"). */
+  label: string;
+  /** Its one supporting line. Empty hides the line. */
+  note: string;
+};
+
+/** Section 1 · the gateway — centred words and the call. */
+export type HomeGatewaySection = {
+  /** The place line above the headline; defaults to the contact location. */
+  place: string;
+  headline: string;
+  /** The second line of the headline, painted in the sky ink. */
+  promise: string;
+  lead: string;
+  /** The ONE call action is BOUND to the 24/7 line (content.contact); only the
+   *  supporting action is authored here. */
+  secondary: Cta;
+  facts: HomeFact[];
+};
+
+/** Section 2 · the hero photograph, alone and whole. The band's title is read
+ *  from the office's own park address (the place name, not a typed string). */
+export type HomePhotoSection = {
+  /** The uppercase kicker above the title. */
+  kicker: string;
+  image: string | null;
+  alt: string;
+};
+
+/** Section 3 · the arrangement builder's live bindings and its own words. */
+export type HomeBuilderSection = {
+  title: string;
+  note: string;
+  /** Sheet model names (a subset of CASKET_MODELS), in the order shown. */
+  casketModels: string[];
+  /** The preparation-day ladder rows shown (a subset of 3–9). */
+  preparationDays: number[];
+  /** Show the three-day common/private chapel choices. */
+  includeChapel: boolean;
+  /** Show the five a-la-carte services line. */
+  includeServices: boolean;
+  /** The closing quote action; the call action is bound to the 24/7 line. */
+  secondary: Cta;
+};
+
+/** One chapel card under the park photograph. */
+export type HomeChapel = {
+  id: string;
+  /** The scheduling resource this card reads (a ChapelRecord id) when bound. */
+  resourceId: string | null;
+  name: string;
+  /** The class line ("Common chapel" / "Private chapel"). */
+  kind: string;
+  what: string;
+  image: string | null;
+  /** The sample-set-up honesty caption the plan prints under every chapel. */
+  caption: string;
+};
+
+/** Section 3 · the first memorial park photograph + builder + chapels. */
+export type HomeParkSection = {
+  image: string | null;
+  imageAlt: string;
+  chapelsHeading: string;
+  builder: HomeBuilderSection;
+  chapels: HomeChapel[];
+  chapelsAction: Cta;
+};
+
+/** Section 4 · Villa Memorial Plan — heading + one action; the five tiers read
+ *  the pricing store and the TYPES OF COFFIN sheet's own tier lines. */
+export type HomePlansSection = {
+  kicker: string;
+  heading: string;
+  action: Cta;
+};
+
+/** One service tile on the Funeraria Memorial Services band. */
+export type HomeServiceTile = {
+  id: string;
+  /** The live a-la-carte service label this tile binds to. */
+  service: string;
+  /** The name the tile prints ("Coffins" for the ORD-coffin service). */
+  label: string;
+  image: string | null;
+  imageAlt: string;
+  quote: Cta;
+};
+
+/** Section 5 · Funeraria Memorial Services. NO amount ever renders here —
+ *  the client's minute 5 is explicit; every line is a request. */
+export type HomeServicesSection = {
+  kicker: string;
+  heading: string;
+  action: Cta;
+  /** The one centred action for all five services. */
+  allQuote: Cta;
+  items: HomeServiceTile[];
+};
+
+/** One lot-type tile on the Villa Memorial Park band. */
+export type HomeLotTile = {
+  id: string;
+  /** The live lot family title this tile prices from (the pricing store). */
+  category: string;
+  /** The product row inside that family whose figures the tile prints. */
+  product: string;
+  /** The name the tile prints (the park's own name for the ground). */
+  label: string;
+  image: string | null;
+  imageAlt: string;
+};
+
+/** Section 6 · Villa Memorial Park — the 2×2 lot types, the pinned park map and
+ *  the detail line under it. */
+export type HomeLotsSection = {
+  kicker: string;
+  heading: string;
+  action: Cta;
+  /** The detail panel's request action. */
+  quote: Cta;
+  items: HomeLotTile[];
+};
+
+/** Section 7 · Contact — the enquiry form and the embedded park map. */
+export type HomeContactSection = {
+  kicker: string;
+  heading: string;
+  lead: string;
+  mapTitle: string;
+  /** The address line under the map (the office/park line). */
+  mapNote: string;
+  /** The label of the directions action; its destination is the client's own
+   *  recorded park address (lib/location-map.ts), never authored here. */
+  directionsLabel: string;
+};
+
+/** The entrance overlay's marquee copy (office, inbox 050). Two lines only:
+ *  the greeting and the welcome; the animation itself owns the rest. */
+export type HomeIntroSection = {
+  /** The first line ("Hello,"). */
+  hello: string;
+  /** The welcome line ("Welcome to Villa Funeraria"). */
+  welcome: string;
+};
+
+export type HomeSections = {
+  intro: HomeIntroSection;
+  gateway: HomeGatewaySection;
+  photo: HomePhotoSection;
+  park: HomeParkSection;
+  plans: HomePlansSection;
+  services: HomeServicesSection;
+  lots: HomeLotsSection;
+  contact: HomeContactSection;
+};
+
+/** The seven section ids, in render order — the editor's own navigator. */
+export const HOME_SECTION_IDS = [
+  "gateway",
+  "photo",
+  "park",
+  "plans",
+  "services",
+  "lots",
+  "contact",
+] as const;
+export type HomeSectionId = (typeof HOME_SECTION_IDS)[number];
+
 export type LandingContent = {
   version: 1;
   updated_at: string | null;
@@ -246,6 +441,18 @@ export type LandingContent = {
   blog: BlogSection;
   map: MapSection;
   faq: FaqSection;
+  /**
+   * The public home's seven sections (the approved home-rebuild plan,
+   * 2026-09-29). The home at `/` renders THESE sections and nothing else; the
+   * fields above keep feeding the other surfaces they still own (/blog,
+   * the FAQ page, the chrome and the contact facts).
+   *
+   * WHAT IS NEVER AUTHORED HERE: an amount. Every figure the home prints is read
+   * at render from the pricing store or the 2026 sheets (plan rates, lot prices,
+   * casket SRPs, embalming, chapel rates) — a save can bind a section to a live
+   * source but can never drill a number into content.
+   */
+  home: HomeSections;
 };
 
 type ContentStore = { content: LandingContent };
@@ -326,6 +533,57 @@ function authoredText(content: LandingContent): string[] {
     push(item.answer);
   }
   for (const link of content.faq.links) push(link.label);
+  // The seven home sections — every string a member of staff can type there.
+  const home = content.home;
+  push(home.gateway.place);
+  push(home.gateway.headline);
+  push(home.gateway.promise);
+  push(home.gateway.lead);
+  push(home.gateway.secondary.label);
+  for (const f of home.gateway.facts) {
+    push(f.label);
+    push(f.note);
+  }
+  push(home.photo.kicker);
+  push(home.photo.alt);
+  push(home.park.imageAlt);
+  push(home.park.chapelsHeading);
+  push(home.park.builder.title);
+  push(home.park.builder.note);
+  push(home.park.builder.secondary.label);
+  for (const c of home.park.chapels) {
+    push(c.name);
+    push(c.kind);
+    push(c.what);
+    push(c.caption);
+  }
+  push(home.park.chapelsAction.label);
+  push(home.plans.kicker);
+  push(home.plans.heading);
+  push(home.plans.action.label);
+  push(home.services.kicker);
+  push(home.services.heading);
+  push(home.services.action.label);
+  push(home.services.allQuote.label);
+  for (const t of home.services.items) {
+    push(t.label);
+    push(t.imageAlt);
+    push(t.quote.label);
+  }
+  push(home.lots.kicker);
+  push(home.lots.heading);
+  push(home.lots.action.label);
+  push(home.lots.quote.label);
+  for (const t of home.lots.items) {
+    push(t.label);
+    push(t.imageAlt);
+  }
+  push(home.contact.kicker);
+  push(home.contact.heading);
+  push(home.contact.lead);
+  push(home.contact.mapTitle);
+  push(home.contact.mapNote);
+  push(home.contact.directionsLabel);
   return out;
 }
 
@@ -468,6 +726,174 @@ function readFaqSection(raw: unknown): FaqSection {
   };
 }
 
+/* --------------------------- the home's seven sections --------------------------- */
+
+function asRecord(raw: unknown): Record<string, unknown> {
+  return (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
+}
+
+function readHomeFact(raw: unknown, index: number): HomeFact | null {
+  const r = asRecord(raw);
+  const label = str(r.label);
+  const note = str(r.note);
+  if (!label && !note) return null;
+  return { id: str(r.id) || `fact-${index + 1}`, label, note };
+}
+
+/** The seeded section, used field by field when a saved document predates the
+ *  home model (or a hand-edited store omits one) — a legacy document keeps the
+ *  approved plan rather than rendering a broken band. */
+function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
+  const r = asRecord(raw);
+  const introRaw = asRecord(r.intro);
+  const gatewayRaw = asRecord(r.gateway);
+  const photoRaw = asRecord(r.photo);
+  const parkRaw = asRecord(r.park);
+  const builderRaw = asRecord(parkRaw.builder);
+  const plansRaw = asRecord(r.plans);
+  const servicesRaw = asRecord(r.services);
+  const lotsRaw = asRecord(r.lots);
+  const contactRaw = asRecord(r.contact);
+
+  /** A string field: a missing value falls back; a cleared one ("") stays cleared. */
+  const text = (obj: Record<string, unknown>, key: string, fallbackValue: string): string => {
+    const value = obj[key];
+    return typeof value === "string" ? value : fallbackValue;
+  };
+  const list = <T>(rawList: unknown, read: (item: unknown, index: number) => T | null, fallbackList: T[]): T[] => {
+    if (!Array.isArray(rawList)) return fallbackList;
+    return rawList.map(read).filter((x): x is T => x !== null);
+  };
+  const cta = (objValue: unknown, fallbackValue: Cta): Cta => readCta(objValue, fallbackValue);
+
+  const intro: HomeIntroSection = {
+    hello: text(introRaw, "hello", fallback.intro.hello),
+    welcome: text(introRaw, "welcome", fallback.intro.welcome),
+  };
+
+  const gateway: HomeGatewaySection = {
+    place: text(gatewayRaw, "place", fallback.gateway.place),
+    headline: text(gatewayRaw, "headline", fallback.gateway.headline),
+    promise: text(gatewayRaw, "promise", fallback.gateway.promise),
+    lead: text(gatewayRaw, "lead", fallback.gateway.lead),
+    secondary: cta(gatewayRaw.secondary, fallback.gateway.secondary),
+    facts: list(gatewayRaw.facts, readHomeFact, fallback.gateway.facts),
+  };
+
+  const photo: HomePhotoSection = {
+    kicker: text(photoRaw, "kicker", fallback.photo.kicker),
+    image: nullableStr(photoRaw.image),
+    alt: text(photoRaw, "alt", fallback.photo.alt),
+  };
+
+  const builder: HomeBuilderSection = {
+    title: text(builderRaw, "title", fallback.park.builder.title),
+    note: text(builderRaw, "note", fallback.park.builder.note),
+    casketModels: Array.isArray(builderRaw.casketModels)
+      ? builderRaw.casketModels.map((m) => str(m)).filter((m) => m.length > 0)
+      : fallback.park.builder.casketModels,
+    preparationDays: Array.isArray(builderRaw.preparationDays)
+      ? builderRaw.preparationDays
+          .map((d) => (typeof d === "number" ? d : Number.parseInt(str(d), 10)))
+          .filter((d) => Number.isFinite(d))
+      : fallback.park.builder.preparationDays,
+    includeChapel:
+      typeof builderRaw.includeChapel === "boolean"
+        ? builderRaw.includeChapel
+        : fallback.park.builder.includeChapel,
+    includeServices:
+      typeof builderRaw.includeServices === "boolean"
+        ? builderRaw.includeServices
+        : fallback.park.builder.includeServices,
+    secondary: cta(builderRaw.secondary, fallback.park.builder.secondary),
+  };
+
+  const readChapel = (rawChapel: unknown, index: number): HomeChapel | null => {
+    const c = asRecord(rawChapel);
+    const name = str(c.name);
+    if (!name) return null;
+    return {
+      id: str(c.id) || `chapel-${index + 1}`,
+      resourceId: nullableStr(c.resourceId),
+      name,
+      kind: str(c.kind),
+      what: str(c.what),
+      image: nullableStr(c.image),
+      caption: str(c.caption),
+    };
+  };
+
+  const park: HomeParkSection = {
+    image: nullableStr(parkRaw.image),
+    imageAlt: text(parkRaw, "imageAlt", fallback.park.imageAlt),
+    chapelsHeading: text(parkRaw, "chapelsHeading", fallback.park.chapelsHeading),
+    builder,
+    chapels: list(parkRaw.chapels, readChapel, fallback.park.chapels),
+    chapelsAction: cta(parkRaw.chapelsAction, fallback.park.chapelsAction),
+  };
+
+  const plans: HomePlansSection = {
+    kicker: text(plansRaw, "kicker", fallback.plans.kicker),
+    heading: text(plansRaw, "heading", fallback.plans.heading),
+    action: cta(plansRaw.action, fallback.plans.action),
+  };
+
+  const readServiceTile = (rawTile: unknown, index: number): HomeServiceTile | null => {
+    const t = asRecord(rawTile);
+    const service = str(t.service);
+    if (!service) return null;
+    return {
+      id: str(t.id) || `svc-${index + 1}`,
+      service,
+      label: str(t.label) || service,
+      image: nullableStr(t.image),
+      imageAlt: str(t.imageAlt),
+      quote: cta(t.quote, { label: "Add to Quote", href: "/quote" }),
+    };
+  };
+
+  const services: HomeServicesSection = {
+    kicker: text(servicesRaw, "kicker", fallback.services.kicker),
+    heading: text(servicesRaw, "heading", fallback.services.heading),
+    action: cta(servicesRaw.action, fallback.services.action),
+    allQuote: cta(servicesRaw.allQuote, fallback.services.allQuote),
+    items: list(servicesRaw.items, readServiceTile, fallback.services.items),
+  };
+
+  const readLotTile = (rawTile: unknown, index: number): HomeLotTile | null => {
+    const t = asRecord(rawTile);
+    const category = str(t.category);
+    if (!category) return null;
+    return {
+      id: str(t.id) || `lot-${index + 1}`,
+      category,
+      product: str(t.product),
+      label: str(t.label) || str(t.product) || category,
+      image: nullableStr(t.image),
+      imageAlt: str(t.imageAlt),
+    };
+  };
+
+  const lots: HomeLotsSection = {
+    kicker: text(lotsRaw, "kicker", fallback.lots.kicker),
+    heading: text(lotsRaw, "heading", fallback.lots.heading),
+    action: cta(lotsRaw.action, fallback.lots.action),
+    quote: cta(lotsRaw.quote, fallback.lots.quote),
+    items: list(lotsRaw.items, readLotTile, fallback.lots.items),
+  };
+
+  const contact: HomeContactSection = {
+    kicker: text(contactRaw, "kicker", fallback.contact.kicker),
+    heading: text(contactRaw, "heading", fallback.contact.heading),
+    lead: text(contactRaw, "lead", fallback.contact.lead),
+    mapTitle: text(contactRaw, "mapTitle", fallback.contact.mapTitle),
+    mapNote: text(contactRaw, "mapNote", fallback.contact.mapNote),
+    directionsLabel: text(contactRaw, "directionsLabel", fallback.contact.directionsLabel),
+  };
+
+  return { intro, gateway, photo, park, plans, services, lots, contact };
+}
+
 /** Full tolerant read of a content document (used by the page + editor + BFF). */
 export function readLandingContent(raw: unknown): LandingContent {
   const r = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
@@ -584,6 +1010,9 @@ export function readLandingContent(raw: unknown): LandingContent {
       intro: readStr(mapRaw as Record<string, unknown>, "intro"),
     },
     faq: readFaqSection(r.faq ?? {}),
+    // A saved document that predates the home model (or a hand-edited store)
+    // keeps the approved plan field by field, never a broken band.
+    home: readHomeSections(r.home, SEED.home),
   };
 }
 
@@ -725,6 +1154,149 @@ export function validateLandingContent(
     if (!link.label.trim() || !link.href.trim()) {
       return { ok: false, error: "Every FAQ next-step link needs a label and a destination." };
     }
+  }
+  // ---- the seven home sections (the approved home-rebuild plan) -------------
+  // The call actions are BOUND to the 24/7 line in content.contact, so only a
+  // supporting action is authored. An action must pair a label with a
+  // destination; a picture must carry alt text, and every live binding is
+  // checked against the store that owns it, exactly like the plans-and-lots
+  // cards above — a save can never orphan a figure.
+  const home = content.home;
+  if (!home.gateway.headline.trim()) {
+    return { ok: false, error: "The gateway headline can't be empty." };
+  }
+  if (!home.gateway.secondary.label.trim() || !home.gateway.secondary.href.trim()) {
+    return { ok: false, error: "The gateway's supporting action needs a label and a destination." };
+  }
+  for (const fact of home.gateway.facts) {
+    if (!fact.label.trim()) {
+      return { ok: false, error: "Every trust fact needs its own label." };
+    }
+  }
+  if (home.photo.image !== null && !home.photo.alt.trim()) {
+    return { ok: false, error: "The hero photograph needs alt text describing what it shows." };
+  }
+  if (home.park.image !== null && !home.park.imageAlt.trim()) {
+    return { ok: false, error: "The park photograph needs alt text describing what it shows." };
+  }
+  if (!home.park.builder.title.trim()) {
+    return { ok: false, error: "The arrangement builder needs a title." };
+  }
+  if (home.park.builder.casketModels.length === 0) {
+    return { ok: false, error: "The arrangement builder needs at least one casket to choose from." };
+  }
+  const sheetModels = new Set(CASKET_MODELS.map((model) => model.model));
+  for (const model of home.park.builder.casketModels) {
+    if (!sheetModels.has(model)) {
+      return {
+        ok: false,
+        error: `“${model}” is not one of the 2026 casket models the catalogue sells — pick a model from the live list.`,
+      };
+    }
+  }
+  if (home.park.builder.preparationDays.length === 0) {
+    return { ok: false, error: "The arrangement builder needs at least one preparation-day choice." };
+  }
+  const sheetDays = new Set(EMBALMING_RATES.map((row) => row.days));
+  for (const days of home.park.builder.preparationDays) {
+    if (!sheetDays.has(days)) {
+      return {
+        ok: false,
+        error: `The 2026 embalming sheet prices 3–9 days — “${days}” is not one of its rows.`,
+      };
+    }
+  }
+  if (!home.park.builder.secondary.label.trim() || !home.park.builder.secondary.href.trim()) {
+    return { ok: false, error: "The builder's closing action needs a label and a destination." };
+  }
+  for (const chapel of home.park.chapels) {
+    if (!chapel.name.trim() || !chapel.kind.trim() || !chapel.what.trim()) {
+      return { ok: false, error: "Every chapel card needs its name, class and one line about it." };
+    }
+    if (chapel.image !== null && !chapel.caption.trim()) {
+      return {
+        ok: false,
+        error: `“${chapel.name}” publishes a photograph, so it needs its illustration-purposes caption.`,
+      };
+    }
+  }
+  if (!home.park.chapelsAction.label.trim() || !home.park.chapelsAction.href.trim()) {
+    return { ok: false, error: "The chapels' action needs a label and a destination." };
+  }
+  if (!home.photo.kicker.trim()) {
+    return { ok: false, error: "The hero photograph band needs its kicker." };
+  }
+  if (!home.plans.kicker.trim() || !home.plans.heading.trim()) {
+    return { ok: false, error: "The plan band's kicker and heading can't be empty." };
+  }
+  if (!home.plans.action.label.trim() || !home.plans.action.href.trim()) {
+    return { ok: false, error: "The plan band's action needs a label and a destination." };
+  }
+  if (!home.services.kicker.trim() || !home.services.heading.trim()) {
+    return { ok: false, error: "The services band's kicker and heading can't be empty." };
+  }
+  if (!home.services.action.label.trim() || !home.services.action.href.trim()) {
+    return { ok: false, error: "The services band's action needs a label and a destination." };
+  }
+  if (!home.services.allQuote.label.trim() || !home.services.allQuote.href.trim()) {
+    return { ok: false, error: "The all-five quote action needs a label and a destination." };
+  }
+  const serviceLabels = new Set(ALACARTE_SERVICE_FEES.map((fee) => fee.service));
+  for (const tile of home.services.items) {
+    if (!serviceLabels.has(tile.service)) {
+      return {
+        ok: false,
+        error: `“${tile.label || tile.service}” must bind to one of the five 2026 a-la-carte services.`,
+      };
+    }
+    if (!tile.label.trim()) {
+      return { ok: false, error: "Every service tile needs the name it prints." };
+    }
+    if (tile.image !== null && !tile.imageAlt.trim()) {
+      return { ok: false, error: `“${tile.label}” publishes a photograph, so it needs alt text.` };
+    }
+    if (!tile.quote.label.trim() || !tile.quote.href.trim()) {
+      return { ok: false, error: `“${tile.label}” needs a request action with a label and a destination.` };
+    }
+  }
+  if (!home.lots.kicker.trim() || !home.lots.heading.trim()) {
+    return { ok: false, error: "The park band's kicker and heading can't be empty." };
+  }
+  if (!home.lots.action.label.trim() || !home.lots.action.href.trim()) {
+    return { ok: false, error: "The park band's action needs a label and a destination." };
+  }
+  if (!home.lots.quote.label.trim() || !home.lots.quote.href.trim()) {
+    return { ok: false, error: "The lot detail's request action needs a label and a destination." };
+  }
+  for (const tile of home.lots.items) {
+    const family = lotCategories.find((c) => c.title === tile.category);
+    if (!family) {
+      return {
+        ok: false,
+        error: `“${tile.label || tile.category}” must price from one of the 2026 lot families in the pricing store.`,
+      };
+    }
+    if (!family.rows.some((row) => row.product === tile.product)) {
+      return {
+        ok: false,
+        error: `“${tile.label}” must name a product in the 2026 lot family “${family.caption}”.`,
+      };
+    }
+    if (!tile.label.trim()) {
+      return { ok: false, error: "Every lot tile needs the name it prints." };
+    }
+    if (tile.image !== null && !tile.imageAlt.trim()) {
+      return { ok: false, error: `“${tile.label}” publishes a photograph, so it needs alt text.` };
+    }
+  }
+  if (!home.contact.kicker.trim() || !home.contact.heading.trim() || !home.contact.lead.trim()) {
+    return { ok: false, error: "The contact band needs its kicker, heading and one lead line." };
+  }
+  if (!home.contact.mapTitle.trim()) {
+    return { ok: false, error: "The embedded map needs its title." };
+  }
+  if (!home.contact.directionsLabel.trim()) {
+    return { ok: false, error: "The directions action needs its label." };
   }
   // The product owns one face and it carries no emoji, so one published here
   // would render as an empty box on the page (see unrenderableGlyphs).

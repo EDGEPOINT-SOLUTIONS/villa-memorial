@@ -1,8 +1,19 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { saveServiceEntry, seedServiceEntries } from "@/lib/api-client/content-entries";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * A service-entry edit reaches the guide page (content-catalogue Phase 3): the
@@ -41,7 +52,7 @@ async function renderGuide(page: () => Promise<ReactNode>): Promise<string> {
 }
 
 async function renderServices(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage()));
+  return renderToStaticMarkup(withBaskets( await ServicesPage()));
 }
 
 describe("the service guide entries drive their routes and the /services cards", () => {
@@ -58,8 +69,10 @@ describe("the service guide entries drive their routes and the /services cards",
     expect(before).toContain(
       "When a loved one passes at home, call us. We arrange the transport, the dignified preparation and the service that fits your family.",
     );
-    // The route keeps its structure: the immediate-assistance primary action.
-    expect(before).toContain('href="/immediate-assistance"');
+    // The route keeps its structure: the help band's outline action, now the
+    // human contact door (the former /immediate-assistance target was removed —
+    // office, inbox 040).
+    expect(before).toContain('href="/contact"');
     expect(before).toContain("← Back to Funeraria Memorial Services");
     expect((before.match(/<h1\b/g) ?? []).length).toBe(1);
   });

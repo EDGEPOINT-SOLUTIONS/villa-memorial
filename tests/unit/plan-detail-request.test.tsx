@@ -1,7 +1,18 @@
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 // The detail page's add control calls useRouter ("Go to checkout"); the server
 // render under test only needs the hook to resolve.
@@ -34,7 +45,7 @@ async function renderDetail(sku: string): Promise<{ html: string; item: NonNulla
   expect(item, `${sku} must be in the catalogue`).toBeTruthy();
   const ui = await PlanDetailPage({ params: Promise.resolve({ sku }) });
   return {
-    html: renderToStaticMarkup(createElement(CartProvider, null, ui)),
+    html: renderToStaticMarkup(withBaskets( ui)),
     item: item!,
   };
 }

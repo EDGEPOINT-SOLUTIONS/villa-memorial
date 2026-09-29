@@ -61,7 +61,6 @@ function ruleExists(selector: string): boolean {
 const FLAT_PUBLIC_SURFACES = [
   ".next-steps",
   ".contact-facts",
-  ".ia-hero",
   ".hero-premium",
   ".gal-hero",
   ".mem-profile__hero",

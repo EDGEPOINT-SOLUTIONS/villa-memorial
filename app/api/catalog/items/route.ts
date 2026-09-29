@@ -7,8 +7,8 @@ import { requireCatalogScope, readJsonBody } from "../_guard";
  * BFF catalogue items.
  *
  * GET  /api/catalog/items — the PUBLISHED items the storefront sells, projected
- *      to the cart's rehydration fields (sku · name · item_type ·
- *      unit_price_cents · currency). The cart provider reads it so an item
+ *      to the quote basket's rehydration fields (sku · name · item_type ·
+ *      unit_price_cents · currency). The quote basket provider reads it so an item
  *      created in the staff admin — or a price an admin changed — survives a
  *      reload. Public on purpose: /plans, /services and /products already
  *      publish the same rows. No descriptions or photos ride along: a

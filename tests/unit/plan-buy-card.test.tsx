@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 
 // The buy card's add control calls useRouter ("Go to checkout"); the server
@@ -8,6 +9,16 @@ import { CartProvider } from "@/lib/cart/cart-context";
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: () => {} }) }));
 import { PlanTermSelector } from "@/app/(public)/plans/[sku]/plan-term-selector";
 import { SEED_PRICING, php2, planRate } from "@/lib/villa-pricing";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /** The recorded seed plan tables — the buy card reads them here. */
 const pricing = SEED_PRICING.plans;
@@ -29,7 +40,7 @@ const item = {
 
 function render(props: Parameters<typeof PlanTermSelector>[0]) {
   return renderToStaticMarkup(
-    createElement(CartProvider, null, createElement(PlanTermSelector, props)),
+    withBaskets( createElement(PlanTermSelector, props)),
   );
 }
 

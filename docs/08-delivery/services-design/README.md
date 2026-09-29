@@ -42,7 +42,7 @@ Everything else on the page supports those three answers.
 | 4 | **One format for every amount:** `₱X,XXX` + the unit in words (`per service`, `for 5 days`, `per day`, `total`). | The old page mixed units across cards and tables. |
 | 5 | **One row per decision.** The chapel 3–9 day schedule is one row per stay (days · regular · senior · Book N days · Request), grouped by chapel; the raw sheet table is never the phone experience. | A phone reader should never scroll a sideways table. |
 | 6 | **Keep the sheet's words, add one plain sentence.** "Retrieval" stays (it is on the contract) with "We bring your loved one into our care" under it. | Families meet these words on paperwork; translating beats renaming. |
-| 7 | **Explain the button pair once per section.** Add to cart = reserve now, pay nothing here; Request order = send the office a message, nothing is reserved. | The old page never explained it. |
+| 7 | **Explain the button pair once per section.** Add to cart = reserve now, pay nothing here; Request order = send the office a message, nothing is reserved. (Since 2026-09-29 the funeral-service lines are quote-only: they carry Request-for-Quote, never a cart action.) | The old page never explained it. |
 | 8 | **Make the page navigable.** Breadcrumb, sticky "On this page" bar with five anchors + back-to-top, `scroll-margin-top` on every anchor target. | A 6–12 thousand pixel page with no navigation is a maze. |
 | 9 | **Never leave the reader without a human.** A help band closes the page; phones get a sticky bottom call bar. | The phone number should be one thumb away at any scroll position. |
 | 10 | **Keep the trust block.** Sheet provenance (which sheet, which fee, package scope, the senior-citizen question) stays, in plain sentences, at reading size. | The prices are the client's; the page should say exactly where each one comes from. |
@@ -87,12 +87,13 @@ Implementation files (all in the app, none here):
 | `components/villa/service-rates-2026.tsx` | `AlacarteServiceRates` · `EmbalmingRates` · `ChapelRates` on the `sv-*` classes; per-stay rows; the sheet's tables behind disclosures; figures only from `lib/villa-pricing.ts`. |
 | `components/villa/embalming-day-picker.tsx` | The 3–9 day picker + price panel (client component; state, no rules). |
 | `components/villa/services-subnav.tsx` | Sticky "On this page" bar; progressive enhancement (plain anchors before hydration, `aria-current` from an IntersectionObserver after). |
-| `components/villa/in-cart-notice.tsx` | The "In your cart" chip per line; a chapel removal releases the dates through the same helper the cart page uses. |
+| `components/villa/in-quote-notice.tsx` | The "In your quote" chip per quote line; a chapel removal releases the dates through the same helper the quote page uses (`releaseChapelQuoteLine`). The priced cart keeps its own `components/villa/in-cart-notice.tsx`. |
 | `components/chapel-booking-dialog.tsx` | `ChapelBookingButton` gained `ariaLabel` (the stay rows say "Book N days" under a chapel heading; the accessible name carries the chapel — WCAG 2.5.3 label-in-name). No booking-logic change. |
 | `styles/components.css` | The "Services page — the approved 2026-09-16 redesign" `sv-*` block. |
 
 **Nothing else moved:** every price, SKU, service, chapel option and figure comes from
-`lib/villa-pricing.ts` / the catalogue / the chapel store. Add to cart, Request order, the booking
+`lib/villa-pricing.ts` / the catalogue / the chapel store. Add to quote (services are
+quote-only), Request order, the booking
 step, reserve-on-add/release-on-remove, the cart, checkout and scheduling behave exactly as before.
 
 **Sky-blue colour correction applied after the review** (captain's brand rule; nothing structural):

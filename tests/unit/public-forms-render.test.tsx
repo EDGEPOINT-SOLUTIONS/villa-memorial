@@ -1,8 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import ContactPage from "@/app/(public)/contact/page";
 import QuotePage from "@/app/(public)/quote/page";
 import AppointmentsPage from "@/app/(public)/appointments/page";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * Route render contracts for the three public "Reach us" forms. These render
@@ -68,10 +81,19 @@ describe("contact route renders the shared capture shell", () => {
   });
 });
 
+const quoteHtml = async (params: Record<string, string | string[]> = {}) =>
+  renderToStaticMarkup(
+    withBaskets(
+      await QuotePage({ searchParams: Promise.resolve(params) }),
+    ),
+  );
+
 describe("quote route renders the shared capture shell", () => {
   it("carries every agreed field plus DPA consent and the service suggestions", async () => {
-    const html = renderToStaticMarkup(await QuotePage({ searchParams: Promise.resolve({}) }));
-    expectSharedShell(html, "Request quote");
+    const html = await quoteHtml();
+    // The quote form is the basket's ADD STEP now (office, 2026-09-29), so its
+    // submit says what it does rather than sending a single inquiry.
+    expectSharedShell(html, "Add to my quote");
     for (const id of ["qr-name", "qr-email", "qr-phone", "qr-service", "qr-date", "qr-notes", "qr-consent"]) {
       expect(html).toContain(`id="${id}"`);
     }
@@ -84,14 +106,7 @@ describe("quote route renders the shared capture shell", () => {
   });
 
   it("prefills the requested service from a Request-for-Quote link", async () => {
-    const html = renderToStaticMarkup(
-      await QuotePage({
-        searchParams: Promise.resolve({
-          item: "Embalming — 5 days",
-          note: "A-la-carte service.",
-        }),
-      }),
-    );
+    const html = await quoteHtml({ item: "Embalming — 5 days", note: "A-la-carte service." });
     expect(html).toContain('name="service"');
     expect(html).toContain("Embalming — 5 days");
     expect(html).toContain("A-la-carte service.");

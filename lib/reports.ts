@@ -200,7 +200,7 @@ export type ChapelRollupRow = {
  * Chapel occupancy for the window: for each chapel on the books, how many of its
  * own days a non-cancelled booking holds, how many days a recorded closure takes
  * out of service, and the occupancy over what is left. A hold counts exactly as
- * the scheduling record does (a customer's cart is a booking until staff cancel
+ * the scheduling record does (a customer's quote is a booking until staff cancel
  * it — the board says the same thing).
  */
 export function chapelRollup(

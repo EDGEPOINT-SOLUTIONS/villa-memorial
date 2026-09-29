@@ -13,9 +13,9 @@ import {
   listOrders,
 } from "@/lib/api-client/commerce";
 import {
-  CART_LINE_TYPE_LABEL,
-  getCartLineCatalogDetail,
-} from "@/lib/cart/cart-line-details";
+  QUOTE_LINE_TYPE_LABEL,
+  getQuoteLineCatalogDetail,
+} from "@/lib/quote-basket/quote-line-details";
 import {
   ALACARTE_SKUS,
   CHAPEL_SKUS,
@@ -259,21 +259,21 @@ describe("cart line details resolve from the real catalogue by SKU (cart expand)
     const items = await listCatalogItems();
     expect(items.length).toBeGreaterThan(0);
     for (const item of items) {
-      const detail = getCartLineCatalogDetail(item.sku);
+      const detail = getQuoteLineCatalogDetail(item.sku);
       expect(detail, `details for ${item.sku}`).toBeDefined();
       // The expand panel must show the SAME facts the card/detail page shows.
       expect(detail?.name).toBe(item.name);
       expect(detail?.itemType).toBe(item.item_type);
       expect(detail?.unitPriceCents).toBe(item.unit_price_cents);
       expect(detail?.currency).toBe(item.currency);
-      expect(CART_LINE_TYPE_LABEL[detail!.itemType]).toBeTruthy();
+      expect(QUOTE_LINE_TYPE_LABEL[detail!.itemType]).toBeTruthy();
     }
   });
 
   it("packages publish their what's-included description; price-list services name their scope", async () => {
     const items = await listCatalogItems();
     for (const item of items) {
-      const detail = getCartLineCatalogDetail(item.sku)!;
+      const detail = getQuoteLineCatalogDetail(item.sku)!;
       if (item.item_type === "package") {
         expect(detail.description).toBeTruthy();
         expect(detail.description).toMatch(/casket|embalming/i);
@@ -291,6 +291,6 @@ describe("cart line details resolve from the real catalogue by SKU (cart expand)
   });
 
   it("unknown SKU → undefined so the cart page renders its graceful state", () => {
-    expect(getCartLineCatalogDetail("NOT-A-SKU")).toBeUndefined();
+    expect(getQuoteLineCatalogDetail("NOT-A-SKU")).toBeUndefined();
   });
 });

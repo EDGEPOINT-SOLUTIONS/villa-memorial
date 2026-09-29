@@ -10,10 +10,13 @@ import { useModalFocus } from "@/components/ui/use-modal-focus";
  * Phone action bar (D3) — the permanent bottom bar below 75rem with the two
  * targets that matter at the worst moment: **Call 24/7** (a real `tel:` link)
  * and **Explore more** (the grouped secondary pages in a dialog-style sheet),
- * plus **Get help** — the one-tap door to /immediate-assistance added for
- * checklist F-01 (captain, 2026-09-18). The bar never scrolls away; the
- * existing full menu (MobileQuickMenu) keeps the complete link list and sits
- * just above it.
+ * plus **Get help** — the one-tap door to the human contact form. It used to
+ * open /immediate-assistance; that page was removed (office, inbox 040) and the
+ * button now points at /contact, the surviving human door. (The call beside it
+ * already covers the urgent path; the button is left in place rather than
+ * deleted on judgement — flagged for the office in the status.) The bar never
+ * scrolls away; the existing full menu (MobileQuickMenu) keeps the complete
+ * link list and sits just above it.
  *
  * Desktop renders it too (it is in the DOM, CSS hides it ≥ 75rem), so the
  * markup is identical on every public page. The sheet is a real dialog:
@@ -35,9 +38,14 @@ export function PhoneActionBar({ contact }: { contact: ContactInfo }) {
           <Phone size={18} aria-hidden="true" />
           Call 24/7
         </a>
-        <a className="anchored-phonebar__btn anchored-phonebar__btn--help" href="/immediate-assistance">
+        <a className="anchored-phonebar__btn anchored-phonebar__btn--help" href="/contact">
           <LifeBuoy size={18} aria-hidden="true" />
           Get help
+        </a>
+        {/* Blog is a top-level page now (office, 2026-09-29): reachable from the
+            bar itself, not only inside the Explore more sheet. */}
+        <a className="anchored-phonebar__btn anchored-phonebar__btn--blog" href="/blog">
+          Blog
         </a>
         <button
           type="button"

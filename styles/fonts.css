@@ -1,19 +1,53 @@
 /* ============================================================================
-   fonts.css — the product owns its typefaces.
-   Voice (captain's consistency pass, 2026-09-22): ONE family, **Inter**, is
-   both the display and the interface face — headings, wordmark, memorial names,
-   body, UI, tables and forms all share it, so the hierarchy comes from the role
-   steps (styles/tokens.css) and weight (600/700 headings), not from a second
-   typeface. Inter is SIL OFL 1.1; the licence text lives beside the files at
-   public/fonts/inter/OFL.txt. Self-hosted, no CDN.
-   Every file below carries the peso sign (U+20B1) in its latin-ext subset —
-   price tables never fall back to a system font (pixel-verified in the PR).
-   The paper/legal print layer is deliberately NOT Inter: its faces come from
-   the client's own .docx papers (Times New Roman / Bookman Old Style) and are
-   declared at the bottom of this file and in lib/export/paper-profile.ts.
+   fonts.css — the product owns its typefaces. All self-hosted, no CDN.
+   Two faces with two jobs (2026-09-27, reaffirmed by the office 2026-09-29):
+     · display — TeX Gyre Bonum: the CLIENT'S OWN letterhead face, vendored for
+       the printed papers, so the website and the contract a family signs speak
+       in one voice. `--font-display` and its historical alias `--font-serif`.
+     · interface — Manrope (office, 2026-09-29): body, UI, tables, forms and
+       figures. SIL OFL 1.1, licence beside the files at
+       public/fonts/manrope/OFL.txt. Inter (also SIL OFL 1.1, licence at
+       public/fonts/inter/OFL.txt) STAYS in the stack behind Manrope, so a
+       font-load failure degrades to the previous face, not a system default.
+   Every vendored file below carries the peso sign (U+20B1) in its latin-ext
+   subset — price tables never fall back to a system font (pixel-verified).
+   The paper/legal print layer is deliberately NOT either face: its faces come
+   from the client's own .docx papers (Times New Roman / Bookman Old Style) and
+   are declared at the bottom of this file and in lib/export/paper-profile.ts.
    ========================================================================== */
 
-/* --- Inter — the product's one family, variable 100–900 -------------------- */
+/* --- Manrope — the interface face (office, 2026-09-29) ---------------------
+   The variable file covers 200–800; every weight the stylesheets ask for
+   (400/500/600/650/700/800) is inside that range, so nothing clamps. The
+   subset ranges are Google Fonts' standard latin/latin-ext ranges — the same
+   ones the Inter files carry, U+20B1 (the peso) among them — and the files
+   were fetched from fonts.gstatic.com and vendored here (OFL permits it; the
+   licence text is beside them). Manrope has no italic: the product's italic
+   text is the display serif, so no italic file is shipped. */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/manrope/manrope-latin.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+  src: url("/fonts/manrope/manrope-latin-ext.woff2") format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+    U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+    U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* --- Inter — the interface face's fallback, variable 100–900 ---------------
+   Kept for exactly one job: if Manrope fails to load, the interface degrades to
+   Inter rather than a system font. */
 @font-face {
   font-family: "Inter";
   font-style: normal;

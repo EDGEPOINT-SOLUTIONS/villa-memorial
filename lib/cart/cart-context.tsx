@@ -30,7 +30,7 @@ import { toChapelBookingLine, type ChapelBookingLine } from "@/lib/chapel-bookin
 export type CartLine = {
   sku: string;
   name: string;
-  itemType: "package" | "service" | "add_on";
+  itemType: "package" | "service" | "add_on" | "lot";
   unitPriceCents: number;
   currency: string;
   quantity: number;
@@ -142,6 +142,38 @@ function sanitize(raw: unknown, catalog: CatalogMap): CartLine[] {
   return lines;
 }
 
+/**
+ * Append one line to the CART — the priced basket (office, 2026-09-29: priced
+ * items go to the cart, quote-only items to the quote basket; neither lands in
+ * the other).
+ *
+ * THE RULE, enforced here rather than trusted to the callers: the cart accepts
+ * only lines with a PUBLISHED figure (`unitPriceCents > 0`) that are not a lot
+ * and not a chapel booking. A quote-only line (a lot, a chapel stay, a service
+ * the office quotes by hand) is ignored — it belongs to the quote basket
+ * (`lib/quote-basket/quote-basket-context.tsx`, which mirrors the guard).
+ * Exported pure so the rule is unit-testable without a browser.
+ */
+export function addCartLine(
+  lines: ReadonlyArray<CartLine>,
+  line: Omit<CartLine, "quantity">,
+  quantity = 1,
+): CartLine[] {
+  if (line.booking || line.itemType === "lot" || line.unitPriceCents <= 0) {
+    return [...lines];
+  }
+  const qty = Math.min(Math.max(quantity, 1), MAX_QTY);
+  const existing = lines.find((l) => !l.booking && l.sku === line.sku);
+  if (existing) {
+    return lines.map((l) =>
+      !l.booking && l.sku === line.sku
+        ? { ...l, quantity: Math.min(l.quantity + qty, MAX_QTY) }
+        : l,
+    );
+  }
+  return [...lines, { ...line, quantity: qty }];
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
   const [ready, setReady] = useState(false);
@@ -221,29 +253,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [lines, ready]);
 
   const add = useCallback((line: Omit<CartLine, "quantity">, quantity = 1) => {
-    setLines((prev) => {
-      // A booking line is a unique reservation: it never merges (two stays of
-      // the same chapel class are two lines, each releasing its own hold).
-      if (line.booking) {
-        return [
-          ...prev,
-          {
-            ...line,
-            lineId: line.lineId ?? line.booking.bookingId,
-            quantity: Math.min(Math.max(quantity, 1), MAX_QTY),
-          },
-        ];
-      }
-      const existing = prev.find((l) => !l.booking && l.sku === line.sku);
-      if (existing) {
-        return prev.map((l) =>
-          !l.booking && l.sku === line.sku
-            ? { ...l, quantity: Math.min(l.quantity + quantity, MAX_QTY) }
-            : l,
-        );
-      }
-      return [...prev, { ...line, quantity: Math.min(Math.max(quantity, 1), MAX_QTY) }];
-    });
+    setLines((prev) => addCartLine(prev, line, quantity));
   }, []);
 
   const setQuantity = useCallback((key: string, quantity: number) => {

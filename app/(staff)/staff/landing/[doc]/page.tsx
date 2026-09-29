@@ -4,10 +4,14 @@ import { notFound, redirect } from "next/navigation";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { PageDocumentEditor, type SkuOption } from "@/components/content/page-document-editor";
+import { BlogDocumentEditor } from "@/components/content/blog-document-editor";
+import { LandingPageEditor } from "@/components/landing/landing-page-editor";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listCatalogItems } from "@/lib/api-client/commerce";
+import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { listServiceEntries } from "@/lib/api-client/content-entries";
 import { pageDocumentDef, type CatalogueEntry } from "@/lib/content-catalog";
 import { SERVICE_ENTRY_DEFS } from "@/lib/service-content";
@@ -21,10 +25,18 @@ export async function generateMetadata({ params }: DocParams): Promise<Metadata>
 
 /**
  * The page-document editor route — one document per key (park · services ·
- * plans · coffins). Home lives at /staff/landing/home because it keeps the
- * existing full landing/FAQ editor; an old bookmark to /staff/landing/home is
- * already the static route, and this dynamic one redirects if it is ever hit by
- * name.
+ * plans · coffins · blog). Home lives at /staff/landing/home (its own seven
+ * sections) and the FAQ at /staff/landing/faq; an old bookmark to
+ * /staff/landing/home is already the static route, and this dynamic one
+ * redirects if it is ever hit by name.
+ *
+ * THE BLOG EDITOR OWNS EVERYTHING /blog RENDERS (office, inbox 048): its own
+ * page document (the posts lead) AND the former storefront's landing-document
+ * sections, which the restored bands beneath the posts render. So this route
+ * renders the blog document editor and, below it, the landing editor in
+ * `storefront` mode (Hero · rails · About · plans-and-lots · plan board · park
+ * map copy) — the two documents stay independent and each saves through its
+ * own seam.
  *
  * The editor receives the LIVE catalogue lines (price-block references) and the
  * document itself; the same validator runs client- and server-side.
@@ -50,11 +62,18 @@ export default async function PageDocumentAdminPage({ params }: DocParams) {
   let document;
   let skuOptions: SkuOption[] = [];
   let serviceEntries: CatalogueEntry[] = [];
+  // The blog's restored bands render from the LANDING document, so the blog
+  // editor loads it too (its own document editor loads separately above).
+  let landing: Awaited<ReturnType<typeof listLandingContent>> | null = null;
+  let pricing: Awaited<ReturnType<typeof loadPricingDocument>> | null = null;
   try {
     document = await getPageDocument(def.key);
     const items = await listCatalogItems();
     skuOptions = items.map((item) => ({ sku: item.sku, name: item.name, displayPrice: item.display_price }));
     if (def.key === "services") serviceEntries = await listServiceEntries();
+    if (def.key === "blog") {
+      [landing, pricing] = await Promise.all([listLandingContent(), loadPricingDocument()]);
+    }
   } catch {
     return (
       <>
@@ -75,12 +94,31 @@ export default async function PageDocumentAdminPage({ params }: DocParams) {
         </Link>
       </p>
       <PageHeader eyebrow="Commerce · Pages & content" title={def.label} />
-      <PageDocumentEditor
-        initial={document}
-        skuOptions={skuOptions}
-        blocksEnabled={def.blocks}
-        pageRoute={def.route}
-      />
+      {def.key === "blog" ? (
+        <BlogDocumentEditor
+          initial={document}
+          sessionName={session.displayName.split(" ")[0] ?? session.displayName}
+        />
+      ) : (
+        <PageDocumentEditor
+          initial={document}
+          skuOptions={skuOptions}
+          blocksEnabled={def.blocks}
+          pageRoute={def.route}
+        />
+      )}
+
+      {/* The blog's restored storefront bands live in the landing document —
+          this is their editor (office, inbox 048). */}
+      {def.key === "blog" && landing && pricing ? (
+        <LandingPageEditor
+          mode="storefront"
+          initialContent={landing}
+          lotCategories={pricing.lotCategories}
+          planPricing={pricing.plans}
+          sessionName={session.displayName.split(" ")[0] ?? session.displayName}
+        />
+      ) : null}
 
       {def.key === "services" ? (
         <PageSection>

@@ -55,8 +55,7 @@
   are "Explore more" too. **The captain removed the whole utility row
   (`anchored-header__utility`) on 2026-09-21** — location · hours, the
   "Immediate assistance" chip and the 24/7 call button. The bar is one row; the
-  number stays reachable in the footer, `/contact`, `/immediate-assistance` and
-  the phone action bar, and `SiteHeaderBar` no longer takes a `contact` prop.
+  number stays reachable in the footer, `/contact` and the phone action bar, and `SiteHeaderBar` no longer takes a `contact` prop.
   `SITE_NAV_LINKS`/`EXPLORE_MORE_LINKS` in
   `components/landing/site-header.tsx` are the authority. Pinned by
   `tests/unit/public-nav.test.tsx` + `tests/unit/landing-view.test.tsx`.

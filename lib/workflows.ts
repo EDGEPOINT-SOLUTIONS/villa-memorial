@@ -136,7 +136,7 @@ export function positionOfTransfer(
   };
 }
 
-/** A chapel booking sits held-in-cart or confirmed (cancelled is not in flight). */
+/** A chapel booking sits held-in-quote or confirmed (cancelled is not in flight). */
 export function positionOfChapelBooking(
   booking: ChapelAdminBooking,
   owner: string | null,

@@ -19,7 +19,7 @@ not interpret `@path` imports reads this text literally).
 
 | Nested file | Covers |
 |---|---|
-| [`app/(public)/AGENTS.md`](app/(public)/AGENTS.md) | Landing page and its content model · public services and casket catalogue · gallery · digital memorial · facilities · reach-us forms · `/plans/[sku]` · `/builder` · `/map` · `/immediate-assistance` · storefront imagery · public SEO surface |
+| [`app/(public)/AGENTS.md`](app/(public)/AGENTS.md) | Landing page and its content model · public services and casket catalogue · gallery · digital memorial · facilities · reach-us forms · `/plans/[sku]` · `/builder` · `/map` · storefront imagery · public SEO surface |
 | [`app/(staff)/AGENTS.md`](app/(staff)/AGENTS.md) | Content catalogue (page documents) · billing and provisional receipts · orders admin · catalog admin · cases, ops board, preparation, lot records, guarantee instruments · chapel administration · commission · copilot · admin platform and data screens |
 | [`app/(agent)/AGENTS.md`](app/(agent)/AGENTS.md) | Agent lots map · agent lead record |
 | [`app/(family)/AGENTS.md`](app/(family)/AGENTS.md) | Family portal |
@@ -259,6 +259,26 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 ## Eye-friendly public surfaces — the minimalist grammar (captain, 2026-09-21)
 
+- **`/` is the approved home-rebuild plan (2026-09-29), not the `LandingView` catalogue.**
+  Seven sections in the office's final order — the gateway · the hero photograph
+  (its title read from the office's own park address) · the first park (the
+  arrangement builder and the two chapels) · the four lot types with every recorded
+  plot pinned on the masterplan · the five rising plan tiers · the five service
+  tiles · contact with the embedded Google map. The home carries NO arch and NO
+  clouds anywhere; band 1 is plain white, and its hierarchy is a FUNNEL BY SIZE,
+  NOT WEIGHT — eyebrow at `--text-micro` (12px) → the band's largest line, the
+  headline at `--text-hero` (fluid 35.2 → 57.6px, weight 500) → the lead at
+  `--text-lg` (16px) → the actions → the icon row, whose facts keep their icon +
+  label only. Every figure is a read (pricing store · live catalogue · 2026 sheets);
+  the services band prints no amount. `components/public/home-page.tsx` is the map,
+  `components/landing/home-sections-editor.tsx` + `/staff/landing/home` is the
+  per-section editor, and **the palette is the sky+gold ramps** in `styles/tokens.css`
+  (the legacy `--ever-*`/`--brass-*` bridges repoint onto them; gold carries dark ink,
+  never white). A priced line lands in the cart (`/cart` + `/checkout`); a quote-only
+  line (services, lots, chapels) lands in the quote basket (`/quote`) — neither
+  basket takes the other's line. Record:
+  `docs/08-delivery/home-rebuild-design/README.md`. The grammar below still
+  describes the interior public pages and the `/blog` catalogue.
 - **The home is the reference pattern; the captain's `public/media/frontend-home.png`
   guides proportion and rhythm only.** The settled grammar (evidence + measured
   before/after: `docs/08-delivery/eye-friendly-sizing-design/`): a hero of one
@@ -324,13 +344,13 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - **The left rail's help card is `.rail-assist`** (captain: removed the
   2026-09-21 `rail-call` card, then reinstated an always-reachable help card in
   the 2026-09-25 storefront pass). It reads the staff-editable number from the
-  landing document; the number also stays reachable in the footer, `/contact`,
-  `/immediate-assistance` and the phone action bar's "Call 24/7". `.rail-call*`
+  landing document; the number also stays reachable in the footer, `/contact`
+  and the phone action bar's "Call 24/7". `.rail-call*`
   and the `rail-pulse` keyframe stay retired (`landing-view.test.tsx` fails
   their return).
 - **Wave A lane 1 (story · service · support) rebuilt eight routes on this grammar**
-  (`/services` + the three guides, `/facilities`, `/immediate-assistance`, `/faq`,
-  `/contact`). Its two shared page shapes live in `components/villa/story-ui.tsx`
+  (`/services` + the three guides, `/facilities`, `/faq`, `/contact` — and
+  `/immediate-assistance`, removed 2026-09-29, office inbox 040). Its two shared page shapes live in `components/villa/story-ui.tsx`
   (`StoryHelpBand` · `StorySteps`); everything else is the Phase 0 primitives. The
   lane's CSS is the appended `/* public: story block */` at the tail of
   `styles/components.css` — other lanes must not edit it and new story shapes belong
@@ -338,7 +358,7 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   budget, image caps) and the phone-height open item (the shared masthead/footer/closing
   band dominates the budget) live in `docs/08-delivery/story-minimal-design/README.md`;
   the pinned guards are `tests/unit/{villa-services-premium,facilities-page,faq-page,
-  immediate-assistance,service-entry-page,reading-budget}`.
+  service-entry-page,reading-budget}`.
 
 ## 2026 price list — where every client figure surfaces
 
@@ -384,12 +404,14 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
   the office-arranged state; where one is really sold the public answer is "ask the
   office" (the cart's line fallback says so), never an invented figure.
 - Every sellable product/plan/lot line pairs the same two actions:
-  `components/villa/catalogue-actions.tsx` (Add to cart with the row's exact catalogue
+  `components/villa/catalogue-actions.tsx` (Add to quote with the row's exact catalogue
   SKU/price + the prefilled Request order); the funeral-service lines are
-  Request-for-Quote only (no cart action). Lots are never cart items — `components/villa/price-list-2026.tsx` gives each row
-  Request this lot + a `/map` link. Plan tier × term goes through `lib/plan-selection.ts`
-  (cart only for a monthly, non-senior tier the catalogue carries; every other selection
-  opens the request naming that term's sheet amount).
+  Request-for-Quote only (no quote-basket action). **Lots joined the QUOTE BASKET
+  2026-09-29** (`components/villa/lot-quote-button.tsx`), so a family can ask about a
+  lot and a casket together; `/lots/price-list-2026` keeps Request this lot + `/map`
+  beside it. Plan tier × term goes through `lib/plan-selection.ts`
+  (quote basket only for a monthly, non-senior tier the catalogue carries; every other
+  selection opens the request naming that term's sheet amount).
 - Two open client questions are published as the sheets print them rather than
   reconciled — keep it that way until the client answers: (1) sheet III's chapel table
   computes the senior column at 96% of the regular total (₱1,440/₱3,360 per day) while

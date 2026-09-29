@@ -3,9 +3,22 @@ import { mkdtempSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
+import { CartProvider } from "@/lib/cart/cart-context";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { SEED_PRICING } from "@/lib/villa-pricing";
 import type { Session } from "@/lib/auth/types";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * RBAC gating for the two pricing screens and their BFF route:
@@ -206,7 +219,9 @@ describe("/api/pricing RBAC", () => {
 describe("the staff pages gate on catalog:write", () => {
   it("/staff/pricing is the one rate home — plan rates AND lot prices", async () => {
     setSession(["catalog:write"]);
-    const html = renderToStaticMarkup(await PricingStaffPage());
+    const html = renderToStaticMarkup(
+      withBaskets( await PricingStaffPage()),
+    );
     expect(html).toContain("Pricing rules");
     // Plan rates half.
     expect(html).toContain("Plan rates");

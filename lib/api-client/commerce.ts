@@ -311,7 +311,7 @@ export async function transitionOrder(
  * same posture as the orders admin. Fixture mode reads and writes the durable
  * store (lib/api-client/catalog-store.ts), which folds the recorded seed with
  * every admin edit; the storefront readers below read the SAME fold, so a
- * change here is what `/products`, `/plans`, `/services`, the cart and checkout
+ * change here is what `/products`, `/plans`, `/services`, the quote basket and the office
  * see on the next request. `catalog:read` guards the screens, `catalog:write`
  * the create/edit routes.
  *

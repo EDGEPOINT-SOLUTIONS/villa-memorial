@@ -123,7 +123,7 @@ export default async function Page({
             Send a message
           </a>
           <Link className="btn btn--secondary" href="/quote">
-            Request a quote
+            Start a quote
           </Link>
           <Link className="btn btn--secondary" href="/appointments">
             Book a visit

@@ -3,7 +3,18 @@ import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react"
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The F-16 accessibility/craft guard.
@@ -55,9 +66,6 @@ const { default: FaqPage } = await import("@/app/(public)/faq/page");
 const { default: ContactPage } = await import("@/app/(public)/contact/page");
 const { default: QuotePage } = await import("@/app/(public)/quote/page");
 const { default: AppointmentsPage } = await import("@/app/(public)/appointments/page");
-const { default: ImmediateAssistancePage } = await import(
-  "@/app/(public)/immediate-assistance/page"
-);
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: LotsPage } = await import("@/app/(public)/lots/page");
@@ -78,13 +86,13 @@ const PAGES: ReadonlyArray<PageCase> = [
   {
     name: "/services",
     render: async () =>
-      renderToStaticMarkup(createElement(CartProvider, null, await ServicesPage())),
+      renderToStaticMarkup(withBaskets( await ServicesPage())),
   },
   {
     name: "/plans",
     render: async () =>
       renderToStaticMarkup(
-        createElement(CartProvider, null, await PlansPage()),
+        withBaskets( await PlansPage()),
       ),
   },
   {
@@ -100,13 +108,13 @@ const PAGES: ReadonlyArray<PageCase> = [
   {
     name: "/quote",
     render: async () =>
-      renderToStaticMarkup(await QuotePage({ searchParams: Promise.resolve({}) })),
+      renderToStaticMarkup(
+        withBaskets(
+          await QuotePage({ searchParams: Promise.resolve({}) }),
+        ),
+      ),
   },
   { name: "/appointments", render: async () => renderToStaticMarkup(AppointmentsPage()) },
-  {
-    name: "/immediate-assistance",
-    render: async () => renderToStaticMarkup(await ImmediateAssistancePage()),
-  },
   {
     name: "/memorials",
     render: async () =>
@@ -120,7 +128,10 @@ const PAGES: ReadonlyArray<PageCase> = [
   },
   {
     name: "/lots/price-list-2026",
-    render: async () => renderToStaticMarkup(await PriceList2026Page()),
+    render: async () =>
+      renderToStaticMarkup(
+        withBaskets( await PriceList2026Page()),
+      ),
   },
   {
     name: "sign-in card (all doors)",

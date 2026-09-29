@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import { getProductLine, saveProductLine } from "@/lib/api-client/product-lines";
@@ -13,6 +14,16 @@ import { getCatalogItem, listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { coffinModelForSku } from "@/lib/catalogue-skus";
 import type { Session } from "@/lib/auth/types";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * P2 — the PDP variant selector (data/villa-pdp-cms-plan/report.md §5).
@@ -70,7 +81,7 @@ afterEach(async () => {
 });
 
 function renderCart(page: ReactNode): string {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(withBaskets( page));
 }
 
 async function renderDetail(sku: string): Promise<string> {
@@ -281,9 +292,7 @@ describe("the imagery fallback", () => {
       thumb: null,
     };
     const html = renderToStaticMarkup(
-      createElement(
-        CartProvider,
-        null,
+      withBaskets(
         createElement(ProductDetail, {
           lineName: "A manual line",
           selectedSku: variant.sku,

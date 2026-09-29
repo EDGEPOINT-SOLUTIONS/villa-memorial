@@ -4,7 +4,18 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The composition pass (captain 2026-09-18 — the client's president: the product
@@ -178,7 +189,7 @@ describe("the home's plans & lots band renders the kit, one card per column", ()
     const content = await listLandingContent();
     const doc = await loadPricingDocument();
     return renderToStaticMarkup(
-      createElement(CartProvider, null, createElement(LandingView, {
+      withBaskets( createElement(LandingView, {
         content,
         planPricing: doc.plans,
         lotCategories: doc.lotCategories,
@@ -228,7 +239,7 @@ describe("the home's plans & lots band renders the kit, one card per column", ()
 describe("a catalogue prints a photograph only where one exists", () => {
   it("/plans is the five plan tiers, not the mixed catalogue", async () => {
     const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlansPage()),
+      withBaskets( await PlansPage()),
     );
     // Captain, 2026-09-21 (Phase 2 of the content-catalogue plan): the plan page
     // shows the five tiers with their inclusion checklists; the flat 42-item

@@ -23,7 +23,9 @@
     "here (Main Office: Capilla de San Jose Bldg., Sunrise; the park at Purok 3, Begang).",
     "0917 617 8489 is the primary line; the second is the",
     "family/agent surfaces' secondPhone (lib/family/contact.ts). Seeded 2026-09-18 (the",
-    "template's 0917 000 1234 is gone); still staff-editable like every contact field."
+    "template's 0917 000 1234 is gone); still staff-editable like every contact field.",
+    "HOME SECTIONS (2026-09-29): `home` carries the seven approved home-rebuild sections — the gateway, the hero photograph, the park + arrangement builder + chapels, the five plan tiers' band, the five service tiles, the four lot types with the pinned park map, and the contact band. No amount is authored in it: every figure binds to the pricing store or the 2026 sheets at render, and the save validator checks every binding.",
+    "BLOG MIGRATION (2026-09-29): the posts moved to the blog page document (lib/fixtures/content/pages.json, key `blog`). This landing document no longer owns them; `blog.heading`/`intro` stay for the retired feed band only."
   ],
   "content": {
     "version": 1,
@@ -50,8 +52,14 @@
       "background": null,
       "backgroundTransparency": 100,
       "textColour": null,
-      "primaryCta": { "label": "I need help now", "href": "/services" },
-      "secondaryCta": { "label": "Plan ahead", "href": "/plans" }
+      "primaryCta": {
+        "label": "I need help now",
+        "href": "/services"
+      },
+      "secondaryCta": {
+        "label": "Plan ahead",
+        "href": "/plans"
+      }
     },
     "rails": {
       "left": {
@@ -245,61 +253,229 @@
     "blog": {
       "heading": "Blog",
       "intro": "Moments, guides and stories from the park.",
-      "posts": [
-        {
-          "id": "post-golden-hour",
-          "author": "Villa Memorial Park",
-          "date": "2026-09-06",
-          "caption": "A peaceful corner of the garden at golden hour — planning a memorial service with your family is a gift of time and light.",
-          "media": [
-            { "kind": "photo", "src": "/media/lot-premium.png", "alt": "Premium garden lot at golden hour", "poster": null },
-            { "kind": "photo", "src": "/media/lot-primary.png", "alt": "Prime garden lot at golden hour", "poster": null },
-            { "kind": "photo", "src": "/media/lot-garden-niches.png", "alt": "Garden niches at golden hour", "poster": null },
-            { "kind": "photo", "src": "/media/hero-1.jpg", "alt": "A calm corner of the park", "poster": null }
-          ],
-          "link": "/lots"
-        },
-        {
-          "id": "post-why-families-plan",
-          "author": "Villa Memorial Park",
-          "date": "2026-09-01",
-          "caption": "Why families plan ahead — pre-arranged memorials protect the people you love from hard decisions at a hard time. A short film on the gift of pre-arranged memorials.",
-          "media": [
-            {
-              "kind": "video",
-              "src": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-              "alt": "Why families plan ahead — short film",
-              "poster": "/media/hero-1.jpg"
-            }
-          ],
-          "link": "/price-list"
-        },
-        {
-          "id": "post-new-niches",
-          "author": "Villa Memorial Park",
-          "date": "2026-08-22",
-          "caption": "Our newest garden niches are open for viewing — walk the grounds in person or online, and ask us about the 2026 list.",
-          "media": [
-            { "kind": "photo", "src": "/media/lot-garden-niches.png", "alt": "New garden niches", "poster": null },
-            { "kind": "photo", "src": "/media/plan-packages.png", "alt": "Plans and packages brochure", "poster": null }
-          ],
-          "link": "/lots/price-list-2026"
-        },
-        {
-          "id": "post-single-moment",
-          "author": "Villa Memorial Park",
-          "date": "2026-08-15",
-          "caption": "One of the reasons families choose Villa — a serene, landscaped resting place close to home, in the first memorial park of Basilan.",
-          "media": [
-            { "kind": "photo", "src": "/media/hero-1.jpg", "alt": "Serene landscaped grounds at Villa Memorial Park", "poster": null }
-          ],
-          "link": "/map"
-        }
-      ]
+      "posts": []
     },
     "map": {
       "heading": "Browse the grounds, live",
       "intro": "Zoom, pan and click every plot — walk the park before you visit."
+    },
+    "home": {
+      "intro": {
+        "hello": "Hello,",
+        "welcome": "Welcome to Villa Funeraria"
+      },
+      "gateway": {
+        "place": "Isabela City, Basilan",
+        "headline": "Someone has died. Call us",
+        "promise": "we will carry it from here.",
+        "lead": "A coordinator answers any hour, day or night. We come to you, and we stay with you until the burial is done.",
+        "secondary": {
+          "label": "Future plan",
+          "href": "/builder"
+        },
+        "facts": [
+          {
+            "id": "answered",
+            "label": "Answered any hour",
+            "note": "A person, not a queue — day or night"
+          },
+          {
+            "id": "first-park",
+            "label": "The first park in Basilan",
+            "note": "Family-run, in Isabela City"
+          },
+          {
+            "id": "eternal",
+            "label": "Backed by Eternal Plans",
+            "note": "Villa Memorial Plan is powered by Eternal Plans, Inc."
+          }
+        ]
+      },
+      "photo": {
+        "image": "/media/hero-1.jpg",
+        "alt": "The grounds of Villa Funeraria",
+        "kicker": "The first memorial park"
+      },
+      "park": {
+        "image": "/media/the%20very%20first%20memorial%20park%20in%20basilan.jpg",
+        "imageAlt": "The first memorial park in Basilan",
+        "chapelsHeading": "",
+        "builder": {
+          "title": "Work out what it costs",
+          "note": "Three choices, from the office's own published figures. An estimate the office confirms — never a quotation.",
+          "casketModels": [
+            "Lumina",
+            "White Rose Half",
+            "Noble Half"
+          ],
+          "preparationDays": [
+            3,
+            5,
+            7
+          ],
+          "includeChapel": true,
+          "includeServices": true,
+          "secondary": {
+            "label": "Finish on the full builder",
+            "href": "/builder"
+          }
+        },
+        "chapels": [
+          {
+            "id": "chapel-a",
+            "resourceId": "10000000-0000-4000-8000-0000000000c1",
+            "name": "Chapel A",
+            "kind": "Common chapel",
+            "what": "Shared chapel; several families at once.",
+            "image": "/media/client/chapel-hall-candle-pedestals-wide-960.webp",
+            "caption": "Illustration purposes only — sample set-up."
+          },
+          {
+            "id": "chapel-b",
+            "resourceId": "10000000-0000-4000-8000-0000000000c2",
+            "name": "Chapel B",
+            "kind": "Private chapel",
+            "what": "A room for your family alone.",
+            "image": "/media/client/wake-setup-lamp-alcove-wide-960.webp",
+            "caption": "Illustration purposes only — sample set-up."
+          }
+        ],
+        "chapelsAction": {
+          "label": "See both rooms",
+          "href": "/facilities"
+        }
+      },
+      "plans": {
+        "heading": "Villa Memorial Plan",
+        "action": {
+          "label": "Explore Page",
+          "href": "/plans"
+        },
+        "kicker": "Plan ahead"
+      },
+      "services": {
+        "heading": "Funeraria Memorial Services",
+        "action": {
+          "label": "Explore Page",
+          "href": "/services"
+        },
+        "allQuote": {
+          "label": "Add all five to Quote",
+          "href": "/quote?item=At-need+services+%E2%80%94+all+five"
+        },
+        "items": [
+          {
+            "id": "svc-retrieval",
+            "service": "Retrieval",
+            "label": "Retrieval",
+            "image": "/media/at_need_services.jpg",
+            "imageAlt": "A funeral attendant holding a single rose beside a casket",
+            "quote": {
+              "label": "Add to Quote",
+              "href": "/quote?item=Retrieval"
+            }
+          },
+          {
+            "id": "svc-delivery",
+            "service": "Delivery",
+            "label": "Delivery",
+            "image": "/media/transport.jpg",
+            "imageAlt": "A hearse carrying a floral arrangement",
+            "quote": {
+              "label": "Add to Quote",
+              "href": "/quote?item=Delivery"
+            }
+          },
+          {
+            "id": "svc-viewing",
+            "service": "Viewing equipment",
+            "label": "Viewing Equipment",
+            "image": "/media/client/wake-setup-lamp-alcove-wide-960.webp",
+            "imageAlt": "A decorated viewing alcove with purple and white drapes, hanging flowers and lit lamp stands",
+            "quote": {
+              "label": "Add to Quote",
+              "href": "/quote?item=Viewing+equipment"
+            }
+          },
+          {
+            "id": "svc-coffins",
+            "service": "ORD coffin",
+            "label": "Coffins",
+            "image": "/media/client/casket-white-closed-wide-960.webp",
+            "imageAlt": "A plain white casket with silver ornaments, photographed closed on its bier",
+            "quote": {
+              "label": "Add to Quote",
+              "href": "/quote?item=ORD+coffin"
+            }
+          },
+          {
+            "id": "svc-interment",
+            "service": "Interment",
+            "label": "Interment",
+            "image": "/media/client/chapel-hall-candle-pedestals-wide-960.webp",
+            "imageAlt": "The chapel hall with its candle pedestals",
+            "quote": {
+              "label": "Add to Quote",
+              "href": "/quote?item=Interment"
+            }
+          }
+        ],
+        "kicker": "Funeraria services"
+      },
+      "lots": {
+        "heading": "Villa Memorial Park",
+        "action": {
+          "label": "Explore Map",
+          "href": "/map"
+        },
+        "quote": {
+          "label": "Start a quote",
+          "href": "/quote?item=Memorial+lot"
+        },
+        "items": [
+          {
+            "id": "lot-premium",
+            "category": "1. Lot Only",
+            "product": "Premium Lots",
+            "label": "Premium Lots",
+            "image": null,
+            "imageAlt": "Premium lots at the memorial park"
+          },
+          {
+            "id": "lot-primary",
+            "category": "1. Lot Only",
+            "product": "Prime Lots",
+            "label": "Primary Lots",
+            "image": null,
+            "imageAlt": "Primary lots at the memorial park"
+          },
+          {
+            "id": "lot-niches",
+            "category": "1. Lot Only",
+            "product": "Garden Niches",
+            "label": "Garden Niches",
+            "image": null,
+            "imageAlt": "Garden niches at the memorial park"
+          },
+          {
+            "id": "lot-mausoleum",
+            "category": "1. Lot Only",
+            "product": "Mausoleum",
+            "label": "Mausoleum",
+            "image": null,
+            "imageAlt": "Mausoleums at the memorial park"
+          }
+        ],
+        "kicker": "The grounds"
+      },
+      "contact": {
+        "heading": "Contact",
+        "lead": "A coordinator answers any hour, day or night — a person, not a queue.",
+        "mapTitle": "Where to find Villa Memorial Park",
+        "mapNote": "The pin is Google's reading of the park's address. The app holds no coordinates until the office supplies them — call the office if you need the exact gate.",
+        "directionsLabel": "Get directions",
+        "kicker": "Reach us"
+      }
     },
     "faq": {
       "eyebrow": "Help",
@@ -323,9 +499,18 @@
         }
       ],
       "links": [
-        { "label": "Villa Memorial Plan", "href": "/plans" },
-        { "label": "Villa Memorial Park", "href": "/map" },
-        { "label": "Contact us", "href": "/contact" }
+        {
+          "label": "Villa Memorial Plan",
+          "href": "/plans"
+        },
+        {
+          "label": "Villa Memorial Park",
+          "href": "/map"
+        },
+        {
+          "label": "Contact us",
+          "href": "/contact"
+        }
       ]
     }
   }

@@ -3,6 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
 import {
@@ -14,19 +15,23 @@ import {
   EMBALMING_RATES,
   php,
 } from "@/lib/villa-pricing";
-import {
-  ALACARTE_SKUS,
-  CHAPEL_SKUS,
-  EMBALMING_EXTRA_DAY_SKU,
-  coffinSku,
-  embalmingDaySku,
-} from "@/lib/catalogue-skus";
+import { coffinSku } from "@/lib/catalogue-skus";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The 2026 price list must be SEEN and SELLABLE, not just stored: these render
  * tests walk the exact components /products and /services mount and assert that
  * every figure the client's sheets carry actually reaches the markup AND that
- * every line carries the two real actions (Add to cart with the exact catalogue
+ * every priced line carries the two real actions (Add to cart with the exact catalogue
  * SKU/price, or the prefilled request). tests/unit/villa-pricing.test.ts pins
  * the transcribed numbers; this file pins that they are published and clickable.
  *
@@ -80,25 +85,9 @@ function requestLinksBySku(html: string): Map<string, URLSearchParams> {
 }
 
 /** Every Request-for-Quote link on a page, decoded into its params. */
-function quoteLinks(html: string): URLSearchParams[] {
-  return [...html.matchAll(/href="\/quote\?([^"]+)"/g)].map(
-    (m) => new URLSearchParams(m[1].replace(/&amp;/g, "&")),
-  );
-}
-
-/** Quote links indexed by the catalogue SKU they carry. */
-function quoteLinksBySku(html: string): Map<string, URLSearchParams> {
-  const bySku = new Map<string, URLSearchParams>();
-  for (const params of quoteLinks(html)) {
-    const sku = params.get("sku");
-    if (sku && !bySku.has(sku)) bySku.set(sku, params);
-  }
-  return bySku;
-}
-
 /** Server pages that render cart buttons need the cart context wrapper. */
 async function renderWithCart(page: ReactNode): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(withBaskets( page));
 }
 
 describe("/products publishes the whole 2026 casket catalogue", () => {
@@ -130,7 +119,9 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
     const bySku = requestLinksBySku(html);
     for (const m of CASKET_MODELS) {
       const sku = coffinSku(m.model);
-      // Add to cart — the button announces the exact catalogue item.
+      // Add to cart — a casket has a published price, so it belongs to the cart
+      // (the quote basket takes the quote-only lines). The button announces the
+      // exact catalogue item.
       expect(html, `${m.model} add button`).toContain(
         `aria-label="Add to cart: ${m.model} casket"`,
       );
@@ -207,7 +198,7 @@ describe("/services offers a Request for Quote instead of a service price", () =
     }
     // Nothing priced at all remains on the page.
     expect(html).not.toMatch(/₱/);
-    expect(html).not.toContain("Add to cart");
+    expect(html).not.toContain("Add to quote");
     expect(html).not.toContain("Request order");
   });
 
@@ -222,29 +213,27 @@ describe("/services offers a Request for Quote instead of a service price", () =
     expect(html).toMatch(/More than 9/);
   });
 
-  it("offers one Request-for-Quote action per line, day count and chapel", () => {
-    const bySku = quoteLinksBySku(html);
+  it("offers one Add-to-Quote action per line, day count and chapel", () => {
+    // The per-line actions are BASKET BUTTONS now (office, inbox 047): each adds
+    // its line to the quote basket, so there are no /quote? per-item links left
+    // to parse. The accessible name is the contract (the SKU rides the client
+    // call, pinned by the source the button reads: ALACARTE_LINES /
+    // embalmingDaySku / CHAPEL_SKUS).
     for (const f of ALACARTE_SERVICE_FEES) {
-      const link = bySku.get(ALACARTE_SKUS[f.service]);
-      expect(link, `${f.service} quote link`).toBeTruthy();
-      expect(link!.get("item")).toBe(f.service);
+      expect(html, `${f.service} add action`).toContain(
+        `aria-label="Add to Quote: ${f.service}"`,
+      );
     }
     for (const r of EMBALMING_RATES) {
-      const link = bySku.get(embalmingDaySku(r.days));
-      expect(link, `embalming ${r.days} quote`).toBeTruthy();
-      expect(link!.get("item")).toContain(`${r.days} days`);
+      expect(html, `embalming ${r.days} add action`).toContain(
+        `aria-label="Add to Quote: Embalming — ${r.days} days"`,
+      );
     }
-    const extra = bySku.get(EMBALMING_EXTRA_DAY_SKU);
-    expect(extra).toBeTruthy();
-    expect(extra!.get("item")).toContain("beyond 9 days");
-    for (const chapelClass of ["common", "private"] as const) {
-      const link = bySku.get(CHAPEL_SKUS[chapelClass]);
-      expect(link, `${chapelClass} chapel quote`).toBeTruthy();
-      expect(link!.get("item")).toContain("Chapel use");
-    }
-    // The whole-set request exists, and no quote link carries a price.
-    expect(quoteLinks(html).some((p) => p.get("item") === "At-need services — all five")).toBe(true);
-    expect(quoteLinks(html).every((p) => p.get("price") === null)).toBe(true);
+    expect(html).toContain('aria-label="Add to Quote: Embalming — beyond 9 days"');
+    expect((html.match(/aria-label="Add to Quote: Chapel use — /g) ?? []).length).toBe(2);
+    // The centred action adds all five lines, and nothing publishes a figure.
+    expect(html).toContain('aria-label="Add all five to Quote: At-need services — all five"');
+    expect(html).not.toMatch(/₱/);
   });
 
   it("keeps the chapel cards' names, capacity and photos but no booking dialog", () => {
@@ -319,7 +308,7 @@ describe("the plan payment tables render on every plan surface", () => {
     const plans = seedPageDocuments().find((doc) => doc.key === "plans")!;
     const content = planContentFromDocument(plans);
     const planHtml = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlansPage()),
+      withBaskets( await PlansPage()),
     );
     for (const tier of content.tiers) expect(planHtml).toContain(tier.heading);
     expect(planHtml).toContain("The five tiers — what each one includes");
@@ -327,7 +316,7 @@ describe("the plan payment tables render on every plan surface", () => {
     expect(planHtml).not.toContain("2026 rates — five tiers, four payment terms");
 
     const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PriceListPage()),
+      withBaskets( await PriceListPage()),
     );
     for (const rows of [VMP_PAYMENTS, SENIOR_PAYMENTS]) {
       for (const row of rows) {
@@ -350,7 +339,7 @@ describe("the plan payment tables render on every plan surface", () => {
   it("/plans shows the five tiers and no longer cards the service catalogue", async () => {
     const items = await listCatalogItems();
     const html = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlansPage()),
+      withBaskets( await PlansPage()),
     );
     // The captain's Phase-2 direction: the mixed 42-item catalogue left this
     // page. Services and caskets (add-ons) belong to /services and /products.
@@ -376,11 +365,15 @@ describe("the plan payment tables render on every plan surface", () => {
   });
 });
 
-describe("/lots/price-list-2026 makes every lot row a request, never a cart line", () => {
+describe("/lots/price-list-2026 adds a lot to the QUOTE BASKET and keeps the request", () => {
   let html: string;
 
   beforeAll(async () => {
-    html = renderToStaticMarkup(await LotsPriceListPage());
+    // The page's rows now carry the add-to-quote control, which needs the
+    // shared basket (the app provides it in the public shell).
+    html = renderToStaticMarkup(
+      withBaskets( await LotsPriceListPage()),
+    );
   });
 
   it("keeps every 2026 lot figure the client's sheet prints", () => {
@@ -393,6 +386,15 @@ describe("/lots/price-list-2026 makes every lot row a request, never a cart line
         expect(html).toContain(php(r.regular.monthly));
       }
     }
+  });
+
+  it("offers an Add to quote control per row (the office's 2026-09-29 direction)", () => {
+    const rows = LOT_PRICE_CATEGORIES.reduce((n, cat) => n + cat.rows.length, 0);
+    // One control per row (the aria-label is the reliable count; the visible
+    // label repeats it).
+    expect((html.match(/aria-label="Add to quote:/g) ?? []).length).toBe(rows);
+    // Every row still keeps its own request + map link beside it.
+    expect((html.match(/Request this lot/g) ?? []).length).toBe(rows);
   });
 
   it("offers Request this lot with the category and price, plus a map link", () => {
@@ -408,7 +410,8 @@ describe("/lots/price-list-2026 makes every lot row a request, never a cart line
     }
     expect(html).toContain("See it on the map");
     expect(html).toContain('href="/map"');
-    // Lots are NOT cart items: no Add-to-cart control on this page.
-    expect(html).not.toContain("Add to cart");
+    // Lots join the QUOTE BASKET now (office, 2026-09-29) — the add control
+    // sits beside the request, and neither reserves anything.
+    expect(html).toContain("Add to quote");
   });
 });

@@ -4,7 +4,7 @@
  *
  * ⚠ NO CONTRACT: nothing recorded here is sent anywhere and no service payload
  * shape is implied. Rows live in this browser (localStorage, the same demo-local
- * pattern as the cart and the public contact form) so a lead captured at a door
+ * pattern as the quote basket and the public contact form) so a lead captured at a door
  * survives the app being closed — the field reality the design serves.
  *
  * When a crm-families write route lands, a BFF route replaces this store and the

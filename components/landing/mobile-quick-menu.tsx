@@ -94,6 +94,12 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
               <a href="/map" onClick={() => setOpen(false)}>
                 Villa Memorial Park
               </a>
+              {/* Blog moved to the header's upper row (inbox 035), which is
+                  desktop-only: the phone keeps its top-level door here and on
+                  the bottom action bar. */}
+              <a href="/blog" onClick={() => setOpen(false)}>
+                Blog
+              </a>
               <a href="/facilities" onClick={() => setOpen(false)}>
                 Facilities
               </a>
@@ -111,9 +117,9 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
               </a>
             </nav>
 
-            {/* Portal doors — the header keeps one “Sign in”; the family and
-                agent doors live here (and in the footer) so every surface is
-                one tap away on mobile. */}
+            {/* Portal doors — on a phone the header's Login is hidden with the
+                upper row, so this is where every sign-in door lives (the
+                footer carries them too). */}
             <nav className="quick-site" aria-label="Portal sign-in">
               <a href="/login" onClick={() => setOpen(false)}>
                 Staff sign-in

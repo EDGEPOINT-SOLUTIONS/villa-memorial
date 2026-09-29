@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import {
   listLandingContent,
@@ -14,6 +15,16 @@ import { NextSteps } from "@/components/landing/next-steps";
 import { LandingFooter, LandingView } from "@/components/landing/landing-view";
 import { PublicShell } from "@/components/ui/public-shell";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * F-17 — the journey fixes (captain, 2026-09-18): the closing action layer and
@@ -30,13 +41,14 @@ import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa
  *  · the contact surface states the office's published facts — both hotlines
  *    from the client's own letterhead, both addresses, the 24/7 availability —
  *    before the form, so a caller never has to scroll or hunt;
- *  · /immediate-assistance keeps its own call-first contract (F-01) and is the
- *    one page that does NOT get the band.
+ *  · EVERY public page gets the band. PublicShell used to exempt
+ *    /immediate-assistance (F-01); that page was removed (office, inbox 040),
+ *    so the exemption went with it.
  */
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
-// usePathname drives PublicShell's one exemption (the assistance screen); the
+// usePathname still drives the header's active link; the
 // value is mutable per test through vi.hoisted.
 const nav = vi.hoisted(() => ({ pathname: "/plans" }));
 vi.mock("next/navigation", () => ({
@@ -132,13 +144,13 @@ describe("every public surface ends on the closing band", () => {
     expect(html).toContain(`Call ${content.contact.phoneDisplay}`);
   });
 
-  it("leaves /immediate-assistance to its own call-first order (F-01)", async () => {
-    nav.pathname = "/immediate-assistance";
-    const html = shell(await listLandingContent());
-    expect(html).not.toContain('class="next-steps"');
-    // …while any other path gets it.
-    nav.pathname = "/services";
-    expect(shell(await listLandingContent())).toContain('class="next-steps"');
+  it("gives the band to every public path, with no exemptions left", async () => {
+    // The former /immediate-assistance exemption went with that page (office,
+    // inbox 040): the band renders on every public path now.
+    for (const pathname of ["/services", "/plans", "/contact", "/blog"]) {
+      nav.pathname = pathname;
+      expect(shell(await listLandingContent()), pathname).toContain('class="next-steps"');
+    }
     nav.pathname = "/plans";
   });
 });
@@ -147,7 +159,7 @@ describe("the contact surface states the office's published facts before the for
   it("renders both hotlines as labelled tel: links, both addresses and the form doors", async () => {
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
     const { contact } = await listLandingContent();
-    const html = renderToStaticMarkup(createElement(CartProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(withBaskets( await ContactPage({
       searchParams: Promise.resolve({}),
     })));
 
@@ -188,7 +200,7 @@ describe("the contact surface states the office's published facts before the for
     await saveLandingContent(edited);
 
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
-    const html = renderToStaticMarkup(createElement(CartProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(withBaskets( await ContactPage({
       searchParams: Promise.resolve({}),
     })));
     expect(html).toContain("Call 0999 333 4444");
@@ -209,7 +221,7 @@ describe("the contact surface states the office's published facts before the for
     await saveLandingContent(cleared);
 
     const { default: ContactPage } = await import("@/app/(public)/contact/page");
-    const html = renderToStaticMarkup(createElement(CartProvider, null, await ContactPage({
+    const html = renderToStaticMarkup(withBaskets( await ContactPage({
       searchParams: Promise.resolve({}),
     })));
     expect(html).not.toContain("Second line");
@@ -225,10 +237,10 @@ describe("the detail pages' advisor cards carry the real, staff-editable line", 
     const { contact } = await listLandingContent();
 
     const planHtml = renderToStaticMarkup(
-      createElement(CartProvider, null, await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-PREMIUM" }) })),
+      withBaskets( await PlanDetailPage({ params: Promise.resolve({ sku: "PKG-PREMIUM" }) })),
     );
     const casketHtml = renderToStaticMarkup(
-      createElement(CartProvider, null, await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) })),
+      withBaskets( await CasketDetailPage({ params: Promise.resolve({ sku: "CSK-LUMINA" }) })),
     );
 
     for (const html of [planHtml, casketHtml]) {

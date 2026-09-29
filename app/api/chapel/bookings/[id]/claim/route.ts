@@ -4,10 +4,10 @@ import { claimChapelBooking } from "@/lib/api-client/chapel-admin";
 
 /**
  * BFF: POST /api/chapel/bookings/:id/claim — the storefront's checkout tells the
- * schedule that a cart hold became part of a placed order.
+ * schedule that a quote hold became part of a placed order.
  *
  * WHY THIS EXISTS: a chapel reservation is created when the customer adds the
- * stay to the cart, so a scheduled range is otherwise indistinguishable from one
+ * stay to the quote basket, so a scheduled range is otherwise indistinguishable from one
  * that was paid for. The order-payment-api-v1 contract is frozen and carries only
  * `{sku, quantity}` per line, so the LINK is made here, after checkout, by the
  * page that still holds the reservation ids — not by changing the checkout
@@ -16,7 +16,7 @@ import { claimChapelBooking } from "@/lib/api-client/chapel-admin";
  * hold, only against a real order, and only when that order actually carries the
  * matching chapel class line for the same number of days.
  *
- * Best-effort by design: a failed claim leaves an ordinary cart hold the office
+ * Best-effort by design: a failed claim leaves an ordinary quote hold the office
  * can confirm from /staff/schedule — never a broken checkout.
  */
 export async function POST(

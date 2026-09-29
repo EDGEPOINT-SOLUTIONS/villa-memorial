@@ -31,17 +31,15 @@ const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 const PUBLIC_DIR = path.join(ROOT, "app", "(public)");
 
 /** Transactional/account routes are real pages but must never be indexed. */
-const NON_INDEXABLE = new Set(["/cart", "/checkout"]);
+const NON_INDEXABLE = new Set(["/cart", "/quote", "/checkout"]);
 
 /**
  * Public pages that deliberately live OUTSIDE `app/(public)`, and so are
- * invisible to the directory walk below.
- *
- *   /blog — the former home, moved verbatim (2026-09-27). It renders
- *           LandingView, which carries its OWN anchored header and footer, so it
- *           has to sit outside the group that would paint a second pair.
+ * invisible to the directory walk below. EMPTY since 2026-09-29: the blog got
+ * its own page document and moved INTO the group (it renders on the shared
+ * chrome now), so every static public page is found by the walk.
  */
-const OUTSIDE_THE_GROUP = ["/blog"];
+const OUTSIDE_THE_GROUP: string[] = [];
 
 function publicPageRoutes(dir = PUBLIC_DIR, prefix = ""): string[] {
   const routes: string[] = [];
@@ -77,6 +75,7 @@ describe("the sitemap table covers every public page", () => {
     expect(paths).toContain("/");
     expect(paths).toContain("/faq");
     expect(paths).not.toContain("/cart");
+    expect(paths).not.toContain("/quote");
     expect(paths).not.toContain("/checkout");
   });
 
@@ -201,7 +200,7 @@ describe("/sitemap.xml and /robots.txt", () => {
   it("never publishes a private or transactional route", async () => {
     const { default: sitemap } = await import("@/app/sitemap");
     const urls = (await sitemap()).map((entry) => entry.url);
-    for (const secret of ["/cart", "/checkout", "/staff", "/client", "/agent", "/orders/", "/api/"]) {
+    for (const secret of ["/quote", "/checkout", "/staff", "/client", "/agent", "/orders/", "/api/"]) {
       expect(urls.filter((url) => url.includes(secret))).toEqual([]);
     }
   });
@@ -246,6 +245,7 @@ describe("/sitemap.xml and /robots.txt", () => {
       "/client/",
       "/agent/",
       "/cart",
+      "/quote",
       "/checkout",
       "/platform/",
     ]) {

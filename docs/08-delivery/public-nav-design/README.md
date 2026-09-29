@@ -159,3 +159,39 @@ docs/08-delivery/public-nav-design/
 The production implementation supersedes `nav.css`/`nav-core.js`: the live rules are the
 `anchored-header` / `anchored-phonebar` / `anchored-explore-sheet` blocks in `styles/components.css`,
 and the live components are the `components/landing/*` files in §4.
+
+## 7 · Addendum — the two-row header (office, 2026-09-29; inboxes 035–044)
+
+The bar is now ONE `<header>` with TWO rows, ONE sticky layer (never a second
+header, never two sticky layers):
+
+| Row | Sticky? | Contents | Type |
+|---|---|---|---|
+| utility (`.anchored-header__topbar`, nav `aria-label="Pages"`) | no — scrolls away | Contact · Blog · Memorials · Login · the grouped **Explore more** menu (Builder · Facilities · Gallery · Price list) | `--text-sm` (13px) bold |
+| main (`.anchored-header__bar`) | yes | brand · Home · Funeraria Memorial Services · Villa Memorial Plan · Villa Memorial Park · **Your Cart** + count · **Your Quote** + count | `--text-lg` (16px) bold |
+
+- **Sticky offset:** the header pins at `-(--anchored-topbar-h + --anchored-topbar-gap)`
+  (35.2 + 22.4 px), so the utility row (which sits `--space-5` below the page top)
+  scrolls off and the main bar pins. `--anchored-header-h` remains the MAIN bar's
+  own compressed height, so rails/panels measure against the pinned bar. Verified
+  at scroll 0 (bar top 35, height 70) and scrolled (bar top 0, height 58, utility
+  row at −35; the /blog rail sticks 14 px below the bar).
+- **No gold in the header** (inbox 039): the active-page `::after` underlines and
+  the old ceremonial hairline are gone; `aria-current="page"` stays in the markup
+  (ink is the remaining cue). The brand-mark fallback keeps its gold disc.
+- **Spacing, not bars:** both rows use `gap: var(--space-3)` (9.6 px) and the same
+  0.5 rem link padding, so the rhythm matches.
+- **Phone (<75 rem):** the utility row AND the main nav collapse; every destination
+  stays reachable — Contact · Memorials in the quick-menu flyout, Blog in the
+  flyout and the bottom action bar, Login in the flyout's portal doors. No
+  sideways scroll at 390.
+- **The one gold action exception** (inboxes 041/044): the gateway's secondary
+  action (`btn--gold-outline` + the stored label **Build** → `/builder`) wears a
+  gold-600 outline (3.25:1 on white — gold-400/500 fail the 3:1 border floor) and
+  on hover/focus fills with the call's real gold-400 under dark ink (~9.5:1). It
+  is an explicit single-surface override; no other band action wears gold, and
+  `.btn--accent` is untouched.
+- `/immediate-assistance` was removed in the same pass (inbox 040): see
+  `08-delivery/notes/demo-web-route-coverage.md` and the historical record under
+  `08-delivery/immediate-assistance-design/`; the phone bar's "Get help" now
+  opens `/contact`.

@@ -4,9 +4,20 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { saveLotPricing, savePlanPricing } from "@/lib/api-client/pricing";
 import { SEED_PRICING } from "@/lib/villa-pricing";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The whole point of the pricing store: an office edit must reach the PUBLIC
@@ -73,7 +84,7 @@ function editedLots() {
 }
 
 async function renderWithCart(page: ReactNode): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(withBaskets( page));
 }
 
 describe("public pages read the saved plan rates", () => {
@@ -129,7 +140,9 @@ describe("public pages read the saved plan rates", () => {
   });
 
   it("/lots/price-list-2026 prints the edited lot row and drops the replaced price", async () => {
-    const html = renderToStaticMarkup(await LotsPriceListPage());
+    const html = renderToStaticMarkup(
+      withBaskets( await LotsPriceListPage()),
+    );
     expect(html).toContain("₱130,000");
     expect(html).toContain("₱21,667");
     expect(html).not.toContain("₱128,000");

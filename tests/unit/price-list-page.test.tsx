@@ -1,10 +1,21 @@
 import { describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { planContentFromDocument } from "@/lib/plan-content";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The consolidated Price list page (/price-list) — the captain's 2026-09-21
@@ -29,7 +40,7 @@ vi.mock("next/link", () => ({
 const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 
 async function renderPage(): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, await PriceListPage()));
+  return renderToStaticMarkup(withBaskets( await PriceListPage()));
 }
 
 describe("the consolidated Price list page", () => {

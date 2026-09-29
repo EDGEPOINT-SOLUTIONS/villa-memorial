@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import {
   CASKET_MODELS,
@@ -9,6 +10,16 @@ import {
   COFFIN_TIER_NOTE,
 } from "@/lib/villa-pricing";
 import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The /products listing — the captain's 2026-09-25 Amazon-familiar restructure.
@@ -44,7 +55,7 @@ const { default: ProductsPage } = await import("@/app/(public)/products/page");
 /** Render the page with a query, as the server half would. */
 async function renderProducts(params: Record<string, string> = {}): Promise<string> {
   return renderToStaticMarkup(
-    createElement(CartProvider, null, await ProductsPage({ searchParams: Promise.resolve(params) })),
+    withBaskets( await ProductsPage({ searchParams: Promise.resolve(params) })),
   );
 }
 

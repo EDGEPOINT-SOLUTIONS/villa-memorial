@@ -9,6 +9,7 @@ import {
 } from "@/components/landing/landing-view";
 import { listLandingContent, type LandingContent } from "@/lib/api-client/landing";
 import { PLAN_PACKAGES_IMAGE, libraryThumb } from "@/lib/media";
+import { migratedLandingPosts, withMigratedPosts } from "../helpers/migrated-posts";
 import { planLotCardFigures } from "@/lib/landing/plan-lots";
 import {
   LOT_PRICE_CATEGORIES,
@@ -107,50 +108,61 @@ describe("the home renders the anchored catalogue shell", () => {
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
+    // The MAIN nav (the upper row's own nav comes first in the document, so
+    // the closing tag must be searched after this start).
+    const navStart = html.indexOf('<nav class="anchored-header__nav');
+    const nav = html.slice(navStart, html.indexOf("</nav>", navStart));
     expect(nav.indexOf('href="/">Home<')).toBeGreaterThanOrEqual(0);
     // Home is the first destination in the bar.
     expect(nav.indexOf("Home")).toBeLessThan(nav.indexOf("Funeraria Memorial Services"));
   });
 
-  it("public chrome keeps the top-level pages and groups the rest under Explore more", async () => {
+  it("public chrome splits the destinations across the two header rows", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    // Header bar (the ONE public nav — same component on every public page):
-    // the captain's five top-level destinations (2026-09-21 direction).
-    const nav = html.slice(html.indexOf('<nav class="anchored-header__nav'), html.indexOf("</nav>"));
+    // MAIN row (the ONE sticky bar every public page shows): the four
+    // ground-floor pages — Blog and Contact moved up (office, inbox 035).
+    const navStart = html.indexOf('<nav class="anchored-header__nav');
+    const nav = html.slice(navStart, html.indexOf("</nav>", navStart));
     for (const [href, label] of [
       ["/", "Home"],
       ["/services", "Funeraria Memorial Services"],
       ["/plans", "Villa Memorial Plan"],
       ["/map", "Villa Memorial Park"],
-      ["/contact", "Contact"],
     ] as const) {
       expect(nav).toContain(`href="${href}">${label}</a>`);
     }
-    // Lots left the bar (it lives inside Villa Memorial Park) and the four
-    // secondary pages moved into the grouped Explore more menu.
-    const menu = nav.slice(nav.indexOf("anchored-header__explore-menu"));
+    expect(nav).not.toContain('href="/contact"');
+    expect(nav).not.toContain('href="/blog"');
+    expect(nav).not.toContain('href="/lots"');
+    // UPPER row (desktop only, inbox 035): Contact · Blog · Memorials · Login
+    // and the grouped menu — Memorials is no longer inside that menu.
+    const topStart = html.indexOf('class="anchored-header__topbar"');
+    const topbar = html.slice(topStart, html.indexOf('class="anchored-header__bar"'));
+    for (const [href, label] of [
+      ["/contact", "Contact"],
+      ["/blog", "Blog"],
+      ["/memorials", "Memorials"],
+    ] as const) {
+      expect(topbar).toContain(`href="${href}">${label}</a>`);
+    }
+    expect(topbar).toContain('class="anchored-header__login" href="/login">Login</a>');
+    const menu = topbar.slice(topbar.indexOf("anchored-header__explore-menu"));
     expect(menu).toContain("Builder");
     expect(menu).toContain("Facilities");
     expect(menu).toContain("Gallery");
-    expect(menu).toContain("Memorials");
-    expect(nav).not.toContain('href="/lots"');
-    expect(nav.slice(0, nav.indexOf("anchored-header__explore"))).not.toContain('href="/builder"');
-    // The footer keeps the same destinations, de-duplicated (captain,
-    // 2026-09-21): the plan has ONE entry (Care & planning), and the park's
-    // one clear entry is the contact block's map link, never a second
-    // "Villa Memorial Park" beside the brand wordmark.
+    expect(menu).toContain("Price list");
+    expect(menu).not.toContain(">Memorials</strong>");
+    expect(nav).not.toContain('href="/builder"');
+    // The footer's columns follow the office's own lists (inbox 049): the
+    // Explore column now carries the plan and the park BY NAME, so the contact
+    // block's "Map & directions" is a second, deliberate way to the map.
     expect(html).toContain('<a href="/services">Funeraria Memorial Services</a>');
     expect(html).toContain('<a href="/plans">Villa Memorial Plan</a>');
+    expect(html).toContain('<a href="/map">Villa Memorial Park</a>');
     expect(html).toContain('<a href="/map">Map &amp; directions →</a>');
-    // The park's ONE footer entry is the contact block's map link — never a
-    // second "Villa Memorial Park" beside the brand wordmark. (The header bar
-    // legitimately carries the top-level name; scope this to the footer.)
-    const footer = html.slice(html.indexOf('<footer class="anchored-footer"'));
-    expect(footer).not.toContain('<a href="/map">Villa Memorial Park</a>');
   });
 
   it("the footer lists one entry per destination and uses the live page names", async () => {
@@ -169,11 +181,30 @@ describe("the home renders the anchored catalogue shell", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
     const labels = links.map((link) => link.label);
     expect(new Set(labels).size).toBe(labels.length);
-    // Labels match the live pages, not the retired wording.
-    expect(labels).toContain("Coffins & caskets");
-    expect(labels).toContain("Memorial lots");
-    expect(labels).not.toContain("Products & caskets");
-    expect(labels).not.toContain("Browse the lots");
+    // The office's exact columns and wording (inbox 049) — four Explore links
+    // then five Care & Planning links, and nothing else.
+    expect(labels).toEqual([
+      "Home",
+      "Funeraria Memorial Services",
+      "Villa Memorial Plan",
+      "Villa Memorial Park",
+      "Lots",
+      "Caskets",
+      "Builder",
+      "Packages",
+      "Price list",
+    ]);
+    expect(links.map((link) => link.href)).toEqual([
+      "/",
+      "/services",
+      "/plans",
+      "/map",
+      "/lots",
+      "/products",
+      "/builder",
+      "/plans/PKG-BASIC",
+      "/price-list",
+    ]);
   });
 
   it("the left rail leads with the always-reachable help card (captain, 2026-09-25)", async () => {
@@ -199,7 +230,7 @@ describe("the home renders the anchored catalogue shell", () => {
     );
     for (const [href, label] of [
       ["/price-list", "Price list"],
-      ["/quote", "Request a quote"],
+      ["/quote", "Start a quote"],
       ["/builder", "Plan finder"],
       ["/map", "Directions &amp; park map"],
     ] as const) {
@@ -209,7 +240,9 @@ describe("the home renders the anchored catalogue shell", () => {
   });
 
   it("middle sections render products first, story after (Amazon order, captain 2026-09-25)", async () => {
-    const content = await listLandingContent();
+    // The posts moved to the blog document; the view still renders a document
+    // that carries them, so the real migrated posts are injected here.
+    const content = await withMigratedPosts(await listLandingContent());
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
@@ -402,10 +435,14 @@ describe("the landing hero is RETIRED from this view (captain, 2026-09-27)", () 
 });
 
 describe("the rails fit without a vertical scrollbar", () => {
-  it("caps the lead image so the default rail list fits its viewport height", () => {
+  it("sizes the lead image so its long title clears the FEATURED badge", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
     const block = /\.rail-item--lead \.rail-thumb \{[^}]*\}/.exec(css)?.[0] ?? "";
-    expect(block).toContain("height: clamp(");
+    // The 9.5rem floor clears the FEATURED badge for a two-line title (inbox
+    // 029); 7vw lets the band grow a little on very wide screens. The 10rem cap
+    // keeps it well under the 14rem band the captain rejected for forcing a
+    // rail scrollbar, and the measured rail still fits its viewport cap.
+    expect(block).toContain("height: clamp(9.5rem, 7vw, 10rem)");
     expect(block).not.toContain("height: 14rem");
   });
 
@@ -489,9 +526,10 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
   it("a post WITH a link wraps its photos and caption in that anchor", async () => {
     const content = await listLandingContent();
     const linked = cloneDoc(content);
+    const sample = (await migratedLandingPosts())[0];
     linked.blog.posts = [
       {
-        ...linked.blog.posts[0],
+        ...sample,
         id: "post-linked",
         link: "/price-list",
         caption: "Plan ahead — read the full Villa Memorial Plan.",
@@ -512,8 +550,9 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
   it("a post WITHOUT a link stays fully non-interactive — no photo or caption anchors", async () => {
     const content = await listLandingContent();
     const sparse = cloneDoc(content);
+    const sample = (await migratedLandingPosts())[0];
     sparse.blog.posts = [
-      { ...sparse.blog.posts[0], id: "post-unlinked", link: null, caption: "Just a story.", media: sparse.blog.posts[0].media },
+      { ...sample, id: "post-unlinked", link: null, caption: "Just a story.", media: sample.media },
     ];
     const html = renderToStaticMarkup(
       view({ content: sparse, mapNode: null, mapLive: false, sectionCount: 0 }),
@@ -526,13 +565,21 @@ describe("blog posts carry the route staff configured in the \"/\" editor", () =
   it("videos are never wrapped in the post link (playback must stay native)", async () => {
     const content = await listLandingContent();
     const linked = cloneDoc(content);
-    const videoPost = linked.blog.posts.find((p) => p.media.some((m) => m.kind === "video"));
-    expect(videoPost).toBeDefined();
+    // The migrated posts are all photographs, so the video contract is proven
+    // with a synthetic video post (the model still carries films).
+    const videoPost = {
+      id: "post-video",
+      author: "Villa Memorial Park",
+      date: "2026-09-01",
+      caption: "A walk through the grounds.",
+      media: [{ kind: "video" as const, src: "/media/sample-film.mp4", alt: "A walk through the grounds", poster: null }],
+      link: null,
+    };
     const html = renderToStaticMarkup(
       view({
         content: {
           ...linked,
-          blog: { ...linked.blog, posts: [{ ...(videoPost as (typeof linked.blog.posts)[number]), link: "/services" }] },
+          blog: { ...linked.blog, posts: [{ ...videoPost, link: "/services" }] },
         },
         mapNode: null,
         mapLive: false,

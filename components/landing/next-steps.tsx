@@ -15,9 +15,9 @@
  * (the home). Deliberately framework-free (plain `<a>`, no router) so the home
  * keeps rendering under the repo's node tests and inside the staff editor.
  *
- * Deliberately NOT rendered on /immediate-assistance: that screen IS the
- * call-first journey (F-01's content order is its contract — "nothing else asks
- * for a decision"), so a second action band would contradict the screen.
+ * Rendered on every public page. The former exception — /immediate-assistance,
+ * whose call-first order would not take a second action band — went with that
+ * page (office, inbox 040).
  */
 import { Phone } from "lucide-react";
 import type { ContactInfo } from "@/lib/api-client/landing";

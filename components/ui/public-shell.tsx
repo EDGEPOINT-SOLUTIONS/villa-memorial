@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { QuoteBasketProvider, useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider, useCart } from "@/lib/cart/cart-context";
 import type { LandingContent } from "@/lib/api-client/landing";
 import { SiteHeaderBar } from "@/components/landing/site-header";
@@ -18,33 +19,35 @@ import { LandingFooter } from "@/components/landing/landing-view";
  * fed from the same landing content document (logo wordmark + uploaded mark).
  * Interior pages add two client-only niceties the framework-free
  * home can't: an active-link highlight (aria-current via usePathname) and the
- * live cart count. Everything else — brand row, page links, grouped Explore
- * more, cart icon, phone bottom action bar — is identical on every public
- * page, so the navigation never changes while navigating between pages.
+ * live cart + quote counts. Everything else — brand row, page links, grouped
+ * Explore more, the two labelled basket actions, the phone bottom action bar —
+ * is identical on every public page, so the navigation never changes while
+ * navigating between pages.
  *
  * Pass flush for full-bleed heroes: the page supplies its own containers.
  */
 function PublicChromeHeader({ content }: { content: LandingContent }) {
   const pathname = usePathname();
-  const { lines, ready } = useCart();
-  const count = ready ? lines.reduce((s, l) => s + l.quantity, 0) : 0;
+  const cart = useCart();
+  const quote = useQuoteBasket();
+  const countOf = (lines: ReadonlyArray<{ quantity: number }>) =>
+    lines.reduce((total, line) => total + line.quantity, 0);
   return (
     <SiteHeaderBar
       brand={content.logo}
       currentPath={pathname}
-      cartCount={count > 0 ? count : undefined}
+      cartCount={cart.ready && cart.lines.length > 0 ? countOf(cart.lines) : undefined}
+      quoteCount={quote.ready && quote.lines.length > 0 ? countOf(quote.lines) : undefined}
     />
   );
 }
 
 /**
- * The closing action band on interior pages (F-17), with the one documented
- * exception: /immediate-assistance IS the call-first screen (F-01), so it keeps
- * its own content order and gets no second action band.
+ * The closing action band on interior pages (F-17). Every public page gets it:
+ * the former /immediate-assistance exception went with that page (office,
+ * inbox 040).
  */
 function PublicNextSteps({ content }: { content: LandingContent }) {
-  const pathname = usePathname();
-  if (pathname === "/immediate-assistance") return null;
   return <NextSteps contact={content.contact} />;
 }
 
@@ -61,7 +64,8 @@ export function PublicShell({
 }) {
   return (
     <CartProvider>
-      <div className="public-shell has-phonebar">
+      <QuoteBasketProvider>
+        <div className="public-shell has-phonebar">
         <PublicChromeHeader content={content} />
         <main
           id="main"
@@ -75,7 +79,8 @@ export function PublicShell({
         <MobileQuickMenu content={content} />
         <PhoneActionBar contact={content.contact} />
         <LandingFooter content={content} />
-      </div>
+        </div>
+      </QuoteBasketProvider>
     </CartProvider>
   );
 }

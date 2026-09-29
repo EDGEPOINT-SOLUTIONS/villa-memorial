@@ -114,7 +114,7 @@ describe("the home hero ships a sized image (the D7 fix)", () => {
         image: "/media/hero-1.jpg",
         imageWidth: 1626,
         imageHeight: 916,
-        primary: { label: "I need help now", href: "/immediate-assistance" },
+        primary: { label: "I need help now", href: "/contact" },
       }),
     );
     expect(html).toContain('data-public-hero="home"');

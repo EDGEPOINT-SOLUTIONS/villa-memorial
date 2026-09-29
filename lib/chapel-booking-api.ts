@@ -156,7 +156,7 @@ export async function releaseChapelBooking(bookingId: string): Promise<void> {
 
 /**
  * Tell the schedule that a held stay became part of a placed order, so the
- * office sees it as confirmed with its order instead of an abandoned cart hold.
+ * office sees it as confirmed with its order instead of an abandoned quote hold.
  * The reservation ids never reach /api/orders (that contract is frozen), so the
  * claim travels separately, right after checkout.
  */
@@ -177,11 +177,11 @@ export async function claimChapelOrder(bookingId: string, orderNumber: string): 
 }
 
 /**
- * Checkout's best-effort claim for every held line in the cart. Never throws: the
+ * Checkout's best-effort claim for every held line in the quote. Never throws: the
  * order is already placed, and a claim that did not land simply leaves a normal
  * hold the office confirms from /staff/schedule. `claim` is injectable for tests.
  */
-export async function claimChapelCartLines(
+export async function claimChapelQuoteLines(
   lines: ReadonlyArray<{ booking?: ChapelBookingLine }>,
   orderNumber: string,
   claim: (bookingId: string, orderNumber: string) => Promise<void> = claimChapelOrder,
@@ -195,13 +195,13 @@ export async function claimChapelCartLines(
 }
 
 /**
- * The cart's remove contract for a chapel line: release the hold, then drop the
- * line. If the release call fails the line still leaves the cart (nobody is
- * trapped with an unremovable line) and the error is returned so the cart page
+ * The quote's remove contract for a chapel line: release the hold, then drop the
+ * line. If the release call fails the line still leaves the quote (nobody is
+ * trapped with an unremovable line) and the error is returned so the quote page
  * can say plainly that the office must confirm the release. The `release`
  * parameter is injectable for unit tests.
  */
-export async function releaseChapelCartLine(
+export async function releaseChapelQuoteLine(
   line: { booking?: ChapelBookingLine },
   key: string,
   remove: (key: string) => void,

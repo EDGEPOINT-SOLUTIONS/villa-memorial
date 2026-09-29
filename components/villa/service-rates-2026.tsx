@@ -2,8 +2,8 @@ import Link from "next/link";
 import { ResultsGrid } from "@/components/kit/results-grid";
 import { ServiceCard } from "@/components/villa/service-card";
 import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
+import { ItemQuoteButton } from "@/components/villa/item-quote-button";
 import { PublicDisclosure, PublicImage, SectionHead } from "@/components/kit";
-import { buildQuoteHref } from "@/lib/public-forms/request-prefill";
 import { CHAPEL_CLASS_LABEL, CHAPEL_CLASS_ORDER, type ChapelClass } from "@/lib/chapel-booking";
 import type { ChapelScheduleResource } from "@/lib/api-client/chapel-reservations";
 import type { ContactInfo } from "@/lib/api-client/landing";
@@ -24,14 +24,14 @@ import { catalogueItemPhoto } from "@/lib/catalogue-imagery";
  * Request-for-Quote (captain's minutes, 2026-09-21, item 5): the funeral-service
  * surfaces no longer publish a price. Each service line — the five a-la-carte
  * fees, the embalming day ladder and the two chapel classes — carries ONE
- * "Request a quote" action instead, which opens the public quote form
- * (`/quote`) prefilled with the service the visitor asked about. The office
+ * "Add to Quote" action (office, inbox 047), which ADDS THE LINE to the quote
+ * basket so a family can add several things and send one inquiry. The office
  * prepares a customised quotation from the request.
  *
- * Nothing is priced here and no cart item is created: the request is the ONE
- * action, and it is an enquiry, never a reservation. The service labels and
- * SKUs still come from the sheet (lib/catalogue-skus.ts) so the request carries
- * the exact catalogue line the office can quote.
+ * Nothing is priced here: the line carries no amount, the quote page prints
+ * "Quoted on request", and it is an enquiry, never a reservation. The service
+ * labels and SKUs still come from the sheet (lib/catalogue-skus.ts) so the
+ * basket line names the exact catalogue item the office can quote.
  *
  * PROVENANCE (lib/villa-pricing.ts holds the sheet map): "2026 price FV
  * website A" (= "PRICE LIST FOR 2026 II") block "If they will not get the
@@ -55,26 +55,25 @@ type QuoteActionProps = {
 };
 
 /**
- * One Request-for-Quote action — the only action a funeral-service line takes.
- * The visually-hidden suffix names the service so a screen reader listing the
- * page's links does not read the same "Request a quote" for every line; the
- * visible label leads the accessible name (WCAG 2.5.3 label-in-name).
+ * One "Add to Quote" item action — the only action a funeral-service line
+ * takes. The button names the service in its accessible label ("Add to Quote:
+ * <service>"), so a screen reader listing the page's controls does not hear
+ * the same label for every line, and the visible label leads the name
+ * (WCAG 2.5.3 label-in-name).
  */
-function QuoteAction({ item, sku, note, label = "Request a quote" }: QuoteActionProps) {
+function QuoteAction({ item, sku, note, label = "Add to Quote" }: QuoteActionProps) {
   return (
-    <Link className="btn btn--accent btn--sm" href={buildQuoteHref({ item, sku, note })}>
-      {label}
-      <span className="visually-hidden"> for {item}</span>
-    </Link>
+    <ItemQuoteButton
+      lines={[{ sku: sku ?? item, name: item, itemType: "service", detail: note }]}
+      name={item}
+      label={label}
+    />
   );
 }
 
 /** Scope shared by the a-la-carte request actions. */
 const ALACARTE_REQUEST_NOTE =
   "A-la-carte service — applies when the family does not take a package.";
-
-const ALL_FIVE_NOTE =
-  "Retrieval, delivery, viewing equipment, ORD coffin and interment — the whole at-need arrangement.";
 
 const EMBALMING_REQUEST_NOTE =
   "Embalming, make-up and dressing. A-la-carte service — applies when the family does not take a package.";
@@ -125,11 +124,17 @@ export function AlacarteServiceRates({
         )}
       />
 
+      {/* The centred action adds ALL FIVE service lines (office, inbox 047). */}
       <div className="story-actions">
-        <QuoteAction
-          item="At-need services — all five"
-          note={ALL_FIVE_NOTE}
-          label="Request a quote for all five"
+        <ItemQuoteButton
+          lines={ALACARTE_LINES.map((fee) => ({
+            sku: fee.sku,
+            name: fee.service,
+            itemType: "service" as const,
+            detail: ALACARTE_REQUEST_NOTE,
+          }))}
+          name="At-need services — all five"
+          label="Add all five to Quote"
         />
       </div>
     </section>
@@ -202,7 +207,7 @@ export function EmbalmingRates({ contact }: { contact: ContactInfo }) {
  * THE NAME IS THE PARK'S RECORD: the card title reads the same staff-editable
  * chapel record (lib/api-client/chapel-store.ts) the schedule does — a rename on
  * /staff/schedule lands here. Each card's ONE action asks the office for dates
- * and a quote; a chapel stay is not priced here and is not a cart item.
+ * and a quote; a chapel stay is not priced here and is not a quote-basket line.
  */
 export function ChapelRates({
   chapels,

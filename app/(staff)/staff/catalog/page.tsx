@@ -26,7 +26,7 @@ export const metadata = { title: "Catalog — Admin Portal" };
  * the publish toggle need `catalog:write`, and a reader without it sees this
  * list read-only with the reason. Every row comes from the durable catalogue
  * store (lib/api-client/catalog-store.ts), which is the SAME fold the public
- * storefront, cart and checkout read — so what an admin changes here is what a
+ * storefront, quote basket and the office read — so what an admin changes here is what a
  * visitor is offered on the next request.
  *
  * Live mode has no catalogue write API (the contract ask is in the PR): the
@@ -150,7 +150,7 @@ export default async function CatalogPage({
         {settled ? (
           <Alert tone="success" title="Catalog saved">
             <code>{settled}</code> {params.updated ? "was updated." : "was added to the catalog."}{" "}
-            The storefront, cart and checkout read it on their next request.
+            The storefront, quote basket and the office read it on their next request.
           </Alert>
         ) : null}
 

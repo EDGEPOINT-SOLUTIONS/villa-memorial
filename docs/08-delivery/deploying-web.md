@@ -210,7 +210,7 @@ repository's `Dockerfile` with `NEXT_PUBLIC_DEMO_HINTS=0`):
 | Image size | 401 MB as `docker images` reports it (base `node:22-alpine` included); ≈100 MB exported/transferred |
 | Container start → first HTTP 200 on `/` | 5.8 s (first run) and 3.2 s (warm run) from `docker run` to response; Next.js logged `Ready in 84 ms` |
 | Container healthcheck | `healthy`, failing streak 0 — and `docker compose ps` reports `(healthy)` |
-| Public routes (`/`, `/services`, `/plans`, `/products`, `/map`, `/gallery`, `/facilities`, `/memorials`, `/faq`, `/contact`, `/builder`, `/immediate-assistance`, `/cart`, `/checkout`) | all `200` |
+| Public routes (`/`, `/services`, `/plans`, `/products`, `/map`, `/gallery`, `/facilities`, `/memorials`, `/faq`, `/contact`, `/builder`, `/cart`, `/checkout`) | all `200` |
 | `SITE_URL` wiring | `/` carries `<link rel="canonical" href="https://staging.example.ph">`; `sitemap.xml` has 63 `<loc>` entries, all on that origin |
 | Sign-in doors (`/login`, `/client/login`, `/agent/login`) | all `200`, **zero** occurrences of `Demo-Passw0rd!` or any `vm.demo` address in the response |
 | Portal gating without a session (`/staff/*`, `/client/*`, `/agent/*`) | `307` → the matching sign-in door |

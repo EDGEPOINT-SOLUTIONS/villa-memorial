@@ -277,7 +277,7 @@ describe("the /lots product listing", () => {
  * One CTA grammar (captain follow-up, 2026-09-21: "tell me why in the lots, the
  * buttons or cta is not consistent"): every repeated control on /lots belongs
  * to the SAME ladder the public catalogue already uses — a card's primary
- * action is `.btn--accent` (the gold `Add to cart` rung), every supporting
+ * action is `.btn--accent` (the gold `Add to quote` rung), every supporting
  * action is `.btn--secondary`, and the panel's commit is `.btn--primary`,
  * the page-level rung. These pin the classes, not the colour.
  */

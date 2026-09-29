@@ -12,7 +12,7 @@ import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
  * crashing (extra fields are ignored, missing description → null).
  */
 
-export type CartLineItemType = "package" | "service" | "add_on";
+export type CartLineItemType = "package" | "service" | "add_on" | "lot";
 
 export type CartLineCatalogDetail = {
   sku: string;
@@ -28,6 +28,9 @@ export const CART_LINE_TYPE_LABEL: Record<CartLineItemType, string> = {
   package: "Package",
   service: "Service",
   add_on: "Add-on",
+  // The cart refuses a lot at the store level (it is quote-only); the label
+  // exists so a legacy stored line still renders honestly.
+  lot: "Lot",
 };
 
 const rawItems: unknown =

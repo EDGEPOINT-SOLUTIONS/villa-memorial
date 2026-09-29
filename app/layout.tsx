@@ -19,12 +19,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        {/* The product's own typeface (styles/fonts.css) — preload the latin
-            subset used above the fold so the voice paints on the first pass;
-            latin-ext (the peso sign among it) streams behind. */}
+        {/* The interface face (styles/fonts.css) — preload the latin subset
+            used above the fold so the voice paints on the first pass;
+            latin-ext (the peso sign among it) streams behind. Inter stays
+            vendored as the fallback and is not preloaded: it only downloads if
+            Manrope fails. */}
         <link
           rel="preload"
-          href="/fonts/inter/inter-latin.woff2"
+          href="/fonts/manrope/manrope-latin.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

@@ -197,7 +197,7 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
         <h2>{editing ? `Edit ${record!.item.sku}` : "New catalog item"}</h2>
         <p className="text-sm text-muted">
           {editing
-            ? "Changes reach the storefront, cart and checkout on their next request."
+            ? "Changes reach the storefront and quote basket on their next request."
             : "The item appears on the public catalogs as soon as it is published."}
         </p>
       </div>
@@ -212,7 +212,7 @@ export function CatalogItemForm({ record }: { record?: AdminCatalogItem }) {
           <Field
             label="SKU"
             htmlFor={skuId}
-            hint={`The item's identity the cart and orders carry (max ${CATALOG_SKU_MAX_LENGTH} characters, unique).`}
+            hint={`The item's identity the quote basket and orders carry (max ${CATALOG_SKU_MAX_LENGTH} characters, unique).`}
             error={errors.sku}
           >
             <input

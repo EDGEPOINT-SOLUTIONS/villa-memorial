@@ -92,7 +92,10 @@ export async function ServiceGuidePage({ entryKey }: { entryKey: string }) {
       <StoryHelpBand
         contact={contact}
         secondary={
-          <Link className="btn btn--secondary" href="/immediate-assistance">
+          // The former immediate-assistance page was removed (office, inbox
+          // 040); its closest surviving equivalent is the human contact door —
+          // the call beside this outline action carries the urgent path.
+          <Link className="btn btn--secondary" href="/contact">
             Immediate assistance
           </Link>
         }

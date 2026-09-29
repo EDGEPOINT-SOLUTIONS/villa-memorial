@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import {
   listLandingContent,
@@ -27,6 +28,16 @@ import {
 import { clientPhotoCard, clientPhotoWide } from "@/lib/client-photos";
 import { listChapelRecords } from "@/lib/api-client/chapel-store";
 import type { ChapelClass } from "@/lib/chapel-booking";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * The premium pass over the two client-facing surfaces this work rebuilt:
@@ -67,7 +78,7 @@ const { default: CasketDetailPage, generateMetadata } = await import(
 );
 
 async function renderWithCart(page: ReactNode): Promise<string> {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(withBaskets( page));
 }
 
 /** Server pages that render cart buttons need the cart context wrapper. */
@@ -130,7 +141,7 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     expect(html).not.toContain('class="story-total"');
     expect(html).not.toContain(php(19500));
     expect(html).not.toContain("send the whole set as one request");
-    expect(html).toContain("Request a quote for all five");
+    expect(html).toContain("Add all five to Quote");
   });
 
   it("gives the common and private chapel their own sample photograph", () => {
@@ -176,7 +187,7 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     // The card reads the park's own chapel record for its name and capacity.
     expect(html).toContain(chapelName.common);
     expect(html).toContain(chapelName.private);
-    expect(html).toContain("Request a quote");
+    expect(html).toContain("Add to Quote");
   });
 
   it("leads with one hero and a call bar — no subnav or steps (captain 2026-09-21)", () => {

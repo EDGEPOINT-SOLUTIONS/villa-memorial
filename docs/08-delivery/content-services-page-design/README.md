@@ -67,7 +67,7 @@ dialog together — the drift the plan's §4.3 recorded
 - The approved section grammar and rate components — the amounts still come from
   `lib/villa-pricing.ts` / `lib/catalogue-skus.ts`; no amount is authored in a view or block.
 - The pricing / catalogue / chapel stores and their staff screens.
-- The service-entry pages' real actions (Add to cart / Request order / the chapel booking step)
+- The service-entry pages' real actions (Request-for-Quote since 2026-09-29 — services are quote-only; the priced catalogue keeps Add to cart / Request order, and the chapel booking step feeds the quote basket)
   and the illustrative-sample labels.
 - `/facilities` (its room copy and rates stay as they were; the two pages still cannot drift).
 

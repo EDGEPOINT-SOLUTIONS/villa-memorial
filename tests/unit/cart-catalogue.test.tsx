@@ -2,8 +2,19 @@ import { createElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CartProvider } from "@/lib/cart/cart-context";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartLineRow } from "@/components/cart-line-row";
 import { CatalogueAddButton } from "@/components/catalogue-add-button";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * Render-level contracts for the two cart/checkout UX additions, executed
@@ -36,9 +47,7 @@ const row = (line: ReturnType<typeof cartLine>, open: boolean) =>
 describe("catalogue card add-to-cart button", () => {
   it("renders an accessible Add to cart control labelled with the real item", () => {
     const html = renderToStaticMarkup(
-      createElement(
-        CartProvider,
-        null,
+      withBaskets(
         createElement(CatalogueAddButton, {
           item: {
             sku: "PKG-PREMIUM",
@@ -58,9 +67,7 @@ describe("catalogue card add-to-cart button", () => {
     // The button component is only the add action — the card page still owns
     // the "View this item" detail link; assert the control carries no href.
     const html = renderToStaticMarkup(
-      createElement(
-        CartProvider,
-        null,
+      withBaskets(
         createElement(CatalogueAddButton, {
           item: {
             sku: "SRV-DELIVERY",

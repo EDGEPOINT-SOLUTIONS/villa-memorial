@@ -1,0 +1,11 @@
+{
+  "comment": [
+    "Site configuration the app stores SERVER-SIDE (never inlined into public JavaScript).",
+    "ONE field for now: the Google Maps API key the home's section 7 embed uses.",
+    "",
+    "WHY A STORE AND NOT CONTENT: the key is server configuration, not page copy. The public home reads it in the server component that builds the iframe src (app/(public)/page.tsx), so the key never reaches a client bundle and never sits in the landing content document the editor posts. With the key absent the map falls back to the keyless classic embed the approved plan uses; the editor's section 7 says which mode is live.",
+    "",
+    "The environment variable GOOGLE_MAPS_API_KEY, when set, wins over this store (a deployment-level secret stays a deployment concern). File: lib/api-client/site-config.ts; durable journal at .data/site-config.json (SITE_CONFIG_PATH redirects it in tests)."
+  ],
+  "googleMapsApiKey": null
+}

@@ -4,9 +4,20 @@ import os from "node:os";
 import path from "node:path";
 import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { getItemEntry, saveItemEntry } from "@/lib/api-client/content-entries";
 import type { Session } from "@/lib/auth/types";
+
+/** The public shell provides BOTH baskets; render inside both the way the app does. */
+function withBaskets(node: React.ReactNode) {
+  return createElement(
+    CartProvider,
+    null,
+    createElement(QuoteBasketProvider, null, node),
+  );
+}
+
 
 /**
  * Content-catalogue Phase 4 — the item entry reaches the storefront and the
@@ -76,7 +87,7 @@ function session(scopes: string[]): Session {
 }
 
 function renderCart(page: ReactNode): string {
-  return renderToStaticMarkup(createElement(CartProvider, null, page));
+  return renderToStaticMarkup(withBaskets( page));
 }
 
 describe("an item entry reaches the storefront", () => {

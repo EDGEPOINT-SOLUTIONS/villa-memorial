@@ -75,7 +75,7 @@ export type ChapelAdminBooking = {
   ends_at: string;
   /** The frozen booking-events-v1 status — never rewritten app-side. */
   scheduling_status: BookingStatus;
-  /** The operator's view: still in a cart, confirmed, or cancelled. */
+  /** The operator's view: still in a quote, confirmed, or cancelled. */
   status: ChapelBookingStatus;
   case_number: string | null;
   conflicting: boolean;
@@ -294,7 +294,7 @@ export async function chapelClassOfBooking(bookingId: string): Promise<"common" 
 
 /**
  * Confirm a booking, i.e. the office accepts a date range. This is what turns a
- * storefront cart hold into a confirmed stay in the admin view; a staff-made
+ * storefront quote hold into a confirmed stay in the admin view; a staff-made
  * booking is already confirmed and answering 200 keeps the action idempotent.
  */
 export async function confirmChapelBooking(
@@ -352,7 +352,7 @@ export async function cancelChapelBooking(
 }
 
 /**
- * The storefront's checkout claim: the customer placed the order, so the cart
+ * The storefront's checkout claim: the customer placed the order, so the quote
  * hold becomes a confirmed booking carrying its order number (and, through the
  * order record, the customer). Called best-effort by the checkout page — a
  * failed claim leaves a normal hold for the office to confirm by hand.

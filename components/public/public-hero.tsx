@@ -19,8 +19,10 @@ import { PublicImage, type PublicImageSource } from "@/components/public/public-
  *             actions · care line, over the gradient or the staff photo.
  *   interior  an interior page's opening: eyebrow · h1 · lead · actions, with an
  *             OPTIONAL 16:9 banner photograph (never a second home hero).
- *   call-first the /immediate-assistance exemption: the enormous call action
- *             leads and nothing else competes with it.
+ *   call-first the urgent-screen treatment: the enormous call action leads and
+ *             nothing else competes with it. Its only user,
+ *             /immediate-assistance, was removed (office, inbox 040); the
+ *             variant stays for the primitive's API and its tests.
  *
  * THE HERO-FLEXIBLE BASE (captain 2026-09-21), inherited verbatim:
  *  · IMAGE-ONLY — an image (and no eyebrow/headline/lead) renders the RAW
