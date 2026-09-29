@@ -207,17 +207,82 @@ render suites that now wrap the lot/quote pages in the shared basket provider.
   pins the order (blog first, bands after, chrome-free) and
   `public-page-budget.test.tsx` declares the section list.
 
-- **The entrance overlay (office, inbox 050):** the home's opening piece is a real
-  app feature, not the supplied standalone demo. `components/public/home-intro.tsx`
-  (client) portals a fixed overlay over the REAL page — a golden cloud on two
-  cords lowers, settles, the two staff-editable lines surface in the accent ink,
-  then the cords stretch/thin and snap the cloud away; the overlay is removed and
-  the page underneath is exactly as it was. It plays ONCE PER SESSION on the home
-  only (sessionStorage), any click/keypress finishes it in ~220 ms, and the full
-  animation is 2.3 s (the demo's ~4.5 s hold halved). Reduced motion shows the
-  greeting WITHOUT motion for 1.5 s rather than skipping it. While it is up the
-  `.public-shell` is inert and focus sits on the overlay; on removal focus moves
-  to `#main`. Copy lives in `home.intro` (hello · welcome) and is edited in the
-  home editor's zone 00 ("The entrance"); the words ride the app's display face
-  (no CDN font — Cormorant Garamond is OFL and could be self-hosted if the office
-  wants that face specifically).
+- **The entrance overlay (office, inboxes 050/051/052/057/058):** the home's opening
+  piece is a real app feature, built to the office's own reference
+  (`Villa Funeraria – Cloud Sign.html`, kept in the firstmate home; NOT added
+  to the repo). The cloud's geometry is copied exactly: the five circles and the
+  rounded base in a 400×200 viewBox, the `#7cbcec → #2f6cab` sky gradient, the
+  blurred white highlight and the `#0a2a55` underside clipped by `clipPath
+  id="shape"`, and the two drop shadows (`0 36px 32px rgba(15,45,90,.3)`,
+  `0 6px 8px rgba(15,45,90,.22)`). The cords are 2px, `linear-gradient(#f3e2b4,
+  #b8975a)`, held `padding: 0 28%`, full length at rest (`380px + 30vh`) with
+  the whole hang dropping over it on one expo-out transform; the beads sit at
+  28%/72% across and 32.4% down at
+  13px with the reference's gold radial. The words carry the reference's
+  vertical gold gradient (`#fff3c4 → #ebca77 → #cfa24d`) clipped to the text
+  with the soft dark shadow, scaled with the cloud (0.05 and 0.0633 of its
+  width, clamped to ladder steps — the one artwork-scale exception the
+  typography gate names). The motion is the reference's: the expo-out drop, the
+  hang swaying about its TOP anchor, the words surfacing, then the exit dimming
+  the words while the cords recoil and snap away, thin to `scaleX(.6)` and the
+  cloud squeezes to `scale(.985,1.035)`. **The motion was rebuilt
+  compositor-only (office, inbox 057) after the office read the first build as
+  not smooth**: the cords used to animate `height` (a layout property) while the
+  SVG's Gaussian blurs and the cloud's two drop-shadows re-rasterised every
+  frame. Now the cords sit at their full length at rest and the WHOLE hang drops
+  as one `translateY` gesture (`home-intro-drop`, 1.6s expo-out) whose keyframe
+  track carries the decaying sway as follow-through that settles — one curve, no
+  second animation racing it; the exit recoils on `scaleY(1 → 1.06 → 0)` with the
+  cloud lifting on `translateY` (`home-intro-lift`) to meet the anchor. Every
+  `@keyframes` block in the intro animates only `transform`/`opacity` (grep of
+  the block: `['animation-timing-function', 'opacity', 'transform']`), the
+  filters are set once and never animated, `will-change: transform, opacity` is
+  carried only while the intro runs and dropped on the final fade, and
+  `tests/unit/home-intro.test.tsx` walks every keyframe and fails a
+  layout-triggering property by name. Measured in headless Chromium at
+  1440×900 sampling `requestAnimationFrame` deltas across the intro: before the
+  rebuild p95 33–100ms with 8–22 frames >33ms (worst ~250–1033ms); after, p95
+  16.8ms with 1–2 frames >33ms (worst 133–267ms, the remaining frame being
+  hydration, not the animation). Deliberate differences from the standalone
+  demo, per the guards: the exit begins at 1.7s (not the demo's 3.8s) and any
+  click/keypress finishes it in ~220ms; the words ride the app's self-hosted display face (no
+  Google-Fonts Cormorant link — that face is OFL and can be self-hosted like
+  Manrope if the office asks); no replay button; the two lines live in
+  `home.intro` and are edited in the home editor's zone 00; reduced motion shows
+  the greeting WITHOUT motion for 1.5s (the reference only disables part of its
+  motion); the page behind is inert while it is up with focus returning to
+  `#main`, and no layout/scroll/focus trace is left. Total visible ~2.6s.
+
+  **The sign is the FIRST PAINT of `/` (office, inbox 058).** The first build
+  gated on the client: the home painted, then a `location.replace` hop to
+  `/entrance` — whose client piece returned `null` until hydration — so the
+  office saw the homepage, then a ~2.5s blank wait, before a sign that looked
+  un-animated. Now `app/(public)/page.tsx` reads the `villa_home_intro_seen`
+  cookie BEFORE render and puts the overlay FIRST in the document for an unseen
+  visitor: the server HTML itself carries the sign, the CSS drop runs from the
+  first frame (hydration only arms the timers), and the home is rendered
+  underneath — when the sequence ends the overlay simply unmounts, with nothing
+  to navigate. The overlay is an OPAQUE white veil (office, inbox 059): the
+  visible first paint is a plain white page carrying only the cloud, and the
+  home behind it is `inert` until the veil lifts (hidden visually, unreachable
+  by Tab or a screen reader). When the exit finishes, the veil's leaving fade
+  runs out and the home — already there — simply appears. Verified end to end in
+  a fresh profile: at ~250ms the page is white with the cloud in the drop; the
+  home is inert from hydration (into the ~2.3s exit); the leaving fade begins
+  ~3.3s with the cookie already written; by ~3.6s the overlay is unmounted, the
+  home is inert-free and on screen. A returning visitor's request carries the cookie and gets the
+  home alone. Measured in a fresh Chromium profile: the overlay is in the DOM
+  and the drop animation is running at the first sample (~150ms: `translateY`
+  −650, `home-intro-drop:0:running`), the URL never leaves `/`, the session
+  cookie is written when the sequence ends, and a reload serves the home
+  directly. The two keys live in the plain module `lib/home-intro.ts` — a
+  constant exported from the `"use client"` component reaches the server as a
+  client-reference proxy, so `cookieStore.get(INTRO_COOKIE)` read `undefined`
+  and the gate never closed (found and pinned by test). Two fallbacks:
+  `@media (prefers-reduced-motion: reduce)` refuses the motion before hydration
+  (verified with CDP emulation: no animation frame at all, greeting still,
+  gone ~1.5s after hydration), and a CSS self-dismiss keyframe slides the
+  overlay off-screen on `transform` alone if the client never hydrates
+  (verified with scripts disabled: after 4s the overlay sits at `translateY`
+  −909px and the home's own link is what a hit test finds). `/entrance` stays
+  as the blank `noindex` standalone route, handing off to `/` as before.

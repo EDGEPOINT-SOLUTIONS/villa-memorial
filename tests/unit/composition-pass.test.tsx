@@ -108,13 +108,15 @@ describe("decorative sheen is gone from the public buttons", () => {
 
   it("paints the primary (brand) button flat too", () => {
     // The 2026-09-27 rebuild moved the primary from a light sky fill with navy
-    // ink to a deep evergreen with warm paper ink: a pale fill cannot carry
+    // ink to a deep brand fill with warm paper ink: a pale fill cannot carry
     // light ink (2.2:1), and the primary action should be the solid one. The
-    // rule this guard exists for is untouched — FLAT, no gradient, no shadow.
+    // rule this guard exists for is untouched — FLAT, no gradient, no shadow —
+    // and its fill now names the SKY ramp directly (the legacy --ever-* name
+    // resolved there through the bridge; office, inbox 055).
     const body = rule(".btn--primary");
     expect(body).not.toMatch(/gradient/);
     expect(body).not.toMatch(/box-shadow/);
-    expect(body).toContain("background: var(--ever-700);");
+    expect(body).toContain("background: var(--sky-700);");
     expect(body).toContain("color: var(--paper-50);");
   });
 

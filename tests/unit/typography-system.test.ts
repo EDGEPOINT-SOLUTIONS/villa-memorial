@@ -171,6 +171,13 @@ describe("type ladder", () => {
     // it is allowed by exact selector — never by value, so a view cannot smuggle
     // a `font-size: 80%` in.
     const ROOT_SCALE = /(?:^|\n)html\s*\{[^}]*font-size:\s*[\d.]+%\s*;/;
+    // THE ENTRANCE OVERLAY'S WORDS are ARTWORK text scaled to the cloud the
+    // office's own reference draws (intro-reference.html: 0.05 and 0.0633 of
+    // the cloud's width), clamped to ladder steps at both ends. They are the
+    // one proportional type on the site and are named here, so the rule stays
+    // exact rather than loosened.
+    const ARTWORK_SCALE =
+      /^clamp\(var\(--text-\w+\), calc\(var\(--home-intro-cw\) \* 0\.\d+\), var\(--text-[\w-]+\)\)$/;
     for (const file of STYLESHEETS) {
       const source = read(file);
       // COMMENTS ARE PROSE, NOT DECLARATIONS. This gate is about what the
@@ -184,6 +191,7 @@ describe("type ladder", () => {
         const value = match[1].trim();
         // `pt` is allowed only for the printed paper-sheet simulation.
         if (LADDER_TOKENS.has(value) || value.endsWith("pt")) continue;
+        if (ARTWORK_SCALE.test(value)) continue;
         if (PAPER_PT_SIZE.test(value)) continue;
         if (file === "styles/base.css" && ROOT_SCALE.test(source) && value.endsWith("%")) continue;
         offenders.push(`${file}: ${value}`);

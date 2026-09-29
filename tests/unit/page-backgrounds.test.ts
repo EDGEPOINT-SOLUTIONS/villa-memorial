@@ -181,9 +181,10 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".home-pin", why: "the home map's status pins (functional indicators)" },
   { match: ".home-legend__dot", why: "the home map's legend dots (functional indicators)" },
   { match: ".home-engraved", why: "the home's authored empty state (plan M5)" },
-  { match: ".home-intro__cloud", why: "the entrance overlay's drawn cloud (artwork, office inbox 050)" },
   { match: ".home-service__cta", why: "the per-service request control's hover state" },
   { match: ".topbar-avatar", why: "the topbar identity avatar disc" },
+  { match: ".ed-nav__btn--active", why: "the staff editor's active-section control state" },
+  { match: ".platform-bar", why: "the platform operator's own top bar — that surface's chrome" },
 ];
 
 function allowed(selector: string): boolean {
@@ -210,13 +211,12 @@ describe("sky backgrounds are confined to controls and the footer", () => {
 
   it("keeps the footer as the page's ONE deep brand ground (the exception, asserted positively)", () => {
     // The footer is the single surface allowed to carry the brand as a GROUND
-    // rather than as a control. Since the 2026-09-27 rebuild that ground is the
-    // deep end of the evergreen ramp, not a pale sky wash: a pale wash under a
-    // memorial page read as mint, and the deep ground is what the brass rule
-    // above it was always for.
+    // rather than as a control. Its deep ground is the deep end of the SKY ramp
+    // now (the legacy --ever-* name resolved there through the bridge; the rule
+    // was repointed to name the ramp it actually paints — office, inbox 055).
     const footer = RULES.find((r) => r.selector === ".anchored-footer");
     expect(footer, "the .anchored-footer rule exists").toBeDefined();
-    expect(footer!.body).toMatch(/background:\s*var\(--ever-900\)/);
+    expect(footer!.body).toMatch(/background:\s*var\(--sky-900\)/);
     // …and it re-inks its whole subtree through the tokens, so a child rule
     // added later cannot land dark-ink-on-dark-ground.
     expect(footer!.body).toMatch(/--color-text-primary:\s*var\(--paper-100\)/);
@@ -263,7 +263,7 @@ describe("sky backgrounds are confined to controls and the footer", () => {
       });
       return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     };
-    const ground = resolve("--ever-900");
+    const ground = resolve("--sky-900");
     expect(ground, "the footer ground resolves to a hex").not.toBeNull();
 
     for (const role of INK_ROLES) {
@@ -282,7 +282,7 @@ describe("sky backgrounds are confined to controls and the footer", () => {
     // the primary went deep so it could carry light ink at 9.7:1).
     const primary = RULES.find((r) => r.selector === ".btn--primary");
     const accent = RULES.find((r) => r.selector === ".btn--accent");
-    expect(primary!.body).toContain("background: var(--ever-700);");
+    expect(primary!.body).toContain("background: var(--sky-700);");
     expect(accent!.body).toContain("background: var(--gold-400);");
   });
 });
