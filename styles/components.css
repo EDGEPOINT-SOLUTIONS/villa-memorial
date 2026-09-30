@@ -21789,14 +21789,16 @@ a.plan-advisor__phone:hover {
 
 /* --- 5 · the five service tiles ------------------------------------------- */
 .home-plates {
-  /* THREE services per row, and a shorter last row CENTRES (captain,
-     2026-09-30). Flex rather than grid: a grid leaves the two leftover tiles
-     hugging the left edge. */
+  /* THREE services per row, the group CENTRED, and a shorter last row centred
+     under the first (captain, 2026-09-30). Flex rather than grid: a grid leaves
+     the leftovers hugging the left edge. The row's own width is three tiles plus
+     their gaps, so a narrower group stays together instead of stretching. */
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-3);
-  margin: 0;
+  max-width: calc(46.5rem + 2 * var(--space-3));
+  margin: 0 auto;
   padding: 0;
   list-style: none;
 }
@@ -21804,10 +21806,9 @@ a.plan-advisor__phone:hover {
 .home-service {
   display: flex;
   flex-direction: column;
-  /* A third of the row (minus the two gaps), so three sit per row and the
-     leftovers centre under them. */
-  flex: 1 1 calc((100% - 2 * var(--space-3)) / 3);
-  max-width: calc((100% - 2 * var(--space-3)) / 3);
+  /* 15.5rem a tile — half the width the plates carried as a third of the band. */
+  flex: 0 1 15.5rem;
+  max-width: 15.5rem;
   gap: var(--space-2);
   min-width: 0;
 }
