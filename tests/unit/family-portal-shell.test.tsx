@@ -92,6 +92,31 @@ describe("the family portal chrome is the agent portal chrome", () => {
     expect(html).toContain("0917 617 8489");
   });
 
+  it("shows the account owner's name and initials at the top right (D11)", async () => {
+    const html = renderToStaticMarkup(await FamilyLayout({ children: createElement("p", null, "body") }));
+    expect(html).toContain('class="portal-content__head"');
+    expect(html).toContain('class="account-chip account-chip--desktop"');
+    expect(html).toContain("Cory Customer");
+    expect(html).toContain(">CC<");
+    expect(html).toContain('aria-haspopup="menu"');
+  });
+
+  it("offers the persisted, keyboard-operable rail toggle (D4)", async () => {
+    const html = renderToStaticMarkup(await FamilyLayout({ children: createElement("p", null, "body") }));
+    expect(html).toContain('class="rail-toggle"');
+    expect(html).toContain('aria-controls="portal-nav"');
+    expect(html).toContain('id="portal-nav"');
+    // The rail choice is applied before first paint, family chrome only.
+    expect(html).toContain("fv-rail");
+  });
+
+  it("leaves the agent portal untouched — no account chip, no collapse toggle", async () => {
+    const html = renderToStaticMarkup(await AgentLayout({ children: createElement("p", null, "body") }));
+    expect(html).not.toContain("account-chip");
+    expect(html).not.toContain("rail-toggle");
+    expect(html).toContain('class="portal-sidebar__user"');
+  });
+
   it("puts the family's own destinations in the shared rail", async () => {
     const html = renderToStaticMarkup(await FamilyLayout({ children: createElement("p", null, "body") }));
     for (const label of [

@@ -185,6 +185,13 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".topbar-avatar", why: "the topbar identity avatar disc" },
   { match: ".ed-nav__btn--active", why: "the staff editor's active-section control state" },
   { match: ".platform-bar", why: "the platform operator's own top bar — that surface's chrome" },
+  // The family command centre (captain, 2026-09-30; plan §8.3): the "The
+  // arrangement" panel's head strip is the one role wash that is sky, and three
+  // control states carry the brand the way every other selected control does.
+  { match: ".dash-panel--arrangement", why: "the dashboard's 'The arrangement' panel head-strip wash (plan §8.3)" },
+  { match: ".papers-list__row.is-active", why: "the selected paper row in the Papers popup (a control state)" },
+  { match: ".papers-reader__tab.is-active", why: "the selected reading tab (On screen / PDF) in the Papers popup" },
+  { match: ".dash-alert__dot", why: "the attention strip's info status dot (a functional indicator)" },
   // The approved plans redesign (2026-09-30, Revision 4 board: "Im good with the
   // plans page, please implement it"): the comparison matrix's group header is
   // one full-strength sky bar and each add-on card leads with a sky icon disc.

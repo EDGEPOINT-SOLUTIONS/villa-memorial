@@ -19,13 +19,15 @@
  *   copy the counter prints are the same document — the same number, the same cells and the
  *   same paper blocks the .docx and .pdf exports carry (see components/paper/*).
  */
-import type { FamilyDocument } from "@/lib/api-client/family";
+import type { FamilyDocument, FamilyDocumentKind } from "@/lib/api-client/family";
 import {
   FAMILY_RECEIPT_COPY_NOTE,
   buildOfficialReceiptPaper,
   officialReceiptFileStem,
   receiptDateWords,
 } from "@/lib/contracts/official-receipt";
+import { familyDocumentView } from "@/lib/family/family-view";
+import { FAMILY_HELP } from "@/lib/family/contact";
 import type { PaperBlock } from "@/lib/export/types";
 import type { PaperProfile } from "@/lib/export/paper-profile";
 
@@ -42,7 +44,7 @@ export function isOwnedPaper(doc: Pick<FamilyDocument, "kind">): boolean {
 }
 
 /** The plain ownership sentence every owned paper carries. */
-export const OWNED_PAPER_WORDS = "It is yours — you never need to request it.";
+export const OWNED_PAPER_WORDS = "You never need to request it.";
 
 export type FamilyPapers = {
   /** The family's service contract, when the record carries one. */
@@ -158,4 +160,96 @@ export function buildFamilyReceiptPaper(receipt: FamilyDocument): {
 /** Export filename stem for a receipt copy. */
 export function familyReceiptFileStem(receipt: FamilyDocument): string {
   return officialReceiptFileStem(receipt.reference ?? "", receipt.issued_on ?? "");
+}
+
+/* ------------------------------------------------------------------ */
+/* The Papers popup's rows (plan §6.7)                                 */
+/* ------------------------------------------------------------------ */
+
+/**
+ * One row in the Papers popup. Serializable so a server page can hand it to the
+ * client dialog. `paper` is present only when the record can be faithfully
+ * rendered — the on-screen `PaperSheet` and the guarded PDF behind it. A record
+ * with no copy carries its honest note and a person to call instead.
+ */
+export type FamilyPaperPopupItem = {
+  key: string;
+  title: string;
+  typeLabel: string;
+  dateLabel: string;
+  statusLabel: string;
+  tone: "success" | "warning" | "danger" | "neutral" | "info";
+  owned: boolean;
+  stateNote: string;
+  paper?: {
+    title: string;
+    blocks: PaperBlock[];
+    profile: PaperProfile;
+    filename: string;
+    /** The guarded family PDF route (inline by default). */
+    pdfHref: string;
+  };
+  /** The request path for a paper the family does not own. */
+  requestHref?: string;
+  requestLabel?: string;
+};
+
+function familyPaperTypeLabel(kind: FamilyDocumentKind): string {
+  if (kind === "service_contract") return "Contract";
+  if (kind === "official_receipt") return "Receipt";
+  return "Paper";
+}
+
+function ownedPopupItem(paper: FamilyDocument): FamilyPaperPopupItem {
+  const receipt = paper.kind === "official_receipt";
+  const canRender = receipt && familyReceiptHasCopy(paper) && Boolean(paper.reference);
+  const item: FamilyPaperPopupItem = {
+    key: paper.reference ?? paper.title,
+    title: receipt && paper.reference ? `Official receipt ${paper.reference}` : paper.title,
+    typeLabel: familyPaperTypeLabel(paper.kind),
+    dateLabel: paper.issued_on ? familyDate(paper.issued_on) : "—",
+    statusLabel: "Yours",
+    tone: "success",
+    owned: true,
+    stateNote: ownedPaperNote(paper),
+    requestHref: FAMILY_HELP.phoneHref,
+    requestLabel: "Call if you need it today",
+  };
+  if (canRender && paper.reference) {
+    const built = buildFamilyReceiptPaper(paper);
+    item.paper = {
+      title: built.title,
+      blocks: built.blocks,
+      profile: built.profile,
+      filename: familyReceiptFileStem(paper),
+      pdfHref: `/api/family/papers/receipt/${encodeURIComponent(paper.reference)}`,
+    };
+  }
+  return item;
+}
+
+/** Every paper the family holds, ready for the popup: owned first, the request path after. */
+export function familyPaperPopupItems(
+  documents: readonly FamilyDocument[],
+): FamilyPaperPopupItem[] {
+  const { contract, receipts, requestable } = familyPapers(documents);
+  const items: FamilyPaperPopupItem[] = [];
+  if (contract) items.push(ownedPopupItem(contract));
+  for (const receipt of receipts) items.push(ownedPopupItem(receipt));
+  for (const paper of requestable) {
+    const view = familyDocumentView(paper.title, paper.status);
+    items.push({
+      key: paper.title,
+      title: view.title,
+      typeLabel: familyPaperTypeLabel(paper.kind),
+      dateLabel: paper.issued_on ? familyDate(paper.issued_on) : "—",
+      statusLabel: view.status,
+      tone: view.tone,
+      owned: false,
+      stateNote: view.note,
+      requestHref: FAMILY_HELP.phoneHref,
+      requestLabel: "Ask for a copy",
+    });
+  }
+  return items;
 }

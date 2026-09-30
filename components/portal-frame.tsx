@@ -39,6 +39,7 @@ import {
   LogOut,
   Megaphone,
   Menu,
+  Phone,
   Plus,
   ScrollText,
   ShieldCheck,
@@ -52,6 +53,8 @@ import {
 import { PortalSwitch } from "@/components/portal-switch";
 import { SkipLink } from "@/components/ui/skip-link";
 import { useModalFocus } from "@/components/ui/use-modal-focus";
+import { AccountBlock, AccountChip, type PortalAccount } from "@/components/portal/account-chip";
+import { RailToggle } from "@/components/portal/rail-toggle";
 import { BRAND_NAME } from "@/lib/brand";
 import type { PortalNavGroup, PortalNavItem } from "@/components/portal-nav";
 
@@ -102,7 +105,7 @@ function SignOutButton({ to }: { to: string }) {
       }}
     >
       <LogOut size={18} aria-hidden="true" />
-      Log Out
+      <span className="portal-sidebar__logout-label">Log Out</span>
     </button>
   );
 }
@@ -118,6 +121,9 @@ export function PortalFrame({
   headerAction,
   tabs,
   help,
+  railCall,
+  account,
+  collapsible = false,
   children,
 }: {
   portal: "family" | "agent";
@@ -135,6 +141,23 @@ export function PortalFrame({
   tabs?: readonly PortalTab[];
   /** Optional sidebar help block (family portal: the coordinator's number). */
   help?: ReactNode;
+  /**
+   * The office number as a collapsed-rail icon (plan §7.3: the help block
+   * collapses to a phone icon). Only rendered when the rail is collapsed.
+   */
+  railCall?: { href: string; label: string };
+  /**
+   * The account owner's own identity (plan §7.6). When set, the desktop content
+   * column leads with a right-aligned account chip and the phone drawer carries
+   * the account block; the agent portal (no account) renders exactly as before.
+   */
+  account?: PortalAccount;
+  /**
+   * Whether the rail collapses (plan §7.3). Family-only: the agent portal keeps
+   * its always-expanded rail. When on, a persisted RailToggle appears and each
+   * item carries a tooltip + `aria-label` so an icon-only rail is never unlabelled.
+   */
+  collapsible?: boolean;
   children: ReactNode;
 }) {
   const pathname = usePathname();
@@ -164,6 +187,8 @@ export function PortalFrame({
         href={item.to}
         className={`portal-nav__item${active ? " portal-nav__item--active" : ""}`}
         aria-current={active ? "page" : undefined}
+        aria-label={collapsible ? item.label : undefined}
+        title={collapsible ? item.label : undefined}
         onClick={() => setMenuOpen(false)}
       >
         <Icon size={18} aria-hidden="true" />
@@ -192,6 +217,7 @@ export function PortalFrame({
         <div className="row">
           {headerAction}
           {bell}
+          {account ? <AccountChip account={account} variant="phone" /> : null}
           <button
             type="button"
             className="portal-topbar__icon"
@@ -211,7 +237,8 @@ export function PortalFrame({
           </Link>
           {bell}
         </div>
-        {email ? (
+        {collapsible ? <RailToggle /> : null}
+        {email && !account ? (
           <p className="portal-sidebar__user">
             {profileTo ? (
               <Link href={profileTo} title="Your account">
@@ -223,11 +250,21 @@ export function PortalFrame({
           </p>
         ) : null}
 
-        <nav className="portal-nav" aria-label={`${brandLabel} navigation`}>
+        <nav id="portal-nav" className="portal-nav" aria-label={`${brandLabel} navigation`}>
           {navList}
         </nav>
 
         <div className="portal-sidebar__foot">
+          {railCall ? (
+            <a
+              className="portal-rail-phone"
+              href={railCall.href}
+              aria-label={railCall.label}
+              title={railCall.label}
+            >
+              <Phone size={18} aria-hidden="true" />
+            </a>
+          ) : null}
           {help}
           <div className="portal-sidebar__switcher">
             <PortalSwitch current={portal} />
@@ -238,6 +275,11 @@ export function PortalFrame({
 
       {/* Content */}
       <main className="portal-content" id="main">
+        {account ? (
+          <div className="portal-content__head">
+            <AccountChip account={account} variant="desktop" />
+          </div>
+        ) : null}
         <div className="portal-content__inner">{children}</div>
       </main>
 
@@ -293,9 +335,10 @@ export function PortalFrame({
           <nav className="portal-nav" aria-label={`${brandLabel} navigation`}>
             {navList}
           </nav>
+          {account ? <AccountBlock account={account} /> : null}
           <div className="portal-sidebar__foot">
             {help}
-            <SignOutButton to={logoutTo} />
+            {!account ? <SignOutButton to={logoutTo} /> : null}
           </div>
         </div>
       ) : null}

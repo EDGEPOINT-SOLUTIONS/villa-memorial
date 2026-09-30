@@ -52,7 +52,26 @@ vi.mock("@/lib/auth/portal-guard", () => ({
 
 vi.mock("@/lib/api-client/family", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api-client/family")>();
-  return { ...actual, getFamilySnapshot: async () => settled };
+  return {
+    ...actual,
+    getFamilySnapshot: async () => settled,
+    // The quiet week is genuinely quiet: no open requests and no unconfirmed
+    // visits, so the dashboard's attention strip is empty and nothing but the
+    // money state decides the headline.
+    listFamilyRequests: async () => [],
+    listFamilyAppointments: async () => [],
+    getFamilyLotRecord: async () => ({
+      plan_name: "",
+      park: "",
+      section: "",
+      lot_number: "",
+      owner_name: "",
+      owner_note: "",
+      kept_by: "",
+      record_note: "",
+      with_office: [],
+    }),
+  };
 });
 
 const { default: HomePage } = await import("@/app/(family)/client/dashboard/page");

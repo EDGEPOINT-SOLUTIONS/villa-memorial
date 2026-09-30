@@ -3147,7 +3147,8 @@ a.ledger__row:hover .ledger__row-title {
   margin: var(--space-2) 0 2px;
   padding-inline: var(--space-3);
   font-size: var(--text-xs);
-  font-weight: 700;
+  /* The portal's ladder: labels ride 500 (plan §8.1); emphasis is 600. */
+  font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -3676,7 +3677,7 @@ because the shared `.ag-appt` rule comes later in this file. */
   background: var(--sky-700);
   color: #fff;
   font-size: var(--text-sm);
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
 }
@@ -14234,7 +14235,7 @@ a.card:hover {
 .portal-frame[data-portal="family"] .portal-nav__item--active:hover {
   background: var(--color-bg-subtle);
   color: var(--color-figure);
-  font-weight: 700;
+  font-weight: 600;
   box-shadow: inset 3px 0 0 var(--sky-600);
 }
 
@@ -24999,5 +25000,1162 @@ a.plan-advisor__phone:hover {
 
   .checkout-actions .btn {
     width: 100%;
+  }
+}
+
+/* ===========================================================================
+   family dashboard — the command centre (captain, 2026-09-30)
+
+   The captain's brief: a lavish, sophisticated, premium dashboard that uses the
+   whole screen, prioritises information density and clarity, and lets every part
+   earn its space. This block is the family portal's dense scope and its shells.
+
+   THE RULES THIS BLOCK ENCODES (plan §8):
+     · the dense type scope `.dash` steps the family reading scale DOWN to the
+       base ladder through the SAME role aliases — no raw sizes, no second face;
+       “Bigger writing” still wins inside it (`[data-fv-reading~="large"] .dash`),
+       so the accessibility magnifier is not lost;
+     · one hue per meaning (plan §8.3), carried by a 2px rule, an uppercase role
+       label in an `-ink` token, and a wash confined to the panel HEAD STRIP —
+       the body stays white so figures keep maximum contrast. Colour never
+       carries meaning alone: every role is also a word;
+     · panels sit on hairlines with NO drop shadow and NO gradient (the 2026-09-25
+       calm sweep), and the role rules are 2px — never a 5px status slab;
+     · money and dates ride `tabular-nums` so columns align;
+     · phone (≤40rem): one column, KPIs 2-across, tables restack, and the popup
+       and rail become full-width surfaces — never a sideways-scrolling page.
+   ========================================================================== */
+
+/* --- the dense scope: the base ladder, one reading column ------------------- */
+.dash {
+  --text-xs: 12px;  --text-sm: 13px;
+  --text-md: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-page-title: var(--text-2xl);
+  --text-section-title: var(--text-xl);
+  --text-card-title: var(--text-lg);
+
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+/* The magnifier still wins inside the dense scope. */
+[data-fv-reading~="large"] .dash {
+  --text-xs: 13px;
+  --text-sm: 1.0625rem;
+  --text-md: 1.25rem;
+  --text-lg: 1.5rem;
+  --text-xl: 2rem;
+}
+
+/* The command centre fills the content column: the family reading envelope
+   (64rem) is a reading measure, and a dashboard is scanned, not read. Scoped to
+   the dashboard (`.dash`) and to the family portal, so the narrative screens keep
+   their reading measure and the agent portal is untouched. */
+.portal-frame[data-portal="family"] .portal-content__inner:has(.dash) {
+  max-width: min(100%, 96rem);
+}
+
+/* The family rail is 240px expanded (plan §7.2: up from 211) so the grouped
+   labels breathe; the agent rail keeps its shipped width. Scoped with
+   `:not([data-rail="collapsed"])` so the collapsed rule (which has lower
+   specificity) still wins. */
+@media (min-width: 64rem) {
+  html:not([data-rail="collapsed"]) .portal-frame[data-portal="family"] .portal-sidebar {
+    width: 18.75rem;
+  }
+
+  html:not([data-rail="collapsed"]) .portal-frame[data-portal="family"] .portal-content {
+    margin-left: 18.75rem;
+  }
+}
+
+/* --- the compact header (a band, not a hero) -------------------------------- */
+/* The captain's compact header (plan §6.0, height target 72–88px): the eyebrow,
+the state sentence and the one-line lead sit in a left column, and the two
+actions sit at its end, vertically centred — so Home opens on a band, not on the
+250px stacked hero the narrative screens keep. */
+.dash .ag-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "eyebrow actions"
+    "title actions"
+    "lead actions";
+  align-items: center;
+  column-gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+}
+
+.dash .ag-day {
+  grid-area: eyebrow;
+}
+
+.dash .ag-hero__title {
+  grid-area: title;
+  max-width: none;
+  margin-top: 2px;
+}
+
+.dash .ag-hero__lead {
+  grid-area: lead;
+  margin-top: 2px;
+  font-size: var(--text-md);
+}
+
+.dash .ag-action {
+  grid-area: actions;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+@media (max-width: 48rem) {
+  .dash .ag-hero {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "eyebrow"
+      "title"
+      "lead"
+      "actions";
+  }
+
+  .dash .ag-action {
+    margin-top: var(--space-2);
+  }
+}
+
+/* --- the attention strip ---------------------------------------------------- */
+.dash-alerts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: var(--space-4) 0;
+}
+
+.dash-alert {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  min-height: 3rem;
+  border: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-status-warning);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.dash-alert[data-tone="danger"] {
+  border-left-color: var(--color-status-danger);
+}
+
+.dash-alert[data-tone="info"] {
+  border-left-color: var(--sky-500);
+}
+
+.dash-alert[data-tone="neutral"] {
+  border-left-color: var(--color-border-strong);
+}
+
+.dash-alert__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-status-warning);
+}
+
+.dash-alert[data-tone="danger"] .dash-alert__dot {
+  background: var(--color-status-danger);
+}
+
+.dash-alert[data-tone="info"] .dash-alert__dot {
+  background: var(--sky-500);
+}
+
+.dash-alert[data-tone="neutral"] .dash-alert__dot {
+  background: var(--color-border-strong);
+}
+
+.dash-alert__label {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-figure);
+}
+
+.dash-alert__meta {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.dash-clear {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  min-height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-left: 2px solid var(--color-status-success);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.dash-clear p {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.dash-clear__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--color-status-success);
+}
+
+/* --- the KPI row ------------------------------------------------------------ */
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+}
+
+.dash-kpis .kpi-card {
+  box-shadow: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  min-height: 5.5rem;
+}
+
+.dash-kpis .kpi-card__label {
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.dash-kpis .kpi-card__value {
+  font-size: var(--text-xl);
+  color: var(--color-figure);
+}
+
+.dash-kpis .kpi-card__sub {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.dash-kpi[data-tone="warning"] {
+  border-left: 2px solid var(--color-status-warning);
+}
+
+.dash-kpi[data-tone="danger"] {
+  border-left: 2px solid var(--color-status-danger);
+}
+
+.dash-kpi[data-tone="success"] {
+  border-left: 2px solid var(--color-status-success);
+}
+
+/* --- the panel grid --------------------------------------------------------- */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.dash-span-8 { grid-column: span 8; }
+.dash-span-7 { grid-column: span 7; }
+.dash-span-5 { grid-column: span 5; }
+.dash-span-4 { grid-column: span 4; }
+
+.dash-panel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+.dash-panel__head {
+  border-top: 2px solid var(--color-border-strong);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-subtle);
+}
+
+.dash-panel__label {
+  margin: 0 0 2px;
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.dash-panel__title-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.dash-panel__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-card-title);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--color-figure);
+}
+
+.dash-panel__count {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.dash-panel__more,
+.dash-panel__link {
+  margin-left: auto;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.dash-panel__link {
+  display: inline-block;
+  margin: var(--space-3) 0 0;
+}
+
+.dash-panel__body {
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+/* One hue per meaning; the wash is the HEAD STRIP only, the body stays white. */
+.dash-panel--needs .dash-panel__head {
+  border-top-color: var(--color-status-warning);
+  background: var(--color-status-warning-bg);
+}
+
+.dash-panel--needs .dash-panel__label {
+  color: var(--color-status-warning-ink);
+}
+
+.dash-panel--money .dash-panel__head {
+  border-top-color: var(--color-accent);
+  background: var(--gold-wash-soft);
+}
+
+.dash-panel--money .dash-panel__label {
+  color: var(--color-text-accent);
+}
+
+.dash-panel--arrangement .dash-panel__head {
+  border-top-color: var(--sky-500);
+  background: var(--sky-50);
+}
+
+.dash-panel--arrangement .dash-panel__label {
+  color: var(--sky-800);
+}
+
+.dash-panel--settled .dash-panel__head {
+  border-top-color: var(--color-status-success);
+  background: var(--color-status-success-bg);
+}
+
+.dash-panel--settled .dash-panel__label {
+  color: var(--color-status-success-ink);
+}
+
+.dash-panel--place .dash-panel__head {
+  border-top-color: var(--color-border-strong);
+  background: var(--color-bg-subtle);
+}
+
+.dash-panel--place .dash-panel__label {
+  color: var(--color-text-secondary);
+}
+
+.dash-panel--neutral .dash-panel__head {
+  border-top-style: dashed;
+  border-top-color: var(--color-border);
+  background: transparent;
+}
+
+.dash-panel--neutral .dash-panel__label {
+  color: var(--color-text-muted);
+}
+
+/* --- the dense table grammar ------------------------------------------------ */
+.dash-table {
+  width: 100%;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-table th,
+.dash-table td {
+  font-size: var(--text-md);
+  padding: var(--space-2) var(--space-3);
+  vertical-align: top;
+}
+
+.dash-table thead th {
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.dash-table tbody th {
+  font-weight: 400;
+  color: var(--color-figure);
+}
+
+.dash-table__sub {
+  display: block;
+  font-size: var(--text-caption);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.dash-table__state {
+  display: block;
+  margin-top: var(--space-1);
+}
+
+.dash-table__action {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.dash-muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-caption);
+}
+
+.dash-empty {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.dash-note,
+.dash-state {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.dash-state {
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+/* --- facts: a stacked label → value list ------------------------------------ */
+.dash-facts {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dash-facts[data-columns="2"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.dash-fact {
+  min-width: 0;
+}
+
+.dash-fact dt {
+  font-size: var(--text-micro);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.dash-fact dd {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-figure);
+}
+
+.dash-fact[data-tone="due"] dd {
+  color: var(--color-status-warning-ink);
+}
+
+.dash-fact[data-tone="ok"] dd {
+  color: var(--color-status-success-ink);
+}
+
+/* --- money, remembering, upload --------------------------------------------- */
+.dash-money {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dash-remember {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.dash-remember__body {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+}
+
+.dash-remember__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--color-figure);
+}
+
+.dash-remember__dates {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.dash-upload {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dash-upload__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.dash-upload__hint {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.dash-panel__open {
+  align-self: flex-start;
+}
+
+/* --- the account disc (shared by the chip and the Remembering panel) --------- */
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar__initials {
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.avatar[data-size="lg"] .avatar__initials {
+  font-size: var(--text-xl);
+}
+
+/* --- the account chip + menu (top right, plan §7.6) -------------------------- */
+.portal-content__head {
+  display: none;
+  justify-content: flex-end;
+  margin: 0 0 var(--space-4);
+}
+
+.account-chip {
+  position: relative;
+}
+
+.account-chip__button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-primary);
+}
+
+.account-chip__button:hover {
+  background: var(--color-bg-subtle);
+}
+
+.account-chip__name {
+  font-size: var(--text-md);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 70;
+  min-width: 14rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  gap: 2px;
+}
+
+.account-menu__email {
+  margin: 0;
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.account-menu__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  min-height: 2.25rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--color-text-primary);
+  font-size: var(--text-md);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.account-menu__item:hover {
+  background: var(--color-bg-subtle);
+}
+
+/* --- the drawer's account block --------------------------------------------- */
+.account-block {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.account-block__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.account-block__name {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--color-figure);
+}
+
+.account-block__email {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.account-block__links {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.account-block__links a {
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.account-block__links a:hover {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+}
+
+/* --- the collapsible rail (plan §7.3) --------------------------------------- */
+.rail-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+}
+
+.rail-toggle:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+.portal-rail-phone {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.portal-rail-phone:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+@media (min-width: 64rem) {
+  .portal-content__head {
+    display: flex;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar {
+    width: 5rem;
+    padding-inline: var(--space-2);
+    align-items: center;
+  }
+
+  html[data-rail="collapsed"] .portal-content {
+    margin-left: 5rem;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar__brand-row {
+    justify-content: center;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar__title,
+  html[data-rail="collapsed"] .portal-nav__label,
+  html[data-rail="collapsed"] .portal-nav__item span,
+  html[data-rail="collapsed"] .portal-sidebar__user,
+  html[data-rail="collapsed"] .portal-sidebar__help,
+  html[data-rail="collapsed"] .portal-sidebar__switcher,
+  html[data-rail="collapsed"] .rail-toggle__label {
+    display: none;
+  }
+
+  html[data-rail="collapsed"] .portal-nav__group {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  /* Group names become hairline separators when the rail is icon-only. */
+  html[data-rail="collapsed"] .portal-nav__group + .portal-nav__group::before {
+    content: "";
+    display: block;
+    width: 1.5rem;
+    height: 1px;
+    margin: var(--space-2) auto;
+    background: var(--color-border);
+  }
+
+  html[data-rail="collapsed"] .portal-nav__item {
+    justify-content: center;
+    padding-inline: var(--space-2);
+  }
+
+  html[data-rail="collapsed"] .portal-rail-phone {
+    display: inline-flex;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar__logout {
+    justify-content: center;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar__logout-label {
+    display: none;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar__logout svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  html[data-rail="collapsed"] .portal-sidebar__foot {
+    align-items: center;
+    width: 100%;
+  }
+
+  html[data-rail="collapsed"] .rail-toggle {
+    justify-content: center;
+  }
+}
+
+/* --- the Papers popup ------------------------------------------------------- */
+.papers-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  margin: auto;
+  width: min(100% - 2rem, 68rem);
+  max-height: min(92vh, 60rem);
+  overflow: auto;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.papers-dialog__bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-3);
+}
+
+.papers-dialog__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  color: var(--color-figure);
+}
+
+.papers-dialog__sub {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.papers-dialog__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+}
+
+.papers-dialog__body {
+  display: grid;
+  grid-template-columns: minmax(14rem, 20rem) minmax(0, 1fr);
+  gap: var(--space-4);
+  min-height: 0;
+}
+
+.papers-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+}
+
+.papers-list__row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "title state" "meta state";
+  align-items: center;
+  gap: 2px var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.papers-list__row.is-active {
+  border-color: var(--sky-500);
+  background: var(--sky-50);
+}
+
+.papers-list__title {
+  grid-area: title;
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--color-figure);
+}
+
+.papers-list__meta {
+  grid-area: meta;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.papers-list__row .badge {
+  grid-area: state;
+  justify-self: end;
+}
+
+.papers-reader {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.papers-reader__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.papers-reader__tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.papers-reader__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.papers-reader__tab.is-active {
+  background: var(--sky-50);
+  color: var(--sky-800);
+  font-weight: 600;
+}
+
+.papers-reader__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.papers-reader__sheet {
+  overflow: auto;
+  background: var(--color-bg-subtle);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+}
+
+.papers-reader__frame {
+  width: 100%;
+  height: 60vh;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.papers-reader__fallback {
+  display: none;
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.papers-reader__empty {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.papers-reader__state {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+/* --- responsive: 1024 (small laptop) ---------------------------------------- */
+@media (max-width: 75rem) {
+  .dash-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .dash-span-8,
+  .dash-span-7,
+  .dash-span-5,
+  .dash-span-4 {
+    grid-column: span 12;
+  }
+
+  .dash-alerts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-panel__head {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+}
+
+/* --- responsive: 390 (phone) ------------------------------------------------ */
+@media (max-width: 40rem) {
+  .dash .ag-hero {
+    padding: var(--space-4);
+  }
+
+  .dash-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-alert {
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "dot body" "state action";
+    row-gap: var(--space-2);
+  }
+
+  .dash-alert__dot {
+    grid-area: dot;
+  }
+
+  .dash-alert__body {
+    grid-area: body;
+  }
+
+  .dash-alert .badge {
+    grid-area: state;
+    justify-self: start;
+  }
+
+  .dash-alert .btn {
+    grid-area: action;
+    justify-self: end;
+  }
+
+  /* Tables restack into compact label/value rows — never a sideways-scrolling
+     page, and never one full block per cell (that tripled the page height). */
+  .dash-table,
+  .dash-table tbody,
+  .dash-table tr,
+  .dash-table th,
+  .dash-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .dash-table thead {
+    display: none;
+  }
+
+  .dash-table tr {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    padding: var(--space-2) var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+
+  .dash-table th[scope="row"] {
+    font-weight: 600;
+    padding: 0 0 var(--space-1);
+  }
+
+  .dash-table td {
+    padding: 1px 0;
+  }
+
+  .dash-table td::before {
+    content: attr(data-label) ": ";
+    display: inline;
+    font-size: var(--text-micro);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .dash-table td .badge {
+    vertical-align: middle;
+  }
+
+  .dash-table__sub {
+    display: inline;
+  }
+
+  .dash-table__sub::before {
+    content: " · ";
+  }
+
+  .dash-table__state {
+    display: inline;
+    margin-left: var(--space-1);
+  }
+
+  .dash-table__action {
+    text-align: left;
+  }
+
+  .dash-facts[data-columns="2"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .papers-dialog {
+    width: 100%;
+    max-height: 100vh;
+    height: 100vh;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  .papers-dialog__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .papers-reader__frame {
+    display: none;
+  }
+
+  .papers-reader__fallback {
+    display: block;
   }
 }

@@ -241,6 +241,39 @@ describe("type ladder", () => {
   });
 });
 
+/**
+ * The portal WEIGHT ladder (plan §8.1, captain 2026-09-30).
+ *
+ * The lighter step already shipped on `main` (799fd19 set the display serif to
+ * weight 500; b4435f4 dropped the family/agent portal's 700s to 600). The
+ * dashboard rebuild carried the last three portal 700s to their rungs, so this
+ * guard pins the whole signed-in scope: display/panel heads ride 500, emphasis
+ * (a row title, a chip, the active nav item) rides 600, labels ride 500, body
+ * rides 400 — and NO 700 survives inside the portal grammar. A style that needs
+ * more emphasis spends it on scale, colour or a rule, never on a bolder face.
+ */
+describe("portal weights — the lighter step", () => {
+  const PORTAL_SELECTOR = /\.(?:ag|fv|portal)-|\.dash(?![-\w])/;
+  const OUT_OF_SCOPE = /\.signin-/; // the sign-in doors are not the signed-in portal grammar
+  const rules = parseCss(readStyle("styles/components.css"));
+
+  it("keeps no 700 inside the family/agent portal scope", () => {
+    const offenders: string[] = [];
+    for (const rule of rules) {
+      const selectors = rule.selector.split(",").map((s) => s.trim());
+      if (!selectors.some((s) => PORTAL_SELECTOR.test(s) && !OUT_OF_SCOPE.test(s))) continue;
+      if (/font-weight:\s*700\b/.test(rule.body)) offenders.push(rule.selector);
+    }
+    expect(offenders, offenders.join("\n")).toEqual([]);
+  });
+
+  it("keeps the rail's group label at the label weight (500)", () => {
+    const label = rules.find((rule) => rule.selector === ".portal-nav__label");
+    expect(label, ".portal-nav__label exists").toBeDefined();
+    expect(label!.body).toMatch(/font-weight:\s*500\b/);
+  });
+});
+
 /** The role classes the map owns. `files` names where each declaration lives so
  *  the check reads the real stylesheet, not a copy. */
 const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>> = {

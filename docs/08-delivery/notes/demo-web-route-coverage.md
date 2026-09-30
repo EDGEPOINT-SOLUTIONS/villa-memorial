@@ -83,12 +83,12 @@ the deliverable, not a leftover.
 
 | Route | What it serves |
 |---|---|
-| `/client/dashboard` | ⚠ partial snapshot summary (loved one, balance, next due) |
+| `/client/dashboard` | ✅ the command centre (captain, 2026-09-30): a compact header, an attention strip, six KPI tiles and seven colour-role panels (the funeral · visits · money + instalments · papers · plots · remembering · help) summarise every recorded fact in one screen; each unwired service is an inline honest chip, money/dates are tabular, and the private portrait/avatar load from the guarded family image route. Record: `docs/08-delivery/family-command-centre-design/` |
 | `/client/family` | ⚠ household links; each row points at its honest screen |
 | `/client/plans`, `/payments`, `/notifications` | ⚠ partial; the plan's instalment schedule is real since the payment-due-notification pass (client minute 2026-09-21, item 1): the family's own recorded plan runs through `lib/payment-schedule.ts`, and Payments + “What we tell you about” list the derived upcoming/overdue reminders (two days before a due date) with client · reference · amount · due date; the plan certificate, payment history and external channels still wait on their services |
 | `/client/cases`, `/privacy` | ⚠ partial snapshot or honest state; the missing service/contract is named on the page |
 | `/client/property`, `/requests`, `/appointments`, `/memorials` | ⚠ the four record-backed screens (2026-09-18): each shows the office's own record through the recorded workspace fixture, ends in a calm note naming the contract it still waits on, and invents no figure, chapel, ticket number or published memorial (`lib/family/portal-coverage.ts`, pinned by test) |
-| `/client/documents`, `/client/documents/receipts/[reference]` | ⚠ the family's own papers (service contract, official receipts) always show; a receipt copy prints only from a record that carries number+date+amount, else 404 |
+| `/client/documents`, `/client/documents/receipts/[reference]` | ⚠ the family's own papers (service contract, official receipts) always show; a receipt copy prints only from a record that carries number+date+amount, else 404. The dashboard's Papers box opens a popup listing every paper, each readable as the shared `PaperSheet` HTML and, when the record is whole, as the family's own guarded PDF (`/api/family/papers/receipt/<ref>`, inline, `private, no-store`) |
 | `/client/support` | ✅ the client's real numbers/places with the office call as the action |
 | `/client/profile` | ⚠ partial; device-local reading preferences are real |
 

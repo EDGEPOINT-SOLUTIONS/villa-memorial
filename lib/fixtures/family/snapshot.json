@@ -2,7 +2,7 @@
   "_provenance": {
     "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
     "recorded": "2026-09-16",
-    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree. `recent_documents[].kind` is the family-safe classification (service_contract / official_receipt / other): the first two are the family's own papers, the portal never asks them to request those, and `lib/api-client/family.ts::toFamilyDocument` drops every field a document record carries beyond title/status/kind/reference/issued_on/amount/covers. `payment_schedule` is the family's own plan instalments (client minute 2026-09-21, item 1): it records the payment mode, the first due date and each instalment's amount/paid in integer minor units; `lib/payment-schedule.ts` DERIVES every due date and the due-soon/overdue state, and the two-days-before notice. The dates are recorded data and age with the clock exactly like the billing seed; tests pin the boundary with explicit clocks so they never rot."
+    "note": "Display-level family snapshot. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree. `recent_documents[].kind` is the family-safe classification (service_contract / official_receipt / other): the first two are the family's own papers, the portal never asks them to request those, and `lib/api-client/family.ts::toFamilyDocument` drops every field a document record carries beyond title/status/kind/reference/issued_on/amount/covers. The one recorded official receipt (OR-2026-00201, 27 July 2026, ₱10,000) is the family's copy of the FIRST instalment the payment_schedule records as paid — the amount is the recorded instalment's own, never a new figure — so the Papers popup can open a real sheet (HTML + the guarded PDF route). Its number is a recorded fixture value in the family portal's own receipt namespace; when the payments/AR projection freezes it is replaced by the service's receipt. `payment_schedule` is the family's own plan instalments (client minute 2026-09-21, item 1): it records the payment mode, the first due date and each instalment's amount/paid in integer minor units; `lib/payment-schedule.ts` DERIVES every due date and the due-soon/overdue state, and the two-days-before notice. The dates are recorded data and age with the clock exactly like the billing seed; tests pin the boundary with explicit clocks so they never rot."
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
   "family": {
@@ -43,6 +43,14 @@
   },
   "recent_documents": [
     { "title": "Service contract", "status": "Generated", "kind": "service_contract" },
-    { "title": "Official receipt", "status": "Sent", "kind": "official_receipt" }
+    {
+      "title": "Official receipt",
+      "status": "Sent",
+      "kind": "official_receipt",
+      "reference": "OR-2026-00201",
+      "issued_on": "2026-07-27",
+      "amount": "₱10,000",
+      "covers": "payment 1 of 4"
+    }
   ]
 }

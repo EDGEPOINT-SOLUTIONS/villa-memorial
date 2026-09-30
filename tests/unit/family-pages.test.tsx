@@ -52,7 +52,7 @@ const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/pag
 const { default: FamilyDashboardPage } = await import("@/app/(family)/client/family/page");
 
 const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
-  { name: "Home", Page: HomePage, headline: "is still to pay" },
+  { name: "Home", Page: HomePage, headline: "you today" },
   { name: "The funeral", Page: FuneralPage, headline: "funeral plan is kept by our office" },
   { name: "Payments", Page: PaymentsPage, headline: "Here’s how to pay" },
   { name: "Papers", Page: PapersPage, headline: "papers are ready" },

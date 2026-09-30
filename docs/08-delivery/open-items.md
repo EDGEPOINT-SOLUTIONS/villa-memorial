@@ -248,11 +248,37 @@ lands, the live branch's `toInquiry` maps the wire shape to this one and no scre
 **Who can act.** The platform (freeze the field on `crm-families`). The fixture-mode journal and
 board are the temporary home and are recorded here so the field is not mistaken for a frozen one.
 
+## 9. Platform ask — the contracts the command centre exposes (2026-09-30)
+
+**Status: OPEN — platform-owned.** The family command centre
+([design record](./family-command-centre-design/README.md)) renders every recorded fact it can and
+an inline honest chip for every service that is not wired; the machine-readable list stays
+`lib/family/portal-coverage.ts` (pinned by `tests/unit/family-prd-coverage.test.ts`). The
+family-facing reads it makes visible as gaps, in the order they cost the family most:
+
+| The panel | What it waits on |
+|---|---|
+| The funeral | a **case projection** (viewing/service/burial times + what the office is handling) |
+| Visits | a **scheduling** family read (booked times, confirmation state) |
+| Requests | a **request/service-desk** read (assignment, history) |
+| My plots | a **family-facing lot/ownership projection** that carries the office's own `plot_code` (then the shipped 3D deep link turns on) plus an **interment projection** (who rests there) |
+| Money | the **payments/AR** read (payment history, receipts) |
+| Remembering | the **digital-memorial** service (content, moderation, visibility) |
+| The account avatar / Remembering portrait | a family-scoped **document/image store** (the platform `documents-api-v1` upload is Deferred); a local guarded interim ships today (`lib/family-image-store.ts`) |
+
+No shape is invented here. Until one freezes, the panel shows what the record carries and names the
+gap in place.
+
+**Who can act.** The platform (freeze the reads), with Villa for the lot `plot_code` / interment
+data and the DPA retention question already held in
+[`07-client-villa/open-questions.md`](../07-client-villa/open-questions.md).
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
 as the decision record, item 3 the open list. Updated 2026-09-25 — §6 added by the
 payment-due-notification pass. Updated 2026-09-28 — §3 rows 6–7 and §7 added (the client-minutes
 phases 4–7). Updated 2026-09-30 — §8 added (the provisional structured quote lines from the
-quote-page revisioning, captain D6-A). The audit and the linked documents remain the authoritative
+quote-page revisioning, captain D6-A) and §9 added (the contracts the family command centre
+exposes). The audit and the linked documents remain the authoritative
 record.*

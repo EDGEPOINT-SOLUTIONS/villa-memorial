@@ -113,9 +113,16 @@ describe("the family's own papers on the Papers page", () => {
   });
 
   it("keeps the honest getting-ready state and a person to call when no copy exists", async () => {
-    // The recorded snapshot lists the papers but carries no receipt details yet:
-    // exactly the state the honest copy comes from.
-    state.snapshot = snapshotWith(base.recent_documents);
+    // A record that lists the papers but carries no receipt details — exactly the
+    // state the honest copy comes from.
+    const withoutCopy = (doc: (typeof base.recent_documents)[number]) => ({
+      ...doc,
+      reference: undefined,
+      issued_on: undefined,
+      amount: undefined,
+      covers: undefined,
+    });
+    state.snapshot = snapshotWith(base.recent_documents.map(withoutCopy));
     const html = renderToStaticMarkup(await PapersPage());
     for (const owned of ["Service contract", "Official receipt"]) {
       const row = rowFor(html, owned);

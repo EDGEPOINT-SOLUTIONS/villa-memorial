@@ -57,7 +57,8 @@
   `tests/unit/family-documents.test.ts`). One receipt opens as a copy at
   `/client/documents/receipts/[reference]` (shared paper sheet + Print/Word/PDF) only when its
   record carries number + date + amount; a half-record 404s rather than printing a plausible
-  receipt. Until the family contract lands, the snapshot carries no receipt detail, so the
-  honest state is what ships — the backend ask (generate the document, attach it to the family
-  record, notify the family) stays open.
+  receipt. The recorded snapshot carries ONE such receipt (OR-2026-00201), so that copy ships
+  and opens today (on screen and as the family's own guarded PDF); a record that does not carry
+  the three cells keeps the honest “getting it ready” state, and the backend ask (generate every
+  document, attach it to the family record, notify the family) stays open.
 

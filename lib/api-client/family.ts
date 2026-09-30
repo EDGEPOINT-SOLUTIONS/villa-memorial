@@ -183,6 +183,14 @@ export type FamilyLotRecord = {
   park: string;
   section: string;
   lot_number: string;
+  /**
+   * The office's own plot code for this lot, when a family-facing lot/ownership
+   * projection carries one. It is deliberately SEPARATE from `lot_number`: the
+   * recorded `lot_number` is a display string from the plan name (“Lawn A-01”)
+   * while the park's plots use the office code (“A-001”), so the 3D deep link is
+   * offered only when this field is present and resolves (lib/family/family-plots).
+   */
+  plot_code?: string;
   /** The name on the family's account — never asserted as legal ownership. */
   owner_name: string;
   owner_note: string;
@@ -248,7 +256,15 @@ export async function listFamilyAskFor(): Promise<FamilyAskFor[]> {
 /** The family's lot record — what the office holds and what this page cannot show yet. */
 export async function getFamilyLotRecord(): Promise<FamilyLotRecord> {
   const lot = readFamilyWorkspace().lot;
-  return { ...lot, with_office: Array.isArray(lot.with_office) ? [...lot.with_office] : [] };
+  const rawPlotCode = (lot as unknown as Record<string, unknown>).plot_code;
+  return {
+    ...lot,
+    plot_code:
+      typeof rawPlotCode === "string" && rawPlotCode.trim() !== ""
+        ? rawPlotCode.trim()
+        : undefined,
+    with_office: Array.isArray(lot.with_office) ? [...lot.with_office] : [],
+  };
 }
 
 export async function getFamilySnapshot(): Promise<FamilySnapshot> {

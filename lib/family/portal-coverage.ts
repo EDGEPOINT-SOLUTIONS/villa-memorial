@@ -48,7 +48,7 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
     state: "partial",
     module: "crm-cases.md · finance-billing.md",
     missing:
-      "The funeral schedule and case progress are not projected yet — the dashboard names that and points to the office phone.",
+      "The funeral schedule and case progress are not projected yet, and the full payment history is not wired — the command centre names each gap in place and points to the office phone.",
   },
   {
     screen: "Family Dashboard",
