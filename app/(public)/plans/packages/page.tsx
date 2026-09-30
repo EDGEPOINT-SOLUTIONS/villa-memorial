@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getCatalogItem } from "@/lib/api-client/commerce";
 import { pageMetadata } from "@/lib/seo";
-import { renderItemPage } from "../[sku]/page";
+import { renderItemPage } from "../[sku]/package-view";
 
 /**
  * `/plans/packages` — the packages page (captain, 2026-09-30).

@@ -37,7 +37,6 @@ import {
 import {
   CONTENT_BLOCK_TYPES,
   CONTENT_RATE_REFS,
-  EDITORIAL_BLOCK_TYPES,
   emptyBlock,
   validatePageDocument,
   type ContentBlock,
@@ -68,17 +67,7 @@ export function PageDocumentEditor({
   const [pending, setPending] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>(null);
   const [picker, setPicker] = useState<{ blockId: string; imageId: string } | null>(null);
-  // The sign-in page is an editorial panel: only the panel's curated palette is
-  // offered there (a greeting with announcements), never a price table.
-  const blockTypes =
-    initial.key === "login"
-      ? EDITORIAL_BLOCK_TYPES.map((type) => CONTENT_BLOCK_TYPES.find((entry) => entry.type === type)).filter(
-          (entry): entry is (typeof CONTENT_BLOCK_TYPES)[number] => entry !== undefined,
-        )
-      : CONTENT_BLOCK_TYPES;
-  const [newBlockType, setNewBlockType] = useState<ContentBlockType>(() =>
-    initial.key === "login" ? "notice" : "paragraph",
-  );
+  const [newBlockType, setNewBlockType] = useState<ContentBlockType>("paragraph");
 
   const skuSet = new Set(skuOptions.map((option) => option.sku));
   const rateRefs = new Set(CONTENT_RATE_REFS);
@@ -333,7 +322,7 @@ export function PageDocumentEditor({
                   value={newBlockType}
                   onChange={(event) => setNewBlockType(event.target.value as ContentBlockType)}
                 >
-                  {blockTypes.map((entry) => (
+                  {CONTENT_BLOCK_TYPES.map((entry) => (
                     <option key={entry.type} value={entry.type}>
                       {entry.label}
                     </option>
@@ -414,20 +403,6 @@ export function PageDocumentEditor({
                     alt: prior?.alt ?? "",
                     caption: prior?.caption ?? null,
                     sample: prior?.sample ?? false,
-                  },
-                };
-              }
-              if (block.type === "notice") {
-                // The optional announcement photograph: swap the picture only.
-                const prior = block.image;
-                return {
-                  ...block,
-                  image: {
-                    id: prior?.id ?? `img-${Date.now().toString(36)}`,
-                    src,
-                    alt: prior?.alt ?? "",
-                    caption: prior?.caption ?? null,
-                    sample: false,
                   },
                 };
               }

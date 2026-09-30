@@ -21,10 +21,6 @@ import AgentLoginPage from "@/app/(signin)/agent/login/page";
 // by these server-render assertions, so stand in for both.
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: () => {} }) }));
 vi.mock("@/components/portal-switch", () => ({ PortalSwitch: () => null }));
-// The staff door now reads the `login` page document for its editorial panel; the
-// panel is pinned in its own test, so here it stays absent and the card is what
-// the demo-fill assertions see.
-vi.mock("@/lib/api-client/content-pages", () => ({ getPageDocument: async () => null }));
 
 const ENV_KEYS = [
   "DEMO_QUICK_FILL",
@@ -97,30 +93,30 @@ describe("every sign-in door passes the server-resolved password to the card", (
     ["agent", AgentLoginPage],
   ] as const;
 
-  it("carries the fixture password when DEMO_QUICK_FILL is on", async () => {
+  it("carries the fixture password when DEMO_QUICK_FILL is on", () => {
     setEnv({ DEMO_QUICK_FILL: "1", DEMO_QUICK_FILL_PASSWORD: undefined, AUTH_BASE_URL: undefined });
     for (const [door, Page] of doors) {
-      const element = (await Page()) as ReactElement<{ quickFillPassword?: string | null }>;
+      const element = Page() as ReactElement<{ quickFillPassword?: string | null }>;
       expect(element.props.quickFillPassword, door).toBe(personas.password);
     }
   });
 
-  it("carries null when the flag is unset", async () => {
+  it("carries null when the flag is unset", () => {
     setEnv({ DEMO_QUICK_FILL: undefined, DEMO_QUICK_FILL_PASSWORD: undefined, AUTH_BASE_URL: undefined });
     for (const [door, Page] of doors) {
-      const element = (await Page()) as ReactElement<{ quickFillPassword?: string | null }>;
+      const element = Page() as ReactElement<{ quickFillPassword?: string | null }>;
       expect(element.props.quickFillPassword, door).toBeNull();
     }
   });
 
-  it("renders the hint label that matches the server gate", async () => {
+  it("renders the hint label that matches the server gate", () => {
     setEnv({ DEMO_QUICK_FILL: "1", DEMO_QUICK_FILL_PASSWORD: undefined, AUTH_BASE_URL: undefined });
-    const enabled = renderToStaticMarkup(await LoginPage());
+    const enabled = renderToStaticMarkup(LoginPage());
     expect(enabled).toContain("Demo account:");
     expect(enabled).not.toContain("Demo account (fill email):");
 
     setEnv({ DEMO_QUICK_FILL: undefined });
-    const disabled = renderToStaticMarkup(await LoginPage());
+    const disabled = renderToStaticMarkup(LoginPage());
     expect(disabled).toContain("Demo account (fill email):");
   });
 });
@@ -154,20 +150,20 @@ describe("persona hints are build-time gated (production ships no demo addresses
     ["agent", AgentLoginPage],
   ] as const;
 
-  it("passes personas while demo hints are on (the unset local-dev default)", async () => {
+  it("passes personas while demo hints are on (the unset local-dev default)", () => {
     setEnv({ NEXT_PUBLIC_DEMO_HINTS: undefined });
     for (const [door, Page] of doors) {
-      const element = (await Page()) as ReactElement<{ personas: unknown[] }>;
+      const element = Page() as ReactElement<{ personas: unknown[] }>;
       expect(element.props.personas.length, door).toBeGreaterThan(0);
     }
   });
 
-  it("passes an EMPTY list when NEXT_PUBLIC_DEMO_HINTS=0, so no address reaches the payload", async () => {
+  it("passes an EMPTY list when NEXT_PUBLIC_DEMO_HINTS=0, so no address reaches the payload", () => {
     setEnv({ NEXT_PUBLIC_DEMO_HINTS: "0", DEMO_QUICK_FILL: undefined });
     for (const [door, Page] of doors) {
-      const element = (await Page()) as ReactElement<{ personas: unknown[] }>;
+      const element = Page() as ReactElement<{ personas: unknown[] }>;
       expect(element.props.personas, door).toEqual([]);
-      expect(renderToStaticMarkup(await Page()), door).not.toContain("vm.demo");
+      expect(renderToStaticMarkup(Page()), door).not.toContain("vm.demo");
     }
   });
 });

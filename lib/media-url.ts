@@ -53,7 +53,7 @@ export function isStoredMediaPath(src: string): boolean {
 export function storedMediaSrcs(doc: {
   media?: { hero?: string | null; gallery?: Array<{ src: string }> };
   gallery?: Array<{ src: string }>;
-  blocks?: Array<{ type: string; images?: Array<{ src: string }>; image?: { src: string } | null }>;
+  blocks?: Array<{ type: string; images?: Array<{ src: string }> }>;
 }): string[] {
   const srcs: string[] = [];
   if (doc.media?.hero) srcs.push(doc.media.hero);
@@ -61,11 +61,6 @@ export function storedMediaSrcs(doc: {
   for (const image of doc.gallery ?? []) srcs.push(image.src);
   for (const block of doc.blocks ?? []) {
     if (block.type === "gallery") for (const image of block.images ?? []) srcs.push(image.src);
-    // A checklist's optional tier image and a notice's optional photograph are
-    // authored media too, so the store must register them for cleanup/reference.
-    if (block.type === "checklist" || block.type === "notice") {
-      if (block.image?.src) srcs.push(block.image.src);
-    }
   }
   return srcs;
 }
