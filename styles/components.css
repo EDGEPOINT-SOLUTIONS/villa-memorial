@@ -14187,9 +14187,36 @@ a.card:hover {
    treatment as every other surface — the light-sky rail/content wash read as a
    template. Brand blue stays on the ACTIVE rail item's edge (a selected
    control) and the actions inside; every ground is white. */
+/* The captain's eye-comfort pass (2026-09-30), which supersedes the "every
+   ground is white" line above: white on white read flat and hard on the eye.
+   The workspace sits on a warm tint — the sidebar and the boxes stay white, so
+   they separate by themselves — and every box carries the ONE resting card
+   shadow, with a single step up where the box is interactive. */
 .portal-frame[data-portal="agent"],
 .portal-frame[data-portal="family"] {
-  background: var(--color-bg-surface-raised);
+  background: var(--paper-200);
+}
+
+.portal-frame[data-portal="agent"] .card,
+.portal-frame[data-portal="family"] .card,
+.portal-frame[data-portal="agent"] .dash-panel,
+.portal-frame[data-portal="family"] .dash-panel,
+.portal-frame[data-portal="agent"] .dash-table,
+.portal-frame[data-portal="family"] .dash-table,
+.portal-frame[data-portal="agent"] .dash-remember,
+.portal-frame[data-portal="family"] .dash-remember,
+.portal-frame[data-portal="agent"] .dash-upload,
+.portal-frame[data-portal="family"] .dash-upload,
+.portal-frame[data-portal="agent"] .papers-dialog,
+.portal-frame[data-portal="family"] .papers-dialog {
+  box-shadow: var(--shadow-card-rest);
+}
+
+.portal-frame[data-portal="agent"] .kpi-card:hover,
+.portal-frame[data-portal="family"] .kpi-card:hover,
+.portal-frame[data-portal="agent"] a.card:hover,
+.portal-frame[data-portal="family"] a.card:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .portal-frame[data-portal="agent"] .portal-sidebar,
