@@ -256,7 +256,15 @@ export function HomePage({
           3 · THE FIRST PARK — the photograph + the arrangement builder,
               with the two chapels under the photograph.
           ================================================================ */}
-      <section className="home-park" aria-label="The first memorial park in Basilan">
+      <section className="home-park" aria-labelledby="home-park-title">
+        {/* The band's own title (captain, 2026-09-30): it had none, so the
+            photograph and the builder opened without saying what they are. */}
+        <div className="home-band-head">
+          <p className="home-band-head__kicker">The first park</p>
+          <h2 id="home-park-title" className="home-band-head__title">
+            The first memorial park in Basilan
+          </h2>
+        </div>
         <div className="home-park__grid">
           <div className="home-park__media">
             {parkPhoto ? (

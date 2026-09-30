@@ -284,19 +284,17 @@
         "chapelsHeading": "",
         "builder": {
           "title": "Work out what it costs",
-          "note": "Three choices, from the office's own published figures. An estimate the office confirms — never a quotation.",
+          "note": "Two choices, from the office's own published figures — three days' preparation is included. An estimate the office confirms, never a quotation.",
           "casketModels": [
             "Lumina",
             "White Rose Half",
             "Noble Half"
           ],
           "preparationDays": [
-            3,
-            5,
-            7
+            3
           ],
           "includeChapel": true,
-          "includeServices": true,
+          "includeServices": false,
           "secondary": {
             "label": "Finish on the full builder",
             "href": "/builder"

@@ -121,22 +121,27 @@ export function HomeCostBuilder({
         ))}
       </fieldset>
 
-      <fieldset className="home-builder__group">
-        <legend>Days of preparation</legend>
-        {model.days.map((choice) => (
-          <Option
-            key={choice.id}
-            type="radio"
-            name={`${id}-days`}
-            value={choice.id}
-            checked={days === choice.id}
-            onChange={() => setDays(choice.id)}
-            label={choice.label}
-            detail={choice.detail}
-            amountCents={choice.amountCents}
-          />
-        ))}
-      </fieldset>
+      {/* One question per group the family must answer (captain, 2026-09-30): a
+          group with a single option is a stated assumption, not a choice — it
+          stays in the estimate and out of the form. */}
+      {model.days.length > 1 ? (
+        <fieldset className="home-builder__group">
+          <legend>Days of preparation</legend>
+          {model.days.map((choice) => (
+            <Option
+              key={choice.id}
+              type="radio"
+              name={`${id}-days`}
+              value={choice.id}
+              checked={days === choice.id}
+              onChange={() => setDays(choice.id)}
+              label={choice.label}
+              detail={choice.detail}
+              amountCents={choice.amountCents}
+            />
+          ))}
+        </fieldset>
+      ) : null}
 
       {model.chapels.length > 1 ? (
         <fieldset className="home-builder__group">

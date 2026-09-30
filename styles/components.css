@@ -22174,6 +22174,11 @@ a.plan-advisor__phone:hover {
 }
 
 .home-lot-detail {
+  /* The dossier under the plates and the map takes the SAME measure as they do
+     (captain, 2026-09-30): it used to span the full band and stick out past the
+     grid it belongs to. */
+  max-width: 62rem;
+  margin-inline: auto;
   margin-top: var(--space-4);
   padding: var(--space-4);
   background: var(--paper-0);
