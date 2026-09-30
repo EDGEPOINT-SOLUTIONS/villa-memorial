@@ -21027,7 +21027,9 @@ a.plan-advisor__phone:hover {
 
 .sv-page .sv-room__facts dd {
   margin: var(--space-1) 0 0;
-  font-size: var(--text-card-title);
+  /* Supporting detail, not a figure to shout (captain, 2026-09-30) — the same
+     rung the facilities page's room facts wear. */
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
