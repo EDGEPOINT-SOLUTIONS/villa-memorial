@@ -195,11 +195,15 @@ describe("/sitemap.xml and /robots.txt", () => {
     for (const page of PUBLIC_PAGES) {
       expect(urls, `sitemap is missing ${page.path}`).toContain(absoluteUrl(page.path));
     }
-    // The catalogue's casket detail routes (frozen SKU map) and the real stores'
-    // lots/packages are linked for crawlers too.
+    // The catalogue's casket detail routes (frozen SKU map) and the real lots
+    // are linked for crawlers too. Plan packages are NOT listed per SKU: the
+    // package view answers at /plans/packages (in PUBLIC_PAGES) and every
+    // /plans/PKG-* URL 308-redirects there, so a detail URL here would advertise
+    // a redirect as a canonical page (the 2026-09-30 sitemap fix).
     expect(urls.some((url) => url.includes("/products/CSK-"))).toBe(true);
     expect(urls.some((url) => url.includes("/lots/"))).toBe(true);
-    expect(urls.some((url) => url.includes("/plans/PKG-"))).toBe(true);
+    expect(urls).toContain(absoluteUrl("/plans/packages"));
+    expect(urls.some((url) => url.includes("/plans/PKG-"))).toBe(false);
   });
 
   it("never publishes a private or transactional route", async () => {
