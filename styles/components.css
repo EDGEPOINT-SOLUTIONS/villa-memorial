@@ -21392,10 +21392,11 @@ a.plan-advisor__phone:hover {
 .home-park__grid {
   display: grid;
   /* The pavilion photograph is band 3's dominant figure (office, 2026-09-29):
-     1.6 : 1 against the builder, which stays wide enough for its rows, with the
-     chapels under the photograph and both columns ending on the same line
+     it leads against the builder at a wider share of the row (1.9 : 1 — the
+     captain asked for a little more picture, 2026-09-30), with the chapels under
+     the photograph and both columns ending on the same line
      (align-items: stretch). */
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
   gap: var(--space-5);
   align-items: stretch;
   /* 1.5× smaller (captain, 2026-09-30): the photograph, the builder and the
