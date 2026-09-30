@@ -62,8 +62,10 @@ describe("the administrative area is named the Admin Portal", () => {
 
   it("the sign-in door, the portal switcher and the document provenance say Admin", () => {
     const signIn = readSource("lib/sign-in.ts");
-    expect(signIn).toContain('title: "Admin portal"');
-    expect(signIn).toContain('portal: "admin"');
+    // ONE sign-in page for every door (captain, 2026-09-30): the door NAMES live
+    // in the list at the card's foot, and the badge is the admin door's.
+    expect(signIn).toContain('label: "Admin"');
+    expect(signIn).toContain('key: "staff"');
     expect(signIn).not.toMatch(/Staff portal|Staff ·/);
 
     const switcher = readSource("components/portal-switch.tsx");

@@ -22,27 +22,17 @@ export function demoHintsEnabled(): boolean {
   return process.env.NEXT_PUBLIC_DEMO_HINTS !== "0";
 }
 
-export const SIGN_IN_BLURBS: Record<
-  SignInDoor,
-  { eyebrow: string; title: string; blurb: string; portal: string }
-> = {
-  staff: {
-    eyebrow: "Villa Memorial · Admin",
-    title: "Admin portal",
-    blurb: "Operations, finance, property and the people who run it all.",
-    portal: "admin",
-  },
-  family: {
-    eyebrow: "Villa Memorial · Family",
-    title: "Sign in to see what is happening",
-    blurb:
-      "This private page shows your family’s arrangement — the schedule, the payments and the papers. Only your family and the staff who serve you can see it.",
-    portal: "family",
-  },
-  agent: {
-    eyebrow: "Villa Memorial · Agent",
-    title: "Agent portal",
-    blurb: "Clients, prospects and commissions for our sales partners.",
-    portal: "agent",
-  },
-};
+/**
+ * The sign-in page is ONE page for every door (captain, 2026-09-30): the same
+ * title, the same form, and the three portals offered beneath it. There is no
+ * per-door marketing copy — a sign-in screen should be practical, and the door
+ * names at the foot already say which portal each account opens.
+ */
+export const SIGN_IN_TITLE = "Sign in";
+
+/** The three account doors the sign-in page offers, in the order it shows them. */
+export const SIGN_IN_DOORS: ReadonlyArray<{ key: SignInDoor; label: string; href: string }> = [
+  { key: "staff", label: "Admin", href: "/login" },
+  { key: "family", label: "Family", href: "/client/login" },
+  { key: "agent", label: "Agent", href: "/agent/login" },
+];

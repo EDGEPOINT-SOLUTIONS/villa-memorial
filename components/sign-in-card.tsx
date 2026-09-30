@@ -10,13 +10,14 @@
  * lands you in the right portal. Door switcher below keeps all surfaces
  * connected; "back to public site" is one click.
  */
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
-import { PortalSwitch } from "@/components/portal-switch";
-import { SIGN_IN_BLURBS, demoHintsEnabled, type SignInDoor } from "@/lib/sign-in";
+import { LOGO_SANCTUARIO } from "@/lib/media";
+import { SIGN_IN_DOORS, SIGN_IN_TITLE, demoHintsEnabled, type SignInDoor } from "@/lib/sign-in";
 
 // LOCAL-DEV-ONLY fallback: NEXT_PUBLIC_* is inlined into public JS at build time,
 // so deployed builds never set this. Deployments enable one-click fill through the
@@ -32,29 +33,19 @@ export function SignInCard({
   personas,
   fallbackDestination,
   quickFillPassword = null,
-  helpNote = null,
-  editorial = null,
 }: {
   door: SignInDoor;
   personas: PersonaHint[];
   fallbackDestination: string;
   /** Server-resolved per request; null keeps the buttons email-only. */
   quickFillPassword?: string | null;
-  /** A door-specific line for the foot (e.g. the family office number). */
-  helpNote?: ReactNode;
-  /**
-   * The sign-in page's editorial panel, server-rendered and passed in as a slot
-   * (app/login/page.tsx). Absent on every other door — the two-column shell only
-   * exists when a panel is present, so family/agent layout is unchanged.
-   */
-  editorial?: ReactNode;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const { title, blurb } = SIGN_IN_BLURBS[door];
+  const title = SIGN_IN_TITLE;
   const fillPassword = quickFillPassword ?? (INLINED_DEMO_PASSWORD || null);
 
   function quickFill(hint: PersonaHint) {
@@ -90,15 +81,10 @@ export function SignInCard({
   }
 
   return (
-    <main
-      className={`signin-shell signin-shell--premium${editorial ? " signin-shell--editorial" : ""}`}
-      id="main"
-    >
+    <main className="signin-shell signin-shell--premium signin-shell--split" id="main">
       <div className="signin-card">
         <div className="signin-card__head">
-          <p className="signin-card__eyebrow">{SIGN_IN_BLURBS[door].eyebrow}</p>
           <h1 className="signin-card__title">{title}</h1>
-          <p className="signin-card__blurb">{blurb}</p>
         </div>
 
         {error ? (
@@ -133,7 +119,7 @@ export function SignInCard({
             />
           </Field>
           <Button type="submit" disabled={submitting} className="btn--block">
-            {submitting ? "Signing in…" : `Sign in to the ${SIGN_IN_BLURBS[door].portal} portal`}
+            {submitting ? "Signing in…" : "Sign in"}
           </Button>
         </form>
 
@@ -157,17 +143,37 @@ export function SignInCard({
           </div>
         ) : null}
 
-        {helpNote ? <p className="signin-card__help">{helpNote}</p> : null}
-
-        <p className="text-sm text-muted signin-card__route-note">
-          Signing in with a different account type opens that account&rsquo;s portal.
-        </p>
-
         <div className="signin-card__foot">
-          <PortalSwitch current={door} />
+          {/* The three account doors (captain, 2026-09-30): the same page serves
+              every role, so the roles are named here instead of in a headline. */}
+          <nav className="signin-doors" aria-label="Account doors">
+            {SIGN_IN_DOORS.map((entry) => (
+              <Link
+                key={entry.key}
+                href={entry.href}
+                aria-current={entry.key === door ? "page" : undefined}
+                className={
+                  entry.key === door ? "signin-doors__link signin-doors__link--current" : "signin-doors__link"
+                }
+              >
+                {entry.label}
+              </Link>
+            ))}
+          </nav>
+          <p className="signin-card__back">
+            <Link href="/">Back to Public site</Link>
+          </p>
         </div>
       </div>
-      {editorial}
+
+      {/* The right column is the mark alone (captain, 2026-09-30): a sign-in page
+          shows the sign-in and the brand, nothing else. Decorative, so the
+          card's own heading stays the page's only heading. */}
+      <div className="signin-brand" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element -- the office's own mark */}
+        <img className="signin-brand__mark" src={LOGO_SANCTUARIO} alt="" width={512} height={512} />
+        <p className="signin-brand__wordmark">Villa Funeraria</p>
+      </div>
     </main>
   );
 }
