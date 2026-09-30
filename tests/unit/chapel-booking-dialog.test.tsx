@@ -33,16 +33,10 @@ const ITEMS: Record<"common" | "private", ChapelCatalogueItem> = {
   common: {
     sku: "CHP-COMMON-DAY",
     name: "Chapel use — common chapel, per day",
-    itemType: "service",
-    unitPriceCents: 150000,
-    currency: "PHP",
   },
   private: {
     sku: "CHP-PRIVATE-DAY",
     name: "Chapel use — private chapel, per day",
-    itemType: "service",
-    unitPriceCents: 350000,
-    currency: "PHP",
   },
 };
 

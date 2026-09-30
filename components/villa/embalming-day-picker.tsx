@@ -60,7 +60,6 @@ export function EmbalmingDayPicker() {
               {
                 sku: embalmingDaySku(selected.days),
                 name: `Embalming — ${selected.days} days`,
-                itemType: "service",
                 detail: EMBALMING_PICKER_NOTE,
               },
             ]}

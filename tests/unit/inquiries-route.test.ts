@@ -76,9 +76,8 @@ describe("POST /api/inquiries", () => {
     expect(recorded!.person.full_name).toBe("Maria Dela Cruz");
     expect(recorded!.person.email).toBe("maria@example.com");
     expect(recorded!.topic).toBe("Embalming — 3 days");
-    // The two facts the minutes single out travel with the row, so the board can show them.
-    expect(recorded!.message).toContain("Preferred date: 2026-10-05");
-    expect(recorded!.message).toContain("Please call after 6pm.");
+    // The family's own note travels with the row the board renders.
+    expect(recorded!.message).toBe("Please call after 6pm.");
   });
 
   it("records a contact-form message through the same route", async () => {

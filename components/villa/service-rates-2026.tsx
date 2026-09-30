@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { EmbalmingDayPicker } from "@/components/villa/embalming-day-picker";
 import { ItemQuoteButton } from "@/components/villa/item-quote-button";
+import {
+  ChapelBookingButton,
+  type ChapelCatalogueItem,
+} from "@/components/chapel-booking-dialog";
+import { getQuoteLineCatalogDetail } from "@/lib/quote-basket/quote-line-details";
 import { ServiceIcons, IconChapel } from "@/components/villa/service-icons";
 import { PublicDisclosure } from "@/components/kit";
 import { CHAPEL_CLASS_LABEL, CHAPEL_CLASS_ORDER, type ChapelClass } from "@/lib/chapel-booking";
@@ -62,7 +67,7 @@ type QuoteActionProps = {
 function QuoteAction({ item, sku, note, label = "Add to Quote" }: QuoteActionProps) {
   return (
     <ItemQuoteButton
-      lines={[{ sku: sku ?? item, name: item, itemType: "service", detail: note }]}
+      lines={[{ sku: sku ?? item, name: item, detail: note }]}
       name={item}
       label={label}
     />
@@ -75,9 +80,6 @@ const ALACARTE_REQUEST_NOTE =
 
 const EMBALMING_REQUEST_NOTE =
   "Embalming, make-up and dressing. A-la-carte service — applies when the family does not take a package.";
-
-/** The two chapel classes are quoted per stay; the office confirms availability. */
-const CHAPEL_QUOTE_NOTE = "Chapel use when the service is not with Villa.";
 
 /**
  * The chapel stay length, DERIVED from the sheet's own rows (never typed): the
@@ -214,7 +216,6 @@ export function AlacarteServiceRates({
           lines={ALACARTE_LINES.map((fee) => ({
             sku: fee.sku,
             name: fee.service,
-            itemType: "service" as const,
             detail: ALACARTE_REQUEST_NOTE,
           }))}
           name="At-need services — all five"
@@ -297,9 +298,10 @@ export function EmbalmingRates({ contact }: { contact: ContactInfo }) {
  *
  * THE NAME IS THE PARK'S RECORD: the dossier's name reads the same
  * staff-editable chapel record (lib/api-client/chapel-store.ts) the schedule
- * does — a rename on /staff/schedule lands here. Each room's ONE action asks the
- * office for dates and a quote; a chapel stay is not priced here and is not a
- * quote-basket line until the office confirms it.
+ * does — a rename on /staff/schedule lands here. Each room's ONE action opens the
+ * REAL booking step (captain D5-A, 2026-09-30): the dialog picks the chapel, the
+ * dates and the stay, checks the park's schedule and HOLDS the range, so the
+ * quote line carries its held dates and stays "To be quoted by the office".
  */
 export function ChapelRates({
   chapels,
@@ -326,6 +328,17 @@ export function ChapelRates({
     private:
       "A decorated private viewing room in the client's own photograph — purple and white drapes, hanging flowers and lit lamp stands",
   };
+
+  // The catalogue fact each class's booking line needs, read from the recorded
+  // commerce fixture by SKU — never typed here.
+  const chapelItems: Partial<Record<ChapelClass, ChapelCatalogueItem>> = {};
+  for (const cls of CHAPEL_CLASS_ORDER) {
+    const sku = CHAPEL_SKUS[cls];
+    chapelItems[cls] = {
+      sku,
+      name: getQuoteLineCatalogDetail(sku)?.name ?? `Chapel use — ${CHAPEL_CLASS_LABEL[cls].toLowerCase()}, per day`,
+    };
+  }
 
   // One dossier per class the park's record carries, in the sheet's class order.
   const cards = CHAPEL_CLASS_ORDER.flatMap((chapelClass) => {
@@ -387,11 +400,11 @@ export function ChapelRates({
                     </div>
                   </dl>
                   <div className="sv-room__action">
-                    <QuoteAction
-                      item={`Chapel use — ${record.name}`}
-                      sku={CHAPEL_SKUS[chapelClass]}
-                      note={CHAPEL_QUOTE_NOTE}
+                    <ChapelBookingButton
+                      chapelClass={chapelClass}
+                      items={chapelItems}
                       label="Ask for dates"
+                      ariaLabel={`Ask for dates: ${record.name}`}
                     />
                   </div>
                 </article>

@@ -5,21 +5,20 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata({
   title: "Your quote — Villa Funeraria",
   description:
-    "Ask about a service, a plan, a casket or a lot — add each one to your quote and the office sends one written quotation back. A request for the office, never a reservation.",
+    "Review the services, lots and chapel stays your family is asking about and send the whole list to the office, which answers with one written quotation. A request for the office, never a reservation.",
   path: "/quote",
 });
 
 /**
  * The public QUOTE PAGE (/quote) — the quote basket the office asked for
- * (2026-09-29): the cart stopped being a cart, because the office takes
- * inquiries, not orders.
+ * (2026-09-29), revised 2026-09-30 (captain answers D1-B–D6-A).
  *
- * The page owns the basket; the per-item quote form is the step that adds a line
- * to it. `?item=` (and `?note=`) arrive from a service page's Request-for-Quote
- * action through lib/public-forms/request-prefill.ts, so the form opens on
- * exactly the item the visitor clicked and adds it in one submit.
- *
- * The OLD /cart and /checkout URLs redirect here (their route files are stubs).
+ * The page is REVIEW + SEND: it holds what the basket contains and asks for the
+ * family's details once. Items are added on the surface that knows them (the
+ * Add-to-Quote control on /services, /lots and the chapel booking step); a
+ * small link opens a light request dialog for anything not listed. Caskets and
+ * plans are the SEPARATE priced cart path (D1-B), which checks out to the admin
+ * Order page — /quote never promises them. `?item=` seeds the request dialog.
  */
 export default async function Page({
   searchParams,

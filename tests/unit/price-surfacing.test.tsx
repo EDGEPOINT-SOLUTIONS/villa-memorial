@@ -217,16 +217,21 @@ describe("/services offers a Request for Quote instead of a service price", () =
       );
     }
     expect(html).toContain('aria-label="Add to Quote: Embalming — beyond 9 days"');
-    expect((html.match(/aria-label="Ask for dates: Chapel use — /g) ?? []).length).toBe(2);
+    // The chapel card's action is the real booking step (captain D5-A), so it is
+    // a dialog trigger named "Ask for dates", not a one-click basket add.
+    expect((html.match(/aria-label="Ask for dates: /g) ?? []).length).toBe(2);
+    expect(html).not.toContain('aria-label="Add to Quote: Chapel use');
     // The centred action adds all five lines, and nothing publishes a figure.
     expect(html).toContain('aria-label="Add all five to Quote: At-need services — all five"');
     expect(html).not.toMatch(/₱/);
   });
 
-  it("keeps the chapel cards' names, capacity and photos but no booking dialog", () => {
+  it("keeps the chapel cards' names, capacity and photos and re-links the booking step (D5-A)", () => {
     expect((html.match(/class="sv-room"/g) ?? []).length).toBe(2);
     expect(html).not.toContain("Check dates &amp; price");
-    expect(html).not.toContain('aria-haspopup="dialog"');
+    // The booking dialog is a closed trigger here, so no figures render yet —
+    // but the step IS wired again (captain D5-A).
+    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBe(2);
   });
 
   it("no longer lists the service guide cards on /services (captain 2026-09-21)", () => {

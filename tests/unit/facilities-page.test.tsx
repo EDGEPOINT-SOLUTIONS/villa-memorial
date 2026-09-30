@@ -125,10 +125,12 @@ describe("/facilities compares the two rooms a family is choosing between", () =
     const { contact } = await listLandingContent();
     const html = await renderFacilities();
 
-    // One gold "Ask for dates" per room (the per-item rung), whose accessible
-    // name names the room, plus the outline support call.
+    // One booking-step action and one call per room (captain D5-A): the button
+    // opens the real booking dialog and its accessible name names the room, so
+    // two identical-visible actions stay unambiguous.
     expect((html.match(/>Ask for dates</g) ?? []).length).toBe(2);
-    expect((html.match(/aria-label="Ask for dates: Chapel use — /g) ?? []).length).toBe(2);
+    expect((html.match(/aria-label="Ask for dates: /g) ?? []).length).toBe(2);
+    expect(html).not.toContain('aria-label="Add to Quote: Chapel use');
     expect(html).not.toContain('href="/quote?');
     expect((html.match(new RegExp(escapeRe(`Call ${contact.phoneDisplay}`), "g")) ?? []).length)
       .toBeGreaterThanOrEqual(2);

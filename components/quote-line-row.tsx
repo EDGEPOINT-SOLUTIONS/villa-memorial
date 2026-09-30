@@ -1,34 +1,36 @@
-import { Fragment } from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { QuoteLine } from "@/lib/quote-basket/quote-basket-context";
 import { chapelBookingLineSummary } from "@/lib/chapel-booking";
+import { getQuoteLineCatalogDetail } from "@/lib/quote-basket/quote-line-details";
 import {
-  QUOTE_LINE_TYPE_LABEL,
-  getQuoteLineCatalogDetail,
-} from "@/lib/quote-basket/quote-line-details";
+  QUOTE_ON_REQUEST_LABEL,
+  quoteLineCurrency,
+  quoteLinePriced,
+  quoteLineUnitPrice,
+} from "@/lib/quote-basket/quote-line";
 import { formatMinorUnits, previewSubtotal } from "@/lib/money";
 
 /**
- * One QUOTE line plus its expandable "show this item's details again" row
- * (used by the quote page).
+ * One QUOTE line, rendered from its OWN descriptor and pricing mode (never a
+ * switch on the kind), plus its expandable "show this item's details again"
+ * pane.
  *
- * Each line has a chevron control; opening it reveals the item's REAL catalogue
- * details inline below the row (name · type · SKU · what's included/description
- * · unit price · quantity · line total — the same facts the detail page shows,
- * resolved from the recorded commerce catalogue by the line's SKU, never
- * invented). The details row is always in the DOM so the reveal is a plain
- * hidden toggle; aria-expanded/aria-controls keep the state announced.
+ * A CARD, NOT A TABLE ROW. The old five-column table put Remove and the line
+ * total off-screen on a phone and forced a pan frame; a card lays identity,
+ * price mode, units, total and actions out in one block that stacks cleanly at
+ * 390px with no horizontal pan.
  *
- * THREE LINE KINDS BEYOND THE CATALOGUE SHAPE, each honest:
- *  · a line with no published figure (a service the sheets only quote, a
- *    request added from the quote form) prints "Quoted on request" — never a
- *    ₱0.00 that looks like a price;
- *  · a chapel booking keeps its held dates and its FIXED day count (the
- *    quantity input is not shown — the booking owns the days);
- *  · a lot line names the plot/section it is about and carries no stock
- *    quantity (one plot is one line).
+ * HONEST PRICING (D3-A, D4-A). A `published` line prints the 2026 figure the
+ * adding surface supplied, with the office-confirms note. An `on_request` line
+ * prints "To be quoted by the office" and NO line total — it never contributes
+ * a figure to the page. The kind badge, unit and detail shape all come from
+ * `line.descriptor`.
+ *
+ * The details pane reveals the item's REAL catalogue description by SKU (or an
+ * honest fallback when the catalogue no longer knows it); it is always in the
+ * DOM hidden, so the reveal is a plain toggle.
  *
  * Presentational (controlled by the quote page) so it renders under node tests.
  */
@@ -46,10 +48,18 @@ export function QuoteLineRow({
   onRemove: () => void;
 }) {
   const detail = getQuoteLineCatalogDetail(line.sku);
-  const typeLabel = QUOTE_LINE_TYPE_LABEL[line.itemType] ?? "Item";
-  const detailRowId = `quote-line-details-${line.sku}`;
-  const priced = !line.booking && line.unitPriceCents > 0;
-  const isLot = line.itemType === "lot";
+  const typeLabel = line.descriptor.label;
+  const detailRowId = `quote-line-details-${(line.lineId ?? line.sku).replace(/[^a-zA-Z0-9_-]/g, "-")}`;
+  const priced = quoteLinePriced(line);
+  const isLot = line.descriptor.detailSchema === "plot";
+  const unit = line.descriptor.unit;
+  const fixedUnit = Boolean(line.booking) || isLot;
+  const showDetails = line.descriptor.actions.includes("details");
+  const showQuantity = !fixedUnit && !unit;
+  const priceCurrency = quoteLineCurrency(line);
+  const lineTotal = previewSubtotal([
+    { unitPriceCents: quoteLineUnitPrice(line), quantity: line.quantity },
+  ]);
 
   const description =
     detail?.description ??
@@ -58,13 +68,13 @@ export function QuoteLineRow({
       : isLot
         ? "The plot is priced from the office's own 2026 lot table; the office confirms the plot, the schedule and the written quotation."
         : "This item is no longer published in the online catalogue — the office can still arrange it; call us and we will confirm what it costs.");
-  const typeTone = line.itemType === "package" ? "accent" : "info";
+  const typeTone = line.kind === "package" ? "accent" : "info";
 
   return (
-    <Fragment>
-      <tr>
-        <td>
-          <div className="quote-line__item">
+    <li className="quote-line" data-pricing={line.pricing.mode} data-kind={line.kind}>
+      <div className="quote-line__body">
+        <div className="quote-line__item">
+          {showDetails ? (
             <button
               type="button"
               className="quote-line-toggle"
@@ -90,56 +100,88 @@ export function QuoteLineRow({
                 />
               </svg>
             </button>
-            <div className="quote-line__item-main">
-              <strong>{line.name}</strong>
-              {line.booking ? (
-                <div className="quote-line__booking">
-                  <Badge tone="info">{line.booking.resourceName}</Badge>
-                  <span className="text-sm text-muted">
-                    {chapelBookingLineSummary(line.booking)} — dates held
-                  </span>
-                </div>
-              ) : null}
-              {line.detail ? (
-                <p className="quote-line__detail text-sm text-muted">{line.detail}</p>
-              ) : null}
-              <br />
-              <code className="text-sm text-muted">{isLot ? line.sku : line.sku}</code>
+          ) : null}
+          <div className="quote-line__item-main">
+            <div className="quote-line__badges">
+              <Badge tone={typeTone}>{typeLabel}</Badge>
+              <code className="text-sm text-muted">{line.sku}</code>
             </div>
+            <strong className="quote-line__name">{line.name}</strong>
+            {line.booking ? (
+              <span className="quote-line__booking text-sm text-muted">
+                {line.booking.resourceName} · {chapelBookingLineSummary(line.booking)} — dates held
+              </span>
+            ) : null}
+            {line.detail ? (
+              <p className="quote-line__detail text-sm text-muted">{line.detail}</p>
+            ) : null}
           </div>
-        </td>
-        <td className="table__numeric">
-          {priced ? formatMinorUnits(line.unitPriceCents, line.currency) : (
-            <span className="text-sm text-muted">Quoted on request</span>
-          )}
-        </td>
-        <td>
+        </div>
+
+        <dl className="quote-line__facts">
+          <div className="quote-line__fact">
+            <dt>{priced ? "Published 2026 figure" : "Price"}</dt>
+            <dd>
+              {priced ? (
+                <>
+                  <strong>{formatMinorUnits(quoteLineUnitPrice(line), priceCurrency)}</strong>
+                  <span className="text-sm text-muted"> — the office confirms</span>
+                </>
+              ) : (
+                <span className="quote-line__on-request">{QUOTE_ON_REQUEST_LABEL}</span>
+              )}
+            </dd>
+          </div>
+
           {line.booking ? (
-            <span className="text-sm text-muted">
-              {line.booking.days} {line.booking.days === 1 ? "day" : "days"} — fixed by the
-              booking
-            </span>
+            <div className="quote-line__fact">
+              <dt>Stay</dt>
+              <dd>
+                {line.booking.days} {line.booking.days === 1 ? "day" : "days"} — fixed by the
+                booking
+              </dd>
+            </div>
           ) : isLot ? (
-            <span className="text-sm text-muted">1 lot</span>
+            <div className="quote-line__fact">
+              <dt>Units</dt>
+              <dd>1 lot</dd>
+            </div>
+          ) : showQuantity ? (
+            <div className="quote-line__fact">
+              <dt>Quantity</dt>
+              <dd>
+                <input
+                  className="input"
+                  id={`${detailRowId}-qty`}
+                  name="quantity"
+                  style={{ width: "5rem" }}
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={line.quantity}
+                  aria-label={`Quantity for ${line.name}`}
+                  onChange={(e) => onQuantityChange(Number(e.target.value))}
+                />
+              </dd>
+            </div>
           ) : (
-            <input
-              className="input"
-              style={{ width: "5rem" }}
-              type="number"
-              min={1}
-              max={99}
-              value={line.quantity}
-              aria-label={`Quantity for ${line.name}`}
-              onChange={(e) => onQuantityChange(Number(e.target.value))}
-            />
+            <div className="quote-line__fact">
+              <dt>{unit === "day" ? "Days" : "Quantity"}</dt>
+              <dd>
+                {line.quantity} {line.quantity === 1 ? (unit ?? "unit") : `${unit ?? "unit"}s`}
+              </dd>
+            </div>
           )}
-        </td>
-        <td className="table__numeric">
-          {priced ? formatMinorUnits(previewSubtotal([line]), line.currency) : (
-            <span className="text-sm text-muted">—</span>
-          )}
-        </td>
-        <td>
+
+          {priced ? (
+            <div className="quote-line__fact quote-line__fact--total">
+              <dt>Line total</dt>
+              <dd>{formatMinorUnits(lineTotal, priceCurrency)}</dd>
+            </div>
+          ) : null}
+        </dl>
+
+        <div className="quote-line__actions">
           <Button
             variant="ghost"
             size="sm"
@@ -148,74 +190,69 @@ export function QuoteLineRow({
           >
             Remove
           </Button>
-        </td>
-      </tr>
-      <tr className="quote-line-details-row" hidden={!open} id={detailRowId}>
-        <td colSpan={5} className="quote-line-details-cell">
-          <div className="quote-line-details">
-            <div className="quote-line-details__main">
-              <div className="row row--space" style={{ marginBottom: "var(--space-2)" }}>
-                <Badge tone={typeTone}>{typeLabel}</Badge>
-                <code className="text-sm text-muted">{line.sku}</code>
+        </div>
+      </div>
+
+      {showDetails ? (
+        <div className="quote-line-details-row" hidden={!open} id={detailRowId}>
+          <div className="quote-line-details-cell">
+            <div className="quote-line-details">
+              <div className="quote-line-details__main">
+                <div className="row row--space" style={{ marginBottom: "var(--space-2)" }}>
+                  <Badge tone={typeTone}>{typeLabel}</Badge>
+                  <code className="text-sm text-muted">{line.sku}</code>
+                </div>
+                <h3 className="quote-line-details__name">{line.name}</h3>
+                <p className="quote-line-details__desc">{description}</p>
+                {detail ? (
+                  <Link
+                    href={line.kind === "package" ? "/plans/packages" : `/products/${line.sku}`}
+                    className="btn btn--secondary btn--sm"
+                  >
+                    View full details
+                  </Link>
+                ) : isLot ? (
+                  <Link href="/lots/price-list-2026" className="btn btn--secondary btn--sm">
+                    See the 2026 lot price list
+                  </Link>
+                ) : null}
               </div>
-              <h4 className="quote-line-details__name">{line.name}</h4>
-              <p className="quote-line-details__desc">{description}</p>
-              {detail ? (
-                <Link
-                  // A package's detail page is /plans/[sku]; every other
-                  // catalogue line (services, add-ons) is /products/[sku].
-                  href={
-                    line.itemType === "package"
-                      ? "/plans/packages"
-                      : `/products/${line.sku}`
-                  }
-                  className="btn btn--secondary btn--sm"
-                >
-                  View full details
-                </Link>
-              ) : isLot ? (
-                <Link href="/lots/price-list-2026" className="btn btn--secondary btn--sm">
-                  See the 2026 lot price list
-                </Link>
-              ) : null}
+              <dl className="quote-line-details__recap" aria-label="Line summary">
+                {line.booking ? (
+                  <div className="quote-line-details__recap-row">
+                    <dt>Chapel</dt>
+                    <dd>{line.booking.resourceName}</dd>
+                  </div>
+                ) : null}
+                {line.booking ? (
+                  <div className="quote-line-details__recap-row">
+                    <dt>Booked dates</dt>
+                    <dd>{chapelBookingLineSummary(line.booking)}</dd>
+                  </div>
+                ) : null}
+                <div className="quote-line-details__recap-row">
+                  <dt>Unit price</dt>
+                  <dd>
+                    {priced
+                      ? formatMinorUnits(quoteLineUnitPrice(line), priceCurrency)
+                      : QUOTE_ON_REQUEST_LABEL}
+                  </dd>
+                </div>
+                <div className="quote-line-details__recap-row">
+                  <dt>{line.booking ? "Days" : isLot ? "Plot" : "Quantity"}</dt>
+                  <dd>{isLot ? "1" : line.quantity}</dd>
+                </div>
+                {priced ? (
+                  <div className="quote-line-details__recap-row">
+                    <dt>Line total</dt>
+                    <dd>{formatMinorUnits(lineTotal, priceCurrency)}</dd>
+                  </div>
+                ) : null}
+              </dl>
             </div>
-            <dl className="quote-line-details__recap" aria-label="Line summary">
-              {line.booking ? (
-                <div className="quote-line-details__recap-row">
-                  <dt>Chapel</dt>
-                  <dd>{line.booking.resourceName}</dd>
-                </div>
-              ) : null}
-              {line.booking ? (
-                <div className="quote-line-details__recap-row">
-                  <dt>Booked dates</dt>
-                  <dd>{chapelBookingLineSummary(line.booking)}</dd>
-                </div>
-              ) : null}
-              <div className="quote-line-details__recap-row">
-                <dt>Unit price</dt>
-                <dd>
-                  {priced
-                    ? formatMinorUnits(line.unitPriceCents, line.currency)
-                    : "Quoted on request"}
-                </dd>
-              </div>
-              <div className="quote-line-details__recap-row">
-                <dt>{line.booking ? "Days" : isLot ? "Plot" : "Quantity"}</dt>
-                <dd>{isLot ? "1" : line.quantity}</dd>
-              </div>
-              <div className="quote-line-details__recap-row">
-                <dt>Line total</dt>
-                <dd>
-                  {priced
-                    ? formatMinorUnits(previewSubtotal([line]), line.currency)
-                    : "Quoted on request"}
-                </dd>
-              </div>
-            </dl>
           </div>
-        </td>
-      </tr>
-    </Fragment>
+        </div>
+      ) : null}
+    </li>
   );
 }

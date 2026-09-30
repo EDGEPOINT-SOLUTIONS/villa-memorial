@@ -45,6 +45,33 @@ export type Family = {
   }>;
 };
 
+/**
+ * One line of a structured Request-for-Quote (D6-A, 2026-09-30).
+ *
+ * ⚠️ PROVISIONAL SHAPE — FLAGGED, NOT SNEAKED IN. No frozen crm-families
+ * contract names a structured line. It is added here (and carried on the
+ * inquiry) so the office board can render one row per line with a
+ * "needs pricing" flag instead of one free-text blob, which was the recorded
+ * defect (a 261-character topic and a 573-character message, no SKU, no price).
+ * The polite reader (`lib/inquiry-intake.ts`) tolerates `lines` being absent on
+ * every older/other inquiry, so nothing breaks if the platform declines it. The
+ * contract ask is recorded in `docs/08-delivery/open-items.md`. If the frozen
+ * shape differs, the live branch's `toInquiry` maps it — no screen change.
+ */
+export type InquiryLine = {
+  sku: string;
+  name: string;
+  kind: string;
+  pricingMode: "published" | "on_request";
+  /** The published 2026 figure in minor units, or null when quoted by hand. */
+  unitPriceCents: number | null;
+  currency: string | null;
+  quantity: number;
+  detail?: string;
+  /** A held chapel range, a lot area, or a preferred date — human readable. */
+  dateRange?: string;
+};
+
 export type Inquiry = {
   id: string;
   reference: string;
@@ -64,6 +91,8 @@ export type Inquiry = {
   assigned_to: string;
   status: "new" | "contacted" | "qualified" | "converted" | "closed";
   received_at: string;
+  /** Structured quote lines, when the inquiry is a basket submission (D6-A). */
+  lines?: InquiryLine[];
 };
 
 type CustomerStore = {

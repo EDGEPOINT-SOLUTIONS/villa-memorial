@@ -42,7 +42,7 @@ import {
 } from "@/lib/api-client/journal";
 import { randomUUID } from "node:crypto";
 import { ApiError } from "@/lib/api-client/api-error";
-import type { Inquiry } from "@/lib/api-client/crm";
+import type { Inquiry, InquiryLine } from "@/lib/api-client/crm";
 import type { InquiryIntake } from "@/lib/inquiry-intake";
 import seedFile from "@/lib/fixtures/crm/inquiries.json";
 
@@ -63,12 +63,37 @@ function requiredString(value: unknown, what: string): string {
   return value;
 }
 
+/** Tolerant reader for one persisted structured line (extra keys ignored). */
+function toInquiryLine(raw: unknown): InquiryLine | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r.sku !== "string" || typeof r.name !== "string") return null;
+  const pricingMode = r.pricingMode === "published" ? "published" : "on_request";
+  const cents = Number(r.unitPriceCents);
+  const quantity = Number(r.quantity);
+  return {
+    sku: r.sku,
+    name: r.name,
+    kind: typeof r.kind === "string" ? r.kind : "service",
+    pricingMode,
+    unitPriceCents:
+      pricingMode === "published" && Number.isInteger(cents) && cents >= 0 ? cents : null,
+    currency: pricingMode === "published" && typeof r.currency === "string" ? r.currency : null,
+    quantity: Number.isInteger(quantity) ? quantity : 1,
+    ...(typeof r.detail === "string" && r.detail ? { detail: r.detail } : {}),
+    ...(typeof r.dateRange === "string" && r.dateRange ? { dateRange: r.dateRange } : {}),
+  };
+}
+
 /** Field-by-field reader for one persisted row; extra keys are ignored. */
 function toInquiry(raw: unknown): Inquiry {
   if (typeof raw !== "object" || raw === null) malformed("inquiry row");
   const r = raw as Record<string, unknown>;
   if (typeof r.person !== "object" || r.person === null) malformed("inquiry person");
   const p = r.person as Record<string, unknown>;
+  const lines = Array.isArray(r.lines)
+    ? r.lines.map(toInquiryLine).filter((line): line is InquiryLine => line !== null)
+    : [];
   return {
     id: requiredString(r.id, "inquiry id"),
     reference: requiredString(r.reference, "inquiry reference"),
@@ -83,6 +108,7 @@ function toInquiry(raw: unknown): Inquiry {
     assigned_to: typeof r.assigned_to === "string" ? r.assigned_to : "Unassigned",
     status: requiredString(r.status, "inquiry status") as Inquiry["status"],
     received_at: requiredString(r.received_at, "inquiry received_at"),
+    ...(lines.length > 0 ? { lines } : {}),
   };
 }
 
@@ -177,6 +203,9 @@ export function receiveInquiry(args: {
       // Clamped so one pasted essay cannot make the board unusable; the full text is the
       // office's to keep, and 4000 characters is far beyond anything a form sends.
       message: args.intake.message.slice(0, 4000),
+      ...(args.intake.lines && args.intake.lines.length > 0
+        ? { lines: args.intake.lines }
+        : {}),
       assigned_to: args.intake.assigned_to,
       status: "new",
       received_at: at,

@@ -6,6 +6,7 @@ import { quoteLineKey, useQuoteBasket, type QuoteLine } from "@/lib/quote-basket
 import { chapelBookingLineSummary } from "@/lib/chapel-booking";
 import { releaseChapelQuoteLine } from "@/lib/chapel-booking-api";
 import { formatMinorUnits } from "@/lib/money";
+import { quoteLinePriced, quoteLineUnitPrice, QUOTE_ON_REQUEST_LABEL } from "@/lib/quote-basket/quote-line";
 
 /**
  * "In your quote" — the state the page shows after a successful add (approved
@@ -58,7 +59,9 @@ export function InQuoteNotice({
         <span>
           {line.booking
             ? "Dates held while the line stays in your quote."
-            : `${formatMinorUnits(line.unitPriceCents, line.currency)} each.`}
+            : quoteLinePriced(line)
+              ? `${formatMinorUnits(quoteLineUnitPrice(line), line.pricing.mode === "published" ? line.pricing.currency : "PHP")} each.`
+              : `${QUOTE_ON_REQUEST_LABEL}.`}
         </span>
       </div>
       {releaseError ? (

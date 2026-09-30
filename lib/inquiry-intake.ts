@@ -1,4 +1,4 @@
-import type { Inquiry } from "@/lib/api-client/crm";
+import type { Inquiry, InquiryLine } from "@/lib/api-client/crm";
 import {
   validateContact,
   validateQuote,
@@ -31,6 +31,8 @@ export type InquiryIntake = {
   topic: string;
   message: string;
   assigned_to: string;
+  /** Structured quote lines, when the submission was a basket (D6-A). */
+  lines?: InquiryLine[];
 };
 
 /** Read one string field, coercing anything that is not a string to "". */
@@ -47,6 +49,43 @@ function asRecord(raw: unknown): Record<string, unknown> {
   return typeof raw === "object" && raw !== null ? (raw as Record<string, unknown>) : {};
 }
 
+/** One structured quote line, read field by field from untrusted input. */
+function readQuoteLine(raw: unknown): InquiryLine | null {
+  const r = asRecord(raw);
+  const sku = str(r, "sku").trim();
+  const name = str(r, "name").trim();
+  if (!sku || !name) return null;
+  const quantity = Number(r.quantity);
+  const pricingMode = r.pricingMode === "published" ? "published" : "on_request";
+  const cents = Number(r.unitPriceCents);
+  const unitPriceCents =
+    pricingMode === "published" && Number.isInteger(cents) && cents >= 0 ? cents : null;
+  const currency = pricingMode === "published" ? str(r, "currency") || "PHP" : null;
+  const detail = str(r, "detail").trim();
+  const dateRange = str(r, "dateRange").trim();
+  return {
+    sku,
+    name,
+    kind: str(r, "kind").trim() || "service",
+    pricingMode,
+    unitPriceCents,
+    currency,
+    quantity: Number.isInteger(quantity) ? Math.min(Math.max(quantity, 1), 99) : 1,
+    ...(detail ? { detail } : {}),
+    ...(dateRange ? { dateRange } : {}),
+  };
+}
+
+/** Every structured line in a posted basket, clamped to a sane count. */
+function readQuoteLines(raw: unknown): InquiryLine[] | undefined {
+  if (!Array.isArray(raw)) return undefined;
+  const lines = raw
+    .map(readQuoteLine)
+    .filter((line): line is InquiryLine => line !== null)
+    .slice(0, 200);
+  return lines.length > 0 ? lines : undefined;
+}
+
 /**
  * Tolerant reader for a posted quote form. Nothing is trusted: a missing field becomes
  * an empty string so the validator can refuse it with the office's own wording, rather
@@ -54,6 +93,7 @@ function asRecord(raw: unknown): Record<string, unknown> {
  */
 export function readQuoteValues(raw: unknown): QuoteValues {
   const r = asRecord(raw);
+  const lines = readQuoteLines(r.lines);
   return {
     full_name: str(r, "full_name"),
     email: str(r, "email"),
@@ -62,6 +102,7 @@ export function readQuoteValues(raw: unknown): QuoteValues {
     preferred_date: str(r, "preferred_date"),
     notes: str(r, "notes"),
     consent: bool(r, "consent"),
+    ...(lines ? { lines } : {}),
   };
 }
 
@@ -126,27 +167,29 @@ export function contactInquiryInput(values: ContactValues): InquiryIntake {
 }
 
 /**
- * The REQUEST-FOR-QUOTE form's row. The client's minutes name four facts the form must
- * record, and the service is the one the board filters on, so it becomes the topic. The
- * other two — the preferred date and the additional requirements — are written into the
- * message under their own labels rather than concatenated anonymously, because the staff
- * board now renders this text and a coordinator has to be able to read it at a glance.
+ * The QUOTE basket's row (D6-A, 2026-09-30). The board renders one row per
+ * structured line; the `topic` is concise ("Quote request — 3 items") and the
+ * `message` carries only the family's own note. The polite reader in
+ * `lib/api-client/crm.ts` documents why `lines` is provisional.
  */
 export function quoteInquiryInput(values: QuoteValues): InquiryIntake {
-  const service = values.service.trim();
-  const preferred = values.preferred_date.trim();
   const requirements = values.notes.trim();
-  const lines = [`Quote request for: ${service || "a funeral service"}`];
-  if (preferred) lines.push(`Preferred date: ${preferred}`);
-  if (requirements) lines.push("", "Additional requirements:", requirements);
+  const lines = values.lines ?? [];
+  const topic =
+    lines.length > 0
+      ? `Quote request — ${lines.length} ${lines.length === 1 ? "item" : "items"}`
+      : values.service.trim() || "Quote request";
+  const messageParts: string[] = [];
+  if (requirements) messageParts.push(requirements);
   return {
     full_name: values.full_name.trim(),
     email: values.email.trim(),
     phone: values.phone.trim(),
     source: "website",
-    topic: service || "Quote request",
-    message: lines.join("\n"),
+    topic,
+    message: messageParts.join("\n\n"),
     assigned_to: "Unassigned",
+    ...(lines.length > 0 ? { lines } : {}),
   };
 }
 

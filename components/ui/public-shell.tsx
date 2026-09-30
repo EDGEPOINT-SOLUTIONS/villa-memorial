@@ -30,14 +30,16 @@ function PublicChromeHeader({ content }: { content: LandingContent }) {
   const pathname = usePathname();
   const cart = useCart();
   const quote = useQuoteBasket();
-  const countOf = (lines: ReadonlyArray<{ quantity: number }>) =>
-    lines.reduce((total, line) => total + line.quantity, 0);
+  // The cart counts ITEMS (a quantity is a unit); the quote counts LINES (a line
+  // is what the office quotes), so a 3-line basket with a 4-day chapel stay is 3
+  // lines, not 6. (This was the recorded header defect: "N lines" summed quantities.)
+  const cartItems = cart.lines.reduce((total, line) => total + line.quantity, 0);
   return (
     <SiteHeaderBar
       brand={content.logo}
       currentPath={pathname}
-      cartCount={cart.ready && cart.lines.length > 0 ? countOf(cart.lines) : undefined}
-      quoteCount={quote.ready && quote.lines.length > 0 ? countOf(quote.lines) : undefined}
+      cartCount={cart.ready && cart.lines.length > 0 ? cartItems : undefined}
+      quoteCount={quote.ready && quote.lines.length > 0 ? quote.lines.length : undefined}
     />
   );
 }

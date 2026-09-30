@@ -179,20 +179,22 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     expect(html).not.toContain("/services/death-at-hospital");
   });
 
-  it("removes the chapel rates and the booking step from the page", () => {
-    // Request-for-Quote (captain 2026-09-21 item 5): the per-day rate, the 3-day
-    // regular/senior examples and the booking dialog's figures all left the page.
+  it("removes the chapel per-day rates but re-links the booking step (D5-A)", () => {
+    // Request-for-Quote (captain 2026-09-21 item 5): the per-day rate and the
+    // 3-day regular/senior examples left the page. The booking dialog's own
+    // figures are behind its closed trigger (SSR renders none), and the step is
+    // wired again so a chapel line carries its held dates.
     expect(html).not.toContain(php(CHAPEL_RATES[0].common.ratePerDay));
     expect(html).not.toContain(php(CHAPEL_RATES[0].private.ratePerDay));
     expect(html).not.toContain("3 days — regular");
     expect(html).not.toContain("3 days — senior citizen");
     expect(html).not.toContain("Check dates &amp; price");
-    expect(html).not.toContain('aria-haspopup="dialog"');
+    expect((html.match(/aria-haspopup="dialog"/g) ?? []).length).toBe(2);
     expect(html).not.toContain("Add to cart");
     // The card reads the park's own chapel record for its name and capacity.
     expect(html).toContain(chapelName.common);
     expect(html).toContain(chapelName.private);
-    expect(html).toContain("Add to Quote");
+    expect(html).toContain("Ask for dates");
   });
 
   it("leads with one hero and a call bar — no subnav or steps (captain 2026-09-21)", () => {

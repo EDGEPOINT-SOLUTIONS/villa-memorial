@@ -46,13 +46,16 @@ price rule was retired with the price itself; no figure at 28 px or above remain
 funeral-service surface (asserted by the `not.toMatch(/₱/)` checks and by the type-ladder
 guard). The quote actions are the small accent rung.
 
-**Deliberately out of scope (noted, not changed).**
+**Deliberately out of scope at the time (noted, later revised).**
 `/plans`, `/price-list`, `/packages`, `/lots/price-list-2026` and the `/builder` estimator's
 plan portion are the separate monthly-pricing lane. Casket/product prices on `/products` are
 product (SRP) prices, not funeral-service fees, and the corpus keeps them. The chapel booking
-dialog (`components/chapel-booking-dialog.tsx`, its rules, scheduling holds and tests) is left
-intact but is **no longer linked from `/services`**: a chapel stay is now a quote request, and
-re-linking the booking flow is a product decision for the captain.
+dialog (`components/chapel-booking-dialog.tsx`, its rules, scheduling holds and tests) was left
+intact but **no longer linked from `/services`** at the time of this record: a chapel stay became a
+quote request, and re-linking the booking flow was a product decision for the captain. **Revised
+2026-09-30 by captain decision D5-A** (the quote-page revisioning): the booking step is linked
+again on `/services` and `/facilities`, so a chapel line carries its real held dates and stays
+"To be quoted by the office" — see `08-delivery/quote-page-revision-design/`.
 
 **Tests**
 

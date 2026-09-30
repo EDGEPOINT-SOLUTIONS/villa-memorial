@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Field } from "@/components/ui/field";
 import type { Inquiry } from "@/lib/api-client/crm";
+import { formatMinorUnits } from "@/lib/money";
 
 type Tone = "info" | "warning" | "success" | "neutral";
 
@@ -318,12 +319,36 @@ export function InquiryBoard({
                   </td>
                   <td>
                     {i.topic}
-                    {/* THE REQUEST'S OWN WORDS. Before 2026-09-27 this column showed
-                        only the topic, so a Request-for-Quote arrived with its preferred
-                        date and its additional requirements captured and never shown —
-                        the office could see only which service was asked about. A
-                        coordinator now reads exactly what the family wrote. `pre-line`
-                        keeps the labels the intake composed on their own lines. */}
+                    {i.lines && i.lines.length > 0 ? (
+                      <ul className="inquiry-lines" aria-label="Structured quote lines">
+                        {i.lines.map((line, index) => (
+                          <li className="inquiry-line" key={`${line.sku}-${index}`}>
+                            <span className="inquiry-line__head">
+                              <strong>{line.name}</strong>
+                              <code className="text-sm text-muted">{line.sku}</code>
+                              {line.quantity > 1 ? (
+                                <span className="text-sm text-muted">×{line.quantity}</span>
+                              ) : null}
+                            </span>
+                            {line.pricingMode === "published" ? (
+                              <span className="text-sm">
+                                {line.unitPriceCents != null
+                                  ? formatMinorUnits(line.unitPriceCents, line.currency ?? "PHP")
+                                  : "published 2026 figure"}
+                              </span>
+                            ) : (
+                              <Badge tone="warning">Needs pricing</Badge>
+                            )}
+                            {line.detail ? (
+                              <span className="text-sm text-muted">{line.detail}</span>
+                            ) : null}
+                            {line.dateRange ? (
+                              <span className="text-sm text-muted">{line.dateRange}</span>
+                            ) : null}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                     {i.message.trim() ? (
                       <p className="inquiry-board__message">{i.message}</p>
                     ) : null}

@@ -445,7 +445,6 @@ export function HomePage({
                         ALACARTE_LINES.find((fee) => fee.service === tile.service)?.sku ??
                         `QUOTE-${tile.service.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}`,
                       name: tile.service,
-                      itemType: "service",
                       detail: "A-la-carte service — applies when the family does not take a package.",
                     },
                   ]}
@@ -462,7 +461,6 @@ export function HomePage({
             lines={ALACARTE_LINES.map((fee) => ({
               sku: fee.sku,
               name: fee.service,
-              itemType: "service" as const,
               detail: "A-la-carte service — applies when the family does not take a package.",
             }))}
             name="At-need services — all five"

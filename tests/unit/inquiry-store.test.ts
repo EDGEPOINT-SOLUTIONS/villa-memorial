@@ -81,14 +81,60 @@ describe("the enquiry journal", () => {
     expect(rows).toHaveLength(seedInquiries().length + 1);
   });
 
-  it("keeps the preferred date and the additional requirements in the row the board renders", async () => {
+  it("keeps the family's own note in the row the board renders", async () => {
     const recorded = await receiveInquiry({ intake: intakeOf(QUOTE), now: NOW });
-    // These two are the facts the client's minutes single out. They travel in the row's
-    // own `message`, which the board now renders under the topic.
-    expect(recorded.message).toContain("Quote request for: Embalming — 3 days");
-    expect(recorded.message).toContain("Preferred date: 2026-10-05");
-    expect(recorded.message).toContain("Additional requirements:");
-    expect(recorded.message).toContain("Please call after 6pm.");
+    // The family's note travels alone; a free-text request has no structured lines.
+    expect(recorded.message).toBe("Please call after 6pm.");
+    expect(recorded.lines).toBeUndefined();
+  });
+
+  it("stores a basket's structured lines and reads them back (D6-A)", async () => {
+    const recorded = await receiveInquiry({
+      intake: intakeOf({
+        ...QUOTE,
+        lines: [
+          {
+            sku: "SRV-RETRIEVAL",
+            name: "Retrieval",
+            kind: "service",
+            pricingMode: "on_request",
+            unitPriceCents: null,
+            currency: null,
+            quantity: 1,
+            detail: "Same week as the burial",
+          },
+          {
+            sku: "LOT-PREMIUM",
+            name: "Premium Lots — memorial lot",
+            kind: "lot",
+            pricingMode: "published",
+            unitPriceCents: 11400000,
+            currency: "PHP",
+            quantity: 1,
+            dateRange: "2.5 sqm · 1. Lot Only · lot only",
+          },
+        ],
+      }),
+      now: NOW,
+    });
+    expect(recorded.topic).toBe("Quote request — 2 items");
+    expect(recorded.lines).toHaveLength(2);
+    expect(recorded.lines?.[0]).toMatchObject({
+      sku: "SRV-RETRIEVAL",
+      pricingMode: "on_request",
+      unitPriceCents: null,
+      detail: "Same week as the burial",
+    });
+    expect(recorded.lines?.[1]).toMatchObject({
+      sku: "LOT-PREMIUM",
+      pricingMode: "published",
+      unitPriceCents: 11400000,
+    });
+
+    // A restart does not lose them: the lines fold back out of the journal.
+    const rows = await listFixtureInquiries();
+    const back = rows.find((row) => row.id === recorded.id);
+    expect(back?.lines).toHaveLength(2);
   });
 
   it("leaves the preferred date out when the family did not give one", async () => {

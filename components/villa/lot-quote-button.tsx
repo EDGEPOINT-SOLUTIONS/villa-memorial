@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
+import { quoteLineDescriptor } from "@/lib/quote-basket/quote-line";
 
 /**
  * "Add to quote" for a LOT — the office's 2026-09-29 direction: a family can ask
@@ -47,9 +48,9 @@ export function LotQuoteButton({
         basket.add({
           sku: `LOT-${product.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}`,
           name: `${product} — memorial lot`,
-          itemType: "lot",
-          unitPriceCents: Math.round(sellingPrice * 100),
-          currency: "PHP",
+          kind: "lot",
+          descriptor: quoteLineDescriptor("lot"),
+          pricing: { mode: "published", unitPriceCents: Math.round(sellingPrice * 100), currency: "PHP" },
           detail: `${area} sqm · ${category} · lot only`,
         });
         setAdded(true);

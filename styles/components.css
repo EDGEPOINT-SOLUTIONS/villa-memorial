@@ -8799,6 +8799,206 @@ because the shared `.ag-appt` rule comes later in this file. */
 }
 
 /* ---------------------------------------------------------------------------
+ * Quote basket revision (2026-09-30) — the review + send page.
+ *
+ * The lines are CARDS, not a five-column table: identity, price mode, units and
+ * actions sit in one block and stack at 390 with no pan frame (the old table
+ * pushed Remove and the line total off-screen). The summary band splits the
+ * published figures from the hand-quoted lines and stays reachable while a long
+ * list scrolls. Every class here is new — no declaration below re-templates an
+ * existing one.
+ * ------------------------------------------------------------------------- */
+.quote-summary-band {
+  position: sticky;
+  top: calc(var(--anchored-header-h) + var(--space-3));
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--color-border);
+  border-top: 2px solid var(--gold-500);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-raised);
+}
+
+.quote-summary-band__text {
+  min-width: 0;
+}
+
+.quote-summary-band__headline {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 600;
+}
+
+.quote-summary-band__figure {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+}
+
+.quote-lines {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.quote-line {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-raised);
+  overflow: hidden;
+}
+
+.quote-line__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+}
+
+.quote-line__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-1);
+}
+
+.quote-line__name {
+  display: block;
+  font-size: var(--text-body);
+}
+
+.quote-line__booking,
+.quote-line__detail {
+  display: block;
+  margin: var(--space-1) 0 0;
+}
+
+.quote-line__facts {
+  display: flex;
+  gap: var(--space-5);
+  margin: 0;
+}
+
+.quote-line__fact dt {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.quote-line__fact dd {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.quote-line__fact--total dd {
+  font-size: var(--text-md);
+}
+
+.quote-line__on-request {
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.quote-line__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quote-line-details-row {
+  background: color-mix(in srgb, var(--color-bg-subtle) 55%, transparent);
+  border-top: 1px solid var(--color-border);
+}
+
+.quote-line-details-cell {
+  padding: var(--space-4) var(--space-5);
+}
+
+.quote-add-row {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* A control that must read as a link without becoming one (it opens a dialog). */
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-text-accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.quote-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+@media (max-width: 60rem) {
+  .quote-summary-band {
+    position: static;
+  }
+}
+
+@media (max-width: 40rem) {
+  .quote-line__body {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .quote-line__facts {
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .quote-line__actions {
+    justify-content: flex-start;
+  }
+}
+
+/* The office board's structured quote lines (D6-A): one row per line, each
+   naming its SKU and flagging whether the coordinator must price it. */
+.inquiry-lines {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.inquiry-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.inquiry-line__head {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+/* ---------------------------------------------------------------------------
  * Global premium system: focus, transitions, active nav
  * ------------------------------------------------------------------------- */
 /* The heading and body type rules live in styles/base.css alone — one owner.
@@ -12388,9 +12588,14 @@ a.card:hover {
   }
 
   /* Phones: let the brand shrink again so the wordmark's ellipsis engages
-     instead of pushing the Sign in / quote actions off the row. */
+     instead of pushing the Sign in / quote actions off the row. `max-width`
+     is required: a grid item that is `justify-self: start` sizes to
+     max-content, so `min-width: 0` alone let the wordmark paint over the
+     basket row at 390 (the header collision the quote-page plan recorded). */
   .anchored-header__brand {
     min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .anchored-header--compressed .anchored-header__bar {

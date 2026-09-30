@@ -125,8 +125,8 @@ describe("appointment submit gate", () => {
   });
 });
 
-describe("a quote capture records every field the client asked for", () => {
-  it("records the name, contact details, requested service, date and requirements", () => {
+describe("a quote capture records the request the office needs", () => {
+  it("maps a single free-text request to a concise topic and the family's note", () => {
     const input = quoteInquiryInput({
       full_name: "  Maria Dela Cruz ",
       email: " maria@example.com ",
@@ -141,23 +141,52 @@ describe("a quote capture records every field the client asked for", () => {
     expect(input.email).toBe("maria@example.com");
     expect(input.phone).toBe("+63 917 000 0000");
     expect(input.topic).toBe("Embalming — 5 days");
-    expect(input.message).toContain("Quote request for: Embalming — 5 days");
-    expect(input.message).toContain("Preferred date: 2026-10-04");
-    expect(input.message).toContain("Wants the viewing to start in the afternoon.");
+    expect(input.message).toBe("Wants the viewing to start in the afternoon.");
+    expect(input.lines).toBeUndefined();
   });
 
-  it("drops the preferred-date line when the visitor leaves it empty", () => {
+  it("structures the basket lines and keeps the family's note separate (D6-A)", () => {
     const input = quoteInquiryInput({
       full_name: "A",
       email: "a@b.co",
       phone: "",
-      service: "Retrieval",
+      service: "Quote request — 2 items",
       preferred_date: "",
-      notes: "",
+      notes: "Please call after 6pm.",
       consent: true,
+      lines: [
+        {
+          sku: "SRV-RETRIEVAL",
+          name: "Retrieval",
+          kind: "service",
+          pricingMode: "on_request",
+          unitPriceCents: null,
+          currency: null,
+          quantity: 1,
+        },
+        {
+          sku: "LOT-PREMIUM",
+          name: "Premium Lots — memorial lot",
+          kind: "lot",
+          pricingMode: "published",
+          unitPriceCents: 11400000,
+          currency: "PHP",
+          quantity: 1,
+          dateRange: "2.5 sqm · 1. Lot Only · lot only",
+        },
+      ],
     });
-    expect(input.message).not.toContain("Preferred date:");
-    expect(input.message).not.toContain("Additional requirements:");
+    // The subject is concise; the lines are their own structured rows; the
+    // family's note travels alone.
+    expect(input.topic).toBe("Quote request — 2 items");
+    expect(input.message).toBe("Please call after 6pm.");
+    expect(input.lines).toHaveLength(2);
+    expect(input.lines?.[0]).toMatchObject({ sku: "SRV-RETRIEVAL", pricingMode: "on_request" });
+    expect(input.lines?.[1]).toMatchObject({
+      sku: "LOT-PREMIUM",
+      pricingMode: "published",
+      unitPriceCents: 11400000,
+    });
   });
 });
 
@@ -233,14 +262,41 @@ describe("demo-local inquiry capture (the board's seam)", () => {
     expect(accepted.intake.topic).toBe("Embalming — 3 days");
     expect(accepted.intake.source).toBe("website");
     expect(accepted.intake.assigned_to).toBe("Unassigned");
-    // The two facts the client's minutes name must survive into the row the board
-    // renders. They were captured and then shown on no staff screen before this.
-    expect(accepted.intake.message).toContain("Preferred date: 2026-10-05");
-    expect(accepted.intake.message).toContain("Additional requirements:");
+    // The family's own note survives into the row the board renders.
     expect(accepted.intake.message).toContain("Please call after 6pm.");
+    expect(accepted.intake.lines).toBeUndefined();
 
-    const refused = readInquirySubmission("quote", { full_name: "", email: "nope", consent: false });
-    expect(refused.ok).toBe(false);
+    // A basket submission carries structured lines through the same reading.
+    const basket = readInquirySubmission("quote", {
+      full_name: "Maria Dela Cruz",
+      email: "maria@example.com",
+      phone: "",
+      service: "Quote request — 2 items",
+      preferred_date: "",
+      notes: "",
+      consent: true,
+      lines: [
+        {
+          sku: "SRV-RETRIEVAL",
+          name: "Retrieval",
+          kind: "service",
+          pricingMode: "on_request",
+          unitPriceCents: null,
+          currency: null,
+          quantity: 1,
+        },
+      ],
+    });
+    expect(basket.ok).toBe(true);
+    if (!basket.ok) return;
+    expect(basket.intake.lines).toHaveLength(1);
+    expect(basket.intake.lines?.[0]).toMatchObject({
+      sku: "SRV-RETRIEVAL",
+      pricingMode: "on_request",
+      unitPriceCents: null,
+    });
+
+    const refused = readInquirySubmission("quote", { full_name: "", email: "nope", consent: false });    expect(refused.ok).toBe(false);
     if (refused.ok) return;
     expect(Object.keys(refused.errors).sort()).toEqual(
       ["consent", "email", "full_name", "service"].sort(),

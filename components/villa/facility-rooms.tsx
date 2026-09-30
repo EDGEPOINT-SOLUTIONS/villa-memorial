@@ -4,7 +4,11 @@ import type { ContactInfo } from "@/lib/api-client/landing";
 import { CHAPEL_SKUS } from "@/lib/catalogue-skus";
 import { CHAPEL_SAMPLE_NOTE } from "@/lib/media";
 import { clientPhotoWide } from "@/lib/client-photos";
-import { ItemQuoteButton } from "@/components/villa/item-quote-button";
+import {
+  ChapelBookingButton,
+  type ChapelCatalogueItem,
+} from "@/components/chapel-booking-dialog";
+import { getQuoteLineCatalogDetail } from "@/lib/quote-basket/quote-line-details";
 
 /**
  * FacilityRooms — the /facilities rooms comparator (approved plan §5, Band 2).
@@ -27,7 +31,8 @@ import { ItemQuoteButton } from "@/components/villa/item-quote-button";
  *    "(Illustration purposes only)" discipline stays on the band foot, so no
  *    photograph claims to be the exact room a family gets;
  *  · the quote line carries the sheet's exact SKU with NO amount — the office
- *    quotes by hand (captain's minute, 2026-09-21, item 5).
+ *    quotes by hand (captain's minute, 2026-09-21, item 5), and the REAL booking
+ *    step (captain D5-A, 2026-09-30) holds the dates so the line carries them.
  *
  * HONEST STATE: the record's names/capacity are a labelled placeholder seed until
  * the client confirms the real chapel list. The band publishes the record the
@@ -74,6 +79,17 @@ export function FacilityRooms({
     common: "Other families",
     private: "Your family only",
   };
+
+  // The catalogue fact each class's booking line needs, read from the recorded
+  // commerce fixture by SKU — never typed here.
+  const chapelItems: Partial<Record<ChapelClass, ChapelCatalogueItem>> = {};
+  for (const cls of CHAPEL_CLASS_ORDER) {
+    const sku = CHAPEL_SKUS[cls];
+    chapelItems[cls] = {
+      sku,
+      name: getQuoteLineCatalogDetail(sku)?.name ?? `Chapel use — ${CHAPEL_CLASS_LABEL[cls].toLowerCase()}, per day`,
+    };
+  }
 
   // One column per class the park's record carries, in the sheet's class order.
   const cards = CHAPEL_CLASS_ORDER.flatMap((chapelClass) => {
@@ -136,20 +152,16 @@ export function FacilityRooms({
                   </dl>
                   <div className="fac-room__action">
                     {/* One gold per-item action per column (the CTA contract),
-                        plus the outline support call. Adding the line puts the
-                        office's exact sheet SKU in the quote basket with NO
-                        amount — the office quotes by hand. */}
-                    <ItemQuoteButton
-                      lines={[
-                        {
-                          sku: CHAPEL_SKUS[chapelClass],
-                          name: `Chapel use — ${record.name}`,
-                          itemType: "service",
-                          detail: "Chapel use when the service is not with Villa.",
-                        },
-                      ]}
-                      name={`Chapel use — ${record.name}`}
+                        plus the outline support call. The action opens the REAL
+                        booking step (captain D5-A): the dialog picks the chapel,
+                        the dates and the stay, checks the park's schedule and
+                        HOLDS the range, so the quote line carries its held dates
+                        and stays "To be quoted by the office". */}
+                    <ChapelBookingButton
+                      chapelClass={chapelClass}
+                      items={chapelItems}
                       label="Ask for dates"
+                      ariaLabel={`Ask for dates: ${record.name}`}
                     />
                     <a className="btn btn--secondary btn--sm" href={contact.phoneHref}>
                       <span className="visually-hidden">Ask about the {record.name}: </span>

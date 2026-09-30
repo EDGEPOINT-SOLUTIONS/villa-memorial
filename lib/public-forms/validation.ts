@@ -28,17 +28,26 @@ export type ContactValues = {
   consent: boolean;
 };
 
+import type { QuoteLineInput } from "@/lib/quote-basket/quote-line";
+
 export type QuoteValues = {
   full_name: string;
   email: string;
   phone: string;
-  /** The funeral service the quote is for (a Request-for-Quote link prefills it). */
+  /** The inquiry's subject: a concise "Quote request — N items" summary. */
   service: string;
   /** The family's preferred date, when one applies (optional). */
   preferred_date: string;
   /** Everything else the office should weigh (additional requirements). */
   notes: string;
   consent: boolean;
+  /**
+   * The basket's lines, structured for the office (D6-A). Optional on a plain
+   * Request-for-Quote link (a single free-text service); the quote basket
+   * always sends it. Each row names its SKU and whether the office must price
+   * it by hand — the board renders one row per line.
+   */
+  lines?: QuoteLineInput[];
 };
 
 export type AppointmentValues = {

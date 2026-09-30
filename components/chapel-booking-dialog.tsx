@@ -26,7 +26,8 @@ import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field } from "@/components/ui/field";
 import type { Resource } from "@/lib/api-client/scheduling";
-import { useQuoteBasket, type QuoteLine } from "@/lib/quote-basket/quote-basket-context";
+import { useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
+import { quoteLineDescriptor } from "@/lib/quote-basket/quote-line";
 import { buildRequestHref } from "@/lib/public-forms/request-prefill";
 import { CHAPEL_NOTES, php } from "@/lib/villa-pricing";
 import {
@@ -55,13 +56,10 @@ import {
   type ChapelScheduleData,
 } from "@/lib/chapel-booking-api";
 
-/** The catalogue facts a booking line needs (QuoteLine without the quantity). */
+/** The catalogue facts a booking line needs (the SKU + the storefront name). */
 export type ChapelCatalogueItem = {
   sku: string;
   name: string;
-  itemType: QuoteLine["itemType"];
-  unitPriceCents: number;
-  currency: string;
 };
 
 export type ChapelBookingButtonProps = {
@@ -254,9 +252,10 @@ export function ChapelBookingDialog({
         {
           sku: catalogue.sku,
           name: catalogue.name,
-          itemType: catalogue.itemType,
-          unitPriceCents: catalogue.unitPriceCents,
-          currency: catalogue.currency,
+          kind: "chapel",
+          descriptor: quoteLineDescriptor("chapel"),
+          // The chapel is quoted by hand: no figure on the line, ever (D3-A).
+          pricing: { mode: "on_request" },
           lineId: `chapel:${booking.id}`,
           booking: line,
         },

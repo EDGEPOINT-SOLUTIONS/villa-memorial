@@ -88,28 +88,28 @@ const quoteHtml = async (params: Record<string, string | string[]> = {}) =>
     ),
   );
 
-describe("quote route renders the shared capture shell", () => {
-  it("carries every agreed field plus DPA consent and the service suggestions", async () => {
+describe("quote route is review + send (D2-A)", () => {
+  it("shows the honest review + send page with no second contact form", async () => {
     const html = await quoteHtml();
-    // The quote form is the basket's ADD STEP now (office, 2026-09-29), so its
-    // submit says what it does rather than sending a single inquiry.
-    expectSharedShell(html, "Add to my quote");
-    for (const id of ["qr-name", "qr-email", "qr-phone", "qr-service", "qr-date", "qr-notes", "qr-consent"]) {
-      expect(html).toContain(`id="${id}"`);
-    }
-    expect(html).toContain("Service you are asking about");
-    expect(html).toContain("Preferred date");
-    expect(html).toContain("Additional requirements");
-    // The interest list is offered as suggestions, not a fixed select.
-    expect(html).toContain("Memorial lot");
-    expect(html).toContain("Wake / funeral package");
+    expect(html).toContain("<h1>Your quote</h1>");
+    expect(html).toContain("one written quotation");
+    // The old inline add form (name/email/consent) is gone from the page.
+    expect(html).not.toContain('id="qr-name"');
+    expect(html).not.toContain("Add to my quote");
+    expect(html).not.toContain('id="qb-name"');
+    // `/quote` no longer promises caskets and plans it does not hold (D1-B).
+    expect(html).not.toContain("a service, a plan, a casket or a lot");
   });
 
-  it("prefills the requested service from a Request-for-Quote link", async () => {
+  it("opens the light request dialog prefilled from a Request-for-Quote link", async () => {
     const html = await quoteHtml({ item: "Embalming — 5 days", note: "A-la-carte service." });
-    expect(html).toContain('name="service"');
+    expect(html).toContain("Ask about something not listed");
+    expect(html).toContain('id="qa-item"');
     expect(html).toContain("Embalming — 5 days");
-    expect(html).toContain("A-la-carte service.");
+    expect(html).toContain("Add to my quote");
+    // The dialog alone never asks for contact details or consent.
+    expect(html).not.toContain('id="qa-email"');
+    expect(html).not.toContain('id="qa-consent"');
   });
 });
 

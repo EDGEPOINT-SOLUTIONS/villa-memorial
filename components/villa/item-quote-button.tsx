@@ -2,10 +2,8 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  useQuoteBasket,
-  type QuoteLineKind,
-} from "@/lib/quote-basket/quote-basket-context";
+import { useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
+import { quoteLineDescriptor, type QuoteLineDescriptor } from "@/lib/quote-basket/quote-line";
 
 const ADDED_LABEL_MS = 1600;
 
@@ -14,21 +12,25 @@ export type ItemQuoteLine = {
   sku: string;
   /** The item exactly as the storefront names it. */
   name: string;
-  itemType?: QuoteLineKind;
+  /** The open line kind — defaults to "service". */
+  kind?: string;
+  /** Optional descriptor overrides (badge, unit, detail shape, actions). */
+  descriptor?: Partial<QuoteLineDescriptor>;
   /** Extra context for the office (scope, stay length, conditions). */
   detail?: string;
 };
 
 /**
- * "Add to Quote" for an ITEM action (office, inbox 047) — the same pattern the
- * lot button uses (`lot-quote-button.tsx`): the press adds the line(s) to the
- * quote basket and the button confirms with "Added ✓" for a moment, so a family
- * can add several things and send them in one inquiry.
+ * "Add to Quote" for a QUOTE-ONLY item action (office, inbox 047) — the same
+ * pattern the lot button uses (`lot-quote-button.tsx`): the press adds the line
+ * to the quote basket and the button confirms with "Added ✓" for a moment, so a
+ * family can add several things and send them in one inquiry.
  *
- * The line carries NO amount (`unitPriceCents: 0`): the funeral-service lines
- * are quoted by hand (the captain's minute 5 — those surfaces publish no
- * figure), and the quote page prints "Quoted on request" for them. The
- * catalogue SKU still rides the line so the office quotes the exact sheet item.
+ * The line is `on_request`: the funeral-service lines are quoted by hand (the
+ * captain's minute 5 — those surfaces publish no figure), and the quote page
+ * prints "To be quoted by the office" for them. The catalogue SKU still rides
+ * the line so the office quotes the exact sheet item. The line's descriptor
+ * comes from `lib/quote-basket/quote-line.ts`, so a new kind needs no page edit.
  *
  * The label is the staff-editable one from the content store (the home editor
  * defaults it to "Add to Quote"); the accessible name keeps the visible label
@@ -57,12 +59,13 @@ export function ItemQuoteButton({
       aria-label={`${label}: ${name}`}
       onClick={() => {
         for (const line of lines) {
+          const kind = line.kind ?? "service";
           basket.add({
             sku: line.sku,
             name: line.name,
-            itemType: line.itemType ?? "service",
-            unitPriceCents: 0,
-            currency: "PHP",
+            kind,
+            descriptor: quoteLineDescriptor(kind, line.descriptor),
+            pricing: { mode: "on_request" },
             detail: line.detail,
           });
         }

@@ -3,10 +3,11 @@
 **Last updated:** 2026-09-28 · **Source:** the [PRD alignment audit](./prd-alignment-audit.md)
 ([readable artifact](./prd-alignment-audit/prd-alignment-audit.html)).
 
-This is the standing short list after the audit: four items, plus two platform contract asks —
-the PDP media pass's object store ([§5](#5-platform-ask--the-media-upload-object-store-c12)) and
+This is the standing short list after the audit: four items, plus three platform contract asks —
+the PDP media pass's object store ([§5](#5-platform-ask--the-media-upload-object-store-c12)),
 the payment-due-notification pass's family payment schedule
-([§6](#6-platform-ask--the-family-payment-schedule)). **Items 1, 2
+([§6](#6-platform-ask--the-family-payment-schedule)), and the structured quote lines the
+quote-page revision added ([§8](#8-platform-ask--structured-quote-lines-on-an-inquiry)). **Items 1, 2
 and 4 are closed** — item 1 by the captain's 2026-09-18 decision, items 2 and 4 by the front
 end's completion (the delivered record is [front-end complete](./frontend-complete.md)). **Item
 3 is the open list:** the five answers only Villa can give. Each item says what it is, why it
@@ -22,6 +23,7 @@ not a report — every claim links to the document that owns it.
 5. [Platform ask — the media upload object store (C12) — OPEN](#5-platform-ask--the-media-upload-object-store-c12)
 6. [Platform ask — the family payment schedule — OPEN](#6-platform-ask--the-family-payment-schedule)
 7. [Captain decisions — OPEN](#7-captain-decisions)
+8. [Platform ask — structured quote lines on an inquiry — OPEN](#8-platform-ask--structured-quote-lines-on-an-inquiry)
 
 ---
 
@@ -229,9 +231,28 @@ authority for each; this section only says who can act.
 **Who can act.** The captain — with the platform where an enum or a scope must change. Nothing in
 this repo chooses for them, and no screen invents the answer.
 
+## 8. Platform ask — structured quote lines on an inquiry
+
+**Status: OPEN — platform-owned.** No frozen `crm-families` contract names a structured
+Request-for-Quote line. The villa build added a provisional `lines` field to the `Inquiry` row
+(`lib/api-client/crm.ts`, documented there) so the office board can render one row per line with a
+"needs pricing" flag — the captain's D6-A answer to the recorded defect where a three-item basket
+arrived as a 261-character topic and a 573-character free-text message with **no SKU and no
+price**. The polite reader (`lib/inquiry-intake.ts` `readQuoteLines`) tolerates the field being
+absent, so every older inquiry and every contact/log row is unaffected.
+
+**What waits.** A frozen inquiry-line shape (`{ sku, name, kind, pricingMode, unitPriceCents,
+currency, quantity, detail?, dateRange? }`) on the crm-families write and read contracts. When it
+lands, the live branch's `toInquiry` maps the wire shape to this one and no screen changes.
+
+**Who can act.** The platform (freeze the field on `crm-families`). The fixture-mode journal and
+board are the temporary home and are recorded here so the field is not mistaken for a frozen one.
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
 as the decision record, item 3 the open list. Updated 2026-09-25 — §6 added by the
 payment-due-notification pass. Updated 2026-09-28 — §3 rows 6–7 and §7 added (the client-minutes
-phases 4–7). The audit and the linked documents remain the authoritative record.*
+phases 4–7). Updated 2026-09-30 — §8 added (the provisional structured quote lines from the
+quote-page revisioning, captain D6-A). The audit and the linked documents remain the authoritative
+record.*
