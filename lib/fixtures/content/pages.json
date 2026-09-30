@@ -14,7 +14,8 @@
       "The plans tier cards (captain's 2026-09-21 premium-tier direction) each carry an optional one-line `summary` and an optional `image`. The seeded summaries transcribe the TYPES OF COFFIN sheet's own tier descriptions + lid lines (lib/villa-pricing.ts COFFINS) — no new marketing claim. `image` is null in the seed: the card is premium text-only until staff attach a photograph.",
       "The services document's blocks (Phase 3) carry the service descriptions the page published in code: the five a-la-carte notes (services-alacarte-*) and the two chapel-class copy lines (services-chapel-*). Stable block ids set the typed reading in lib/service-content.ts; a missing block falls back to the same copy. The three guide service entries live in lib/fixtures/content/service-entries.json.",
       "No price, amount or figure is authored anywhere in this file; price blocks bind to catalogue SKUs / the pricing store. The cash-assistance table stays a sheet constant (lib/villa-pricing.ts CASH_ASSISTANCE), never a free-text block.",
-      "  · blog   ← the landing document's `blog` block, MIGRATED 2026-09-29: the blog is its own page document now (heading · intro · posts), so editing the home cannot change the blog and the landing document no longer owns the posts."
+      "  · blog   ← the landing document's `blog` block, MIGRATED 2026-09-29: the blog is its own page document now (heading · intro · posts), so editing the home cannot change the blog and the landing document no longer owns the posts.",
+      "The sign-in page's document (added 2026-09-30) is NEW office-owned copy, not a transcription: the page had no editorial panel before, so the greeting and the four announcements are seed text the office edits in Pages & content. The panel's image is a published library photograph (/media/hero-1.jpg); the senior-rate line restates the 2026 plan sheet's senior rate, and no amount is typed."
     ]
   },
   "version": 1,
@@ -614,6 +615,72 @@
           }
         ]
       },
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "login",
+      "title": "Sign in",
+      "hero": {
+        "eyebrow": "Greetings",
+        "headline": "Welcome to Villa Funeraria",
+        "lead": "Sign in to your portal. From the office: our latest news, promotions, events and invitations for the families and partners we serve.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100,
+        "textColour": null
+      },
+      "tabs": [],
+      "blocks": [
+        {
+          "id": "login-notice-plans",
+          "type": "notice",
+          "category": "News",
+          "heading": "The 2026 plans and price list are published",
+          "text": "You can read the five plan tiers, the lot price list and the casket catalogue on the website before you sign in.",
+          "image": null,
+          "href": "/plans",
+          "linkLabel": "See the plans"
+        },
+        {
+          "id": "login-notice-senior",
+          "type": "notice",
+          "category": "Promotion",
+          "heading": "Senior rates on the 2026 plans and lots",
+          "text": "Senior citizens receive the senior rate on every plan and lot. The office will prepare a quotation for you.",
+          "image": null,
+          "href": "/contact",
+          "linkLabel": "Ask the office"
+        },
+        {
+          "id": "login-notice-visit",
+          "type": "notice",
+          "category": "Invitation",
+          "heading": "Visit the park",
+          "text": "You are welcome to walk the grounds and see the lots and chapels for yourself. The office receives visitors every day.",
+          "image": {
+            "id": "login-visit-photo",
+            "src": "/media/hero-1.jpg",
+            "alt": "The grounds of Villa Memorial Park",
+            "caption": null,
+            "sample": false
+          },
+          "href": "/map",
+          "linkLabel": "View the park"
+        },
+        {
+          "id": "login-notice-events",
+          "type": "notice",
+          "category": "Event",
+          "heading": "Schedules and gatherings are posted here",
+          "text": "Novena schedules, blessings and family gatherings are announced on this panel. Please check back, or call the office.",
+          "image": null,
+          "href": "/contact",
+          "linkLabel": "Contact the office"
+        }
+      ],
+      "entries": [],
+      "blog": null,
       "updated_at": null,
       "updated_by": null
     }

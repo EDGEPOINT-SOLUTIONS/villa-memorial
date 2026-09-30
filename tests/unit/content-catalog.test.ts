@@ -54,7 +54,7 @@ function parkDocument(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("the six page documents", () => {
+describe("the seven page documents", () => {
   it("lists the captain's full names in the approved order", () => {
     expect(PAGE_DOCUMENTS.map((doc) => [doc.key, doc.label])).toEqual([
       ["home", "Home"],
@@ -63,6 +63,7 @@ describe("the six page documents", () => {
       ["plans", "Villa Memorial Plan"],
       ["coffins", "Coffins & caskets"],
       ["blog", "Blog"],
+      ["login", "Sign in"],
     ]);
   });
 

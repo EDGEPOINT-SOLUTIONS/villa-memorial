@@ -225,5 +225,24 @@ function Block({
           </nav>
         </Section>
       );
+    case "notice":
+      return (
+        <Section heading={block.category || block.heading}>
+          {block.category && block.heading ? <h3>{block.heading}</h3> : null}
+          {block.image ? (
+            <figure className="tribute-figure">
+              {/* eslint-disable-next-line @next/next/no-img-element -- library/uploaded photo */}
+              <img src={publicMediaUrl(block.image.src, mediaBaseUrl)} alt={block.image.alt} loading="lazy" />
+              {block.image.caption ? (
+                <figcaption>
+                  <span>{block.image.caption}</span>
+                </figcaption>
+              ) : null}
+            </figure>
+          ) : null}
+          {block.text ? <p>{block.text}</p> : null}
+          {block.href && block.linkLabel ? <Link href={block.href}>{block.linkLabel}</Link> : null}
+        </Section>
+      );
   }
 }

@@ -33,6 +33,7 @@ export function SignInCard({
   fallbackDestination,
   quickFillPassword = null,
   helpNote = null,
+  editorial = null,
 }: {
   door: SignInDoor;
   personas: PersonaHint[];
@@ -41,6 +42,12 @@ export function SignInCard({
   quickFillPassword?: string | null;
   /** A door-specific line for the foot (e.g. the family office number). */
   helpNote?: ReactNode;
+  /**
+   * The sign-in page's editorial panel, server-rendered and passed in as a slot
+   * (app/login/page.tsx). Absent on every other door — the two-column shell only
+   * exists when a panel is present, so family/agent layout is unchanged.
+   */
+  editorial?: ReactNode;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -83,7 +90,10 @@ export function SignInCard({
   }
 
   return (
-    <main className="signin-shell signin-shell--premium" id="main">
+    <main
+      className={`signin-shell signin-shell--premium${editorial ? " signin-shell--editorial" : ""}`}
+      id="main"
+    >
       <div className="signin-card">
         <div className="signin-card__head">
           <p className="signin-card__eyebrow">{SIGN_IN_BLURBS[door].eyebrow}</p>
@@ -157,6 +167,7 @@ export function SignInCard({
           <PortalSwitch current={door} />
         </div>
       </div>
+      {editorial}
     </main>
   );
 }

@@ -36,7 +36,7 @@ function parked() {
 }
 
 describe("the page-document store", () => {
-  it("serves all six documents in the approved order", async () => {
+  it("serves all seven documents in the approved order", async () => {
     const documents = await listPageDocuments();
     expect(documents.map((doc) => doc.key)).toEqual(PAGE_DOCUMENTS.map((def) => def.key));
     expect(documents.map((doc) => doc.title)).toEqual([
@@ -46,6 +46,7 @@ describe("the page-document store", () => {
       "Villa Memorial Plan",
       "Coffins & caskets",
       "Blog",
+      "Sign in",
     ]);
   });
 

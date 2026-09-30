@@ -43,7 +43,7 @@ import { unrenderableGlyphs } from "@/lib/text-gate";
 
 /* ------------------------------ page documents ----------------------------- */
 
-export type PageDocumentKey = "home" | "park" | "services" | "plans" | "coffins" | "blog";
+export type PageDocumentKey = "home" | "park" | "services" | "plans" | "coffins" | "blog" | "login";
 
 export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "home",
@@ -52,6 +52,7 @@ export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "plans",
   "coffins",
   "blog",
+  "login",
 ] as const;
 
 export type PageDocumentDef = {
@@ -124,6 +125,14 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     editor: "page",
     blocks: false,
     hint: "The blog's own document — its heading, intro and posts (photographs, films and notes from the grounds). One row per post on the page.",
+  },
+  {
+    key: "login",
+    label: "Sign in",
+    route: "/login",
+    editor: "page",
+    blocks: true,
+    hint: "The sign-in page's greeting and its editorial panel — the office's news, promotions, events and member invitations every visitor reads before signing in.",
   },
 ];
 
@@ -310,7 +319,20 @@ export type ContentBlock =
   | { id: string; type: "priceTable"; heading: string; binding: PriceBinding; note: string | null }
   | { id: string; type: "priceList"; heading: string; rows: PriceListRow[]; note: string | null }
   | { id: string; type: "note"; heading: string; tone: "info" | "attention"; text: string }
-  | { id: string; type: "links"; heading: string; items: LinkItem[] };
+  | { id: string; type: "links"; heading: string; items: LinkItem[] }
+  | {
+      id: string;
+      type: "notice";
+      /** A short kicker above the title: News · Promotion · Event · Invitation. */
+      category: string;
+      heading: string;
+      text: string;
+      /** Optional photograph; absent renders no hole. */
+      image: ContentImage | null;
+      /** Optional destination and its label travel together (both or neither). */
+      href: string | null;
+      linkLabel: string | null;
+    };
 
 export type ContentBlockType = ContentBlock["type"];
 
@@ -329,6 +351,21 @@ export const CONTENT_BLOCK_TYPES: ReadonlyArray<{
   { type: "priceList", label: "Price list", hint: "A ladder of priced rows (e.g. embalming days)." },
   { type: "note", label: "Note", hint: "A sample label or an honest-state flag." },
   { type: "links", label: "Links", hint: "Related pages and next steps." },
+  { type: "notice", label: "Announcement", hint: "A news item, promotion, event or member invitation." },
+];
+
+/**
+ * The announcement block's curated palette for an editorial panel (the sign-in
+ * page). The panel renders these five shapes; a document hand-edited to carry
+ * another block type still reads (the reader keeps it), but the editor offers
+ * only these so the office cannot put a price table in a greeting.
+ */
+export const EDITORIAL_BLOCK_TYPES: readonly ContentBlockType[] = [
+  "notice",
+  "paragraph",
+  "bullets",
+  "links",
+  "note",
 ];
 
 /** One photograph/video attached to a blog post. */
@@ -487,6 +524,8 @@ export function emptyBlock(type: ContentBlockType): ContentBlock {
       return { id, type, heading: "", tone: "info", text: "" };
     case "links":
       return { id, type, heading: "", items: [{ id: contentId("link"), label: "", href: "", note: null }] };
+    case "notice":
+      return { id, type, category: "", heading: "", text: "", image: null, href: null, linkLabel: null };
   }
 }
 
@@ -881,6 +920,21 @@ export function readContentBlock(raw: unknown): ReadBlock {
         .filter((item): item is LinkItem => item !== null);
       return { block: { id, type, heading, items }, errors };
     }
+    case "notice": {
+      return {
+        block: {
+          id,
+          type,
+          category: readTrimmed(raw.category),
+          heading,
+          text: readStr(raw.text),
+          image: readContentImage(raw.image),
+          href: readNullableStr(raw.href),
+          linkLabel: readNullableStr(raw.linkLabel),
+        },
+        errors,
+      };
+    }
     default:
       return { block: null, errors: [`"${String(type)}" is not one of the content block types.`] };
   }
@@ -1241,6 +1295,25 @@ function validateBlock(raw: unknown, index: number, context: ContentValidationCo
       });
       break;
     }
+    case "notice": {
+      if (!block.heading.trim()) errors.push(`${at} notice needs a title.`);
+      const category = tooLong(block.category, CONTENT_LINE_MAX, `${at} category`);
+      if (category) errors.push(category);
+      const text = tooLong(block.text, CONTENT_TEXT_MAX, `${at} notice`);
+      if (text) errors.push(text);
+      if (block.image) validateContentImage(block.image, `${at} image`, errors);
+      if (block.href !== null && !HREF_PATTERN.test(block.href)) {
+        errors.push(`${at} link needs a destination that starts with /, # or https://.`);
+      }
+      if ((block.href === null) !== (block.linkLabel === null)) {
+        errors.push(`${at} needs both a link label and a destination, or neither.`);
+      }
+      if (block.linkLabel) {
+        const label = tooLong(block.linkLabel, CONTENT_LINE_MAX, `${at} link label`);
+        if (label) errors.push(label);
+      }
+      break;
+    }
   }
 
   // The parsed block is the shape the validator checks field by field above.
@@ -1304,6 +1377,15 @@ function authoredBlockTexts(blocks: readonly ContentBlock[]): string[] {
           push(item.label);
           push(item.note);
         });
+        break;
+      case "notice":
+        push(block.category);
+        push(block.text);
+        push(block.linkLabel);
+        if (block.image) {
+          push(block.image.alt);
+          push(block.image.caption);
+        }
         break;
     }
   }

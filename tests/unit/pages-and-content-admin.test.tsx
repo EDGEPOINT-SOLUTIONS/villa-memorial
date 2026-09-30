@@ -78,6 +78,7 @@ describe("Pages & content", () => {
       "Villa Memorial Plan",
       "Coffins &amp; caskets",
       "Blog",
+      "Sign in",
     ]) {
       expect(html).toContain(label);
     }
@@ -88,6 +89,7 @@ describe("Pages & content", () => {
     expect(html).toContain('href="/staff/landing/plans"');
     expect(html).toContain('href="/staff/landing/coffins"');
     expect(html).toContain('href="/staff/landing/blog"');
+    expect(html).toContain('href="/staff/landing/login"');
   });
 
   it("answers the list with the designed 403 without catalog:write", async () => {

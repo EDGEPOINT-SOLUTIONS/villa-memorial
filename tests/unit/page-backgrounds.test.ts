@@ -192,6 +192,10 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   // design and named here in the PR that ships it (the home block's own rule).
   { match: ".plan-matrix__group", why: "the plan comparison's group header bar (approved plan)" },
   { match: ".plan-addon__icon", why: "the plan add-on cards' sky icon discs (approved plan)" },
+  // The approved sign-in page (2026-09-30): the editorial panel is the deep sky
+  // ground the sign-in card sits beside, so the office's words read on the same
+  // brand surface as the footer. Named here in the PR that ships it.
+  { match: ".signin-editorial", why: "the sign-in page's editorial panel ground (approved login design)" },
 ];
 
 function allowed(selector: string): boolean {

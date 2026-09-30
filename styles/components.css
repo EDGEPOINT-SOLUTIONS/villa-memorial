@@ -20062,6 +20062,191 @@ a.plan-advisor__phone:hover {
   text-align: left;
 }
 
+/* --- the sign-in editorial panel (the office's own words) ------------------
+   The LEFT half of /login: a display-serif greeting at the page-title step
+   (weight 500, never bold), a gold kicker in the micro step, and
+   hairline-separated announcements — never a grid of equal boxes. Every word
+   and photograph is read from the `login` page document; an empty document
+   removes the panel. The panel's own grammar lives in
+   components/content/login-editorial.tsx. */
+.signin-shell--editorial {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  place-items: stretch;
+  padding: 0;
+}
+
+.signin-shell--editorial .signin-card {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: center;
+  margin: clamp(var(--space-5), 4vw, var(--space-7));
+}
+
+.signin-editorial {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: clamp(var(--space-6), 5vw, var(--space-8));
+  background: var(--sky-950);
+  color: var(--color-text-inverse);
+}
+
+.signin-editorial__greeting {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: var(--measure-prose);
+}
+
+.signin-editorial__eyebrow {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold-200);
+}
+
+.signin-editorial__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-page-title);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  color: var(--color-text-inverse);
+}
+
+.signin-editorial__lead {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--color-text-inverse-muted);
+}
+
+.signin-editorial__entry-photo,
+.signin-editorial__photo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.signin-editorial__photo {
+  max-width: 34rem;
+}
+
+.signin-editorial__entry-photo img,
+.signin-editorial__photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  background: var(--sky-900);
+}
+
+.signin-editorial__entry-photo figcaption,
+.signin-editorial__photo figcaption {
+  font-size: var(--text-caption);
+  color: var(--color-text-inverse-muted);
+}
+
+.signin-editorial__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.signin-editorial__entry {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-block: var(--space-5);
+  border-top: 1px solid var(--color-rule-inverse);
+}
+
+.signin-editorial__entry:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.signin-editorial__category {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-200);
+}
+
+.signin-editorial__entry-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  color: var(--color-text-inverse);
+}
+
+.signin-editorial__bullets,
+.signin-editorial__text {
+  margin: 0;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-inverse-muted);
+}
+
+.signin-editorial__bullets {
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.signin-editorial__link {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--gold-200);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.signin-editorial__link:hover {
+  color: var(--gold-100);
+}
+
+@media (max-width: 60rem) {
+  .signin-shell--editorial {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .signin-editorial,
+  .signin-shell--editorial .signin-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .signin-shell--editorial .signin-card {
+    margin: clamp(var(--space-5), 6vw, var(--space-7)) var(--space-4);
+  }
+
+  .signin-editorial {
+    padding: clamp(var(--space-6), 8vw, var(--space-7)) var(--space-5);
+  }
+}
+
 @media (max-width: 40rem) {
   .mem-page .public-hero {
     padding-bottom: var(--space-4);
