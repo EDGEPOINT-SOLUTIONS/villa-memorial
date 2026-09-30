@@ -5,12 +5,10 @@ import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react"
 import { renderToStaticMarkup } from "react-dom/server";
 import {
   GALLERY_GROUPS,
-  GALLERY_MASTERPLAN,
   GALLERY_PHOTO_COUNT,
   GALLERY_PHOTOS,
   GALLERY_PROVENANCE_NOTE,
   GALLERY_SAMPLE_NOTE,
-  GALLERY_TOUR_LINE,
   type GalleryPhoto,
 } from "@/lib/gallery";
 import { textOf } from "@/tests/helpers/prose";
@@ -105,8 +103,8 @@ describe("the gallery shows the client's own photographs", () => {
   it("reserves every image's space and lazy-loads the wall", async () => {
     const html = await renderGallery();
     const tags = html.match(/<img[^>]*>/g) ?? [];
-    // Every plate + the masterplan drawing.
-    expect(tags.length).toBe(GALLERY_PHOTO_COUNT + 1);
+    // The plates alone: the masterplan band left the page (captain, 2026-09-30).
+    expect(tags.length).toBe(GALLERY_PHOTO_COUNT);
 
     for (const tag of tags) {
       expect(tag, tag).toMatch(/width="\d+"/);
@@ -151,25 +149,18 @@ describe("the gallery labels client sample imagery exactly as the services page 
     expect(html).toContain(GALLERY_SAMPLE_NOTE);
   });
 
-  it("captions the masterplan as a drawing, not a photograph", async () => {
-    const html = await renderGallery();
-    expect(html).toContain(GALLERY_MASTERPLAN.caption);
-    expect(html).toContain(GALLERY_MASTERPLAN.note);
-    expect(GALLERY_MASTERPLAN.caption.toLowerCase()).toContain("masterplan");
-    expect(GALLERY_MASTERPLAN.caption.toLowerCase()).not.toContain("photograph");
-  });
-
   it("prints the one provenance line so no reader has to guess where a photo came from", async () => {
     const html = await renderGallery();
     expect(textOf(html)).toContain(GALLERY_PROVENANCE_NOTE);
   });
 });
 
-describe("the gallery is one clean entry to the walk-through", () => {
-  it("links the existing /map exactly once and never rebuilds it", async () => {
+describe("the gallery is photographs only", () => {
+  it("carries no walk-through band and rebuilds no map", async () => {
+    // The virtual-tour band left the page (captain, 2026-09-30): the park page
+    // owns the map and the 3D walk-through.
     const html = await renderGallery();
-    expect(html.match(/href="\/map"/g) ?? []).toHaveLength(1);
-    expect(html).toContain(GALLERY_TOUR_LINE);
+    expect(html).not.toContain("gal-walk");
     expect(html).not.toContain("canvas");
   });
 

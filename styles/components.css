@@ -7831,62 +7831,6 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-secondary);
 }
 
-/* --- the walk-through entry ----------------------------------------------- */
-.gal-walk {
-  display: grid;
-  gap: var(--space-5);
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-lg);
-  background: var(--color-bg-surface-raised);
-}
-
-.gal-walk__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 18rem;
-  gap: clamp(var(--space-5), 4vw, var(--space-6));
-  align-items: center;
-}
-
-@media (max-width: 62rem) {
-  .gal-walk__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-.gal-walk__kicker {
-  margin: 0 0 var(--space-1);
-  font-size: var(--text-md);
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--gold-800);
-}
-
-.gal-walk__title {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: var(--text-section-title);
-  line-height: 1.2;
-  color: var(--color-text-primary);
-}
-
-.gal-walk__line {
-  margin: var(--space-3) 0 0;
-  max-width: 40rem;
-  font-size: var(--text-lg);
-  line-height: 1.6;
-  color: var(--color-text-secondary);
-}
-
-.gal-walk__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-top: var(--space-5);
-}
-
-
 
 
 
@@ -20394,13 +20338,6 @@ a.plan-advisor__phone:hover {
   .lot-grid__note {
     display: block;
   }
-
-  /* /gallery: the closing plan is a supporting figure, not a second map — cap
-     it so the walk band stays a band. */
-  .gal-walk__plan {
-    max-height: 12rem;
-  }
-
   /* /gallery: a phone shows the photo wall, not 11 one-line descriptions. The
      descriptive caption steps out; the honesty label ("Illustration purposes
      only.") and the group provenance line stay. A photo with no sample label
@@ -24511,42 +24448,6 @@ a.plan-advisor__phone:hover {
 .gal-viewer__step--prev { left: var(--space-3); }
 .gal-viewer__step--next { right: var(--space-3); }
 
-/* --- Band 3 · the walk-through — a band, not a card ----------------------- */
-.gal-walk {
-  display: grid;
-  gap: var(--space-3);
-  padding: clamp(0.75rem, 2vw, 1.25rem) 0;
-  border: 0;
-  border-top: 1px solid var(--color-rule);
-  border-radius: 0;
-  background: transparent;
-}
-
-/* The drawing is a supporting figure, not a second map — keep the band a band. */
-.gal-walk__plan {
-  max-height: 9rem;
-}
-
-.gal-walk__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
-  gap: clamp(var(--space-5), 4vw, var(--space-6));
-  align-items: center;
-}
-
-.gal-walk__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin: 0;
-}
-
-@media (max-width: 62rem) {
-  .gal-walk__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
 @media (max-width: 48rem) {
   .gal-plates {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -24620,14 +24521,7 @@ a.plan-advisor__phone:hover {
 
   .gal-nav__count {
     font-size: var(--text-micro);
-  }
-
-  /* The drawing is a small supporting figure on a phone; the band head already
-     carries the tour line. */
-  .gal-walk__plan {
-    max-height: 9rem;
-  }
-}
+  }}
 
 /* ============================================================================
  * public: cart block — the priced basket (/cart)

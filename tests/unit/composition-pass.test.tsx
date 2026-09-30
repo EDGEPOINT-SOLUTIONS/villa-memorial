@@ -176,7 +176,6 @@ describe("bands are separated by rules and space, not by a shadow on every box",
     const banded = [
       ".sv-picker",
       ".gal-hero",
-      ".gal-walk",
       ".promo-figure",
       ".casket-sample",
     ];

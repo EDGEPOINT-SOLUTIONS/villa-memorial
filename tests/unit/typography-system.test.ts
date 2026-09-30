@@ -283,7 +283,6 @@ const ROLE_CLASSES: Record<string, Array<{ file: string; selectors: string[] }>>
         ".section-title",
         ".mid-section > h2",
         ".sv-page h2",
-        ".gal-walk__title",
         ".app-shell .app-main .page-section-title",
         ".page-section-title",
         ".plan-section-title",

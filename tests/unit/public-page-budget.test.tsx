@@ -268,7 +268,6 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
       'id="park"',
       'id="care"',
       'id="chapels"',
-      'id="walk"',
     ],
     requires: ["data-public-image"],
   },

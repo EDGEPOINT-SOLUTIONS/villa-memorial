@@ -170,21 +170,6 @@ export const GALLERY_HERO = {
 } as const;
 
 /**
- * The masterplan, shown beside the walk-through entry — the one drawing both
- * park-map modes are built from, captioned as a drawing.
- */
-export const GALLERY_MASTERPLAN = {
-  src: "/media/gallery/masterplan-480.webp",
-  srcSet: parkSet("masterplan", [480, 960]),
-  sizes: "(max-width: 62rem) 92vw, 480px",
-  width: 960,
-  height: 960,
-  alt: "The park masterplan: sections, main road, walking paths, mausoleum, garden niches and premium lots drawn to scale",
-  caption: "The masterplan.",
-  note: "The drawing the park map and the 3D walk-through are built from.",
-} as const;
-
-/**
  * The three sets, in the order the page renders them.
  *
  *  · The park — the client's one whole park photograph, the pavilion and the
@@ -252,10 +237,6 @@ export const GALLERY_SET_COUNT = GALLERY_GROUPS.length;
 
 /** The one full sample sentence, printed once per band and once per sample viewer. */
 export const GALLERY_SAMPLE_NOTE = CHAPEL_SAMPLE_NOTE;
-
-/** The straight sentence the page prints beside the walk-through entry. */
-export const GALLERY_TOUR_LINE =
-  "The map shows where every lot is; 3D moves you through the grounds. Both open from the park page.";
 
 /** The one honest summary of where every photograph on the page came from. */
 export const GALLERY_PROVENANCE_NOTE =

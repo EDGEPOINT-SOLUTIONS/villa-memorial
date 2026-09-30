@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  GALLERY_MASTERPLAN,
   GALLERY_PHOTO_COUNT,
   GALLERY_SET_COUNT,
-  GALLERY_TOUR_LINE,
 } from "@/lib/gallery";
-import { PublicHero, PublicImage } from "@/components/kit";
+import { PublicHero } from "@/components/kit";
 import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
 import { GalleryListing } from "./gallery-listing";
@@ -74,40 +72,6 @@ export default function GalleryPage() {
 
       <GalleryListing />
 
-      {/* Band · the walk-through — the one exit. The call lives once, in the
-          shell's closing band. */}
-      <section className="gal-walk" id="walk" aria-labelledby="walk-title">
-        <div className="home-band-head">
-          <p className="home-band-head__kicker">Virtual tour</p>
-          <h2 id="walk-title" className="home-band-head__title">
-            Walk the park
-          </h2>
-          <p className="home-band-head__lead">{GALLERY_TOUR_LINE}</p>
-        </div>
-        <div className="gal-walk__grid">
-          <PublicImage
-            role="map"
-            className="gal-walk__plan"
-            src={GALLERY_MASTERPLAN.src}
-            srcSet={GALLERY_MASTERPLAN.srcSet}
-            sizes={GALLERY_MASTERPLAN.sizes}
-            alt={GALLERY_MASTERPLAN.alt}
-            width={GALLERY_MASTERPLAN.width}
-            height={GALLERY_MASTERPLAN.height}
-            caption={
-              <>
-                <span className="gal-cap__desc">{GALLERY_MASTERPLAN.caption}</span>{" "}
-                <span className="gal-figure__note">{GALLERY_MASTERPLAN.note}</span>
-              </>
-            }
-          />
-          <div className="gal-walk__actions">
-            <Link className="btn btn--secondary" href="/map">
-              Open the park map &amp; 3D walk-through
-            </Link>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
