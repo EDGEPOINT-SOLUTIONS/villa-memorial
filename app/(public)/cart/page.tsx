@@ -79,15 +79,12 @@ export default function CartPage() {
             : "Nothing here yet — the plans, caskets and services are ready when you are."
         }
         primary={
-          hasLines
-            ? { label: "Proceed to checkout", href: "/checkout" }
-            : { label: "Browse plans & services", href: "/plans" }
+          // A cart WITH lines opens bare (captain, 2026-09-30): its one commit
+          // action is the summary button at the foot of the page, so the opening
+          // carries no second checkout call and no way back out.
+          hasLines ? undefined : { label: "Browse plans & services", href: "/plans" }
         }
-        secondary={
-          hasLines
-            ? { label: "Keep browsing", href: "/plans" }
-            : { label: "See the 2026 price list", href: "/price-list" }
-        }
+        secondary={hasLines ? undefined : { label: "See the 2026 price list", href: "/price-list" }}
       />
 
       {releaseError ? (
