@@ -21398,6 +21398,10 @@ a.plan-advisor__phone:hover {
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
   gap: var(--space-5);
   align-items: stretch;
+  /* 1.5× smaller (captain, 2026-09-30): the photograph, the builder and the
+     rooms under it all shrink together, and the band centres. */
+  max-width: 64rem;
+  margin-inline: auto;
 }
 
 .home-park__builder {
@@ -21872,6 +21876,10 @@ a.plan-advisor__phone:hover {
   grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
   gap: var(--space-5);
   align-items: stretch;
+  /* A smaller map and smaller plates (captain, 2026-09-30): the band's own
+     grid is capped and centred, so the map and the four plates shrink together. */
+  max-width: 62rem;
+  margin-inline: auto;
 }
 
 .home-lot-types {
