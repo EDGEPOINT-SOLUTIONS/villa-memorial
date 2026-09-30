@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
 /**
- * /checkout is retired: the office takes inquiries, not orders, so it redirects
- * to the quote page. The URL stays noindex and nofollow.
+ * /checkout is the priced cart's final step (priced catalogue lines only —
+ * quote-only lines belong to /quote). The URL stays noindex and nofollow so a
+ * stale link never surfaces in search, with no canonical of its own.
  */
 export const metadata: Metadata = {
-  title: "Quote — Villa Funeraria",
+  title: "Checkout — Villa Funeraria",
   robots: { index: false, follow: false },
 };
 
