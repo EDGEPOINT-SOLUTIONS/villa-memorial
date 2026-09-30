@@ -20110,10 +20110,14 @@ a.plan-advisor__phone:hover {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   place-items: stretch;
   padding: 0;
+  /* The pair stays together like the reference sign-in page: the brand block
+     and the form sit as one centred group rather than at the screen's edges. */
+  max-width: 74rem;
+  margin-inline: auto;
 }
 
 .signin-shell--split .signin-card {
-  grid-column: 1;
+  grid-column: 2;
   grid-row: 1;
   align-self: center;
   justify-self: center;
@@ -20121,23 +20125,24 @@ a.plan-advisor__phone:hover {
 }
 
 .signin-brand {
-  grid-column: 2;
+  grid-column: 1;
   grid-row: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: clamp(var(--space-4), 3vw, var(--space-6));
-  padding: clamp(var(--space-6), 5vw, var(--space-8));
-  /* A white panel: the mark carries the column (captain, 2026-09-30). */
+  gap: clamp(var(--space-3), 2vw, var(--space-5));
+  padding: clamp(var(--space-6), 6vw, var(--space-8)) clamp(var(--space-4), 4vw, var(--space-7));
+  /* A white panel: the mark and its one line carry the column (captain,
+     2026-09-30). */
   background: #fff;
-  text-align: center;
+  text-align: left;
 }
 
-/* The mark reads at a glance: it is the whole point of the right column. */
+/* The mark reads at a glance: it is the whole point of the brand column. */
 .signin-brand__mark {
   display: block;
-  width: clamp(13rem, 32vw, 28rem);
+  width: clamp(12rem, 26vw, 22rem);
   height: auto;
 }
 
@@ -20148,6 +20153,17 @@ a.plan-advisor__phone:hover {
   font-weight: 500;
   letter-spacing: 0.02em;
   color: var(--color-text-primary);
+}
+
+/* ONE line, the promise the whole site repeats (the home hero's own words). */
+.signin-brand__tagline {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-size: var(--text-page-title);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  color: var(--color-text-secondary);
 }
 
 @media (max-width: 60rem) {

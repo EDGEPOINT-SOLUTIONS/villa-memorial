@@ -166,13 +166,13 @@ export function SignInCard({
         </div>
       </div>
 
-      {/* The right column is the mark alone (captain, 2026-09-30): a sign-in page
-          shows the sign-in and the brand, nothing else. Decorative, so the
-          card's own heading stays the page's only heading. */}
-      <div className="signin-brand" aria-hidden="true">
+      {/* The left column is the mark with its one-line promise — the Facebook
+          arrangement (captain, 2026-09-30): brand first, the form beside it. */}
+      <div className="signin-brand">
         {/* eslint-disable-next-line @next/next/no-img-element -- the office's own mark */}
         <img className="signin-brand__mark" src={LOGO_SANCTUARIO} alt="" width={512} height={512} />
         <p className="signin-brand__wordmark">Villa Funeraria</p>
+        <p className="signin-brand__tagline">Honoring every life with dignity and light.</p>
       </div>
     </main>
   );
