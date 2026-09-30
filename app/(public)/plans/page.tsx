@@ -274,7 +274,7 @@ export default async function PlansPage() {
         lead={page?.hero.lead.trim() || undefined}
         textColour={page?.hero.textColour ?? null}
         primary={{ label: "See the 2026 rates", href: "/price-list" }}
-        secondary={{ label: "View packages", href: "/plans/PKG-BASIC" }}
+        secondary={{ label: "View packages", href: "/plans/packages" }}
       >
         <nav className="hero-chips" aria-label="Related plan pages">
           <Link href="/products">Coffins &amp; caskets</Link>

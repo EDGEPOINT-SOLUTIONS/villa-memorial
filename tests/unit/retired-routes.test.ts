@@ -12,11 +12,11 @@ import { PUBLIC_PAGES } from "@/lib/seo";
  * app/(public) and would otherwise demand a public page for it).
  */
 describe("the retired public routes redirect", () => {
-  it("sends /packages to the Basic Package detail page", async () => {
+  it("sends /packages to the packages page", async () => {
     const redirects = await nextConfig.redirects!();
     const packs = redirects.find((r) => r.source === "/packages");
     expect(packs, "no /packages redirect").toBeTruthy();
-    expect(packs!.destination).toBe("/plans/PKG-BASIC");
+    expect(packs!.destination).toBe("/plans/packages");
     expect(packs!.permanent).toBe(true);
   });
 

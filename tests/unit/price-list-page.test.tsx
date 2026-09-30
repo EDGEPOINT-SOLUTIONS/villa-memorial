@@ -76,7 +76,7 @@ describe("the consolidated Price list page", () => {
       expect(html, item.sku).toContain(item.display_price);
     }
     // "View packages" points at the Basic package (the /packages destination).
-    expect(html).toContain('href="/plans/PKG-BASIC"');
+    expect(html).toContain('href="/plans/packages"');
   });
 
   it("prints the plan copy from the content document, never hard-coded", async () => {

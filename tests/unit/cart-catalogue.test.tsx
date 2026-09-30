@@ -111,7 +111,7 @@ describe("cart line expand control shows the item's details again", () => {
     expect(html).toContain("Line total");
     expect(html).toContain("1,200.00");
     // Same detail-page door for the line identity.
-    expect(html).toContain('href="/plans/PKG-BASIC"');
+    expect(html).toContain('href="/plans/packages"');
     expect(html).toContain("View full details");
   });
 

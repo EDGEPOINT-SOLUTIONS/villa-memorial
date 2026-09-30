@@ -343,7 +343,7 @@ describe("the plan payment tables render on every plan surface", () => {
     expect(html).toContain("Compare the five tiers");
     // The hero's trimmed chips (captain, 2026-09-21): only View packages and
     // Coffins & caskets remain; the four retired chips are gone.
-    expect(html).toContain('href="/plans/PKG-BASIC">View packages</a>');
+    expect(html).toContain('href="/plans/packages">View packages</a>');
     expect(html).toContain('href="/products">Coffins &amp; caskets</a>');
     expect(html).not.toContain("2026 plan payments");
     expect(html).not.toContain('href="/plans/compare"');

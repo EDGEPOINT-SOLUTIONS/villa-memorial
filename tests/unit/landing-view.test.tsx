@@ -202,7 +202,7 @@ describe("the home renders the anchored catalogue shell", () => {
       "/map?tab=lots",
       "/products",
       "/builder",
-      "/plans/PKG-BASIC",
+      "/plans/packages",
       "/price-list",
     ]);
   });
@@ -357,7 +357,7 @@ describe("the home renders the anchored catalogue shell", () => {
     // The footnote keeps the senior-rate token resolved from the sheet and the
     // package-page door; the underwriting credits close the board.
     expect(html).toContain(`from ${php(planRate("bronze1", "monthly", true))} / month`);
-    expect(html).toContain('<a href="/plans/PKG-BASIC">package page</a>');
+    expect(html).toContain('<a href="/plans/packages">package page</a>');
     expect(html).toContain("logo-villa-agency.png");
     expect(html).toContain("logo-villa-group.png");
     expect(html).toContain("Powered by Eternal Plans, Inc.");
@@ -435,15 +435,17 @@ describe("the landing hero is RETIRED from this view (captain, 2026-09-27)", () 
 });
 
 describe("the rails fit without a vertical scrollbar", () => {
-  it("sizes the lead image so its long title clears the FEATURED badge", () => {
+  it("shows the lead picture whole, with the card's words on their own block", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
     const block = /\.rail-item--lead \.rail-thumb \{[^}]*\}/.exec(css)?.[0] ?? "";
-    // The 9.5rem floor clears the FEATURED badge for a two-line title (inbox
-    // 029); 7vw lets the band grow a little on very wide screens. The 10rem cap
-    // keeps it well under the 14rem band the captain rejected for forcing a
-    // rail scrollbar, and the measured rail still fits its viewport cap.
-    expect(block).toContain("height: clamp(9.5rem, 7vw, 10rem)");
-    expect(block).not.toContain("height: 14rem");
+    const img = /\.rail-item--lead \.rail-thumb img \{[^}]*\}/.exec(css)?.[0] ?? "";
+    const text = /\.rail-item--lead \.rail-item__text \{[^}]*\}/.exec(css)?.[0] ?? "";
+    // Whole picture, never a cropped band (captain, 2026-09-30): the frame takes
+    // the photograph's own ratio and the words sit on the navy block beneath it,
+    // so the FEATURED badge can never collide with a wrapped title.
+    expect(block).toContain("height: auto");
+    expect(img).toContain("object-fit: contain");
+    expect(text).toContain("position: static");
   });
 
   it("keeps the retired 24/7 call card CSS out while the new help card ships", () => {

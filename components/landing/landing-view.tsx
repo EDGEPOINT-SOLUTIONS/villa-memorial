@@ -131,6 +131,10 @@ function RailItemLink({ item }: { item: RailItem }) {
  * never breaks the page).
  */
 export function RailPanel({ config, lead }: { config: RailConfig; lead?: ReactNode }) {
+  // The rail's ONE featured item always OPENS the list (captain, 2026-09-30):
+  // the office pins the product it wants seen, so a visitor meets it at the
+  // very top. Every other item keeps the order the office set.
+  const items = [...config.items].sort((a, b) => Number(b.featured) - Number(a.featured));
   return (
     <div className="rail-panel">
       {lead}
@@ -139,7 +143,7 @@ export function RailPanel({ config, lead }: { config: RailConfig; lead?: ReactNo
         <p className="rail-empty">Nothing pinned here yet.</p>
       ) : (
         <ul className="rail-list">
-          {config.items.map((item) => (
+          {items.map((item) => (
             <li key={item.id}>
               <RailItemLink item={item} />
             </li>
@@ -394,7 +398,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
               { label: "Lots", href: "/map?tab=lots" },
               { label: "Caskets", href: "/products" },
               { label: "Builder", href: "/builder" },
-              { label: "Packages", href: "/plans/PKG-BASIC" },
+              { label: "Packages", href: "/plans/packages" },
               { label: "Price list", href: "/price-list" },
             ]}
           />

@@ -219,7 +219,7 @@ export default async function PriceListPage() {
             <div className="price-index__packages">
               <p className="price-index__packages-title">
                 The three published packages —{" "}
-                <Link href="/plans/PKG-BASIC">Compare the packages</Link>
+                <Link href="/plans/packages">Compare the packages</Link>
               </p>
               <ul>
                 {packages.map((item) => (

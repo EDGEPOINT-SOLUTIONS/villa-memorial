@@ -166,7 +166,7 @@ export function QuoteLineRow({
                   // catalogue line (services, add-ons) is /products/[sku].
                   href={
                     line.itemType === "package"
-                      ? `/plans/${line.sku}`
+                      ? "/plans/packages"
                       : `/products/${line.sku}`
                   }
                   className="btn btn--secondary btn--sm"

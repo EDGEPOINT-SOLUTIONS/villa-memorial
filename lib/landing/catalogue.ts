@@ -112,7 +112,7 @@ export function buildRailCatalogue(options?: {
           caption: "Bundled at one clear price",
           price: null,
           image: PLAN_PACKAGES_IMAGE,
-          href: "/plans/PKG-BASIC",
+          href: "/plans/packages",
         },
       ],
     },

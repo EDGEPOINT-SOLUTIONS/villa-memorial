@@ -6507,7 +6507,10 @@ because the shared `.ag-appt` rule comes later in this file. */
 
 .term-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* Two per row (captain, 2026-09-30): four columns inside the card made
+     "SEMI-ANNUAL" and "₱1,800.00" spill out of their own boxes. */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-inline: calc(-1 * var(--space-5));
   gap: var(--space-2);
 }
 
@@ -11322,45 +11325,33 @@ a.card:hover {
   display: block;
   position: relative;
   width: 100%;
-  /* Tall enough that the card's text block never rides up into the FEATURED
-     badge (office, inbox 029): the title's first line used to sit behind the
-     badge on a long title and was unreadable. The floor (9.5rem) clears the
-     badge for a two-line title at every width the rail renders at; 7vw lets
-     the band grow a little on very wide screens. Still ~45px shorter than the
-     14rem band the captain rejected in 2026-09-21 for forcing a rail
-     scrollbar — measured rail content 754px against its ~789px cap at
-     1440×900, so the default list still fits. */
-  height: clamp(9.5rem, 7vw, 10rem);
+  /* The featured picture is shown WHOLE (captain, 2026-09-30): the frame takes
+     the photograph's own ratio instead of cropping it into a fixed band, and
+     the card's words sit on the navy block beneath it. */
+  height: auto;
   border: 0;
   border-radius: 0;
+  background: var(--ink-900);
 }
 
-/* The lead picture is absolutely placed in its 14rem frame. In the base grid
-   (`place-items: center`) an in-flow `height: 100%` resolved against an
-   auto-sized track and the image stood 399px tall inside a 224px box, clipped —
-   the picture (and its object-fit) never lined up with the lead card. */
+/* The lead picture keeps its own shape inside the card: no fixed height, no
+   crop. (It used to be absolutely placed in a 9.5–10rem band with
+   `object-fit: cover`, which cut a portrait or a wide shot to fit.) */
 .rail-item--lead .rail-thumb img {
-  position: absolute;
-  inset: 0;
+  display: block;
+  position: static;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
+  object-fit: contain;
 }
 
 .rail-item--lead .rail-item__text {
-  position: absolute;
-  inset: auto 0 0;
-  padding: var(--space-5) var(--space-4) var(--space-4);
-  /* The scrim carries the contrast, not decoration: at 0.55/40% the white
-     title sat on bright marble at ~2:1 and the price was barely visible
-     (craft pass, 2026-09-18). Opaque from 56% down so every line clears AA. */
-  background: linear-gradient(
-    180deg,
-    rgb(8 28 49 / 0) 0%,
-    rgb(8 28 49 / 0.82) 24%,
-    rgb(8 28 49 / 0.96) 56%,
-    rgb(8 28 49 / 0.97) 100%
-  );
+  position: static;
+  inset: auto;
+  padding: var(--space-4);
+  /* A solid navy block rather than the scrim: the words no longer sit on the
+     photograph at all (captain, 2026-09-30). */
+  background: var(--ink-900);
 }
 
 .rail-item--lead .rail-item__title {
@@ -20760,13 +20751,18 @@ a.plan-advisor__phone:hover {
   margin-top: var(--space-5);
 }
 
-/* --- the five plates, three per row, close together (captain, 2026-09-30) ---- */
+/* --- the five plates: three per row, close together, and a partial last row
+   CENTRED so the group reads as one block (captain, 2026-09-30) --- */
 .sv-plates {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 15rem));
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: var(--space-4);
-  margin: 0;
+  /* Three plates per row: the row's own width is three plates plus their gaps,
+     so the second row's two plates centre under the first instead of hugging
+     the left edge of a wider box. */
+  max-width: calc(45rem + 2 * var(--space-4));
+  margin: 0 auto;
   padding: 0;
   list-style: none;
 }
@@ -20775,14 +20771,22 @@ a.plan-advisor__phone:hover {
    (the measured 2,409px phone wall this rework exists to fix). */
 @media (max-width: 48rem) {
   .sv-plates {
-    grid-template-columns: repeat(2, minmax(0, 15rem));
     gap: var(--space-5) var(--space-3);
+    max-width: calc(30rem + var(--space-3));
+  }
+
+  /* Two plates per row on a phone: the tiles may shrink to half the row (the
+     fixed 15rem basis would otherwise fit only one). */
+  .sv-tile {
+    flex: 1 1 calc(50% - var(--space-3) / 2);
+    max-width: 15rem;
   }
 }
 
 .sv-tile {
   display: flex;
   flex-direction: column;
+  flex: 0 1 15rem;
   gap: var(--space-2);
   min-width: 0;
 }
@@ -23060,7 +23064,9 @@ a.plan-advisor__phone:hover {
 
 .fac-room__facts dd {
   margin: var(--space-1) 0 0;
-  font-size: var(--text-card-title);
+  /* Smaller than the room's own name (captain, 2026-09-30): the facts are
+     supporting detail, not figures to shout. */
+  font-size: var(--text-sm);
   font-weight: 700;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;

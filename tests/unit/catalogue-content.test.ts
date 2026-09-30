@@ -42,7 +42,7 @@ describe("which catalogue items carry a content entry", () => {
 
   it("routes a casket to /products and a package to /plans", () => {
     expect(itemEntryRoute("CSK-LUMINA")).toBe("/products/CSK-LUMINA");
-    expect(itemEntryRoute("PKG-BASIC")).toBe("/plans/PKG-BASIC");
+    expect(itemEntryRoute("PKG-BASIC")).toBe("/plans/packages");
   });
 });
 

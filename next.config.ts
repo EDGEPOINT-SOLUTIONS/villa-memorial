@@ -15,7 +15,12 @@ const nextConfig: NextConfig = {
   output: "standalone",
   async redirects() {
     return [
-      { source: "/packages", destination: "/plans/PKG-BASIC", permanent: true },
+      // The package view answers at /plans/packages now (captain, 2026-09-30):
+      // its catalogue SKU is an inventory code, not a page a visitor reads.
+      { source: "/plans/PKG-BASIC", destination: "/plans/packages", permanent: true },
+      { source: "/plans/PKG-STANDARD", destination: "/plans/packages", permanent: true },
+      { source: "/plans/PKG-PREMIUM", destination: "/plans/packages", permanent: true },
+      { source: "/packages", destination: "/plans/packages", permanent: true },
       { source: "/plans/villa-memorial-plan", destination: "/price-list", permanent: true },
       { source: "/plans/senior-benefits", destination: "/price-list", permanent: true },
       { source: "/plans/compare", destination: "/price-list", permanent: true },

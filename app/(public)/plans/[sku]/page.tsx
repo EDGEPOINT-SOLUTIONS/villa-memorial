@@ -143,8 +143,18 @@ export default async function PlanDetailPage({
   params: Promise<{ sku: string }>;
 }) {
   const { sku } = await params;
+  // The packages answer at /plans/packages: next.config.ts redirects their SKU
+  // URLs before this route ever runs (captain, 2026-09-30).
+  return renderItemPage(decodeURIComponent(sku));
+}
 
-  const item = await getCatalogItem(decodeURIComponent(sku)).catch(() => null);
+/**
+ * The item page body — the package layout for a `package` SKU, the service-line
+ * layout otherwise. `/plans/[sku]` and `/plans/packages` both render it, so the
+ * package page has ONE body behind every URL that reaches it.
+ */
+export async function renderItemPage(sku: string) {
+  const item = await getCatalogItem(sku).catch(() => null);
   if (!item) notFound();
 
   const typeLabel = TYPE_LABEL[item.item_type] ?? item.item_type.replace("_", "-");

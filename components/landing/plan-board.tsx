@@ -48,7 +48,7 @@ const SKU_BY_TIER: Partial<Record<PlanTier, string>> = { bronze1: "PKG-BASIC" };
 function PlanNote({ note, pricing }: { note: string; pricing: PlanPricing }) {
   const seniorMonthly = php(planRateOf(pricing, "bronze1", "monthly", true));
   const packagePage = (
-    <a key="package-page" href="/plans/PKG-BASIC">
+    <a key="package-page" href="/plans/packages">
       package page
     </a>
   );

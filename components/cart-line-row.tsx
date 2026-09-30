@@ -138,7 +138,10 @@ export function CartLineRow({
               </div>
               <h4 className="cart-line-details__name">{line.name}</h4>
               <p className="cart-line-details__desc">{description}</p>
-              <Link href={`/plans/${line.sku}`} className="btn btn--secondary btn--sm">
+              <Link
+                href={line.itemType === "package" ? "/plans/packages" : `/plans/${line.sku}`}
+                className="btn btn--secondary btn--sm"
+              >
                 View full details
               </Link>
             </div>

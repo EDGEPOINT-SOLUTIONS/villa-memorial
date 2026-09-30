@@ -56,9 +56,11 @@ export function isItemEntrySku(sku: string): boolean {
 
 /** The public detail route the entry feeds. */
 export function itemEntryRoute(sku: string): string {
-  return itemEntryKind(sku) === "casket"
-    ? `/products/${encodeURIComponent(sku)}`
-    : `/plans/${encodeURIComponent(sku)}`;
+  if (itemEntryKind(sku) === "casket") return `/products/${encodeURIComponent(sku)}`;
+  // The packages share one page (captain, 2026-09-30): their SKU URLs redirect
+  // to /plans/packages (next.config.ts), so every link points there directly.
+  if (sku.startsWith("PKG-")) return "/plans/packages";
+  return `/plans/${encodeURIComponent(sku)}`;
 }
 
 /** The entry's group label — the casket's collection, or the plan's name. */
