@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef } from "react";
-import { GALLERY_SAMPLE_NOTE, type GalleryPhoto } from "@/lib/gallery";
+import type { GalleryPhoto } from "@/lib/gallery";
 import { useModalFocus } from "@/components/ui/use-modal-focus";
 
 /**
@@ -155,11 +155,6 @@ export function PhotoViewer({
             if (frameRef.current) frameRef.current.hidden = true;
           }}
         />
-        <figcaption className="gal-viewer__caption">
-          {photo.sample ? <span className="gal-viewer__chip">Sample</span> : null}
-          {photo.caption}
-          {photo.sample ? <span className="gal-viewer__note"> {GALLERY_SAMPLE_NOTE}</span> : null}
-        </figcaption>
       </figure>
 
       <button

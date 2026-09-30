@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   GALLERY_GROUPS,
   GALLERY_PHOTO_COUNT,
-  GALLERY_PROVENANCE_NOTE,
-  GALLERY_SAMPLE_NOTE,
   type GalleryPhoto,
 } from "@/lib/gallery";
 import { PhotoViewer } from "@/components/public/photo-viewer";
@@ -111,11 +109,9 @@ export function GalleryListing() {
               <p className="home-band-head__lead">{group.intro}</p>
             </div>
 
-            <ul
-              className={`gal-plates${
-                group.photos.every((photo) => photo.frame === "wide") ? " gal-plates--wide" : ""
-              }${group.photos.length === 1 ? " gal-plates--one" : ""}`}
-            >
+            {/* One grid for every set: the same plate at the same size
+                (captain, 2026-09-30). */}
+            <ul className={`gal-plates${group.photos.length === 1 ? " gal-plates--one" : ""}`}>
               {group.photos.map((photo, i) => (
                 <li key={photo.id}>
                   <GalleryPlate
@@ -128,13 +124,8 @@ export function GalleryListing() {
               ))}
             </ul>
 
-            {group.photos.some((photo) => photo.sample) ? (
-              <p className="gal-set__note">{GALLERY_SAMPLE_NOTE}</p>
-            ) : null}
           </section>
         ))}
-
-        <p className="gal-provenance">{GALLERY_PROVENANCE_NOTE}</p>
       </div>
 
       <PhotoViewer
@@ -165,13 +156,8 @@ function GalleryPlate({
   total: number;
   onOpen: () => void;
 }) {
-  const wide = photo.frame === "wide";
-  const role = wide ? "interior-hero" : "gallery-plate";
   return (
-    <figure
-      className={`public-image public-image--${role} gal-plate${wide ? " gal-plate--wide" : ""}`}
-      data-public-image={role}
-    >
+    <figure className="public-image public-image--gallery-plate gal-plate" data-public-image="gallery-plate">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={photo.src}
@@ -191,10 +177,6 @@ function GalleryPlate({
       >
         <span className="visually-hidden">Open</span>
       </button>
-      <figcaption className="gal-plate__caption">
-        {photo.sample ? <span className="gal-plate__chip">Sample</span> : null}
-        <span className="gal-plate__desc">{photo.caption}</span>
-      </figcaption>
     </figure>
   );
 }

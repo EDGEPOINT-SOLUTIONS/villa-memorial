@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  GALLERY_PHOTO_COUNT,
-  GALLERY_SET_COUNT,
 } from "@/lib/gallery";
 import { PublicHero } from "@/components/kit";
 import { containerClass } from "@/lib/public-layout";
@@ -54,21 +52,6 @@ export default function GalleryPage() {
         primary={{ label: "View the photographs", href: "#wall" }}
         secondary={{ label: "Plan a visit", href: "/contact" }}
       />
-
-      <ul className="gal-facts" aria-label="The gallery at a glance">
-        <li>
-          <strong>{GALLERY_PHOTO_COUNT} photographs</strong>
-          <span>the park&rsquo;s own</span>
-        </li>
-        <li>
-          <strong>{GALLERY_SET_COUNT} sets</strong>
-          <span>the park · the coffins &amp; carriage · the chapel</span>
-        </li>
-        <li>
-          <strong>No stock photos</strong>
-          <span>every picture the park&rsquo;s own</span>
-        </li>
-      </ul>
 
       <GalleryListing />
 

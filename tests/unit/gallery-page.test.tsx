@@ -139,19 +139,22 @@ describe("the wall draws each picture whole and opens it", () => {
   });
 });
 
-describe("the gallery labels client sample imagery exactly as the services page does", () => {
-  it("keeps a short chip per sample and the full sentence once per band", async () => {
+describe("the gallery wall is pictures and nothing else", () => {
+  it("carries no sample chip, no caption and no note", async () => {
+    // The captain's ask (2026-09-30): images and section titles only. Every
+    // picture keeps its own description in the ALT for screen readers.
     const html = await renderGallery();
-    const sampleCount = CONTENT_PHOTOS.filter((photo) => photo.sample).length;
-    expect((html.match(/class="gal-plate__chip"/g) ?? []).length).toBe(sampleCount);
-    // Two bands carry samples; the full note prints once in each.
-    expect((html.match(/Illustration purposes only/g) ?? []).length).toBe(2);
-    expect(html).toContain(GALLERY_SAMPLE_NOTE);
+    expect(html).not.toContain("gal-plate__chip");
+    expect(html).not.toContain("gal-plate__caption");
+    expect(html).not.toContain("Illustration purposes only");
+    expect(html).not.toContain("Every photograph here is the park&rsquo;s own");
   });
 
-  it("prints the one provenance line so no reader has to guess where a photo came from", async () => {
+  it("still describes every picture for a screen reader", async () => {
     const html = await renderGallery();
-    expect(textOf(html)).toContain(GALLERY_PROVENANCE_NOTE);
+    const alts = [...html.matchAll(/<img[^>]*alt="([^"]*)"/g)].map((m) => m[1]);
+    expect(alts.length).toBe(CONTENT_PHOTOS.length);
+    for (const alt of alts) expect(alt.trim().length).toBeGreaterThan(10);
   });
 });
 
