@@ -290,6 +290,9 @@ describe("sky backgrounds are confined to controls and the footer", () => {
     const primary = RULES.find((r) => r.selector === ".btn--primary");
     const accent = RULES.find((r) => r.selector === ".btn--accent");
     expect(primary!.body).toContain("background: var(--sky-700);");
-    expect(accent!.body).toContain("background: var(--gold-400);");
+    // The accent carries the brass gold as a two-stop gradient now (captain,
+    // 2026-09-30) — same single warm accent, a richer finish.
+    expect(accent!.body).toContain("var(--gold-300)");
+    expect(accent!.body).toContain("var(--gold-500)");
   });
 });

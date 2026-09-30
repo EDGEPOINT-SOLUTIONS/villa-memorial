@@ -90,20 +90,20 @@ describe("decorative sheen is gone from the public buttons", () => {
     return cssRules.slice(at, end);
   }
 
-  it("paints the accent (gold) button with a flat fill, not a gradient + glow", () => {
+  it("paints the accent (gold) button with a brass gradient and a hairline edge", () => {
+    // The captain asked for premium gold rather than a plain fill (2026-09-30):
+    // two brass stops, a gold-600 hairline and one fine inner highlight — no
+    // outer glow and no brightness() filter.
     const body = rule(".btn--accent");
-    expect(body).not.toMatch(/gradient/);
-    expect(body).toContain("background: var(--gold-400);");
-    // The hover step is a lighter FLAT gold, not a brightness() filter.
-    expect(rule(".btn--accent:hover:not(:disabled)")).toContain(
-      "background: var(--gold-300);",
-    );
-    // Regression: this single element accounted for 24-42 of the gradient
-    // elements on /products, /plans and /lots. The check is anchored to the
-    // PUBLIC rule — the Admin Portal's `.app-shell .btn--accent` is its own
-    // captain-approved direction and is deliberately out of this pass's scope.
-    expect(cssRules.match(/^\.btn--accent \{[^}]*gradient/m)).toBeNull();
-    expect(rule(".btn--accent")).toContain("background: var(--gold-400);");
+    expect(body).toMatch(/linear-gradient\(180deg, var\(--gold-300\) 0%, var\(--gold-500\) 100%\)/);
+    expect(body).toContain("border-color: var(--gold-600);");
+    expect(body).toContain("box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.5);");
+    expect(body).not.toMatch(/brightness|drop-shadow/);
+    const hover = rule(".btn--accent:hover:not(:disabled)");
+    expect(hover).toMatch(/linear-gradient\(180deg, var\(--gold-200\) 0%, var\(--gold-400\) 100%\)/);
+    expect(hover).toContain("border-color: var(--gold-700);");
+    // The Admin Portal's `.app-shell .btn--accent` keeps its own flat direction.
+    expect(cssRules).toContain(".app-shell .btn--accent {");
   });
 
   it("paints the primary (brand) button flat too", () => {
