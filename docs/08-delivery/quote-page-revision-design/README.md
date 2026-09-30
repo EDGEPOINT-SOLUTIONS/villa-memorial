@@ -127,11 +127,17 @@ and the polite reader tolerates its absence on every older or non-basket inquiry
 
 ## Verification
 
-- `npm run lint` · `npm run typecheck` · `npm test` (244 files, 2,762 tests) · `npm run build` ·
-  `npm run smoke` (all 59 advertised routes render) — all green.
+- `npm run lint` · `npm run typecheck` · `npm test` (the full unit + fixture suite) · `npm run build` ·
+  `npm run smoke` (all 54 advertised routes render) — all green on the rebased branch.
 - Before/after screenshots at 1440×900 and 390×844 for the empty, single-line and mixed baskets
   were captured against a production build; the plan board's `board/assets/*-1440.png` /
   `mixed-390.png` are the "before" set. Per the docs refresh rule, shots are **not** committed.
+- **One unrelated main-branch regression repaired to keep the smoke gate honest.** `next.config.ts`
+  308-redirects every `/plans/PKG-*` URL to `/plans/packages` (commit `e4bb128`),
+  but `app/sitemap.ts` still advertised each package item's SKU URL, so `npm run smoke` failed on
+  three routes that no longer render (and it failed identically on the captain's dev server on
+  main). The branch's second commit stops the sitemap listing them and updates `seo.test.ts`, which
+  had pinned the old behaviour; no `/quote`, cart, catalogue or price behaviour changes.
 
 ## Deliberately out of scope
 
