@@ -21789,8 +21789,12 @@ a.plan-advisor__phone:hover {
 
 /* --- 5 · the five service tiles ------------------------------------------- */
 .home-plates {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* THREE services per row, and a shorter last row CENTRES (captain,
+     2026-09-30). Flex rather than grid: a grid leaves the two leftover tiles
+     hugging the left edge. */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: var(--space-3);
   margin: 0;
   padding: 0;
@@ -21800,6 +21804,10 @@ a.plan-advisor__phone:hover {
 .home-service {
   display: flex;
   flex-direction: column;
+  /* A third of the row (minus the two gaps), so three sit per row and the
+     leftovers centre under them. */
+  flex: 1 1 calc((100% - 2 * var(--space-3)) / 3);
+  max-width: calc((100% - 2 * var(--space-3)) / 3);
   gap: var(--space-2);
   min-width: 0;
 }
@@ -22096,8 +22104,9 @@ a.plan-advisor__phone:hover {
 
 /* --- phone re-layout: the same page, not a shrunken desktop --------------- */
 @media (max-width: 58rem) {
-  .home-plates {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .home-service {
+    flex: 1 1 calc((100% - var(--space-3)) / 2);
+    max-width: calc((100% - var(--space-3)) / 2);
   }
 }
 
@@ -22136,7 +22145,11 @@ a.plan-advisor__phone:hover {
 }
 
 @media (max-width: 34rem) {
-  .home-plates,
+  .home-service {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
   .home-chapels {
     grid-template-columns: minmax(0, 1fr);
   }
