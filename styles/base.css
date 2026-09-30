@@ -99,7 +99,9 @@ h2,
 h3,
 h4 {
   font-family: var(--font-serif);
-  font-weight: 700;
+  /* The home's display treatment is the system's (captain, 2026-09-30): the
+     display serif rides weight 500, never bold. */
+  font-weight: 500;
   line-height: var(--leading-tight);
   letter-spacing: -0.01em;
   color: var(--color-text-primary);

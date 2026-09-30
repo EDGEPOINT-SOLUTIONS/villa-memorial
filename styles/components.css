@@ -11255,7 +11255,8 @@ a.card:hover {
   border: 1px solid var(--color-rule-strong);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--ink-900);
+  /* A white card (captain, 2026-09-30) — the navy block is gone. */
+  background: #fff;
 }
 
 .rail-item--lead .rail-thumb {
@@ -11268,7 +11269,7 @@ a.card:hover {
   height: auto;
   border: 0;
   border-radius: 0;
-  background: var(--ink-900);
+  background: #fff;
 }
 
 /* The lead picture keeps its own shape inside the card: no fixed height, no
@@ -11286,26 +11287,26 @@ a.card:hover {
   position: static;
   inset: auto;
   padding: var(--space-4);
-  /* A solid navy block rather than the scrim: the words no longer sit on the
-     photograph at all (captain, 2026-09-30). */
-  background: var(--ink-900);
+  /* The words sit on the white card rather than on a scrim (captain,
+     2026-09-30). */
+  background: #fff;
 }
 
 .rail-item--lead .rail-item__title {
-  color: #fff;
+  /* White card, dark words (captain, 2026-09-30). */
+  color: var(--color-text-primary);
   font-size: var(--text-md);
 }
 
 .rail-item--lead .rail-item__price {
-  /* Gold on the navy scrim: --gold-200 is the inverse gold tokens.css reserves
-     for text on navy surfaces. The light-surface accent ink (gold-800) measured
-     ~1.6:1 here (craft pass, 2026-09-18). */
-  color: var(--gold-200);
+  /* On the white card the accent ink is gold-800; gold-200 was tuned for the
+     navy scrim this card no longer has. */
+  color: var(--gold-800);
   font-size: var(--text-md);
 }
 
 .rail-item--lead .rail-item__caption {
-  color: var(--color-text-inverse-muted);
+  color: var(--color-text-secondary);
 }
 
 .rail-lead-flag {

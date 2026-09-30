@@ -656,14 +656,14 @@ describe("ink roles", () => {
       const block = components.slice(components.indexOf(`${selector} {`));
       expect(block.slice(0, 400), selector).toContain("color: var(--color-text-accent);");
     }
-    // The rail's lead card is a DARK surface (photo under a navy scrim): the
-    // accent ink measured ~1.6:1 there, so its price takes the inverse gold
-    // tokens.css reserves for text on navy (craft pass, 2026-09-18).
+    // The rail's lead card went WHITE (captain, 2026-09-30), so its price takes
+    // the accent ink for light surfaces — gold-800 — not the inverse gold tuned
+    // for the navy scrim it used to carry.
     const lead = components.slice(
       components.indexOf(".rail-item--lead .rail-item__price {"),
     );
     expect(lead.slice(0, 400), ".rail-item--lead .rail-item__price").toContain(
-      "color: var(--gold-200);",
+      "color: var(--gold-800);",
     );
   });
 });
