@@ -49,8 +49,8 @@ export function CartLineRow({
 
   return (
     <Fragment>
-      <tr>
-        <td>
+      <tr className="cart-line">
+        <td className="cart-line__cell cart-line__cell--item">
           <div className="cart-line__item">
             <button
               type="button"
@@ -92,10 +92,10 @@ export function CartLineRow({
             </div>
           </div>
         </td>
-        <td className="table__numeric">
+        <td className="table__numeric cart-line__cell" data-label="Unit price">
           {formatMinorUnits(line.unitPriceCents, line.currency)}
         </td>
-        <td>
+        <td className="cart-line__cell" data-label="Quantity">
           {line.booking ? (
             <span className="text-sm text-muted">
               {line.booking.days} {line.booking.days === 1 ? "day" : "days"} — fixed by the
@@ -114,10 +114,10 @@ export function CartLineRow({
             />
           )}
         </td>
-        <td className="table__numeric">
+        <td className="table__numeric cart-line__cell" data-label="Line total">
           {formatMinorUnits(previewSubtotal([line]), line.currency)}
         </td>
-        <td>
+        <td className="cart-line__cell cart-line__cell--remove">
           <Button
             variant="ghost"
             size="sm"

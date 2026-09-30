@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
 /**
- * /cart is retired: it redirects to the quote page. The URL stays noindex so a
- * stale link never surfaces in search, with no canonical of its own.
+ * /cart is the priced basket (priced catalogue lines only — quote-only lines
+ * belong to /quote). The URL stays noindex so a stale link never surfaces in
+ * search, with no canonical of its own.
  */
 export const metadata: Metadata = {
-  title: "Quote — Villa Funeraria",
+  title: "Your cart — Villa Funeraria",
   robots: { index: false, follow: true },
 };
 

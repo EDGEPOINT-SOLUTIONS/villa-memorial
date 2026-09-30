@@ -24432,3 +24432,311 @@ a.plan-advisor__phone:hover {
     max-height: 9rem;
   }
 }
+
+/* ============================================================================
+ * public: cart block — the priced basket (/cart)
+ *
+ * Appended by the /cart restyle (captain, 2026-09-30: "the cart page also needs
+ * to be themed the same way as other pages"). It owns ONLY the declarations the
+ * cart needs and never edits the Phase 0 grammar block or another lane's block.
+ *
+ * The opening is the home's gateway, exactly as /services, /plans and /gallery
+ * opt out of the shared boxed band: plain paper, no border, centred, the
+ * page-title step at weight 500. The bands below it are hairlines, not boxes —
+ * the lines, the estimated total, the commit. The behaviour is untouched; only
+ * the look moves.
+ * ========================================================================== */
+
+/* --- the opening: the home's gateway, not the shared boxed band ----------- */
+.cart-page .public-hero--interior {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: clamp(1.5rem, 3vw, 2.25rem) 0;
+}
+
+.cart-page .public-hero--interior::before {
+  content: none;
+}
+
+.cart-page .public-hero--interior .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.cart-page .public-hero--interior .public-hero__copy {
+  display: grid;
+  justify-items: center;
+}
+
+.cart-page .public-hero--interior .public-hero__eyebrow {
+  font-size: var(--text-micro);
+  letter-spacing: 0.15em;
+  color: var(--sky-700);
+  text-align: center;
+}
+
+.cart-page .public-hero--interior .public-hero__title {
+  max-width: 22ch;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  text-align: center;
+}
+
+.cart-page .public-hero--interior .public-hero__lead {
+  max-width: 44ch;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.cart-page .public-hero--interior .public-hero__actions {
+  justify-content: center;
+}
+
+/* The cart's own commit wears the gold the gateway wears (captain, 2026-09-30),
+   and gold carries dark ink, never white; every supporting action stays outline. */
+.cart-page .public-hero--interior .public-hero__actions .btn--primary,
+.cart-page .cart-actions .btn--primary {
+  background: var(--gold-400);
+  border-color: var(--gold-500);
+  color: var(--ink-900);
+}
+
+.cart-page .public-hero--interior .public-hero__actions .btn--primary:hover,
+.cart-page .cart-actions .btn--primary:hover:not(:disabled) {
+  background: var(--gold-300);
+}
+
+/* --- the bands: one hairline, generous breathing room, never a box -------- */
+.cart-band {
+  margin-top: clamp(2rem, 4vw, 3.5rem);
+  padding-top: clamp(1.25rem, 2.6vw, 2rem);
+  border-top: 1px solid var(--color-rule);
+}
+
+/* The band head is the home's centred grammar (the page-title step at weight
+   500), matching every other interior page; the gold ceremonial rule opens it. */
+.cart-page .section-head {
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.cart-page .section-head::before {
+  content: "";
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
+
+/* In a column flex the shared `flex: 1 1 18rem` would become an 18rem HEIGHT
+   basis; the centred head takes its natural height instead (the same reset the
+   catalogue block makes). */
+.cart-page .section-head__text {
+  display: grid;
+  justify-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.cart-page .section-head__title {
+  font-family: var(--font-display);
+  font-size: var(--text-page-title);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+.cart-page .section-head__lead {
+  max-width: 46ch;
+  margin-inline: auto;
+}
+
+/* The state alert sits between two bands, not inside one. */
+.cart-alert {
+  margin-top: var(--space-5);
+}
+
+/* --- the lines: the shared table, unboxed and hairline-ruled -------------- */
+.cart-page .table-wrapper {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  overflow-x: auto;
+}
+
+.cart-page .cart-lines thead th {
+  background: transparent;
+}
+
+.cart-line__cell--remove {
+  text-align: right;
+}
+
+/* Below 40rem a phone gets the page, not a shrunken desktop: the table stacks
+   into labelled rows, each line its own hairline block (the same grammar the
+   /plans rate card uses). */
+@media (max-width: 40rem) {
+  .cart-lines,
+  .cart-lines tbody,
+  .cart-lines tr,
+  .cart-lines td {
+    display: block;
+    width: 100%;
+  }
+
+  .cart-lines thead {
+    display: none;
+  }
+
+  .cart-lines tr.cart-line {
+    padding: var(--space-2) 0 var(--space-3);
+    border-bottom: 1px solid var(--color-rule);
+  }
+
+  .cart-lines tr.cart-line:last-child {
+    border-bottom: 0;
+  }
+
+  .cart-lines .cart-line__cell {
+    display: block;
+    padding: var(--space-1) 0;
+    border-bottom: 0;
+  }
+
+  .cart-lines .cart-line__cell[data-label] {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .cart-lines .cart-line__cell[data-label]::before {
+    content: attr(data-label);
+    color: var(--color-text-muted);
+    font-size: var(--text-caption);
+  }
+
+  .cart-lines .table__numeric {
+    text-align: left !important;
+  }
+
+  .cart-lines .cart-line__cell--item {
+    padding-bottom: var(--space-2);
+  }
+
+  .cart-lines .cart-line__cell--remove {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--space-2);
+  }
+
+  .cart-lines .cart-line-details-row,
+  .cart-lines .cart-line-details-row td {
+    display: block;
+    width: 100%;
+  }
+
+  /* `hidden` is a UA `display: none` at (0,1,0); the block rule above is more
+     specific, so a CLOSED details row would paint. Restore the attribute. */
+  .cart-lines tr.cart-line-details-row[hidden] {
+    display: none;
+  }
+}
+
+/* --- the estimated total: a right-aligned ledger row, not a box ----------- */
+.cart-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+
+.cart-total__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--space-4);
+}
+
+.cart-total__label {
+  color: var(--color-text-secondary);
+}
+
+.cart-total__figure {
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.cart-total__note {
+  margin: 0;
+  max-width: 34rem;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+/* --- the commit band ------------------------------------------------------ */
+.cart-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+/* --- the designed empty state: a page, not an error box ------------------- */
+.cart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.cart-empty__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 999px;
+  background: var(--gold-wash-soft);
+  color: var(--gold-700);
+}
+
+.cart-empty__title {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-page-title);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+.cart-empty__line {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 40rem) {
+  .cart-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cart-actions .btn {
+    width: 100%;
+  }
+}
