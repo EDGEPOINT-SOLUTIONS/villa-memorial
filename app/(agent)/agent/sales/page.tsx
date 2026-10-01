@@ -1,194 +1,162 @@
-import { AgentHero, AgentSection, Chip, MoneyCard, money } from "@/components/agent/agent-ui";
+import { money } from "@/components/agent/agent-ui";
+import { WorkbenchPanel } from "@/components/agent/workbench";
 import { getAgentCommission } from "@/lib/api-client/agent";
 import type { CommissionLine } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { COMMISSION_REVERSAL, COMMISSION_STATES } from "@/lib/commission";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Sales & commissions — Villa Funeraria agent portal" };
 
+/** The recorded statement states → the table's status tone. */
 const LINE_BADGE: Record<CommissionLine["state"], string> = {
   pending_approval: "badge--warning",
   approved: "badge--info",
   reversed: "badge--danger",
 };
 
+/** The four forward states the legend names (the reversal is its own line). */
+const STATE_BADGE: Record<string, string> = {
+  pending_approval: "badge--warning",
+  approved: "badge--info",
+  scheduled: "badge--neutral",
+  paid: "badge--success",
+};
+
 /**
- * Sales & commissions (approved design page 08) — the honest shape. The client
- * has not fixed commission rates (07-client-villa/open-questions.md:26), so
- * every amount is a placeholder and the page explains the four states, the
- * seven configurable bases, splits, reversals and targets without inventing a
- * single peso. The engine itself (finance-billing.md:17) is deferred scope.
+ * Sales & commissions — the statement as a table (approved plan §5.5/§15 PR 4:
+ * "the statement as a table: line · basis · credited · state · amount").
+ *
+ * The client has not fixed commission rates (07-client-villa/open-questions.md),
+ * so every amount is honestly blank and the table says so once. Nothing is
+ * invented and no zero is printed.
+ *
+ * WHY THIS SHAPE. The page it replaces was the portal's wordiest screen
+ * (484 content words) and the wrong shape for money: paragraphs explained what
+ * one table states. The facts now live in the table (line · basis · credited ·
+ * state · amount); the words below it name only the vocabulary the table cannot
+ * — the path a line walks and the seven bases the office can choose. The engine
+ * itself (finance-billing.md §Commissions) is deferred scope; this page reads
+ * the recorded statement and invents nothing.
+ *
+ * VOCABULARY. The four line states and the reversal come from `lib/commission.ts`
+ * (the ONE home the staff engine and this page share); the statement lines come
+ * from `lib/api-client/agent.ts`. The office number is read from
+ * `lib/family/contact.ts`, never typed.
  */
 export default async function AgentSalesPage() {
   await requirePortalSessionOrRedirect("agent");
   const commission = await getAgentCommission();
-  const configured = commission.configured;
 
   return (
-    <div className="ag-page">
-      <AgentHero
-        eyebrow="Sales &amp; commissions · this month"
-        title="What you sold, and what the work pays."
-        lead="The commission shape is below. The rates are placeholders until Villa configures them, so we will not print a number you cannot trust."
-        chips={
-          <>
-            <Chip>{commission.statement.length} statement lines</Chip>
-            <Chip>Rates: {configured ? "configured" : "not configured"}</Chip>
-            <Chip>Reversals shown</Chip>
-          </>
-        }
-      />
-
-      <AgentSection
-        title="Your commission, in its four states"
-        sub="Every line follows this path: pending approval → approved → scheduled → paid. Nothing skips a step, and a cancellation is shown as its own line — never hidden."
-        more={<span className="ag-pill">{configured ? "configured" : "amounts to be configured"}</span>}
-      >
-        <div className="ag-money-grid">
-          <MoneyCard
-            label="Pending approval"
-            value={money(commission.pending_approval_cents)}
-            note="Waiting on the office to verify the papers."
-          />
-          <MoneyCard
-            label="Approved"
-            value={money(commission.approved_cents)}
-            note="Ready for the payout cycle once rates are configured."
-          />
-          <MoneyCard
-            label="Paid this year"
-            value={money(commission.paid_this_year_cents)}
-            note="Statements will show the payment date, method and reference."
-          />
+    <div className="workbench">
+      {/* ── the compact header: the answer, then one action ──────────────── */}
+      <header className="wb-head">
+        <div className="wb-head__text">
+          <p className="wb-head__eyebrow">Sales &amp; commissions · this month</p>
+          <h1 className="wb-head__title">Every sale, and what it will pay.</h1>
+          <p className="wb-head__lead">This month, one statement line per sale.</p>
         </div>
-
-        <div className="ag-commission">
-          <div className="ag-commission__head">
-            <h3 className="ag-card__title">Statement — this month</h3>
-            <p className="ag-card__sub">
-              One line per sale, with the basis the office will configure.
-            </p>
-          </div>
-          <div className="ag-commission__rows">
-            {commission.statement.map((line) => (
-              <div className="ag-commission__row" key={line.id}>
-                <div>
-                  <p className="ag-commission__row-title">{line.title}</p>
-                  <p className="ag-commission__row-note">
-                    {line.detail}
-                    {line.basis_label ? (
-                      <>
-                        {" "}· basis: <strong>{line.basis_label}</strong> (placeholder)
-                      </>
-                    ) : null}
-                    {line.credited ? (
-                      <>
-                        {" "}· credited {line.credited}
-                      </>
-                    ) : null}
-                  </p>
-                  <p style={{ margin: "var(--space-2) 0 0" }}>
-                    <span className={`badge ${LINE_BADGE[line.state]}`}>{line.state_label}</span>
-                  </p>
-                </div>
-                <div className="ag-commission__amount">
-                  {money(line.amount_cents)}
-                  <small>{line.amount_cents === null ? "rate to be configured" : "confirmed"}</small>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </AgentSection>
-
-      <AgentSection
-        title="How commission works here"
-        sub="The PRD's engine is rules-based and fully configurable by Villa. These are the shapes it supports — the office will switch on the ones it uses."
-      >
-        <div className="ag-card">
-          <div className="ag-card__body">
-            {commission.bases.map((b) => (
-              <div className="ag-rule" key={b.key}>
-                <span className="ag-rule__key">{b.label}</span>
-                <span className="ag-rule__val">
-                  {b.detail} <em>{configured ? "" : "Not configured yet."}</em>
-                </span>
-              </div>
-            ))}
-            <p className="ag-note" style={{ marginTop: "var(--space-3)" }}>
-              Source: finance-billing.md:17 (blueprint §34) — agent registration/types · internal &amp;
-              external agents · territory · attribution · rates · approval · statements · payment tracking ·
-              clawbacks/reversals · cancelled-service handling. Rates are an open client question
-              (07-client-villa/open-questions.md:26).
-            </p>
-          </div>
-        </div>
-      </AgentSection>
-
-      <AgentSection
-        title="Targets and conversion"
-        sub="The office sets the target; you see where you are against it, and how your people are moving."
-      >
-        <div className="ag-card">
-          <div className="ag-card__body">
-            <div className="ag-target">
-              <div className="ag-target__legend">
-                <span>
-                  <strong>Monthly target</strong>
-                </span>
-                <span>{commission.target.amount_cents === null ? "—" : money(commission.target.amount_cents)}</span>
-              </div>
-              <div className="ag-target__bar">
-                <div className="ag-target__fill" style={{ width: "0%" }} />
-              </div>
-              <p className="ag-note">
-                {commission.target.amount_cents === null
-                  ? "No target has been set for you yet. When the office sets one, this bar fills against sales value — and collection, if Villa wants it included."
-                  : "Progress against the target the office set."}
-              </p>
-            </div>
-            <hr className="ag-divider" />
-            <dl className="ag-kv">
-              <dt>People contacted this month</dt>
-              <dd>{commission.conversion.contacted}</dd>
-            </dl>
-            <dl className="ag-kv">
-              <dt>Presentations made</dt>
-              <dd>{commission.conversion.presentations}</dd>
-            </dl>
-            <dl className="ag-kv">
-              <dt>Sales closed</dt>
-              <dd>{commission.conversion.sales}</dd>
-            </dl>
-            <dl className="ag-kv">
-              <dt>Conversion, contacted → sold</dt>
-              <dd>
-                {commission.conversion.contacted > 0
-                  ? `${Math.round((commission.conversion.sales / commission.conversion.contacted) * 100)}%`
-                  : "—"}
-              </dd>
-            </dl>
-            <p className="ag-note">
-              Conversion will be calculated from the office&apos;s record, not from a self-reported list.{" "}
-              {commission.conversion.example ? <span className="ag-pill">example figures</span> : null}
-            </p>
-          </div>
-        </div>
-        <div className="ag-actions">
+        <div className="wb-head__actions">
           <a className="btn btn--primary" href={FAMILY_HELP.phoneHref}>
-            Ask the office a commission question
+            Ask the office · {FAMILY_HELP.phone}
           </a>
-          <button
-            className="btn btn--secondary"
-            type="button"
-            disabled
-            title="The rule sheet publishes when the commission engine is configured"
-          >
-            Read the full rule sheet (when configured)
-          </button>
         </div>
-        <p className="ag-note">{commission.placeholder_note}</p>
-      </AgentSection>
+      </header>
+
+      {/* ── the statement table: the facts, one line per sale ─────────────── */}
+      <WorkbenchPanel
+        role="money"
+        label="Money"
+        title="Statement — this month"
+        count={`${commission.statement.length} lines`}
+      >
+        <div
+          className="table-wrapper"
+          tabIndex={0}
+          role="region"
+          aria-label="Commission statement"
+        >
+          <table className="table wb-table">
+            <caption>Rates are not configured, so every amount reads {money(null)}.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Line</th>
+                <th scope="col">Basis</th>
+                <th scope="col">Credited</th>
+                <th scope="col">State</th>
+                <th scope="col" className="table__numeric">
+                  Amount
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {commission.statement.map((line) => (
+                <tr key={line.id}>
+                  <th scope="row">
+                    {line.title}
+                    <span className="wb-table__sub">{line.detail}</span>
+                  </th>
+                  <td data-label="Basis">{line.basis_label ?? "—"}</td>
+                  <td data-label="Credited">{line.credited ?? "—"}</td>
+                  <td data-label="State">
+                    <span className={`badge ${LINE_BADGE[line.state]}`}>{line.state_label}</span>
+                  </td>
+                  <td className="table__numeric" data-label="Amount">
+                    {money(line.amount_cents)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </WorkbenchPanel>
+
+      {/* ── the supporting legends: the path, and the bases ──────────────── */}
+      <div className="wb-grid">
+        <WorkbenchPanel
+          role="neutral"
+          className="wb-span-6"
+          label="States"
+          title="The path every line walks"
+        >
+          <ol className="wb-path" aria-label="The path every commission line walks">
+            {COMMISSION_STATES.map((state, index) => (
+              <li className="wb-path__item" key={state.key}>
+                {index > 0 ? (
+                  <span className="wb-path__arrow" aria-hidden="true">
+                    →
+                  </span>
+                ) : null}
+                <span className={`badge ${STATE_BADGE[state.key] ?? "badge--neutral"}`}>
+                  {state.label}
+                </span>
+              </li>
+            ))}
+            <li className="wb-path__item">
+              <span className="wb-path__arrow" aria-hidden="true">
+                ·
+              </span>
+              <span className="badge badge--danger">{COMMISSION_REVERSAL.label} — its own line</span>
+            </li>
+          </ol>
+        </WorkbenchPanel>
+
+        <WorkbenchPanel
+          role="neutral"
+          className="wb-span-6"
+          label="Bases"
+          title="The seven bases the office can choose"
+        >
+          <ul className="wb-path" aria-label="The seven configurable commission bases">
+            {commission.bases.map((basis) => (
+              <li className="wb-path__item" key={basis.key}>
+                <span className="badge badge--neutral">{basis.label}</span>
+              </li>
+            ))}
+          </ul>
+        </WorkbenchPanel>
+      </div>
     </div>
   );
 }

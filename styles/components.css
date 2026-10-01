@@ -15210,88 +15210,11 @@ a.card:hover {
 .ag-money--due .ag-money__value { color: var(--color-status-danger-ink); }
 .ag-money--ok .ag-money__value { color: var(--color-figure); }
 
-/* --- Commission shape -------------------------------------------------------- */
-.ag-commission {
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-surface-raised);
-  overflow: hidden;
-}
-
-.ag-commission__head {
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.ag-commission__rows {
-  display: flex;
-  flex-direction: column;
-}
-
-.ag-commission__row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: var(--space-3);
-  align-items: center;
-  padding: var(--space-4) var(--space-5);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.ag-commission__row:last-child { border-bottom: none; }
-
-.ag-commission__row-title {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 600;
-  color: var(--color-figure);
-}
-
-.ag-commission__row-note {
-  margin: var(--space-1) 0 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
-
-.ag-commission__amount {
-  font-family: var(--font-serif);
-  font-size: var(--text-xl);
-  color: var(--color-text-secondary);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.ag-commission__amount small {
-  display: block;
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
-  letter-spacing: 0.04em;
-}
-
-.ag-rule {
-  display: flex;
-  gap: var(--space-3);
-  align-items: flex-start;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-surface-raised);
-  border: 1px solid var(--color-border);
-}
-
-.ag-rule__key {
-  flex: 0 0 auto;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-text-secondary);
-  min-width: 7rem;
-}
-
-.ag-rule__val {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-}
+/* --- Commission shape (retired) ---------------------------------------------
+ * The `.ag-commission*` and `.ag-rule*` rules retired with the sales page's
+ * statement-table rebuild (2026-10-02): the page now renders the workbench
+ * `.wb-table` + `.wb-path` legends, so those classes have no markup.
+ * ---------------------------------------------------------------------------- */
 
 /* Target progress bar — value from integer minor units, never a parsed string. */
 .ag-target {
@@ -16263,14 +16186,6 @@ a.card:hover {
   .ag-action__buttons .btn {
     width: 100%;
     min-height: 3rem;
-  }
-
-  .ag-commission__row {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .ag-commission__amount {
-    text-align: left;
   }
 }
 
@@ -27887,6 +27802,29 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   justify-content: flex-end;
 }
 
+/* The sales statement's supporting legends (plan §15 PR 4): the path a line
+   walks and the bases the office can choose. One chip grammar, so the legend
+   reads exactly like the table's State column. */
+.wb-path {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wb-path__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.wb-path__arrow {
+  color: var(--color-text-muted);
+}
+
 /* --- the smaller panel pieces --------------------------------------------- */
 .wb-money {
   display: grid;
@@ -28458,6 +28396,13 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
 
   .workbench .wb-table thead {
     display: none;
+  }
+
+  /* A restacked table is `display:block`; a `table-caption` then shrinks to its
+     min-content, so the caption must be told to span the restacked table. */
+  .workbench .wb-table caption {
+    display: block;
+    width: 100%;
   }
 
   .workbench .wb-table tr {

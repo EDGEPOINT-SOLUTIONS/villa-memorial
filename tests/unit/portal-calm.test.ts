@@ -100,7 +100,6 @@ describe("the portal grammar is type + hairlines on white", () => {
     ".ag-appt",
     ".ag-money",
     ".ag-quick",
-    ".ag-commission",
     ".ag-deal",
     ".ag-lot",
     ".ag-material",

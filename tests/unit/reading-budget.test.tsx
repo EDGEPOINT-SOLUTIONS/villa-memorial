@@ -102,6 +102,7 @@ const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/p
 const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/find/page");
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
 const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
+const { default: AgentSalesPage } = await import("@/app/(agent)/agent/sales/page");
 const { default: CopilotPage } = await import("@/app/(staff)/staff/copilot/page");
 const { default: UsersPage } = await import("@/app/(staff)/staff/users/page");
 const { default: WorkflowsPage } = await import("@/app/(staff)/staff/workflows/page");
@@ -239,6 +240,13 @@ const PAGES: ReadonlyArray<BudgetPage> = [
         await LeadDetailPage({ params: Promise.resolve({ id: "prospect-cecilia" }) }),
       ),
     openingLead: /<p class="ag-hero__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    // The money page is a statement table now (approved agent plan §15 PR 4):
+    // the facts are table cells, so the prose budget is what the words explain.
+    name: "/agent/sales (statement)",
+    render: async () => renderToStaticMarkup(await AgentSalesPage()),
+    openingLead: /<p class="wb-head__lead">([\s\S]*?)<\/p>/,
   },
   {
     name: "/staff/copilot (AI Copilot)",

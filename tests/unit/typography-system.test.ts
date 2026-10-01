@@ -452,7 +452,6 @@ const FIGURE_CAPS: Array<{ role: string; max: number; selectors: string[] }> = [
       ".finance-glance__amount",
       ".app-shell .app-main .finance-glance__amount",
       ".ag-money__value",
-      ".ag-commission__amount",
       ".membership-rate__value",
       ".membership-glance__value",
       ".payment-alerts__figure",

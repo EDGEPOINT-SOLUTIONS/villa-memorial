@@ -155,6 +155,12 @@ drive order and the small promises stay above the grid, so no recorded fact is l
 availability is invented and no booking write exists — the office still confirms every slot.
 Record: [agent appointments calendar](../agent-calendar-design/README.md).
 
+The `/agent/sales` money page is a statement **table** now (line · basis · credited · state ·
+amount) — the plan's PR-4 grammar — with the four-state path and the seven configurable bases as
+compact legends. Every amount stays `₱—` because the client has not fixed commission rates; the
+reason is stated once and the office number is one tap (record:
+[agent sales](../agent-sales-design/README.md)).
+
 The lead record's **step-by-step acquisition is live in fixture mode** (2026-10-01):
 `POST /api/agent/prospects/:id/stage` (guarded by the agent portal session and the record's owner,
 no invented `crm:*` scope) appends a move to the demo-local journal (`AGENT_STORE_PATH` /
