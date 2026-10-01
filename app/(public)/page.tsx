@@ -15,7 +15,7 @@ import { builderCatalog } from "@/lib/service-builder-catalog";
 import { SITE_DESCRIPTION, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
-  title: "Villa Funeraria — someone has died? Call us. We come to you.",
+  title: "Villa Funeraria — when you lose someone you love, we are here for you",
   description: SITE_DESCRIPTION,
   path: "/",
 });
