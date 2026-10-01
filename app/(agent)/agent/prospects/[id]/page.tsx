@@ -4,13 +4,17 @@ import { AgentHero, Chip, StageChip, money } from "@/components/agent/agent-ui";
 import { getAgentProspect } from "@/lib/api-client/agent";
 import {
   activityKindLabel,
+  acquisitionSteps,
   interestLabel,
   leadSourceLabel,
   manilaDay,
   manilaTime,
+  nextStage,
   stageMeta,
   stageTrail,
 } from "@/lib/agent/agent-view";
+import { convertedClientId } from "@/lib/agent/acquisition";
+import { MoveForwardForm } from "./move-forward";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
@@ -23,13 +27,6 @@ const TIMELINE_CLASS: Record<string, string> = {
   message: "ag-tl--note",
   note: "ag-tl--note",
 };
-
-/** The designed stage moves; the write itself waits on the customer-records service. */
-const MOVE_OPTIONS = [
-  { label: "Send to the office for a quote", hint: "Presentation done → quote" },
-  { label: "Ready to file", hint: "Application + documents" },
-  { label: "Not now", hint: "Keep the record, stop the nudges" },
-];
 
 /**
  * The lead record (F-09, captain 2026-09-18) — the approved agent design's
@@ -60,6 +57,11 @@ export default async function AgentLeadPage({
   const sms = `sms:${prospect.phone.replace(/\s/g, "")}`;
   const trail = stageTrail(prospect.stage);
   const history = prospect.stage_history;
+  const steps = acquisitionSteps(prospect.stage);
+  const currentStep = steps.find((step) => step.current) ?? steps[0];
+  const upcoming = nextStage(prospect.stage);
+  const upcomingLabel = upcoming ? stageMeta(upcoming).label : "";
+  const convertedClient = prospect.stage === "sold" ? convertedClientId(prospect.id) : null;
 
   return (
     <div className="ag-page">
@@ -235,23 +237,66 @@ export default async function AgentLeadPage({
         <div className="ag-sec__head">
           <div>
             <h2 className="ag-h2">Move them forward</h2>
-            <p className="ag-sub">The office sees the same stage once the write lands.</p>
+          </div>
+          <StageChip stage={prospect.stage} />
+        </div>
+
+        <div className="ag-card">
+          <div className="ag-card__body">
+            <ol className="ag-steps" aria-label="Acquisition steps">
+              {steps.map((step) => (
+                <li
+                  key={step.stage}
+                  className={`ag-step${step.reached ? " ag-step--reached" : ""}${
+                    step.current ? " ag-step--current" : ""
+                  }`}
+                >
+                  <span className="ag-step__dot" aria-hidden="true" />
+                  <div className="ag-step__body">
+                    <span className="ag-step__label">
+                      {step.label}
+                      {step.current ? <span className="ag-step__now">Current step</span> : null}
+                    </span>
+                    {step.current && step.purpose ? (
+                      <span className="ag-step__purpose">{step.purpose}</span>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ol>
+
+            <MoveForwardForm
+              prospectId={prospect.id}
+              nextStage={upcoming}
+              nextLabel={upcomingLabel}
+              action={currentStep?.action ?? ""}
+              clientId={convertedClient}
+            />
           </div>
         </div>
+
         <div className="ag-choice-row">
-          {MOVE_OPTIONS.map((option) => (
-            <button
-              className="ag-choice"
-              type="button"
-              disabled
-              title="Not switched on yet"
-              key={option.label}
-            >
-              {option.label}
-              <small>{option.hint}</small>
-            </button>
-          ))}
+          <button className="ag-choice" type="button" disabled title="Waits on the property hold contract">
+            Ask the office to hold a lot
+            <small>Lot hold · property contract</small>
+          </button>
+          <button className="ag-choice" type="button" disabled title="Waits on the orders contract">
+            Start an order
+            <small>Order · commerce contract</small>
+          </button>
+          <button className="ag-choice" type="button" disabled title="Waits on the billing contract">
+            Take a payment
+            <small>Payment · billing contract</small>
+          </button>
+          <button className="ag-choice" type="button" disabled title="Waits on the documents contract">
+            File a document
+            <small>Upload · documents contract</small>
+          </button>
         </div>
+        <p className="ag-note">
+          Stage moves save with your name and the time. Holds, orders, payments and uploads stay with
+          the office.
+        </p>
       </section>
 
       <p className="ag-note">

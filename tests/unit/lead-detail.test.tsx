@@ -34,6 +34,7 @@ vi.mock("next/navigation", () => ({
     throw new Error("NEXT_NOT_FOUND");
   },
   usePathname: () => "/agent/prospects/prospect-cecilia",
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined }),
 }));
 
 vi.mock("@/lib/auth/portal-guard", () => ({
@@ -145,6 +146,28 @@ describe("the lead record answers the four questions", () => {
     expect(html).toContain('class="ag-sec"');
     expect(html).toContain('class="ag-grid-2"');
     assertNoParagraphNesting(html, "lead record");
+  });
+
+  it("presents the acquisition as steps and offers the real forward move", async () => {
+    const html = await renderLead("prospect-cecilia");
+    // The seven PRD steps, with the current one marked and explained.
+    expect(html).toContain('aria-label="Acquisition steps"');
+    expect(html).toContain("Current step");
+    expect(html).toContain(
+      "They are a fit. Book the presentation so they can see the plan or the plot.",
+    );
+    // The real action for her current stage, and where it moves her.
+    expect(html).toContain("Book the presentation");
+    expect(html).toContain("Moves to Meeting planned");
+    // The move control is live: a real submit button, not the old placeholder.
+    expect(html).toContain(
+      'class="btn btn--primary ag-btn-xl" type="submit">Book the presentation',
+    );
+    expect(html).toContain('class="ag-move"');
+    // The writes that still have no store stay honestly disabled.
+    expect(html).toContain("Ask the office to hold a lot");
+    expect(html).toContain("Take a payment");
+    expect(html).toContain("File a document");
   });
 
   it("404s a lead that is not in the record", async () => {

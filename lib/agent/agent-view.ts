@@ -99,11 +99,87 @@ export type StageStep = { stage: string; label: string; reached: boolean; curren
  * PRD line, so only the current step is shown rather than a wrong position.
  */
 export function stageTrail(stage: string): StageStep[] {
-  const index = PIPELINE_STAGES.indexOf(stage as (typeof PIPELINE_STAGES)[number]);
+  const index = stageIndex(stage);
   if (index === -1) return [{ stage, label: stageMeta(stage).label, reached: true, current: true }];
   return PIPELINE_STAGES.map((key, i) => ({
     stage: key,
     label: stageMeta(key).label,
+    reached: i <= index,
+    current: i === index,
+  }));
+}
+
+/** Where a stage sits on the PRD line, or -1 for a stage the record does not know. */
+export function stageIndex(stage: string): number {
+  return PIPELINE_STAGES.indexOf(stage as (typeof PIPELINE_STAGES)[number]);
+}
+
+/** The stage after `stage` on the PRD line, or null when it is the last one. */
+export function nextStage(stage: string): string | null {
+  const index = stageIndex(stage);
+  if (index === -1 || index === PIPELINE_STAGES.length - 1) return null;
+  return PIPELINE_STAGES[index + 1];
+}
+
+/**
+ * What each acquisition step is FOR, and the move that leaves it. The labels are
+ * the `stageMeta` words the rest of the portal already uses — this adds the
+ * sentence and the verb, never a second stage list (commerce-catalog §33).
+ */
+const STAGE_PURPOSE: Record<string, string> = {
+  new: "The enquiry has landed. Make the first contact while they are still thinking of us.",
+  contacted: "You have spoken. Check the need, the budget and the timing so the next visit is worth it.",
+  qualified: "They are a fit. Book the presentation so they can see the plan or the plot.",
+  presentation: "They have seen it. Send the proposal while the details are fresh.",
+  proposal: "They have the figures. A reservation holds what they have chosen.",
+  reserved: "Reserved. Close the sale, and the family becomes a client in your book.",
+  sold: "Sold. The office records the client, and the family is in your book.",
+};
+
+const STAGE_ACTION: Record<string, string> = {
+  new: "Record the first contact",
+  contacted: "Mark them qualified",
+  qualified: "Book the presentation",
+  presentation: "Send the proposal",
+  proposal: "Reserve it for them",
+  reserved: "Mark it sold",
+  sold: "",
+};
+
+export type AcquisitionStep = {
+  stage: string;
+  label: string;
+  purpose: string;
+  /** The move out of this stage; empty on the terminal stage. */
+  action: string;
+  reached: boolean;
+  current: boolean;
+};
+
+/**
+ * The acquisition as clear steps: every PRD rung with its purpose, the move that
+ * leaves it, and where the person stands. An unknown stage shows only itself —
+ * the record is never placed at a position the PRD does not support.
+ */
+export function acquisitionSteps(stage: string): AcquisitionStep[] {
+  const index = stageIndex(stage);
+  if (index === -1) {
+    return [
+      {
+        stage,
+        label: stageMeta(stage).label,
+        purpose: STAGE_PURPOSE[stage] ?? "",
+        action: STAGE_ACTION[stage] ?? "",
+        reached: true,
+        current: true,
+      },
+    ];
+  }
+  return PIPELINE_STAGES.map((key, i) => ({
+    stage: key,
+    label: stageMeta(key).label,
+    purpose: STAGE_PURPOSE[key],
+    action: STAGE_ACTION[key],
     reached: i <= index,
     current: i === index,
   }));
@@ -194,6 +270,10 @@ const DAY_FORMAT = new Intl.DateTimeFormat("en-PH", {
   day: "numeric",
   month: "short",
 });
+const YEAR_FORMAT = new Intl.DateTimeFormat("en-PH", {
+  timeZone: "Asia/Manila",
+  year: "numeric",
+});
 const TIME_FORMAT = new Intl.DateTimeFormat("en-PH", {
   timeZone: "Asia/Manila",
   hour: "numeric",
@@ -203,6 +283,10 @@ const TIME_FORMAT = new Intl.DateTimeFormat("en-PH", {
 
 export function manilaDay(iso: string): string {
   return DAY_FORMAT.format(new Date(iso));
+}
+
+export function manilaYear(iso: string): string {
+  return YEAR_FORMAT.format(new Date(iso));
 }
 
 export function manilaTime(iso: string): string {

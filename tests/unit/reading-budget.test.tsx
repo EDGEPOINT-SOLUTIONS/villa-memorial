@@ -59,6 +59,7 @@ vi.mock("next/navigation", () => ({
     throw new Error("NEXT_NOT_FOUND");
   },
   usePathname: () => "/",
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined }),
 }));
 
 vi.mock("@/lib/auth/portal-guard", () => ({

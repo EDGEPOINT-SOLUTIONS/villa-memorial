@@ -14,7 +14,8 @@ import {
   WORKBENCH_HELP,
   type AnalyticsPeriod,
 } from "@/lib/agent/agent-dashboard";
-import { needsYou, prospectValueTotal } from "@/lib/agent/agent-view";
+import { needsYou } from "@/lib/agent/agent-view";
+import { pipelineValueCents } from "@/lib/agent/acquisition";
 import { money } from "@/components/agent/agent-ui";
 import { WorkbenchPanel } from "@/components/agent/workbench";
 import { BarRow, LineChart, StatusChip } from "@/components/kit";
@@ -130,7 +131,7 @@ export default async function AgentPerformancePage({
 
   const now = new Date();
   const series = pipelineBuiltSeriesWithin(prospects, period, now);
-  const pipelineTotal = prospectValueTotal(prospects);
+  const pipelineTotal = pipelineValueCents(prospects);
   const needs = needsYou(prospects);
   const conversion = commission?.conversion ?? null;
 

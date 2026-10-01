@@ -171,6 +171,7 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".mem-list", why: "the memorial bullet dot (a status indicator)" },
   { match: ".ag-tl__dot", why: "the agent timeline dot (a status indicator)" },
   { match: ".ag-trail__dot", why: "the lead-stage trail dot (a status indicator)" },
+  { match: ".ag-step__dot", why: "the acquisition step dot (a status indicator)" },
   { match: ".lead-trail__dot", why: "the lead-stage trail dot (a status indicator)" },
   { match: ".post-card__avatar", why: "a small identity avatar disc" },
   // The approved home-rebuild plan (2026-09-29) makes the sky STRUCTURE on the

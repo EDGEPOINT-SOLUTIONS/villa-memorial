@@ -147,6 +147,15 @@ affordance ([record](../dashboard-hover-design/README.md)). `/agent/lots` still 
 **type-summary** availability count that its own map does not match (16 vs the property
 record's 8-of-12); that reconciliation is still open.
 
+The lead record's **step-by-step acquisition is live in fixture mode** (2026-10-01):
+`POST /api/agent/prospects/:id/stage` (guarded by the agent portal session and the record's owner,
+no invented `crm:*` scope) appends a move to the demo-local journal (`AGENT_STORE_PATH` /
+`.data/agent-pipeline.json`), and `lib/api-client/agent.ts` folds it so the record, the board, the
+dashboard stage-flow and pipeline value, the conversion funnel and the client book all read one
+record. A prospect becomes a client at `sold` (record:
+[agent acquisition](../agent-acquisition-design/README.md)); crm-families and the live contract
+still wait, and lot holds, payments, orders and document uploads stay honestly disabled.
+
 ## Absent (not routes yet) — needs a contract or a decision
 
 The platform-admin screens (tenant management, platform login, sign-up) are designed screens

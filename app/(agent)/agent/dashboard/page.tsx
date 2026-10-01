@@ -31,9 +31,9 @@ import {
   manilaTime,
   needsYou,
   orderWorkItems,
-  prospectValueTotal,
   workState,
 } from "@/lib/agent/agent-view";
+import { pipelineValueCents } from "@/lib/agent/acquisition";
 import { money, StageChip } from "@/components/agent/agent-ui";
 import { OfflineQueueVital } from "@/components/agent/offline-queue";
 import { StageFlow, TimeSpine, Vital, WorkbenchPanel } from "@/components/agent/workbench";
@@ -115,7 +115,7 @@ export default async function AgentTodayPage() {
   const dueCheckIn = clientsDueCheckIn(clients);
   const flow = pipelineStageFlow(prospects);
   const series = pipelineBuiltSeries(prospects);
-  const pipelineTotal = prospectValueTotal(prospects);
+  const pipelineTotal = pipelineValueCents(prospects);
   const needs = needsYou(prospects);
   const overdueCount = items.filter((i) => workState(i, now) === "overdue").length;
   const todayCount = items.filter((i) => workState(i, now) === "today").length;

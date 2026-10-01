@@ -46,6 +46,9 @@ const STORE_PATH_ENV_VARS = [
   // wrote a consent into the dev `.data/` file would publish a person from the
   // demo household into every later render.
   "MEMORIAL_STORE_PATH",
+  // Added 2026-10-01 with the agent acquisition pipeline store. Its omission would
+  // let an agent's demo stage move leak into every suite that renders an agent page.
+  "AGENT_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {

@@ -4,8 +4,9 @@
  * ⚠ PROVISIONAL SHAPE — flagged loudly per web/AGENTS.md: there is NO agent-workspace
  * API contract yet. crm-families is unbuilt, the commission engine (finance-billing
  * §17) is deferred platform scope, and an agent-facing scheduling read does not exist.
- * This client therefore reads the recorded fixture `lib/fixtures/agent/workspace.json`
- * ONLY and never claims a live mode. The fixture header carries the provenance and the
+ * This client therefore reads the recorded fixture `lib/fixtures/agent/workspace.json`,
+ * folded with the DEMO-LOCAL stage-move journal (`lib/api-client/agent-store.ts`), and
+ * never claims a live mode. The fixture header carries the provenance and the
  * hard rule that every commission amount is null until Villa configures rates
  * (docs/07-client-villa/open-questions.md:26).
  *
@@ -21,8 +22,11 @@
  *
  * The lead record (app/(agent)/agent/prospects/[id]) reads each prospect's recorded
  * movement — `first_contact_at` and `stage_history` — through this client and never
- * invents a move at render time; the enquiry-persistence / customer-sync / lead-assignment
- * limits are stated on the screen in one line.
+ * invents a move at render time. The step-by-step acquisition is the one write: a move
+ * is journalled by `app/api/agent/prospects/[id]/stage` and folded here, so the record,
+ * the board, the dashboard and the client book all read this one effective record. The
+ * enquiry-persistence / customer-sync / lead-assignment limits are stated on the screen
+ * in one line.
  */
 import workspaceFile from "@/lib/fixtures/agent/workspace.json";
 import { ApiError } from "@/lib/api-client/api-error";
@@ -30,6 +34,14 @@ import { getFamilyHousehold } from "@/lib/api-client/family";
 import { familyDocumentReleased } from "@/lib/family/family-view";
 import { nextPaymentDue, nextPaymentDueLabel } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
+import { listStageMoveEvents } from "@/lib/api-client/agent-store";
+import {
+  applyStageMoves,
+  conversionFromProspects,
+  convertedClients,
+  pipelineValueCents,
+  soldTotals,
+} from "@/lib/agent/acquisition";
 
 export type AgentIdentity = {
   id: string;
@@ -297,7 +309,7 @@ function toProspect(raw: Prospect): Prospect {
 }
 
 /** Tolerant reader in the staff-client style: shape drift fails loudly, never silently. */
-function readWorkspace(): AgentWorkspace {
+function readWorkspaceSeed(): AgentWorkspace {
   const raw = workspaceFile as unknown;
   if (
     typeof raw !== "object" ||
@@ -423,17 +435,58 @@ async function toClient(raw: Client): Promise<Client> {
   };
 }
 
+/**
+ * The ONE record every agent surface reads: the recorded workspace with the
+ * durable stage-move journal folded onto it. A moved prospect's stage, history
+ * and last contact change together; a sold one becomes a client here, so the
+ * list, the record, the dashboard and the funnel can never disagree.
+ *
+ * The seed is read fresh each call and never mutated — the fixture on disk stays
+ * the recorded state, and only this fold carries a demo edit.
+ */
+async function readWorkspace(): Promise<AgentWorkspace> {
+  const seed = readWorkspaceSeed();
+  const events = await listStageMoveEvents();
+  const seedProspects = seed.prospects.map(toProspect);
+  const prospects = applyStageMoves(seedProspects, events);
+  const seedClients = seed.clients.map((c) => ({
+    ...c,
+    holdings: (c.holdings ?? []).map((h) => ({ ...h })),
+  }));
+  const clients = [...seedClients, ...convertedClients(prospects, seedClients)];
+  const sold = soldTotals(prospects);
+  return {
+    ...seed,
+    prospects,
+    clients,
+    today: {
+      ...seed.today,
+      numbers: {
+        ...seed.today.numbers,
+        sales_count: sold.count,
+        sales_total_cents: sold.totalCents,
+        pipeline_total_cents: pipelineValueCents(prospects),
+      },
+    },
+    commission: {
+      ...seed.commission,
+      conversion: conversionFromProspects(prospects),
+    },
+  };
+}
+
 export async function getAgentWorkspace(): Promise<AgentWorkspace> {
   return readWorkspace();
 }
 
 export async function getAgentToday(): Promise<AgentWorkspace["today"] & { agent: AgentIdentity }> {
-  const ws = readWorkspace();
+  const ws = await readWorkspace();
   return { ...ws.today, agent: ws.agent };
 }
 
 export async function listAgentProspects(): Promise<Prospect[]> {
-  return readWorkspace().prospects.map(toProspect);
+  const ws = await readWorkspace();
+  return ws.prospects.map(toProspect);
 }
 
 export async function getAgentProspect(
@@ -443,7 +496,7 @@ export async function getAgentProspect(
   activity: ProspectActivity[];
   shares: ProspectShare[];
 } | null> {
-  const ws = readWorkspace();
+  const ws = await readWorkspace();
   const prospect = ws.prospects.find((p) => p.id === id);
   if (!prospect) return null;
   return {
@@ -454,11 +507,13 @@ export async function getAgentProspect(
 }
 
 export async function listAgentClients(): Promise<Client[]> {
-  return Promise.all(readWorkspace().clients.map(toClient));
+  const ws = await readWorkspace();
+  return Promise.all(ws.clients.map(toClient));
 }
 
 export async function getAgentClient(id: string): Promise<Client | null> {
-  const client = readWorkspace().clients.find((c) => c.id === id);
+  const ws = await readWorkspace();
+  const client = ws.clients.find((c) => c.id === id);
   return client ? toClient(client) : null;
 }
 
@@ -466,16 +521,17 @@ export async function listAgentAppointments(): Promise<{
   appointments: Appointment[];
   tasks: AgentTask[];
 }> {
-  const ws = readWorkspace();
+  const ws = await readWorkspace();
   return { appointments: ws.appointments.map((a) => ({ ...a })), tasks: ws.tasks.map((t) => ({ ...t })) };
 }
 
 export async function listAgentApplications(): Promise<Application[]> {
-  return readWorkspace().applications.map((a) => ({ ...a }));
+  const ws = await readWorkspace();
+  return ws.applications.map((a) => ({ ...a }));
 }
 
 export async function getAgentCommission(): Promise<Commission> {
-  const c = readWorkspace().commission;
+  const c = (await readWorkspace()).commission;
   return {
     ...c,
     bases: c.bases.map((b) => ({ ...b })),
@@ -486,9 +542,11 @@ export async function getAgentCommission(): Promise<Commission> {
 }
 
 export async function listAgentMaterials(): Promise<Material[]> {
-  return readWorkspace().materials.map((m) => ({ ...m }));
+  const ws = await readWorkspace();
+  return ws.materials.map((m) => ({ ...m }));
 }
 
 export async function listAgentLotAvailability(): Promise<LotAvailability[]> {
-  return readWorkspace().lot_availability.map((l) => ({ ...l }));
+  const ws = await readWorkspace();
+  return ws.lot_availability.map((l) => ({ ...l }));
 }

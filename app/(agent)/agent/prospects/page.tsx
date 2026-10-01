@@ -2,7 +2,8 @@ import Link from "next/link";
 import { listAgentProspects, type Prospect } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { orderProspects, WORKBENCH_HELP } from "@/lib/agent/agent-dashboard";
-import { interestLabel, leadSourceLabel, manilaDay, needsYou, PIPELINE_STAGES, prospectValueTotal, stageMeta } from "@/lib/agent/agent-view";
+import { interestLabel, leadSourceLabel, manilaDay, needsYou, PIPELINE_STAGES, stageMeta } from "@/lib/agent/agent-view";
+import { pipelineValueCents } from "@/lib/agent/acquisition";
 import { money, StageChip } from "@/components/agent/agent-ui";
 import { StatusChip } from "@/components/kit";
 
@@ -110,7 +111,7 @@ export default async function AgentProspectsPage({
           </h1>
           <p className="wb-head__lead">
             {filtered.length} {filtered.length === 1 ? "person" : "people"} in this view ·{" "}
-            {money(prospectValueTotal(filtered))} possible together
+            {money(pipelineValueCents(filtered))} possible together
             {filter === "all" ? "" : " · filtered"}
           </p>
         </div>
