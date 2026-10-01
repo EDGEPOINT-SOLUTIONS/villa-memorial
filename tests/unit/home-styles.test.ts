@@ -15,16 +15,24 @@ import path from "node:path";
  */
 
 const ROOT = process.cwd();
-const SOURCE = readFileSync(path.join(ROOT, "components/public/home-page.tsx"), "utf8");
+/** The home is three sibling components: the page plus the two bands it pulls
+ *  in as their own module (the cost builder, the plot explorer). */
+const HOME_SOURCES = [
+  "components/public/home-page.tsx",
+  "components/public/home-plot-explorer.tsx",
+  "components/public/home-cost-builder.tsx",
+];
+const SOURCE = HOME_SOURCES.map((file) => readFileSync(path.join(ROOT, file), "utf8")).join("\n");
 const CSS = ["styles/components.css", "styles/base.css", "styles/utilities.css"]
   .map((file) => readFileSync(path.join(ROOT, file), "utf8"))
   .join("\n");
 
 /** Every `home…` class token a `className=` literal or template names. A
  *  template's `${…}` expressions are stripped first: they are code, and their
- *  tokens (`home-niche${index`) are not class names. Conditional classes inside
- *  an expression are checked by the exact-rule half when they are literals in
- *  the stylesheet's own vocabulary. */
+ *  tokens (`home-niche${index`) are not class names. A token left ending in `-`
+ *  or `--` is the PREFIX of a BEM modifier built by that expression
+ *  (`home-pin--${state}`); it is checked as a prefix below, because the
+ *  expression's own value is a literal in the stylesheet's vocabulary. */
 function homeTokens(source: string): string[] {
   const found = new Set<string>();
   for (const match of source.matchAll(/className=(?:"([^"]*)"|\{`([^`]*)`\})/g)) {
@@ -47,24 +55,34 @@ describe("the home ships its stylesheet", () => {
   });
 
   it("every home class has a rule, or is a styled BEM root", () => {
-    const offenders = homeTokens(SOURCE)
-      .filter((token) => !defined.has(token) && !namespaces.has(token))
-      .sort();
+    const styled = (token: string) =>
+      defined.has(token) ||
+      namespaces.has(token) ||
+      // a `home-x--` prefix: the stylesheet carries at least one of its values
+      [...defined].some((name) => name.startsWith(token));
+    const offenders = homeTokens(SOURCE).filter((token) => !styled(token)).sort();
     expect(offenders, `no stylesheet rule for:\n${offenders.join("\n")}`).toEqual([]);
   });
 
-  it("covers every section the page blueprint pins", () => {
-    // The seven sections of the approved home-rebuild plan (2026-09-29).
+  it("renders and styles every band the page blueprint pins", () => {
+    // The SIX bands of the 2026-10-02 re-vision, in render order. A band is
+    // styled when the stylesheet carries a selector under its name — the block
+    // root itself, or any of its BEM children (`__` / `--`), exactly the rule
+    // the check above applies to every other home class.
+    const selectors = [...CSS.matchAll(/\.([A-Za-z_][\w-]*)/g)].map((m) => m[1]);
     for (const section of [
-      "home-gateway",
-      "home-photo",
-      "home-park",
+      "home-open",
+      "home-arrange",
+      "home-lots",
       "home-plans",
       "home-services",
-      "home-lots",
       "home-contact",
     ]) {
-      expect(defined.has(section), section).toBe(true);
+      const styled = selectors.some(
+        (name) => name === section || name.startsWith(`${section}__`) || name.startsWith(`${section}--`),
+      );
+      expect(styled, `${section} has no stylesheet rule`).toBe(true);
+      expect(SOURCE, `${section} is not rendered`).toContain(section);
     }
   });
 });
@@ -83,20 +101,21 @@ function ruleBodies(selector: string): string[] {
   return [...RULES.matchAll(pattern)].map((match) => match[1]);
 }
 
-describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
-  it("keeps band 1 white: the gateway declares no ground", () => {
-    const bodies = ruleBodies(".home-gateway");
-    expect(bodies.length, "the .home-gateway rules exist").toBeGreaterThan(0);
+describe("the re-visioned home (2026-10-02)", () => {
+  it("keeps the opening white: it declares no ground", () => {
+    const bodies = ruleBodies(".home-open");
+    expect(bodies.length, "the .home-open rules exist").toBeGreaterThan(0);
     for (const body of bodies) {
-      // No wash, no gradient, no tint — the clouds carry the sky alone.
-      expect(body, ".home-gateway paints a ground").not.toMatch(/background/);
+      // No wash, no gradient, no tint — the type and the one photograph carry
+      // the band, and a wash here would fight the photograph beside it.
+      expect(body, ".home-open paints a ground").not.toMatch(/background/);
     }
   });
 
   it("carries no arch and no clouds anywhere (office, inbox 032)", () => {
     // Both decorations were removed entirely — the home has no arch at all
     // (page frame or gateway) and no drifting shape. Markup, rules and
-    // keyframes are all gone; band 1 is plain white.
+    // keyframes are all gone; the opening is plain white.
     for (const token of ["home-frame", "home-gateway__frame", "home-gateway__arch", "home-gateway__cloud", "CLOUD_PATH"]) {
       expect(SOURCE).not.toContain(token);
     }
@@ -105,46 +124,71 @@ describe("the gateway's arch and the drawn clouds (office 2026-09-29)", () => {
     }
   });
 
-  it("runs the band as a funnel by size, not weight (inbox 032)", () => {
-    // Row 1 smallest, row 2 the band's LARGEST at a light weight, row 3 under
-    // it — scale carries the hierarchy, never weight.
-    const eyebrow = ruleBodies(".home-gateway__place")[0];
-    const title = ruleBodies(".home-gateway__title")[0];
-    const lead = ruleBodies(".home-gateway__lead")[0];
+  it("runs the opening as a funnel by SIZE, not weight (captain 2026-10-02)", () => {
+    // Row 1 smallest, row 2 the band's LARGEST — scale carries the hierarchy,
+    // never weight, and nothing rides a raw rung. There is no third text row:
+    // the captain cut the lead paragraph (main, 6dc03dc), so the band is the
+    // eyebrow, the headline + its promise line, the actions and the facts.
+    const eyebrow = ruleBodies(".home-open__eyebrow")[0];
+    const title = ruleBodies(".home-open__title")[0];
+    const promise = ruleBodies(".home-open__promise")[0];
     expect(eyebrow).toMatch(/font-size:\s*var\(--text-micro\)/);
-    expect(title).toMatch(/font-size:\s*var\(--text-hero\)/);
-    expect(title).toMatch(/font-weight:\s*500/);
-    expect(lead).toMatch(/font-size:\s*var\(--text-lg\)/);
+    expect(title).toMatch(/font-size:\s*var\(--text-page-title\)/);
+    // The promise is the headline's SECOND line, on the same step.
+    expect(promise).toMatch(/display:\s*block/);
+    // The retired lead paragraph leaves no rule behind.
+    expect(SOURCE).not.toContain("home-open__lead");
+    expect(RULES).not.toContain(".home-open__lead");
     // The icon row keeps its labels and loses its detail lines.
     expect(SOURCE).not.toContain("fact.note");
     expect(RULES).not.toContain(".home-trust__note");
   });
 
-  it("steps the band down 10px from its 1.5× scale, desktop only (captain, 2026-09-30)", () => {
-    // One multiplier drives the display scale and each role then drops 10px,
-    // scoped to band 1 and to desktop — nothing else in the product moves. The
-    // small steps meet the ladder's 12px floor instead of going under it.
-    const at = RULES.indexOf("--gateway-type-scale: 1.5;");
-    expect(at, "the gateway scale block exists").toBeGreaterThanOrEqual(0);
-    const block = RULES.slice(RULES.lastIndexOf("@media", at), RULES.indexOf("\n}", at));
-    expect(block).toContain("@media (min-width: 48.001rem)");
-    // The eyebrow drops the 1.5× override entirely: it renders the ladder's
-    // 12px micro step (18 − 10 = 8, floored).
-    expect(block).not.toMatch(/--text-micro/);
-    expect(block).toMatch(
-      /--text-hero:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-display\) - 10px\)/,
-    );
-    expect(block).not.toContain("min(");
-    expect(block).toMatch(
-      /--text-body:\s*calc\(var\(--gateway-type-scale\) \* var\(--text-lg\) - 10px\)/,
-    );
-    expect(block).toMatch(
-      /--text-ui:\s*max\(var\(--text-xs\), calc\(var\(--gateway-type-scale\) \* var\(--text-md\) - 10px\)\)/,
-    );
-    // The call grows as a button: padding from the same tokens (unchanged).
-    expect(block).toMatch(/padding:\s*calc\(var\(--gateway-type-scale\) \* var\(--space-2\)\)/);
-    expect(block).toMatch(/calc\(var\(--gateway-type-scale\) \* var\(--space-4\)\)/);
-    // The band's own reduced top gap rides the same desktop block.
-    expect(block).toMatch(/\.home > \.home-gateway \{\s*padding-top:\s*var\(--space-7\);\s*\}/);
+  it("types NOTHING above the ladder's own top step (captain 2026-10-02)", () => {
+    // The retired 1.5× gateway scale is gone: the page's one display size is
+    // the ladder's `--text-page-title`, and no band declares its own scale.
+    expect(RULES).not.toContain("--gateway-type-scale");
+    for (const body of ruleBodies(".home-open__title")) {
+      expect(body).toMatch(/font-size:\s*var\(--text-page-title\)/);
+      expect(body).not.toMatch(/font-size:\s*\d+(\.\d+)?px/);
+    }
+  });
+
+  it("gives every band the SAME content width (captain 2026-10-02)", () => {
+    // ONE envelope for the page — the folio — and no band, grid or inner panel
+    // declaring a second measure. Only the four TEXT measures below are allowed
+    // a `max-width`, because they bound a paragraph, not a band's content.
+    const home = ruleBodies(".home")[0];
+    expect(home).toMatch(/max-width:\s*var\(--layout-folio-w\)/);
+
+    const band = ruleBodies(".home > section");
+    expect(band.length, "the one shared band rule exists").toBeGreaterThan(0);
+    for (const body of band) {
+      expect(body, "a band declares its own width").not.toMatch(/max-width/);
+    }
+
+    const TEXT_MEASURES = new Set([
+      "home-open__words", // the opening's prose column
+      "home-builder__note", // the builder's note
+      "home-lot-detail", // the dossier panel under the list
+    ]);
+    // Scoped to the home's OWN stylesheet block: the shared `.home-band-head*`
+    // grammar lives above it and is no longer the home's, so a paragraph
+    // measure there is not a second envelope on `/`. The markers are in the
+    // block's own header comment, so the slice is taken on `CSS` and the
+    // comments are stripped from the slice afterwards.
+    const from = CSS.indexOf("public: home block");
+    const to = CSS.indexOf("block's one control-state ground on its allowlist.");
+    expect(from, "the home block header is found").toBeGreaterThanOrEqual(0);
+    expect(to, "the home block footer is found").toBeGreaterThan(from);
+    const block = CSS.slice(from, to).replace(/\/\*[\s\S]*?\*\//g, "");
+    const offenders: string[] = [];
+    for (const match of block.matchAll(/(?:^|\n)\s*(\.home[\w-]*)\s*\{([^}]*)\}/g)) {
+      const selector = match[1].slice(1);
+      if (!match[2].includes("max-width")) continue;
+      if (selector === "home" || TEXT_MEASURES.has(selector)) continue;
+      offenders.push(selector);
+    }
+    expect(offenders, "a home rule declares a second content width").toEqual([]);
   });
 });

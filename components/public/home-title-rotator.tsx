@@ -56,8 +56,11 @@ export function HomeTitleRotator({
       onChange: setActive,
     });
     // The WHOLE band pauses, not only the letters: climb from this title to the
-    // gateway section so a pointer resting anywhere on band 1 holds the set.
-    const band = titleRef.current?.closest(".home-gateway") ?? null;
+    // BAND SECTION so a pointer resting anywhere on it holds the set. The
+    // lookup is the element, not a class name — the band this title sits in is
+    // re-visioned and renamed, and the component is meant to keep working in
+    // whichever band the home page renders.
+    const band = titleRef.current?.closest("section") as HTMLElement | null;
     const onEnter = () => rotation.pause();
     const onLeave = () => rotation.resume();
     const onVisibility = () => {

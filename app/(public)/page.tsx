@@ -11,6 +11,7 @@ import { listResources } from "@/lib/api-client/scheduling";
 import { resolveGoogleMapsKey } from "@/lib/api-client/site-config";
 import { homeMapEmbed } from "@/lib/home-model";
 import { planContentFromDocument } from "@/lib/plan-content";
+import { servicePageContentFromDocument } from "@/lib/service-content";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { SITE_DESCRIPTION, pageMetadata } from "@/lib/seo";
 
@@ -51,15 +52,17 @@ export const dynamic = "force-dynamic";
 export default async function HomeRoute() {
   const cookieStore = await cookies();
   const introSeen = cookieStore.get(INTRO_COOKIE)?.value === "1";
-  const [content, lots, pricing, catalogItems, plansPage, mapsKey, resources] = await Promise.all([
-    listLandingContent(),
-    listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
-    loadPricingDocument(),
-    listCatalogItems().catch(() => []),
-    getPageDocument("plans").catch(() => null),
-    resolveGoogleMapsKey(),
-    listResources().catch(() => []),
-  ]);
+  const [content, lots, pricing, catalogItems, plansPage, servicesPage, mapsKey, resources] =
+    await Promise.all([
+      listLandingContent(),
+      listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
+      loadPricingDocument(),
+      listCatalogItems().catch(() => []),
+      getPageDocument("plans").catch(() => null),
+      getPageDocument("services").catch(() => null),
+      resolveGoogleMapsKey(),
+      listResources().catch(() => []),
+    ]);
 
   // The catalogue is the LIVE selling record, so the builder's options quote what
   // the office actually charges today; the 2026 sheet is the module's fallback.
@@ -86,6 +89,10 @@ export default async function HomeRoute() {
         lots={lots}
         mapSrc={mapSrc}
         chapelResources={chapelResources}
+        // The home's services band prints the SAME staff-editable one-line
+        // description per a-la-carte service that /services prints — one
+        // content home (the services page document), so the two cannot drift.
+        serviceNotes={servicePageContentFromDocument(servicesPage).alacarteNotes}
       />
     </>
   );

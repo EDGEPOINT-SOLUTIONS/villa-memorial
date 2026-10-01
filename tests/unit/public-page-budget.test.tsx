@@ -7,6 +7,8 @@ import { listLandingContent } from "@/lib/api-client/landing";
 import { listLots } from "@/lib/api-client/property";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { homeMapEmbed } from "@/lib/home-model";
+import { getPageDocument } from "@/lib/api-client/content-pages";
+import { servicePageContentFromDocument } from "@/lib/service-content";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
@@ -90,10 +92,11 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     // new sections in the same PR that changed them (the file's own rule).
     name: "home (/)",
     render: async () => {
-      const [content, pricing, lots] = await Promise.all([
+      const [content, pricing, lots, servicesPage] = await Promise.all([
         listLandingContent(),
         loadPricingDocument(),
         listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
+        getPageDocument("services").catch(() => null),
       ]);
       return renderToStaticMarkup(
         withBaskets(
@@ -105,21 +108,22 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
             lots,
             mapSrc: homeMapEmbed(null, content.contact.parkAddress).src,
             chapelResources: [],
+            serviceNotes: servicePageContentFromDocument(servicesPage).alacarteNotes,
           }),
         ),
       );
     },
-    // The approved plan's seven sections, in order: the gateway → the hero
-    // photograph → the first park with the builder and chapels → the five plan
-    // tiers → the five service tiles → the lot types with the pinned map → the
-    // contact band.
+    // The SIX bands of the 2026-10-02 re-vision, in the order a family needs
+    // them: the opening (the words, the one action, the park's own gate) → the
+    // live cost builder and the two rooms → the pinned masterplan with the four
+    // lot families → the five plan tiers as a rate card → the five service
+    // lines → the enquiry form, the map and the office's real numbers.
     sections: [
-      "home-gateway",
-      "home-photo",
-      "home-park__grid",
-      "home-lot-types",
-      "home-niches",
-      "home-plates",
+      "home-open",
+      "home-arrange__grid",
+      "home-lots__grid",
+      "home-rates",
+      "home-service-list",
       "home-contact__grid",
     ],
   },

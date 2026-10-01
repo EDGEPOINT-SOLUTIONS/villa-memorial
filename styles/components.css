@@ -22071,113 +22071,190 @@ a.plan-advisor__phone:hover {
 }
 
 /* ============================================================================
+   public: the CENTRED band head — `.home-band-head` (shared)
+
+   MOVED OUT OF THE HOME BLOCK 2026-10-02. The name says `home-`, but the
+   2026-10-02 home re-vision gave the home its own head — the shared
+   `SectionHead` (`components/public/section-head.tsx`, kicker · title · one
+   action at the right) — and stopped rendering this one. The OTHER public
+   surfaces still do: `/contact`, `/gallery`, `/price-list`, `/facilities` and
+   `/park` all print a centred band head, so the rules live here instead, in
+   the shared grammar they now belong to. Do not fold them back into the home
+   block: a rule the home no longer renders does not belong to the home, and
+   the next home edit would take four other pages down with it.
+
+   IT IS THE OTHER HALF OF THE IDEA, NOT A SECOND ONE. The home's heads are
+   left-aligned with the action at the right because the home's bands lead
+   with a figure; a band that leads with words is centred, and wears the same
+   gold hairline, the same light display title and the same ladder step.
+   ========================================================================== */
+
+.home-band-head {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+/* The ceremonial hairline above the band — one of gold's three legal uses.
+   Nothing else in these bands wears gold. */
+.home-band-head::before {
+  content: "";
+  display: block;
+  width: min(18rem, 60%);
+  height: 1px;
+  margin-bottom: var(--space-1);
+  background: var(--gold-hairline);
+}
+
+.home-band-head__kicker {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* One step up the existing ladder (section-title is --text-2xl); the phone
+   steps it back down so the h1 keeps the top of the hierarchy. */
+.home-band-head__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  /* The captain's type rule (2026-09-30): every section title carries the
+     services opening's light display weight — never bold. */
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+  color: var(--color-text-primary);
+}
+
+/* A real button, consistently sized, wearing the outline rung — never gold. */
+.home-band-head__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.home-band-head__lead {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-body);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
    public: home block — the storefront home (/)
 
-   REBUILT 2026-09-29 to the captain's approved home-rebuild plan
-   (`villa-home-restructure`): seven sections — the gateway, the hero
-   photograph, the first park with the arrangement builder and the two chapels,
-   the five rising plan tiers, the five service tiles, the four lot types with
-   the pinned park map, and the contact band. `components/public/home-page.tsx`
-   carries the section map; this block is its design.
+   RE-VISIONED 2026-10-02 (captain's standing brief: one approved language,
+   nothing above ~40px, familiar over inventive, empathetic pacing, not
+   crowded, one clear action per step, no unnecessary large imagery). SIX
+   bands — the opening · arrange · the grounds · plan ahead · the services ·
+   contact — and `components/public/home-page.tsx` carries the section map;
+   this block is its design.
 
-   THE PLAN'S BINDING RULES, made CSS:
-     · NO PHOTOGRAPH IS EVER CROPPED. A plain band takes the picture's own ratio
-       (`width: 100%; height: auto`); a fixed plate uses `object-fit: contain`,
-       so the whole picture sits inside equal frames with the paper showing.
-     · EQUAL MEMBERS OF A GROUP ARE EXACTLY THE SAME SIZE (one plate ratio, one
-       lot-tile square, one chapel card row).
-     · SECTION TITLES ARE CENTRED, with their action under them
-       (`.home-band-head`).
-     · The palette is the approved sky + gold ramps (styles/tokens.css); gold
-       carries DARK ink, never white.
-     · Bands are separated by hairlines and space — never a shadow on every box.
-
-   THE GATEWAY BAND (office, 2026-09-29, restructured in inboxes 032–034): the
-   home carries NO arch and NO clouds anywhere — band 1 is plain WHITE. Its
-   type is a FUNNEL BY SIZE, NOT WEIGHT: the eyebrow is the smallest line
-   (`--text-micro`), the headline is the band's LARGEST at a light weight of
-   the display face (`--text-hero`, weight 500), the lead sits under it
-   (`--text-lg`), then the actions, then the icon row — whose detail lines were
-   removed, leaving each fact's icon and short label only. The band then takes
-   its OWN 2× scale (the `@media (min-width: 48.001rem)` block below), derived
-   from the ladder aliases so only section 1 grows.
+   THE RULES THAT ARE BINDING, made CSS:
+     · TYPE CEILING. The h1 rides `--text-page-title` (the ladder's own top
+       step, 35.2px at the 80% root). The 1.5× "gateway type scale" that
+       reached 86.4px is GONE, and no other multiplier is declared in this
+       block: hierarchy comes from weight, colour and space. A figure is
+       capped too — a tier's monthly is `--text-xl` (19.2px), a lot row's is
+       `--text-body`.
+     · ONE LEAD PER BAND. The opening leads with the words and the call; the
+       arrange band with the live builder; the grounds with the client's own
+       masterplan; plan ahead with the rate card. Nothing is a grid of equal
+       boxes competing for the eye.
+     · HAIRLINES AND SPACE, not chrome. Bands are separated by a 1px rule and
+       room; only the builder card and the contact place-card are surfaces,
+       because they are forms.
+     · THE PALETTE. The approved sky + gold ramps (styles/tokens.css). Gold is
+       structure here — the hairline, the selected lot's rule, the top tier's
+       rule and label — and one action pair (the opening's call + its
+       gold-outline partner). Gold never carries white ink.
+     · PICTURES ARE RIGHT-SIZED. Every photograph renders through the shared
+       `PublicImage` frame, so each one takes a role ratio and a max-height
+       from the contract: the opening's gate is a band lead (3:2, 22rem), a
+       room's plate is 7rem, a service line's plate is 5.5rem. No picture is
+       ever printed at a size the column does not need.
 
    Owned by this block. Other public lanes append their own named block and do
    not edit this one. `tests/unit/home-styles.test.ts` fails a `home-*` class
    used without a rule; `tests/unit/page-backgrounds.test.ts` carries this
-   block's sky surfaces on its allowlist.
+   block's one control-state ground on its allowlist.
    ========================================================================== */
 
 /* --- the page ------------------------------------------------------------- */
 .home {
   display: block;
-  /* The container's own folio width (--layout-folio-w): the review of the built
-     page measured 74rem leaving ~368px of empty desk each side at 1920px, and
-     the captain asked for the page's own envelope, not a narrower one. The TEXT
-     measures (the gateway's 22ch title, 44ch lead, band leads) stay unchanged. */
+  /* The container's own folio width (--layout-folio-w): the page's own
+     envelope, not a narrower one. The TEXT measures inside it stay unchanged. */
   max-width: var(--layout-folio-w);
   margin-inline: auto;
 }
 
 .home > section {
-  padding-block: clamp(var(--space-6), 5vw, var(--space-8));
+  padding-block: clamp(var(--space-6), 4.5vw, var(--space-8));
   border-bottom: 1px solid var(--color-border);
+}
+
+.home > section:first-child {
+  padding-block: clamp(var(--space-5), 3.5vw, var(--space-7)) clamp(var(--space-6), 4.5vw, var(--space-8));
 }
 
 .home > section:last-child {
   border-bottom: 0;
 }
 
-/* --- 1 · the gateway ------------------------------------------------------ */
-.home-gateway {
-  position: relative;
-  text-align: center;
-  overflow: hidden;
+/* --- 1 · the opening ------------------------------------------------------ */
+.home-open {
+  display: grid;
+  /* The words lead; the park's own entrance photograph supports them at a
+     right-sized frame (the 74rem hero-photograph BAND it replaces). */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  gap: var(--space-5) var(--space-7);
+  align-items: center;
 }
 
-.home-gateway__inner {
-  position: relative;
-  /* fit-content = the content's OWN width (the h1's 22ch and the lead's 44ch
-     caps, or the widest child), never a magic number — the one text column
-     the band centres around. */
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-  padding-block: var(--space-3) var(--space-2);
+.home-open__words {
+  min-width: 0;
+  max-width: 38rem;
 }
 
-/* (The arch was REMOVED ENTIRELY at the office's direction (inbox 032): no
-   frame, no head, no legs anywhere on the home. The markup and the
-   `home-gateway__frame` / `home-gateway__arch` rules are gone with it.) */
-
-/* Row 1 of the funnel — the eyebrow, the band's smallest line. */
-.home-gateway__place {
-  position: relative;
+.home-open__eyebrow {
   margin: 0;
   font-size: var(--text-micro);
   font-weight: 650;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--sky-700);
 }
 
-/* Row 2 — the band's LARGEST line, and a LIGHT one (inbox 032: hierarchy by
-   size, not weight). `--text-hero` is the one fluid display size on the
-   ladder (clamp 35.2 → 57.6 at the 80% root); medium 500 keeps it from
-   reading as the old bold statement without losing the display presence. */
+/* The page's ONE headline, on the ladder's own top step. The office's
+   rotating title component renders this band's h1 itself (captain,
+   2026-10-02) and stamps its own class on it, so BOTH classes read from
+   this one rule — the server-rendered class and the client component's. */
+.home-open__title,
 .home-gateway__title {
-  position: relative;
-  margin: var(--space-4) auto 0;
-  max-width: 22ch;
+  margin: var(--space-3) 0 0;
   font-family: var(--font-display);
-  font-size: var(--text-hero);
-  font-weight: 500;
-  line-height: var(--leading-tight);
-  letter-spacing: -0.015em;
+  font-size: var(--text-page-title);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
   text-wrap: balance;
   color: var(--color-text-primary);
 }
 
+/* The promise is the headline's SECOND line in the sky ink, never a run-on
+   beside the first: the two clauses are separate sentences. The rotating title
+   component stamps the gateway's promise class on the same span, so both read
+   here. */
+.home-open__promise,
 .home-gateway__promise {
   display: block;
   color: var(--sky-700);
@@ -22207,152 +22284,86 @@ a.plan-advisor__phone:hover {
   opacity: 1;
 }
 
-/* Row 3 — support under the headline, clearly smaller than it (inbox 032). */
-.home-gateway__lead {
-  position: relative;
-  margin: var(--space-4) auto 0;
-  max-width: 44ch;
-  font-size: var(--text-lg);
-  line-height: var(--leading-normal);
-  color: var(--color-text-secondary);
-}
+/* The opening prints TWO text rows — the office's rotating title set and the
+   action pair — and NO lead paragraph (main, 6dc03dc: the captain's "shorter,
+   simpler, just relax"). The any-hour promise already reads in the promise
+   line, the call button and the facts ribbon, so the old `.home-gateway__lead`
+   paragraph and its rule are gone with it; the eyebrow carries the place line
+   instead, and the lead stays in the content store for the editor. */
 
-.home-gateway__actions {
-  position: relative;
+.home-open__actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  justify-content: center;
   margin-top: var(--space-5);
 }
 
-.home-gateway__actions .btn {
+.home-open__actions .btn {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: 3rem;
 }
 
-/* THE GATEWAY'S OWN TYPE SCALE (office, inbox 034; corrected to 1.5 in inbox
-   036; every style then stepped down 10px on the captain's direction,
-   2026-09-30). One multiplier drives the display scale and each role then
-   drops 10px, floored at the ladder's 12px step; it is scoped to this band
-   only, so no other band, the header or any other button moves. Desktop only:
-   phones keep the ladder's own step-down (the tokens map the display roles
-   down below 48rem), so the band steps down sensibly instead of clipping.
-     eyebrow   18 → 12px     (the floor holds: 18 − 10 = 8)
-     headline  86.4 → 76.4px (1.5 × --text-display − 10px)
-     lead      24 → 14px     (1.5 × --text-lg − 10px)
-     the call  20.4 → 12px   (the floor holds: 20.4 − 10 = 10.4), padding
-               unchanged from the same space tokens, the icon riding the label
-               at 1.35em. */
-@media (min-width: 48.001rem) {
-  /* The band's own reduced top gap (captain, 2026-09-30): the shared
-     `.home > section` padding stays untouched for every other band. */
-  .home > .home-gateway {
-    padding-top: var(--space-7);
-  }
-
-  .home-gateway {
-    --gateway-type-scale: 1.5;
-    --text-hero: calc(var(--gateway-type-scale) * var(--text-display) - 10px);
-  }
-
-  /* The lead drops 10px through its own role slot. */
-  .home-gateway__lead {
-    --text-body: calc(var(--gateway-type-scale) * var(--text-lg) - 10px);
-    font-size: var(--text-body);
-  }
-
-  /* BOTH actions in the row keep their scaled padding and height; only the
-     label steps down 10px and is floored at the ladder's 12px. The call keeps
-     the solid gold fill; Build keeps the gold outline. */
-  .home-gateway__actions .home-call,
-  .home-gateway__actions .btn--gold-outline {
-    --text-ui: max(var(--text-xs), calc(var(--gateway-type-scale) * var(--text-md) - 10px));
-    font-size: var(--text-ui);
-    padding: calc(var(--gateway-type-scale) * var(--space-2))
-      calc(var(--gateway-type-scale) * var(--space-4));
-  }
-
-  .home-gateway__actions .home-call svg,
-  .home-gateway__actions .btn--gold-outline svg {
-    width: 1.35em;
-    height: 1.35em;
-  }
-}
-
-/* The gold call plaque carries near-black ink — the engraved look (plan §6). */
+/* The gold call plaque carries near-black ink — the engraved look. */
 .home-call {
   font-weight: 700;
 }
 
-.home-gateway__trust {
-  position: relative;
+/* Three real facts, as one quiet ruled line under the actions: equal columns,
+   so the third never orphans under the first two. */
+.home-open__trust {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-4);
+  gap: var(--space-2) var(--space-4);
   margin: var(--space-6) 0 0;
-  padding: var(--space-5) 0 0;
-  border-top: 1px solid var(--color-border);
+  padding: var(--space-4) 0 0;
+  border-top: 1px solid var(--color-rule);
   list-style: none;
 }
 
-/* Medium icons with everything under them, centred, the three facts equal
-   columns (office review, 2026-09-29). */
 .home-trust__item {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  text-align: center;
-  /* Stepped to the 12px floor with the band (captain, 2026-09-30). */
-  font-size: var(--text-xs);
+  font-size: var(--text-caption);
   color: var(--color-text-secondary);
 }
 
 .home-trust__item svg {
   flex: none;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.125rem;
+  height: 1.125rem;
   color: var(--sky-600);
 }
 
 .home-trust__item b {
-  display: block;
-  /* Stepped to the 12px floor with the band (captain, 2026-09-30). */
-  font-size: var(--text-xs);
+  font-size: var(--text-ui);
   color: var(--color-text-primary);
 }
 
-
-/* (The gateway's clouds were REMOVED ENTIRELY at the office's direction
-   (inbox 031): band 1 is plain white — no wash, no drifting shape, no
-   decoration but the arch. Removing them moved no measurement: they were
-   absolutely positioned and clipped by the band. The `home-gateway__cloud*`
-   rules and their drift keyframes are gone with the markup.) */
-
-/* --- 2 · the hero photograph, alone and whole ----------------------------- */
-.home-photo {
-  padding-block: clamp(var(--space-5), 4vw, var(--space-7));
+.home-open__media {
+  min-width: 0;
 }
 
-.home-photo__figure {
-  /* Generous like the pavilion photograph, so the two ground photographs read
-     as a pair (office, 2026-09-29 — the earlier "smaller" was reversed). The
-     picture stays whole and the frame takes its own shape. */
-  max-width: 100%;
-  margin-inline: auto;
-}
-
-/* No ratio, no crop: the picture's own shape, whole. */
-.home-photo__figure img {
+.home-open__caption-kicker {
   display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
+  font-size: var(--text-micro);
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
 }
 
-/* --- the authored empty state (plan M5) ----------------------------------- */
+.home-open__caption-name {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--text-body);
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+/* --- the authored empty state (an image the office has not set) ----------- */
 .home-engraved {
   display: flex;
   align-items: center;
@@ -22376,137 +22387,111 @@ a.plan-advisor__phone:hover {
   border-radius: var(--radius-md);
 }
 
-.home-engraved--park {
-  min-height: 16rem;
-  border-radius: var(--radius-md);
-}
-
 .home-engraved--chapel {
-  min-height: 6rem;
+  flex: none;
+  width: 7rem;
+  min-height: 5.25rem;
 }
 
-/* --- 3 · the first park + builder + chapels ------------------------------- */
-.home-park,
-.home-plans,
-.home-services,
-.home-lots,
-.home-contact {
-  display: block;
-}
-
-.home-park__grid {
+/* --- 2 · arrange it — the live builder, then the two rooms ---------------- */
+.home-arrange__grid {
   display: grid;
-  /* The pavilion photograph is band 3's dominant figure (office, 2026-09-29):
-     it leads against the builder at a wider share of the row (1.9 : 1 — the
-     captain asked for a little more picture, 2026-09-30), with the chapels under
-     the photograph and both columns ending on the same line
-     (align-items: stretch). */
-  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
-  gap: var(--space-5);
-  align-items: stretch;
-  /* 1.5× smaller (captain, 2026-09-30): the photograph, the builder and the
-     rooms under it all shrink together, and the band centres. */
-  max-width: 64rem;
-  margin-inline: auto;
+  /* The builder is the band's lead: it is the only element on the page that
+     answers "what will this cost" with the office's own figures. */
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: var(--space-5) var(--space-6);
+  align-items: start;
 }
 
-.home-park__builder {
+.home-arrange__builder,
+.home-arrange__rooms {
   min-width: 0;
 }
 
-.home-park__media {
+.home-arrange__rooms {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  min-width: 0;
+  gap: var(--space-3);
 }
 
-.home-park__media > figure {
-  margin: 0;
-}
-
-.home-park__figure img {
-  display: block;
-  width: 100%;
-  height: auto;
+.home-arrange__plate {
   border-radius: var(--radius-md);
+  overflow: hidden;
 }
 
-.home-park__chapels-title {
-  margin: 0;
+.home-rooms__title {
+  margin: var(--space-2) 0 0;
   font-size: var(--text-card-title);
   color: var(--color-text-primary);
 }
 
-.home-chapels {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
-.home-chapel {
+.home-rooms {
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A room is a row: its own photograph at identification size, then its facts. */
+.home-room {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.home-room:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.home-room__plate {
+  flex: none;
+  width: 7rem;
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  background: var(--paper-0);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
 }
 
-/* The chapel photograph is whole (its own 3:2 shape), never cropped. */
-.home-chapel > img {
-  display: block;
-  width: 100%;
-  height: auto;
+.home-room__body {
+  min-width: 0;
 }
 
-.home-chapel__body {
-  padding: var(--space-3);
-}
-
-.home-chapel__name {
+.home-room__name {
   margin: 0;
   font-size: var(--text-body);
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
-.home-chapel__kind {
-  margin: var(--space-1) 0 0;
+.home-room__kind {
+  margin-left: var(--space-2);
   font-size: var(--text-micro);
   font-weight: 650;
-  letter-spacing: 0.11em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--sky-700);
 }
 
-.home-chapel__what {
-  margin: var(--space-2) 0 0;
+.home-room__what {
+  margin: var(--space-1) 0 0;
   font-size: var(--text-caption);
-  line-height: var(--leading-normal);
+  line-height: 1.5;
   color: var(--color-text-secondary);
 }
 
-.home-chapel__cap {
-  margin: var(--space-2) 0 0;
+.home-room__cap {
+  margin: var(--space-1) 0 0;
   font-size: var(--text-micro);
+  line-height: 1.5;
   color: var(--color-text-muted);
 }
 
-/* The chapels' row ends on the same line as the builder: the media column is
-   already `flex: 1` in a stretched grid, so its action row sits at the bottom. */
-.home-park__chapels-action {
-  margin-top: auto;
-  display: flex;
-  justify-content: center;
-}
-
-/* --- the arrangement builder ---------------------------------------------- */
+/* --- the arrangement builder (the one form-card on the page) ------------- */
 .home-builder {
   display: flex;
   flex-direction: column;
-  height: 100%;
   padding: var(--space-5);
   background: var(--paper-0);
   border: 1px solid var(--color-border);
@@ -22515,14 +22500,18 @@ a.plan-advisor__phone:hover {
 
 .home-builder__title {
   margin: 0;
-  font-size: var(--text-card-title);
-  font-weight: 700;
+  font-family: var(--font-display);
+  font-size: var(--text-section-title);
+  font-weight: 600;
+  line-height: 1.2;
   color: var(--color-text-primary);
 }
 
 .home-builder__note {
   margin: var(--space-2) 0 0;
+  max-width: 54ch;
   font-size: var(--text-caption);
+  line-height: 1.55;
   color: var(--color-text-muted);
 }
 
@@ -22622,7 +22611,7 @@ a.plan-advisor__phone:hover {
 }
 
 .home-builder__total b {
-  font-size: var(--text-card-title);
+  font-size: var(--text-xl);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-primary);
 }
@@ -22631,314 +22620,19 @@ a.plan-advisor__phone:hover {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
-  margin-top: auto;
-  padding-top: var(--space-4);
+  margin-top: var(--space-4);
 }
 
-/* --- the centred band head (plan revision 4) ------------------------------ */
-.home-band-head {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-5);
-}
-
-/* The ceremonial hairline above the band — one of gold's three legal uses.
-   Nothing else in these bands wears gold. */
-.home-band-head::before {
-  content: "";
-  display: block;
-  width: min(18rem, 60%);
-  height: 1px;
-  margin-bottom: var(--space-1);
-  background: var(--gold-hairline);
-}
-
-.home-band-head__kicker {
-  margin: 0;
-  font-size: var(--text-micro);
-  font-weight: 650;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-text-muted);
-}
-
-/* One step up the existing ladder (section-title is --text-2xl); the phone
-   steps it back down so the h1 keeps the top of the hierarchy. */
-.home-band-head__title {
-  margin: 0;
-  font-family: var(--font-display);
-  font-size: var(--text-3xl);
-  /* The captain's type rule (2026-09-30): every section title carries the
-     services opening's light display weight — never bold. */
-  font-weight: 500;
-  line-height: var(--leading-tight);
-  text-wrap: balance;
-  color: var(--color-text-primary);
-}
-
-/* A real button, consistently sized, wearing the outline rung — never gold. */
-.home-band-head__cta {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.home-band-head__lead {
-  margin: 0;
-  max-width: 46ch;
-  font-size: var(--text-body);
-  line-height: var(--leading-normal);
-  color: var(--color-text-secondary);
-}
-
-/* --- 4 · the five rising plan niches -------------------------------------- */
-.home-niches {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--space-3);
-  align-items: end;
-  /* The captain's 2026-10-02 review: this band was the ONE content band with no
-     width envelope, so its five niches stretched to the full folio while the park,
-     lots and services bands capped and centred. 62rem is the lots band's envelope,
-     so the plan band now aligns with the band above and below. */
-  max-width: 62rem;
-  margin-inline: auto;
-}
-
-.home-niche-col {
-  display: grid;
-  /* A DEFINITE track, or a percentage height resolves against content and the
-     ladder flattens (the built-page review). The niche sits at the track's end. */
-  grid-template-rows: 15rem auto;
-  gap: var(--space-2);
-  align-items: end;
-  min-width: 0;
-}
-
-/* The opening rises with the monthly (the plan's five rungs; the tiers are in
-   the store's own price order). */
-.home-niche {
-  align-self: end;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  text-align: center;
-  padding: var(--space-4) var(--space-2);
-  background: linear-gradient(180deg, var(--sky-400), var(--sky-700));
-  border: 1px solid var(--sky-800);
-  border-radius: 50% 50% var(--radius-sm) var(--radius-sm) / 16% 16% var(--radius-sm) var(--radius-sm);
-  color: var(--paper-0);
-}
-
-/* The rise is applied to the niche INSIDE each column. (It was on
-   `.home-niche:nth-child(n)` first — and since every niche is the first child of
-   its own column, all five matched rule 1 and the ladder collapsed; the names
-   then overflowed above the shapes. The review of the built page measured it.) */
-.home-niche-col:nth-child(1) .home-niche { height: 46%; }
-.home-niche-col:nth-child(2) .home-niche { height: 56%; }
-.home-niche-col:nth-child(3) .home-niche { height: 68%; }
-.home-niche-col:nth-child(4) .home-niche { height: 80%; }
-.home-niche-col:nth-child(5) .home-niche { height: 94%; }
-
-.home-niche--gold {
-  background: linear-gradient(180deg, var(--gold-300), var(--gold-500));
-  border-color: var(--gold-700);
-  /* Gold carries dark ink, never white. */
-  color: var(--ink-900);
-}
-
-.home-niche__name {
-  font-size: var(--text-body);
-  font-weight: 700;
-}
-
-.home-niche__price {
-  margin-top: var(--space-1);
-  font-size: var(--text-card-title);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.home-niche--gold .home-niche__price {
-  color: var(--ink-900);
-}
-
-.home-niche__unit {
-  font-size: var(--text-micro);
-  letter-spacing: 0.04em;
-  color: var(--sky-100);
-}
-
-.home-niche--gold .home-niche__unit {
-  color: var(--gold-800);
-}
-
-.home-niche-more {
-  padding: var(--space-2) var(--space-3);
-  background: var(--paper-0);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  font-size: var(--text-caption);
-}
-
-.home-niche-more summary {
-  cursor: pointer;
-  font-size: var(--text-caption);
-  font-weight: 650;
-  color: var(--sky-700);
-}
-
-.home-niche-more p {
-  margin: var(--space-2) 0 0;
-  color: var(--color-text-secondary);
-}
-
-.home-niche-more__lid {
-  margin: var(--space-1) 0 0;
-}
-
-.home-niche-more__senior {
-  color: var(--color-text-muted);
-}
-
-/* --- 5 · the five service tiles ------------------------------------------- */
-.home-plates {
-  /* THREE services per row, the group CENTRED, and a shorter last row centred
-     under the first (captain, 2026-09-30). Flex rather than grid: a grid leaves
-     the leftovers hugging the left edge. The row's own width is three tiles plus
-     their gaps, so a narrower group stays together instead of stretching. */
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-3);
-  max-width: calc(46.5rem + 2 * var(--space-3));
-  margin: 0 auto;
-  padding: 0;
-  list-style: none;
-}
-
-.home-service {
-  display: flex;
-  flex-direction: column;
-  /* 15.5rem a tile — half the width the plates carried as a third of the band. */
-  flex: 0 1 15.5rem;
-  max-width: 15.5rem;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
-/* One equal plate ratio; the photograph is whole inside it (contain). */
-.home-plate {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  aspect-ratio: 3 / 2;
-  overflow: hidden;
-  background: var(--paper-0);
-  border: 1px solid var(--sky-900);
-  border-radius: var(--radius-md);
-}
-
-.home-plate img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.home-service__name {
-  margin: 0;
-  font-size: var(--text-body);
-  font-weight: 700;
-  text-align: center;
-  color: var(--color-text-primary);
-}
-
-.home-service__cta {
-  display: block;
-  padding: var(--space-2) var(--space-2);
-  text-align: center;
-  font-size: var(--text-caption);
-  font-weight: 650;
-  text-decoration: none;
-  color: var(--sky-700);
-  background: var(--paper-0);
-  border: 1.5px solid var(--sky-500);
-  border-radius: var(--radius-sm);
-}
-
-.home-service__cta:hover {
-  background: var(--sky-50);
-}
-
-.home-services__all {
-  display: flex;
-  justify-content: center;
-  margin-top: var(--space-5);
-}
-
-/* --- 6 · the four lot types + the pinned park map ------------------------- */
+/* --- 3 · the grounds — the masterplan leads, four priced rows beside it --- */
 .home-lots__grid {
   display: grid;
-  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
-  gap: var(--space-5);
-  align-items: stretch;
-  /* A smaller map and smaller plates (captain, 2026-09-30): the band's own
-     grid is capped and centred, so the map and the four plates shrink together. */
-  max-width: 62rem;
-  margin-inline: auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-5) var(--space-6);
+  align-items: start;
 }
 
-.home-lot-types {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  align-content: space-between;
-}
-
-.home-lot-type {
-  display: block;
-  padding: 0;
-  overflow: hidden;
-  font: inherit;
-  text-align: left;
-  background: var(--paper-0);
-  border: 1px solid var(--sky-900);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-}
-
-.home-lot-type__plate {
-  aspect-ratio: 1 / 1;
-  border: 0;
-  border-bottom: 1px solid var(--color-border);
-  border-radius: 0;
-  background: var(--paper-100);
-}
-
-.home-lot-type__name {
-  display: block;
-  padding: var(--space-2) var(--space-3);
-  font-size: var(--text-caption);
-  font-weight: 700;
-  line-height: 1.25;
-  color: var(--color-text-primary);
-}
-
-.home-lot-type[aria-pressed="true"] {
-  border-color: var(--gold-500);
-  box-shadow: 0 0 0 2px var(--gold-300);
-}
-
-.home-lot-map {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.home-lots__plan,
+.home-lots__list {
   min-width: 0;
 }
 
@@ -22946,7 +22640,7 @@ a.plan-advisor__phone:hover {
   position: relative;
   overflow: hidden;
   background: var(--paper-100);
-  border: 1px solid var(--sky-900);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
 }
 
@@ -22995,11 +22689,78 @@ a.plan-advisor__phone:hover {
 .home-map__legend {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: var(--space-2) var(--space-4);
-  margin: 0;
+  margin: var(--space-2) 0 0;
   font-size: var(--text-micro);
   color: var(--color-text-muted);
+}
+
+/* The four families as four priced rows — the figures lead their band. */
+.home-lot-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-rule);
+}
+
+.home-lot-list > li {
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.home-lot-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-2) var(--space-3) var(--space-3);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-left: 3px solid transparent;
+  color: var(--color-text-primary);
+}
+
+.home-lot-row:hover {
+  background: var(--paper-50);
+}
+
+/* The pressed row is a control state: it carries the gold rule, and the wash
+   is the only control-state ground this block paints. */
+.home-lot-row[aria-pressed="true"] {
+  background: var(--sky-50);
+  border-left-color: var(--gold-500);
+}
+
+.home-lot-row__name {
+  flex: 1 1 auto;
+  font-size: var(--text-body);
+  font-weight: 650;
+}
+
+.home-lot-row__area {
+  flex: none;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+/* How many of this family's recorded plots are still open — counted from the
+   pins the map already draws, so the row can never disagree with the map. */
+.home-lot-row__open {
+  flex: none;
+  min-width: 5.5rem;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.home-lot-row__price {
+  flex: none;
+  font-size: var(--text-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
 }
 
 .home-lot-detail {
@@ -23009,10 +22770,25 @@ a.plan-advisor__phone:hover {
   max-width: 62rem;
   margin-inline: auto;
   margin-top: var(--space-4);
-  padding: var(--space-4);
-  background: var(--paper-0);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-rule);
+}
+
+/* The family's own availability split, in the map legend's own three states —
+   one vocabulary for both, so the read learned at the legend carries here. */
+.home-lot-detail__split {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-3) 0 0;
+}
+
+.home-lot-detail__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
 }
 
 .home-lot-detail__title {
@@ -23057,11 +22833,186 @@ a.plan-advisor__phone:hover {
   margin-top: var(--space-4);
 }
 
-/* --- 7 · contact ---------------------------------------------------------- */
+/* --- 4 · plan ahead — the five tiers as a rate card ---------------------- */
+.home-rates {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.home-rate {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-4) var(--space-3);
+  background: var(--paper-50);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--sky-300);
+  border-radius: var(--radius-sm);
+}
+
+.home-rate__name {
+  margin: 0;
+  font-size: var(--text-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* The figure leads its card — capped one rung under the section title. */
+.home-rate__price {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+
+.home-rate__unit {
+  font-size: var(--text-caption);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* The same plan on the sheet's other term, plus the tier's own lid line — so
+   the monthly is never a figure without a scale, and the five cards are told
+   apart by something real rather than by their position. */
+.home-rate__scale {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-caption);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-secondary);
+}
+
+.home-rate__lid {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-micro);
+  color: var(--color-text-muted);
+}
+
+/* The top tier wears gold as structure (the rule and the label), never a wash. */
+.home-rate--gold {
+  background: var(--paper-0);
+  border-color: var(--gold-300);
+  border-top-color: var(--gold-500);
+}
+
+.home-rate--gold .home-rate__name {
+  color: var(--gold-800);
+}
+
+.home-rate__more {
+  margin-top: auto;
+  padding-top: var(--space-3);
+}
+
+.home-rate__more summary {
+  cursor: pointer;
+  font-size: var(--text-micro);
+  font-weight: 650;
+  color: var(--sky-700);
+}
+
+.home-rate__more p {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-micro);
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.home-rate__more-senior {
+  color: var(--color-text-muted);
+}
+
+.home-rate__more-lid {
+  color: var(--color-text-muted);
+}
+
+/* --- 5 · the services — five scannable lines, no amounts ------------------ */
+.home-service-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--color-rule);
+}
+
+.home-service-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+/* One plate size for every line, so five rows keep one baseline. A line the
+   client's material does not photograph wears its own service icon on the quiet
+   wash — never an empty grey box. */
+.home-service-row__plate {
+  flex: none;
+  width: 5.5rem;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.home-service-row__plate--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: var(--paper-100);
+  color: var(--sky-700);
+}
+
+.home-service-row__plate--icon svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.home-service-row__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.home-service-row__action {
+  flex: none;
+}
+
+.home-service-row__name {
+  margin: 0;
+  font-size: var(--text-body);
+  font-weight: 650;
+  color: var(--color-text-primary);
+}
+
+/* The staff-editable one-liner /services prints for the same line. */
+.home-service-row__note {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-caption);
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+/* One sample note for the whole band, the way /services carries it. */
+.home-services__note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-micro);
+  color: var(--color-text-muted);
+}
+
+.home-services__all {
+  display: flex;
+  margin-top: var(--space-4);
+}
+
+/* --- 6 · contact — the enquiry form, the map, the real numbers ----------- */
 .home-contact__grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-5);
+  gap: var(--space-5) var(--space-6);
   align-items: stretch;
 }
 
@@ -23070,9 +23021,8 @@ a.plan-advisor__phone:hover {
   min-width: 0;
 }
 
-/* The plan's form layout: the name and email share a row, the phone takes its
-   own full-width row (the built-page review: three across cramped the phone
-   field and wrapped its note). Scoped to the home's form only. */
+/* The name and email share a row, the phone takes its own full-width row
+   (three across cramped the phone field and wrapped its note). */
 .home-contact__form .field-grid--3 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -23102,7 +23052,7 @@ a.plan-advisor__phone:hover {
   display: block;
   width: 100%;
   flex: 1;
-  min-height: 19rem;
+  min-height: 17rem;
   background: var(--paper-100);
   border: 0;
   border-radius: var(--radius-md);
@@ -23124,6 +23074,7 @@ a.plan-advisor__phone:hover {
 .home-contact__note {
   margin: 0;
   font-size: var(--text-micro);
+  line-height: 1.5;
   color: var(--color-text-muted);
 }
 
@@ -23132,54 +23083,69 @@ a.plan-advisor__phone:hover {
 }
 
 /* --- phone re-layout: the same page, not a shrunken desktop --------------- */
-@media (max-width: 58rem) {
-  .home-service {
-    flex: 1 1 calc((100% - var(--space-3)) / 2);
-    max-width: calc((100% - var(--space-3)) / 2);
-  }
-}
-
-@media (max-width: 48rem) {
-  .home-band-head__title {
-    font-size: var(--text-2xl);
+@media (max-width: 64rem) {
+  /* The opening's two columns become one: the words, then the picture. */
+  .home-open {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
   }
 
-  .home-gateway__trust {
-    /* The captain keeps the three facts in ONE row on phones (2026-09-30):
-       three centred columns with a tighter gap; the labels wrap inside them. */
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-2);
+  .home-open__words {
+    max-width: 44rem;
   }
 }
 
 @media (max-width: 52rem) {
-  .home-park__grid,
+  .home-arrange__grid,
   .home-lots__grid,
   .home-contact__grid {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .home-niches {
+  .home-rates {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .home-niche-col {
-    grid-template-rows: auto auto;
-  }
-
-  .home-niche {
-    height: auto;
-    min-height: 7.5rem;
   }
 }
 
-@media (max-width: 34rem) {
-  .home-service {
-    flex: 1 1 100%;
-    max-width: 100%;
+@media (max-width: 40rem) {
+  .home-open__actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 
-  .home-chapels {
+  .home-open__trust {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* A phone service line is TWO lines, always: the plate and the words, then
+     the one action on its own line under them. Flex wrapping left the action
+     beside the name on the rows whose description happened to be short and on
+     the line below on the others — the same list, two different shapes. */
+  .home-service-row {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-2) var(--space-3);
+    padding-block: var(--space-4);
+  }
+
+  .home-service-row__plate {
+    width: 4.5rem;
+  }
+
+  .home-service-row__body,
+  .home-service-row__action {
+    grid-column: 2;
+  }
+
+  .home-service-row__action {
+    justify-self: start;
+  }
+
+  /* A phone reads the five tiers as ONE price list, not a two-up grid of tall
+     cards: the lid line wrapped to three lines in a 170px column, which is the
+     "phone width is a rendering contract, not a smaller desktop" trap. */
+  .home-plans .home-rates {
     grid-template-columns: minmax(0, 1fr);
   }
 }

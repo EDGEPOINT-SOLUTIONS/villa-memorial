@@ -1,8 +1,7 @@
 "use client";
 
 /**
- * HomeCostBuilder — the home's arrangement builder (section 3 of the approved
- * home-rebuild plan).
+ * HomeCostBuilder — the home's arrangement builder (band 2 of the home).
  *
  * Three choices and the five services, with a live one-time total. Every figure
  * arrives in the `model` prop, which the server built from the live catalogue and
@@ -63,12 +62,17 @@ function chosen<C extends HomeBuilderChoice>(list: C[]): C | null {
 export function HomeCostBuilder({
   model,
   title,
+  titleId,
   note,
   secondary,
   contact,
 }: {
   model: HomeBuilderModel;
   title: string;
+  /** The heading's id, so the owning band can `aria-labelledby` this card. The
+   *  title is the band's own h2 (re-vision 2026-10-02): the card IS the
+   *  section, so it owns the heading rather than sitting under a second one. */
+  titleId?: string;
   note: string;
   secondary: Cta;
   contact: Contact;
@@ -101,7 +105,9 @@ export function HomeCostBuilder({
 
   return (
     <form className="home-builder" onSubmit={(event) => event.preventDefault()}>
-      <p className="home-builder__title">{title}</p>
+      <h2 id={titleId} className="home-builder__title">
+        {title}
+      </h2>
       <p className="home-builder__note">{note}</p>
 
       <fieldset className="home-builder__group">
