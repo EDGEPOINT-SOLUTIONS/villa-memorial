@@ -2,19 +2,27 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { PortalFrame } from "@/components/portal-frame";
 import { AGENT_PORTAL_GROUPS, AGENT_PORTAL_TABS } from "@/components/portal-nav";
+import { getAgentWorkspace } from "@/lib/api-client/agent";
 import { BRAND_NAME } from "@/lib/brand";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import { monogram } from "@/lib/family/family-view";
 
 /**
  * Agent portal layout — the approved agent design (docs/08-delivery/
  * agent-portal-design) on the shipped PortalFrame: grouped white rail with a
  * sky active edge, phone bottom bar and the office number pinned in the sidebar.
+ *
+ * The account chip carries the agent's own identity (plan §7.6): the office's
+ * agent record (`lib/fixtures/agent/workspace.json` `agent`) is the source, with
+ * the signed-in cookie only as a fallback. There is no recorded agent picture
+ * and no agent image store, so `avatarSrc` is absent and the shared Avatar
+ * renders its initials disc — never a borrowed client photograph.
  */
 export default async function AgentLayout({ children }: { children: React.ReactNode }) {
   const jar = await cookies();
   const rawUser = jar.get("im_u")?.value;
   let email: string | null = null;
-  let displayName = "Agent";
+  let cookieName = "Agent";
   if (rawUser) {
     try {
       const user = JSON.parse(Buffer.from(rawUser, "base64").toString("utf8")) as {
@@ -22,19 +30,11 @@ export default async function AgentLayout({ children }: { children: React.ReactN
         display_name?: string;
       };
       email = user.email ?? null;
-      displayName = user.display_name ?? displayName;
+      cookieName = user.display_name ?? cookieName;
     } catch {
       email = null;
     }
   }
-
-  const initials =
-    displayName
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((part) => part[0]?.toUpperCase() ?? "")
-      .join("") || "A";
 
   if (!email) {
     return (
@@ -53,6 +53,17 @@ export default async function AgentLayout({ children }: { children: React.ReactN
       </div>
     );
   }
+
+  // The office's agent record is the identity source; the cookie is the fallback
+  // so a fixture read that ever fails still leaves a usable account chip.
+  let accountName = cookieName;
+  try {
+    const record = (await getAgentWorkspace()).agent;
+    if (record.display_name?.trim()) accountName = record.display_name.trim();
+  } catch {
+    /* keep the cookie name — the frame must still render */
+  }
+  const initials = monogram(accountName) || "A";
 
   return (
     <>
@@ -75,7 +86,7 @@ export default async function AgentLayout({ children }: { children: React.ReactN
         tabs={AGENT_PORTAL_TABS}
         collapsible
         account={{
-          name: displayName,
+          name: accountName,
           email,
           initials,
           profileTo: "/agent/profile",

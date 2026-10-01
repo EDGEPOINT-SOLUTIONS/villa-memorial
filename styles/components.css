@@ -27270,6 +27270,23 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   flex-wrap: wrap;
 }
 
+/* The account header (the profile): the picture disc beside the identity. */
+.wb-account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.wb-account__id {
+  min-width: 0;
+}
+
+@media (max-width: 48rem) {
+  .wb-account {
+    align-items: flex-start;
+  }
+}
+
 /* --- the attention strip --------------------------------------------------- */
 .wb-alerts {
   display: grid;

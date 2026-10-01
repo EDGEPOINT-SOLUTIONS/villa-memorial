@@ -128,6 +128,10 @@ describe("the family portal chrome is the agent portal chrome", () => {
     expect(html).toContain('class="account-chip account-chip--desktop"');
     expect(html).toContain('class="rail-toggle"');
     expect(html).toContain("fv-rail");
+    // The chip carries the agent's identity from the office's agent record
+    // (the mock cookie has no display name), so the frame reads like the family's.
+    expect(html).toContain("Alex Agent");
+    expect(html).toContain(">AA<");
     // The old account line is replaced by the shared account block (plan §7.6).
     expect(html).not.toContain('class="portal-sidebar__user"');
   });
