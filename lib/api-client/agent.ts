@@ -35,6 +35,11 @@ import { familyDocumentReleased } from "@/lib/family/family-view";
 import { nextPaymentDue, nextPaymentDueLabel } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
 import { listStageMoveEvents } from "@/lib/api-client/agent-store";
+import { listPlanEvents } from "@/lib/api-client/agent-plan-store";
+import {
+  applyPlanEvents,
+  type AgentPlan,
+} from "@/lib/agent/agent-plans";
 import {
   applyStageMoves,
   conversionFromProspects,
@@ -42,6 +47,9 @@ import {
   pipelineValueCents,
   soldTotals,
 } from "@/lib/agent/acquisition";
+
+/** The agent's own day-planner record; the fold lives in `lib/agent/agent-plans.ts`. */
+export type { AgentPlan } from "@/lib/agent/agent-plans";
 
 export type AgentIdentity = {
   id: string;
@@ -270,6 +278,8 @@ export type AgentWorkspace = {
   clients: Client[];
   appointments: Appointment[];
   tasks: AgentTask[];
+  /** The signed-in agent's own plans (demo-local journal), folded beside the recorded day. */
+  plans: AgentPlan[];
   applications: Application[];
   commission: Commission;
   materials: Material[];
@@ -321,7 +331,10 @@ function readWorkspaceSeed(): AgentWorkspace {
   ) {
     throw new ApiError("agent workspace fixture is malformed", 500);
   }
-  return raw as AgentWorkspace;
+  // The recorded fixture carries the office's day; the agent's own plans live only
+  // in the demo journal, so a seed without them is an empty planner, never an error.
+  const record = raw as AgentWorkspace;
+  return { ...record, plans: Array.isArray(record.plans) ? record.plans : [] };
 }
 
 /**
@@ -448,7 +461,7 @@ async function toClient(raw: Client): Promise<Client> {
  */
 async function readWorkspace(): Promise<AgentWorkspace> {
   const seed = readWorkspaceSeed();
-  const events = await listStageMoveEvents();
+  const [events, planEvents] = await Promise.all([listStageMoveEvents(), listPlanEvents()]);
   const seedProspects = seed.prospects.map(toProspect);
   const prospects = applyStageMoves(seedProspects, events);
   const seedClients = seed.clients.map((c) => ({
@@ -461,6 +474,9 @@ async function readWorkspace(): Promise<AgentWorkspace> {
     ...seed,
     prospects,
     clients,
+    // The planner journal folds here with the pipeline, so the calendar, the day
+    // detail and the sign-in notice cannot disagree about what is planned.
+    plans: applyPlanEvents(planEvents),
     today: {
       ...seed.today,
       numbers: {
@@ -525,6 +541,12 @@ export async function listAgentAppointments(): Promise<{
 }> {
   const ws = await readWorkspace();
   return { appointments: ws.appointments.map((a) => ({ ...a })), tasks: ws.tasks.map((t) => ({ ...t })) };
+}
+
+/** The signed-in agent's own plan list, folded from the demo planner journal. */
+export async function listAgentPlans(): Promise<AgentPlan[]> {
+  const ws = await readWorkspace();
+  return ws.plans.map((plan) => ({ ...plan }));
 }
 
 export async function listAgentApplications(): Promise<Application[]> {

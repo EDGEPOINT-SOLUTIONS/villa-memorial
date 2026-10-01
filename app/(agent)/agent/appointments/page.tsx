@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AgentHero, AgentSection, AgendaCard, Chip, TaskRow } from "@/components/agent/agent-ui";
 import { AgentCalendar } from "@/components/agent/agent-calendar";
-import { listAgentAppointments, listAgentProspects } from "@/lib/api-client/agent";
+import { listAgentAppointments, listAgentPlans, listAgentProspects } from "@/lib/api-client/agent";
 import { recordedTodayKey } from "@/lib/agent/agent-calendar";
 import { manilaTodayKey } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
@@ -22,15 +22,30 @@ export const metadata = { title: "Appointments & tasks — Villa Funeraria agent
  * phone. The Today drive order and the small promises stay exactly where they
  * were; the week's appointments are the calendar's own marks and day details.
  *
+ * THE PLANNER (captain, 2026-10-02): the calendar is also the agent's own day
+ * planner — pick a day and add what to do, with an optional time and note, mark it
+ * done, edit or remove it. A plan is demo-local (the journal behind
+ * `lib/api-client/agent-plan-store.ts`) and is the agent's own note, never the
+ * office's diary: the recorded appointments stay read-only beside it and no plan
+ * books a slot or promises a reminder. The sign-in notice links to
+ * `/agent/appointments?day=…`, which opens the calendar on that day.
+ *
  * Nothing is invented and nothing is booked: appointment creation and check-off
  * wait on the scheduling/crm contracts, so the disabled controls keep their
  * names and the page says what waits rather than pretending.
  */
-export default async function AgentAppointmentsPage() {
+export default async function AgentAppointmentsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ day?: string }>;
+}) {
   await requirePortalSessionOrRedirect("agent");
-  const [{ appointments, tasks }, prospects] = await Promise.all([
+  const params = (await searchParams) ?? {};
+  const initialDay = typeof params.day === "string" ? params.day : undefined;
+  const [{ appointments, tasks }, prospects, plans] = await Promise.all([
     listAgentAppointments(),
     listAgentProspects(),
+    listAgentPlans(),
   ]);
 
   // “Who it is with” is the office's own contact name for an appointment's
@@ -108,13 +123,15 @@ export default async function AgentAppointmentsPage() {
 
       <AgentSection
         title="The calendar"
-        sub="Every recorded appointment and dated task, day by day — pick a day to see what it holds."
+        sub="Every recorded appointment and dated task, and your own plans — pick a day to see it and plan it."
       >
         <AgentCalendar
           appointments={appointments}
           tasks={tasks}
+          plans={plans}
           contactNames={contactNames}
           todayKey={todayKey}
+          initialDay={initialDay}
         />
         <div className="ag-actions">
           <Link className="btn btn--primary" href="/agent/lots">

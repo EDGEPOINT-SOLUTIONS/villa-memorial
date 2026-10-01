@@ -7,7 +7,9 @@ import {
   listAgentClients,
   listAgentLotAvailability,
   listAgentMaterials,
+  listAgentPlans,
   listAgentProspects,
+  type AgentPlan,
   type Application,
   type Appointment,
   type Client,
@@ -29,10 +31,13 @@ import {
 import {
   interestLabel,
   manilaTime,
+  manilaTodayKey,
   needsYou,
   orderWorkItems,
   workState,
 } from "@/lib/agent/agent-view";
+import { buildAgentCalendarEvents, dayNotice, recordedTodayKey } from "@/lib/agent/agent-calendar";
+import { AgentDayNotice } from "@/components/agent/agent-day-notice";
 import { pipelineValueCents } from "@/lib/agent/acquisition";
 import { money, StageChip } from "@/components/agent/agent-ui";
 import { OfflineQueueVital } from "@/components/agent/offline-queue";
@@ -94,7 +99,7 @@ function sheetPrice(
 export default async function AgentTodayPage() {
   const session = await requirePortalSessionOrRedirect("agent");
 
-  const [today, prospects, schedule, applications, clients, commission, materials, availability, lots] =
+  const [today, prospects, schedule, applications, clients, commission, materials, availability, lots, plans] =
     await Promise.all([
       safe<Awaited<ReturnType<typeof getAgentToday>> | null>(getAgentToday, null),
       safe(listAgentProspects, [] as Prospect[]),
@@ -105,6 +110,7 @@ export default async function AgentTodayPage() {
       safe(listAgentMaterials, [] as Material[]),
       safe(listAgentLotAvailability, [] as LotAvailability[]),
       safe(listLots, [] as Lot[]),
+      safe(listAgentPlans, [] as AgentPlan[]),
     ]);
 
   const now = new Date();
@@ -125,6 +131,17 @@ export default async function AgentTodayPage() {
   const first = items.find((i) => workState(i, now) !== "done") ?? null;
   const firstPhone = first ? prospects.find((p) => p.id === first.contact_id)?.phone : undefined;
   const startHere = alerts[0] ?? null;
+
+  // The sign-in notice reads the SAME fold as the calendar's day detail: the
+  // recorded "today" (the day of the drive order in the frozen demo), the office's
+  // stops and the agent's own plans, so the count and the next thing cannot
+  // disagree with the calendar.
+  const contactNames = Object.fromEntries(prospects.map((p) => [p.id, p.name]));
+  const todayKey = recordedTodayKey(schedule.appointments, manilaTodayKey(now));
+  const todayNotice = dayNotice(
+    buildAgentCalendarEvents(schedule.appointments, schedule.tasks, plans, contactNames),
+    todayKey,
+  );
 
   const pricing = await safe<Awaited<ReturnType<typeof loadPricingDocument>> | null>(loadPricingDocument, null);
 
@@ -176,6 +193,8 @@ export default async function AgentTodayPage() {
           </Link>
         </div>
       </header>
+
+      <AgentDayNotice dayKey={todayKey} notice={todayNotice} />
 
       {/* ── the attention strip ──────────────────────────────────────────── */}
       {alerts.length === 0 ? (

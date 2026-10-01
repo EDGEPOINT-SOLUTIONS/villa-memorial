@@ -21,7 +21,9 @@
  * WHAT IT DOES NOT DO: it books nothing and invents nothing. A day with no
  * recorded entry stays a plain day, the booking actions stay disabled and named
  * exactly as the page names them today, and no availability is shown — there is
- * no agent-facing scheduling contract.
+ * no agent-facing scheduling contract. The one write is the agent's OWN plan
+ * (add · done · edit · remove), recorded in the demo planner journal; the
+ * office's recorded appointments stay read-only beside it.
  *
  * ACCESSIBILITY: the month is a real table (weekday headers + day cells), each
  * marked day is a button with a full text summary behind its mark, and the grid
@@ -34,6 +36,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import type { AgentTask, Appointment } from "@/lib/api-client/agent";
 import { appointmentStateLabel, manilaTime } from "@/lib/agent/agent-view";
+import { isPlanDay, type AgentPlan } from "@/lib/agent/agent-plans";
+import { PlanComposer, PlanRow } from "@/components/agent/agent-day-planner";
 import {
   agentDayAriaSummary,
   agentDayLabel,
@@ -70,27 +74,38 @@ function weekStart(dayKey: string): string {
 export function AgentCalendar({
   appointments,
   tasks,
+  plans,
   contactNames,
   todayKey,
+  initialDay,
 }: {
   appointments: Appointment[];
   tasks: AgentTask[];
+  /** The signed-in agent's own plans, folded from the demo planner journal. */
+  plans: AgentPlan[];
   /** The office's contact id → name, so the day detail can say who it is with. */
   contactNames: Record<string, string>;
   /** The recorded today's day (`yyyy-mm-dd`), passed in so SSR and the browser agree. */
   todayKey: string;
+  /** A day the address asked to open on (the sign-in notice links here). */
+  initialDay?: string;
 }) {
   const events = useMemo(
-    () => buildAgentCalendarEvents(appointments, tasks, contactNames),
-    [appointments, tasks, contactNames],
+    () => buildAgentCalendarEvents(appointments, tasks, plans, contactNames),
+    [appointments, tasks, plans, contactNames],
   );
   const byDay = useMemo(() => groupAgentEventsByDay(events), [events]);
-  const [month, setMonth] = useState(() => defaultAgentMonthKey(events, todayKey));
+  const startDay = initialDay && isPlanDay(initialDay) ? initialDay : null;
+  const [month, setMonth] = useState(() =>
+    startDay ? monthKeyFromDay(startDay) : defaultAgentMonthKey(events, todayKey),
+  );
   const [selectedDay, setSelectedDay] = useState<string | null>(() => {
+    if (startDay) return startDay;
     const key = defaultAgentMonthKey(events, todayKey);
     return firstAgentEventDay(groupAgentEventsByDay(events), key) ?? `${key}-01`;
   });
   const [focusDay, setFocusDay] = useState<string>(() => {
+    if (startDay) return startDay;
     const key = defaultAgentMonthKey(events, todayKey);
     return firstAgentEventDay(groupAgentEventsByDay(events), key) ?? `${key}-01`;
   });
@@ -278,6 +293,7 @@ export function AgentCalendar({
             <span className="fv-cal__key" data-tone="ok" /> Confirmed by the office
             <span className="fv-cal__key" data-tone="wait" /> Waiting for the office to confirm
             <span className="fv-cal__key" data-tone="neutral" /> A task due that day
+            <span className="fv-cal__key" data-tone="plan" /> Your own plan
           </p>
         </div>
 
@@ -290,49 +306,53 @@ export function AgentCalendar({
 
             {selectedEvents.length > 0 ? (
               <ol className="fv-cal__events">
-                {selectedEvents.map((event) => (
-                  <li className="fv-cal__event" key={event.id} data-tone={event.tone}>
-                    {event.kind === "appointment" && event.appointment ? (
-                      <>
-                        {event.contact_name ? (
-                          <p className="fv-cal__event-who">{event.contact_name}</p>
-                        ) : null}
-                        <p className="fv-cal__event-title">{event.appointment.title}</p>
-                        <p className="fv-cal__event-meta">
-                          {manilaTime(event.appointment.starts_at)} · {event.appointment.where}
-                        </p>
-                        {event.appointment.bring.length > 0 ? (
+                {selectedEvents.map((event) =>
+                  event.kind === "plan" && event.plan ? (
+                    <PlanRow key={event.id} plan={event.plan} />
+                  ) : (
+                    <li className="fv-cal__event" key={event.id} data-tone={event.tone}>
+                      {event.kind === "appointment" && event.appointment ? (
+                        <>
+                          {event.contact_name ? (
+                            <p className="fv-cal__event-who">{event.contact_name}</p>
+                          ) : null}
+                          <p className="fv-cal__event-title">{event.appointment.title}</p>
                           <p className="fv-cal__event-meta">
-                            Bring: {event.appointment.bring.join(", ")}
+                            {manilaTime(event.appointment.starts_at)} · {event.appointment.where}
                           </p>
-                        ) : null}
-                        <p className="fv-state">
-                          <span
-                            className={
-                              event.appointment.status === "waiting"
-                                ? "ag-stage ag-stage--warm"
-                                : "ag-stage"
-                            }
-                          >
-                            {appointmentStateLabel(event.appointment)}
-                          </span>
-                          <span className="ag-stage">{event.appointment.reason}</span>
-                        </p>
-                        {event.appointment.time_note ? (
-                          <p className="fv-cal__event-note">{event.appointment.time_note}</p>
-                        ) : null}
-                      </>
-                    ) : event.task ? (
-                      <>
-                        <p className="fv-cal__event-title">{event.task.title}</p>
-                        <p className="fv-cal__event-meta">{event.task.meta}</p>
-                        <p className="fv-state">
-                          <span className="ag-stage">{event.task.done ? "Done" : "Task"}</span>
-                        </p>
-                      </>
-                    ) : null}
-                  </li>
-                ))}
+                          {event.appointment.bring.length > 0 ? (
+                            <p className="fv-cal__event-meta">
+                              Bring: {event.appointment.bring.join(", ")}
+                            </p>
+                          ) : null}
+                          <p className="fv-state">
+                            <span
+                              className={
+                                event.appointment.status === "waiting"
+                                  ? "ag-stage ag-stage--warm"
+                                  : "ag-stage"
+                              }
+                            >
+                              {appointmentStateLabel(event.appointment)}
+                            </span>
+                            <span className="ag-stage">{event.appointment.reason}</span>
+                          </p>
+                          {event.appointment.time_note ? (
+                            <p className="fv-cal__event-note">{event.appointment.time_note}</p>
+                          ) : null}
+                        </>
+                      ) : event.task ? (
+                        <>
+                          <p className="fv-cal__event-title">{event.task.title}</p>
+                          <p className="fv-cal__event-meta">{event.task.meta}</p>
+                          <p className="fv-state">
+                            <span className="ag-stage">{event.task.done ? "Done" : "Task"}</span>
+                          </p>
+                        </>
+                      ) : null}
+                    </li>
+                  ),
+                )}
               </ol>
             ) : (
               <p className="fv-cal__empty">
@@ -341,6 +361,7 @@ export function AgentCalendar({
                   : "Nothing is on this day."}
               </p>
             )}
+            {selectedDay ? <PlanComposer day={selectedDay} /> : null}
           </div>
         </div>
       </div>

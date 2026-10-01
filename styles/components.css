@@ -4131,6 +4131,61 @@ because the shared `.ag-appt` rule comes later in this file. */
   margin-top: var(--space-3);
 }
 
+/* The agent's own plans sit beside the office's recorded day (captain,
+   2026-10-02). The plan role is sky — the product's own control colour — never
+   the office's confirmed/waiting status colours, because a plan is not a
+   confirmation. */
+.fv-cal__dot[data-tone="plan"],
+.fv-cal__key[data-tone="plan"] {
+  background: var(--sky-600);
+}
+
+.fv-cal__event[data-tone="plan"] {
+  border-left-color: var(--sky-600);
+}
+
+.fv-cal__plan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.fv-cal__plan-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.fv-cal__plan-add {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.fv-cal__plan-hint {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.fv-cal__plan-optional {
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.fv-cal__plan-done {
+  color: var(--color-text-muted);
+}
+
+.fv-cal__plan-error {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-status-danger-ink);
+}
+
 @media (max-width: 40rem) {
   .fv-cal__day {
     min-height: 2.5rem;
@@ -15019,6 +15074,70 @@ a.card:hover {
 
 .ag-actions--center { justify-content: center; }
 
+/* The agent's sign-in day notice — a quiet, dismissable band, never a modal
+   (captain, 2026-10-02). It reads the same fold as the calendar's day detail. */
+.ag-daynotice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--sky-600);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.ag-daynotice__body {
+  min-width: 0;
+}
+
+.ag-daynotice__title {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sky-800);
+}
+
+.ag-daynotice__line {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+}
+
+.ag-daynotice__next {
+  margin: 2px 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.ag-daynotice__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ag-daynotice__close {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.ag-daynotice__close:hover {
+  border-color: var(--sky-600);
+  color: var(--color-text-primary);
+}
+
 /* A plain hairline between two groups inside a card. */
 .ag-divider {
   border: 0;
@@ -15783,6 +15902,7 @@ a.card:hover {
 .ag-field input[type="text"],
 .ag-field input[type="tel"],
 .ag-field input[type="search"],
+.ag-field input[type="time"],
 .ag-field select,
 .ag-field textarea {
   width: 100%;

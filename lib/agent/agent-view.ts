@@ -331,6 +331,26 @@ export function manilaTime(iso: string): string {
   return TIME_FORMAT.format(new Date(iso));
 }
 
+const MINUTES_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Asia/Manila",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+/**
+ * Minutes after midnight in the park's own time, for ORDERING a day's entries by
+ * their clock. The calendar mixes recorded instants with the agent's own `HH:mm`
+ * plans, so both sides need one comparable number; an unusable instant gives
+ * `-1` and sorts first rather than as midnight.
+ */
+export function manilaMinutes(iso: string): number {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return -1;
+  const [hour, minute] = MINUTES_FORMAT.format(date).split(":").map(Number);
+  return (hour % 24) * 60 + minute;
+}
+
 export function nextActionItem(items: WorkItem[], now: Date): WorkItem | null {
   const first = orderWorkItems(items, now).find((i) => workState(i, now) !== "done");
   return first ?? null;

@@ -1,6 +1,10 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+import { createPlan } from "@/lib/api-client/agent-plan-store";
 
 /**
  * Appointments & tasks as a CALENDAR (captain, 2026-10-02): the office's own
@@ -19,7 +23,7 @@ vi.mock("next/navigation", () => ({
 
 const { default: AgentAppointmentsPage } = await import("@/app/(agent)/agent/appointments/page");
 
-async function render(): Promise<string> {
+async function render(day?: string): Promise<string> {
   sessionHolder.current = {
     userId: "00000000-0000-4000-8000-000000000013",
     tenantId: "00000000-0000-4000-8000-000000000001",
@@ -28,8 +32,23 @@ async function render(): Promise<string> {
     displayName: "Alex Agent",
     expiresAt: new Date(Date.now() + 900_000).toISOString(),
   };
-  return renderToStaticMarkup(await AgentAppointmentsPage());
+  return renderToStaticMarkup(
+    await AgentAppointmentsPage({ searchParams: Promise.resolve(day ? { day } : {}) }),
+  );
 }
+
+let dir: string;
+
+beforeEach(async () => {
+  dir = await mkdtemp(path.join(os.tmpdir(), "vm-agent-plan-page-"));
+  process.env.AGENT_PLAN_STORE_PATH = path.join(dir, "agent-plans.json");
+  sessionHolder.current = null;
+});
+
+afterEach(async () => {
+  delete process.env.AGENT_PLAN_STORE_PATH;
+  await rm(dir, { recursive: true, force: true });
+});
 
 describe("the agent appointments calendar", () => {
   it("opens on the month that holds the recorded appointments", async () => {
@@ -78,6 +97,36 @@ describe("the agent appointments calendar", () => {
     expect(html).toContain("Confirmed by the office");
     expect(html).toContain("Waiting for the office to confirm");
     expect(html).toContain("A task due that day");
+    expect(html).toContain("Your own plan");
+  });
+
+  it("opens on the day the sign-in notice links to", async () => {
+    const html = await render("2026-09-17");
+    expect(html).toContain("Thursday");
+    expect(html).toContain("17 September");
+  });
+
+  it("carries the planner controls — add, done, edit and remove", async () => {
+    const html = await render();
+    expect(html).toContain("Add a plan");
+    expect(html).toContain("A plan is your own note for the day");
+  });
+
+  it("shows the agent's own plan beside the recorded day and marks its cell", async () => {
+    await createPlan({
+      draft: { day: "2026-09-17", time: "09:00", title: "Call Lorna about the lawn lot", note: "Bring the sheet" },
+      by: "Alex Agent",
+    });
+    const html = await render("2026-09-17");
+    expect(html).toContain("Your plan");
+    expect(html).toContain("Call Lorna about the lawn lot");
+    expect(html).toContain("9:00 AM");
+    expect(html).toContain("Bring the sheet");
+    expect(html).toContain('data-tone="plan"');
+    // The plan's own controls: done · edit · remove.
+    expect(html).toContain("Mark done");
+    expect(html).toContain("Edit");
+    expect(html).toContain("Remove");
   });
 
   it("keeps the day's drive order, the small promises and the honest note", async () => {

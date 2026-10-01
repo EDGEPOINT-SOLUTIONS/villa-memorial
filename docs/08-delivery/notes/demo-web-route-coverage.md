@@ -151,9 +151,23 @@ record's 8-of-12); that reconciliation is still open.
 every recorded appointment is marked on its Asia/Manila day, a dated task is marked beside it,
 the legend names each state in words, and the selected day's detail (who · what · time · place ·
 what to bring · state) sits beside the grid on a wide screen and under it on a phone. The Today
-drive order and the small promises stay above the grid, so no recorded fact is lost. No
-availability is invented and no booking write exists — the office still confirms every slot.
-Record: [agent appointments calendar](../agent-calendar-design/README.md).
+drive order and the small promises stay above the grid, so no recorded fact is lost.
+
+The same screen is the agent's own **day planner** (captain, 2026-10-02): pick a day, add what
+to do with an optional time and note, mark it done, edit or remove it. A plan is the agent's own
+note and is **demo-local** — it appends to the same journal pattern as the acquisition pipeline
+(`AGENT_PLAN_STORE_PATH` / `.data/agent-plans.json`) through the guarded
+`POST/PATCH/DELETE /api/agent/plans[/:id]`, and `lib/api-client/agent.ts` folds it so the
+calendar, the day detail and the dashboard notice read one source. Plans sit beside the office's
+read-only appointments, ordered by time; the grid marks a planned day with the sky plan role
+named in the legend. Nothing books a slot and no reminder outside the portal is promised.
+
+`/agent/dashboard` opens with a quiet, dismissable **Today's plan** band built from the same
+fold — the count of open plans and the next open thing, with a link to the day
+(`/agent/appointments?day=…`). No availability is invented and no office sync exists — the
+office still confirms every slot.
+Record: [agent day planner](../agent-day-planning-design/README.md);
+[agent appointments calendar](../agent-calendar-design/README.md).
 
 The `/agent/sales` money page is a statement **table** now (line · basis · credited · state ·
 amount) — the plan's PR-4 grammar — with the four-state path and the seven configurable bases as

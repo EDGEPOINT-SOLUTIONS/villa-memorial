@@ -172,6 +172,11 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".ag-trail__dot", why: "the lead-stage trail dot (a status indicator)" },
   { match: ".ag-step__dot", why: "the acquisition step dot (a status indicator)" },
   { match: ".lead-trail__dot", why: "the lead-stage trail dot (a status indicator)" },
+  // The agent day planner (captain, 2026-10-02): the plan role's dot and legend
+  // key are functional indicators — colour names the role beside the office's
+  // confirmed/waiting statuses, and the day detail always spells it in words.
+  { match: ".fv-cal__dot[data-tone=\"plan\"]", why: "a planned-day status dot (a functional indicator)" },
+  { match: ".fv-cal__key[data-tone=\"plan\"]", why: "the plan role in the calendar legend (a functional indicator)" },
   { match: ".post-card__avatar", why: "a small identity avatar disc" },
   // The approved home-rebuild plan (2026-09-29) makes the sky STRUCTURE on the
   // home: the five rising plan niches, the map's status pins, the engraved empty

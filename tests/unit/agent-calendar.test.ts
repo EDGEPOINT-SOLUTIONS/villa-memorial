@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { AgentTask, Appointment } from "@/lib/api-client/agent";
+import type { AgentPlan } from "@/lib/agent/agent-plans";
 import {
   agentAppointmentTone,
   agentDayAriaSummary,
   agentTaskDayKey,
   buildAgentCalendarEvents,
+  dayNotice,
   defaultAgentMonthKey,
   firstAgentEventDay,
   groupAgentEventsByDay,
@@ -39,6 +41,20 @@ function task(id: string, due_at?: string): AgentTask {
   return { id, title: `Task ${id}`, meta: "", done: false, due_at };
 }
 
+function plan(id: string, day: string, time: string, done = false, title = `Plan ${id}`): AgentPlan {
+  return {
+    id,
+    created_by: "Alex Agent",
+    day,
+    time,
+    title,
+    note: "",
+    done,
+    created_at: `${day}T00:00:00.000Z`,
+    updated_at: `${day}T00:00:00.000Z`,
+  };
+}
+
 /**
  * The appointments calendar's pure logic (captain, 2026-10-02). The month grid
  * is the shared Monday-first one, every recorded instant is keyed to its
@@ -70,6 +86,7 @@ describe("grouping the recorded activity", () => {
         appointment("b", "2026-09-16T06:30:00Z", "waiting"),
         appointment("c", "2026-09-17T01:00:00Z", "confirmed"),
       ],
+      [],
       [],
       { "prospect-1": "Cecilia Ramos" },
     );
@@ -128,6 +145,7 @@ describe("what a day announces", () => {
     const events = buildAgentCalendarEvents(
       [appointment("a", "2026-09-16T02:30:00Z", "confirmed", { contact_id: "prospect-1", title: "Lot viewing" })],
       [],
+      [],
       { "prospect-1": "Cecilia Ramos" },
     );
     const summary = agentDayAriaSummary("2026-09-16", events);
@@ -143,5 +161,77 @@ describe("what a day announces", () => {
     expect(agentDayAriaSummary("2026-09-16", [])).toContain("nothing recorded");
     const events = buildAgentCalendarEvents([], [task("dated", "2026-09-18")]);
     expect(agentDayAriaSummary("2026-09-18", events)).toContain("Task dated (task)");
+  });
+});
+
+describe("the agent's own plans (captain, 2026-10-02)", () => {
+  it("places a plan on its day, orders it by time beside the office's stops, and names the role", () => {
+    const events = buildAgentCalendarEvents(
+      [appointment("a", "2026-09-16T06:30:00Z", "confirmed")],
+      [],
+      [plan("p1", "2026-09-16", "09:00", false, "Call Lorna")],
+    );
+    const day = groupAgentEventsByDay(events).get("2026-09-16")!;
+    // 09:00 Manila plan sits before the 14:30 Manila stop.
+    expect(day.map((event) => event.id)).toEqual(["p1", "a"]);
+    expect(day[0].kind).toBe("plan");
+    expect(day[0].tone).toBe("plan");
+    expect(day[0].plan!.title).toBe("Call Lorna");
+  });
+
+  it("puts an untimed plan after the timed entries of its day", () => {
+    const events = buildAgentCalendarEvents(
+      [],
+      [],
+      [plan("late", "2026-09-16", ""), plan("early", "2026-09-16", "08:00")],
+    );
+    expect(groupAgentEventsByDay(events).get("2026-09-16")!.map((event) => event.id)).toEqual([
+      "early",
+      "late",
+    ]);
+  });
+
+  it("announces a plan with its time and done state, and reads a day's notice", () => {
+    const events = buildAgentCalendarEvents(
+      [appointment("a", "2026-09-16T02:30:00Z", "confirmed", { title: "Lot viewing" })],
+      [],
+      [
+        plan("p1", "2026-09-16", "09:00", false, "Call Lorna"),
+        plan("p2", "2026-09-16", "16:00", true, "File papers"),
+      ],
+    );
+    const summary = agentDayAriaSummary("2026-09-16", groupAgentEventsByDay(events).get("2026-09-16")!);
+    expect(summary).toContain("Call Lorna (your plan, 9:00 AM)");
+    expect(summary).toContain("File papers (your plan, 4:00 PM, done)");
+
+    const notice = dayNotice(events, "2026-09-16");
+    expect(notice.planCount).toBe(2);
+    expect(notice.openPlanCount).toBe(1);
+    expect(notice.stopCount).toBe(1);
+    // The earliest open thing is the 9:00 plan, not the 10:30 stop or the done plan.
+    expect(notice.next).toMatchObject({ kind: "plan", title: "Call Lorna", timeLabel: "9:00 AM" });
+  });
+
+  it("falls back to the next open office stop when only done plans remain", () => {
+    const events = buildAgentCalendarEvents(
+      [appointment("a", "2026-09-16T02:30:00Z", "confirmed", { title: "Lot viewing" })],
+      [],
+      [plan("p1", "2026-09-16", "09:00", true, "Call Lorna")],
+    );
+    const notice = dayNotice(events, "2026-09-16");
+    expect(notice.openPlanCount).toBe(0);
+    expect(notice.next).toMatchObject({ kind: "appointment", title: "Lot viewing" });
+  });
+
+  it("never announces a finished task as the next thing", () => {
+    const finished: AgentTask = {
+      id: "t1",
+      title: "Finished task",
+      meta: "",
+      done: true,
+      due_at: "2026-09-16",
+    };
+    const notice = dayNotice(buildAgentCalendarEvents([], [finished], []), "2026-09-16");
+    expect(notice.next).toBeNull();
   });
 });
