@@ -158,8 +158,9 @@ describe("the prospect list (plan §8)", () => {
 
   it("shows all rows when there are fewer than twelve and no Show-all link", async () => {
     const html = renderToStaticMarkup(await render());
-    // Seven recorded prospects: the working list shows them all.
-    expect(count(html, "<tr>")).toBe(8); // header + seven recorded prospects
+    // Seven recorded prospects: the working list shows them all. The rows carry
+    // the clickable-box modifier, so count the element, not a bare "<tr>".
+    expect(count(html, "<tr")).toBe(8); // header + seven recorded prospects
     expect(html).not.toContain("Show all");
   });
 

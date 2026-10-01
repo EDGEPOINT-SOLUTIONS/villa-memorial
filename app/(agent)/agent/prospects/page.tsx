@@ -99,8 +99,10 @@ function ProspectTable({ rows }: { rows: Prospect[] }) {
           {rows.map((p) => {
             const urgency = prospectUrgency(p);
             const tel = `tel:${p.phone.replace(/\s/g, "")}`;
+            // The row is not a link — the name and the three actions are — but it
+            // carries them, so it takes the shared clickable-box affordance.
             return (
-              <tr key={p.id}>
+              <tr className="wb-clickable" key={p.id}>
                 <th scope="row">
                   <Link href={`/agent/prospects/${p.id}`}>{p.name}</Link>
                   <span className="wb-table__sub">
@@ -233,7 +235,7 @@ export default async function AgentProspectsPage({
 
           <div className="wb-viewswitch" role="group" aria-label="View">
             <Link
-              className="ag-filter"
+              className="ag-filter wb-clickable"
               data-on={view === "list" ? "yes" : "no"}
               aria-current={view === "list" ? "true" : undefined}
               href={makeHref({ view: undefined })}
@@ -241,7 +243,7 @@ export default async function AgentProspectsPage({
               List
             </Link>
             <Link
-              className="ag-filter"
+              className="ag-filter wb-clickable"
               data-on={view === "board" ? "yes" : "no"}
               aria-current={view === "board" ? "true" : undefined}
               href={makeHref({ view: "board" })}
@@ -254,7 +256,7 @@ export default async function AgentProspectsPage({
             {FILTERS.map((f) => (
               <Link
                 key={f.key}
-                className="ag-filter"
+                className="ag-filter wb-clickable"
                 data-on={f.key === filter ? "yes" : "no"}
                 aria-current={f.key === filter ? "true" : undefined}
                 href={`/agent/prospects${queryString({
@@ -271,7 +273,7 @@ export default async function AgentProspectsPage({
             {PIPELINE_STAGES.map((stage) => (
               <Link
                 key={stage}
-                className="ag-filter"
+                className="ag-filter wb-clickable"
                 data-on={params.stage === stage ? "yes" : "no"}
                 aria-current={params.stage === stage ? "true" : undefined}
                 href={makeHref({ stage: params.stage === stage ? undefined : stage, show: undefined })}
@@ -282,7 +284,7 @@ export default async function AgentProspectsPage({
             {SOURCES.map((source) => (
               <Link
                 key={source.key}
-                className="ag-filter"
+                className="ag-filter wb-clickable"
                 data-on={params.source === source.key ? "yes" : "no"}
                 aria-current={params.source === source.key ? "true" : undefined}
                 href={makeHref({ source: params.source === source.key ? undefined : source.key, show: undefined })}

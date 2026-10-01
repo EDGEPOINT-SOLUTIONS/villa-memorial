@@ -143,7 +143,12 @@ honest initials disc because no agent picture is recorded
 ([record](../agent-profile-design/README.md)). Every box that IS a link (the brief lead, the
 vitals ribbon, the tool tiles, the panel/flow open actions) answers on hover and keyboard focus with
 the sky control wash; a box that does not link stays still, so no content box wears a false
-affordance ([record](../dashboard-hover-design/README.md)). `/agent/lots` still prints a
+affordance ([record](../dashboard-hover-design/README.md)). **The same grammar now reaches the
+portal's list surfaces**: every `/agent/prospects` row and every `.ag-filter` chip on both list
+screens answer on the pointer AND on keyboard focus with the one sky control wash, so the pair
+(`/agent/prospects` · `/agent/clients`) reads by one rule; the header band, the panels, the search
+form, the note and the empty state stay still, so no content box wears a false affordance
+([record](../agent-list-hover-design/README.md)). `/agent/lots` still prints a
 **type-summary** availability count that its own map does not match (16 vs the property
 record's 8-of-12); that reconciliation is still open.
 
