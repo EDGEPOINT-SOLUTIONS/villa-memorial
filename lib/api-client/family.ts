@@ -484,7 +484,15 @@ export async function getFamilyHousehold(): Promise<FamilyHousehold> {
     if (!record) throw new ApiError(`family workspace has no record for ${lovedOne.id}`, 500);
     return {
       ...lovedOne,
-      lot: record.lot,
+      // `plan_name` / `owner_name` are the snapshot's own words, DERIVED here rather
+      // than stored a second time in the workspace fixture: one fact, one record, so
+      // the lot screen and the plan summary can never describe two plans or two owners
+      // (tests/unit/demo-consistency.test.tsx pins the derivation).
+      lot: {
+        ...record.lot,
+        plan_name: lovedOne.plan_summary.plan_name,
+        owner_name: snapshot.family.display_name,
+      },
       requests: record.requests,
       appointments: record.appointments,
       familyCase: caseById.get(lovedOne.id) ?? null,

@@ -24,11 +24,9 @@ import {
 type WorkspacePerson = {
   id: string;
   lot: {
-    plan_name: string;
     park: string;
     section: string;
     lot_number: string;
-    owner_name: string;
     kept_by: string;
     with_office: string[];
   };
@@ -119,18 +117,27 @@ describe("the family workspace fixture", () => {
     expect(places).not.toMatch(/Chapel A|Chapel B/);
   });
 
-  it("pins every lot record to its loved one's own recorded words", () => {
+  it("derives every lot's plan name and owner from the snapshot, never a second copy", async () => {
+    // The workspace fixture no longer stores `plan_name`/`owner_name`: they are the
+    // snapshot's own words, read through `getFamilyHousehold`. One fact, one record.
     for (const one of ws.loved_ones) {
-      const person = snapById.get(one.id);
-      expect(person, `no snapshot record for ${one.id}`).toBeTruthy();
-      if (!person) continue;
-      expect(one.lot.plan_name).toBe(person.plan_summary.plan_name);
-      expect(one.lot.owner_name).toBe(snap.family.display_name);
+      const stored = one.lot as unknown as Record<string, unknown>;
+      expect(stored.plan_name, `${one.id} still stores the plan name`).toBeUndefined();
+      expect(stored.owner_name, `${one.id} still stores the account holder`).toBeUndefined();
+    }
+    const { getFamilyHousehold } = await import("@/lib/api-client/family");
+    const household = await getFamilyHousehold();
+    for (const person of household.people) {
+      const personSnap = snapById.get(person.id);
+      expect(personSnap, `no snapshot record for ${person.id}`).toBeTruthy();
+      if (!personSnap || !person.lot) continue;
+      expect(person.lot.plan_name).toBe(personSnap.plan_summary.plan_name);
+      expect(person.lot.owner_name).toBe(snap.family.display_name);
       // The lot number the screen leads with is the one the plan already names.
-      expect(person.plan_summary.plan_name).toContain(one.lot.lot_number);
-      expect(one.lot.section).toBe(one.lot.lot_number.split("-")[0]);
+      expect(personSnap.plan_summary.plan_name).toContain(person.lot.lot_number);
+      expect(person.lot.section).toBe(person.lot.lot_number.split("-")[0]);
       // The park is the client's own park (lib/family/contact.ts), never an invented one.
-      expect(FAMILY_HELP.park).toContain(one.lot.park);
+      expect(FAMILY_HELP.park).toContain(person.lot.park);
     }
   });
 

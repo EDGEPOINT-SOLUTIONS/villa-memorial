@@ -32,7 +32,7 @@ const ws = workspace as unknown as typeof workspace & {
     string,
     Array<{ id: string; title: string; sent_at: string; opens: number; last_open: string }>
   >;
-  clients: Array<{ id: string; customer_id: string | null; holdings: Array<{ lot_id?: string }> }>;
+  clients: Array<{ id: string; customer_id: string | null; holdings?: Array<{ lot_id?: string }> }>;
   work_items?: unknown;
   today: {
     work_items: Array<{ contact_id: string; kind: string; state: string }>;
@@ -72,7 +72,7 @@ describe("agent workspace fixture", () => {
     const lotIds = new Set((lots.lots as Array<{ id: string }>).map((l) => l.id));
     for (const client of ws.clients) {
       if (client.customer_id) expect(customerIds.has(client.customer_id)).toBe(true);
-      for (const holding of client.holdings) {
+      for (const holding of client.holdings ?? []) {
         if (holding.lot_id) expect(lotIds.has(holding.lot_id)).toBe(true);
       }
     }

@@ -123,7 +123,11 @@ refuses an unmarked row and offers no live mode), pinned by
 `lots`, `applications`, `appointments`, `marketing`, `new`, `profile`): ⚠ all read one provisional
 agent-workspace fixture — no agent/commission contract exists, so commission amounts are
 `null` by design and the pages say so. `/agent/lots` mounts the same shared park map as
-`/staff/property` and `/map`.
+`/staff/property` and `/map`. `/agent/clients/[id]` reads the demo household
+(`client-cory`), whose name, plans, money, lots, office-released papers and visits are DERIVED from the
+family's own record (`lib/fixtures/family/*`) rather than copied, so the agent and family
+portals tell one story — `tests/unit/demo-consistency.test.tsx` renders both and fails on
+drift (record: [demo data consistency](../demo-data-consistency-design/README.md)).
 
 ## Absent (not routes yet) — needs a contract or a decision
 

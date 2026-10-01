@@ -4,7 +4,8 @@
     "recorded": "2026-09-16",
     "note": [
       "Fixture data for the agent portal (Module: finance-billing §16-21 agent dashboard + commission engine; crm-cases lead/customer; commerce-catalog §33 pipeline; facilities-scheduling §35 appointments).",
-      "Cross-references: customers 101-104 and lots D01-D03 exist in lib/fixtures/crm/customers.json and lib/fixtures/property/lots.json; every other record is UI demo data shaped for the approved agent-portal design (docs/08-delivery/agent-portal-design).",
+      "Cross-references: customers 101-105 and lots D01-D03 exist in lib/fixtures/crm/customers.json and lib/fixtures/property/lots.json; every other record is UI demo data shaped for the approved agent-portal design (docs/08-delivery/agent-portal-design).",
+      "THE DEMO HOUSEHOLD (client-cory) IS DERIVED, NOT COPIED: its fixture row carries only agent-only fields plus `household_ref`; its name, phone, email, each loved one's plan, money, lot, the office-released papers and the visits are read at render time from the family's own record (lib/fixtures/family/snapshot.json and workspace.json) by lib/api-client/agent.ts, so the family portal and the agent portal cannot tell two stories. A paper still being checked is not among the released copies (familyDocumentReleased). tests/unit/demo-consistency.test.tsx pins the derivation.",
       "COMMISSION IS UNCONFIGURED BY DESIGN: every commission/target amount is null and `configured` is false — the client has not fixed rates (docs/07-client-villa/open-questions.md:26). Never fill these with invented figures.",
       "Money is integer minor units (`*_cents`) only; views format through lib/money.ts and never parse display strings.",
       "`possible_value_cents` is the full contract value (the 2026 sheet's monthly figure × the term), never a monthly quote — a monthly amount entered as cents reads 100× too small.",
@@ -640,6 +641,16 @@
       "check_in": "Referral",
       "ask": null,
       "papers": []
+    },
+    {
+      "id": "client-cory",
+      "customer_id": "00000000-0000-4000-8000-000000000105",
+      "household": "The Dela Cruz family — Cory holds the plans for Ernesto and Aurora",
+      "since": "2026",
+      "check_in": "Being served now",
+      "co_decider": null,
+      "ask": null,
+      "household_ref": "family/snapshot.json#family"
     }
   ],
   "appointments": [

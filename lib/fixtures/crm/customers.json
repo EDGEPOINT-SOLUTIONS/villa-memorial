@@ -47,6 +47,16 @@
       "status": "inactive",
       "family_id": null,
       "registered_at": "2024-08-30T13:22:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000105",
+      "first_name": "Cory",
+      "last_name": "Customer",
+      "email": "customer@vm.demo",
+      "phone": "0917 000 1234",
+      "status": "active",
+      "family_id": "00000000-0000-4000-8000-000000000202",
+      "registered_at": "2026-06-20T09:00:00Z"
     }
   ],
   "families": [
@@ -61,6 +71,16 @@
         {
           "customer_id": "00000000-0000-4000-8000-000000000102",
           "relationship": "patriarch"
+        }
+      ]
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000202",
+      "name": "Dela Cruz family",
+      "members": [
+        {
+          "customer_id": "00000000-0000-4000-8000-000000000105",
+          "relationship": "daughter of"
         }
       ]
     }

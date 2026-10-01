@@ -26,6 +26,9 @@
  */
 import workspaceFile from "@/lib/fixtures/agent/workspace.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { getFamilyHousehold } from "@/lib/api-client/family";
+import { familyDocumentReleased } from "@/lib/family/family-view";
+import { nextPaymentDue, nextPaymentDueLabel } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
 
 export type AgentIdentity = {
@@ -101,6 +104,25 @@ export type ProspectShare = {
 
 export type ClientHolding = { kind: string; label: string; detail: string; lot_id?: string };
 
+/**
+ * One of the family's own visits, as the office's record shows it. Derived from the
+ * family's appointment record (lib/fixtures/family/workspace.json) so the agent and
+ * the family read the same day, time and place. `person` names the loved one the visit
+ * is for — the agent record has no person switcher, so the name travels with the visit.
+ * `state` is the family's own word.
+ */
+export type ClientVisit = {
+  id: string;
+  kind: string;
+  person: string;
+  day_label: string;
+  time_label: string;
+  title: string;
+  reason: string;
+  where: string;
+  state: "confirmed" | "waiting" | "past";
+};
+
 export type Client = {
   id: string;
   customer_id: string | null;
@@ -116,6 +138,8 @@ export type Client = {
   check_in: string;
   ask: string | null;
   papers: string[];
+  /** The family's own visits, when the office record carries them (lib/api-client/agent.ts). */
+  visits?: ClientVisit[];
 };
 
 export type Appointment = {
@@ -286,6 +310,119 @@ function readWorkspace(): AgentWorkspace {
   return raw as AgentWorkspace;
 }
 
+/**
+ * The office-side projection of the DEMO HOUSEHOLD — the one client whose record is
+ * the SAME family the family portal serves. Its row in the fixture carries only the
+ * agent-only fields and a `household_ref`; every fact the family can also see (the
+ * account holder, each loved one's plan and reference, the money, the lots, the papers
+ * and the visits) is READ from the family's own recorded source at render time
+ * (lib/fixtures/family/snapshot.json + workspace.json), so one fact lives in one
+ * record and the two portals cannot describe two different funeral homes. The
+ * non-household clients pass through untouched. Pinned by
+ * tests/unit/demo-consistency.test.tsx.
+ */
+function householdRef(raw: Client): string | undefined {
+  const ref = (raw as unknown as { household_ref?: unknown }).household_ref;
+  return typeof ref === "string" && ref.trim() !== "" ? ref : undefined;
+}
+
+async function toClient(raw: Client): Promise<Client> {
+  const base: Client = {
+    ...raw,
+    holdings: (raw.holdings ?? []).map((h) => ({ ...h })),
+    visits: [],
+  };
+  if (!householdRef(raw)) return base;
+
+  const household = await getFamilyHousehold();
+  const people = household.people;
+
+  // One plan holding and one lot holding per loved one, so the office record names every
+  // plan and lot the family's portal can show.
+  const holdings: ClientHolding[] = people.flatMap((person) => {
+    const plan: ClientHolding = {
+      kind: "plan",
+      label: person.plan_summary.plan_name,
+      detail: [
+        person.payment_schedule?.reference,
+        person.payment_schedule?.term,
+        `${person.balance.remaining} still to pay`,
+      ]
+        .filter((part): part is string => Boolean(part))
+        .join(" · "),
+    };
+    if (!person.lot) return [plan];
+    return [
+      plan,
+      {
+        kind: "lot",
+        label: `Lot ${person.lot.lot_number}`,
+        detail: `${person.plan_summary.plan_name} · Section ${person.lot.section} · ${person.lot.park}`,
+      },
+    ];
+  });
+
+  // The next amount is the household's earliest open instalment across every plan.
+  const dues = people
+    .map((person) => (person.payment_schedule ? nextPaymentDue(person.payment_schedule) : null))
+    .filter((due): due is NonNullable<typeof due> => due !== null)
+    .sort((a, b) => a.due_on.localeCompare(b.due_on));
+  const due = dues[0] ?? null;
+
+  // The visits carry the loved one's name — the agent record has no person switcher.
+  const visits: ClientVisit[] = people.flatMap((person) =>
+    person.appointments.map((appointment) => ({
+      id: appointment.id,
+      kind: appointment.kind,
+      person: person.name,
+      day_label: appointment.day_label,
+      time_label: appointment.time_label,
+      title: appointment.title,
+      reason: appointment.reason,
+      where: appointment.where,
+      state: appointment.state,
+    })),
+  );
+  const upcoming = visits.filter((visit) => visit.state !== "past");
+
+  const next_events = [
+    ...people.map((person) => ({
+      label: person.name,
+      value: `${person.plan_summary.plan_name} · ${person.plan_summary.term}`,
+    })),
+    ...(due ? [{ label: "Next payment", value: nextPaymentDueLabel(due) }] : []),
+    ...upcoming.map((visit) => ({
+      label: visit.title,
+      value: `${visit.person} · ${visit.day_label} · ${visit.time_label} · ${visit.where}`,
+    })),
+  ];
+
+  // Only the copies the office has actually released: a paper still being
+  // checked (or rejected) is never presented as ready to hand over, matching the
+  // status words the family portal prints for the same record.
+  const papers = Array.from(
+    new Set(
+      people.flatMap((person) =>
+        person.recent_documents
+          .filter((document) => familyDocumentReleased(document.status))
+          .map((document) => document.title),
+      ),
+    ),
+  );
+
+  return {
+    ...base,
+    name: household.family.display_name,
+    phone: household.family.primary_contact,
+    email: household.family.email,
+    holdings,
+    next_amount: due ? { amount_cents: due.due_cents, due_at: due.due_on } : null,
+    next_events,
+    papers,
+    visits,
+  };
+}
+
 export async function getAgentWorkspace(): Promise<AgentWorkspace> {
   return readWorkspace();
 }
@@ -317,12 +454,12 @@ export async function getAgentProspect(
 }
 
 export async function listAgentClients(): Promise<Client[]> {
-  return readWorkspace().clients.map((c) => ({ ...c, holdings: c.holdings.map((h) => ({ ...h })) }));
+  return Promise.all(readWorkspace().clients.map(toClient));
 }
 
 export async function getAgentClient(id: string): Promise<Client | null> {
   const client = readWorkspace().clients.find((c) => c.id === id);
-  return client ? { ...client, holdings: client.holdings.map((h) => ({ ...h })) } : null;
+  return client ? toClient(client) : null;
 }
 
 export async function listAgentAppointments(): Promise<{

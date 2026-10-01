@@ -147,6 +147,36 @@ export default async function AgentClientPage({
         </div>
       </section>
 
+      {client.visits && client.visits.length > 0 ? (
+        <section className="ag-sec">
+          <div className="ag-sec__head">
+            <div>
+              <h2 className="ag-h2">Their visits</h2>
+              <p className="ag-sub">The family&apos;s own times — the same record their portal shows.</p>
+            </div>
+          </div>
+          <div className="ag-card">
+            <div className="ag-card__body">
+              {client.visits.map((visit) => (
+                <dl className="ag-kv" key={visit.id}>
+                  <dt>
+                    {visit.day_label} · {visit.time_label}
+                  </dt>
+                  <dd>
+                    {visit.person} · {visit.title} — {visit.where}
+                    {visit.state === "past"
+                      ? " · happened"
+                      : visit.state === "waiting"
+                        ? " — waiting for the office to confirm"
+                        : " · confirmed by the office"}
+                  </dd>
+                </dl>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       <section className="ag-sec">
         <div className="ag-sec__head">
           <div>

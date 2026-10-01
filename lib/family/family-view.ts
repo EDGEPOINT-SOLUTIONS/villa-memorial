@@ -146,6 +146,25 @@ export function familyDocumentView(title: string, rawStatus: string): FamilyDocu
 }
 
 /**
+ * Whether a recorded document status means the copy is actually available to
+ * hand over. The agent portal's “papers you can hand over” reads this so a paper
+ * still being checked (or rejected) is never presented as released — the family
+ * portal prints the SAME status through `familyDocumentView` above as “Being
+ * checked”, and the two surfaces must not disagree. Unknown statuses are not
+ * released: a paper the app cannot classify is never promised.
+ */
+export function familyDocumentReleased(rawStatus: string): boolean {
+  const key = rawStatus.trim().toLowerCase();
+  return (
+    key === "generated" ||
+    key === "approved" ||
+    key === "ready" ||
+    key === "sent" ||
+    key === "verified"
+  );
+}
+
+/**
  * The household name shown under the brand — presentation only, derived from
  * the loved one's recorded name (“Ernesto Dela Cruz” → “Dela Cruz family”).
  * Filipino surnames often carry two words (Dela Cruz, Del Rosario, San Juan),
