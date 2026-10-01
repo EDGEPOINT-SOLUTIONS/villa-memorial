@@ -2,21 +2,21 @@ import Link from "next/link";
 import { listAgentProspects, type Prospect } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { orderProspects, WORKBENCH_HELP } from "@/lib/agent/agent-dashboard";
-import { interestLabel, leadSourceLabel, manilaDay, needsYou, PIPELINE_STAGES, stageMeta } from "@/lib/agent/agent-view";
+import {
+  interestLabel,
+  leadSourceLabel,
+  manilaDay,
+  needsYou,
+  PIPELINE_STAGES,
+  prospectUrgency,
+  stageMeta,
+} from "@/lib/agent/agent-view";
 import { pipelineValueCents } from "@/lib/agent/acquisition";
 import { money, StageChip } from "@/components/agent/agent-ui";
+import { ProspectBoard } from "@/components/agent/prospect-board";
 import { StatusChip } from "@/components/kit";
 
 export const metadata = { title: "Prospects — Villa Funeraria agent portal" };
-
-/** The honest label for a prospect's urgency, in the agent's own words. */
-function urgencyLabel(prospect: Prospect): { label: string; tone: "danger" | "warning" | "info" | "neutral" } {
-  if (prospect.urgency === "hot") return { label: "Needs you today", tone: "danger" };
-  if (prospect.urgency === "today") return { label: "Due today", tone: "warning" };
-  if (prospect.urgency === "waiting") return { label: "Waiting on them", tone: "info" };
-  if (prospect.urgency === "warm") return { label: "Warming up", tone: "neutral" };
-  return { label: "New", tone: "neutral" };
-}
 
 type Search = {
   filter?: string;
@@ -24,6 +24,7 @@ type Search = {
   source?: string;
   q?: string;
   show?: string;
+  view?: string;
 };
 
 function applyFilters(prospects: Prospect[], params: Search): Prospect[] {
@@ -69,14 +70,90 @@ function queryString(params: Record<string, string | undefined>): string {
 }
 
 /**
- * Prospects — the working list (the captain's accepted plan, 2026-10-01).
+ * The working list's table, unchanged (the captain's accepted plan, 2026-10-01).
+ * It is rendered in list mode AND under the board on a phone, so the list markup
+ * has one home; board placement never removes the list a narrow screen can read.
+ */
+function ProspectTable({ rows }: { rows: Prospect[] }) {
+  return (
+    <div className="table-wrapper wb-table-wrapper" tabIndex={0} role="region" aria-label="Prospects">
+      <table className="table wb-table wb-table--sticky">
+        <caption className="visually-hidden">Your prospects, needs-you first</caption>
+        <thead>
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col">Stage</th>
+            <th scope="col">Next action</th>
+            <th scope="col">Best time</th>
+            <th scope="col">Last contact</th>
+            <th scope="col">Source</th>
+            <th scope="col" className="table__numeric">
+              Value
+            </th>
+            <th scope="col">
+              <span className="visually-hidden">Actions</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((p) => {
+            const urgency = prospectUrgency(p);
+            const tel = `tel:${p.phone.replace(/\s/g, "")}`;
+            return (
+              <tr key={p.id}>
+                <th scope="row">
+                  <Link href={`/agent/prospects/${p.id}`}>{p.name}</Link>
+                  <span className="wb-table__sub">
+                    {interestLabel(p.interest)} · {p.phone}
+                  </span>
+                </th>
+                <td data-label="Stage">
+                  <StageChip stage={p.stage} />
+                </td>
+                <td className="wb-table__wrap" data-label="Next">
+                  {p.next_action}
+                  <span className="wb-table__state">
+                    <StatusChip tone={urgency.tone}>{urgency.label}</StatusChip>
+                  </span>
+                </td>
+                <td data-label="Best time">{p.best_time}</td>
+                <td data-label="Last contact">{manilaDay(p.last_contact_at)}</td>
+                <td data-label="Source">{leadSourceLabel(p.source)}</td>
+                <td className="table__numeric" data-label="Value">
+                  {money(p.possible_value_cents)}
+                </td>
+                <td className="wb-table__actions" data-label="Actions">
+                  <a className="btn btn--primary btn--sm" href={tel}>
+                    Call
+                  </a>
+                  <a className="btn btn--secondary btn--sm" href={`sms:${p.phone.replace(/\s/g, "")}`}>
+                    Text
+                  </a>
+                  <Link className="btn btn--ghost btn--sm" href={`/agent/prospects/${p.id}`}>
+                    Open
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/**
+ * Prospects — the working list, with the board as a mode beside it (captain,
+ * 2026-10-02). The list stays the default and unchanged: a board spends the
+ * widest screen and cannot hold forty rows, but stage placement is a real write
+ * now, so the board earns its place as the placement surface.
  *
- * The four-lane kanban became a FILTER PRESET, not the default layout: a board
- * spends the widest screen on whitespace and cannot hold forty rows. This is the
- * list the agent actually works from — needs-you first, then the person whose
- * last contact is oldest. Every field is recorded: the stage chip, the one next
- * action, the whole contract value (never a monthly figure), the best time to
- * call and the source the lead came from. Twelve rows show, then “Show all”.
+ * `?view=board` swaps the table for one column per PRD stage
+ * (`lib/agent/agent-view.ts`) and lets a card be dragged — or moved with the
+ * keyboard — to a later stage. The move records through the lead record's own
+ * route and store, so the list, the dashboard stage-flow and the funnel follow.
+ * On a narrow screen the board yields to the list and says where it lives; the
+ * page still works at 390 with no sideways scroll.
  */
 export default async function AgentProspectsPage({
   searchParams,
@@ -86,6 +163,7 @@ export default async function AgentProspectsPage({
   await requirePortalSessionOrRedirect("agent");
   const params = (await searchParams) ?? {};
   const filter = params.filter ?? "all";
+  const view: "list" | "board" = params.view === "board" ? "board" : "list";
 
   const all = await listAgentProspects();
   const filtered = orderProspects(applyFilters(all, params));
@@ -98,6 +176,7 @@ export default async function AgentProspectsPage({
       stage: params.stage,
       source: params.source,
       q: params.q,
+      view: params.view,
       ...patch,
     })}`;
 
@@ -131,6 +210,7 @@ export default async function AgentProspectsPage({
             {filter !== "all" ? <input type="hidden" name="filter" value={filter} /> : null}
             {params.stage ? <input type="hidden" name="stage" value={params.stage} /> : null}
             {params.source ? <input type="hidden" name="source" value={params.source} /> : null}
+            {params.view ? <input type="hidden" name="view" value={params.view} /> : null}
             <label className="visually-hidden" htmlFor="prospect-search">
               Search prospects
             </label>
@@ -151,6 +231,25 @@ export default async function AgentProspectsPage({
             ) : null}
           </form>
 
+          <div className="wb-viewswitch" role="group" aria-label="View">
+            <Link
+              className="ag-filter"
+              data-on={view === "list" ? "yes" : "no"}
+              aria-current={view === "list" ? "true" : undefined}
+              href={makeHref({ view: undefined })}
+            >
+              List
+            </Link>
+            <Link
+              className="ag-filter"
+              data-on={view === "board" ? "yes" : "no"}
+              aria-current={view === "board" ? "true" : undefined}
+              href={makeHref({ view: "board" })}
+            >
+              Board
+            </Link>
+          </div>
+
           <div className="wb-chips" role="group" aria-label="Filter prospects">
             {FILTERS.map((f) => (
               <Link
@@ -163,6 +262,7 @@ export default async function AgentProspectsPage({
                   stage: params.stage,
                   source: params.source,
                   q: params.q,
+                  view: params.view,
                 })}`}
               >
                 {f.label}
@@ -202,84 +302,45 @@ export default async function AgentProspectsPage({
               <Link href="/agent/prospects">Clear the filters</Link> or capture the first lead.
             </p>
           </div>
+        ) : view === "board" ? (
+          <>
+            <div className="pb-wide">
+              <ProspectBoard prospects={filtered} />
+            </div>
+            <div className="pb-narrow">
+              <p className="wb-empty pb-narrow__note">
+                The board is a wide-screen view. Here is the same pipeline as a list — open it on a
+                desktop to place cards between stages.
+              </p>
+              <ProspectTable rows={shown} />
+              {filtered.length > 12 && params.show !== "all" ? (
+                <div className="wb-panel__body">
+                  <Link className="btn btn--secondary" href={makeHref({ show: "all" })}>
+                    Show all {filtered.length}
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+          </>
         ) : (
-          <div className="table-wrapper wb-table-wrapper" tabIndex={0} role="region" aria-label="Prospects">
-            <table className="table wb-table wb-table--sticky">
-              <caption className="visually-hidden">Your prospects, needs-you first</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Stage</th>
-                  <th scope="col">Next action</th>
-                  <th scope="col">Best time</th>
-                  <th scope="col">Last contact</th>
-                  <th scope="col">Source</th>
-                  <th scope="col" className="table__numeric">
-                    Value
-                  </th>
-                  <th scope="col">
-                    <span className="visually-hidden">Actions</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((p) => {
-                  const urgency = urgencyLabel(p);
-                  const tel = `tel:${p.phone.replace(/\s/g, "")}`;
-                  return (
-                    <tr key={p.id}>
-                      <th scope="row">
-                        <Link href={`/agent/prospects/${p.id}`}>{p.name}</Link>
-                        <span className="wb-table__sub">
-                          {interestLabel(p.interest)} · {p.phone}
-                        </span>
-                      </th>
-                      <td data-label="Stage">
-                        <StageChip stage={p.stage} />
-                      </td>
-                      <td className="wb-table__wrap" data-label="Next">
-                        {p.next_action}
-                        <span className="wb-table__state">
-                          <StatusChip tone={urgency.tone}>{urgency.label}</StatusChip>
-                        </span>
-                      </td>
-                      <td data-label="Best time">{p.best_time}</td>
-                      <td data-label="Last contact">{manilaDay(p.last_contact_at)}</td>
-                      <td data-label="Source">{leadSourceLabel(p.source)}</td>
-                      <td className="table__numeric" data-label="Value">
-                        {money(p.possible_value_cents)}
-                      </td>
-                      <td className="wb-table__actions" data-label="Actions">
-                        <a className="btn btn--primary btn--sm" href={tel}>
-                          Call
-                        </a>
-                        <a className="btn btn--secondary btn--sm" href={`sms:${p.phone.replace(/\s/g, "")}`}>
-                          Text
-                        </a>
-                        <Link className="btn btn--ghost btn--sm" href={`/agent/prospects/${p.id}`}>
-                          Open
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <>
+            <ProspectTable rows={shown} />
+            {filtered.length > 12 && params.show !== "all" ? (
+              <div className="wb-panel__body">
+                <Link className="btn btn--secondary" href={makeHref({ show: "all" })}>
+                  Show all {filtered.length}
+                </Link>
+              </div>
+            ) : null}
+          </>
         )}
-        {filtered.length > 12 && params.show !== "all" ? (
-          <div className="wb-panel__body">
-            <Link className="btn btn--secondary" href={makeHref({ show: "all" })}>
-              Show all {filtered.length}
-            </Link>
-          </div>
-        ) : null}
       </section>
 
       <p className="wb-foot">
         Values are what each person is considering together — the whole contract, from the demo record.
-        The stage trail follows the PRD (commerce-catalog.md:33). A stage move waits on the CRM write
-        contract, so nothing here is written from this page.
+        The stage trail follows the PRD (commerce-catalog.md:33). A move is recorded in the demo
+        pipeline journal with your name, the day and your note; the list, the dashboard and the funnel
+        all read that one move.
       </p>
     </div>
   );

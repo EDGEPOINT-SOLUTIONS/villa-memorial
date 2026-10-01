@@ -222,6 +222,10 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   // keyboard focus. A hover/focus state IS a control state, so it is named here
   // in the PR that ships it; a static block paints no wash.
   { match: ".wb-clickable:", why: "a clickable agent row/card/pill's hover/focus control state" },
+  // The prospect board (captain, 2026-10-02): a legal drop target answers with the
+  // same sky control wash every selected control uses. The illegal target paints the
+  // refusal colour, not sky — so only the valid drop state is named here.
+  { match: '.pb-column__body[data-over="yes"][data-valid="yes"]', why: "a legal drag-drop target (a control state)" },
 ];
 
 function allowed(selector: string): boolean {

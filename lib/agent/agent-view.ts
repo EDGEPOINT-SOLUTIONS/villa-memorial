@@ -228,6 +228,21 @@ export function needsYou(prospects: Prospect[]): Prospect[] {
   return prospects.filter((p) => p.urgency === "hot" || p.urgency === "today");
 }
 
+export type ProspectUrgency = { label: string; tone: "danger" | "warning" | "info" | "neutral" };
+
+/**
+ * The honest label for a prospect's urgency, in the agent's own words. One home:
+ * the working list and the board both render this, so a person's state reads the
+ * same in either mode (the tone is a `StatusChip` role, never colour alone).
+ */
+export function prospectUrgency(prospect: Prospect): ProspectUrgency {
+  if (prospect.urgency === "hot") return { label: "Needs you today", tone: "danger" };
+  if (prospect.urgency === "today") return { label: "Due today", tone: "warning" };
+  if (prospect.urgency === "waiting") return { label: "Waiting on them", tone: "info" };
+  if (prospect.urgency === "warm") return { label: "Warming up", tone: "neutral" };
+  return { label: "New", tone: "neutral" };
+}
+
 /** The fixture never invents a commission figure; the view keys off this one flag. */
 export function commissionConfigured(commission: { configured: boolean }): boolean {
   return commission.configured;

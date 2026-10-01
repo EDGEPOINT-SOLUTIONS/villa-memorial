@@ -170,6 +170,13 @@ record. A prospect becomes a client at `sold` (record:
 [agent acquisition](../agent-acquisition-design/README.md)); crm-families and the live contract
 still wait, and lot holds, payments, orders and document uploads stay honestly disabled.
 
+`/agent/prospects` now opens a **Board** mode beside the list (`?view=board`, captain
+2026-10-02): one column per PRD stage — empty stages included — with drag-and-drop and a
+keyboard Move control, and every placement records through that same stage route and journal, so
+the list, the dashboard stage-flow and the funnel follow. The board is wide-screen only; below
+48rem it yields to the list and says where it lives, so the page keeps working at 390 with no
+sideways scroll (record: [agent prospect board](../agent-prospect-board-design/README.md)).
+
 ## Absent (not routes yet) — needs a contract or a decision
 
 The platform-admin screens (tenant management, platform login, sign-up) are designed screens

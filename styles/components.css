@@ -28590,3 +28590,265 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
     border: none;
   }
 }
+
+/* ===========================================================================
+   agent prospect board — the placement mode of `/agent/prospects`
+   (captain, 2026-10-02: "that kaban board mode for the prospects for easy
+   placements of stages")
+
+   The list stays the default; `?view=board` lays the same filtered prospects on
+   one column per PRD stage. The material is the agent workbench's (one hairlined
+   sheet, tabular figures, the sky wash reserved for a control state), and the
+   board is a WIDE-SCREEN mode: it hides below 48rem and the list stays, so the
+   page keeps working at 390 with no sideways scroll.
+
+   THE RULES THIS BLOCK ENCODES:
+     · every stage gets a column, empty or not — never hidden;
+     · one card grammar: name + stage chip, the need, the value, the next action
+       and the state, plus Call/Open and the keyboard Move control;
+     · a drag answers on the card (`data-dragging`), the column under the pointer
+       (`data-over`) and whether that drop is a legal forward move (`data-valid`);
+     · `/workbench` role aliases only, never a raw size.
+   ========================================================================== */
+
+.wb-viewswitch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* The board is the wide-screen half; the list is the narrow-screen half. */
+.pb-wide {
+  display: block;
+}
+
+.pb-narrow {
+  display: none;
+}
+
+.pb-narrow__note {
+  padding: var(--space-4) var(--space-4) 0;
+}
+
+.pb-board {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+/* Seven columns at a readable minimum width; the board pans when the window is
+   narrower than the pipeline. The pan frame is focusable so a keyboard can scroll. */
+.pb-columns {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(9.5rem, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.pb-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 9.5rem;
+  padding: var(--space-3);
+  border: 1px solid var(--wb-hairline);
+  border-radius: var(--wb-radius);
+  background: var(--color-bg-subtle);
+}
+
+.pb-column__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.pb-column__title {
+  margin: 0;
+  font-size: var(--text-micro);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-secondary);
+}
+
+.pb-column__count {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pb-column__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 4.5rem;
+  border-radius: var(--radius-md);
+  transition: background-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+
+/* The drop state is a CONTROL state: the legal target takes the sky wash, an
+   illegal one says so in the refusal colour — the move itself is refused. */
+.pb-column__body[data-over="yes"][data-valid="yes"] {
+  background: var(--sky-50);
+  box-shadow: inset 0 0 0 2px var(--sky-500);
+}
+
+.pb-column__body[data-over="yes"][data-valid="no"] {
+  background: var(--color-status-danger-bg);
+  box-shadow: inset 0 0 0 2px var(--color-status-danger);
+}
+
+.pb-column__empty {
+  margin: 0;
+  padding: var(--space-2) 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.pb-refusal {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 2px solid var(--color-status-danger);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--color-status-danger-ink);
+}
+
+/* --- the card ------------------------------------------------------------- */
+.pb-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--wb-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  box-shadow: var(--shadow-card-rest);
+  cursor: grab;
+  transition: box-shadow var(--motion-fast), opacity var(--motion-fast);
+}
+
+.pb-card[data-dragging="yes"] {
+  opacity: 0.55;
+  cursor: grabbing;
+  box-shadow: var(--shadow-card-hover);
+}
+
+.pb-card__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.pb-card__name {
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--color-figure);
+  text-decoration: none;
+}
+
+.pb-card__name:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--sky-500);
+  text-decoration-thickness: 2px;
+}
+
+.pb-card__want,
+.pb-card__next {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.pb-card__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-figure);
+}
+
+.pb-card__state {
+  margin: 0;
+}
+
+.pb-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: auto;
+}
+
+/* --- the move dialog ------------------------------------------------------ */
+.pb-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgb(25 23 19 / 0.45);
+}
+
+.pb-modal__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 30rem;
+  padding: var(--space-5);
+  border: 1px solid var(--wb-hairline);
+  border-radius: var(--wb-radius);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.pb-modal__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  font-weight: 600;
+}
+
+.pb-modal__sub {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.pb-move {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.pb-move__select {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  font: inherit;
+  font-size: var(--text-ui);
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 48rem) {
+  .pb-wide {
+    display: none;
+  }
+
+  .pb-narrow {
+    display: block;
+  }
+}
