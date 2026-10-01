@@ -26340,3 +26340,222 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
     display: block;
   }
 }
+
+/* ============================================================================
+   Family portal — the premium pass (captain, 2026-09-30)
+
+   The focused polish over the shipped command centre (`family-command-centre`
+   + the household view). The markup does not move and the information per
+   screen does not drop: this block only changes the MATERIAL the family sees.
+
+   ONE NAMED MODEL (tokens in styles/tokens.css · family elevation block):
+
+     GROUND    `--paper-200` — the frame's warm desk, made visible by taking the
+               white content override away. This is what the 2026-09-30
+               eye-comfort pass was for; until now the content painted white
+               over the tint and the desk never showed.
+     SURFACE   `--paper-0`, 12px (`--family-radius-surface`), `--shadow-card-rest`
+               — panels, KPI tiles, alerts, cards. One plane, one shadow.
+     FLOATING  20px (`--family-radius-floating`), `--shadow-raised` — the papers
+               dialog, the account menu, the drawer.
+     CONTROL   8px (`--radius-md`) — buttons, fields, nav items, the switcher.
+
+   A box INSIDE a panel (a table, the remembering block, the upload block) is
+   not a second plane: it loses its shadow and reads as content on the panel.
+   The chrome is a translucent pane beside the desk, not a drawn border.
+
+   MOTION: hover, open/close and the rail selection only — 120–320ms through the
+   existing tokens. The global reduced-motion block plus the rule at the tail
+   removes the lift and the open animations.
+   ========================================================================== */
+
+/* --- GROUND: the warm desk actually reads --------------------------------- */
+/* The frame keeps the 2026-09-30 `--paper-200` (it also backs the rail); the
+   content takes the lighter `--paper-100` so the desk is warm without the
+   full-screen cream cast the tint painted once the white override came off. */
+.portal-frame[data-portal="family"] .portal-content {
+  background: var(--paper-100);
+}
+
+/* --- CHROME: one pane of glass beside the content ------------------------- */
+.portal-frame[data-portal="family"] .portal-sidebar {
+  background: color-mix(in srgb, var(--paper-0) 84%, transparent);
+  -webkit-backdrop-filter: saturate(1.35) blur(20px);
+  backdrop-filter: saturate(1.35) blur(20px);
+  border-right-color: transparent;
+  box-shadow: 6px 0 24px -18px rgb(25 23 19 / 0.16);
+}
+
+.portal-frame[data-portal="family"] .portal-topbar {
+  background: color-mix(in srgb, var(--paper-0) 86%, transparent);
+  -webkit-backdrop-filter: saturate(1.35) blur(20px);
+  backdrop-filter: saturate(1.35) blur(20px);
+  border-bottom-color: transparent;
+}
+
+.portal-frame[data-portal="family"] .portal-tabbar {
+  background: color-mix(in srgb, var(--paper-0) 88%, transparent);
+  -webkit-backdrop-filter: saturate(1.35) blur(20px);
+  backdrop-filter: saturate(1.35) blur(20px);
+  border-top-color: transparent;
+  box-shadow: 0 -12px 28px -22px rgb(25 23 19 / 0.22);
+}
+
+.portal-frame[data-portal="family"] .portal-drawer {
+  background: color-mix(in srgb, var(--paper-0) 94%, transparent);
+  -webkit-backdrop-filter: saturate(1.35) blur(24px);
+  backdrop-filter: saturate(1.35) blur(24px);
+}
+
+/* --- SURFACE: one radius and one shadow for every plane on the page ------- */
+.portal-frame[data-portal="family"] .dash-panel,
+.portal-frame[data-portal="family"] .dash-kpi,
+.portal-frame[data-portal="family"] .dash-alert,
+.portal-frame[data-portal="family"] .dash-clear,
+.portal-frame[data-portal="family"] .card {
+  border-radius: var(--family-radius-surface);
+  border-color: var(--family-hairline);
+  box-shadow: var(--shadow-card-rest);
+}
+
+.portal-frame[data-portal="family"] .dash-panel__head {
+  border-radius: var(--family-radius-surface) var(--family-radius-surface) 0 0;
+}
+
+/* A block inside a panel is content, not a second plane. */
+.portal-frame[data-portal="family"] .dash-panel .dash-table,
+.portal-frame[data-portal="family"] .dash-panel .dash-remember,
+.portal-frame[data-portal="family"] .dash-panel .dash-upload {
+  box-shadow: none;
+}
+
+/* A real control rises to the hover step; a still box does not move. */
+.portal-frame[data-portal="family"] .dash-kpi,
+.portal-frame[data-portal="family"] a.card {
+  transition:
+    box-shadow var(--motion-base),
+    border-color var(--motion-base),
+    transform var(--motion-base);
+}
+
+.portal-frame[data-portal="family"] .dash-kpi:hover,
+.portal-frame[data-portal="family"] a.card:hover {
+  border-color: var(--family-hairline);
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-1px);
+}
+
+/* --- FLOATING: dialog and menu sit one step above the planes ------------- */
+.portal-frame[data-portal="family"] .papers-dialog {
+  border-color: var(--family-hairline);
+  box-shadow: var(--shadow-raised);
+}
+
+.portal-frame[data-portal="family"] .account-menu {
+  border-color: var(--family-hairline);
+  border-radius: var(--family-radius-floating);
+  box-shadow: var(--shadow-raised);
+  animation: family-menu-in var(--motion-base) both;
+}
+
+@keyframes family-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes family-pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.portal-frame[data-portal="family"] .portal-drawer {
+  animation: family-pane-in var(--motion-base) both;
+}
+
+/* The floating radius is desktop-only: on a phone the dialog is full-bleed. */
+@media (min-width: 40rem) {
+  .portal-frame[data-portal="family"] .papers-dialog {
+    border-radius: var(--family-radius-floating);
+  }
+}
+
+/* --- CONTROL: the switcher and the account chip join the model ------------ */
+.portal-frame[data-portal="family"] .fv-people__link {
+  border-color: var(--family-hairline);
+  border-radius: var(--family-radius-surface);
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+.portal-frame[data-portal="family"] .fv-people__link:hover {
+  border-color: var(--color-border-strong);
+  background: var(--paper-50);
+}
+
+.portal-frame[data-portal="family"] .fv-people__link[aria-current="page"] {
+  background: var(--sky-50);
+  border-color: var(--sky-200);
+  color: var(--sky-800);
+  box-shadow: none;
+}
+
+.portal-frame[data-portal="family"] .fv-people__link[aria-current="page"] .fv-people__dates {
+  color: var(--sky-700);
+}
+
+.portal-frame[data-portal="family"] .account-chip__button,
+.portal-frame[data-portal="family"] .rail-toggle {
+  border-radius: var(--radius-md);
+  transition:
+    background-color var(--motion-fast),
+    color var(--motion-fast);
+}
+
+/* --- TYPE: drawn, not set — tighten leading and tracking on the display --- */
+.portal-frame[data-portal="family"] .dash .ag-hero__title {
+  line-height: 1.08;
+  letter-spacing: -0.016em;
+  text-wrap: balance;
+}
+
+.portal-frame[data-portal="family"] .dash-panel__title {
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+}
+
+.portal-frame[data-portal="family"] .dash-remember__name {
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.portal-frame[data-portal="family"] .dash-kpi .kpi-card__value {
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+/* --- motion is a courtesy, never a tax ------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .portal-frame[data-portal="family"] .dash-kpi:hover,
+  .portal-frame[data-portal="family"] a.card:hover {
+    transform: none;
+  }
+
+  .portal-frame[data-portal="family"] .account-menu,
+  .portal-frame[data-portal="family"] .portal-drawer {
+    animation: none;
+  }
+}

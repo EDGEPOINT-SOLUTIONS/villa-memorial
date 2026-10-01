@@ -351,10 +351,13 @@
   --layout-reading-w: 60rem;
   --measure-prose: 66ch;
 
-  /* Radii: softer than the old 6/10/14, and one pill. */
+  /* Radii: softer than the old 6/10/14, and one pill. The family portal's
+     premium pass (2026-09-30) adds `--radius-2xl` (20px) for its floating
+     surfaces; every other step keeps the role it already had. */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 16px;
+  --radius-2xl: 20px;
   --radius-xl: 28px;
 
   /* Shadows: warmer and softer than a blue-black cast (which reads cold). */
@@ -363,6 +366,27 @@
   --shadow-paper: 0 1px 2px rgb(25 23 19 / 0.04);
   --shadow-card-rest: 0 1px 2px rgb(25 23 19 / 0.04), 0 6px 16px -6px rgb(25 23 19 / 0.09);
   --shadow-card-hover: 0 2px 6px rgb(25 23 19 / 0.07), 0 18px 40px -12px rgb(25 23 19 / 0.18);
+
+  /* --- Family portal elevation + radius model (premium pass, 2026-09-30) ----
+     ONE named model, consumed only by the `[data-portal="family"]` block at the
+     tail of styles/components.css. The public site, the Admin Portal and the
+     agent portal keep the grammar they were signed off with.
+
+       GROUND    `--paper-200` (the frame's warm desk; the content is transparent
+                 so the desk actually reads — this is what the 2026-09-30
+                 eye-comfort pass intended and the white content override hid);
+       SURFACE   `--paper-0`, the `--family-radius-surface` 12px plane,
+                 `--shadow-card-rest` — panels, KPI tiles, alerts, cards;
+       FLOATING  `--family-radius-floating` 20px, `--shadow-raised` — the
+                 papers dialog, the account menu, the drawer and the phone bar;
+       CONTROL   `--radius-md` (8px) — buttons, fields, nav items, the switcher.
+
+     The three shadows are the product's EXISTING steps; the one addition is
+     the softened hairline, which turns a drawn 1px rectangle into a plane edge.
+     Nothing here types a raw value into a view. */
+  --family-hairline: color-mix(in srgb, var(--color-border) 58%, transparent);
+  --family-radius-surface: 12px;
+  --family-radius-floating: var(--radius-2xl);
 
   /* Gold containment — now brass, and translucent so it never floods. */
   --gold-wash-soft: color-mix(in srgb, var(--brass-300) 16%, transparent);
