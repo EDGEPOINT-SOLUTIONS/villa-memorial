@@ -11,7 +11,8 @@ import {
 } from "@/lib/family/family-documents";
 import { PaperSheet } from "@/components/paper/paper-sheet";
 import { PaperExportActions } from "@/components/paper/paper-export-actions";
-import { Answer, PrimaryAction, QuietLink, Section } from "@/components/family/family-ui";
+import { Answer, PrimaryAction, QuietLink } from "@/components/family/family-ui";
+import { DashPanel } from "@/components/family/dash-ui";
 
 export const metadata = { title: "Your official receipt — Villa Funeraria" };
 
@@ -51,7 +52,7 @@ export default async function ClientReceiptPage({
   const filename = familyReceiptFileStem(receipt);
 
   return (
-    <>
+    <div className="dash">
       <Answer
         kicker="Your papers"
         headline={`Official receipt ${receipt.reference}`}
@@ -67,13 +68,15 @@ export default async function ClientReceiptPage({
           </>
         }
       />
-      <Section
-        title="Your receipt"
-        sub="Exactly as it is recorded on your family's account. Print it, or download it as Word or PDF."
-      >
-        <PaperExportActions blocks={paper.blocks} profile={paper.profile} filename={filename} />
-        <PaperSheet blocks={paper.blocks} profile={paper.profile} />
-      </Section>
-    </>
+      <div className="dash-grid">
+        <DashPanel role="place" className="dash-span-12" label="Yours" title="Your receipt">
+          <p className="dash-note">
+            Exactly as it is recorded on your family’s account. Print it, or download it as Word or PDF.
+          </p>
+          <PaperExportActions blocks={paper.blocks} profile={paper.profile} filename={filename} />
+          <PaperSheet blocks={paper.blocks} profile={paper.profile} />
+        </DashPanel>
+      </div>
+    </div>
   );
 }

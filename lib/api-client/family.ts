@@ -37,6 +37,7 @@
  */
 import snapshotFile from "@/lib/fixtures/family/snapshot.json";
 import workspaceFile from "@/lib/fixtures/family/workspace.json";
+import caseFile from "@/lib/fixtures/family/case.json";
 import { ApiError } from "@/lib/api-client/api-error";
 import { parsePaymentSchedule, type PaymentSchedule } from "@/lib/payment-schedule";
 
@@ -208,6 +209,97 @@ export type FamilyWorkspace = {
   lot: FamilyLotRecord;
 };
 
+/* --------------------------------------------------------------- the case --- */
+
+/**
+ * The five family moments the chain names, in order. The KEY is the recorded
+ * field; the words come from `lib/family/family-case.ts`, so the fixture never
+ * carries a second copy of the label.
+ */
+export type FamilyCaseStepKey = "arrangement" | "viewing" | "funeral" | "burial" | "papers";
+
+/**
+ * Where one moment stands in the office's own record. `done` · `now` · `next`
+ * are the office's state; `not_recorded` is the honest state when the record
+ * does not carry the time (the view says so in a few words rather than
+ * guessing). No value is derived from the clock here.
+ */
+export type FamilyCaseStepStatus = "done" | "now" | "next" | "not_recorded";
+
+export type FamilyCaseStep = {
+  key: FamilyCaseStepKey;
+  /** A true instant (ISO, Asia/Manila) when the record carries a time. */
+  starts_at?: string;
+  /** The end of a window the record carries (the viewing), when there is one. */
+  ends_at?: string;
+  /** A calendar day (yyyy-mm-dd) when the record carries a day but no time. */
+  on?: string;
+  place?: string;
+  /** A person the record names, where it names one. */
+  person?: string;
+  note?: string;
+  status: FamilyCaseStepStatus;
+};
+
+/**
+ * The office's recorded arrangement for this family, family-safe: the five
+ * moments, their recorded times/places and their state. No case number, no
+ * coordinator and no amount — those stay with the office. `null` is the honest
+ * answer for a family whose record carries no case.
+ */
+export type FamilyCase = {
+  /** The loved one's name, as the snapshot records it. */
+  loved_one: string;
+  steps: FamilyCaseStep[];
+};
+
+const CASE_STEP_KEYS: readonly FamilyCaseStepKey[] = [
+  "arrangement",
+  "viewing",
+  "funeral",
+  "burial",
+  "papers",
+];
+
+function toFamilyCaseStep(raw: unknown): FamilyCaseStep | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const r = raw as Record<string, unknown>;
+  const key = r.key;
+  if (typeof key !== "string" || !CASE_STEP_KEYS.includes(key as FamilyCaseStepKey)) return null;
+  const status: FamilyCaseStepStatus =
+    r.status === "done" || r.status === "now" || r.status === "next" ? r.status : "not_recorded";
+  return {
+    key: key as FamilyCaseStepKey,
+    starts_at: stringField(r, "starts_at"),
+    ends_at: stringField(r, "ends_at"),
+    on: stringField(r, "on"),
+    place: stringField(r, "place"),
+    person: stringField(r, "person"),
+    note: stringField(r, "note"),
+    status,
+  };
+}
+
+/**
+ * Tolerant reader for the family case fixture: a malformed step is dropped, a
+ * case with no usable step or no case block at all is `null` (the honest state
+ * for a family the office has not recorded a case for). Extra fields are
+ * ignored; order is normalised to the chain's own order.
+ */
+function readFamilyCase(): FamilyCase | null {
+  const raw = caseFile as unknown;
+  if (typeof raw !== "object" || raw === null) return null;
+  const block = (raw as Record<string, unknown>).case;
+  if (typeof block !== "object" || block === null) return null;
+  const b = block as Record<string, unknown>;
+  const steps = (Array.isArray(b.steps) ? b.steps : [])
+    .map(toFamilyCaseStep)
+    .filter((step): step is FamilyCaseStep => step !== null)
+    .sort((a, b2) => CASE_STEP_KEYS.indexOf(a.key) - CASE_STEP_KEYS.indexOf(b2.key));
+  if (steps.length === 0) return null;
+  return { loved_one: stringField(b, "loved_one") ?? "", steps };
+}
+
 export function familyLiveModeEnabled(): boolean {
   // A family API contract is not frozen: the switch is declared in lib/live-mode.ts
   // but cannot enter live mode until the branch exists.
@@ -265,6 +357,15 @@ export async function getFamilyLotRecord(): Promise<FamilyLotRecord> {
         : undefined,
     with_office: Array.isArray(lot.with_office) ? [...lot.with_office] : [],
   };
+}
+
+/**
+ * The office's recorded arrangement for the family, or `null` when the record
+ * carries no case. Read through the same tolerant, provisional seam as the
+ * snapshot (see the file header) — no live branch is claimed.
+ */
+export async function getFamilyCase(): Promise<FamilyCase | null> {
+  return readFamilyCase();
 }
 
 export async function getFamilySnapshot(): Promise<FamilySnapshot> {

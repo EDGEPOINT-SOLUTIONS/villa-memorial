@@ -11,19 +11,18 @@ import {
   QuietLink,
   Row,
   Rows,
-  Section,
   Steps,
   WhatThisShows,
 } from "@/components/family/family-ui";
+import { DashPanel } from "@/components/family/dash-ui";
 import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Ask for a visit — Villa Funeraria" };
 
 /**
  * Ask for a visit — the family's “My Appointments” screen (PRD screen-inventory;
- * facilities-scheduling.md » Appointment & scheduling engine), compressed to the
- * family reading budget (2026-09-21): one-sentence hero, the family's own times,
- * and “how a time gets set” behind the ONE shared `WhatThisShows` disclosure.
+ * facilities-scheduling.md » Appointment & scheduling engine), on the dashboard's
+ * dense grammar (2026-09-30).
  *
  * Real today: the office's own record of the family's times — what is confirmed,
  * what still waits for a person to confirm it, and what has happened. Scheduling
@@ -44,7 +43,7 @@ export default async function Page() {
   const nothingArranged = arranged.length === 0 && waiting.length === 0;
 
   return (
-    <>
+    <div className="dash">
       <Answer
         kicker="Ask for a visit"
         headline="We can come to you. Call and we will set a day."
@@ -78,42 +77,60 @@ export default async function Page() {
         }
       />
 
-      <Section id="times" title="What is arranged" sub="A confirmed time, with where to be.">
-        {arranged.length > 0 ? (
-          <div className="ag-agenda">
-            {arranged.map((appointment) => (
-              <AppointmentCard key={appointment.id} appointment={appointment} />
-            ))}
-          </div>
-        ) : (
-          <p className="ag-sub">
-            Nothing is confirmed at the moment. Call us and we will agree a day.
-          </p>
-        )}
-      </Section>
-
-      {waiting.length > 0 ? (
-        <Section
-          title="Waiting for the office"
-          sub="Not agreed yet — please do not travel for these."
+      <div className="dash-grid">
+        <DashPanel
+          id="times"
+          role="place"
+          className="dash-span-12"
+          label="Visits"
+          title="What is arranged"
+          count={arranged.length > 0 ? countWord(arranged.length) : undefined}
         >
-          <div className="ag-agenda">
-            {waiting.map((appointment) => (
-              <AppointmentCard key={appointment.id} appointment={appointment} />
-            ))}
-          </div>
-        </Section>
-      ) : null}
+          {arranged.length > 0 ? (
+            <div className="ag-agenda">
+              {arranged.map((appointment) => (
+                <AppointmentCard key={appointment.id} appointment={appointment} />
+              ))}
+            </div>
+          ) : (
+            <p className="dash-empty">
+              Nothing is confirmed at the moment. Call us and we will agree a day.
+            </p>
+          )}
+        </DashPanel>
 
-      {past.length > 0 ? (
-        <Section title="What you asked about before" sub="The times behind you.">
-          <div className="ag-agenda">
-            {past.map((appointment) => (
-              <AppointmentCard key={appointment.id} appointment={appointment} />
-            ))}
-          </div>
-        </Section>
-      ) : null}
+        {waiting.length > 0 ? (
+          <DashPanel
+            role="needs"
+            className="dash-span-12"
+            label="Waiting"
+            title="Waiting for the office"
+            count={countWord(waiting.length)}
+          >
+            <p className="dash-note">Not agreed yet — please do not travel for these.</p>
+            <div className="ag-agenda">
+              {waiting.map((appointment) => (
+                <AppointmentCard key={appointment.id} appointment={appointment} />
+              ))}
+            </div>
+          </DashPanel>
+        ) : null}
+
+        {past.length > 0 ? (
+          <DashPanel
+            role="neutral"
+            className="dash-span-12"
+            label="Past"
+            title="What you asked about before"
+          >
+            <div className="ag-agenda">
+              {past.map((appointment) => (
+                <AppointmentCard key={appointment.id} appointment={appointment} />
+              ))}
+            </div>
+          </DashPanel>
+        ) : null}
+      </div>
 
       <WhatThisShows
         extra={
@@ -154,6 +171,6 @@ export default async function Page() {
         The scheduling service isn’t connected yet, so nothing here books or moves a time. Call{" "}
         {FAMILY_HELP.phone}.
       </WhatThisShows>
-    </>
+    </div>
   );
 }

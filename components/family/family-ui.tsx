@@ -19,6 +19,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Check, Clock, Phone } from "lucide-react";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import { FAMILY_CHAIN_STEPS } from "@/lib/family/family-case";
 import { familyAppointmentState, familyInstantDateLabel, familyInstantTimeLabel, familyInstantWeekday } from "@/lib/family/family-view";
 import type { FamilyAppointment } from "@/lib/api-client/family";
 import {
@@ -79,14 +80,12 @@ export function HelpLine({ lead = "Need help? Call" }: { lead?: string }) {
 
 /* ------------------------------------------------------------- the chain ---- */
 
-/** The five family moments, in order. `current` is 1-based. */
-export const FAMILY_CHAIN_STEPS = [
-  "Arrangement",
-  "Viewing",
-  "Funeral",
-  "Burial",
-  "Papers",
-] as const;
+/**
+ * The five family moments, in order (the ONE list lives in
+ * `lib/family/family-case.ts`, so the chain and the recorded schedule cannot
+ * drift). `current` is 1-based.
+ */
+export { FAMILY_CHAIN_STEPS };
 
 export function Chain({ current }: { current?: number }) {
   return (

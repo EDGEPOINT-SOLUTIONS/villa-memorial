@@ -25296,8 +25296,10 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   gap: var(--space-4);
 }
 
+.dash-span-12 { grid-column: span 12; }
 .dash-span-8 { grid-column: span 8; }
 .dash-span-7 { grid-column: span 7; }
+.dash-span-6 { grid-column: span 6; }
 .dash-span-5 { grid-column: span 5; }
 .dash-span-4 { grid-column: span 4; }
 
@@ -26051,6 +26053,7 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
 
   .dash-span-8,
   .dash-span-7,
+  .dash-span-6,
   .dash-span-5,
   .dash-span-4 {
     grid-column: span 12;

@@ -74,8 +74,9 @@ describe("the PRD family screen list is fully covered", () => {
     const honest = FAMILY_PRD_SCREENS.filter((screen) => screen.state === "honest").map(
       (screen) => screen.screen,
     );
-    // These two have no family-facing service behind them at all.
-    expect(honest).toEqual(["My Funeral Cases", "Privacy Center"]);
+    // Only the Privacy Center has no family-facing service behind it at all; the
+    // funeral case now shows the office's own recorded arrangement (still provisional).
+    expect(honest).toEqual(["Privacy Center"]);
     expect(FAMILY_SUPPORTING_SCREENS.map((screen) => screen.route)).toEqual([
       "/client/notifications",
       "/client/profile",

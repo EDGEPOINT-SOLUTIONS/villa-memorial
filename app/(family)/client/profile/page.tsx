@@ -8,19 +8,18 @@ import {
   QuietLink,
   Row,
   Rows,
-  Section,
 } from "@/components/family/family-ui";
-import { PortalCard } from "@/components/portal/portal-ui";
+import { DashPanel } from "@/components/family/dash-ui";
 import { FamilyReadingPreferences } from "@/components/family/family-reading-preferences";
 
 export const metadata = { title: "Your details — Villa Funeraria" };
 
 /**
- * Your details — the family's profile screen, on the shared portal kit. Real
- * today: the account details the snapshot holds and the device-local reading
- * preferences — the one control that works right now and serves the older
- * reader. Signing out lives in the sidebar (the same place as the agent
- * portal's).
+ * Your details — the family's profile screen, on the dashboard's dense grammar
+ * (2026-09-30). Real today: the account details the snapshot holds and the
+ * device-local reading preferences — the one control that works right now and
+ * serves the older reader. Signing out lives in the sidebar (the same place as
+ * the agent portal's).
  */
 export default async function ClientProfilePage() {
   const session = await requirePortalSessionOrRedirect("family");
@@ -29,7 +28,7 @@ export default async function ClientProfilePage() {
   const email = session.email ?? family.email;
 
   return (
-    <>
+    <div className="dash">
       <Answer
         kicker="Your details"
         headline="Your details are correct. You can make the writing bigger if you like."
@@ -46,76 +45,84 @@ export default async function ClientProfilePage() {
         }
       />
 
-      <Section
-        id="reading"
-        title="Make it easier to read"
-        sub="These three settings work on this device."
-      >
-        <PortalCard>
+      <div className="dash-grid">
+        <DashPanel
+          id="reading"
+          role="place"
+          className="dash-span-12"
+          label="Reading"
+          title="Make it easier to read"
+        >
+          <p className="dash-note">These three settings work on this device.</p>
           <FamilyReadingPreferences />
-        </PortalCard>
-      </Section>
+        </DashPanel>
 
-      <Section title="Your details" sub="Exactly as our office has them.">
-        <Rows>
-          <Row icon={<User size={22} aria-hidden="true" />} title="Name" meta={family.display_name} />
-          <Row
-            icon={<Mail size={22} aria-hidden="true" />}
-            title="Email — this is also how you sign in"
-            meta={email}
-          />
-          <Row
-            icon={<Phone size={22} aria-hidden="true" />}
-            title="Phone"
-            meta={family.primary_contact}
-          />
-        </Rows>
-        <p className="ag-note">
-          To change any of these, call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> — it
-          takes a minute.
-        </p>
-      </Section>
+        <DashPanel role="place" className="dash-span-7" label="Your details" title="Your details">
+          <Rows>
+            <Row icon={<User size={22} aria-hidden="true" />} title="Name" meta={family.display_name} />
+            <Row
+              icon={<Mail size={22} aria-hidden="true" />}
+              title="Email — this is also how you sign in"
+              meta={email}
+            />
+            <Row
+              icon={<Phone size={22} aria-hidden="true" />}
+              title="Phone"
+              meta={family.primary_contact}
+            />
+          </Rows>
+          <p className="dash-note">
+            To change any of these, call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> — it
+            takes a minute.
+          </p>
+        </DashPanel>
 
-      <Section title="Your family and your privacy">
-        <Rows>
-          <Row
-            icon={<Users size={22} aria-hidden="true" />}
-            title="Your family"
-            meta="Who in your family can see this arrangement"
-            action={
-              <QuietLink
-                href="/client/family"
-                label="Open"
-                icon={<ChevronRight size={20} aria-hidden="true" />}
-              />
-            }
-          />
-          <Row
-            icon={<Bell size={22} aria-hidden="true" />}
-            title="What we tell you about"
-            meta="Change what we send, and when"
-            action={
-              <QuietLink
-                href="/client/notifications"
-                label="Open"
-                icon={<ChevronRight size={20} aria-hidden="true" />}
-              />
-            }
-          />
-          <Row
-            icon={<Lock size={22} aria-hidden="true" />}
-            title="Privacy Center"
-            meta="What we hold, and who on our staff has looked at it"
-            action={
-              <QuietLink
-                href="/client/privacy"
-                label="Open"
-                icon={<ChevronRight size={20} aria-hidden="true" />}
-              />
-            }
-          />
-        </Rows>
-      </Section>
-    </>
+        <DashPanel
+          role="neutral"
+          className="dash-span-5"
+          label="Your family"
+          title="Your family and your privacy"
+        >
+          <Rows>
+            <Row
+              icon={<Users size={22} aria-hidden="true" />}
+              title="Your family"
+              meta="Who in your family can see this arrangement"
+              action={
+                <QuietLink
+                  href="/client/family"
+                  label="Open"
+                  icon={<ChevronRight size={20} aria-hidden="true" />}
+                />
+              }
+            />
+            <Row
+              icon={<Bell size={22} aria-hidden="true" />}
+              title="What we tell you about"
+              meta="Change what we send, and when"
+              action={
+                <QuietLink
+                  href="/client/notifications"
+                  label="Open"
+                  icon={<ChevronRight size={20} aria-hidden="true" />}
+                />
+              }
+            />
+            <Row
+              icon={<Lock size={22} aria-hidden="true" />}
+              title="Privacy Center"
+              meta="What we hold, and who on our staff has looked at it"
+              action={
+                <QuietLink
+                  href="/client/privacy"
+                  label="Open"
+                  icon={<ChevronRight size={20} aria-hidden="true" />}
+                />
+              }
+            />
+          </Rows>
+        </DashPanel>
+      </div>
+    </div>
   );
 }

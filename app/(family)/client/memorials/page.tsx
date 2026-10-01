@@ -15,28 +15,27 @@ import { monogram } from "@/lib/family/family-view";
 import {
   Answer,
   CallAction,
-  RecordCard,
-  RecordFacts,
   Row,
   Rows,
-  Section,
   WhatThisShows,
 } from "@/components/family/family-ui";
-import { PortalChip, PortalKv } from "@/components/portal/portal-ui";
+import { DashFacts, DashPanel } from "@/components/family/dash-ui";
+import { StatusChip } from "@/components/kit/status-chip";
+import { Avatar } from "@/components/portal/avatar";
+import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Remembering — Villa Funeraria" };
 
 /**
- * Remembering — the family's “My Memorials” screen (PRD screen-inventory),
- * compressed to the family reading budget (2026-09-21): one-sentence hero, the
- * record we hold, and the choices the family will make behind the ONE shared
- * `WhatThisShows` disclosure.
+ * Remembering — the family's “My Memorials” screen (PRD screen-inventory), on
+ * the dashboard's dense grammar (2026-09-30): the record we hold in a panel with
+ * the private portrait plate, and the choices the family will make behind the
+ * ONE shared disclosure.
  *
  * THE STATE IS THE FACT: no digital-memorial service exists, so nothing about
  * the loved one is published anywhere and no message can be posted. The name,
  * the dates and the place come from the office's own record; the visibility
  * choices stay “not decided yet” because no default exists or may be invented.
- * No photograph is ever shown or proposed.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -46,7 +45,7 @@ export default async function Page() {
   const initials = monogram(loved_one.name);
 
   return (
-    <>
+    <div className="dash">
       <Answer
         kicker="Remembering"
         headline={`Nothing about ${firstName} is published anywhere.`}
@@ -60,22 +59,36 @@ export default async function Page() {
         actions={<CallAction label={`Call ${FAMILY_HELP.phone}`} />}
       />
 
-      <Section title="In loving memory" sub="The record our office holds.">
-        <RecordCard
-          kicker="In loving memory"
-          title={loved_one.name}
-          subtitle={loved_one.life_dates}
-          monogram={initials}
+      <div className="dash-grid">
+        <DashPanel
+          role="place"
+          className="dash-span-7"
+          label="Remembering"
+          title="In loving memory"
+          count="Nothing published"
         >
-          <p className="fv-record__sub">
+          <div className="dash-remember">
+            <Avatar initials={initials} size={72} />
+            <div className="dash-remember__body">
+              <p className="dash-remember__name">{loved_one.name}</p>
+              <p className="dash-remember__dates">{loved_one.life_dates}</p>
+              <StatusChip tone="neutral">Nothing published</StatusChip>
+            </div>
+          </div>
+          <p className="dash-note">
             A photograph is never required, and nothing is posted without your family.
           </p>
-          <RecordFacts>
-            <PortalKv label="Their place" value={`Lot ${lot.lot_number} · ${lot.park}`} />
-            <PortalKv label="The plan" value={plan_summary.plan_name} />
-          </RecordFacts>
-        </RecordCard>
-      </Section>
+        </DashPanel>
+
+        <DashPanel role="neutral" className="dash-span-5" label="The record" title="What we hold">
+          <DashFacts
+            facts={[
+              { label: "Their place", value: `Lot ${lot.lot_number} · ${lot.park}` },
+              { label: "The plan", value: plan_summary.plan_name },
+            ]}
+          />
+        </DashPanel>
+      </div>
 
       <WhatThisShows
         extra={
@@ -133,6 +146,6 @@ export default async function Page() {
         The memorial page isn’t open yet, so nothing can be posted. Call {FAMILY_HELP.phone} and we’ll
         write down what you’d like.
       </WhatThisShows>
-    </>
+    </div>
   );
 }

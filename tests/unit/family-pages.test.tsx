@@ -53,7 +53,7 @@ const { default: FamilyDashboardPage } = await import("@/app/(family)/client/fam
 
 const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "Home", Page: HomePage, headline: "you today" },
-  { name: "The funeral", Page: FuneralPage, headline: "funeral plan is kept by our office" },
+  { name: "The funeral", Page: FuneralPage, headline: "as our office recorded it" },
   { name: "Payments", Page: PaymentsPage, headline: "Here’s how to pay" },
   { name: "Papers", Page: PapersPage, headline: "papers are ready" },
   { name: "Remembering", Page: RememberingPage, headline: "is published anywhere" },
@@ -99,7 +99,9 @@ describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline
     // at the one shared gap disclosure instead of inventing a section.
     expect(html, `${name} must use the shared hero`).toContain('class="ag-hero"');
     expect(
-      html.includes('class="ag-sec"') || html.includes('class="fv-gap"'),
+      html.includes('class="ag-sec"') ||
+        html.includes('class="dash-panel') ||
+        html.includes('class="fv-gap"'),
       `${name} must use the shared section grammar or the shared gap disclosure`,
     ).toBe(true);
   });

@@ -31,20 +31,26 @@
   rail. `/client/family` is the Family Dashboard. When a contract lands, change the page and
   the coverage row together.
 - Data: `lib/api-client/family.ts` is PROVISIONAL fixture-only (no frozen family API
-  contract). Two fixtures: the recorded snapshot `lib/fixtures/family/snapshot.json` (plan,
-  balance integer cents, the family's own papers) and the app-authored workspace
-  `lib/fixtures/family/workspace.json` (the family's requests, appointments and lot record).
+  contract). Three fixtures: the recorded snapshot `lib/fixtures/family/snapshot.json` (plan,
+  balance integer cents, the family's own papers), the app-authored workspace
+  `lib/fixtures/family/workspace.json` (the family's requests, appointments and lot record),
+  and the recorded case `lib/fixtures/family/case.json` (the office's arrangement for the
+  demo family — the five moments with their times, places and states).
   The workspace records are example data with provenance, pinned by
   `tests/fixture-contract/family-workspace.test.ts`: no amount, no chapel name, no ticket
   number, no coordinator name, nothing published — Requests, Ask for a visit, Your lot and
   Remembering render them with the office phone as the action and one calm note naming the
-  contract each waits on; `lib/family/family-view.ts` holds the ONE way the portal prints a
+  contract each waits on. The case is pinned by `tests/fixture-contract/family-case.test.ts`
+  and rendered by ONE component (`components/family/family-case.tsx`) so the dashboard's
+  arrangement panel and `/client/cases` cannot drift; a step the record does not carry says
+  so in a few words and a family with no recorded case keeps the honest “not connected”
+  state. `lib/family/family-view.ts` holds the ONE way the portal prints a
   day (calendar dates in UTC, instants in Asia/Manila) and the initials a memorial shows.
   `lib/family/contact.ts` holds the client's numbers. Never invent a figure, date, payment
   destination or contact detail. Tests: `family-pages`, `family-records`, `family-portal-shell`,
   `portal-kit`, `family-nav`, `family-prd-coverage`, `family-ui`, `family-calm-state`,
-  `family-view`, `family-workspace`; `docs/08-delivery/family-portal-design` §11–12 records the
-  alignment and its side-by-side verification.
+  `family-view`, `family-workspace`, `family-case`; `docs/08-delivery/family-portal-design`
+  §11–12 records the alignment and its side-by-side verification.
 - **The family's own papers are never request-gated** (captain, 2026-09-17): the service
   contract and every official receipt are the family's by right — `/client/documents` and the
   funeral page (`/client/cases`) always show them as “Yours”, with a real copy when the record

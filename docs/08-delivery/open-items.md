@@ -258,7 +258,7 @@ family-facing reads it makes visible as gaps, in the order they cost the family 
 
 | The panel | What it waits on |
 |---|---|
-| The funeral | a **case projection** (viewing/service/burial times + what the office is handling) |
+| The funeral | a **family-facing case read** (the arrangement now shows the office's own recorded case — the five moments with their recorded times, places and states — through the provisional family case fixture `lib/fixtures/family/case.json`; the record is not a service read yet) |
 | Visits | a **scheduling** family read (booked times, confirmation state) |
 | Requests | a **request/service-desk** read (assignment, history) |
 | My plots | a **family-facing lot/ownership projection** that carries the office's own `plot_code` (then the shipped 3D deep link turns on) plus an **interment projection** (who rests there) |
@@ -280,5 +280,7 @@ as the decision record, item 3 the open list. Updated 2026-09-25 — §6 added b
 payment-due-notification pass. Updated 2026-09-28 — §3 rows 6–7 and §7 added (the client-minutes
 phases 4–7). Updated 2026-09-30 — §8 added (the provisional structured quote lines from the
 quote-page revisioning, captain D6-A) and §9 added (the contracts the family command centre
-exposes). The audit and the linked documents remain the authoritative
+exposes). Updated 2026-10-01 — §9's funeral row and the route coverage updated: the family
+arrangement is connected to the office's recorded case fixture. The audit and the linked
+documents remain the authoritative
 record.*

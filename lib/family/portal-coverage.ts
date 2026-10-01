@@ -48,7 +48,7 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
     state: "partial",
     module: "crm-cases.md · finance-billing.md",
     missing:
-      "The funeral schedule and case progress are not projected yet, and the full payment history is not wired — the command centre names each gap in place and points to the office phone.",
+      "The arrangement now shows the office's own recorded case (the five moments with their recorded times, places and states); the memorial archive and the full payment history are not projected yet — the command centre names each gap in place and points to the office phone.",
   },
   {
     screen: "Family Dashboard",
@@ -101,10 +101,10 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
   {
     screen: "My Funeral Cases",
     route: "/client/cases",
-    state: "honest",
+    state: "partial",
     module: "crm-cases.md » Funeral case management",
     missing:
-      "The case projection (viewing, service, burial, what the office is handling) needs the case service.",
+      "The arrangement shows the office's own recorded case (the five moments with their recorded times, places and states); a family-facing case read contract does not exist yet, so the record is the provisional family fixture and the office remains the way to change anything.",
   },
   {
     screen: "My Requests",

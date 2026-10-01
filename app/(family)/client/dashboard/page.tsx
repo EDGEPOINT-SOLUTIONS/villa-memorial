@@ -2,11 +2,13 @@ import Link from "next/link";
 import { Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import {
+  getFamilyCase,
   getFamilyLotRecord,
   getFamilySnapshot,
   listFamilyAppointments,
   listFamilyRequests,
   type FamilyAppointment,
+  type FamilyCase,
   type FamilyLotRecord,
   type FamilyRequest,
 } from "@/lib/api-client/family";
@@ -37,6 +39,7 @@ import { Answer, Chain, PrimaryAction, QuietLink, WhatThisShows } from "@/compon
 import { PortalProgress } from "@/components/portal/portal-ui";
 import { AttentionStrip, DashFacts, DashKpi, DashPanel } from "@/components/family/dash-ui";
 import { PapersTable } from "@/components/family/papers-table";
+import { CaseChain, CaseSchedule, caseDoneWords } from "@/components/family/family-case";
 import { FamilyImageUploader } from "@/components/family/family-image-uploader";
 import { Avatar } from "@/components/portal/avatar";
 import { StatusChip, type StatusTone } from "@/components/kit/status-chip";
@@ -128,6 +131,15 @@ export default async function ClientDashboardPage() {
   }
 
   const [requests, appointments, lot] = await loadWorkspace();
+
+  // The office's recorded arrangement (the provisional family case fixture). A
+  // failure here is the honest "not connected" state, never a blank dashboard.
+  let familyCase: FamilyCase | null = null;
+  try {
+    familyCase = await getFamilyCase();
+  } catch {
+    familyCase = null;
+  }
 
   const now = new Date();
   const { family, loved_one, plan_summary, balance, balance_cents } = snapshot;
@@ -249,14 +261,26 @@ export default async function ClientDashboardPage() {
           className="dash-span-8"
           label="The arrangement"
           title="The funeral"
-          count="Not connected yet"
+          count={familyCase ? caseDoneWords(familyCase) : "Not connected yet"}
           more={{ href: "/client/cases", label: "Open →" }}
         >
-          <Chain />
-          <p className="dash-state">
-            The funeral times aren’t connected to this page yet. Call{" "}
-            <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> and we’ll tell you.
-          </p>
+          {familyCase ? (
+            <>
+              <CaseChain familyCase={familyCase} />
+              <CaseSchedule familyCase={familyCase} caption="The funeral, as our office recorded it" />
+              <p className="dash-note">
+                From the office’s record. Call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> to change anything.
+              </p>
+            </>
+          ) : (
+            <>
+              <Chain />
+              <p className="dash-state">
+                The funeral times aren’t connected to this page yet. Call{" "}
+                <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> and we’ll tell you.
+              </p>
+            </>
+          )}
         </DashPanel>
 
         <DashPanel
@@ -480,7 +504,7 @@ export default async function ClientDashboardPage() {
       </div>
 
       <WhatThisShows>
-        The funeral times, the memorial page and your full payment history aren’t connected yet. Call{" "}
+        The memorial page and your full payment history aren’t connected yet. Call{" "}
         {FAMILY_HELP.phone} and we’ll tell you what is happening.
       </WhatThisShows>
     </div>

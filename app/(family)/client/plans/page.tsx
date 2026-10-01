@@ -5,28 +5,27 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
 import {
   Answer,
-  PaidSoFar,
   PrimaryAction,
   QuietAction,
   QuietLink,
   Row,
   Rows,
-  Section,
   WhatThisShows,
 } from "@/components/family/family-ui";
-import { PortalChip } from "@/components/portal/portal-ui";
+import { DashPanel } from "@/components/family/dash-ui";
+import { PortalChip, PortalProgress } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Your plan — Villa Funeraria" };
 
 /**
- * Your plan — the family's “My Plans” screen (PRD screen-inventory), compressed
- * to the family reading budget (2026-09-21): one-sentence hero, the paid share,
- * the plan's own rows, and the schedule gap in the ONE shared `WhatThisShows`
+ * Your plan — the family's “My Plans” screen (PRD screen-inventory), on the
+ * dashboard's dense grammar (2026-09-30): the paid share and the plan's own
+ * rows in panels, with the certificate/beneficiary gaps in the ONE shared
  * disclosure.
  *
  * Real today: the plan summary and the balance, straight from the family
- * snapshot. The instalment schedule and the plan certificate are not wired and
- * are named in one line, never faked.
+ * snapshot. The plan certificate is not wired and is named in one line, never
+ * faked.
  */
 export default async function ClientPlansPage() {
   await requirePortalSessionOrRedirect("family");
@@ -40,7 +39,7 @@ export default async function ClientPlansPage() {
       : null;
 
   return (
-    <>
+    <div className="dash">
       <Answer
         kicker="Your plan"
         headline={
@@ -70,40 +69,61 @@ export default async function ClientPlansPage() {
         }
       />
 
-      <PaidSoFar
-        paid={balance.paid}
-        total={balance.total}
-        percent={percent ?? undefined}
-        words={percent === null ? "in all" : percentWords(percent)}
-      />
+      <div className="dash-grid">
+        <DashPanel
+          role="money"
+          className="dash-span-12"
+          label="Money"
+          title="Paid so far"
+          count={percent !== null ? `${percentWords(percent)} paid` : undefined}
+        >
+          {percent !== null ? (
+            <PortalProgress
+              left={<strong>{balance.paid} paid</strong>}
+              right={`${balance.total} in all`}
+              percent={percent}
+              ariaLabel={`${balance.paid} of ${balance.total} paid — ${percentWords(percent)}`}
+            />
+          ) : (
+            <p className="dash-empty">
+              {balance.paid} paid of {balance.total} in all.
+            </p>
+          )}
+        </DashPanel>
 
-      <Section title="What your plan is for" sub="A long-term promise to the people you leave behind.">
-        <Rows>
-          <Row
-            icon={<ScrollText size={22} aria-hidden="true" />}
-            title="Your plan certificate"
-            meta="A copy will be here when the family records service is on"
-          />
-          <Row
-            icon={<Users size={22} aria-hidden="true" />}
-            title="Beneficiaries"
-            meta="Who the plan protects, as recorded by Villa Agency"
-          />
-          <Row
-            icon={<Building2 size={22} aria-hidden="true" />}
-            title="Account maturity and claims"
-            meta="Handled by Villa Agency with Eternal Plans, Inc."
-            action={
-              <QuietAction href={FAMILY_HELP.agencyPhoneHref} label="Call Villa Agency" />
-            }
-          />
-        </Rows>
-      </Section>
+        <DashPanel
+          role="place"
+          className="dash-span-12"
+          label="Your plan"
+          title="What your plan is for"
+        >
+          <Rows>
+            <Row
+              icon={<ScrollText size={22} aria-hidden="true" />}
+              title="Your plan certificate"
+              meta="A copy will be here when the family records service is on"
+            />
+            <Row
+              icon={<Users size={22} aria-hidden="true" />}
+              title="Beneficiaries"
+              meta="Who the plan protects, as recorded by Villa Agency"
+            />
+            <Row
+              icon={<Building2 size={22} aria-hidden="true" />}
+              title="Account maturity and claims"
+              meta="Handled by Villa Agency with Eternal Plans, Inc."
+              action={
+                <QuietAction href={FAMILY_HELP.agencyPhoneHref} label="Call Villa Agency" />
+              }
+            />
+          </Rows>
+        </DashPanel>
+      </div>
 
       <WhatThisShows>
-        The instalment schedule isn’t connected yet. Call {FAMILY_HELP.phone} and we’ll read it to
-        you.
+        The instalment schedule and the plan certificate aren’t connected yet. Call {FAMILY_HELP.phone}{" "}
+        and we’ll read it to you.
       </WhatThisShows>
-    </>
+    </div>
   );
 }

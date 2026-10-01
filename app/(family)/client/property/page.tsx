@@ -6,28 +6,25 @@ import {
   Answer,
   PrimaryAction,
   QuietLink,
-  RecordCard,
-  RecordFacts,
   Row,
   Rows,
-  Section,
   WhatThisShows,
 } from "@/components/family/family-ui";
-import { PortalChip, PortalKv } from "@/components/portal/portal-ui";
+import { DashFacts, DashPanel } from "@/components/family/dash-ui";
+import { PortalChip } from "@/components/portal/portal-ui";
 
 export const metadata = { title: "Your lot — Villa Funeraria" };
 
 /**
- * Your lot — the family's “My Lots” screen (PRD screen-inventory), compressed
- * to the family reading budget (2026-09-21): one-sentence hero, the record card,
- * the map, and the ownership detail the office holds behind the ONE shared
- * `WhatThisShows` disclosure. The money section is gone — it duplicated
- * Payments, and a single link replaces it.
+ * Your lot — the family's “My Lots” screen (PRD screen-inventory), on the
+ * dashboard's dense grammar (2026-09-30): the lot record as facts in a panel,
+ * the map action beside it, and the ownership detail the office holds behind the
+ * ONE shared disclosure.
  *
  * Real today: the place the family's plan names, the name the record is held in
- * and the park the family can walk. A family-facing lot/ownership projection
- * does not exist yet, so what the office holds but this page cannot show is
- * listed as exactly that — never a guessed owner, co-owner, interment or figure.
+ * and the park the family can walk. A family-facing lot/ownership projection does
+ * not exist yet, so what the office holds but this page cannot show is listed as
+ * exactly that — never a guessed owner, co-owner, interment or figure.
  */
 export default async function Page() {
   await requirePortalSessionOrRedirect("family");
@@ -35,7 +32,7 @@ export default async function Page() {
   const { plan_summary } = snapshot;
 
   return (
-    <>
+    <div className="dash">
       <Answer
         kicker="Your lot"
         headline={`Lot ${lot.lot_number} is your family’s place at the park.`}
@@ -58,49 +55,48 @@ export default async function Page() {
         }
       />
 
-      <Section title="Your family’s place" sub="The record we hold for this lot.">
-        <RecordCard
-          kicker="The lot record"
-          title={`Lot ${lot.lot_number}`}
-          subtitle={`${lot.park} · Section ${lot.section}`}
+      <div className="dash-grid">
+        <DashPanel
+          role="place"
+          className="dash-span-7"
+          label="The record"
+          title="Your family’s place"
         >
-          <RecordFacts>
-            <PortalKv label="The park" value={lot.park} />
-            <PortalKv
-              label="Section · lot"
-              value={`Section ${lot.section} · Lot ${lot.lot_number}`}
-            />
-            <PortalKv label="The plan" value={lot.plan_name} />
-            <PortalKv label="Held in the name of" value={`${lot.owner_name} — ${lot.owner_note}`} />
-            <PortalKv label="Kept by" value={lot.kept_by} />
-          </RecordFacts>
-        </RecordCard>
-        <p>
+          <DashFacts
+            columns={2}
+            facts={[
+              { label: "The park", value: lot.park },
+              { label: "Section · lot", value: `Section ${lot.section} · Lot ${lot.lot_number}` },
+              { label: "The plan", value: lot.plan_name },
+              { label: "Held in the name of", value: `${lot.owner_name} — ${lot.owner_note}` },
+              { label: "Kept by", value: lot.kept_by },
+            ]}
+          />
           <QuietLink href="/client/payments" label="See the money for this lot" />
-        </p>
-      </Section>
+        </DashPanel>
 
-      <Section title="Finding your way" sub="The park and the map.">
-        <Rows>
-          <Row
-            icon={<MapPin size={22} aria-hidden="true" />}
-            title="The park"
-            meta={FAMILY_HELP.park}
-            action={<QuietLink href="/map" label="Open the park map" />}
-          />
-          <Row
-            icon={<CalendarCheck size={22} aria-hidden="true" />}
-            title="Walk the lot with us"
-            meta="Call and we will agree a day."
-            action={<QuietLink href="/client/appointments" label="Ask for a visit" />}
-          />
-        </Rows>
-      </Section>
+        <DashPanel role="neutral" className="dash-span-5" label="Finding your way" title="The park and the map">
+          <Rows>
+            <Row
+              icon={<MapPin size={22} aria-hidden="true" />}
+              title="The park"
+              meta={FAMILY_HELP.park}
+              action={<QuietLink href="/map" label="Open the park map" />}
+            />
+            <Row
+              icon={<CalendarCheck size={22} aria-hidden="true" />}
+              title="Walk the lot with us"
+              meta="Call and we will agree a day."
+              action={<QuietLink href="/client/appointments" label="Ask for a visit" />}
+            />
+          </Rows>
+        </DashPanel>
+      </div>
 
       <WhatThisShows
         extra={
           <>
-            <p className="small muted">{lot.record_note}</p>
+            <p className="dash-note">{lot.record_note}</p>
             <Rows>
               {lot.with_office.map((record) => (
                 <Row key={record} title={record} />
@@ -112,6 +108,6 @@ export default async function Page() {
         The ownership papers and the lot’s history stay with our property office. Call{" "}
         {FAMILY_HELP.phone} and we’ll read them to you.
       </WhatThisShows>
-    </>
+    </div>
   );
 }
