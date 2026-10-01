@@ -147,6 +147,14 @@ affordance ([record](../dashboard-hover-design/README.md)). `/agent/lots` still 
 **type-summary** availability count that its own map does not match (16 vs the property
 record's 8-of-12); that reconciliation is still open.
 
+`/agent/appointments` reads the same workspace as a MONTH CALENDAR (captain, 2026-10-02):
+every recorded appointment is marked on its Asia/Manila day, a dated task is marked beside it,
+the legend names each state in words, and the selected day's detail (who · what · time · place ·
+what to bring · state) sits beside the grid on a wide screen and under it on a phone. The Today
+drive order and the small promises stay above the grid, so no recorded fact is lost. No
+availability is invented and no booking write exists — the office still confirms every slot.
+Record: [agent appointments calendar](../agent-calendar-design/README.md).
+
 The lead record's **step-by-step acquisition is live in fixture mode** (2026-10-01):
 `POST /api/agent/prospects/:id/stage` (guarded by the agent portal session and the record's owner,
 no invented `crm:*` scope) appends a move to the demo-local journal (`AGENT_STORE_PATH` /

@@ -1,6 +1,9 @@
 import Link from "next/link";
-import { AgentHero, AgentSection, AgendaCard, Chip, TaskRow, WeekRow } from "@/components/agent/agent-ui";
-import { listAgentAppointments } from "@/lib/api-client/agent";
+import { AgentHero, AgentSection, AgendaCard, Chip, TaskRow } from "@/components/agent/agent-ui";
+import { AgentCalendar } from "@/components/agent/agent-calendar";
+import { listAgentAppointments, listAgentProspects } from "@/lib/api-client/agent";
+import { recordedTodayKey } from "@/lib/agent/agent-calendar";
+import { manilaTodayKey } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
@@ -9,15 +12,38 @@ export const metadata = { title: "Appointments & tasks — Villa Funeraria agent
 /**
  * Appointments & tasks (approved design page 07). The agent's day on one page:
  * the drive order, what to bring, whether the office has confirmed, and the
- * small promises made by text. Appointment creation and check-off wait on the
- * scheduling/crm contracts — the page says so rather than pretending.
+ * small promises made by text.
+ *
+ * THE CALENDAR (captain, 2026-10-02): “I want the appointment and tasks also has
+ * a calendar where you can see what is your activity for that day are.” The
+ * month now sits under the day, following the family visit calendar's shipped
+ * grammar — a Monday-first grid, state-coloured marks with a named legend, and
+ * the selected day's detail beside the grid on a wide screen and under it on a
+ * phone. The Today drive order and the small promises stay exactly where they
+ * were; the week's appointments are the calendar's own marks and day details.
+ *
+ * Nothing is invented and nothing is booked: appointment creation and check-off
+ * wait on the scheduling/crm contracts, so the disabled controls keep their
+ * names and the page says what waits rather than pretending.
  */
 export default async function AgentAppointmentsPage() {
   await requirePortalSessionOrRedirect("agent");
-  const { appointments, tasks } = await listAgentAppointments();
+  const [{ appointments, tasks }, prospects] = await Promise.all([
+    listAgentAppointments(),
+    listAgentProspects(),
+  ]);
+
+  // “Who it is with” is the office's own contact name for an appointment's
+  // `contact_id`; an appointment the record does not attach to a person says so
+  // by showing only its title.
+  const contactNames = Object.fromEntries(prospects.map((prospect) => [prospect.id, prospect.name]));
+
+  // The demo workspace is a frozen scenario: its own “today” is the day the
+  // drive order belongs to, and the calendar opens on it. If the record carries
+  // no today at all, the real Manila day stands in.
+  const todayKey = recordedTodayKey(appointments, manilaTodayKey());
 
   const today = appointments.filter((a) => a.day === "today");
-  const week = appointments.filter((a) => a.day === "week");
   const waiting = today.filter((a) => a.status === "waiting").length;
   const openTasks = tasks.filter((t) => !t.done).length;
 
@@ -80,14 +106,16 @@ export default async function AgentAppointmentsPage() {
         </div>
       </AgentSection>
 
-      <AgentSection title="The rest of the week" sub="Enough to plan the driving, not so much that today gets lost.">
-        <div className="ag-card">
-          <div className="ag-card__body">
-            {week.map((a) => (
-              <WeekRow key={a.id} appointment={a} />
-            ))}
-          </div>
-        </div>
+      <AgentSection
+        title="The calendar"
+        sub="Every recorded appointment and dated task, day by day — pick a day to see what it holds."
+      >
+        <AgentCalendar
+          appointments={appointments}
+          tasks={tasks}
+          contactNames={contactNames}
+          todayKey={todayKey}
+        />
         <div className="ag-actions">
           <Link className="btn btn--primary" href="/agent/lots">
             Book a lot viewing

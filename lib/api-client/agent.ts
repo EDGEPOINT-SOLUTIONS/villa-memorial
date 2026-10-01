@@ -173,6 +173,8 @@ export type AgentTask = {
   title: string;
   meta: string;
   done: boolean;
+  /** The office's due day, when the record writes one (`yyyy-mm-dd` or an instant). */
+  due_at?: string;
 };
 
 export type Application = {

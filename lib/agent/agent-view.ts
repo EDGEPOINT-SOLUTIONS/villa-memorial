@@ -285,6 +285,29 @@ export function manilaDay(iso: string): string {
   return DAY_FORMAT.format(new Date(iso));
 }
 
+const DAY_KEY_FORMAT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Manila",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/**
+ * The calendar day an instant falls on, in the park's own time, as `yyyy-mm-dd` —
+ * the key the appointments calendar groups a month and a day detail by. Reading
+ * `Date#getDate()` would use the reader's timezone and could slide a morning
+ * Manila visit onto the previous day. An unusable value gives an empty string.
+ */
+export function manilaDayKey(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "" : DAY_KEY_FORMAT.format(date);
+}
+
+/** Today's calendar day in the park's own time; `now` is passed in so a test can pin the clock. */
+export function manilaTodayKey(now: Date = new Date()): string {
+  return DAY_KEY_FORMAT.format(now);
+}
+
 export function manilaYear(iso: string): string {
   return YEAR_FORMAT.format(new Date(iso));
 }
