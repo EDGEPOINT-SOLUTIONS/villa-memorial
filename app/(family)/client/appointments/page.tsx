@@ -1,14 +1,16 @@
 import { CalendarCheck, MapPin, Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import { listFamilyAppointments } from "@/lib/api-client/family";
-import { getFamilySnapshot } from "@/lib/api-client/family";
+import { familyPeople, getFamilyHousehold } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
-import { countWord } from "@/lib/family/family-view";
+import { countWord, familyTodayKey } from "@/lib/family/family-view";
 import { personIdFrom } from "@/lib/family/family-household";
-import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { PersonSwitcher } from "@/components/family/family-person-switcher";
+import {
+  FamilyVisitCalendar,
+  type CalendarPerson,
+} from "@/components/family/family-visit-calendar";
 import {
   Answer,
-  AppointmentCard,
   CallAction,
   QuietAction,
   QuietLink,
@@ -24,15 +26,22 @@ export const metadata = { title: "Ask for a visit — Villa Funeraria" };
 
 /**
  * Ask for a visit — the family's “My Appointments” screen (PRD screen-inventory;
- * facilities-scheduling.md » Appointment & scheduling engine), on the dashboard's
- * dense grammar (2026-09-30).
+ * facilities-scheduling.md » Appointment & scheduling engine), rebuilt as a
+ * CALENDAR (captain, 2026-09-30): the month at a glance, every recorded time
+ * marked on its own day, and one tap on a day to see what that day is for.
  *
- * Real today: the office's own record of the family's times — what is confirmed,
- * what still waits for a person to confirm it, and what has happened. Scheduling
- * has no family-facing write contract, so nothing here books or moves a time: the
- * phone call is the path, and the page says so. No chapel is named (the park's
- * chapel list is still a PLACEHOLDER in staff scheduling) and no time is ever
- * presented as agreed when a human has not confirmed it.
+ * THE HOUSEHOLD (captain, 2026-09-30): the account looks after more than one
+ * loved one. The page's own switcher (the one every family page carries) chooses
+ * whose month is shown — “Everyone” reads the whole household, a person reads
+ * their days alone — and the calendar's day detail always names the loved one an
+ * event belongs to. The record itself is unchanged: the office's own times from
+ * the family workspace fixture.
+ *
+ * NOTHING IS BOOKED. There is no family-facing scheduling read/write contract,
+ * so the page invents no availability: a visit is asked for from the day, the
+ * office confirms it by phone, and a time is only real once a person confirms
+ * it. No chapel is named (the park's chapel list is still a PLACEHOLDER in staff
+ * scheduling).
  */
 export default async function Page({
   searchParams,
@@ -41,37 +50,66 @@ export default async function Page({
 }) {
   await requirePortalSessionOrRedirect("family");
   const requested = personIdFrom(await searchParams);
-  const [snapshot, appointments] = await Promise.all([
-    getFamilySnapshot(requested),
-    listFamilyAppointments(requested),
-  ]);
+  const household = await getFamilyHousehold();
+  const people = household.people;
 
-  const arranged = appointments.filter((appointment) => appointment.state === "confirmed");
-  const waiting = appointments.filter((appointment) => appointment.state === "waiting");
-  const past = appointments
-    .filter((appointment) => appointment.state === "past")
-    .sort((a, b) => new Date(b.starts_at).getTime() - new Date(a.starts_at).getTime());
-  const nothingArranged = arranged.length === 0 && waiting.length === 0;
+  // The household shape that just landed: a multi-person account opens on
+  // “Everyone” (the whole month), and `?person=<id>` narrows to one loved one.
+  // A one-person household renders exactly as it always did, with no switcher.
+  const multi = people.length > 1;
+  const selected = multi ? people.find((person) => person.id === requested) : people[0];
+  const everyone = multi && !selected;
+  const scope = everyone ? people : selected ? [selected] : people;
+
+  const appointments = scope.flatMap((person) =>
+    person.appointments.map((appointment) => ({
+      ...appointment,
+      person_id: person.id,
+      person_name: person.name,
+    })),
+  );
+  const confirmed = appointments.filter((appointment) => appointment.state === "confirmed").length;
+  const waiting = appointments.filter((appointment) => appointment.state === "waiting").length;
+  const nothingArranged = confirmed === 0 && waiting === 0;
+
+  const calendarPeople: CalendarPerson[] = people.map((person) => ({
+    id: person.id,
+    name: person.name,
+    life_dates: person.life_dates,
+    lot_number: person.lot?.lot_number ?? "—",
+    lot_section: person.lot?.section ?? "—",
+    lot_plan: person.lot?.plan_name ?? "—",
+    park: person.lot?.park ?? FAMILY_HELP.park,
+  }));
 
   return (
     <div className="dash">
-      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/appointments" />
+      {multi ? (
+        <PersonSwitcher
+          people={familyPeople(household)}
+          selectedId={selected?.id}
+          basePath="/client/appointments"
+          everyoneCurrent={everyone}
+          everyoneHref="/client/appointments"
+        />
+      ) : null}
+
       <Answer
         kicker="Ask for a visit"
         headline="We can come to you. Call and we will set a day."
         sub="A time is real only when our office confirms it."
         chips={
           <>
-            {arranged.length > 0 ? (
+            {confirmed > 0 ? (
               <PortalChip>
-                {arranged.length === 1 ? "One confirmed" : `${countWord(arranged.length)} confirmed`}
+                {confirmed === 1 ? "One confirmed" : `${countWord(confirmed)} confirmed`}
               </PortalChip>
             ) : null}
-            {waiting.length > 0 ? (
+            {waiting > 0 ? (
               <PortalChip>
-                {waiting.length === 1
+                {waiting === 1
                   ? "One waiting for the office"
-                  : `${countWord(waiting.length)} waiting for the office`}
+                  : `${countWord(waiting)} waiting for the office`}
               </PortalChip>
             ) : null}
             {nothingArranged ? <PortalChip>Nothing arranged yet</PortalChip> : null}
@@ -81,7 +119,7 @@ export default async function Page({
           <>
             <CallAction label={`Call ${FAMILY_HELP.phone}`} />
             <QuietLink
-              href="#times"
+              href="#calendar"
               label="See your times"
               icon={<CalendarCheck size={20} aria-hidden="true" />}
             />
@@ -91,57 +129,24 @@ export default async function Page({
 
       <div className="dash-grid">
         <DashPanel
-          id="times"
+          id="calendar"
           role="place"
           className="dash-span-12"
           label="Visits"
           title="What is arranged"
-          count={arranged.length > 0 ? countWord(arranged.length) : undefined}
+          count={
+            confirmed + waiting > 0
+              ? `${countWord(confirmed + waiting)} arranged`
+              : undefined
+          }
         >
-          {arranged.length > 0 ? (
-            <div className="ag-agenda">
-              {arranged.map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
-              ))}
-            </div>
-          ) : (
-            <p className="dash-empty">
-              Nothing is confirmed at the moment. Call us and we will agree a day.
-            </p>
-          )}
+          <FamilyVisitCalendar
+            people={calendarPeople}
+            appointments={appointments}
+            todayKey={familyTodayKey()}
+            scopePersonId={selected?.id}
+          />
         </DashPanel>
-
-        {waiting.length > 0 ? (
-          <DashPanel
-            role="needs"
-            className="dash-span-12"
-            label="Waiting"
-            title="Waiting for the office"
-            count={countWord(waiting.length)}
-          >
-            <p className="dash-note">Not agreed yet — please do not travel for these.</p>
-            <div className="ag-agenda">
-              {waiting.map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
-              ))}
-            </div>
-          </DashPanel>
-        ) : null}
-
-        {past.length > 0 ? (
-          <DashPanel
-            role="neutral"
-            className="dash-span-12"
-            label="Past"
-            title="What you asked about before"
-          >
-            <div className="ag-agenda">
-              {past.map((appointment) => (
-                <AppointmentCard key={appointment.id} appointment={appointment} />
-              ))}
-            </div>
-          </DashPanel>
-        ) : null}
       </div>
 
       <WhatThisShows
@@ -155,7 +160,7 @@ export default async function Page({
                 },
                 {
                   title: "We agree the day with you",
-                  detail: "We check who is free and propose a time that suits your family.",
+                  detail: "Call and we will find a day and a time that suits your family.",
                 },
                 {
                   title: "We write it down and confirm it",

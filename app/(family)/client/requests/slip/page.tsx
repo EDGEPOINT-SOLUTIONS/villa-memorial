@@ -8,6 +8,7 @@ import {
   buildFamilyRequestSlip,
   familyRequestFileStem,
 } from "@/lib/contracts/family-request-slip";
+import { familyVisitKind } from "@/lib/family/family-calendar";
 import { PaperSheet } from "@/components/paper/paper-sheet";
 import { PaperExportActions } from "@/components/paper/paper-export-actions";
 import { Answer, PrimaryAction, QuietLink, Section } from "@/components/family/family-ui";
@@ -47,16 +48,32 @@ export default async function Page({
   const params = searchParams ? await searchParams : undefined;
   const requestedPerson = personIdFrom(params);
   const requestedKind = paramValue(params, "kind");
+  const requestedVisit = paramValue(params, "visit");
+  const wantedOn = paramValue(params, "date");
   const note = paramValue(params, "note");
 
   const [household, askFor] = await Promise.all([getFamilyHousehold(), listFamilyAskFor()]);
   const person = requestedPerson
     ? household.people.find((entry) => entry.id === requestedPerson)
     : household.people[0];
-  const kind = requestedKind
-    ? askFor.find((entry) => entry.key === requestedKind)
-    : askFor[0];
-  if (!person || !kind) notFound();
+  if (!person) notFound();
+
+  // A visit request names the kind from the recorded visit vocabulary; a general
+  // request names the office's own request taxonomy. An unknown value on either
+  // is a 404 rather than a slip naming the wrong thing.
+  let kind: { label: string; detail: string };
+  if (requestedVisit) {
+    const visit = familyVisitKind(requestedVisit);
+    if (!visit) notFound();
+    kind = { label: visit.label, detail: visit.detail };
+  } else if (requestedKind) {
+    const found = askFor.find((entry) => entry.key === requestedKind);
+    if (!found) notFound();
+    kind = { label: found.label, detail: found.detail };
+  } else {
+    kind = { label: askFor[0].label, detail: askFor[0].detail };
+  }
+  const wanted_on = wantedOn && /^\d{4}-\d{2}-\d{2}$/.test(wantedOn) ? wantedOn : undefined;
 
   const written_on = new Date().toISOString().slice(0, 10);
   const slip = buildFamilyRequestSlip({
@@ -68,6 +85,7 @@ export default async function Page({
     park: person.lot?.park ?? FAMILY_HELP.park,
     kind: { label: kind.label, detail: kind.detail },
     note,
+    wanted_on,
     manager_name: household.family.display_name,
     manager_contact: household.family.primary_contact,
     manager_email: household.family.email,

@@ -86,20 +86,26 @@ describe("Requests — the family's requests and where each one stands", () => {
   });
 });
 
-describe("Appointments — the times, and whether a person confirmed them", () => {
-  it("shows what is arranged, what waits for the office and what has happened", async () => {
-    const html = await render(AppointmentsPage);
+describe("Appointments — the month, and whether a person confirmed each time", () => {
+  const APPOINTMENTS = { searchParams: Promise.resolve({ person: "ernesto-dela-cruz" }) };
+  const renderAppointments = async () => renderToStaticMarkup(await AppointmentsPage(APPOINTMENTS));
+
+  it("marks every recorded time on its own day of the month", async () => {
+    const html = await renderAppointments();
+    // The calendar opens on the month that holds the recorded times.
+    expect(html).toContain("September 2026");
     expect(html).toContain("What is arranged");
+    // Every day's mark names the visit and its state, so a screen reader — and
+    // the page's own day detail — can read what the day is for.
     expect(html).toContain("The office comes to you");
     expect(html).toContain("Confirmed by the office");
     expect(html).toContain("Waiting for the office");
     expect(html).toContain("Sat with us at the office");
     expect(html).toContain("Happened");
-    expect(html).toContain("What you asked about before");
   });
 
   it("prints each time from its instant, in the park's own time", async () => {
-    const html = await render(AppointmentsPage);
+    const html = await renderAppointments();
     expect(html).toContain("Tuesday");
     expect(html).toContain("22 September");
     expect(html).toContain("10:00 AM");
@@ -107,8 +113,16 @@ describe("Appointments — the times, and whether a person confirmed them", () =
     expect(html).toContain("9:30 AM");
   });
 
+  it("asks for a visit from the chosen day, showing the office payload", async () => {
+    const html = await renderAppointments();
+    expect(html).toContain("Ask for a visit on this day");
+    expect(html).toContain("What the office will receive");
+    expect(html).toContain("For the day");
+    expect(html).toContain("nothing is booked until they call you");
+  });
+
   it("lays out the booking path as three plain steps, ending with a phone call", async () => {
-    const html = await render(AppointmentsPage);
+    const html = await renderAppointments();
     expect(html).toContain("Call us");
     expect(html).toContain("We agree the day with you");
     expect(html).toContain("Call to set a day");
@@ -117,7 +131,7 @@ describe("Appointments — the times, and whether a person confirmed them", () =
   });
 
   it("never invents a chapel, an amount or a confirmation", async () => {
-    const html = await render(AppointmentsPage);
+    const html = await renderAppointments();
     expect(html).not.toMatch(/chapel/i);
     expect(html).not.toContain("₱");
     expect(html).toContain("scheduling service isn’t connected");

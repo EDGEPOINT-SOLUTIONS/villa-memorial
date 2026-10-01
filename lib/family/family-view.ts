@@ -219,6 +219,34 @@ export function familyInstantTimeLabel(iso: string): string {
   return Number.isNaN(date.getTime()) ? "—" : MANILA_TIME_FORMAT.format(date);
 }
 
+const MANILA_DAY_FORMAT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "Asia/Manila",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/**
+ * The calendar day an instant falls on, in the park's own time, as `yyyy-mm-dd` —
+ * the key the visit calendar groups a month and a day detail by. Reading the
+ * instant through `Date#getDate()` would use the reader's timezone and could
+ * slide a 9:30 AM Manila visit onto the previous day, so the calendar never does.
+ * An unusable value gives an empty string, never a invented day.
+ */
+export function familyInstantDay(iso: string): string {
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? "" : MANILA_DAY_FORMAT.format(date);
+}
+
+/**
+ * Today's calendar day in the park's own time (`yyyy-mm-dd`) — the day the
+ * calendar marks and the month it opens on. `now` is passed in so a test can
+ * pin the clock.
+ */
+export function familyTodayKey(now: Date = new Date()): string {
+  return MANILA_DAY_FORMAT.format(now);
+}
+
 /* ------------------------------------------------------------ the records ---- */
 
 export type FamilyRequestView = {

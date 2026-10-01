@@ -130,3 +130,48 @@ describe("the printed request page", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
   });
 });
+
+describe("a visit requested from a chosen day (family visit calendar)", () => {
+  it("prints the day and the visit kind, and still says nothing is booked", () => {
+    const text = blockText(
+      buildFamilyRequestSlip({
+        ...input,
+        kind: {
+          label: "A walk to the lot with us",
+          detail: "We meet you at the park and walk to your loved one's lot.",
+        },
+        wanted_on: "2026-10-13",
+      }).blocks,
+    );
+    expect(text).toContain("For the day: 13 October 2026");
+    expect(text).toContain("A walk to the lot with us");
+    expect(text).toContain("the office confirms the day by phone");
+    expect(text).toContain("nothing is booked");
+    expect(text).not.toMatch(/₱/);
+  });
+
+  it("builds the visit slip from the address the calendar links to", async () => {
+    const { default: SlipPage } = await import("@/app/(family)/client/requests/slip/page");
+    const html = renderToStaticMarkup(
+      await SlipPage({
+        searchParams: Promise.resolve({
+          person: "ernesto-dela-cruz",
+          visit: "park_visit",
+          date: "2026-10-13",
+        }),
+      }),
+    );
+    expect(html).toContain("REQUEST FROM THE FAMILY");
+    expect(html).toContain("A walk to the lot with us");
+    expect(html).toContain("13 October 2026");
+  });
+
+  it("404s an unknown visit kind rather than printing a general request", async () => {
+    const { default: SlipPage } = await import("@/app/(family)/client/requests/slip/page");
+    await expect(
+      SlipPage({
+        searchParams: Promise.resolve({ person: "ernesto-dela-cruz", visit: "chapel_visit" }),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+  });
+});

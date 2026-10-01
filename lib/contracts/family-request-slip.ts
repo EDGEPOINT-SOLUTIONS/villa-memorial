@@ -51,6 +51,12 @@ export type FamilyRequestSlipInput = {
   kind: FamilyRequestKind;
   /** The family's own words, optional. */
   note?: string;
+  /**
+   * The day the family is asking for (`yyyy-mm-dd`), when the request is for a
+   * visit. The office confirms the day by phone; a requested day is never a
+   * booked slot, and the sheet says so.
+   */
+  wanted_on?: string;
   /** The manager who looks after the household. */
   manager_name: string;
   manager_contact: string;
@@ -78,6 +84,9 @@ export function buildFamilyRequestSlip(input: FamilyRequestSlipInput): FamilyReq
   if (input.kind.detail) {
     rows.push([{ label: "What it covers", value: input.kind.detail, span: 2 }]);
   }
+  if (input.wanted_on) {
+    rows.push([{ label: "For the day", value: requestDateWords(input.wanted_on), span: 2 }]);
+  }
   rows.push([{ label: "In the family's words", value: paperValue(input.note), span: 2 }]);
   rows.push([
     { label: "Who to call", value: input.manager_name },
@@ -98,8 +107,11 @@ export function buildFamilyRequestSlip(input: FamilyRequestSlipInput): FamilyReq
       table(2, rows),
       space(6),
       line(
-        "This is a request, not a ticket — nothing is booked until the office confirms it. " +
-          "Call the number above and we will write it down.",
+        input.wanted_on
+          ? "This is a request, not a ticket — the office confirms the day by phone and " +
+              "nothing is booked until they call you."
+          : "This is a request, not a ticket — nothing is booked until the office confirms it. " +
+              "Call the number above and we will write it down.",
         { size: 9.5 },
       ),
     ],
