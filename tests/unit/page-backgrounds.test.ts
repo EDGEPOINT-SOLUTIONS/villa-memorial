@@ -163,7 +163,6 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".quick-call", why: "the home's one-tap call control" },
   { match: ".portal-topbar__call", why: "the family portal's call control" },
   { match: ".anchored-phonebar__btn--call", why: "the phone bar's call control" },
-  { match: ".ag-filter--on", why: "an active agent filter is a control state" },
   { match: ".term-btn__check", why: "the tick inside a selected term button" },
   { match: ".ag-target__fill", why: "the commission target's value bar (data viz)" },
   { match: ".ag-map__pin", why: "a small functional map pin label" },
@@ -217,6 +216,12 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".wb-brief__lead:", why: "the brief lead link's hover/focus control state" },
   { match: ".wb-vital:", why: "a vitals ribbon link's hover/focus control state" },
   { match: ".wb-tool:", why: "a quick-tool link's hover/focus control state" },
+  // The remaining-screen pass (captain, 2026-10-02): every clickable row, card
+  // and filter pill on /agent/applications, /agent/clients and /agent/marketing
+  // answers with the dashboard's approved sky control wash on hover AND on
+  // keyboard focus. A hover/focus state IS a control state, so it is named here
+  // in the PR that ships it; a static block paints no wash.
+  { match: ".wb-clickable:", why: "a clickable agent row/card/pill's hover/focus control state" },
 ];
 
 function allowed(selector: string): boolean {

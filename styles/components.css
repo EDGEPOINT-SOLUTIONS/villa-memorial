@@ -15018,7 +15018,6 @@ a.card:hover {
 }
 
 .ag-actions--center { justify-content: center; }
-.ag-self-start { align-self: flex-start; }
 
 /* A plain hairline between two groups inside a card. */
 .ag-divider {
@@ -15393,12 +15392,6 @@ a.card:hover {
 }
 
 /* --- Pipeline ---------------------------------------------------------------- */
-.ag-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
 .ag-filter {
   display: inline-flex;
   align-items: center;
@@ -15412,12 +15405,6 @@ a.card:hover {
   font-weight: 600;
   color: var(--color-text-secondary);
   text-decoration: none;
-}
-
-.ag-filter--on {
-  background: var(--sky-600);
-  border-color: var(--sky-700);
-  color: #ffffff;
 }
 
 .ag-board {
@@ -15763,62 +15750,6 @@ a.card:hover {
   font-size: var(--text-lg);
   color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
-}
-
-/* --- Materials --------------------------------------------------------------- */
-.ag-materials {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: var(--space-4);
-}
-
-.ag-material {
-  display: flex;
-  flex-direction: column;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-surface-raised);
-  overflow: hidden;
-}
-
-.ag-material__cover {
-  aspect-ratio: 16 / 10;
-  width: 100%;
-  object-fit: cover;
-  background: var(--color-bg-subtle);
-}
-
-.ag-material__body {
-  padding: var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  flex: 1;
-}
-
-.ag-material__title {
-  margin: 0;
-  font-size: var(--text-md);
-  font-weight: 600;
-  color: var(--color-figure);
-}
-
-.ag-material__desc {
-  margin: 0;
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  flex: 1;
-}
-
-.ag-material__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-}
-
-.ag-material__stat {
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
 }
 
 /* --- Capture ----------------------------------------------------------------- */
@@ -27472,6 +27403,56 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   text-decoration-thickness: 2px;
 }
 
+/* --- a clickable ROW, CARD or PILL answers on hover AND on keyboard focus --- */
+/* The captain (2026-10-01): "boxes when hover should have a distinct hover
+   effect so they know that it is clickable." The dashboard's boxes answer
+   first; the list surfaces and the material shelf answer by the SAME one
+   grammar — the sky control wash and a hairline ring closing inside the edge.
+   `.wb-clickable` is a MODIFIER applied per row/card/pill in the view, never a
+   rule pasted onto the shared `.table tbody tr` base or `.ag-work`, so a static
+   block on another portal can never inherit a false affordance. A table row is
+   not itself focusable (the name inside is the link, the row's buttons are its
+   actions), so its keyboard half is `:focus-within`; a pill is an anchor and
+   keeps `:focus-visible`. No lift, no shadow, no transform, no second outline —
+   the ring stays the one global `:focus-visible` in styles/base.css. */
+.wb-clickable {
+  transition:
+    background-color var(--motion-base),
+    border-color var(--motion-base),
+    box-shadow var(--motion-base);
+}
+
+/* The pointer half. */
+.wb-clickable:not(.ag-filter):hover,
+.workbench .wb-table tbody tr.wb-clickable:hover,
+.ag-filter.wb-clickable:hover:not([data-on="yes"]) {
+  background: var(--sky-50);
+  box-shadow: inset 0 0 0 1px var(--sky-200);
+}
+
+/* The keyboard half — identical declarations, so the two can never drift. */
+.wb-clickable:not(.ag-filter):focus-within,
+.workbench .wb-table tbody tr.wb-clickable:focus-within,
+.ag-filter.wb-clickable:focus-visible:not([data-on="yes"]) {
+  background: var(--sky-50);
+  box-shadow: inset 0 0 0 1px var(--sky-200);
+}
+
+/* A collapsed-border table paints the row's ground on its cells too, or the
+   base `.table tbody tr:hover td` neutral wash sits on top of the row's. */
+.workbench .wb-table tbody tr.wb-clickable:hover > td,
+.workbench .wb-table tbody tr.wb-clickable:hover > th,
+.workbench .wb-table tbody tr.wb-clickable:focus-within > td,
+.workbench .wb-table tbody tr.wb-clickable:focus-within > th {
+  background: var(--sky-50);
+}
+
+/* A pill is a capsule with its own border: it steps its fill, not the row ring. */
+.ag-filter.wb-clickable:hover:not([data-on="yes"]),
+.ag-filter.wb-clickable:focus-visible:not([data-on="yes"]) {
+  border-color: var(--sky-200);
+}
+
 .wb-brief__label {
   margin: 0;
   font-size: var(--text-micro);
@@ -27883,6 +27864,26 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   color: var(--color-text-muted);
 }
 
+/* A client's holdings: one small block per holding, the label in ink and the
+   detail beneath it. */
+.wb-holds {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wb-holds li {
+  display: grid;
+  gap: 0;
+}
+
+.wb-holds__label {
+  font-size: var(--text-ui);
+  font-weight: 600;
+}
+
 .wb-tools {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -27918,6 +27919,81 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
 .wb-tool__hint {
   font-size: var(--text-caption);
   color: var(--color-text-muted);
+}
+
+/* --- the material shelf (marketing) --------------------------------------- */
+.wb-materials {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.wb-material {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border: 1px solid var(--wb-hairline);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+}
+
+/* The picture reserves its own 4:3 box; `height: auto` lets the attribute's
+   definite height stop defeating the ratio (the AGENTS.md rule). */
+.wb-material__cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  background: var(--paper-200);
+}
+
+.wb-material__body {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.wb-material__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-card-title);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.wb-material__desc {
+  margin: 0;
+  font-size: var(--text-caption);
+  color: var(--color-text-secondary);
+}
+
+.wb-material__stat {
+  margin: 0;
+  font-size: var(--text-micro);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.wb-material__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: auto;
+}
+
+@media (max-width: 64rem) {
+  .wb-materials {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 40rem) {
+  .wb-materials {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* --- the day, as a time spine --------------------------------------------- */

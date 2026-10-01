@@ -103,6 +103,9 @@ const { default: FindMyLovedOnePage } = await import("@/app/(public)/memorials/f
 const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/page");
 const { default: LeadDetailPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
 const { default: AgentSalesPage } = await import("@/app/(agent)/agent/sales/page");
+const { default: AgentApplicationsPage } = await import("@/app/(agent)/agent/applications/page");
+const { default: AgentClientsPage } = await import("@/app/(agent)/agent/clients/page");
+const { default: AgentMarketingPage } = await import("@/app/(agent)/agent/marketing/page");
 const { default: CopilotPage } = await import("@/app/(staff)/staff/copilot/page");
 const { default: UsersPage } = await import("@/app/(staff)/staff/users/page");
 const { default: WorkflowsPage } = await import("@/app/(staff)/staff/workflows/page");
@@ -246,6 +249,25 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     // the facts are table cells, so the prose budget is what the words explain.
     name: "/agent/sales (statement)",
     render: async () => renderToStaticMarkup(await AgentSalesPage()),
+    openingLead: /<p class="wb-head__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    // The remaining-screen pass (2026-10-02): applications and clients are tables
+    // too, so they join the guard in the PR that compresses them. The opening
+    // action is the header button when the page has one, the header link otherwise.
+    name: "/agent/applications (table)",
+    render: async () => renderToStaticMarkup(await AgentApplicationsPage()),
+    openingLead: /<p class="wb-head__lead">([\s\S]*?)<\/p>/,
+    openingAction: /<(?:a|button)\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
+  },
+  {
+    name: "/agent/clients (table)",
+    render: async () => renderToStaticMarkup(await AgentClientsPage({ searchParams: Promise.resolve({}) })),
+    openingLead: /<p class="wb-head__lead">([\s\S]*?)<\/p>/,
+  },
+  {
+    name: "/agent/marketing (materials grid)",
+    render: async () => renderToStaticMarkup(await AgentMarketingPage()),
     openingLead: /<p class="wb-head__lead">([\s\S]*?)<\/p>/,
   },
   {

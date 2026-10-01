@@ -1,15 +1,46 @@
 import Link from "next/link";
-import { AgentHero, AgentSection, Chip } from "@/components/agent/agent-ui";
 import { listAgentClients } from "@/lib/api-client/agent";
-import { findClients } from "@/lib/agent/agent-view";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { findClients, manilaDay } from "@/lib/agent/agent-view";
+import { money } from "@/components/agent/agent-ui";
+import { StatusChip, type StatusTone } from "@/components/kit";
+import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Clients — Villa Funeraria agent portal" };
 
+const FILTERS = [
+  { key: "all", label: "All" },
+  { key: "plans", label: "Plans" },
+  { key: "lots", label: "Lots" },
+  { key: "visits", label: "Due a visit" },
+] as const;
+
+/** The check-in word → the status chip tone. The word always carries the meaning. */
+function checkInTone(checkIn: string): StatusTone {
+  if (checkIn === "Check-in this month") return "warning";
+  if (checkIn === "Being served now") return "info";
+  if (checkIn === "Referral") return "accent";
+  return "neutral";
+}
+
+function queryString(params: Record<string, string | undefined>): string {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value) search.set(key, value);
+  }
+  const qs = search.toString();
+  return qs ? `?${qs}` : "";
+}
+
 /**
- * Clients — the book of business (approved design page 05). The list shows the
- * families the office assigned to this agent, what each holds, and the next
- * thing that matters. Money is only ever the next amount the agent may see.
+ * Clients — the book of business as one table (approved plan §5.5/§15 PR 4:
+ * family · holds · next amount · check-in · action), with search by name, lot,
+ * plan number or phone.
+ *
+ * WHY THIS SHAPE. The page it replaces was a stack of word rows; the recorded
+ * facts are a family, what they hold, the next amount the agent may see and
+ * whether they are due. Money is only ever the next amount and its date — the
+ * full ledger stays with the office (roles-permissions.md:13), stated once.
  */
 export default async function AgentClientsPage({
   searchParams,
@@ -29,137 +60,156 @@ export default async function AgentClientsPage({
 
   const checkIns = all.filter((c) => c.check_in === "Check-in this month").length;
 
-  return (
-    <div className="ag-page">
-      <AgentHero
-        eyebrow="Clients · your book of business"
-        title={`${all.length} families call you theirs.`}
-        lead={`${checkIns} need a check-in this month. Everyone else is fine — and when we know something, we say so here rather than leaving you guessing.`}
-        chips={
-          <>
-            <Chip>{checkIns} check-ins this month</Chip>
-            <Chip>Assigned to you only</Chip>
-          </>
-        }
-      />
+  const makeHref = (patch: Record<string, string | undefined>) =>
+    `/agent/clients${queryString({ q: query, filter, ...patch })}`;
 
-      <AgentSection
-        title="Your clients"
-        sub="Name, what they hold, and the next thing that matters. Search by name, lot number, plan number or phone."
-      >
-        <form className="ag-field" action="/agent/clients" method="get" role="search">
-          <label className="ag-field__label" htmlFor="agent-client-search">
-            Find a client
-          </label>
-          <input
-            id="agent-client-search"
-            name="q"
-            type="search"
-            defaultValue={query}
-            placeholder="Name, lot number, plan number, or phone"
-          />
-          <div className="ag-actions">
+  return (
+    <div className="workbench">
+      {/* ── the compact header: the answer, then one action ──────────────── */}
+      <header className="wb-head">
+        <div className="wb-head__text">
+          <p className="wb-head__eyebrow">Clients · your book of business</p>
+          <h1 className="wb-head__title">{all.length} families call you theirs.</h1>
+          <p className="wb-head__lead">{checkIns} need a check-in this month.</p>
+        </div>
+        <div className="wb-head__actions">
+          <a className="btn btn--secondary" href={FAMILY_HELP.phoneHref}>
+            Ask the office · {FAMILY_HELP.phone}
+          </a>
+        </div>
+      </header>
+
+      {/* ── search and filters ───────────────────────────────────────────── */}
+      <section className="wb-panel" aria-label="Find a client">
+        <div className="wb-panel__body">
+          <form className="wb-search" action="/agent/clients" method="get" role="search">
+            {filter !== "all" ? <input type="hidden" name="filter" value={filter} /> : null}
+            <label className="visually-hidden" htmlFor="agent-client-search">
+              Search clients
+            </label>
+            <input
+              id="agent-client-search"
+              name="q"
+              type="search"
+              defaultValue={query}
+              placeholder="Name, lot, plan or phone"
+            />
             <button className="btn btn--primary" type="submit">
               Search
             </button>
             {query ? (
-              <Link className="btn btn--ghost" href="/agent/clients">
+              <Link className="btn btn--ghost" href={makeHref({ q: undefined })}>
                 Clear
               </Link>
             ) : null}
-          </div>
-        </form>
+          </form>
 
-        <div className="ag-filters" role="group" aria-label="Filter clients">
-          <Link className={`ag-filter${filter === "all" ? " ag-filter--on" : ""}`} href="/agent/clients">
-            All {all.length}
-          </Link>
-          <Link className={`ag-filter${filter === "plans" ? " ag-filter--on" : ""}`} href="/agent/clients?filter=plans">
-            Plans
-          </Link>
-          <Link className={`ag-filter${filter === "lots" ? " ag-filter--on" : ""}`} href="/agent/clients?filter=lots">
-            Lots
-          </Link>
-          <Link className={`ag-filter${filter === "visits" ? " ag-filter--on" : ""}`} href="/agent/clients?filter=visits">
-            Due a visit
-          </Link>
-        </div>
-
-        {clients.length === 0 ? (
-          <div className="ag-state">
-            <span className="ag-state__icon" aria-hidden="true">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17 4.5a3.5 3.5 0 0 1 0 6.9M21 20v-1a4 4 0 0 0-3-3.9" /></svg>
-            </span>
-            <p className="ag-state__title">{query ? "No client matches that search" : "No clients yet"}</p>
-            <p className="ag-state__body">
-              {query
-                ? "Check the spelling, or search for the lot or plan number. A new person starts as a prospect."
-                : "Your first sale creates the client record — until then, build the pipeline."}
-            </p>
-            <div className="ag-actions ag-actions--center">
-              {query ? (
-                <Link className="btn btn--secondary" href="/agent/clients">
-                  See all clients
-                </Link>
-              ) : null}
-              <Link className="btn btn--primary" href="/agent/prospects">
-                Open the pipeline
+          <div className="wb-chips" role="group" aria-label="Filter clients">
+            {FILTERS.map((f) => (
+              <Link
+                key={f.key}
+                className="ag-filter wb-clickable"
+                data-on={f.key === filter ? "yes" : "no"}
+                aria-current={f.key === filter ? "true" : undefined}
+                href={makeHref({ filter: f.key === "all" ? undefined : f.key })}
+              >
+                {f.label === "All" ? `All ${all.length}` : f.label}
               </Link>
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── the table: the book of business ──────────────────────────────── */}
+      <section className="wb-panel" aria-label="Your clients">
+        {clients.length === 0 ? (
+          <div className="wb-panel__body">
+            <p className="wb-empty">
+              {query ? "No client matches that search. " : "No clients yet. "}
+              {query ? (
+                <Link href={makeHref({ q: undefined })}>See all clients</Link>
+              ) : (
+                <Link href="/agent/prospects">Open the pipeline</Link>
+              )}
+              .
+            </p>
           </div>
         ) : (
-          <div className="ag-list">
-            {clients.map((c) => {
-              const kind =
-                c.check_in === "Check-in this month" ? "today" : c.check_in === "Being served now" ? "done" : "";
-              const cls = kind ? `ag-work ag-work--${kind}` : "ag-work";
-              const holding = c.holdings[0];
-              return (
-                <article className={cls} key={c.id}>
-                  <span className="ag-work__icon" aria-hidden="true">
-                    {holding?.kind === "plan" ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3h8a2 2 0 0 1 2 2v14l-3-2-3 2-3-2-1 2V5a2 2 0 0 1 2-2zM9 8h6M9 12h4" /></svg>
-                    ) : holding?.kind === "lot" ? (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2 7 8h3v4H6l-2 5h6v3h4v-3h6l-2-5h-4V8h3z" /></svg>
-                    ) : (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" /></svg>
-                    )}
-                  </span>
-                  <div className="ag-work__body">
-                    <p className="ag-work__kind">{c.check_in}</p>
-                    <p className="ag-work__title">{c.name}</p>
-                    <p className="ag-work__detail">
-                      {c.holdings.map((h) => `${h.label} · ${h.detail}`).join(" · ")}
-                    </p>
-                    <p className="ag-work__meta">
-                      <span>{c.household}</span>
-                      {c.ask ? (
-                        <>
-                          <span aria-hidden="true"> · </span>
-                          <span>{c.ask}</span>
-                        </>
-                      ) : null}
-                    </p>
-                  </div>
-                  <div className="ag-work__action">
-                    <Link className="btn btn--primary" href={`/agent/clients/${c.id}`}>
-                      Open
-                    </Link>
-                    <a className="btn btn--secondary" href={`tel:${c.phone.replace(/\s/g, "")}`}>
-                      Call
-                    </a>
-                  </div>
-                </article>
-              );
-            })}
+          <div
+            className="table-wrapper wb-table-wrapper"
+            tabIndex={0}
+            role="region"
+            aria-label="Your clients"
+          >
+            <table className="table wb-table">
+              <caption className="visually-hidden">The families assigned to you</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Family</th>
+                  <th scope="col">Holds</th>
+                  <th scope="col" className="table__numeric">
+                    Next amount
+                  </th>
+                  <th scope="col">Check-in</th>
+                  <th scope="col">
+                    <span className="visually-hidden">Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {clients.map((c) => {
+                  const tel = `tel:${c.phone.replace(/\s/g, "")}`;
+                  return (
+                    <tr className="wb-clickable" key={c.id}>
+                      <th scope="row">
+                        <Link href={`/agent/clients/${c.id}`}>{c.name}</Link>
+                        <span className="wb-table__sub">{c.household}</span>
+                      </th>
+                      <td data-label="Holds">
+                        <ul className="wb-holds">
+                          {c.holdings.map((h) => (
+                            <li key={`${h.kind}-${h.label}`}>
+                              <span className="wb-holds__label">{h.label}</span>
+                              <span className="wb-table__sub">{h.detail}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </td>
+                      <td className="table__numeric" data-label="Next amount">
+                        {c.next_amount ? (
+                          <>
+                            {money(c.next_amount.amount_cents)}
+                            <span className="wb-table__sub">{manilaDay(c.next_amount.due_at)}</span>
+                          </>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                      <td data-label="Check-in">
+                        <StatusChip tone={checkInTone(c.check_in)}>{c.check_in}</StatusChip>
+                        {c.ask ? <span className="wb-table__sub">{c.ask}</span> : null}
+                      </td>
+                      <td className="wb-table__actions" data-label="Actions">
+                        <Link className="btn btn--primary btn--sm" href={`/agent/clients/${c.id}`}>
+                          Open
+                        </Link>
+                        <a className="btn btn--secondary btn--sm" href={tel}>
+                          Call
+                        </a>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
+      </section>
 
-        <p className="ag-note">
-          Clients come from the office&apos;s customer record. Your list shows only the families the office
-          assigned to you — never the whole database. Money shown is only what your login allows.
-        </p>
-      </AgentSection>
+      <p className="wb-foot">
+        Only the families the office assigned to you. Money shown is the next amount your login may
+        see — the full record, history and legal papers stay with the office.
+      </p>
     </div>
   );
 }

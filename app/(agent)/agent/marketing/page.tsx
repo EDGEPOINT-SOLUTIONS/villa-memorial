@@ -1,15 +1,17 @@
 import Link from "next/link";
-import { AgentHero, AgentSection, Chip } from "@/components/agent/agent-ui";
 import { listAgentMaterials } from "@/lib/api-client/agent";
+import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
+import { WorkbenchPanel } from "@/components/agent/workbench";
 import {
   CHAPEL_COMMON_IMAGE,
   DOC_PRICE_LIST_2026_III,
   DOC_TYPES_OF_COFFIN,
+  libraryThumb,
+  libraryThumbSet,
   PLAN_PACKAGES_IMAGE,
   VIEWING_CARE_IMAGE,
   VILLA_PARK_AERIAL,
 } from "@/lib/media";
-import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { FAMILY_HELP } from "@/lib/family/contact";
 
 export const metadata = { title: "Marketing & materials — Villa Funeraria agent portal" };
@@ -25,84 +27,88 @@ const COVER: Record<string, string> = {
 };
 
 /**
- * Marketing & materials (approved design page 11): one shelf of client-ready
- * material, pointing at the office's own public pages rather than agent-made
- * copies. Share links with per-link open tracking wait on a service — the
- * buttons say so; the pages themselves are live today.
+ * Marketing & materials — the office's shelf as one grid (approved plan
+ * §5.6/§15 PR 4). Every tile is a public page or 2026 sheet the office already
+ * publishes, with the client's own cover; the share opens that page so the
+ * family sees the same figure the office quotes. Per-link open tracking waits on
+ * a share service, so the copy control is honestly disabled and says so.
+ *
+ * WHY THIS SHAPE. The page it replaces was a wordy shelf with an 90-word
+ * explanation; the tiles carry the facts and one short line names the sharing
+ * boundary. No cover is re-drawn and no stat is invented.
  */
 export default async function AgentMarketingPage() {
   await requirePortalSessionOrRedirect("agent");
   const materials = await listAgentMaterials();
-  const shares = materials.reduce((sum, m) => sum + m.shares, 0);
 
   return (
-    <div className="ag-page">
-      <AgentHero
-        eyebrow="Marketing &amp; materials · what to send"
-        title="One shelf. Every family gets the same true sheet."
-        lead="These are the office's own pages and 2026 sheets — not copies, not screenshots. Send the link so the family sees the same figure the office quotes."
-        chips={
-          <>
-            <Chip>{materials.length} materials</Chip>
-            <Chip>Shared {shares} times this month</Chip>
-            <Chip>2026 sheets</Chip>
-          </>
-        }
-      />
-
-      <AgentSection
-        title="Share with a family"
-        sub="Open a material and send the office's own page. Share links with open-tracking wait on a service — nothing here pretends to track yet."
-        more={
-          <a className="btn btn--secondary btn--sm" href={FAMILY_HELP.phoneHref}>
+    <div className="workbench">
+      {/* ── the compact header: the answer, then one action ──────────────── */}
+      <header className="wb-head">
+        <div className="wb-head__text">
+          <p className="wb-head__eyebrow">Marketing &amp; materials · what to send</p>
+          <h1 className="wb-head__title">One shelf. Every family gets the same true sheet.</h1>
+          <p className="wb-head__lead">{materials.length} of the office&apos;s own pages and 2026 sheets.</p>
+        </div>
+        <div className="wb-head__actions">
+          <a className="btn btn--secondary" href={FAMILY_HELP.phoneHref}>
             Ask the office for something new
           </a>
-        }
-      >
-        <div className="ag-materials">
-          {materials.map((m) => (
-            <article className="ag-material" key={m.id}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ag-material__cover" src={COVER[m.id] ?? PLAN_PACKAGES_IMAGE} alt={m.title} />
-              <div className="ag-material__body">
-                <h2 className="ag-material__title">{m.title}</h2>
-                <p className="ag-material__desc">{m.description}</p>
-                <p className="ag-material__stat">
-                  {m.example
-                    ? `Example stats: shared ${m.shares} · opened ${m.opens}`
-                    : `Shared ${m.shares} · opened ${m.opens}`}
-                </p>
-                <div className="ag-material__actions">
-                  <Link className="btn btn--primary btn--sm" href={m.href}>
-                    Open &amp; share
-                  </Link>
-                  <button
-                    className="btn btn--secondary btn--sm"
-                    type="button"
-                    disabled
-                    title="Per-link open tracking waits on a share service"
-                  >
-                    Copy link
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
         </div>
+      </header>
 
-        <div className="ag-card">
-          <div className="ag-card__body">
-            <p className="ag-note">
-              <strong>How sharing will work.</strong> A share opens the office&apos;s own public page — the
-              family sees the same figure you do, and none of your other clients can see who else you sent it
-              to. When the office updates a sheet, old links will show a short “updated on” note rather than
-              an old price. Tracking will record opens, not people — the family is never profiled for opening
-              a page. Until the share service exists, send the link through your own phone: it is still the
-              office&apos;s own page and the right figure.
-            </p>
+      {/* ── the shelf: one covers grid ───────────────────────────────────── */}
+      <WorkbenchPanel role="neutral" label="Share" title="Materials" count={`${materials.length}`}>
+        {materials.length === 0 ? (
+          <p className="wb-empty">No material is published yet. The office can prepare one.</p>
+        ) : (
+          <div className="wb-materials">
+          {materials.map((m) => {
+            const cover = COVER[m.id] ?? PLAN_PACKAGES_IMAGE;
+            return (
+              <article className="wb-material wb-clickable" key={m.id}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="wb-material__cover"
+                  src={libraryThumb(cover, 640)}
+                  srcSet={libraryThumbSet(cover)}
+                  sizes="(max-width: 40rem) 100vw, (max-width: 64rem) 45vw, 22rem"
+                  width={640}
+                  height={480}
+                  loading="lazy"
+                  alt={m.title}
+                />
+                <div className="wb-material__body">
+                  <h3 className="wb-material__title">{m.title}</h3>
+                  <p className="wb-material__desc">{m.description}</p>
+                  <span className="wb-material__stat">
+                    {m.example ? "Example: " : ""}shared {m.shares} · opened {m.opens}
+                  </span>
+                  <div className="wb-material__actions">
+                    <Link className="btn btn--primary btn--sm" href={m.href}>
+                      Open &amp; share
+                    </Link>
+                    <button
+                      className="btn btn--secondary btn--sm"
+                      type="button"
+                      disabled
+                      title="Copying a tracked share link waits on a share service"
+                    >
+                      Copy link
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
           </div>
-        </div>
-      </AgentSection>
+        )}
+      </WorkbenchPanel>
+
+      <p className="wb-foot">
+        A share opens the office&apos;s own page — the same figure you see. Tracking is not
+        connected; send the link from your phone.
+      </p>
     </div>
   );
 }
