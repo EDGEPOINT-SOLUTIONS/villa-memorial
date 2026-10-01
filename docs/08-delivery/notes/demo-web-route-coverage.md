@@ -140,7 +140,10 @@ pricing store and prints the sheet through the shared paper layer (`property:rea
 collapsible rail and account chip are the shared portal chrome, and `/agent/profile` reads the
 office's own agent record (name, email, office number) for both the screen and the chip — with an
 honest initials disc because no agent picture is recorded
-([record](../agent-profile-design/README.md)). `/agent/lots` still prints a
+([record](../agent-profile-design/README.md)). Every box that IS a link (the brief lead, the
+vitals ribbon, the tool tiles, the panel/flow open actions) answers on hover and keyboard focus with
+the sky control wash; a box that does not link stays still, so no content box wears a false
+affordance ([record](../dashboard-hover-design/README.md)). `/agent/lots` still prints a
 **type-summary** availability count that its own map does not match (16 vs the property
 record's 8-of-12); that reconciliation is still open.
 

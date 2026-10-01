@@ -208,6 +208,14 @@ const ALLOWED_SKY_GROUNDS: Array<{ match: string; why: string }> = [
   { match: ".wb-panel--place", why: "the workbench panel's meaning head-strip wash (approved plan §10)" },
   { match: ".wb-alert__dot", why: "the attention strip's info status dot (a functional indicator)" },
   { match: ".ag-filter[data-on=\"yes\"]", why: "the workbench's active filter chip (a control state)" },
+  // The clickable-box pass (captain, 2026-10-01): every box that IS a link
+  // answers on hover and keyboard focus with the same sky control wash the
+  // active filter uses. A hover/focus state IS a control state, so each is named
+  // here in the PR that ships it; the static boxes (panels, bands, stage-flow
+  // segments) deliberately paint no wash.
+  { match: ".wb-brief__lead:", why: "the brief lead link's hover/focus control state" },
+  { match: ".wb-vital:", why: "a vitals ribbon link's hover/focus control state" },
+  { match: ".wb-tool:", why: "a quick-tool link's hover/focus control state" },
 ];
 
 function allowed(selector: string): boolean {
