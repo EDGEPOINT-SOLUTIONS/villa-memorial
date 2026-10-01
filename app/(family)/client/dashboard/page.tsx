@@ -199,8 +199,8 @@ async function PersonCommandCentre({
   // monogram plate, the shipped state.
   let portraitSrc: string | null = null;
   try {
-    const stored = await readFamilyImage(session.userId, "portrait");
-    if (stored) portraitSrc = familyImageUrl("portrait", stored.updated_at);
+    const stored = await readFamilyImage(session.userId, "portrait", personId);
+    if (stored) portraitSrc = familyImageUrl("portrait", stored.updated_at, personId);
   } catch {
     portraitSrc = null;
   }
@@ -505,6 +505,7 @@ async function PersonCommandCentre({
           <p className="dash-note">Private to your family until you choose to publish it.</p>
           <FamilyImageUploader
             slot="portrait"
+            personId={personId}
             hasImage={Boolean(portraitSrc)}
             label={portraitSrc ? "Change the portrait" : "Attach a portrait"}
             hint="Only your family sees this picture."

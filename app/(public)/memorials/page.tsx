@@ -24,7 +24,7 @@ import {
   type PublishedMemorial,
 } from "@/lib/memorials";
 import { pageMetadata } from "@/lib/seo";
-import { VisibilityChoices } from "./visibility-choices";
+import { MemorialChoices } from "./memorial-choices";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
@@ -157,7 +157,7 @@ export default async function MemorialSearchPage({
           title="What this search can show"
           lead="Only what a family publishes appears."
         />
-        <VisibilityChoices title="" />
+        <MemorialChoices title="" />
         <PublicDisclosure summary="What exactly is searchable, and what is never shown">
           <div className="mem-rules__grid">
             <div className="mem-rule-card">
@@ -209,11 +209,32 @@ export default async function MemorialSearchPage({
                   const plotHref = memorialPlotHref(memorial);
                   return (
                     <li className="mem-result" key={memorial.id}>
-                      <div>
-                        <h3 className="mem-result__name">{memorial.name}</h3>
-                        <p className="mem-result__dates">{memorial.life_dates.display}</p>
-                        {resting ? <p className="mem-result__place">{resting}</p> : null}
-                        <p className="mem-result__line">{memorialFirstLine(memorial)}</p>
+                      <div className="mem-result__body">
+                        {memorial.photo ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- family-supplied photograph, published only when the family allowed it
+                          <img
+                            className="mem-result__photo"
+                            src={memorial.photo.src}
+                            alt={memorial.photo.alt}
+                            width={64}
+                            height={80}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        ) : null}
+                        <div>
+                          <h3 className="mem-result__name">{memorial.name}</h3>
+                          {/* A search result shows only the chosen fields: the
+                              years, the photograph and the resting place appear
+                              only when the family allowed each. */}
+                          {memorial.life_dates.display ? (
+                            <p className="mem-result__dates">{memorial.life_dates.display}</p>
+                          ) : null}
+                          {resting ? <p className="mem-result__place">{resting}</p> : null}
+                          {memorialFirstLine(memorial) ? (
+                            <p className="mem-result__line">{memorialFirstLine(memorial)}</p>
+                          ) : null}
+                        </div>
                       </div>
                       <div className="mem-result__actions">
                         <Link className="btn btn--secondary" href={`/memorials/${memorial.id}`}>

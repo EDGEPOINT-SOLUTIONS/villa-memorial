@@ -15,7 +15,7 @@ import {
 } from "@/lib/memorials";
 import { UNPUBLISHED_MEMORIAL_ROBOTS, pageMetadata } from "@/lib/seo";
 import { MemorialProfile } from "./memorial-profile";
-import { VisibilityChoices } from "../visibility-choices";
+import { MemorialChoices } from "../memorial-choices";
 
 type MemorialParams = { params: Promise<{ id: string }> };
 
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: MemorialParams): Promise<Meta
   const { id } = await params;
   let memorial: PublishedMemorial | null = null;
   try {
-    memorial = findPublishedMemorial(id);
+    memorial = await findPublishedMemorial(id);
   } catch {
     memorial = null;
   }
@@ -55,9 +55,10 @@ export async function generateMetadata({ params }: MemorialParams): Promise<Meta
       robots: UNPUBLISHED_MEMORIAL_ROBOTS,
     };
   }
+  const dates = memorial.life_dates.display;
   return pageMetadata({
     title: `${memorial.name} — Villa Funeraria`,
-    description: `Remembering ${memorial.name} (${memorial.life_dates.display}) — the memorial their family published at Villa Memorial Park, with where they rest.`,
+    description: `Remembering ${memorial.name}${dates ? ` (${dates})` : ""} — the memorial their family published at Villa Memorial Park.`,
     path: `/memorials/${encodeURIComponent(memorial.id)}`,
   });
 }
@@ -74,7 +75,7 @@ export default async function MemorialPage({ params }: MemorialParams) {
   let memorial: PublishedMemorial | null = null;
   let readFailed = false;
   try {
-    memorial = findPublishedMemorial(id);
+    memorial = await findPublishedMemorial(id);
   } catch {
     readFailed = true;
   }
@@ -137,8 +138,8 @@ function UnavailableMemorial({ contact }: { contact: ContactInfo }) {
           title="Why this memorial is not shown here"
           lead={MEMORIAL_UNAVAILABLE_HINT}
         />
-        <PublicDisclosure summary="See the family’s three choices">
-          <VisibilityChoices title="What a family can choose" />
+        <PublicDisclosure summary="See what a family can choose">
+          <MemorialChoices title="What a family can choose" />
         </PublicDisclosure>
         <p className="mem-service-note">{MEMORIAL_SERVICE_NOTE}</p>
       </section>

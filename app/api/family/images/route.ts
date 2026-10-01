@@ -3,6 +3,7 @@ import { familySessionOrNull } from "@/lib/auth/family-session";
 import { MEDIA_UPLOAD_MAX_BYTES, mediaExtensionFor } from "@/lib/media-upload";
 import {
   FAMILY_IMAGE_SLOT_LABEL,
+  familyImageUrl,
   isFamilyImageSlot,
   removeFamilyImage,
   writeFamilyImage,
@@ -11,10 +12,14 @@ import {
 /**
  * BFF: the family's own picture upload — private, family-scoped.
  *
- *   POST /api/family/images?slot=avatar|portrait
+ *   POST /api/family/images?slot=avatar|portrait[&person=<loved_ones.id>]
  *        body: the already-downscaled image BYTES, content-type = the image type.
  *        returns { url, updated_at }
- *   DELETE /api/family/images?slot=avatar|portrait  — remove the family's picture.
+ *   DELETE /api/family/images?slot=avatar|portrait[&person=<loved_ones.id>]
+ *        — remove the family's picture.
+ *
+ * `person` addresses a PORTRAIT to one loved one (the household may look after
+ * two); it is ignored for the account-level avatar.
  *
  * WHY IT EXISTS: the editor's upload route is staff-scoped and its read route is
  * public, so it can never carry a family's private picture. This route requires a
@@ -36,10 +41,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "not signed in" }, { status: 401 });
   }
 
-  const slot = new URL(request.url).searchParams.get("slot") ?? "";
+  const url = new URL(request.url);
+  const slot = url.searchParams.get("slot") ?? "";
   if (!isFamilyImageSlot(slot)) {
     return NextResponse.json({ error: "unknown picture slot" }, { status: 400 });
   }
+  const personId = slot === "portrait" ? url.searchParams.get("person") ?? undefined : undefined;
 
   const declared = Number(request.headers.get("content-length") ?? "0");
   if (Number.isFinite(declared) && declared > MEDIA_UPLOAD_MAX_BYTES) {
@@ -74,9 +81,9 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { updated_at } = await writeFamilyImage(session.userId, slot, bytes, mime);
+    const { updated_at } = await writeFamilyImage(session.userId, slot, bytes, mime, personId);
     return NextResponse.json(
-      { url: `/api/family/images/${slot}`, updated_at },
+      { url: familyImageUrl(slot, updated_at, personId), updated_at },
       { status: 201 },
     );
   } catch {
@@ -92,10 +99,12 @@ export async function DELETE(request: Request) {
   if (!session) {
     return NextResponse.json({ error: "not signed in" }, { status: 401 });
   }
-  const slot = new URL(request.url).searchParams.get("slot") ?? "";
+  const url = new URL(request.url);
+  const slot = url.searchParams.get("slot") ?? "";
   if (!isFamilyImageSlot(slot)) {
     return NextResponse.json({ error: "unknown picture slot" }, { status: 400 });
   }
-  const removed = await removeFamilyImage(session.userId, slot);
+  const personId = slot === "portrait" ? url.searchParams.get("person") ?? undefined : undefined;
+  const removed = await removeFamilyImage(session.userId, slot, personId);
   return NextResponse.json({ removed }, { status: 200 });
 }

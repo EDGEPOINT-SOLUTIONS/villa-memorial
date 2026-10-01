@@ -19,10 +19,15 @@
  *   portrait — the LOVED ONE's picture (the Remembering panel; private to the
  *              family unless they separately publish it on a public memorial)
  *
- * The bytes live in one flat file per slot; a tiny JSON index records the file
- * name, its content type and when it was last changed (the version the read route
- * cache-busts on). Validation reuses the media store's own type and size rules, so
- * an upload accepted here is exactly what the editor accepts.
+ * A portrait is PER LOVED ONE (captain, 2026-09-30, household shape): the slot
+ * functions take an optional `personId`, so a family looking after two people
+ * attaches each person's own picture. The avatar stays account-level (no person).
+ *
+ * The bytes live in one flat file per (user, slot, person); a tiny JSON index
+ * records the file name, its content type and when it was last changed (the
+ * version the read route cache-busts on). Validation reuses the media store's own
+ * type and size rules, so an upload accepted here is exactly what the editor
+ * accepts.
  *
  * Server-only: it touches `node:fs`. Client components call the routes.
  */
@@ -55,9 +60,10 @@ function indexFile(): string {
   return path.join(familyImageDir(), "index.json");
 }
 
-/** The one flat, traversal-proof key for a user + slot. */
-function slotKey(userId: string, slot: FamilyImageSlot): string {
-  return `${safeUserId(userId)}:${slot}`;
+/** The one flat, traversal-proof key for a user + slot (+ optional loved one). */
+function slotKey(userId: string, slot: FamilyImageSlot, personId?: string): string {
+  const person = personId?.trim() ? `:${safeUserId(personId)}` : "";
+  return `${safeUserId(userId)}:${slot}${person}`;
 }
 
 function safeUserId(userId: string): string {
@@ -98,6 +104,7 @@ export async function writeFamilyImage(
   slot: FamilyImageSlot,
   bytes: Buffer,
   mime: string,
+  personId?: string,
 ): Promise<{ updated_at: string }> {
   const ext = mediaExtensionFor(mime);
   if (!ext) throw new Error("unsupported image type");
@@ -106,10 +113,11 @@ export async function writeFamilyImage(
 
   const dir = familyImageDir();
   await fs.mkdir(dir, { recursive: true });
-  const key = slotKey(userId, slot);
+  const key = slotKey(userId, slot, personId);
   const index = await readIndex();
   const previous = index[key];
-  const name = `${safeUserId(userId)}-${slot}.${ext}`;
+  const person = personId?.trim() ? `-${safeUserId(personId)}` : "";
+  const name = `${safeUserId(userId)}-${slot}${person}.${ext}`;
 
   const temp = path.join(dir, `${name}.${process.pid}.tmp`);
   await fs.writeFile(temp, bytes);
@@ -130,9 +138,10 @@ export async function writeFamilyImage(
 export async function readFamilyImage(
   userId: string,
   slot: FamilyImageSlot,
+  personId?: string,
 ): Promise<{ path: string; mime: string; size: number; updated_at: string } | null> {
   const index = await readIndex();
-  const entry = index[slotKey(userId, slot)];
+  const entry = index[slotKey(userId, slot, personId)];
   if (!entry) return null;
   const file = path.join(familyImageDir(), entry.name);
   const stat = await fs.stat(file).catch(() => null);
@@ -144,9 +153,10 @@ export async function readFamilyImage(
 export async function removeFamilyImage(
   userId: string,
   slot: FamilyImageSlot,
+  personId?: string,
 ): Promise<boolean> {
   const index = await readIndex();
-  const key = slotKey(userId, slot);
+  const key = slotKey(userId, slot, personId);
   const entry = index[key];
   if (!entry) return false;
   await fs.rm(path.join(familyImageDir(), entry.name), { force: true }).catch(() => undefined);
@@ -155,8 +165,19 @@ export async function removeFamilyImage(
   return true;
 }
 
-/** The guarded read URL for a slot, versioned so a changed picture refreshes. */
-export function familyImageUrl(slot: FamilyImageSlot, version?: string | null): string {
+/**
+ * The guarded read URL for a slot, versioned so a changed picture refreshes and,
+ * for a portrait, addressed to the loved one it belongs to.
+ */
+export function familyImageUrl(
+  slot: FamilyImageSlot,
+  version?: string | null,
+  personId?: string,
+): string {
+  const params = new URLSearchParams();
+  if (personId?.trim()) params.set("person", personId.trim());
+  if (version) params.set("v", version);
+  const query = params.toString();
   const base = `/api/family/images/${slot}`;
-  return version ? `${base}?v=${encodeURIComponent(version)}` : base;
+  return query ? `${base}?${query}` : base;
 }

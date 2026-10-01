@@ -81,10 +81,10 @@ describe("proposed contract shapes validate today's recorded fixtures", () => {
     assertRows(accountingFile.entries as unknown[], "accounting.entry");
   });
 
-  it("C18 memorials — the recorded store envelope (nothing published)", () => {
+  it("C18 memorials — the consent store seed (nothing published)", () => {
     expect(() =>
       readShape(memorialsFile, "memorials.envelope", PROPOSED_SHAPES["memorials.envelope"]),
     ).not.toThrow();
-    expect((memorialsFile as { memorials: unknown[] }).memorials).toEqual([]);
+    expect((memorialsFile as { consents: unknown[] }).consents).toEqual([]);
   });
 });

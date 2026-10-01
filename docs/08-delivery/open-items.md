@@ -263,7 +263,7 @@ family-facing reads it makes visible as gaps, in the order they cost the family 
 | Requests | a **request/service-desk** read (assignment, history) |
 | My plots | a **family-facing lot/ownership projection** that carries the office's own `plot_code` (then the shipped 3D deep link turns on) plus an **interment projection** (who rests there) |
 | Money | the **payments/AR** read (payment history, receipts) |
-| Remembering | the **digital-memorial** service (content, moderation, visibility) |
+| Remembering | the **digital-memorial** service (stories, messages, moderation). The one-switch visibility model and its per-field choices ship today — the family's choice is written to a durable consent journal the public memorial surface reads (`lib/api-client/memorial-store.ts`) — pending the platform's read/write contract |
 | The account avatar / Remembering portrait | a family-scoped **document/image store** (the platform `documents-api-v1` upload is Deferred); a local guarded interim ships today (`lib/family-image-store.ts`) |
 
 No shape is invented here. Until one freezes, the panel shows what the record carries and names the

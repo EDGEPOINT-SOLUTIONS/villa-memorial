@@ -145,11 +145,10 @@ export const PROPOSED_SHAPES = {
     optNullable("order_number", "string"),
     A("lines"),
   ],
-  /** C18 digital memorials — the recorded store envelope (no memorial is published). */
+  /** C18 digital memorials — the consent store seed (no memorial is published). */
   "memorials.envelope": [
     S("service_state"),
-    A("memorials"),
-    { key: "consent_record", type: "object", optional: true },
+    A("consents"),
   ],
 } as const satisfies Record<string, readonly ShapeField[]>;
 

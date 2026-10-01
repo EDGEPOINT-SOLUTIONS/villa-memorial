@@ -96,7 +96,7 @@ export const FAMILY_PRD_SCREENS: FamilyScreenCoverage[] = [
     state: "partial",
     module: "06-cultural-digital-memorial/digital-memorial.md",
     missing:
-      "The record we hold (name, dates, place) and the choices are on the page, and the state is plainly “nothing published”; the digital-memorial service (content, moderation, visibility) is not built, so the page itself cannot open.",
+      "Each loved one now has ONE switch and the per-field choices, and turning it on publishes the name and only the chosen fields to the public memorial surface (the consent store the public pages read); the office's own memorial service (stories, messages, moderation) is still being built, so the page points to the office for the rest.",
   },
   {
     screen: "My Funeral Cases",

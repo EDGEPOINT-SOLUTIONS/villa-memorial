@@ -4,27 +4,38 @@
  * ⚠ PROVISIONAL — the digital-memorial service does not exist and no contract
  * under `docs/08-delivery/contracts/` names a memorial record. `memorialsLiveModeEnabled()`
  * is therefore ALWAYS false: there is no live branch to claim, and no flag may
- * pretend one exists. Fixture mode serves `lib/fixtures/memorials/memorials.json`
- * — the recorded state, in which NO memorial is published (see the file's
- * provenance: the demo family has chosen no visibility).
+ * pretend one exists.
  *
- * PRIVACY IS A READER RULE, not a page rule: `memorialsFromFile` validates every
- * record field by field and DROPS any record whose visibility is anything other
- * than `published` (a private, family-only or undecided record never becomes a
- * `PublishedMemorial`, so no page can render it by accident). Malformed published
- * records throw a 500 rather than surfacing half-shaped state.
+ * THE FAMILY'S SWITCH IS THE READER'S GATE. This module composes three recorded
+ * sources into the ONE public shape a page may render:
+ *   · the family household (`lib/api-client/family.ts`) — the loved one's name,
+ *     life dates and lot;
+ *   · the consent store (`lib/api-client/memorial-store.ts`) — the one switch and
+ *     the per-field choices, default OFF;
+ *   · the private portrait store (`lib/family-image-store.ts`) — read only for a
+ *     person whose family allowed the photograph.
+ *
+ * A person whose switch is off NEVER becomes a `PublishedMemorial`, so no page
+ * can render one by accident. A field the family did not choose is dropped here:
+ * the name is always carried when the switch is on, and the photograph, the birth
+ * year, the death year and the lot each appear only when chosen. Hiding a year
+ * also makes it unsearchable (`matchMemorials` reads the built record), so a
+ * hidden date cannot leak through the search.
  *
  * The search never lists an empty query (`matchMemorials` in `lib/memorials.ts`),
- * so this module cannot be used as a directory even if a store grows.
+ * so this module cannot be used as a directory even as the store grows.
  */
-import memorialsFile from "@/lib/fixtures/memorials/memorials.json";
-import { ApiError } from "@/lib/api-client/api-error";
 import { liveModeEnabled } from "@/lib/live-mode";
+import { getFamilyHousehold, type FamilyPerson } from "@/lib/api-client/family";
+import { readFamilyImage } from "@/lib/family-image-store";
+import { readMemorialConsents } from "@/lib/api-client/memorial-store";
 import {
-  isMemorialVisibility,
-  type MemorialLifeDates,
+  MEMORIAL_CONSENT_DEFAULT,
+  memorialLifeDatesDisplay,
+  parseLifeDatesYears,
+  type MemorialConsent,
+  type MemorialConsentRecord,
   type MemorialPhoto,
-  type MemorialRestingPlace,
   type PublishedMemorial,
 } from "@/lib/memorials";
 
@@ -39,112 +50,115 @@ export function memorialsLiveModeEnabled(): boolean {
   return liveModeEnabled("memorials");
 }
 
-function malformed(what: string): never {
-  throw new ApiError(`malformed memorials fixture: ${what}`, 500);
-}
-
-function record(value: unknown, what: string): Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) malformed(what);
-  return value as Record<string, unknown>;
-}
-
-function requiredString(value: unknown, what: string): string {
-  if (typeof value !== "string" || value.trim().length === 0) malformed(what);
-  return value.trim();
-}
-
-function optionalString(value: unknown): string | null {
-  if (value === null || value === undefined) return null;
-  if (typeof value !== "string") return null;
-  const clean = value.trim();
-  return clean === "" ? null : clean;
-}
-
-function optionalYear(value: unknown, what: string): number | null {
-  if (value === null || value === undefined) return null;
-  if (typeof value !== "number" || !Number.isInteger(value)) malformed(what);
-  return value;
-}
-
-function toLifeDates(raw: unknown): MemorialLifeDates {
-  const r = record(raw, "life_dates");
-  const from = optionalYear(r.from, "life_dates.from");
-  const to = optionalYear(r.to, "life_dates.to");
-  if (from !== null && to !== null && from > to) malformed("life_dates order");
-  return { from, to, display: requiredString(r.display, "life_dates.display") };
-}
-
-function toPhoto(raw: unknown): MemorialPhoto | null {
-  if (raw === null || raw === undefined) return null;
-  const r = record(raw, "photo");
-  return {
-    src: requiredString(r.src, "photo.src"),
-    alt: requiredString(r.alt, "photo.alt"),
-  };
-}
-
-function toRestingPlace(raw: unknown): MemorialRestingPlace | null {
-  if (raw === null || raw === undefined) return null;
-  const r = record(raw, "resting_place");
-  return {
-    park: requiredString(r.park, "resting_place.park"),
-    section: requiredString(r.section, "resting_place.section"),
-    lot: requiredString(r.lot, "resting_place.lot"),
-    plot: optionalString(r.plot),
-  };
-}
-
-function toRemembrance(raw: unknown): string[] {
-  if (!Array.isArray(raw)) malformed("remembrance");
-  const lines = raw.map((line, index) => requiredString(line, `remembrance[${index}]`));
-  if (lines.length === 0) malformed("remembrance is empty");
-  return lines;
+/** The public URL of a published portrait, versioned so a change refreshes it. */
+export function memorialPhotoHref(personId: string, version: string | null): string {
+  const base = `/api/memorials/${encodeURIComponent(personId)}/photo`;
+  return version ? `${base}?v=${encodeURIComponent(version)}` : base;
 }
 
 /**
- * One record → one PublishedMemorial, or null when the family has not published
- * it. Exported for tests: the rule that a non-published record can never become
- * a public shape is proven here, not in a view.
+ * One loved one + their consent → one public memorial, or null when the switch
+ * is off. Pure: the caller passes the records, so the rule "nothing is published
+ * by default" is proven here, not in a view.
  */
-export function memorialsFromFile(raw: unknown): PublishedMemorial[] {
-  const file = record(raw, "file");
-  const rows = file.memorials;
-  if (!Array.isArray(rows)) malformed("memorials");
+export function buildPublishedMemorial(input: {
+  id: string;
+  name: string;
+  /** The office record's own life-dates display, e.g. "1948 – 2026". */
+  lifeDatesDisplay: string;
+  consent: MemorialConsent;
+  /** The resting place from the office record; the consent decides if it shows. */
+  restingPlace: { park: string; section: string; lot: string; plot?: string | null } | null;
+  /** The family's published photograph, already resolved; consent decides if it shows. */
+  photo: MemorialPhoto | null;
+  publishedOn: string | null;
+}): PublishedMemorial | null {
+  if (!input.consent.visible) return null;
+  const years = parseLifeDatesYears(input.lifeDatesDisplay);
+  const from = input.consent.show_birth ? years.from : null;
+  const to = input.consent.show_death ? years.to : null;
+  return {
+    id: input.id,
+    name: input.name,
+    life_dates: { from, to, display: memorialLifeDatesDisplay(from, to) },
+    remembrance: [],
+    photo: input.consent.show_photo ? input.photo : null,
+    resting_place: input.consent.show_lot ? input.restingPlace : null,
+    published_on: input.publishedOn,
+  };
+}
+
+/** The default record for a loved one the family has never saved a choice for. */
+function defaultRecord(personId: string): MemorialConsentRecord {
+  return { ...MEMORIAL_CONSENT_DEFAULT, person_id: personId, owner_user_id: null, updated_at: null };
+}
+
+/**
+ * The family's published portrait for one person, or null. The private store is
+ * read only when the family allowed the photograph AND a record names the owner;
+ * any read failure is treated as "no photograph" rather than taking the whole
+ * public surface down.
+ */
+async function publishedPhoto(
+  person: FamilyPerson,
+  consent: MemorialConsentRecord,
+): Promise<MemorialPhoto | null> {
+  if (!consent.show_photo || !consent.owner_user_id) return null;
+  try {
+    const stored = await readFamilyImage(consent.owner_user_id, "portrait", person.id);
+    if (!stored) return null;
+    return { src: memorialPhotoHref(person.id, stored.updated_at), alt: person.name };
+  } catch {
+    return null;
+  }
+}
+
+/** The resting place as the office record carries it (the consent gates it). */
+function restingPlaceOf(person: FamilyPerson) {
+  if (!person.lot) return null;
+  return {
+    park: person.lot.park,
+    section: person.lot.section,
+    lot: person.lot.lot_number,
+    plot: person.lot.plot_code ?? null,
+  };
+}
+
+/**
+ * The published memorials the public surface may serve. A household read plus the
+ * consent store; only a switched-on person becomes a public shape.
+ */
+export async function loadPublishedMemorials(): Promise<PublishedMemorial[]> {
+  const household = await getFamilyHousehold();
+  const consents = await readMemorialConsents();
+  const byPerson = new Map(consents.map((record) => [record.person_id, record]));
   const out: PublishedMemorial[] = [];
-  for (const row of rows) {
-    const r = record(row, "memorial");
-    // Privacy floor: only a family-chosen published record may exist publicly.
-    if (!isMemorialVisibility(r.visibility) || r.visibility !== "published") continue;
-    out.push({
-      id: requiredString(r.id, "id"),
-      name: requiredString(r.name, "name"),
-      life_dates: toLifeDates(r.life_dates),
-      remembrance: toRemembrance(r.remembrance),
-      photo: toPhoto(r.photo),
-      resting_place: toRestingPlace(r.resting_place),
-      published_on: optionalString(r.published_on),
+  for (const person of household.people) {
+    const consent = byPerson.get(person.id) ?? defaultRecord(person.id);
+    if (!consent.visible) continue;
+    const photo = await publishedPhoto(person, consent);
+    const memorial = buildPublishedMemorial({
+      id: person.id,
+      name: person.name,
+      lifeDatesDisplay: person.life_dates,
+      consent,
+      restingPlace: restingPlaceOf(person),
+      photo,
+      publishedOn: consent.updated_at ? consent.updated_at.slice(0, 10) : null,
     });
+    if (memorial) out.push(memorial);
   }
   return out;
 }
 
-/** The published memorials the public surface may serve (fixture mode). */
-export function publishedMemorials(): PublishedMemorial[] {
-  return memorialsFromFile(memorialsFile);
-}
-
-/** The seam the screens call, so a future store/live read can replace it. */
-export async function loadPublishedMemorials(): Promise<PublishedMemorial[]> {
-  return publishedMemorials();
-}
-
 /**
- * One published memorial by its URL segment. Unknown ids and ids whose family
- * did not publish resolve to the SAME null — the page renders one uniform
- * answer, so nothing on the public side can confirm that a private memorial
- * exists. `decodeURIComponent` is guarded: a malformed escape is simply unknown.
+ * One published memorial by its URL segment. Unknown ids and ids whose family did
+ * not switch the memorial on resolve to the SAME null — the page renders one
+ * uniform answer, so nothing on the public side can confirm that a private
+ * memorial exists. `decodeURIComponent` is guarded: a malformed escape is simply
+ * unknown.
  */
-export function findPublishedMemorial(id: string): PublishedMemorial | null {
+export async function findPublishedMemorial(id: string): Promise<PublishedMemorial | null> {
   let clean = id.trim();
   try {
     clean = decodeURIComponent(clean).trim();
@@ -152,5 +166,7 @@ export function findPublishedMemorial(id: string): PublishedMemorial | null {
     return null;
   }
   if (clean.length === 0) return null;
-  return publishedMemorials().find((memorial) => memorial.id === clean) ?? null;
+  const all = await loadPublishedMemorials();
+  return all.find((memorial) => memorial.id === clean) ?? null;
 }
+

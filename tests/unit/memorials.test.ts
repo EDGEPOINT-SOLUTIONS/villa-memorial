@@ -1,28 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { ApiError } from "@/lib/api-client/api-error";
 import {
+  buildPublishedMemorial,
   findPublishedMemorial,
   loadPublishedMemorials,
-  memorialsFromFile,
+  memorialPhotoHref,
   memorialsLiveModeEnabled,
-  publishedMemorials,
 } from "@/lib/api-client/memorials";
+import { readMemorialConsents } from "@/lib/api-client/memorial-store";
 import {
+  MEMORIAL_CONSENT_DEFAULT,
+  MEMORIAL_FIELD_CHOICES,
   MEMORIAL_NEVER_SHOWN,
   MEMORIAL_PROMISES,
-  MEMORIAL_SEARCHABLE,
+  MEMORIAL_PUBLIC_CHOICES,
   MEMORIAL_SEARCH_FIELD_MAX,
-  MEMORIAL_VISIBILITY,
+  MEMORIAL_SEARCHABLE,
   YEAR_FORMAT_ERROR,
   YEAR_ORDER_ERROR,
-  familyVisibilityLabel,
   hasMemorialSearch,
   matchMemorials,
-  memorialFirstLine,
-  memorialRestingLine,
+  memorialLifeDatesDisplay,
+  parseLifeDatesYears,
   parseMemorialSearch,
   type PublishedMemorial,
 } from "@/lib/memorials";
@@ -32,73 +30,158 @@ import { TEST_MEMORIAL } from "@/tests/helpers/memorial-record";
  * The digital memorial's rules (F-04) — the most sensitive surface in the
  * product. These tests pin the properties the pages promise:
  *
- *  · NOTHING IS PUBLISHED BY DEFAULT and the search is never a directory: an
- *    empty query lists nobody, and a non-published record can never become a
- *    public shape.
- *  · The three visibility choices stay the same three the FAMILY PORTAL names
- *    (this file reads that page and fails on drift).
- *  · The living are never shown — the never-shown list carries that rule, and
- *    the fixture ships no person at all.
+ *  · NOTHING IS PUBLISHED BY DEFAULT: one switch per loved one, off; every field
+ *    off; an empty query lists nobody; a hidden year is unsearchable.
+ *  · The family chooses each field: the name is always shown when the switch is
+ *    on; the photograph, the birth year, the death year and the lot each appear
+ *    only when chosen.
+ *  · The living are never shown — the never-shown list carries that rule.
  */
-const ROOT = fileURLToPath(new URL("../..", import.meta.url));
 
 function words(value: string): number {
   return value.trim().split(/\s+/).filter(Boolean).length;
 }
 
-describe("the three visibility choices", () => {
-  it("has exactly the three choices, in the family portal's order", () => {
-    expect(MEMORIAL_VISIBILITY.map((choice) => choice.id)).toEqual([
-      "private",
-      "family",
-      "published",
+describe("the family's field choices", () => {
+  it("offers exactly the four optional fields, each with a short meaning", () => {
+    expect(MEMORIAL_FIELD_CHOICES.map((choice) => choice.key)).toEqual([
+      "photo",
+      "birth",
+      "death",
+      "lot",
     ]);
-    for (const choice of MEMORIAL_VISIBILITY) {
-      expect(choice.visitorLabel.length).toBeGreaterThan(0);
+    for (const choice of MEMORIAL_FIELD_CHOICES) {
+      expect(choice.label.length).toBeGreaterThan(0);
       expect(choice.meaning.length).toBeGreaterThan(0);
+      expect(words(choice.meaning)).toBeLessThanOrEqual(20);
+    }
+  });
+
+  it("names the image and the lot honestly, in the family's own words", () => {
+    const byKey = Object.fromEntries(MEMORIAL_FIELD_CHOICES.map((c) => [c.key, c.meaning]));
+    expect(byKey.photo).toContain("attached");
+    expect(byKey.lot).toContain("private");
+  });
+
+  it("describes the same choices in a visitor's terms", () => {
+    expect(MEMORIAL_PUBLIC_CHOICES.map((choice) => choice.id)).toEqual([
+      "visible",
+      "name",
+      "photo",
+      "dates",
+      "lot",
+    ]);
+    for (const choice of MEMORIAL_PUBLIC_CHOICES) {
       expect(words(choice.meaning)).toBeLessThanOrEqual(30);
     }
   });
 
-  it("keeps every visitor word the public pages print", () => {
-    expect(MEMORIAL_VISIBILITY.map((choice) => choice.visitorLabel)).toEqual([
-      "Kept private",
-      "Family only",
-      "Published",
-    ]);
-  });
-
-  it("matches the family portal's own words — drift fails here", () => {
-    // The family screen is the authority for the family-facing labels; if it is
-    // reworded, this test names the choice that drifted.
-    const familyPage = readFileSync(
-      path.join(ROOT, "app", "(family)", "client", "memorials", "page.tsx"),
-      "utf8",
-    );
-    for (const choice of MEMORIAL_VISIBILITY) {
-      expect(
-        familyPage,
-        `the family portal no longer names “${choice.familyLabel}” for ${choice.id}`,
-      ).toContain(choice.familyLabel);
-    }
-    expect(familyVisibilityLabel("private")).toBe("Only your family");
+  it("defaults every field OFF", () => {
+    expect(MEMORIAL_CONSENT_DEFAULT).toEqual({
+      visible: false,
+      show_photo: false,
+      show_birth: false,
+      show_death: false,
+      show_lot: false,
+    });
   });
 });
 
-describe("what the search reads and what it never shows", () => {
-  it("keeps the searchable list short and free of people", () => {
-    expect(MEMORIAL_SEARCHABLE.length).toBeGreaterThan(0);
-    for (const item of MEMORIAL_SEARCHABLE) {
-      expect(words(item)).toBeLessThanOrEqual(30);
-    }
+describe("the life-date helpers", () => {
+  it("prints only the years the family chose", () => {
+    expect(memorialLifeDatesDisplay(1948, 2026)).toBe("1948 – 2026");
+    expect(memorialLifeDatesDisplay(1948, null)).toBe("Born 1948");
+    expect(memorialLifeDatesDisplay(null, 2026)).toBe("Died 2026");
+    expect(memorialLifeDatesDisplay(null, null)).toBe("");
   });
 
-  it("states the living are never shown, and the promises without a default", () => {
-    const never = MEMORIAL_NEVER_SHOWN.join(" ");
-    expect(never).toContain("Living relatives");
-    expect(never).toContain("kept private");
-    expect(never).toContain("has not published");
-    expect(MEMORIAL_PROMISES.join(" ")).toContain("Nothing is published by default.");
+  it("reads the office record's own display into two years", () => {
+    expect(parseLifeDatesYears("1948 – 2026")).toEqual({ from: 1948, to: 2026 });
+    expect(parseLifeDatesYears("1948-2026")).toEqual({ from: 1948, to: 2026 });
+    expect(parseLifeDatesYears("1948")).toEqual({ from: 1948, to: null });
+    expect(parseLifeDatesYears("")).toEqual({ from: null, to: null });
+  });
+});
+
+describe("buildPublishedMemorial — the switch is the gate", () => {
+  const base = {
+    id: "person-1",
+    name: "Example Person",
+    lifeDatesDisplay: "1948 – 2026",
+    restingPlace: { park: "Park", section: "A", lot: "A-01", plot: "A-001" },
+    photo: { src: "/api/memorials/person-1/photo", alt: "Example Person" },
+    publishedOn: "2026-09-30",
+  };
+
+  it("returns null whenever the switch is off, whatever the fields say", () => {
+    expect(
+      buildPublishedMemorial({ ...base, consent: { ...MEMORIAL_CONSENT_DEFAULT } }),
+    ).toBeNull();
+    expect(
+      buildPublishedMemorial({
+        ...base,
+        consent: { ...MEMORIAL_CONSENT_DEFAULT, show_photo: true, show_birth: true },
+      }),
+    ).toBeNull();
+  });
+
+  it("makes a name-only memorial complete — no dates, no photo, no place", () => {
+    const memorial = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true },
+    });
+    expect(memorial).toMatchObject({
+      id: "person-1",
+      name: "Example Person",
+      life_dates: { from: null, to: null, display: "" },
+      photo: null,
+      resting_place: null,
+      remembrance: [],
+    });
+  });
+
+  it("shows each year only when the family chose it", () => {
+    const born = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true, show_birth: true },
+    });
+    expect(born?.life_dates.display).toBe("Born 1948");
+
+    const died = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true, show_death: true },
+    });
+    expect(died?.life_dates.display).toBe("Died 2026");
+
+    const both = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true, show_birth: true, show_death: true },
+    });
+    expect(both?.life_dates.display).toBe("1948 – 2026");
+  });
+
+  it("shows the photograph and the resting place only when chosen", () => {
+    const plain = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true },
+    });
+    expect(plain?.photo).toBeNull();
+    expect(plain?.resting_place).toBeNull();
+
+    const rich = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true, show_photo: true, show_lot: true },
+    });
+    expect(rich?.photo).toEqual(base.photo);
+    expect(rich?.resting_place).toEqual({ park: "Park", section: "A", lot: "A-01", plot: "A-001" });
+  });
+
+  it("drops an un-chosen resting place even when the record carries one", () => {
+    const memorial = buildPublishedMemorial({
+      ...base,
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true, show_lot: false },
+    });
+    expect(memorial?.resting_place).toBeNull();
   });
 });
 
@@ -155,57 +238,54 @@ describe("matchMemorials is a search, never a directory", () => {
     expect(matchMemorials([TEST_MEMORIAL], query("1949"))).toHaveLength(0);
     expect(matchMemorials([TEST_MEMORIAL], query("1948", "2025"))).toHaveLength(0);
   });
+
+  it("cannot match a year the family hid", () => {
+    const hidden = buildPublishedMemorial({
+      id: "hidden",
+      name: "Example Hidden",
+      lifeDatesDisplay: "1948 – 2026",
+      consent: { ...MEMORIAL_CONSENT_DEFAULT, visible: true, show_death: true },
+      restingPlace: null,
+      photo: null,
+      publishedOn: null,
+    }) as PublishedMemorial;
+    expect(hidden.life_dates.from).toBeNull();
+    expect(matchMemorials([hidden], parseMemorialSearch({ born: "1948" }).query)).toHaveLength(0);
+    expect(matchMemorials([hidden], parseMemorialSearch({ died: "2026" }).query)).toHaveLength(1);
+  });
 });
 
-describe("the reader only ever serves a published record", () => {
-  const publishedRaw = {
-    id: "record-1",
-    name: "Example Memorial Record",
-    visibility: "published",
-    life_dates: { from: 1948, to: 2026, display: "1948 – 2026" },
-    remembrance: ["One test line."],
-    photo: null,
-    resting_place: { park: "Park", section: "A", lot: "A-01" },
-    published_on: "2026-09-18",
-  };
-
-  const withVisibility = (visibility: unknown): PublishedMemorial[] =>
-    memorialsFromFile({ memorials: [{ ...publishedRaw, visibility }] });
-
-  it("serves a published record and builds its shape field by field", () => {
-    const [memorial] = withVisibility("published");
-    expect(memorial.name).toBe("Example Memorial Record");
-    expect(memorial.life_dates.display).toBe("1948 – 2026");
-    expect(memorialFirstLine(memorial)).toBe("One test line.");
-    expect(memorialRestingLine(memorial)).toBe("Park · Section A · Lot A-01");
+describe("what the search reads and what it never shows", () => {
+  it("keeps the searchable list short and free of people", () => {
+    expect(MEMORIAL_SEARCHABLE.length).toBeGreaterThan(0);
+    for (const item of MEMORIAL_SEARCHABLE) {
+      expect(words(item)).toBeLessThanOrEqual(30);
+    }
   });
 
-  it("drops every visibility that is not published, and anything unknown", () => {
-    expect(withVisibility("private")).toEqual([]);
-    expect(withVisibility("family")).toEqual([]);
-    expect(withVisibility(null)).toEqual([]);
-    expect(withVisibility(undefined)).toEqual([]);
-    expect(withVisibility("visibility-not-in-the-vocabulary")).toEqual([]);
+  it("states the living are never shown, and the promises without a default", () => {
+    const never = MEMORIAL_NEVER_SHOWN.join(" ");
+    expect(never).toContain("Living relatives");
+    expect(never).toContain("not switched on");
+    expect(MEMORIAL_PROMISES.join(" ")).toContain("Nothing is published by default.");
+  });
+});
+
+describe("the fixture store publishes nobody by default", () => {
+  it("seeds no consent at all", async () => {
+    expect(await readMemorialConsents()).toEqual([]);
+    expect(await loadPublishedMemorials()).toEqual([]);
+    expect(await findPublishedMemorial("anything")).toBeNull();
+    expect(await findPublishedMemorial("%E0%A4%A")).toBeNull();
   });
 
-  it("fails loudly on a malformed PUBLISHED record instead of half-rendering", () => {
-    expect(() =>
-      memorialsFromFile({ memorials: [{ ...publishedRaw, name: "" }] }),
-    ).toThrowError(ApiError);
-    expect(() =>
-      memorialsFromFile({ memorials: [{ ...publishedRaw, life_dates: { display: "" } }] }),
-    ).toThrowError(ApiError);
-    expect(() => memorialsFromFile({ memorials: "not-an-array" })).toThrowError(ApiError);
-  });
-
-  it("serves the recorded fixture state: no published memorial at all", () => {
-    expect(publishedMemorials()).toEqual([]);
-    expect(findPublishedMemorial("anything")).toBeNull();
-    expect(findPublishedMemorial("%E0%A4%A")).toBeNull();
-  });
-
-  it("has no live branch to claim while the service does not exist", async () => {
+  it("has no live branch to claim while the service does not exist", () => {
     expect(memorialsLiveModeEnabled()).toBe(false);
-    await expect(loadPublishedMemorials()).resolves.toEqual([]);
+  });
+
+  it("builds the public portrait URL for a chosen photograph", () => {
+    expect(memorialPhotoHref("person-1", "2026-09-30T00:00:00.000Z")).toBe(
+      "/api/memorials/person-1/photo?v=2026-09-30T00%3A00%3A00.000Z",
+    );
   });
 });

@@ -1,5 +1,14 @@
 # Digital memorial (public) — implementation record (F-04, 2026-09-18)
 
+> **Dated revision — 2026-09-30: the visibility model was replaced.** The three
+> choices described on this page (“private · family · published”) are superseded by
+> **ONE switch per loved one** plus the per-field choices (photograph, birth year,
+> death year, lot number), each off by default, and the public reader now builds a
+> memorial from the family's own record rather than a stored published list. See
+> [`../memorial-visibility-design/README.md`](../memorial-visibility-design/README.md).
+> Everything below describes the 2026-09-18 build as it was; where it names the
+> three choices, read the new record.
+
 **Routes:** `/memorials` (Digital Memorial Search) · `/memorials/[id]` (Digital Memorial Page) ·
 `/memorials/find` (Find My Loved One).
 **Brief:** checklist F-04 — "Build the public side of the digital memorial — the three screens the

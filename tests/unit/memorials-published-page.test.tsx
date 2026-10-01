@@ -25,9 +25,8 @@ vi.mock("next/link", () => ({
 
 vi.mock("@/lib/api-client/memorials", () => ({
   memorialsLiveModeEnabled: () => false,
-  publishedMemorials: () => [TEST_MEMORIAL],
   loadPublishedMemorials: async () => [TEST_MEMORIAL],
-  findPublishedMemorial: (id: string) => (id === TEST_MEMORIAL.id ? TEST_MEMORIAL : null),
+  findPublishedMemorial: async (id: string) => (id === TEST_MEMORIAL.id ? TEST_MEMORIAL : null),
 }));
 
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");

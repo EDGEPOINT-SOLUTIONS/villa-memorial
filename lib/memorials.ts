@@ -1,5 +1,6 @@
 /**
- * Digital memorial — the public privacy rules and the search vocabulary (F-04).
+ * Digital memorial — the public privacy rules, the family's choices and the
+ * search vocabulary (F-04).
  *
  * This is the most sensitive surface in the product: a stranger may search for
  * someone who has died, and a family's grief becomes public. The digital-memorial
@@ -7,17 +8,18 @@
  * blueprint §22–23), so the rules below are the SCREEN'S OWN contract, not a
  * promise deferred to a service:
  *
- *   · NOTHING IS PUBLISHED BY DEFAULT. A memorial exists on the public side only
- *     when the family chose `published` for it — `matchMemorials` refuses to list
- *     anyone for an empty query, and the reader (`lib/api-client/memorials.ts`)
- *     drops every record that is not marked published.
- *   · The three visibility choices are the same three the family portal shows
- *     (`app/(family)/client/memorials/page.tsx`), worded from the visitor's side
- *     so a visitor understands why they may not find someone. The family-facing
- *     words are kept here ONLY as the drift pin (`familyLabel`) — the public
- *     pages print `visitorLabel`/`meaning`.
- *   · The living are never shown: no relatives, addresses, dates of birth or
- *     contact details — the office's own line is the only contact on a memorial.
+ *   · NOTHING IS PUBLISHED BY DEFAULT. A loved one has ONE switch, default OFF.
+ *     `publishedMemorials` only ever builds a public shape for a loved one whose
+ *     family turned the switch on, and `matchMemorials` refuses to list anyone
+ *     for an empty query.
+ *   · THE FAMILY CHOOSES EVERY FIELD. The name is shown whenever the switch is
+ *     on and is not optional; the photograph, the birth year, the death year and
+ *     the lot number are each the family's own choice and each defaults OFF. A
+ *     memorial with the name alone is a complete page — a birth or death date is
+ *     never required.
+ *   · The living are never shown: no relatives, addresses, dates of birth beyond
+ *     the one the family chose, or contact details — the office's own line is the
+ *     only contact on a memorial.
  *   · The search is not a directory. An empty query lists nobody, and "nothing
  *     found" never reveals whether the person exists.
  *
@@ -27,80 +29,274 @@
  * open item plainly; they never assume an answer.
  */
 
-/** The three visibility choices, exactly as the family portal names them. */
-export type MemorialVisibility = "private" | "family" | "published";
+/* ------------------------------------------------------- the family's choices */
 
-/** The one visibility that may ever reach a public page. */
-export const PUBLISHED_VISIBILITY: MemorialVisibility = "published";
+/**
+ * The fields a family may show, beside the one switch. The NAME is deliberately
+ * absent: it is shown whenever the switch is on and is not optional.
+ */
+export type MemorialFieldKey = "photo" | "birth" | "death" | "lot";
 
-/** A visibility value is legal only when it is one of the three known choices. */
-export function isMemorialVisibility(value: unknown): value is MemorialVisibility {
-  return value === "private" || value === "family" || value === "published";
-}
+/**
+ * One loved one's memorial consent: the ONE switch plus what each field may
+ * show. Every field defaults OFF — nothing is published until the family says so.
+ */
+export type MemorialConsent = {
+  /** The one switch. Off means nothing about the person is public. */
+  visible: boolean;
+  show_photo: boolean;
+  show_birth: boolean;
+  show_death: boolean;
+  show_lot: boolean;
+};
 
-export type VisibilityChoice = {
-  id: MemorialVisibility;
-  /** The family portal's own words (the drift pin — not printed publicly). */
-  familyLabel: string;
-  /** The same choice in a visitor's terms — what this search can show. */
-  visitorLabel: string;
-  /** One short line: what a visitor may or may not find. */
-  meaning: string;
+/** The safe default: nothing public, every field off. */
+export const MEMORIAL_CONSENT_DEFAULT: MemorialConsent = {
+  visible: false,
+  show_photo: false,
+  show_birth: false,
+  show_death: false,
+  show_lot: false,
 };
 
 /**
- * The three choices, in the family portal's order (private → family → published).
- * `tests/unit/memorials.test.ts` reads the family portal page and fails if a
- * `familyLabel` here stops matching the words that screen publishes.
+ * One loved one's consent as the family page reads it: the choices plus the
+ * person they belong to, who saved them and when. The public reader never exposes
+ * `owner_user_id` (it only uses it to find the private portrait).
  */
-export const MEMORIAL_VISIBILITY: ReadonlyArray<VisibilityChoice> = [
+export type MemorialConsentRecord = MemorialConsent & {
+  person_id: string;
+  owner_user_id: string | null;
+  updated_at: string | null;
+};
+
+/** Every field key of a consent, so a validator can never miss one. */
+export const MEMORIAL_FIELD_KEYS: ReadonlyArray<keyof MemorialConsent> = [
+  "visible",
+  "show_photo",
+  "show_birth",
+  "show_death",
+  "show_lot",
+];
+
+/**
+ * The field choices, in the family's order, each with the family's own label and
+ * one short meaning. The family page renders these in order and the drift test
+ * (`tests/unit/memorials.test.ts`) reads this list; the meanings stay ≤20 words.
+ */
+export const MEMORIAL_FIELD_CHOICES: ReadonlyArray<{
+  key: MemorialFieldKey;
+  label: string;
+  meaning: string;
+}> = [
   {
-    id: "private",
-    familyLabel: "Only your family",
-    visitorLabel: "Kept private",
-    meaning: "Not shown here, and we do not confirm that a memorial exists.",
+    key: "photo",
+    label: "Show their photograph",
+    meaning: "Only used if you have attached one. Private otherwise.",
   },
   {
-    id: "family",
-    familyLabel: "Relatives with a private link",
-    visitorLabel: "Family only",
-    meaning: "Reached from a private link the family shares, never from this search.",
+    key: "birth",
+    label: "Show the year they were born",
+    meaning: "Leave it off and the year stays private.",
   },
   {
-    id: "published",
-    familyLabel: "Anyone who looks for them",
-    visitorLabel: "Published",
-    meaning: "The family chose to publish it, so it can appear in this search.",
+    key: "death",
+    label: "Show the year they died",
+    meaning: "Leave it off and the year stays private.",
+  },
+  {
+    key: "lot",
+    label: "Show the lot number",
+    meaning: "The lot is your family's private business.",
   },
 ];
 
-/** The family portal's own wording for each choice id — re-exported for the drift pin. */
-export function familyVisibilityLabel(id: MemorialVisibility): string {
-  return MEMORIAL_VISIBILITY.find((choice) => choice.id === id)?.familyLabel ?? "";
+/**
+ * The same choices in a VISITOR's terms, for the search page and the unavailable
+ * memorial page (one component renders this list, so the two surfaces cannot
+ * describe the choices differently).
+ */
+export const MEMORIAL_PUBLIC_CHOICES: ReadonlyArray<{
+  id: "visible" | "name" | "photo" | "dates" | "lot";
+  label: string;
+  meaning: string;
+}> = [
+  {
+    id: "visible",
+    label: "Kept private until the family says so",
+    meaning: "Nothing appears until a family turns their memorial on.",
+  },
+  {
+    id: "name",
+    label: "The name",
+    meaning: "The name shows whenever a family turns the memorial on.",
+  },
+  {
+    id: "photo",
+    label: "A photograph",
+    meaning: "Shown only when the family allows it and attaches one.",
+  },
+  {
+    id: "dates",
+    label: "The years",
+    meaning: "The birth and death years are each the family's own choice.",
+  },
+  {
+    id: "lot",
+    label: "The resting place",
+    meaning: "The lot number stays private unless the family allows it.",
+  },
+];
+
+/**
+ * The family page's own words for one field choice, keyed by the field. Exported
+ * so the page and the drift pin read the same list (no second copy).
+ */
+export function memorialFieldChoice(key: MemorialFieldKey) {
+  return MEMORIAL_FIELD_CHOICES.find((choice) => choice.key === key);
 }
 
-/** What the search reads. Kept deliberately narrow — nothing else is searchable. */
-export const MEMORIAL_SEARCHABLE: ReadonlyArray<string> = [
-  "The name the family published.",
-  "The life dates on the record.",
-  "The words, photograph and resting place on their memorial.",
-];
+/* ---------------------------------------------------------- consent reading */
 
-/** What the search will never show — the privacy floor, in one place. */
-export const MEMORIAL_NEVER_SHOWN: ReadonlyArray<string> = [
-  "Living relatives — no names, addresses, dates or contact details.",
-  "A memorial kept private, or shared only with family.",
-  "Anyone whose family has not published a memorial.",
-  "The office's own record of everyone in the park.",
-];
+/**
+ * Is this a structurally complete consent? Every boolean must be present and a
+ * real boolean — an unknown shape is refused rather than guessed.
+ */
+export function isMemorialConsent(value: unknown): value is MemorialConsent {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+  const raw = value as Record<string, unknown>;
+  return MEMORIAL_FIELD_KEYS.every((key) => typeof raw[key] === "boolean");
+}
 
-/** The promises the memorial pages publish (one short line each). */
-export const MEMORIAL_PROMISES: ReadonlyArray<string> = [
-  "Nothing is published by default.",
-  "Only what the family published appears.",
-  "The only contact shown is the park office's own line.",
-  "A family can change or close a memorial at any time.",
-];
+/**
+ * Read one consent tolerantly: a missing/unknown field falls back to the safe
+ * default (OFF). A caller never gets `undefined` for a field, so a view cannot
+ * accidentally treat "not recorded" as "publish it".
+ */
+export function normalizeMemorialConsent(value: unknown): MemorialConsent {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return { ...MEMORIAL_CONSENT_DEFAULT };
+  }
+  const raw = value as Record<string, unknown>;
+  return {
+    visible: raw.visible === true,
+    show_photo: raw.show_photo === true,
+    show_birth: raw.show_birth === true,
+    show_death: raw.show_death === true,
+    show_lot: raw.show_lot === true,
+  };
+}
+
+/* --------------------------------------------------------------- life dates */
+
+export type MemorialLifeDates = {
+  /** The birth year the family chose to show, or null when hidden/unknown. */
+  from: number | null;
+  /** The death year the family chose to show, or null when hidden/unknown. */
+  to: number | null;
+  /** What the memorial prints — the chosen years only. Empty when none shown. */
+  display: string;
+};
+
+/** The one place the chosen years become words. Never invents a date. */
+export function memorialLifeDatesDisplay(from: number | null, to: number | null): string {
+  if (from !== null && to !== null) return `${from} – ${to}`;
+  if (from !== null) return `Born ${from}`;
+  if (to !== null) return `Died ${to}`;
+  return "";
+}
+
+/**
+ * Read the office record's own life-dates display ("1948 – 2026") into the two
+ * years. Two years are the expected shape; a single year is read as the birth
+ * year (the record is the office's, never re-worded here).
+ */
+export function parseLifeDatesYears(display: string): { from: number | null; to: number | null } {
+  const years = [...display.matchAll(/\d{4}/g)].map((match) => Number(match[0]));
+  if (years.length >= 2) return { from: years[0], to: years[years.length - 1] };
+  if (years.length === 1) return { from: years[0], to: null };
+  return { from: null, to: null };
+}
+
+export type MemorialPhoto = {
+  /** Family-supplied image source; the view never invents one. */
+  src: string;
+  /** The family's own description, or a plain one when they gave none. */
+  alt: string;
+};
+
+export type MemorialRestingPlace = {
+  park: string;
+  section: string;
+  lot: string;
+  /**
+   * The plot's stable code on the park map (e.g. "A-001"), when the family
+   * published one. The map deep-link (`/map?plot=`) keys on this code, so the
+   * resting place can be found on the masterplan and in the 3D park without
+   * matching display text (the record's `lot` is a label like "A-01").
+   */
+  plot?: string | null;
+};
+
+/**
+ * A memorial the family has published. This is the ONLY shape any public screen
+ * may render, and only the reader may build it — from a record whose switch is
+ * on. `life_dates.display` may be empty (a name-only memorial) and
+ * `remembrance` may be empty (no story is authored yet).
+ */
+export type PublishedMemorial = {
+  /** URL segment. In the real service this is unguessable; here it is the record id. */
+  id: string;
+  name: string;
+  life_dates: MemorialLifeDates;
+  /** The family's own words, one paragraph per line, in their order. */
+  remembrance: readonly string[];
+  photo: MemorialPhoto | null;
+  resting_place: MemorialRestingPlace | null;
+  published_on: string | null;
+};
+
+/** The first line of the remembrance — what a visitor reads at a glance. */
+export function memorialFirstLine(memorial: PublishedMemorial): string {
+  return memorial.remembrance[0] ?? "";
+}
+
+/** Where they rest, in one line; null when the family published no resting place. */
+export function memorialRestingLine(memorial: PublishedMemorial): string | null {
+  const place = memorial.resting_place;
+  if (!place) return null;
+  return [
+    place.park,
+    place.section ? `Section ${place.section}` : "",
+    place.lot ? `Lot ${place.lot}` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/**
+ * The plot's stable code for the map, or null when the record carries none.
+ * This is the ONLY bridge from a memorial to the park map: a page must never
+ * guess a plot from the resting-place text.
+ */
+export function memorialPlotCode(memorial: PublishedMemorial): string | null {
+  const plot = memorial.resting_place?.plot;
+  return typeof plot === "string" && plot.trim().length > 0 ? plot.trim() : null;
+}
+
+/**
+ * The ONE action a found memorial offers: the 3D park opened on the plot
+ * (`view=3d`). Null when the family published no plot, so the page renders an
+ * honest fallback instead of a dead button.
+ *
+ * `park=villa` is the product's ONE park (components/public-park-map.tsx —
+ * `VILLA_PARK_ID`); the record's `park` is a display name, never the id.
+ */
+export function memorialPlotHref(memorial: PublishedMemorial): string | null {
+  const plot = memorialPlotCode(memorial);
+  if (!plot) return null;
+  return `/map?park=villa&plot=${encodeURIComponent(plot)}&view=3d`;
+}
 
 /* ------------------------------------------------------------------ search */
 
@@ -164,96 +360,6 @@ function fold(value: string): string {
     .toLowerCase();
 }
 
-/* ---------------------------------------------------------- the record shape */
-
-export type MemorialLifeDates = {
-  /** Earliest year on the record, when known. */
-  from: number | null;
-  /** Latest year on the record, when known. */
-  to: number | null;
-  /** What the memorial prints, exactly as the family sees it. */
-  display: string;
-};
-
-export type MemorialPhoto = {
-  /** Family-supplied image source; the view never invents one. */
-  src: string;
-  /** The family's own description, or a plain one when they gave none. */
-  alt: string;
-};
-
-export type MemorialRestingPlace = {
-  park: string;
-  section: string;
-  lot: string;
-  /**
-   * The plot's stable code on the park map (e.g. "A-001"), when the family
-   * published one. The map deep-link (`/map?plot=`) keys on this code, so the
-   * resting place can be found on the masterplan and in the 3D park without
-   * matching display text (the record's `lot` is a label like "A-01").
-   */
-  plot?: string | null;
-};
-
-/**
- * A memorial the family has published. This is the ONLY shape any public screen
- * may render, and only the reader may build it — from a record whose visibility
- * is `published`.
- */
-export type PublishedMemorial = {
-  /** URL segment. In the real service this is unguessable; here it is the record id. */
-  id: string;
-  name: string;
-  life_dates: MemorialLifeDates;
-  /** The family's own words, one paragraph per line, in their order. */
-  remembrance: readonly string[];
-  photo: MemorialPhoto | null;
-  resting_place: MemorialRestingPlace | null;
-  published_on: string | null;
-};
-
-/** The first line of the remembrance — what a visitor reads at a glance. */
-export function memorialFirstLine(memorial: PublishedMemorial): string {
-  return memorial.remembrance[0] ?? "";
-}
-
-/** Where they rest, in one line; null when the family published no resting place. */
-export function memorialRestingLine(memorial: PublishedMemorial): string | null {
-  const place = memorial.resting_place;
-  if (!place) return null;
-  return [
-    place.park,
-    place.section ? `Section ${place.section}` : "",
-    place.lot ? `Lot ${place.lot}` : "",
-  ]
-    .filter(Boolean)
-    .join(" · ");
-}
-
-/**
- * The plot's stable code for the map, or null when the record carries none.
- * This is the ONLY bridge from a memorial to the park map: a page must never
- * guess a plot from the resting-place text.
- */
-export function memorialPlotCode(memorial: PublishedMemorial): string | null {
-  const plot = memorial.resting_place?.plot;
-  return typeof plot === "string" && plot.trim().length > 0 ? plot.trim() : null;
-}
-
-/**
- * The ONE action a found memorial offers: the 3D park opened on the plot
- * (`view=3d`). Null when the family published no plot, so the page renders an
- * honest fallback instead of a dead button.
- *
- * `park=villa` is the product's ONE park (components/public-park-map.tsx —
- * `VILLA_PARK_ID`); the record's `park` is a display name, never the id.
- */
-export function memorialPlotHref(memorial: PublishedMemorial): string | null {
-  const plot = memorialPlotCode(memorial);
-  if (!plot) return null;
-  return `/map?park=villa&plot=${encodeURIComponent(plot)}&view=3d`;
-}
-
 /* ---------------------------------------------------------------- matching */
 
 /**
@@ -263,7 +369,8 @@ export function memorialPlotHref(memorial: PublishedMemorial): string | null {
  *
  * Name: every word the visitor typed must appear in the published name (accent-
  * and case-insensitive, any order). Years: `born` matches the record's first
- * year, `died` matches its last — an unmatched year excludes the memorial.
+ * year, `died` matches its last — an unmatched year excludes the memorial. A
+ * hidden year is `null`, so a hidden date can never be searched for.
  */
 export function matchMemorials(
   memorials: readonly PublishedMemorial[],
@@ -288,7 +395,7 @@ export function matchMemorials(
 /** The search's empty state — honest about every reason, including privacy. */
 export const MEMORIAL_SEARCH_EMPTY_TITLE = "No memorial matches that search";
 export const MEMORIAL_SEARCH_EMPTY_HINT =
-  "It may be kept private, family only, or not exist. Only a family can publish a memorial.";
+  "It may be kept private, or not exist. Only a family can publish a memorial.";
 
 /**
  * The stronger empty state: the store holds NOTHING published at all, so the
@@ -296,18 +403,46 @@ export const MEMORIAL_SEARCH_EMPTY_HINT =
  */
 export const MEMORIAL_SEARCH_NOBODY_TITLE = "No memorial can be found yet";
 export const MEMORIAL_SEARCH_NOBODY_HINT =
-  "Nothing is published yet. A memorial appears only when its family publishes it.";
+  "Nothing is published yet. A memorial appears only when its family switches it on.";
 
-/** Said plainly on every memorial surface while the service does not exist. */
+/**
+ * Said plainly on every memorial surface while the OFFICE's memorial service
+ * (stories, messages, moderation) does not exist. A family CAN switch a memorial
+ * on today, so this line never claims otherwise — it names what is still missing.
+ */
 export const MEMORIAL_SERVICE_NOTE =
-  "The digital-memorial service is not switched on yet, so no family has been able to publish a memorial.";
+  "A family can switch a memorial on today; stories and messages are still being built by the office.";
 
-/** The detail page's uniform answer for absent AND unpublished ids. */
+/** The detail page's uniform answer for absent AND hidden ids. */
 export const MEMORIAL_UNAVAILABLE_TITLE = "This memorial cannot be shown here";
 export const MEMORIAL_UNAVAILABLE_LEAD =
-  "It may be kept private, family only, or not exist.";
+  "It may be kept private, or not exist.";
 export const MEMORIAL_UNAVAILABLE_HINT =
-  "We cannot say which. A memorial appears only when its family publishes it.";
+  "We cannot say which. A memorial appears only when its family switches it on.";
 
 /** The family-search door the office answers. */
 export const MEMORIAL_FIND_HREF = "/memorials/find";
+
+/** What the search reads. Kept deliberately narrow — nothing else is searchable. */
+export const MEMORIAL_SEARCHABLE: ReadonlyArray<string> = [
+  "The name the family published.",
+  "The birth and death years the family chose to show.",
+  "A photograph the family chose to share.",
+  "The resting place the family chose to show.",
+];
+
+/** What the search will never show — the privacy floor, in one place. */
+export const MEMORIAL_NEVER_SHOWN: ReadonlyArray<string> = [
+  "Living relatives — no names, addresses, dates or contact details.",
+  "A memorial the family has not switched on.",
+  "Anyone whose family has not published a memorial.",
+  "The office's own record of everyone in the park.",
+];
+
+/** The promises the memorial pages publish (one short line each). */
+export const MEMORIAL_PROMISES: ReadonlyArray<string> = [
+  "Nothing is published by default.",
+  "Only what the family chose to show appears.",
+  "The only contact shown is the park office's own line.",
+  "A family can change or close a memorial at any time.",
+];

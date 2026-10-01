@@ -18,12 +18,16 @@ import { processDeviceImage } from "@/lib/device-upload";
  * Every failure is the route's own readable sentence (wrong type, too large,
  * save failed), shown in an alert — never a silent no-op. On success the server
  * components refresh so the new picture paints.
+ *
+ * `personId` addresses a PORTRAIT to one loved one (the household may look after
+ * two); the account-level avatar ignores it.
  */
 export function FamilyImageUploader({
   slot,
   hasImage,
   label,
   hint,
+  personId,
 }: {
   slot: "avatar" | "portrait";
   hasImage: boolean;
@@ -31,7 +35,14 @@ export function FamilyImageUploader({
   label: string;
   /** One quiet line under the control. */
   hint?: string;
+  /** The loved one a portrait belongs to. */
+  personId?: string;
 }) {
+  const url = (() => {
+    const params = new URLSearchParams({ slot });
+    if (personId) params.set("person", personId);
+    return `/api/family/images?${params.toString()}`;
+  })();
   const router = useRouter();
   const input = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
@@ -45,7 +56,7 @@ export function FamilyImageUploader({
     setError(null);
     try {
       const processed = await processDeviceImage(file);
-      const response = await fetch(`/api/family/images?slot=${slot}`, {
+      const response = await fetch(url, {
         method: "POST",
         headers: { "content-type": processed.mime || processed.blob.type || "application/octet-stream" },
         body: processed.blob,
@@ -67,7 +78,7 @@ export function FamilyImageUploader({
     setBusy(true);
     setError(null);
     try {
-      const response = await fetch(`/api/family/images?slot=${slot}`, { method: "DELETE" });
+      const response = await fetch(url, { method: "DELETE" });
       if (!response.ok) throw new Error("The picture could not be removed. Try again.");
       router.refresh();
     } catch (err) {

@@ -44,6 +44,7 @@ export function MemorialProfile({
   const place = memorialRestingLine(memorial);
   const plot = memorialPlotCode(memorial);
   const initials = monogram(memorial.name);
+  const dates = memorial.life_dates.display;
 
   return (
     <article className="mem-profile">
@@ -70,7 +71,9 @@ export function MemorialProfile({
           <h1 className="mem-profile__name" id="memorial-title">
             {memorial.name}
           </h1>
-          <p className="mem-profile__dates">{memorial.life_dates.display}</p>
+          {/* A name-only memorial is complete: the dates show only when the
+              family chose each year. */}
+          {dates ? <p className="mem-profile__dates">{dates}</p> : null}
           {firstLine ? <p className="mem-profile__lead">{firstLine}</p> : null}
           <div className="mem-profile__actions">
             <Link className="btn btn--secondary" href="/memorials">

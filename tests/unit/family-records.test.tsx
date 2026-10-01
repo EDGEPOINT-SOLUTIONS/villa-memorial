@@ -168,32 +168,38 @@ describe("My Lots — the lot record beside the family's own plan", () => {
   });
 });
 
-describe("Remembering — the memorial's state, and nothing published", () => {
-  it("leads with the true fact and the record the office holds", async () => {
+describe("Remembering — one switch per loved one, nothing published by default", () => {
+  it("lists every loved one with their own named switch", async () => {
     const html = await render(MemorialsPage);
-    expect(html).toContain("Nothing about Ernesto is published anywhere.");
-    expect(html).toContain("In loving memory");
+    expect(html).toContain("You decide who is remembered.");
     expect(html).toContain("Ernesto Dela Cruz");
-    expect(html).toContain("1948 – 2026");
-    expect(html).toContain("ED");
-    expect(html).toContain("Lot A-01");
+    expect(html).toContain("Aurora Dela Cruz");
+    expect(html).toContain("Make Ernesto Dela Cruz visible");
+    expect(html).toContain("Make Aurora Dela Cruz visible");
   });
 
-  it("offers every visibility choice as undecided — no default is invented", async () => {
+  it("says plainly that nothing is public while the switch is off", async () => {
     const html = await render(MemorialsPage);
-    expect(html).toContain("Only your family");
-    expect(html).toContain("Relatives with a private link");
-    expect(html).toContain("Anyone who looks for them");
-    expect(html.match(/Not decided yet/g) ?? []).toHaveLength(3);
+    expect(html).toContain("Nothing about Ernesto Dela Cruz is shown publicly.");
+    expect(html).toContain("Nothing about Aurora Dela Cruz is shown publicly.");
+    // Every field choice defaults OFF and none is checked.
+    expect(html.match(/checked=""/g) ?? []).toHaveLength(0);
   });
 
-  it("says what the service will add, and that nothing can be posted today", async () => {
+  it("explains each field choice in the family's own words", async () => {
     const html = await render(MemorialsPage);
-    expect(html).toContain("Their story");
-    expect(html).toContain("Photographs");
-    expect(html).toContain("Messages from family and friends");
-    expect(html).toContain("The dates you want to remember");
-    expect(html).toContain("nothing can be posted");
+    expect(html).toContain("Show their photograph");
+    expect(html).toContain("Only used if you have attached one.");
+    expect(html).toContain("Show the year they were born");
+    expect(html).toContain("Show the year they died");
+    expect(html).toContain("Show the lot number");
+    expect(html).toContain("private business");
+  });
+
+  it("keeps the honesty about what the office's service still cannot do", async () => {
+    const html = await render(MemorialsPage);
+    expect(html).toContain("What this page can’t show yet");
+    expect(html).toContain("stories and messages are not open yet");
     expect(html).not.toContain("₱");
     assertNoParagraphNesting(html, "Remembering");
   });

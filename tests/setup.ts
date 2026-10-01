@@ -41,6 +41,11 @@ const STORE_PATH_ENV_VARS = [
   "CONTENT_PAGES_STORE_PATH",
   // Added 2026-09-28 with the burial calendar's write path (client minutes item 2).
   "BURIALS_STORE_PATH",
+  // Added 2026-09-30 with the memorial visibility switch (client minutes item 4).
+  // The store is the record the PUBLIC memorial surface reads, so a suite that
+  // wrote a consent into the dev `.data/` file would publish a person from the
+  // demo household into every later render.
+  "MEMORIAL_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {
@@ -51,6 +56,13 @@ for (const name of STORE_PATH_ENV_VARS) {
 // same throwaway dir so a suite never reads/writes the dev `.data/media-uploads`.
 if (!process.env.MEDIA_UPLOAD_DIR) {
   process.env.MEDIA_UPLOAD_DIR = path.join(dir, "media-uploads");
+}
+
+// The family image store is also a directory (the private avatar and the
+// per-loved-one portraits). Redirect it too, so a portrait attached in the dev
+// demo never changes what a family-page or memorial test renders.
+if (!process.env.FAMILY_IMAGE_DIR) {
+  process.env.FAMILY_IMAGE_DIR = path.join(dir, "family-images");
 }
 
 // 2026-09-27: the `globalThis` reset that stood here is GONE, because the two seams it

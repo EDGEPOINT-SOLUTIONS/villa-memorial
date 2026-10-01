@@ -7,7 +7,7 @@ import { isFamilyImageSlot, readFamilyImage } from "@/lib/family-image-store";
 /**
  * BFF: the guarded read of a family's own picture.
  *
- *   GET /api/family/images/avatar|portrait
+ *   GET /api/family/images/avatar|portrait[?person=<loved_ones.id>]
  *
  * The ONLY way a family picture is served. The route requires a family session
  * and reads the picture belonging to THAT session's user; a missing picture, an
@@ -25,7 +25,7 @@ export const dynamic = "force-dynamic";
 const NOT_FOUND = () => new NextResponse("Not found", { status: 404 });
 
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ slot: string }> },
 ) {
   const session = await familySessionOrNull();
@@ -33,8 +33,10 @@ export async function GET(
 
   const { slot } = await params;
   if (!isFamilyImageSlot(slot)) return NOT_FOUND();
+  const personId =
+    slot === "portrait" ? new URL(request.url).searchParams.get("person") ?? undefined : undefined;
 
-  const stored = await readFamilyImage(session.userId, slot);
+  const stored = await readFamilyImage(session.userId, slot, personId);
   if (!stored) return NOT_FOUND();
 
   const stream = Readable.toWeb(

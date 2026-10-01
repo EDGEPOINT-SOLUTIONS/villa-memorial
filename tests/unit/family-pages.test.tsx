@@ -56,7 +56,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "The funeral", Page: FuneralPage, headline: "as our office recorded it" },
   { name: "Payments", Page: PaymentsPage, headline: "Here’s how to pay" },
   { name: "Papers", Page: PapersPage, headline: "papers are ready" },
-  { name: "Remembering", Page: RememberingPage, headline: "is published anywhere" },
+  { name: "Remembering", Page: RememberingPage, headline: "You decide who is remembered." },
   { name: "Help", Page: HelpPage, headline: "Call us." },
   { name: "Your details", Page: DetailsPage, headline: "details are correct" },
   { name: "Your plan", Page: PlanPage, headline: "is active" },

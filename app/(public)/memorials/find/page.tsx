@@ -10,7 +10,7 @@ import {
   MEMORIAL_SERVICE_NOTE,
 } from "@/lib/memorials";
 import { pageMetadata } from "@/lib/seo";
-import { VisibilityChoices } from "../visibility-choices";
+import { MemorialChoices } from "../memorial-choices";
 
 export const metadata: Metadata = pageMetadata({
   title: "Find my loved one — Villa Funeraria",
@@ -151,7 +151,7 @@ export default async function FindMyLovedOnePage() {
               </p>
             </article>
           </div>
-          <VisibilityChoices title="The three choices a family makes" />
+          <MemorialChoices title="What a family can choose" />
           <p className="mem-intro">And what no memorial will ever show:</p>
           <ul className="mem-list mem-list--never">
             {MEMORIAL_NEVER_SHOWN.map((item) => (

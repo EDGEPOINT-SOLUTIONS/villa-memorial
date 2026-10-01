@@ -1,14 +1,13 @@
 import type { PublishedMemorial } from "@/lib/memorials";
 
 /**
- * A TEST-ONLY published-memorial shape.
+ * TEST-ONLY published-memorial shapes.
  *
- * The app ships NO published record while the digital-memorial service does not
- * exist (`lib/fixtures/memorials/memorials.json` is deliberately empty, and
- * nothing may be fabricated on a public page). This object exists so the real
- * `MemorialProfile` and the real detail route can be proven to render a
- * family-published record correctly; it is never imported by app code, and its
- * name is unmistakably a test record, not a person.
+ * The app ships NO published record until a family switches one on
+ * (`lib/fixtures/memorials/memorials.json` seeds every consent OFF). These
+ * objects exist so the real `MemorialProfile` and the real detail route can be
+ * proven to render a family-published record correctly; they are never imported
+ * by app code, and the names are unmistakably test records, not people.
  */
 export const TEST_MEMORIAL: PublishedMemorial = {
   id: "test-memorial-record",
@@ -27,4 +26,15 @@ export const TEST_MEMORIAL: PublishedMemorial = {
 export const TEST_MEMORIAL_WITH_PHOTO: PublishedMemorial = {
   ...TEST_MEMORIAL,
   photo: { src: "/media/hero-1.jpg", alt: "A family-supplied test image" },
+};
+
+/** A name-only memorial — no dates, no photograph, no resting place. */
+export const TEST_MEMORIAL_NAME_ONLY: PublishedMemorial = {
+  id: "test-name-only-record",
+  name: "Example Name Only",
+  life_dates: { from: null, to: null, display: "" },
+  remembrance: [],
+  photo: null,
+  resting_place: null,
+  published_on: "2026-09-30",
 };

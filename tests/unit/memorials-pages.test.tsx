@@ -4,13 +4,17 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { listLandingContent } from "@/lib/api-client/landing";
 import {
   MEMORIAL_NEVER_SHOWN,
+  MEMORIAL_PUBLIC_CHOICES,
   MEMORIAL_SEARCH_NOBODY_HINT,
   MEMORIAL_SERVICE_NOTE,
   MEMORIAL_UNAVAILABLE_LEAD,
   MEMORIAL_UNAVAILABLE_TITLE,
-  MEMORIAL_VISIBILITY,
 } from "@/lib/memorials";
-import { TEST_MEMORIAL, TEST_MEMORIAL_WITH_PHOTO } from "@/tests/helpers/memorial-record";
+import {
+  TEST_MEMORIAL,
+  TEST_MEMORIAL_NAME_ONLY,
+  TEST_MEMORIAL_WITH_PHOTO,
+} from "@/tests/helpers/memorial-record";
 import { wordsOf, textOf } from "@/tests/helpers/prose";
 
 /**
@@ -69,11 +73,11 @@ describe("the memorial search (/memorials)", () => {
     expect(rules).toBeGreaterThan(form);
   });
 
-  it("publishes the three visibility choices in the visitor's terms", async () => {
+  it("publishes the family's choices in the visitor's terms", async () => {
     const html = await renderSearch({});
     const text = textOf(html);
-    for (const choice of MEMORIAL_VISIBILITY) {
-      expect(text).toContain(choice.visitorLabel);
+    for (const choice of MEMORIAL_PUBLIC_CHOICES) {
+      expect(text).toContain(choice.label);
       expect(text).toContain(choice.meaning);
     }
     // The living-relative rule is visible before anyone searches.
@@ -148,9 +152,9 @@ describe("an absent or unpublished memorial (/memorials/[id])", () => {
     expect(h1Count(html)).toBe(1);
     expect(html).toContain(MEMORIAL_UNAVAILABLE_TITLE);
     expect(html).toContain(MEMORIAL_UNAVAILABLE_LEAD);
-    // All three reasons are shown, without saying which one applies.
-    for (const choice of MEMORIAL_VISIBILITY) {
-      expect(html).toContain(choice.visitorLabel);
+    // Every reason is shown, without saying which one applies.
+    for (const choice of MEMORIAL_PUBLIC_CHOICES) {
+      expect(html).toContain(choice.label);
     }
     expect(html).toContain(MEMORIAL_SERVICE_NOTE);
     // No name, no photo, nothing from the family fixture.
@@ -229,6 +233,19 @@ describe("the published memorial profile (test-only record)", () => {
       createElement(MemorialProfile, { memorial: TEST_MEMORIAL, contact }),
     );
     expect(noPlot).not.toContain("View this lot in the 3D map");
+  });
+
+  it("renders a name-only memorial as a complete page, with no dates demanded", async () => {
+    const { contact } = await listLandingContent();
+    const html = renderToStaticMarkup(
+      createElement(MemorialProfile, { memorial: TEST_MEMORIAL_NAME_ONLY, contact }),
+    );
+    expect(h1Count(html)).toBe(1);
+    expect(html).toContain(TEST_MEMORIAL_NAME_ONLY.name);
+    // No dates, no photograph, no invented resting place text beyond the honest line.
+    expect(html).not.toContain("mem-profile__dates");
+    expect(html).not.toContain("<img");
+    expect(html).toContain("The family has not published a resting place.");
   });
 
   it("keeps the page's own prose inside the answer-at-a-glance rule", () => {
