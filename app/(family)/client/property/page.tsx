@@ -2,6 +2,8 @@ import { CalendarCheck, MapPin, Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilyLotRecord, getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import {
   Answer,
   PrimaryAction,
@@ -26,13 +28,22 @@ export const metadata = { title: "Your lot — Villa Funeraria" };
  * not exist yet, so what the office holds but this page cannot show is listed as
  * exactly that — never a guessed owner, co-owner, interment or figure.
  */
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const [snapshot, lot] = await Promise.all([getFamilySnapshot(), getFamilyLotRecord()]);
+  const requested = personIdFrom(await searchParams);
+  const [snapshot, lot] = await Promise.all([
+    getFamilySnapshot(requested),
+    getFamilyLotRecord(requested),
+  ]);
   const { plan_summary } = snapshot;
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/property" />
       <Answer
         kicker="Your lot"
         headline={`Lot ${lot.lot_number} is your family’s place at the park.`}

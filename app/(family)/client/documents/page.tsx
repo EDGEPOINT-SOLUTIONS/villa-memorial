@@ -4,6 +4,8 @@ import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyDocumentView } from "@/lib/family/family-view";
 import { familyPapers } from "@/lib/family/family-documents";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { OwnedPaperRow, RequestPaperRow } from "@/components/family/family-papers";
 import {
   Answer,
@@ -30,9 +32,14 @@ export const metadata = { title: "Papers — Villa Funeraria" };
  * never a request button, never “ask us for a copy”. The request path stays for
  * the other paper types (certificates, permits and the rest), unchanged.
  */
-export default async function ClientDocumentsPage() {
+export default async function ClientDocumentsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const snapshot = await getFamilySnapshot();
+  const requested = personIdFrom(await searchParams);
+  const snapshot = await getFamilySnapshot(requested);
   const documents = snapshot.recent_documents.map((doc) =>
     familyDocumentView(doc.title, doc.status),
   );
@@ -43,6 +50,7 @@ export default async function ClientDocumentsPage() {
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/documents" />
       <Answer
         kicker="Papers"
         headline={

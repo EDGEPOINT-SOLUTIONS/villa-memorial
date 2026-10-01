@@ -46,19 +46,22 @@ describe("the memorial fixture records the honest, unpublished state", () => {
     expect(memorialsLiveModeEnabled()).toBe(false);
   });
 
-  it("points the demo family's consent at the family snapshot, with no choice made", () => {
+  it("points the demo family's consent at the family household, with no choice made", () => {
     expect(fixture.consent_record.visibility).toBeNull();
-    expect(fixture.consent_record.ref).toBe("lib/fixtures/family/snapshot.json#loved_one");
+    expect(fixture.consent_record.ref).toBe(
+      "lib/fixtures/family/snapshot.json#loved_ones/ernesto-dela-cruz",
+    );
     expect(fixture.consent_record.note).toContain("Not decided");
 
     // The reference must resolve: the family snapshot really carries the record.
     const family = JSON.parse(
       readFileSync(path.join(ROOT, "lib", "fixtures", "family", "snapshot.json"), "utf8"),
-    ) as { loved_one?: { name?: string } };
-    expect(family.loved_one?.name).toBeTruthy();
+    ) as { loved_ones?: Array<{ id?: string; name?: string }> };
+    const person = family.loved_ones?.find((one) => one.id === "ernesto-dela-cruz");
+    expect(person?.name).toBeTruthy();
 
     // ...and the public fixture never copies that person anywhere.
     const raw = JSON.stringify(fixture);
-    expect(raw).not.toContain(String(family.loved_one?.name));
+    expect(raw).not.toContain(String(person?.name));
   });
 });

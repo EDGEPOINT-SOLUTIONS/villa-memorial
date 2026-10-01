@@ -87,8 +87,8 @@ function dueSchedule(offset: number, amountCents: number, reference = "VM-PLAN-2
   };
 }
 
-async function render(page: () => Promise<React.ReactElement>): Promise<string> {
-  return renderToStaticMarkup(await page());
+async function render(page: (props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>): Promise<string> {
+  return renderToStaticMarkup(await page({}));
 }
 
 describe("a payment due in two days", () => {

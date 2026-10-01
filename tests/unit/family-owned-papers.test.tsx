@@ -49,7 +49,35 @@ const { default: ReceiptPage } = await import(
   "@/app/(family)/client/documents/receipts/[reference]/page"
 );
 
-const base = seed as unknown as FamilySnapshot;
+const seedHousehold = seed as unknown as {
+  tenant_id: string;
+  family: FamilySnapshot["family"];
+  loved_ones: Array<{
+    id: string;
+    name: string;
+    life_dates: string;
+    plan_summary: FamilySnapshot["plan_summary"];
+    balance: FamilySnapshot["balance"];
+    balance_cents?: FamilySnapshot["balance_cents"];
+    payment_schedule?: FamilySnapshot["payment_schedule"];
+    recent_documents: FamilyDocument[];
+  }>;
+};
+const seedPerson = seedHousehold.loved_ones[0];
+const base: FamilySnapshot = {
+  tenant_id: seedHousehold.tenant_id,
+  family: seedHousehold.family,
+  loved_one: { name: seedPerson.name, life_dates: seedPerson.life_dates },
+  plan_summary: seedPerson.plan_summary,
+  balance: seedPerson.balance,
+  balance_cents: seedPerson.balance_cents,
+  payment_schedule: seedPerson.payment_schedule,
+  recent_documents: seedPerson.recent_documents,
+  person_id: seedPerson.id,
+  household: [
+    { id: seedPerson.id, name: seedPerson.name, life_dates: seedPerson.life_dates },
+  ],
+};
 
 const CONTRACT: FamilyDocument = {
   title: "Service contract",
@@ -93,7 +121,7 @@ beforeEach(() => {
 
 describe("the family's own papers on the Papers page", () => {
   it("always shows the contract and the receipts as the family's own", async () => {
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     expect(html).toContain("Service contract");
     expect(html).toContain("Official receipt");
     for (const owned of ["Service contract", "Official receipt"]) {
@@ -104,7 +132,7 @@ describe("the family's own papers on the Papers page", () => {
   });
 
   it("carries no request affordance for the owned papers", async () => {
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     expect(html).not.toContain("Ask for a copy");
     expect(html).not.toMatch(/request a copy/i);
     for (const owned of ["Service contract", "Official receipt"]) {
@@ -123,7 +151,7 @@ describe("the family's own papers on the Papers page", () => {
       covers: undefined,
     });
     state.snapshot = snapshotWith(base.recent_documents.map(withoutCopy));
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     for (const owned of ["Service contract", "Official receipt"]) {
       const row = rowFor(html, owned);
       expect(row).toContain("getting it ready for this page");
@@ -134,7 +162,7 @@ describe("the family's own papers on the Papers page", () => {
 
   it("keeps the request path for the other paper types, unchanged", async () => {
     state.snapshot = snapshotWith([CONTRACT, RECEIPT, CERTIFICATE, PERMIT]);
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     expect(html.match(/Ask for a copy/g)).toHaveLength(2);
     for (const requestable of ["Death certificate", "Burial permit"]) {
       expect(rowFor(html, requestable)).toContain("Ask for a copy");
@@ -146,7 +174,7 @@ describe("the family's own papers on the Papers page", () => {
 
   it("opens a real receipt copy when the record carries number, date and amount", async () => {
     state.snapshot = snapshotWith([CONTRACT, RECEIPT]);
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     const receiptRow = rowFor(html, "OR-2026-00412");
     expect(receiptRow).toContain("₱12,000");
     expect(receiptRow).toContain("12 September 2026");
@@ -167,7 +195,7 @@ describe("the family's own papers on the Papers page", () => {
       covers: "cash payment at the office",
     };
     state.snapshot = snapshotWith([CONTRACT, RECEIPT, second]);
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     expect(html).toContain("₱12,000");
     expect(html).toContain("₱8,000");
     expect(html).toContain("1 August 2026");
@@ -177,7 +205,7 @@ describe("the family's own papers on the Papers page", () => {
 
 describe("the service contract on the funeral page", () => {
   it("is shown as the family's own paper, with no request", async () => {
-    const html = renderToStaticMarkup(await FuneralPage());
+    const html = renderToStaticMarkup(await FuneralPage({}));
     expect(html).toContain("Your service contract");
     const row = rowFor(html, "Service contract");
     expect(row).toContain("Yours");
@@ -189,7 +217,7 @@ describe("the service contract on the funeral page", () => {
 describe("the dashboard summary points at the family's own papers", () => {
   it("shows the papers count and links to the papers page, with no request affordance", async () => {
     state.snapshot = snapshotWith([CONTRACT, RECEIPT, PERMIT]);
-    const html = renderToStaticMarkup(await HomePage());
+    const html = renderToStaticMarkup(await HomePage({}));
     expect(html).toContain("Papers");
     expect(html).toContain('href="/client/documents"');
     expect(html).not.toContain("Ask for a copy");
@@ -242,7 +270,7 @@ describe("staff-only fields never reach the family screen", () => {
       } as FamilyDocument,
       RECEIPT,
     ]);
-    const html = renderToStaticMarkup(await PapersPage());
+    const html = renderToStaticMarkup(await PapersPage({}));
     expect(html).not.toContain("Elena Villanueva");
     expect(html).not.toContain("245000");
     expect(html).not.toContain("staff eyes only");

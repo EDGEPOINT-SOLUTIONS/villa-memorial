@@ -68,14 +68,21 @@ export const PROPOSED_SHAPES = {
     A("attendance"),
     A("leave"),
   ],
-  /** C8 family API — the family snapshot envelope. */
+  /** C8 family API — the household snapshot envelope (one account, many loved ones). */
   "family.snapshot": [
     S("tenant_id"),
     O("family"),
-    O("loved_one"),
+    A("loved_ones"),
+  ],
+  /** C8 family API — one loved one's plan, money and papers inside the household. */
+  "family.loved_one": [
+    S("id"),
+    S("name"),
+    S("life_dates"),
     O("plan_summary"),
     O("balance"),
     { key: "balance_cents", type: "object", optional: true },
+    { key: "payment_schedule", type: "object", optional: true },
     A("recent_documents"),
   ],
   /** C9 agent workspace — a prospect row. */

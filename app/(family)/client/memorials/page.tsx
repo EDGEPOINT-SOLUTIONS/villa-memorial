@@ -12,6 +12,8 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilyLotRecord, getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { monogram } from "@/lib/family/family-view";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import {
   Answer,
   CallAction,
@@ -37,15 +39,24 @@ export const metadata = { title: "Remembering — Villa Funeraria" };
  * the dates and the place come from the office's own record; the visibility
  * choices stay “not decided yet” because no default exists or may be invented.
  */
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const [snapshot, lot] = await Promise.all([getFamilySnapshot(), getFamilyLotRecord()]);
+  const requested = personIdFrom(await searchParams);
+  const [snapshot, lot] = await Promise.all([
+    getFamilySnapshot(requested),
+    getFamilyLotRecord(requested),
+  ]);
   const { loved_one, plan_summary } = snapshot;
   const firstName = loved_one.name.split(/\s+/)[0] || "Your loved one";
   const initials = monogram(loved_one.name);
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/memorials" />
       <Answer
         kicker="Remembering"
         headline={`Nothing about ${firstName} is published anywhere.`}

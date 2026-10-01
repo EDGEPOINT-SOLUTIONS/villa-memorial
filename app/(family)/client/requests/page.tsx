@@ -5,9 +5,20 @@ import {
   Wrench,
 } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import { listFamilyAskFor, listFamilyRequests } from "@/lib/api-client/family";
+import {
+  getFamilyHousehold,
+  getFamilySnapshot,
+  listFamilyAskFor,
+  listFamilyRequests,
+} from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyDayLabel, familyRequestState } from "@/lib/family/family-view";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import {
+  FamilyRequestComposer,
+  type ComposerPerson,
+} from "@/components/family/family-request-composer";
 import {
   Answer,
   CallAction,
@@ -24,26 +35,47 @@ export const metadata = { title: "Requests — Villa Funeraria" };
 
 /**
  * Requests — the family's “My Requests” screen (PRD screen-inventory), on the
- * dashboard's dense grammar (2026-09-30): the family's own requests as rows in a
- * panel, and the “what you can ask for” catalogue behind the ONE shared gap
- * disclosure (a menu, not status).
+ * dashboard's dense grammar (2026-09-30).
  *
- * Real today: the office's own record of what this family asked for, each with
- * the state in a family's words and the one step that moves it. The request log
- * itself is not connected — no service desk exists — so every action keeps the
- * office phone, and nothing here invents a ticket number, a person's name or a
- * date we do not hold.
+ * THE HOUSEHOLD (captain, 2026-09-30): the manager asks for things on behalf of a
+ * loved one, so the composer always names WHICH person and WHICH lot the request
+ * is about — the person and lot come from the household's own records, never from
+ * a typed sentence, and the office receives that link on the printed request
+ * (lib/contracts/family-request-slip.ts). The request log itself is not connected
+ * — no service desk exists — so every action keeps the office phone, and nothing
+ * here invents a ticket number, a person's name or a date we do not hold.
  */
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const [requests, askFor] = await Promise.all([listFamilyRequests(), listFamilyAskFor()]);
+  const requested = personIdFrom(await searchParams);
+  const [snapshot, requests, askFor, household] = await Promise.all([
+    getFamilySnapshot(requested),
+    listFamilyRequests(requested),
+    listFamilyAskFor(),
+    getFamilyHousehold(),
+  ]);
 
   const open = requests.filter((request) => request.state !== "done");
   const waiting = requests.filter((request) => request.state === "waiting_on_you");
   const openCount = open.length;
 
+  const composerPeople: ComposerPerson[] = household.people.map((person) => ({
+    id: person.id,
+    name: person.name,
+    life_dates: person.life_dates,
+    lot_number: person.lot?.lot_number ?? "—",
+    lot_section: person.lot?.section ?? "—",
+    lot_plan: person.lot?.plan_name ?? "—",
+    park: person.lot?.park ?? FAMILY_HELP.park,
+  }));
+
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/requests" />
       <Answer
         kicker="Requests"
         headline={
@@ -117,6 +149,22 @@ export default async function Page() {
               Nothing has been asked for yet. Call us with anything at all.
             </p>
           )}
+        </DashPanel>
+
+        <DashPanel
+          id="ask"
+          role="neutral"
+          className="dash-span-12"
+          label="Ask"
+          title="Ask us for something"
+        >
+          <FamilyRequestComposer
+            people={composerPeople}
+            askFor={askFor}
+            defaultPersonId={snapshot.person_id}
+            managerName={household.family.display_name}
+            managerContact={household.family.primary_contact}
+          />
         </DashPanel>
       </div>
 

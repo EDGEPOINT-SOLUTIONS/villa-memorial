@@ -34,7 +34,7 @@ vi.mock("@/lib/auth/portal-guard", () => ({
   }),
 }));
 
-type PageComponent = () => Promise<React.ReactElement>;
+type PageComponent = (props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>;
 
 const { default: HomePage } = await import("@/app/(family)/client/dashboard/page");
 const { default: FuneralPage } = await import("@/app/(family)/client/cases/page");
@@ -52,7 +52,7 @@ const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/pag
 const { default: FamilyDashboardPage } = await import("@/app/(family)/client/family/page");
 
 const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
-  { name: "Home", Page: HomePage, headline: "you today" },
+  { name: "Home", Page: HomePage, headline: "look after" },
   { name: "The funeral", Page: FuneralPage, headline: "as our office recorded it" },
   { name: "Payments", Page: PaymentsPage, headline: "Here’s how to pay" },
   { name: "Papers", Page: PapersPage, headline: "papers are ready" },
@@ -71,7 +71,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
 ];
 
 async function render(page: PageComponent): Promise<string> {
-  return renderToStaticMarkup(await page());
+  return renderToStaticMarkup(await page({}));
 }
 
 describe.each(PAGES)("$name — understood at a glance", ({ name, Page, headline }) => {

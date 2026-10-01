@@ -132,7 +132,8 @@ export type PaperProfileId =
   | "purchase-agreement-2025"
   | "official-receipt"
   | "provisional-receipt"
-  | "membership-application";
+  | "membership-application"
+  | "family-request";
 
 export type PaperProfile = {
   id: PaperProfileId;
@@ -240,6 +241,19 @@ export const PAPER_PROFILES: Record<PaperProfileId, PaperProfile> = {
   "official-receipt": RECEIPT_SHEET,
   "provisional-receipt": { ...RECEIPT_SHEET, id: "provisional-receipt" },
   "membership-application": MEMBERSHIP_SHEET,
+  "family-request": {
+    id: "family-request",
+    label: "US Legal / Philippine long bond, 8.5 × 14 in",
+    ...LEGAL_14,
+    marginIn: { top: 1, right: 1, bottom: 1, left: 1 },
+    body: "times-new-roman",
+    heading: "times-new-roman",
+    bodyPt: 10.5,
+    provenance:
+      "No request-slip paper is archived; the office's legal stationery (the 8.5 × 14 sheet of " +
+      "Service Contract Form.docx and Purchase Agreement.docx) with symmetric 1 in margins, in " +
+      "the contract face Times New Roman — the same stationery as the receipts.",
+  },
 };
 
 export const PAPER_PROFILE_IDS = Object.keys(PAPER_PROFILES) as PaperProfileId[];

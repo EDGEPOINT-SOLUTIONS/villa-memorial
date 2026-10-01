@@ -46,7 +46,9 @@ const { PapersDialog } = await import("@/components/family/papers-dialog");
 const { getFamilySnapshot } = await import("@/lib/api-client/family");
 
 async function renderHome(): Promise<string> {
-  return renderToStaticMarkup(await HomePage());
+  return renderToStaticMarkup(
+    await HomePage({ searchParams: Promise.resolve({ person: "ernesto-dela-cruz" }) }),
+  );
 }
 
 function count(html: string, needle: string): number {

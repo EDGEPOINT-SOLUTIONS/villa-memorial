@@ -46,10 +46,17 @@ describe("proposed contract shapes validate today's recorded fixtures", () => {
     assertRows(employeesFile.employees as unknown[], "hr.employee");
   });
 
-  it("C8 family — the snapshot envelope", () => {
+  it("C8 family — the household snapshot envelope and its loved ones", () => {
     expect(() =>
       readShape(familySnapshotFile, "family.snapshot", PROPOSED_SHAPES["family.snapshot"]),
     ).not.toThrow();
+    const lovedOnes = (familySnapshotFile as { loved_ones: unknown[] }).loved_ones;
+    expect(lovedOnes.length).toBeGreaterThan(0);
+    for (const lovedOne of lovedOnes) {
+      expect(() =>
+        readShape(lovedOne, "family.loved_one", PROPOSED_SHAPES["family.loved_one"]),
+      ).not.toThrow();
+    }
   });
 
   it("C9 agent — prospects", () => {

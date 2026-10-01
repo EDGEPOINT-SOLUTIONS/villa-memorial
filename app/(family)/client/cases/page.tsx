@@ -3,6 +3,8 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilyCase, getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { familyPapers } from "@/lib/family/family-documents";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { Answer, PrimaryAction, QuietLink, Rows, WhatThisShows } from "@/components/family/family-ui";
 import { DashPanel } from "@/components/family/dash-ui";
 import { CaseChain, CaseSchedule, caseDoneWords } from "@/components/family/family-case";
@@ -24,15 +26,23 @@ export const metadata = { title: "The funeral — Villa Funeraria" };
  * captain's 2026-09-17 rule); what the record cannot show yet sits in the ONE
  * shared gap disclosure.
  */
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const snapshot = await getFamilySnapshot().catch(() => null);
-  const familyCase = await getFamilyCase().catch(() => null);
+  const requested = personIdFrom(await searchParams);
+  const snapshot = await getFamilySnapshot(requested).catch(() => null);
+  const familyCase = await getFamilyCase(requested).catch(() => null);
   const firstName = snapshot?.loved_one.name.split(/\s+/)[0] || "Your loved one";
   const contract = familyPapers(snapshot?.recent_documents ?? []).contract;
 
   return (
     <div className="dash">
+      {snapshot ? (
+        <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/cases" />
+      ) : null}
       <Answer
         kicker="The funeral"
         headline={

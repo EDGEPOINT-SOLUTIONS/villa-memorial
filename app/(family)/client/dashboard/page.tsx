@@ -2,13 +2,16 @@ import Link from "next/link";
 import { Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import {
+  familyPeople,
   getFamilyCase,
+  getFamilyHousehold,
   getFamilyLotRecord,
   getFamilySnapshot,
   listFamilyAppointments,
   listFamilyRequests,
   type FamilyAppointment,
   type FamilyCase,
+  type FamilyHousehold,
   type FamilyLotRecord,
   type FamilyRequest,
 } from "@/lib/api-client/family";
@@ -27,6 +30,7 @@ import {
   familyInstalmentRows,
 } from "@/lib/family/family-dashboard";
 import { familyPlotLink } from "@/lib/family/family-plots";
+import { isHousehold, personIdFrom } from "@/lib/family/family-household";
 import {
   longDueDate,
   nextPaymentDue,
@@ -37,7 +41,10 @@ import {
 import { readFamilyImage, familyImageUrl } from "@/lib/family-image-store";
 import { Answer, Chain, PrimaryAction, QuietLink, WhatThisShows } from "@/components/family/family-ui";
 import { PortalProgress } from "@/components/portal/portal-ui";
+import { PortalChip } from "@/components/portal/portal-ui";
 import { AttentionStrip, DashFacts, DashKpi, DashPanel } from "@/components/family/dash-ui";
+import { PersonSummaryCard } from "@/components/family/family-household-ui";
+import { PersonSwitcher, PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { PapersTable } from "@/components/family/papers-table";
 import { CaseChain, CaseSchedule, caseDoneWords } from "@/components/family/family-case";
 import { FamilyImageUploader } from "@/components/family/family-image-uploader";
@@ -69,14 +76,14 @@ const INSTALMENT_TONE: Record<PaymentDueState, StatusTone> = {
  * snapshot holds still render, and the panels that need these records show
  * their honest empty state.
  */
-async function loadWorkspace(): Promise<
-  [FamilyRequest[], FamilyAppointment[], FamilyLotRecord | null]
-> {
+async function loadWorkspace(
+  personId?: string,
+): Promise<[FamilyRequest[], FamilyAppointment[], FamilyLotRecord | null]> {
   try {
     return await Promise.all([
-      listFamilyRequests(),
-      listFamilyAppointments(),
-      getFamilyLotRecord(),
+      listFamilyRequests(personId),
+      listFamilyAppointments(personId),
+      getFamilyLotRecord(personId),
     ]);
   } catch {
     return [[], [], null];
@@ -105,12 +112,19 @@ async function loadWorkspace(): Promise<
  * every part earning its space, with the family reading scale still one tap away
  * in “Bigger writing”.
  */
-export default async function ClientDashboardPage() {
+type Session = Awaited<ReturnType<typeof requirePortalSessionOrRedirect>>;
+
+export default async function ClientDashboardPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await requirePortalSessionOrRedirect("family");
+  const requested = personIdFrom(await searchParams);
 
   let snapshot;
   try {
-    snapshot = await getFamilySnapshot();
+    snapshot = await getFamilySnapshot(requested);
   } catch {
     return (
       <>
@@ -130,13 +144,34 @@ export default async function ClientDashboardPage() {
     );
   }
 
-  const [requests, appointments, lot] = await loadWorkspace();
+  // THE HOUSEHOLD (captain, 2026-09-30): several loved ones and no person named
+  // in the address gives the “everyone” reading — one summary each, never a
+  // blended total. One loved one (or a named one) gives that person's command
+  // centre, exactly as before.
+  const multi = isHousehold(snapshot);
+  const selected = requested && snapshot.person_id === requested ? requested : undefined;
+  if (multi && !selected) {
+    return <EveryoneDashboard household={await getFamilyHousehold()} />;
+  }
+
+  return PersonCommandCentre({ snapshot, session });
+}
+
+async function PersonCommandCentre({
+  snapshot,
+  session,
+}: {
+  snapshot: Awaited<ReturnType<typeof getFamilySnapshot>>;
+  session: Session;
+}) {
+  const personId = snapshot.person_id;
+  const [requests, appointments, lot] = await loadWorkspace(personId);
 
   // The office's recorded arrangement (the provisional family case fixture). A
   // failure here is the honest "not connected" state, never a blank dashboard.
   let familyCase: FamilyCase | null = null;
   try {
-    familyCase = await getFamilyCase();
+    familyCase = await getFamilyCase(personId);
   } catch {
     familyCase = null;
   }
@@ -175,6 +210,7 @@ export default async function ClientDashboardPage() {
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/dashboard" />
       <Answer
         kicker={`${today()} · ${household}`}
         headline={
@@ -506,6 +542,66 @@ export default async function ClientDashboardPage() {
       <WhatThisShows>
         The memorial page and your full payment history aren’t connected yet. Call{" "}
         {FAMILY_HELP.phone} and we’ll tell you what is happening.
+      </WhatThisShows>
+    </div>
+  );
+}
+
+/**
+ * Several loved ones: one summary each, never blended.
+ *
+ * The captain's household rule (2026-09-30): the account's money is never added
+ * across two people, so each card carries that person's own next obligation and
+ * their own next visit, with the same colour guidance the single-person
+ * dashboard ships.
+ */
+function EveryoneDashboard({ household }: { household: FamilyHousehold }) {
+  const people = household.people;
+  const householdName = familyHousehold(people[0]?.name, household.family.display_name);
+  const count = countWord(people.length).toLowerCase();
+
+  return (
+    <div className="dash">
+      <PersonSwitcher
+        people={familyPeople(household)}
+        basePath="/client/dashboard"
+        everyoneCurrent
+      />
+      <Answer
+        kicker={`${today()} · ${householdName}`}
+        headline={`You look after ${count} people.`}
+        sub="One summary each — the money is never added together."
+        chips={
+          <>
+            <PortalChip>{householdName}</PortalChip>
+            <PortalChip>
+              {count === "one" ? "One loved one" : `${count[0].toUpperCase()}${count.slice(1)} loved ones`}
+            </PortalChip>
+          </>
+        }
+        actions={
+          <>
+            <PrimaryAction href="/client/requests" label="Ask us for something" />
+            <QuietLink
+              href={FAMILY_HELP.phoneHref}
+              label="Call us any time"
+              icon={<Phone size={20} aria-hidden="true" />}
+            />
+          </>
+        }
+      />
+
+      <div className="dash-grid">
+        {people.map((person) => (
+          <div key={person.id} className="dash-span-6">
+            <PersonSummaryCard person={person} />
+          </div>
+        ))}
+      </div>
+
+      <WhatThisShows>
+        The funeral times and the memorial aren’t connected yet. Call {FAMILY_HELP.phone} and we’ll tell
+        you.
       </WhatThisShows>
     </div>
   );

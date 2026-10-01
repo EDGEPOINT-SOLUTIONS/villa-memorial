@@ -41,7 +41,20 @@ vi.mock("next/headers", () => ({
 
 vi.mock("@/lib/api-client/family", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api-client/family")>();
-  return { ...actual, getFamilySnapshot: async () => snapshot as unknown as FamilySnapshot };
+  const lovedOnes = (snapshot as unknown as { loved_ones: Array<Record<string, unknown>> }).loved_ones;
+  const first = lovedOnes[0];
+  const selected = {
+    ...snapshot,
+    loved_one: { name: first.name, life_dates: first.life_dates },
+    plan_summary: first.plan_summary,
+    balance: first.balance,
+    balance_cents: first.balance_cents,
+    payment_schedule: first.payment_schedule,
+    recent_documents: first.recent_documents,
+    person_id: first.id,
+    household: lovedOnes.map((one) => ({ id: one.id, name: one.name, life_dates: one.life_dates })),
+  };
+  return { ...actual, getFamilySnapshot: async () => selected as unknown as FamilySnapshot };
 });
 
 const { default: FamilyLayout } = await import("@/app/(family)/client/layout");

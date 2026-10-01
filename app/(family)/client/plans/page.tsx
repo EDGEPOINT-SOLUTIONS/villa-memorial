@@ -3,6 +3,8 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import {
   Answer,
   PrimaryAction,
@@ -27,9 +29,14 @@ export const metadata = { title: "Your plan — Villa Funeraria" };
  * snapshot. The plan certificate is not wired and is named in one line, never
  * faked.
  */
-export default async function ClientPlansPage() {
+export default async function ClientPlansPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const snapshot = await getFamilySnapshot();
+  const requested = personIdFrom(await searchParams);
+  const snapshot = await getFamilySnapshot(requested);
   const { plan_summary, balance, balance_cents } = snapshot;
 
   const hasBalance = (balance_cents?.remaining ?? 0) > 0;
@@ -40,6 +47,7 @@ export default async function ClientPlansPage() {
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/plans" />
       <Answer
         kicker="Your plan"
         headline={

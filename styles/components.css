@@ -3641,6 +3641,157 @@ because the shared `.ag-appt` rule comes later in this file. */
   color: var(--color-text-secondary);
 }
 
+/* --- the household person switcher (captain, 2026-09-30) --------------------- */
+/* One account, many loved ones. A household with one loved one never renders
+   this; with several it is a keyboard-reachable row of links, each a real
+   shareable address. The active person is a solid edge, never colour alone. */
+.fv-people {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.fv-people__label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.fv-people__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.fv-people__link {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  line-height: 1.25;
+}
+
+.fv-people__link:hover {
+  border-color: var(--sky-600);
+}
+
+.fv-people__link--active {
+  border-color: var(--sky-700);
+  box-shadow: inset 0 0 0 1px var(--sky-700);
+  background: var(--color-bg-subtle);
+}
+
+.fv-people__name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.fv-people__dates {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+/* --- the household summaries (one card per loved one, nothing blended) ------- */
+.fv-household {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.fv-person__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.fv-person__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.fv-person__hint svg {
+  flex: none;
+  margin-top: 0.15rem;
+}
+
+/* --- the request composer (ask the office on a loved one's behalf) ----------- */
+.fv-request {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 64rem) {
+  .fv-request {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.fv-request__fields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.fv-request__preview {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+  padding: var(--space-4);
+}
+
+.fv-request__preview-title {
+  font-weight: 600;
+  color: var(--color-figure);
+  margin: 0 0 var(--space-3);
+}
+
+.fv-request__facts {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.fv-request__facts dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.fv-request__facts dd {
+  margin: 0;
+  color: var(--color-text-primary);
+}
+
+.fv-request__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.fv-request__note {
+  margin: var(--space-3) 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
 /* --- device-local reading modes ------------------------------------------------ */
 /* "Larger" is one full step above the family scope, so every value is a real
    ladder rung rather than a hand-picked size: typography-system scans every

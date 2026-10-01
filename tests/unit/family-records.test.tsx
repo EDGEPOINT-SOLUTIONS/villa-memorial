@@ -33,7 +33,7 @@ vi.mock("@/lib/auth/portal-guard", () => ({
   requirePortalSessionOrRedirect: async () => ({ email: "customer@vm.demo", scopes: [] }),
 }));
 
-type PageComponent = () => Promise<React.ReactElement>;
+type PageComponent = (props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>;
 
 const { default: RequestsPage } = await import("@/app/(family)/client/requests/page");
 const { default: AppointmentsPage } = await import("@/app/(family)/client/appointments/page");
@@ -41,7 +41,7 @@ const { default: LotPage } = await import("@/app/(family)/client/property/page")
 const { default: MemorialsPage } = await import("@/app/(family)/client/memorials/page");
 
 async function render(page: PageComponent): Promise<string> {
-  return renderToStaticMarkup(await page());
+  return renderToStaticMarkup(await page({}));
 }
 
 describe("Requests — the family's requests and where each one stands", () => {

@@ -4,7 +4,7 @@
     "recorded": "2026-09-18",
     "note": [
       "WHAT THIS IS: the recorded state of the PUBLIC digital-memorial surface (F-04). The service that will store and serve memorials is not built and no contract freezes its shape, so this file records the only honest state — nothing is published, and no memorial may be invented to make the screens look alive.",
-      "THE EMPTY `memorials` LIST IS THE FACT, not an omission. The one family record in the demo data (lib/fixtures/family/snapshot.json#loved_one) has chosen NO visibility: the family portal (app/(family)/client/memorials/page.tsx) shows all three choices as “Not decided yet”. Nothing may be published by default, so no record is served, and the public search, memorial and find screens say that plainly.",
+      "THE EMPTY `memorials` LIST IS THE FACT, not an omission. The one family record in the demo data (lib/fixtures/family/snapshot.json#loved_ones/ernesto-dela-cruz) has chosen NO visibility: the family portal (app/(family)/client/memorials/page.tsx) shows all three choices as “Not decided yet”. Nothing may be published by default, so no record is served, and the public search, memorial and find screens say that plainly.",
       "THE RULES ARE CODE, NOT DATA: the three visibility choices, the searchable / never-shown lists and the search matching live in lib/memorials.ts (pinned by tests/unit/memorials.test.ts and tests/fixture-contract/memorials.test.ts); this file only records the service state and the demo family's consent reference. A record's published shape (name, life dates, the family's words, an optional photograph, the resting place) is validated field by field in lib/api-client/memorials.ts, and a record with any visibility other than “published” is dropped before it can reach a page.",
       "The client's own public memorial search/privacy rules are still an OPEN question (docs/07-client-villa/open-questions.md — “Public memorial search/privacy rules”). The pages publish the product's guaranteed privacy floor and name that open item; they never assume an answer.",
       "WHEN THE SERVICE LANDS: replace this file with recorded responses, drop the service_state line from the pages, and keep the visibility / privacy vocabulary in lib/memorials.ts (or move it to the contract that supersedes it — never the reverse)."
@@ -12,7 +12,7 @@
   },
   "service_state": "not_wired",
   "consent_record": {
-    "ref": "lib/fixtures/family/snapshot.json#loved_one",
+    "ref": "lib/fixtures/family/snapshot.json#loved_ones/ernesto-dela-cruz",
     "visibility": null,
     "note": "Not decided — the family portal shows every choice as “Not decided yet”. Nothing about this record may appear on a public screen."
   },

@@ -1,8 +1,11 @@
 import { CalendarCheck, MapPin, Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { listFamilyAppointments } from "@/lib/api-client/family";
+import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord } from "@/lib/family/family-view";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import {
   Answer,
   AppointmentCard,
@@ -31,9 +34,17 @@ export const metadata = { title: "Ask for a visit — Villa Funeraria" };
  * chapel list is still a PLACEHOLDER in staff scheduling) and no time is ever
  * presented as agreed when a human has not confirmed it.
  */
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const appointments = await listFamilyAppointments();
+  const requested = personIdFrom(await searchParams);
+  const [snapshot, appointments] = await Promise.all([
+    getFamilySnapshot(requested),
+    listFamilyAppointments(requested),
+  ]);
 
   const arranged = appointments.filter((appointment) => appointment.state === "confirmed");
   const waiting = appointments.filter((appointment) => appointment.state === "waiting");
@@ -44,6 +55,7 @@ export default async function Page() {
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/appointments" />
       <Answer
         kicker="Ask for a visit"
         headline="We can come to you. Call and we will set a day."

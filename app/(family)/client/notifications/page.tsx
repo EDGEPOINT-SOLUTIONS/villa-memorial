@@ -3,6 +3,8 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord } from "@/lib/family/family-view";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import {
   longDueDate,
   paymentAmountLabel,
@@ -36,17 +38,27 @@ export const metadata = { title: "What we tell you about — Villa Funeraria" };
  * waits on the platform's notification service (P4), and the ONE shared
  * disclosure names that seam. Nothing is dressed up as a sent message.
  */
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const snapshot = await getFamilySnapshot();
+  const requested = personIdFrom(await searchParams);
+  const snapshot = await getFamilySnapshot(requested);
   const schedule = snapshot.payment_schedule;
   const notices = schedule
     ? paymentDueNotices(schedule, { client: snapshot.family.display_name, now: new Date() })
     : [];
 
+  const switcher = (
+    <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/notifications" />
+  );
+
   if (notices.length === 0) {
     return (
       <div className="dash">
+        {switcher}
         <PlannedAnswer
           kicker="What we tell you about"
           headline="Nothing has been sent to your family yet."
@@ -81,6 +93,7 @@ export default async function Page() {
 
   return (
     <div className="dash">
+      {switcher}
       <Answer
         kicker="What we tell you about"
         headline={

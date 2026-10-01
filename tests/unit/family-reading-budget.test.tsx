@@ -73,7 +73,7 @@ function disclosedContent(html: string): string {
     .join(" ");
 }
 
-type PageComponent = () => Promise<React.ReactElement>;
+type PageComponent = (props: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) => Promise<React.ReactElement>;
 
 const { default: HomePage } = await import("@/app/(family)/client/dashboard/page");
 const { default: FuneralPage } = await import("@/app/(family)/client/cases/page");
@@ -110,7 +110,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; gap?: boolean }> = [
 ];
 
 async function render(page: PageComponent): Promise<string> {
-  return renderToStaticMarkup(await page());
+  return renderToStaticMarkup(await page({}));
 }
 
 function failures(name: string, stats: ReturnType<typeof measureProse>): string[] {

@@ -3,6 +3,7 @@ import { Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import { personIdFrom } from "@/lib/family/family-household";
 import {
   buildFamilyReceiptPaper,
   familyPapers,
@@ -27,12 +28,15 @@ export const metadata = { title: "Your official receipt — Villa Funeraria" };
  */
 export default async function ClientReceiptPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ reference: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requirePortalSessionOrRedirect("family");
   const { reference } = await params;
-  const snapshot = await getFamilySnapshot();
+  const requested = personIdFrom(await searchParams);
+  const snapshot = await getFamilySnapshot(requested);
   const { receipts } = familyPapers(snapshot.recent_documents);
   const decoded = decodeURIComponent(reference);
   const receipt = receipts.find(

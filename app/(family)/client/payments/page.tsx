@@ -3,6 +3,8 @@ import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
+import { personIdFrom } from "@/lib/family/family-household";
+import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import {
   longDueDate,
   paymentAmountLabel,
@@ -36,9 +38,14 @@ export const metadata = { title: "Payments — Villa Funeraria" };
  * `lib/payment-schedule.ts` — computed from the recorded plan against today,
  * never a background timer the demo cannot run.
  */
-export default async function ClientPaymentsPage() {
+export default async function ClientPaymentsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requirePortalSessionOrRedirect("family");
-  const snapshot = await getFamilySnapshot();
+  const requested = personIdFrom(await searchParams);
+  const snapshot = await getFamilySnapshot(requested);
   const { balance, balance_cents, plan_summary } = snapshot;
 
   const now = new Date();
@@ -53,6 +60,7 @@ export default async function ClientPaymentsPage() {
 
   return (
     <div className="dash">
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/payments" />
       <Answer
         kicker="Payments"
         headline={
