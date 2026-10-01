@@ -14,16 +14,27 @@ export default async function AgentLayout({ children }: { children: React.ReactN
   const jar = await cookies();
   const rawUser = jar.get("im_u")?.value;
   let email: string | null = null;
+  let displayName = "Agent";
   if (rawUser) {
     try {
       const user = JSON.parse(Buffer.from(rawUser, "base64").toString("utf8")) as {
         email?: string;
+        display_name?: string;
       };
       email = user.email ?? null;
+      displayName = user.display_name ?? displayName;
     } catch {
       email = null;
     }
   }
+
+  const initials =
+    displayName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("") || "A";
 
   if (!email) {
     return (
@@ -44,25 +55,44 @@ export default async function AgentLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <PortalFrame
-      portal="agent"
-      brandLabel="Agent Portal"
-      email={email}
-      profileTo="/agent/profile"
-      logoutTo="/agent/login"
-      nav={AGENT_PORTAL_GROUPS}
-      tabs={AGENT_PORTAL_TABS}
-      help={
-        <p className="portal-sidebar__help">
-          Need the office?
-          <br />
-          <strong>{FAMILY_HELP.phone}</strong>
-          <br />
-          <span>Mon–Sat · 8am–6pm</span>
-        </p>
-      }
-    >
-      {children}
-    </PortalFrame>
+    <>
+      {/* Apply the remembered rail choice before first paint, so the rail never
+          flashes from expanded to collapsed (the family portal's rule, now
+          shared). The toggle writes the same `fv-rail` key. */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html:
+            "try{if(localStorage.getItem('fv-rail')==='collapsed'){document.documentElement.dataset.rail='collapsed';}}catch(e){}",
+        }}
+      />
+      <PortalFrame
+        portal="agent"
+        brandLabel="Agent Portal"
+        email={email}
+        profileTo="/agent/profile"
+        logoutTo="/agent/login"
+        nav={AGENT_PORTAL_GROUPS}
+        tabs={AGENT_PORTAL_TABS}
+        collapsible
+        account={{
+          name: displayName,
+          email,
+          initials,
+          profileTo: "/agent/profile",
+          logoutTo: "/agent/login",
+        }}
+        help={
+          <p className="portal-sidebar__help">
+            Need the office?
+            <br />
+            <strong>{FAMILY_HELP.phone}</strong>
+            <br />
+            <span>Mon–Sat · 8am–6pm</span>
+          </p>
+        }
+      >
+        {children}
+      </PortalFrame>
+    </>
   );
 }

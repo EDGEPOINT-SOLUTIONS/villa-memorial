@@ -119,15 +119,27 @@ refuses an unmarked row and offers no live mode), pinned by
 
 ## Agent portal — `app/(agent)/agent`
 
-12 routes (`dashboard`, `prospects`, `prospects/[id]`, `clients`, `clients/[id]`, `sales`,
-`lots`, `applications`, `appointments`, `marketing`, `new`, `profile`): ⚠ all read one provisional
-agent-workspace fixture — no agent/commission contract exists, so commission amounts are
-`null` by design and the pages say so. `/agent/lots` mounts the same shared park map as
-`/staff/property` and `/map`. `/agent/clients/[id]` reads the demo household
+14 routes (`dashboard`, `prospects`, `prospects/[id]`, `clients`, `clients/[id]`, `sales`,
+`lots`, `applications`, `appointments`, `marketing`, `new`, `profile`, `performance`, `quote`):
+⚠ all read one provisional agent-workspace fixture — no agent/commission contract exists, so
+commission amounts are `null` by design and the pages say so. `/agent/lots` mounts the same
+shared park map as `/staff/property` and `/map`. `/agent/clients/[id]` reads the demo household
 (`client-cory`), whose name, plans, money, lots, office-released papers and visits are DERIVED from the
 family's own record (`lib/fixtures/family/*`) rather than copied, so the agent and family
 portals tell one story — `tests/unit/demo-consistency.test.tsx` renders both and fails on
 drift (record: [demo data consistency](../demo-data-consistency-design/README.md)).
+
+The workbench (captain's accepted plan `data/villa-agent-portal-plan`, 2026-10-01):
+`/agent/dashboard` is a compact-header workbench — one hero figure + an inline vitals ribbon,
+the pipeline stage-flow, one analytics band and eight panels — and `/agent/performance`
+carries the full analytics. The only real series is the value entering the pipeline, cumulative
+from each lead's recorded first-contact date; **value closed, conversations, collections and
+commission are named empty states** because the record has no agent-attributed, dated series
+(the plan's §7.1 finding). `/agent/quote` prices a plan or lot from the office's editable 2026
+pricing store and prints the sheet through the shared paper layer (`property:read`). The
+collapsible rail and account chip are the shared portal chrome. `/agent/lots` still prints a
+**type-summary** availability count that its own map does not match (16 vs the property
+record's 8-of-12); that reconciliation is still open.
 
 ## Absent (not routes yet) — needs a contract or a decision
 

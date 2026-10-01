@@ -117,6 +117,8 @@ export const AGENT_PORTAL_GROUPS: PortalNavGroup[] = [
       { key: "lots", label: "Lot availability", to: "/agent/lots" },
       { key: "sales", label: "Sales & commissions", to: "/agent/sales" },
       { key: "applications", label: "Applications", to: "/agent/applications" },
+      { key: "performance", label: "Performance", to: "/agent/performance" },
+      { key: "quote", label: "Quote", to: "/agent/quote" },
     ],
   },
   {

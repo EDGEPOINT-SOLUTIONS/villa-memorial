@@ -123,11 +123,13 @@ describe("the family portal chrome is the agent portal chrome", () => {
     expect(html).toContain("fv-rail");
   });
 
-  it("leaves the agent portal untouched — no account chip, no collapse toggle", async () => {
+  it("opts the agent portal into the shared chrome — account chip and rail toggle (plan PR3)", async () => {
     const html = renderToStaticMarkup(await AgentLayout({ children: createElement("p", null, "body") }));
-    expect(html).not.toContain("account-chip");
-    expect(html).not.toContain("rail-toggle");
-    expect(html).toContain('class="portal-sidebar__user"');
+    expect(html).toContain('class="account-chip account-chip--desktop"');
+    expect(html).toContain('class="rail-toggle"');
+    expect(html).toContain("fv-rail");
+    // The old account line is replaced by the shared account block (plan §7.6).
+    expect(html).not.toContain('class="portal-sidebar__user"');
   });
 
   it("puts the family's own destinations in the shared rail", async () => {

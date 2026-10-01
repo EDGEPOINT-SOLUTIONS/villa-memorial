@@ -7,6 +7,22 @@
  * kit encodes. Read that before adding a seventh surface that looks like one of
  * these six.
  */
+export { BarRow, type BarRowItem } from "./bar-row";
+export { LineChart, Sparkline, type LineChartProps } from "./line-chart";
+export {
+  barShare,
+  buildLineGeometry,
+  compactNumber,
+  formatChartFigure,
+  formatChartValue,
+  niceTicks,
+  stepDownPercent,
+  tickCeiling,
+  xLabelIndices,
+  type ChartKind,
+  type ChartPoint,
+  type ChartTone,
+} from "./chart-model";
 export { DataTable, type DataTableColumn, type DataTableProps, type DataTableSort } from "./data-table";
 export { EmptyState } from "./empty-state";
 export { ListingNav } from "./listing-nav";
