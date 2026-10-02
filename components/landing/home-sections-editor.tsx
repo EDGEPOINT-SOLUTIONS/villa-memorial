@@ -110,6 +110,42 @@ function TextAreaField({
   );
 }
 
+/** A whole-number field — the gateway rotation interval is the first of them. */
+function NumberField({
+  label,
+  value,
+  onChange,
+  htmlFor,
+  min = 1,
+  max = 120,
+  hint,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  htmlFor: string;
+  min?: number;
+  max?: number;
+  hint?: string;
+}) {
+  return (
+    <Field label={label} htmlFor={htmlFor} hint={hint}>
+      <input
+        id={htmlFor}
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        value={Number.isFinite(value) ? value : min}
+        onChange={(event) => {
+          const next = Number.parseInt(event.target.value, 10);
+          onChange(Number.isFinite(next) ? next : min);
+        }}
+      />
+    </Field>
+  );
+}
+
 function SelectField({
   label,
   value,
@@ -407,27 +443,101 @@ export function HomeSectionsEditor({
           </div>
         </header>
         <div className="ed-section__body">
-          <div className="field-grid field-grid--2">
-            <TextField
-              label="Place line"
-              htmlFor="home-gateway-place"
-              value={gateway.place}
-              onChange={(place) => update("gateway", { ...gateway, place })}
-              hint="Defaults to the location in Brand & 24/7 line."
-            />
-            <TextField
-              label="Headline"
-              htmlFor="home-gateway-headline"
-              value={gateway.headline}
-              onChange={(headline) => update("gateway", { ...gateway, headline })}
-            />
-          </div>
           <TextField
-            label="Promise (the second headline line)"
-            htmlFor="home-gateway-promise"
-            value={gateway.promise}
-            onChange={(promise) => update("gateway", { ...gateway, promise })}
-            hint="Painted in the sky ink under the headline."
+            label="Place line"
+            htmlFor="home-gateway-place"
+            value={gateway.place}
+            onChange={(place) => update("gateway", { ...gateway, place })}
+            hint="Defaults to the location in Brand & 24/7 line."
+          />
+          <div className="stack-3">
+            <p className="ed-section__kicker">Title sets</p>
+            <p className="ed-section__hint">
+              The band shows one set at a time and cross-fades to the next, looping. Add as many as
+              you like and reorder them; the first is the set a reduced-motion reader always sees.
+            </p>
+            {gateway.titleSets.map((set, index) => (
+              <div className="ed-card-row" key={set.id}>
+                <div className="field-grid field-grid--2" style={{ flex: 1 }}>
+                  <TextField
+                    label={`Set ${index + 1} headline`}
+                    htmlFor={`home-title-${set.id}-headline`}
+                    value={set.headline}
+                    onChange={(headline) =>
+                      update("gateway", {
+                        ...gateway,
+                        titleSets: gateway.titleSets.map((entry) =>
+                          entry.id === set.id ? { ...entry, headline } : entry,
+                        ),
+                      })
+                    }
+                  />
+                  <TextField
+                    label="Supporting line"
+                    htmlFor={`home-title-${set.id}-promise`}
+                    value={set.promise}
+                    onChange={(promise) =>
+                      update("gateway", {
+                        ...gateway,
+                        titleSets: gateway.titleSets.map((entry) =>
+                          entry.id === set.id ? { ...entry, promise } : entry,
+                        ),
+                      })
+                    }
+                  />
+                </div>
+                <RowButtons
+                  label={`title set ${index + 1}`}
+                  first={index === 0}
+                  last={index === gateway.titleSets.length - 1}
+                  onUp={() =>
+                    update("gateway", {
+                      ...gateway,
+                      titleSets: moveItem(gateway.titleSets, index, -1),
+                    })
+                  }
+                  onDown={() =>
+                    update("gateway", {
+                      ...gateway,
+                      titleSets: moveItem(gateway.titleSets, index, 1),
+                    })
+                  }
+                  onRemove={() =>
+                    update("gateway", {
+                      ...gateway,
+                      titleSets: gateway.titleSets.filter((entry) => entry.id !== set.id),
+                    })
+                  }
+                />
+              </div>
+            ))}
+            <div>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  update("gateway", {
+                    ...gateway,
+                    titleSets: gateway.titleSets.concat({
+                      id: uniqueId("title"),
+                      headline: "New title",
+                      promise: "",
+                    }),
+                  })
+                }
+              >
+                <Plus size={14} aria-hidden="true" /> Add a title set
+              </Button>
+            </div>
+          </div>
+          <NumberField
+            label="Rotation interval (seconds)"
+            htmlFor="home-gateway-interval"
+            value={gateway.titleIntervalSeconds}
+            min={1}
+            max={120}
+            onChange={(titleIntervalSeconds) => update("gateway", { ...gateway, titleIntervalSeconds })}
+            hint="How long each set stays on screen before the band cross-fades to the next (1–120)."
           />
           <TextAreaField
             label="Lead"

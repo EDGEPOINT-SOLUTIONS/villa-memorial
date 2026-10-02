@@ -21945,6 +21945,30 @@ a.plan-advisor__phone:hover {
   color: var(--sky-700);
 }
 
+/* The rotating title sets (captain, 2026-10-02). The h1 stays the ONE title
+   element; its sets are stacked in the same grid cell, so the band's height is
+   the tallest set's from the first paint — no layout jump as the shown set
+   changes. Only the active set is opaque; the cross-fade is the opacity
+   transition below (the base stylesheet already collapses transition durations
+   under `prefers-reduced-motion: reduce`, and the component never rotates then). */
+.home-gateway__title--rotator {
+  display: grid;
+}
+
+.home-title-set {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.home-title-set:not(.is-active) {
+  pointer-events: none;
+}
+
+.home-title-set.is-active {
+  opacity: 1;
+}
+
 /* Row 3 — support under the headline, clearly smaller than it (inbox 032). */
 .home-gateway__lead {
   position: relative;

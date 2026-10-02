@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Clock, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { HomeCostBuilder } from "@/components/public/home-cost-builder";
+import { HomeTitleRotator } from "@/components/public/home-title-rotator";
 
 import { HomePlotExplorer } from "@/components/public/home-plot-explorer";
 import { ItemQuoteButton } from "@/components/villa/item-quote-button";
@@ -184,10 +185,14 @@ export function HomePage({
       <section className="home-gateway" aria-labelledby="home-gateway-title">
         <div className="home-gateway__inner">
           {gateway.place ? <p className="home-gateway__place">{gateway.place}</p> : null}
-          <h1 id="home-gateway-title" className="home-gateway__title">
-            {gateway.headline}{" "}
-            <span className="home-gateway__promise">{gateway.promise}</span>
-          </h1>
+          {/* The band's title is a rotating set of pairs (captain, 2026-10-02):
+              one set at a time, cross-fading on the office's interval. The
+              client component renders the h1 and keeps `id="home-gateway-title"`
+              so this section's aria-labelledby still resolves. */}
+          <HomeTitleRotator
+            sets={gateway.titleSets}
+            intervalSeconds={gateway.titleIntervalSeconds}
+          />
           <div className="home-gateway__actions">
             <a className="btn btn--accent home-call" href={contact.phoneHref}>
               <Phone size={18} aria-hidden="true" />

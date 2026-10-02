@@ -25,7 +25,8 @@
     "family/agent surfaces' secondPhone (lib/family/contact.ts). Seeded 2026-09-18 (the",
     "template's 0917 000 1234 is gone); still staff-editable like every contact field.",
     "HOME SECTIONS (2026-09-29): `home` carries the seven approved home-rebuild sections — the gateway, the hero photograph, the park + arrangement builder + chapels, the five plan tiers' band, the five service tiles, the four lot types with the pinned park map, and the contact band. No amount is authored in it: every figure binds to the pricing store or the 2026 sheets at render, and the save validator checks every binding.",
-    "BLOG MIGRATION (2026-09-29): the posts moved to the blog page document (lib/fixtures/content/pages.json, key `blog`). This landing document no longer owns them; `blog.heading`/`intro` stay for the retired feed band only."
+    "BLOG MIGRATION (2026-09-29): the posts moved to the blog page document (lib/fixtures/content/pages.json, key `blog`). This landing document no longer owns them; `blog.heading`/`intro` stay for the retired feed band only.",
+    "GATEWAY TITLE SETS (2026-10-02, DEMO SEEDS): content.home.gateway.titleSets carries three demo title pairs — the current pair first (\"We're here for you\" / \"any hour, any day.\") plus two calm alternates drawn from the recorded gateway lead and trust facts (\"We come to you\" / \"and stay until the burial is done.\" and \"The first park in Basilan\" / \"family-run, in Isabela City.\"). The office owns this list: /staff/landing/home adds, removes and reorders sets, and the 5-second titleIntervalSeconds is the office's own field (whole seconds, 1–120). No price, claim or phone number is invented here; the band cross-fades one set at a time and respects prefers-reduced-motion."
   ],
   "content": {
     "version": 1,
@@ -248,8 +249,24 @@
       },
       "gateway": {
         "place": "Isabela City, Basilan",
-        "headline": "We're here for you",
-        "promise": "any hour, any day.",
+        "titleSets": [
+          {
+            "id": "title-1",
+            "headline": "We're here for you",
+            "promise": "any hour, any day."
+          },
+          {
+            "id": "title-2",
+            "headline": "We come to you",
+            "promise": "and stay until the burial is done."
+          },
+          {
+            "id": "title-3",
+            "headline": "The first park in Basilan",
+            "promise": "family-run, in Isabela City."
+          }
+        ],
+        "titleIntervalSeconds": 5,
         "lead": "We answer any hour. We come to you, and we stay until the burial is done.",
         "secondary": {
           "label": "Future plan",

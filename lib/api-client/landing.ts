@@ -265,13 +265,36 @@ export type HomeFact = {
   note: string;
 };
 
+/**
+ * One title pair the gateway band shows — a short headline and the supporting
+ * line painted under it in the sky ink. The office keeps an unlimited, ordered
+ * list of these and the band rotates through them (captain, 2026-10-02).
+ */
+export type HomeTitleSet = {
+  id: string;
+  /** The headline line ("We're here for you"). */
+  headline: string;
+  /** The supporting line under it ("any hour, any day."). */
+  promise: string;
+};
+
 /** Section 1 · the gateway — centred words and the call. */
 export type HomeGatewaySection = {
   /** The place line above the headline; defaults to the contact location. */
   place: string;
-  headline: string;
-  /** The second line of the headline, painted in the sky ink. */
-  promise: string;
+  /**
+   * The ordered title sets the band rotates through. The first renders on the
+   * server and is the one a reduced-motion reader always sees. An empty list is
+   * refused by the save validator (the band would carry no heading).
+   */
+  titleSets: HomeTitleSet[];
+  /** Seconds each title set stays on screen; the office sets it. Default 5. */
+  titleIntervalSeconds: number;
+  /**
+   * The paragraph that once sat under the headline. The band no longer renders
+   * it (captain, 2026-10-02: "too long … shorter, simpler"); the editor keeps
+   * the field editable so the office's words are not lost.
+   */
   lead: string;
   /** The ONE call action is BOUND to the 24/7 line (content.contact); only the
    *  supporting action is authored here. */
@@ -536,8 +559,10 @@ function authoredText(content: LandingContent): string[] {
   // The seven home sections — every string a member of staff can type there.
   const home = content.home;
   push(home.gateway.place);
-  push(home.gateway.headline);
-  push(home.gateway.promise);
+  for (const set of home.gateway.titleSets) {
+    push(set.headline);
+    push(set.promise);
+  }
   push(home.gateway.lead);
   push(home.gateway.secondary.label);
   for (const f of home.gateway.facts) {
@@ -740,6 +765,24 @@ function readHomeFact(raw: unknown, index: number): HomeFact | null {
   return { id: str(r.id) || `fact-${index + 1}`, label, note };
 }
 
+function readHomeTitleSet(raw: unknown, index: number): HomeTitleSet | null {
+  const r = asRecord(raw);
+  const headline = str(r.headline);
+  const promise = str(r.promise);
+  // Drop only a set with no words at all; a whitespace-only field is kept so the
+  // validator can name it instead of the set vanishing on save.
+  if (!headline && !promise) return null;
+  return { id: str(r.id) || `title-${index + 1}`, headline, promise };
+}
+
+/** The rotation's whole-second interval, clamped to a sane authored range. */
+function readTitleInterval(raw: unknown, fallbackValue: number): number {
+  const value =
+    typeof raw === "number" ? raw : typeof raw === "string" ? Number.parseInt(raw, 10) : Number.NaN;
+  if (!Number.isFinite(value)) return fallbackValue;
+  return Math.min(120, Math.max(1, Math.round(value)));
+}
+
 /** The seeded section, used field by field when a saved document predates the
  *  home model (or a hand-edited store omits one) — a legacy document keeps the
  *  approved plan rather than rendering a broken band. */
@@ -771,10 +814,34 @@ function readHomeSections(raw: unknown, fallback: HomeSections): HomeSections {
     welcome: text(introRaw, "welcome", fallback.intro.welcome),
   };
 
+  // The band's title sets (captain, 2026-10-02). A saved document from before
+  // this feature keeps its one headline/promise pair: the reader folds it into
+  // the first set rather than dropping the band's words.
+  const rawTitleSets = arr(gatewayRaw.titleSets)
+    .map(readHomeTitleSet)
+    .filter((set): set is HomeTitleSet => set !== null);
+  const legacyHeadline = str(gatewayRaw.headline);
+  const legacyPromise = str(gatewayRaw.promise);
+  const titleSets: HomeTitleSet[] =
+    rawTitleSets.length > 0
+      ? rawTitleSets
+      : legacyHeadline || legacyPromise
+        ? [
+            {
+              id: "title-1",
+              headline: legacyHeadline || fallback.gateway.titleSets[0]?.headline || "",
+              promise: legacyPromise,
+            },
+          ]
+        : fallback.gateway.titleSets;
+
   const gateway: HomeGatewaySection = {
     place: text(gatewayRaw, "place", fallback.gateway.place),
-    headline: text(gatewayRaw, "headline", fallback.gateway.headline),
-    promise: text(gatewayRaw, "promise", fallback.gateway.promise),
+    titleSets,
+    titleIntervalSeconds: readTitleInterval(
+      gatewayRaw.titleIntervalSeconds,
+      fallback.gateway.titleIntervalSeconds,
+    ),
     lead: text(gatewayRaw, "lead", fallback.gateway.lead),
     secondary: cta(gatewayRaw.secondary, fallback.gateway.secondary),
     facts: list(gatewayRaw.facts, readHomeFact, fallback.gateway.facts),
@@ -1162,8 +1229,23 @@ export function validateLandingContent(
   // checked against the store that owns it, exactly like the plans-and-lots
   // cards above — a save can never orphan a figure.
   const home = content.home;
-  if (!home.gateway.headline.trim()) {
-    return { ok: false, error: "The gateway headline can't be empty." };
+  if (home.gateway.titleSets.length === 0) {
+    return { ok: false, error: "The gateway needs at least one title set." };
+  }
+  for (const set of home.gateway.titleSets) {
+    if (!set.headline.trim()) {
+      return { ok: false, error: "Every gateway title set needs its headline line." };
+    }
+  }
+  if (
+    !Number.isInteger(home.gateway.titleIntervalSeconds) ||
+    home.gateway.titleIntervalSeconds < 1 ||
+    home.gateway.titleIntervalSeconds > 120
+  ) {
+    return {
+      ok: false,
+      error: "The gateway rotation interval must be a whole number of seconds from 1 to 120.",
+    };
   }
   if (!home.gateway.secondary.label.trim() || !home.gateway.secondary.href.trim()) {
     return { ok: false, error: "The gateway's supporting action needs a label and a destination." };

@@ -554,3 +554,118 @@ describe("landing copy stays inside the product typeface", () => {
     }
   });
 });
+
+/**
+ * The home gateway's title sets (captain, 2026-10-02).
+ *
+ * The opening band's title pair became an UNLIMITED, ordered set the office
+ * manages, rotating on an interval the office sets. The seed carries three demo
+ * pairs (the current one first) so the rotation is visible in fixture mode; the
+ * save validator refuses a document the band could not render, and a document
+ * saved before this feature folds its one headline/promise pair into the first
+ * set instead of losing the band's words.
+ */
+describe("the home gateway's title sets", () => {
+  it("seeds three demo sets with the current pair first and a 5-second interval", async () => {
+    const content = await listLandingContent();
+    const { titleSets, titleIntervalSeconds } = content.home.gateway;
+    expect(titleSets).toHaveLength(3);
+    expect(titleSets[0]).toEqual({
+      id: "title-1",
+      headline: "We're here for you",
+      promise: "any hour, any day.",
+    });
+    expect(titleIntervalSeconds).toBe(5);
+    // Every set is a headline plus its supporting line, with its own id.
+    for (const set of titleSets) {
+      expect(set.headline.trim().length).toBeGreaterThan(0);
+      expect(set.promise.trim().length).toBeGreaterThan(0);
+    }
+    expect(new Set(titleSets.map((set) => set.id)).size).toBe(titleSets.length);
+    expect(validateLandingContent(content, LOT_PRICE_CATEGORIES).ok).toBe(true);
+  });
+
+  it("refuses an empty set list — the band would carry no heading", async () => {
+    const content = await listLandingContent();
+    const bad = cloneDoc(content);
+    bad.home.gateway.titleSets = [];
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/at least one title set/i);
+  });
+
+  it("refuses a set whose headline line is blank, naming the rule", async () => {
+    const content = await listLandingContent();
+    const bad = cloneDoc(content);
+    bad.home.gateway.titleSets = [
+      { id: "title-1", headline: "   ", promise: "any hour, any day." },
+    ];
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/headline line/i);
+  });
+
+  it("holds the rotation interval to whole seconds from 1 to 120", async () => {
+    const content = await listLandingContent();
+    for (const interval of [1, 5, 120]) {
+      const doc = cloneDoc(content);
+      doc.home.gateway.titleIntervalSeconds = interval;
+      expect(validateLandingContent(doc, LOT_PRICE_CATEGORIES).ok, `${interval}`).toBe(true);
+    }
+    for (const interval of [0, 121, 2.5, Number.NaN]) {
+      const doc = cloneDoc(content);
+      doc.home.gateway.titleIntervalSeconds = interval;
+      const verdict = validateLandingContent(doc, LOT_PRICE_CATEGORIES);
+      expect(verdict.ok, `${interval}`).toBe(false);
+      if (!verdict.ok) expect(verdict.error).toMatch(/whole number of seconds from 1 to 120/);
+    }
+  });
+
+  it("folds a pre-feature document's one headline/promise pair into the first set", async () => {
+    const content = await listLandingContent();
+    const legacy = cloneDoc(content) as unknown as Record<string, unknown>;
+    const gateway = { ...(legacy.home as { gateway: Record<string, unknown> }).gateway };
+    delete gateway.titleSets;
+    delete gateway.titleIntervalSeconds;
+    gateway.headline = "We're here for you";
+    gateway.promise = "any hour, any day.";
+    (legacy.home as Record<string, unknown>).gateway = gateway;
+    const read = readLandingContent(legacy);
+    expect(read.home.gateway.titleSets).toEqual([
+      { id: "title-1", headline: "We're here for you", promise: "any hour, any day." },
+    ]);
+    // A document with neither new nor legacy title copy keeps the seed's sets.
+    const bare = cloneDoc(content) as unknown as Record<string, unknown>;
+    const bareGateway = { ...(bare.home as { gateway: Record<string, unknown> }).gateway };
+    delete bareGateway.titleSets;
+    delete bareGateway.headline;
+    delete bareGateway.promise;
+    (bare.home as Record<string, unknown>).gateway = bareGateway;
+    expect(readLandingContent(bare).home.gateway.titleSets).toHaveLength(3);
+  });
+
+  it("clamps a hand-edited interval instead of trusting it", async () => {
+    const content = await listLandingContent();
+    for (const [raw, expected] of [
+      [0, 1],
+      [-4, 1],
+      [999, 120],
+      [" 7 ", 7],
+      ["nonsense", 5],
+      [3.4, 3],
+    ] as const) {
+      const doc = cloneDoc(content) as unknown as Record<string, unknown>;
+      (doc.home as { gateway: Record<string, unknown> }).gateway.titleIntervalSeconds = raw;
+      expect(readLandingContent(doc).home.gateway.titleIntervalSeconds, `${raw}`).toBe(expected);
+    }
+  });
+
+  it("applies the emoji gate to a title set's words", async () => {
+    const content = await listLandingContent();
+    const bad = cloneDoc(content);
+    bad.home.gateway.titleSets[0].headline = "We're here for you 🌿";
+    const verdict = validateLandingContent(bad, LOT_PRICE_CATEGORIES);
+    expect(verdict.ok).toBe(false);
+    if (!verdict.ok) expect(verdict.error).toMatch(/carr(y|ies) no emoji/);
+  });
+});
