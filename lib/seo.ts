@@ -154,9 +154,10 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   // the /packages listing all redirect here or to a package detail
   // (next.config.ts) — a redirect is not a public page.
   { path: "/price-list", changeFrequency: "weekly", priority: 0.9 },
-  // The dedicated General Price List (captain, 2026-10-02): the itemised list
-  // and its PDF, built from the same recorded 2026 data.
-  { path: "/general-price-list", changeFrequency: "monthly", priority: 0.8 },
+  // /general-price-list is deliberately NOT here (captain, 2026-10-02): it is a
+  // route handler that serves the LITERAL PDF, not an HTML page, and a sitemap
+  // advertises pages. The document is linked from /price-list and the footer;
+  // the explicit-download export branch is robots-disallowed under /api/.
   { path: "/products", changeFrequency: "monthly", priority: 0.8 },
   // The old /lots listing is retired (captain, 2026-09-30): the lots view lives
   // inside the park page at /map?tab=lots, covered by the /map entry below.

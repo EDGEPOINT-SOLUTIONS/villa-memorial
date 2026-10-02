@@ -4,7 +4,7 @@ import { parseAccessTokenClaims, ACCESS_COOKIE } from "@/lib/auth/session";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { paperToPdfBuffer } from "@/lib/export/pdf";
 import { paperProfileById } from "@/lib/export/paper-profile";
-import { buildGeneralPriceListPaper } from "@/lib/general-price-list";
+import { renderGeneralPriceListPdf } from "@/lib/general-price-list";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { listLandingContent } from "@/lib/api-client/landing";
 import type { PaperBlock } from "@/lib/export/types";
@@ -14,8 +14,8 @@ import type { PaperBlock } from "@/lib/export/types";
  * Price List as a PDF.
  *
  * The price list is public data, so this branch is deliberately unsigned: it
- * builds the document server-side from the SAME `buildGeneralPriceListPaper`
- * the /general-price-list page renders, then hands the blocks to the paper
+ * builds the document server-side from the SAME `renderGeneralPriceListPdf`
+ * the /general-price-list route serves, then hands the blocks to the paper
  * layer. It is a pure renderer — no data is added and no service is reached
  * beyond the public pricing store. Every other profile stays behind the staff
  * session in POST below.
@@ -30,8 +30,7 @@ export async function GET(request: Request) {
       loadPricingDocument(),
       listLandingContent(),
     ]);
-    const { profile, blocks } = buildGeneralPriceListPaper(pricing, content.contact);
-    const buffer = await paperToPdfBuffer(blocks, profile);
+    const buffer = await renderGeneralPriceListPdf(pricing, content.contact);
     return new NextResponse(new Uint8Array(buffer), {
       status: 200,
       headers: {

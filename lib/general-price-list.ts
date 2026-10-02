@@ -1,5 +1,5 @@
 /**
- * The General Price List — ONE source for the public page and its PDF.
+ * The General Price List — ONE source for the public PDF and the export branch.
  *
  * The captain asked for a dedicated General Price List page and "the same thing
  * as a PDF" (2026-10-02, inbox 004): an itemised list in the convention of the
@@ -16,12 +16,15 @@
  * "quoted, not listed" rule — the office prepares a written quotation — so they
  * are itemised with an explicit "Quoted" and no invented amount.
  *
- * The page (`app/(public)/general-price-list/page.tsx`) and the PDF route
- * (`app/api/export/paper-pdf?document=general-price-list`) both call
- * `buildGeneralPriceList` / `buildGeneralPriceListPaper`, so the screen and the
- * printed file cannot drift. The a-la-carte service figures that ARE recorded
- * stay in `lib/villa-pricing.ts` as the office's quotation source and are
- * deliberately not printed here (captain's minutes 2026-09-21, item 5).
+ * The public route `GET /general-price-list` serves this document AS THE PDF
+ * (captain, 2026-10-02): the route handler answers `application/pdf` inline, so
+ * the browser's own viewer opens the price list and no coded HTML rendition
+ * exists to drift from the paper. `buildGeneralPriceListPaper` +
+ * `renderGeneralPriceListPdf` are the one builder the public route and the
+ * explicit-download branch (`GET /api/export/paper-pdf?document=general-price-list`)
+ * share. The a-la-carte service figures that ARE recorded stay in
+ * `lib/villa-pricing.ts` as the office's quotation source and are deliberately
+ * not printed here (captain's minutes 2026-09-21, item 5).
  */
 
 import {
@@ -35,6 +38,7 @@ import { PLAN_TERM_DEFS, planRateOf, type PricingDocument } from "@/lib/pricing-
 import type { ContactInfo } from "@/lib/api-client/landing";
 import { line, space, table, type PaperBlock } from "@/lib/export/types";
 import { PAPER_PROFILES, type PaperProfile } from "@/lib/export/paper-profile";
+import { paperToPdfBuffer } from "@/lib/export/pdf";
 
 /** The office's published branches, read from the plan document's `serving` note. */
 export const GPL_BRANCHES: ReadonlyArray<string> = [
@@ -307,4 +311,17 @@ export function buildGeneralPriceListPaper(
   }
 
   return { profile, blocks };
+}
+
+/**
+ * The General Price List as real PDF bytes — the ONE builder the public route
+ * and the export branch share, so the browser's inline viewer and the explicit
+ * download can never serve different documents.
+ */
+export async function renderGeneralPriceListPdf(
+  pricing: PricingDocument,
+  contact: ContactInfo,
+): Promise<Buffer> {
+  const { profile, blocks } = buildGeneralPriceListPaper(pricing, contact);
+  return paperToPdfBuffer(blocks, profile);
 }
