@@ -297,6 +297,24 @@ than claiming delivery. That ask is already §9's notification service; no new o
 **Who can act.** The platform (freeze the customer-records read/write and the roster/user-list
 read).
 
+## 11. Platform ask — the family account link on an inquiry (2026-10-02)
+
+**Status: OPEN — platform-owned.** The captain's 2026-10-02 decision requires a plan or lot
+inquiry to belong to a family account and to be tracked in that family's portal. No frozen
+`crm-families` contract names an account link, so the villa build added a provisional `user_id`
+to the `Inquiry` row (`lib/api-client/crm.ts`, documented there). The plan/lot surfaces link to
+the family gate `app/(family)/client/ask`, and the gated write `POST /api/family/inquiries`
+(`app/api/family/inquiries/route.ts`) stamps the row with the session's user id; the family read
+`listFixtureInquiriesForUser` filters the SAME durable journal the office board folds. The reader
+tolerates `user_id` being absent, so every front-desk entry and every public service/product
+inquiry (which needs no account) is unaffected.
+
+**What waits.** A frozen inquiry `owner`/`user_id` field (or an equivalent customer link) on the
+crm-families write and read contracts. When it lands, the live branch's `toInquiry` maps the wire
+shape to this one and no screen changes.
+
+**Who can act.** The platform (freeze the field on `crm-families`).
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
@@ -306,6 +324,7 @@ phases 4–7). Updated 2026-09-30 — §8 added (the provisional structured quot
 quote-page revisioning, captain D6-A) and §9 added (the contracts the family command centre
 exposes). Updated 2026-10-01 — §9's funeral row and the route coverage updated: the family
 arrangement is connected to the office's recorded case fixture. Updated 2026-10-02 — §10 added
-(the Prospects lifecycle's customer-records write/read and the agent-roster read). The audit and
+(the Prospects lifecycle's customer-records write/read and the agent-roster read); §11 added
+(the family account link a plan/lot inquiry needs, and its gate). The audit and
 the linked documents remain the authoritative
 record.*

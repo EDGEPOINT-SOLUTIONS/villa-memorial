@@ -32,6 +32,7 @@ import { legendEntry, type PlotArea } from "@/lib/park-maps";
 import type { Lot } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
 import { plotDimensionsMetres } from "@/lib/park-3d/plot-geometry";
+import { familyAskHref, LOT_ASK_LABEL } from "@/lib/family/ask";
 
 const TYPE_LABEL: Record<string, string> = {
   individual: "Individual lot",
@@ -147,13 +148,22 @@ export function PlotDetails({
             <>
               <p className="text-sm text-muted">
                 This lot is available. Buying online arrives with the lot-checkout contract (dev) —
-                meanwhile, request a reservation and the park office will confirm it.
+                meanwhile, ask the park office about it and they will confirm what is possible.
               </p>
               <a
                 className="btn btn--accent btn--sm btn--block"
-                href={"/contact?topic=lot-reservation&lot=" + encodeURIComponent(linkedLot.lot_number)}
+                href={familyAskHref({
+                  kind: "lot",
+                  item: `Lot ${linkedLot.lot_number} (${linkedLot.section}, block ${linkedLot.block})`,
+                  price:
+                    linkedLot.price_cents > 0
+                      ? formatMinorUnits(linkedLot.price_cents, linkedLot.currency)
+                      : undefined,
+                  amountCents: linkedLot.price_cents > 0 ? linkedLot.price_cents : undefined,
+                  note: "Asking does not reserve the lot — the park office confirms availability.",
+                })}
               >
-                Request to reserve {linkedLot.lot_number}
+                {LOT_ASK_LABEL}
               </a>
             </>
           ) : null

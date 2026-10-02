@@ -115,6 +115,7 @@ function toInquiry(raw: unknown): Inquiry {
     assigned_to: typeof r.assigned_to === "string" ? r.assigned_to : "Unassigned",
     status: requiredString(r.status, "inquiry status") as Inquiry["status"],
     received_at: requiredString(r.received_at, "inquiry received_at"),
+    ...(typeof r.user_id === "string" && r.user_id.trim() ? { user_id: r.user_id.trim() } : {}),
     ...(lines.length > 0 ? { lines } : {}),
   };
 }
@@ -210,6 +211,21 @@ export async function getFixtureInquiry(id: string): Promise<Inquiry | null> {
 }
 
 /**
+ * Every enquiry the SIGNED-IN FAMILY has asked, newest first (captain,
+ * 2026-10-02: plan & lot inquiries are tracked in the family's own portal).
+ *
+ * It reads the SAME durable journal the office board reads — one record, one
+ * source — filtered by the account the row was recorded under. A row with no
+ * `user_id` (every front-desk entry, every public submission) belongs to no
+ * family and is never shown here.
+ */
+export async function listFixtureInquiriesForUser(userId: string): Promise<Inquiry[]> {
+  if (!userId) return [];
+  const rows = await listFixtureInquiries();
+  return rows.filter((row) => row.user_id === userId).map((row) => structuredClone(row));
+}
+
+/**
  * Record an office status move (New → Contacted → Converted) for one enquiry.
  * Serialized with every other write, so a submission and a move never interleave.
  */
@@ -255,6 +271,8 @@ function nextReference(existing: ReadonlyArray<Inquiry>, year: number): string {
  */
 export function receiveInquiry(args: {
   intake: InquiryIntake;
+  /** The family account this inquiry belongs to, when it was asked signed in. */
+  user_id?: string;
   now?: Date;
 }): Promise<Inquiry> {
   const now = args.now ?? new Date();
@@ -288,6 +306,7 @@ export function receiveInquiry(args: {
       assigned_to: args.intake.assigned_to,
       status: "new",
       received_at: at,
+      ...(args.user_id && args.user_id.trim() ? { user_id: args.user_id.trim() } : {}),
     };
     await persistEvents([...events, { kind: "inquiry_received", at, inquiry }]);
     return structuredClone(inquiry);

@@ -401,12 +401,16 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 - Every sellable product/plan/lot line pairs the same two actions:
   `components/villa/catalogue-actions.tsx` (Add to quote with the row's exact catalogue
   SKU/price + the prefilled Request order); the funeral-service lines are
-  Request-for-Quote only (no quote-basket action). **Lots joined the QUOTE BASKET
-  2026-09-29** (`components/villa/lot-quote-button.tsx`), so a family can ask about a
-  lot and a casket together; `/lots/price-list-2026` keeps Request this lot + `/map`
-  beside it. Plan tier × term goes through `lib/plan-selection.ts`
-  (quote basket only for a monthly, non-senior tier the catalogue carries; every other
-  selection opens the request naming that term's sheet amount).
+  Request-for-Quote only (no quote-basket action). **Plan & lot inquiries are GATED
+  behind a family account (captain, 2026-10-02):** their actions link to the family gate
+  `app/(family)/client/ask` (`lib/family/ask.ts`), a signed-out visitor is returned after
+  sign-in, and the signed-in press records the inquiry through
+  `app/api/family/inquiries/route.ts` against the account (`user_id`), so the family
+  portal's `/client/inquiries` and the office board read one row. A lot's one action is
+  exactly “Ask about this lot” (lots no longer join the public quote basket;
+  `components/villa/lot-quote-button.tsx` is retired). Plan tier × term goes through
+  `lib/plan-selection.ts` (cart for a monthly, non-senior tier the catalogue carries;
+  every other selection opens the family ask gate naming that term's sheet amount).
 - Two open client questions are published as the sheets print them rather than
   reconciled — keep it that way until the client answers: (1) sheet III's chapel table
   computes the senior column at 96% of the regular total (₱1,440/₱3,360 per day) while

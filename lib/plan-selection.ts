@@ -14,6 +14,11 @@
  * The plan's rate card itself is untouched: every amount here comes from the
  * CURRENT pricing document (lib/api-client/pricing.ts → planRateOf), never a
  * constant, so an office edit is what the visitor requests.
+ *
+ * GATED (captain, 2026-10-02): a plan inquiry needs a family account, so the
+ * request href is the family ask gate (`familyAskHref` → `/client/ask`), which
+ * takes a signed-out visitor to sign-in and records the inquiry against the
+ * account after. The cart path (a real order) is unchanged.
  */
 import { planTierPackageSku } from "@/lib/catalogue-skus";
 import {
@@ -24,7 +29,8 @@ import {
   type PlanTerm,
 } from "@/lib/pricing-model";
 import { PLAN_TIERS, php2 } from "@/lib/villa-pricing";
-import { buildRequestHref, type RequestPrefill } from "@/lib/public-forms/request-prefill";
+import type { RequestPrefill } from "@/lib/public-forms/request-prefill";
+import { familyAskHref } from "@/lib/family/ask";
 
 export type PlanSelectionAction =
   | { kind: "cart"; sku: string }
@@ -53,15 +59,31 @@ export function planRequestAction({
   if (!termDef) throw new Error(`Unknown plan term: ${term}`);
   const tierName = PLAN_TIERS.find((t) => t.id === tier)?.name ?? tier;
   const amount = planRateOf(pricing, tier, term, senior);
+  const price = `${php2(amount)} ${termDef.per}`;
   const prefill: RequestPrefill = {
     item: `${tierName} plan — ${termDef.label}`,
     sku,
-    price: `${php2(amount)} ${termDef.per}`,
+    price,
     note: senior
       ? "Senior-citizen rates (61–100 years old, no insurance benefit)."
       : "Villa Memorial Plan enquiry.",
   };
-  return { kind: "request", href: buildRequestHref(prefill), prefill };
+  // The inquiry is gated behind a family account (captain, 2026-10-02): the link
+  // opens the family ask gate, which signs the visitor in and records the
+  // inquiry against the account. The same item/SKU/price/note wording travels,
+  // so the gate and the recorded row name exactly what was clicked.
+  return {
+    kind: "request",
+    href: familyAskHref({
+      kind: "plan",
+      item: prefill.item,
+      sku: prefill.sku,
+      price: prefill.price,
+      amountCents: Math.round(amount * 100),
+      note: prefill.note,
+    }),
+    prefill,
+  };
 }
 
 export function planSelectionAction({

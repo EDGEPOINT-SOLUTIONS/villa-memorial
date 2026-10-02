@@ -221,7 +221,7 @@ export type CtaRungRule = {
  *
  *   1. commit  — sky, the PAGE's commitment: Pay · Send · Book · Search · Sign in.
  *                At most ONE per band and at most one above the fold.
- *   2. item    — gold, per-ITEM commerce: Add to quote · Request this lot ·
+ *   2. item    — gold, per-ITEM commerce: Add to quote · Ask about this lot ·
  *                Ask about this plan · Check dates. One per row (that is per
  *                item, not per band).
  *   3. support — outline, everything else: back, nav, filters' Clear.
@@ -239,7 +239,7 @@ export const CTA_RUNGS: Readonly<Record<CtaRung, CtaRungRule>> = {
   item: {
     className: "btn--accent",
     colour: "gold",
-    role: "per-item commerce: Add to quote, Request this lot, Ask about this plan",
+    role: "per-item commerce: Add to quote, Ask about this lot, Ask about this plan",
     limit: "one per row (per item, not per band)",
   },
   support: {

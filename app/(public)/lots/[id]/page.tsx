@@ -11,7 +11,7 @@ import { LOT_FAMILY_BY_SECTION } from "@/lib/catalog-sources";
 import { lotFamilyMonthlyPrice } from "@/lib/monthly-pricing";
 import { formatMinorUnits } from "@/lib/money";
 import { php, php2 } from "@/lib/villa-pricing";
-import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { familyAskHref, LOT_ASK_LABEL } from "@/lib/family/ask";
 import { lotPhoto } from "@/lib/lot-imagery";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import { containerClass } from "@/lib/public-layout";
@@ -86,6 +86,28 @@ export default async function PublicLotDetailPage({
   const family = LOT_FAMILY_BY_SECTION[lot.section.toUpperCase()];
   const monthly =
     family && pricing ? lotFamilyMonthlyPrice(pricing.lotCategories, family) : null;
+
+  // The family ask gate (captain, 2026-10-02): the page's one lot inquiry action.
+  const askHref = familyAskHref({
+    kind: "lot",
+    item: `Lot ${lot.lot_number} (${lot.section}, block ${lot.block})`,
+    price: monthly
+      ? `${php2(monthly.monthly)} / month${
+          monthly.total !== null ? ` · total contract price ${php(monthly.total)}` : ""
+        }`
+      : lot.price_cents > 0
+        ? formatMinorUnits(lot.price_cents, lot.currency)
+        : undefined,
+    amountCents:
+      monthly?.total != null
+        ? Math.round(monthly.total * 100)
+        : monthly?.monthly != null
+          ? Math.round(monthly.monthly * 100)
+          : lot.price_cents > 0
+            ? lot.price_cents
+            : undefined,
+    note: "Asking does not reserve the lot — the park office confirms availability.",
+  });
   const monthlyLead = monthly
     ? `${TYPE_LABEL[lot.type] ?? lot.type} · ${lot.section}, block ${lot.block} · ${lot.area_sqm} sqm · ${php2(monthly.monthly)} / month`
     : `${TYPE_LABEL[lot.type] ?? lot.type} · ${lot.section}, block ${lot.block} · ${lot.area_sqm} sqm`;
@@ -184,19 +206,8 @@ export default async function PublicLotDetailPage({
             office holds the lot for you and confirms the terms.
           </p>
           <div className="row row--wrap">
-            <Link
-              className="btn btn--accent"
-              href={buildRequestHref({
-                item: `Lot ${lot.lot_number} (${lot.section}, block ${lot.block})`,
-                price: monthly
-                  ? `${php2(monthly.monthly)} / month${monthly.total !== null ? ` · total contract price ${php(monthly.total)}` : ""}`
-                  : lot.price_cents > 0
-                    ? formatMinorUnits(lot.price_cents, lot.currency)
-                    : undefined,
-                note: "Hold request — nothing is reserved by this message.",
-              })}
-            >
-              Ask the office to hold this lot
+            <Link className="btn btn--accent" href={askHref}>
+              {LOT_ASK_LABEL}
             </Link>
           </div>
         </div>

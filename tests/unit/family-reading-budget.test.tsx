@@ -101,6 +101,7 @@ const { default: PlanPage } = await import("@/app/(family)/client/plans/page");
 const { default: LotPage } = await import("@/app/(family)/client/property/page");
 const { default: VisitPage } = await import("@/app/(family)/client/appointments/page");
 const { default: RequestsPage } = await import("@/app/(family)/client/requests/page");
+const { default: InquiriesPage } = await import("@/app/(family)/client/inquiries/page");
 const { default: NoticesPage } = await import("@/app/(family)/client/notifications/page");
 const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/page");
 const { default: FamilyDashboardPage } = await import("@/app/(family)/client/family/page");
@@ -120,6 +121,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; gap?: boolean }> = [
   { name: "Your lot", Page: LotPage },
   { name: "Ask for a visit", Page: VisitPage },
   { name: "Requests", Page: RequestsPage },
+  { name: "Inquiries", Page: InquiriesPage },
   { name: "What we tell you about", Page: NoticesPage },
   { name: "Privacy Center", Page: PrivacyPage },
   { name: "Your family", Page: FamilyDashboardPage },

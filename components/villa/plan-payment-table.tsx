@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { familyAskHref } from "@/lib/family/ask";
 import { php, PLAN_TIERS, PLAN_TERMS, type PaymentRow } from "@/lib/villa-pricing";
 
 /**
@@ -13,11 +13,13 @@ import { php, PLAN_TIERS, PLAN_TERMS, type PaymentRow } from "@/lib/villa-pricin
  * from the CURRENT pricing store document the server page hands down
  * (lib/api-client/pricing.ts).
  *
- * Every amount is ACTIONABLE: each tier × term cell links to the prefilled
- * request naming the tier, the payment mode and the published amount the visitor
- * clicked. The quote basket itself only prices the monthly amortization (the catalogue's
- * plan SKUs), so the other terms, the tiers without a SKU and the senior rates
- * are requested from the office — an enquiry, never a reservation.
+ * Every amount is ACTIONABLE: each tier × term cell links to the family ask gate
+ * naming the tier, the payment mode and the published amount the visitor clicked
+ * (captain, 2026-10-02: a plan inquiry requires a family account and is tracked
+ * in the family's portal). The quote basket itself only prices the monthly
+ * amortization (the catalogue's plan SKUs), so the other terms, the tiers without
+ * a SKU and the senior rates are requested from the office — an enquiry, never a
+ * reservation.
  */
 export function PlanPaymentTable({
   rows,
@@ -57,9 +59,11 @@ export function PlanPaymentTable({
                   <td key={t.id} className="table__numeric" data-tier={t.name}>
                     <Link
                       className="price-request-link"
-                      href={buildRequestHref({
+                      href={familyAskHref({
+                        kind: "plan",
                         item: `${t.name} plan — ${r.mode}`,
                         price: `${php(r[t.id])} ${per}`.trim(),
+                        amountCents: Math.round(r[t.id] * 100),
                         note: senior
                           ? "Senior-citizen rates (61–100 years old, no insurance benefit)."
                           : "Villa Memorial Plan enquiry.",

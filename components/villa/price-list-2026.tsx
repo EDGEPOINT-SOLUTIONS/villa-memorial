@@ -10,28 +10,28 @@
  * never authors a number, and an office edit through /staff/pricing is what it
  * prints.
  *
- * Lots join the QUOTE BASKET as their own kind of line (office, 2026-09-29):
- * they never merge into a stock line, because a lot needs a buyer, a block/lot
- * number and a signed
- * purchase agreement), so every row carries the two honest actions instead:
- * "Request this lot" — the prefilled contact capture naming the category, the
- * row and the published selling price — and "See it on the map". A request is an
- * enquiry and never reserves the lot.
+ * Lots carry the family gate (captain, 2026-10-02: a lot inquiry needs a family
+ * account and is tracked in the family's portal), so every row's one inquiry
+ * action says exactly "Ask about this lot" and opens `/client/ask` carrying the
+ * category, the row and the published selling price — the office then sees the
+ * ask in the same store the family's own portal reads. The map link stays beside
+ * it. A request is an enquiry and never reserves the lot.
  */
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { LotQuoteButton } from "@/components/villa/lot-quote-button";
 import { PublicDisclosure } from "@/components/public";
-import { buildRequestHref } from "@/lib/public-forms/request-prefill";
+import { familyAskHref, LOT_ASK_LABEL } from "@/lib/family/ask";
 import type { LotCategory, LotPriceRow } from "@/lib/pricing-model";
 import { php } from "@/lib/villa-pricing";
 
-/** One row's "Request this lot" href. */
+/** One row's "Ask about this lot" href — the family ask gate. */
 function lotRequestHref(category: string, row: LotPriceRow): string {
-  return buildRequestHref({
+  return familyAskHref({
+    kind: "lot",
     item: `${category} — ${row.product}`,
     price: `${php(row.regular.selling)} regular selling price (senior citizen ${php(row.senior.selling)})`,
-    note: `${row.area} sqm · 6-year amortization. Requesting a lot does not reserve it — the office confirms availability.`,
+    amountCents: Math.round(row.regular.selling * 100),
+    note: `${row.area} sqm · 6-year amortization. Asking about a lot does not reserve it — the office confirms availability.`,
   });
 }
 
@@ -90,13 +90,9 @@ export function PriceList2026Tables({
                     <td>
                       <div className="lot-row__name">{r.product}</div>
                       <div className="lot-row__actions">
-                        <LotQuoteButton
-                          category={cat.title}
-                          product={r.product}
-                          area={r.area}
-                          sellingPrice={r.regular.selling}
-                        />
-                        <Link href={lotRequestHref(cat.title, r)}>Request this lot</Link>
+                        <Link href={lotRequestHref(cat.title, r)} className="btn btn--accent btn--sm">
+                          {LOT_ASK_LABEL}
+                        </Link>
                         <Link href="/map">See it on the map</Link>
                       </div>
                     </td>

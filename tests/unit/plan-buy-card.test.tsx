@@ -60,12 +60,14 @@ describe("the plan buy card opens on the page's own tier", () => {
     expect(html).toContain("Use senior-citizen rates");
   });
 
-  it("falls back to the request path when the tier has no catalogue SKU", () => {
+  it("falls back to the family ask gate when the tier has no catalogue SKU", () => {
     // Bronze 2 has no package SKU, so even the opening state must be actionable
-    // through the request — the card never renders a dead end.
+    // through the request — the card never renders a dead end. Since 2026-10-02
+    // a plan inquiry requires a family account, so it opens the family ask gate.
     const html = render({ pricing, item, ownTier: "bronze2" });
     expect(html).toContain("Request this plan");
-    expect(html).toContain("/contact?item=");
+    expect(html).toContain("/client/ask?kind=plan");
+    expect(html).toContain(`item=Bronze+2+plan+%E2%80%94+Monthly`);
     expect(html).toContain(`${php2(planRate("bronze2", "monthly"))}`);
   });
 });

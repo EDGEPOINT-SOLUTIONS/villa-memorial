@@ -338,8 +338,10 @@
   typed into the view. `tests/unit/villa-services-premium.test.tsx` pins the grouping,
   the illustrative labels and the detail content.
 - WCAG 2.5.3 label-content-name (fixed): every add control's accessible name must START
-  with its visible label — `CatalogueAddButton` renders `` `${label}: ${item.name}` `` and
-  `LotQuoteButton` renders `Add to quote: <product> lot`, both matching their visible text.
+  with its visible label — `CatalogueAddButton` renders `` `${label}: ${item.name}` ``.
+  The retired `LotQuoteButton` (which rendered `Add to quote: <product> lot`) is gone:
+  since 2026-10-02 a lot's one action is the family gate link “Ask about this lot”
+  (`lib/family/ask.ts`, `/client/ask`), whose accessible name is its visible text.
   `price-surfacing`, `cart-catalogue`, `quote-basket` and `villa-services-premium` pin the
   strings, so a label reworded without its aria-label fails there.
 

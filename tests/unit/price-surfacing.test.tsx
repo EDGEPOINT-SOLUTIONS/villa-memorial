@@ -68,7 +68,9 @@ const { planContentFromDocument } = await import("@/lib/plan-content");
 
 /** Every request link on the page, decoded into its params. */
 function requestLinks(html: string): URLSearchParams[] {
-  return [...html.matchAll(/href="\/contact\?([^"]+)"/g)].map(
+  // The public request capture (/contact) AND the family plan/lot gate
+  // (/client/ask) carry the same item/sku/price/note intent — walk both.
+  return [...html.matchAll(/href="\/(?:contact|client\/ask)\?([^"]+)"/g)].map(
     (m) => new URLSearchParams(m[1].replace(/&amp;/g, "&")),
   );
 }
@@ -356,12 +358,12 @@ describe("the plan payment tables render on every plan surface", () => {
   });
 });
 
-describe("/lots/price-list-2026 adds a lot to the QUOTE BASKET and keeps the request", () => {
+describe("/lots/price-list-2026 opens every lot row at the family ask gate", () => {
   let html: string;
 
   beforeAll(async () => {
-    // The page's rows now carry the add-to-quote control, which needs the
-    // shared basket (the app provides it in the public shell).
+    // The page's rows no longer join the public quote basket (a lot inquiry needs
+    // a family account since 2026-10-02); the rendered links are the family gate.
     html = renderToStaticMarkup(
       withBaskets( await LotsPriceListPage()),
     );
@@ -379,30 +381,23 @@ describe("/lots/price-list-2026 adds a lot to the QUOTE BASKET and keeps the req
     }
   });
 
-  it("offers an Add to quote control per row (the office's 2026-09-29 direction)", () => {
+  it("asks about every 2026 lot row through the family gate, with a map link", () => {
     const rows = LOT_PRICE_CATEGORIES.reduce((n, cat) => n + cat.rows.length, 0);
-    // One control per row (the aria-label is the reliable count; the visible
-    // label repeats it).
-    expect((html.match(/aria-label="Add to quote:/g) ?? []).length).toBe(rows);
-    // Every row still keeps its own request + map link beside it.
-    expect((html.match(/Request this lot/g) ?? []).length).toBe(rows);
-  });
-
-  it("offers Request this lot with the category and price, plus a map link", () => {
-    expect((html.match(/Request this lot/g) ?? []).length).toBe(
-      LOT_PRICE_CATEGORIES.reduce((n, cat) => n + cat.rows.length, 0),
+    // The captain's wording is exact: one "Ask about this lot" per row (2026-10-02).
+    expect((html.match(/Ask about this lot/g) ?? []).length).toBe(rows);
+    // No lot joins the public quote basket any more — lot inquiries need an account.
+    expect(html).not.toContain("Add to quote");
+    const links = requestLinks(html).filter(
+      (params) => params.get("kind") === "lot" && /selling price/.test(params.get("price") ?? ""),
     );
-    const links = requestLinks(html);
-    expect(links.length).toBe(LOT_PRICE_CATEGORIES.reduce((n, cat) => n + cat.rows.length, 0));
+    expect(links.length).toBe(rows);
     for (const link of links) {
       expect(link.get("item")).toBeTruthy();
       expect(link.get("price")).toMatch(/selling price/);
       expect(link.get("note")).toMatch(/does not reserve it/);
+      expect(link.get("amount")).toBeTruthy();
     }
     expect(html).toContain("See it on the map");
     expect(html).toContain('href="/map"');
-    // Lots join the QUOTE BASKET now (office, 2026-09-29) — the add control
-    // sits beside the request, and neither reserves anything.
-    expect(html).toContain("Add to quote");
   });
 });

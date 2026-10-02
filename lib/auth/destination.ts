@@ -119,3 +119,28 @@ export function portalHomeForSession(session: {
 export function portalHomeForClaims(scopes: string[], portal?: string | null): string {
   return homeForPortal(portalFromClaim(portal) ?? portalFromScopes(scopes));
 }
+
+/**
+ * A return path a portal owns, or null.
+ *
+ * Used by the sign-in round trip for a gated family inquiry (captain, 2026-10-02):
+ * a signed-out visitor is sent to the family sign-in with the `/client/ask` page
+ * as `next`, and lands back there after signing in. Only a site-local path under
+ * the portal's own prefix is accepted — never a scheme, a protocol-relative host
+ * or a `..` that climbs out — so a crafted link can never turn the door into an
+ * open redirect. The query string is kept because the gate carries its intent there.
+ */
+export function safePortalReturnPath(next: string, portal: Portal): string | null {
+  const prefix = portal === "family" ? "/client/" : portal === "agent" ? "/agent/" : "/staff/";
+  if (!next || !next.startsWith(prefix)) return null;
+  if (next.startsWith("//") || next.includes("\\") || next.includes("://")) return null;
+  try {
+    const base = new URL(next, "https://portal.invalid");
+    if (base.origin !== "https://portal.invalid") return null;
+    const path = `${base.pathname}${base.search}`;
+    if (!path.startsWith(prefix)) return null;
+    return path;
+  } catch {
+    return null;
+  }
+}

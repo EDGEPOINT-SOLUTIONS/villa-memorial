@@ -47,6 +47,7 @@ const { default: PlanPage } = await import("@/app/(family)/client/plans/page");
 const { default: LotPage } = await import("@/app/(family)/client/property/page");
 const { default: VisitPage } = await import("@/app/(family)/client/appointments/page");
 const { default: RequestsPage } = await import("@/app/(family)/client/requests/page");
+const { default: InquiriesPage } = await import("@/app/(family)/client/inquiries/page");
 const { default: NoticesPage } = await import("@/app/(family)/client/notifications/page");
 const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/page");
 const { default: FamilyDashboardPage } = await import("@/app/(family)/client/family/page");
@@ -63,6 +64,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; headline: string }> = [
   { name: "Your lot", Page: LotPage, headline: "is your family’s place at the park" },
   { name: "Ask for a visit", Page: VisitPage, headline: "we will set a day" },
   { name: "Requests", Page: RequestsPage, headline: "with us right now" },
+  { name: "Inquiries", Page: InquiriesPage, headline: "asked about a plan or a lot" },
   // The recorded plan has a due-soon instalment, so the page leads with its in-system
   // payment reminder; the honest empty state is pinned in family-calm-state instead.
   { name: "What we tell you about", Page: NoticesPage, headline: "payment reminder" },

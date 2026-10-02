@@ -46,6 +46,7 @@ export const FAMILY_PORTAL_GROUPS: PortalNavGroup[] = [
     items: [
       { key: "payments", label: "Payments", to: "/client/payments" },
       { key: "plans", label: "Your plan", to: "/client/plans" },
+      { key: "inquiries", label: "Your inquiries", to: "/client/inquiries" },
       { key: "property", label: "Your lot", to: "/client/property" },
     ],
   },

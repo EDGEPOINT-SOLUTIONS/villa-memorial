@@ -8,6 +8,7 @@ import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
 import { lotMonthlyPrice } from "@/lib/monthly-pricing";
 import { containerClass } from "@/lib/public-layout";
+import { familyAskHref } from "@/lib/family/ask";
 import { pageMetadata } from "@/lib/seo";
 import { PARK_PLACE_PHOTOS } from "@/lib/media";
 
@@ -64,7 +65,14 @@ export default async function PriceList2026Page() {
         eyebrow="Price list 2026"
         title="Lots, mausoleum & packages"
         lead="Six-year amortization, regular and senior."
-        primary={{ label: "Ask about a lot", href: "/contact" }}
+        primary={{
+          label: "Ask about a lot",
+          href: familyAskHref({
+            kind: "lot",
+            item: "Lots & mausoleum",
+            note: "Tell us which family and row you are asking about.",
+          }),
+        }}
         secondary={{ label: "Walk the park map", href: "/map" }}
       >
         <p className="catalogue-hero__facts">{plan.notes.adjust}</p>

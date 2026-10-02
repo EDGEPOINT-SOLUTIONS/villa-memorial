@@ -23,9 +23,12 @@ export type ItemQuoteLine = {
 
 /**
  * "Add to Quote" for a QUOTE-ONLY item action (office, inbox 047) — the same
- * pattern the lot button uses (`lot-quote-button.tsx`): the press adds the line
- * to the quote basket and the button confirms with "Added ✓" for a moment, so a
- * family can add several things and send them in one inquiry.
+ * add-and-confirm pattern the catalogue's other quote controls use: the press
+ * adds the line to the quote basket and the button confirms with "Added ✓" for a
+ * moment, so a family can add several things and send them in one inquiry.
+ *
+ * Lots are NOT here: since the captain's 2026-10-02 decision a lot inquiry needs
+ * a family account and lives behind the family ask gate ("Ask about this lot").
  *
  * The line is `on_request`: the funeral-service lines are quoted by hand (the
  * captain's minute 5 — those surfaces publish no figure), and the quote page

@@ -32,6 +32,7 @@ export function SignInCard({
   door,
   personas,
   fallbackDestination,
+  nextPath,
   quickFillPassword = null,
   heading,
   lead,
@@ -39,6 +40,12 @@ export function SignInCard({
   door: SignInDoor;
   personas: PersonaHint[];
   fallbackDestination: string;
+  /**
+   * The same-portal path to return to after signing in (a gated inquiry's gate
+   * page, for example). When omitted, the card reads `?next=` from the address
+   * bar — the sign-in route validates it, so a crafted value is ignored.
+   */
+  nextPath?: string;
   /** Server-resolved per request; null keeps the buttons email-only. */
   quickFillPassword?: string | null;
   /** The page document's welcome heading, or the shipped default. */
@@ -63,11 +70,17 @@ export function SignInCard({
     e.preventDefault();
     setError(null);
     setSubmitting(true);
+    // A gated inquiry's return path rides in the query string (`?next=`).
+    // Read here, validated by the login route — never trusted as a URL.
+    let returnTo = nextPath;
+    if (!returnTo && typeof window !== "undefined") {
+      returnTo = new URLSearchParams(window.location.search).get("next") ?? undefined;
+    }
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, ...(returnTo ? { next: returnTo } : {}) }),
       });
       if (!res.ok) {
         let message = "Sign-in is unavailable right now. Please try again.";

@@ -279,29 +279,29 @@ describe("the /lots product listing", () => {
  * One CTA grammar (captain follow-up, 2026-09-21: "tell me why in the lots, the
  * buttons or cta is not consistent"): every repeated control on /lots belongs
  * to the SAME ladder the public catalogue already uses — a card's primary
- * action is `.btn--accent` (the gold `Add to quote` rung), every supporting
- * action is `.btn--secondary`, and the panel's commit is `.btn--primary`,
- * the page-level rung. These pin the classes, not the colour.
+ * action is `.btn--accent`, every supporting action is `.btn--secondary`, and
+ * the panel's commit is `.btn--primary`, the page-level rung. These pin the
+ * classes, not the colour. Since 2026-10-02 the card's one action is the family
+ * gate's "Ask about this lot" (a lot inquiry needs a family account).
  */
 describe("one control ladder for /lots", () => {
   it("dresses every card's action in the catalogue's primary (accent) rung", async () => {
-    const actions = [...(await renderPage()).matchAll(/class="(btn [^"]*)"[^>]*>(View[^<]+)</g)];
+    const actions = [...(await renderPage()).matchAll(/class="(btn [^"]*)"[^>]*>(Ask[^<]+)</g)];
     expect(actions.length).toBe(16);
     for (const [, cls, label] of actions) {
       expect(cls, label).toBe("btn btn--accent btn--sm");
     }
   });
 
-  it("keeps the two honest destinations but reads them as one action grammar", async () => {
+  it("uses the captain's exact wording on every plot (2026-10-02)", async () => {
     const labels = new Set(
-      [...(await renderPage()).matchAll(/class="btn [^"]*"[^>]*>(View[^<]+)</g)].map(
+      [...(await renderPage()).matchAll(/class="btn [^"]*"[^>]*>(Ask[^<]+)</g)].map(
         (m) => m[1],
       ),
     );
-    // Every label shares the same core action; a map-only plot spells out where
-    // it goes, a published lot does not need to.
-    for (const label of labels) expect(label.startsWith("View this lot")).toBe(true);
-    expect(labels).toEqual(new Set(["View this lot", "View this lot on the park map"]));
+    // One visible action, the same words for a published lot and a map-only
+    // plot: "Ask about this lot". The card itself still opens the lot.
+    expect(labels).toEqual(new Set(["Ask about this lot"]));
   });
 
   it("gives the two Clear controls one treatment (the supporting rung)", async () => {

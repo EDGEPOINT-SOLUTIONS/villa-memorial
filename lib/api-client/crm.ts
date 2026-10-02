@@ -93,6 +93,18 @@ export type Inquiry = {
   received_at: string;
   /** Structured quote lines, when the inquiry is a basket submission (D6-A). */
   lines?: InquiryLine[];
+  /**
+   * The family account the inquiry belongs to, when it was asked from a signed-in
+   * family (captain, 2026-10-02: plan & lot inquiries require an account and are
+   * tracked in that family's portal). Omitted on every front-desk and public row.
+   *
+   * ⚠️ PROVISIONAL SHAPE — FLAGGED. No frozen crm-families contract names an
+   * account link. It is added here so the family portal can list the account's
+   * own inquiries from the SAME durable store the office board reads. The reader
+   * tolerates its absence on every older/other row; the contract ask is recorded
+   * in docs/08-delivery/open-items.md.
+   */
+  user_id?: string;
 };
 
 type CustomerStore = {
@@ -159,6 +171,7 @@ export function toInquiry(raw: unknown): Inquiry {
     { key: "assigned_to", type: "string" },
     { key: "status", type: "string" },
     { key: "received_at", type: "string" },
+    { key: "user_id", type: "string", optional: true, nullable: true },
   ]);
   const person = (r.person ?? {}) as Record<string, unknown>;
   return {
@@ -175,6 +188,7 @@ export function toInquiry(raw: unknown): Inquiry {
     assigned_to: r.assigned_to as string,
     status: r.status as Inquiry["status"],
     received_at: r.received_at as string,
+    ...(typeof r.user_id === "string" && r.user_id.trim() ? { user_id: r.user_id } : {}),
   };
 }
 

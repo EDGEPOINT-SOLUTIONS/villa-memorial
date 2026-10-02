@@ -4,7 +4,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
 import { QuoteLineRow } from "@/components/quote-line-row";
-import { LotQuoteButton } from "@/components/villa/lot-quote-button";
 import { ItemQuoteButton } from "@/components/villa/item-quote-button";
 import { quoteLineDescriptor, type QuoteLine } from "@/lib/quote-basket/quote-line";
 
@@ -43,38 +42,6 @@ const row = (value: QuoteLine, open: boolean) =>
       onRemove() {},
     }),
   );
-
-describe("the quote-only lot control", () => {
-  it("renders an accessible Add to quote control named for the lot", () => {
-    const html = renderToStaticMarkup(
-      withBaskets(
-        createElement(LotQuoteButton, {
-          category: "1. Lot Only",
-          product: "Premium Lots",
-          area: 2.5,
-          sellingPrice: 114000,
-        }),
-      ),
-    );
-    expect(html).toContain("Add to quote");
-    expect(html).toContain('aria-label="Add to quote: Premium Lots lot"');
-  });
-
-  it("is the add action only — the row still owns its request and map links", () => {
-    const html = renderToStaticMarkup(
-      withBaskets(
-        createElement(LotQuoteButton, {
-          category: "1. Lot Only",
-          product: "Mausoleum",
-          area: 24,
-          sellingPrice: 1073000,
-        }),
-      ),
-    );
-    expect(html).not.toContain("href=");
-    expect(html).toContain("<button");
-  });
-});
 
 describe("a quote line's expand control shows the item's details again", () => {
   it("closed: toggle announces Show details and the details pane stays hidden", () => {

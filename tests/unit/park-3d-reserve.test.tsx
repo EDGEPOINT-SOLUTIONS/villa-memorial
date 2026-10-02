@@ -211,7 +211,7 @@ describe("the plot panel's reservation action follows the viewer's capability", 
     expect(html).not.toContain("Request to reserve");
   });
 
-  it("renders the request-to-reserve link for everyone else — nothing that claims a reservation", async () => {
+  it("renders the family ask-gate link for everyone else — nothing that claims a reservation", async () => {
     const lot = await getLot(RENDER_LOT);
     const html = renderToStaticMarkup(
       <PlotDetails
@@ -220,8 +220,12 @@ describe("the plot panel's reservation action follows the viewer's capability", 
         parkName="Villa Memorial"
       />,
     );
-    expect(html).toContain(`Request to reserve ${lot.lot_number}`);
+    // The captain's 2026-10-02 direction: the public lot action is the family
+    // gate's exact "Ask about this lot", never a reservation claim.
+    expect(html).toContain("Ask about this lot");
+    expect(html).toContain("/client/ask?");
     expect(html).not.toContain("Reserve lot</button>");
+    expect(html).not.toContain("Request to reserve");
   });
 
   it("offers the control only for an available lot", async () => {

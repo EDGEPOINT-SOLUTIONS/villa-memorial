@@ -50,6 +50,7 @@ import { ApiError } from "@/lib/api-client/api-error";
 import { listAddedLovedOnes, type AddedLovedOne } from "@/lib/api-client/family-household-store";
 import { parsePaymentSchedule, type PaymentSchedule } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
+import { listFixtureInquiriesForUser } from "@/lib/api-client/inquiry-store";
 
 /**
  * Which paper a document is, as the family sees it.
@@ -602,6 +603,64 @@ export async function listFamilyAppointments(personId?: string): Promise<FamilyA
 /** The kinds of request the office accepts, in the family's own words (household-level). */
 export async function listFamilyAskFor(): Promise<FamilyAskFor[]> {
   return readFamilyWorkspace().ask_for.map((item) => ({ ...item }));
+}
+
+/* ------------------------------------------------------- family inquiries --- */
+
+/**
+ * One plan or lot inquiry the SIGNED-IN family asked (captain, 2026-10-02).
+ *
+ * The words are the family's: the item they clicked, the office's own state in
+ * plain language, and when it was received. The office's copy of the same row
+ * carries the person, the assignee and the internal notes — none of that is
+ * projected here (the family reads only its own ask).
+ */
+export type FamilyInquiry = {
+  id: string;
+  reference: string;
+  kind: "plan" | "lot";
+  /** The item exactly as the surface named it. */
+  title: string;
+  /** The published figure or the family's own context, when the row carries one. */
+  detail: string;
+  /** When the office received it (ISO instant). */
+  received_at: string;
+  /** The family's own plain word for where it stands. */
+  status: string;
+};
+
+/** The family's own plain word for the office's inquiry status. */
+export function familyInquiryStatus(status: string): string {
+  if (status === "new") return "With the office";
+  if (status === "contacted" || status === "qualified") return "The office is on it";
+  if (status === "converted") return "Done";
+  if (status === "closed") return "Closed";
+  return "With the office";
+}
+
+/**
+ * The family's OWN plan & lot inquiries, newest first — read from the SAME
+ * durable store the office board reads, filtered to the account's own id. A row
+ * with no account (a front-desk entry, a public service request) never appears
+ * here.
+ */
+export async function listFamilyInquiries(userId?: string): Promise<FamilyInquiry[]> {
+  if (!userId?.trim()) return [];
+  const rows = await listFixtureInquiriesForUser(userId);
+  return rows.map((row) => {
+    const line = row.lines?.[0];
+    const kind: FamilyInquiry["kind"] = line?.kind === "lot" ? "lot" : "plan";
+    const detail = line?.detail?.trim() || row.message.trim();
+    return {
+      id: row.id,
+      reference: row.reference,
+      kind,
+      title: line?.name?.trim() || row.topic,
+      detail,
+      received_at: row.received_at,
+      status: familyInquiryStatus(row.status),
+    };
+  });
 }
 
 /**

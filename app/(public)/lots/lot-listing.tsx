@@ -15,6 +15,8 @@ import { MonthlyPriceBlock } from "@/components/villa/monthly-price";
 import { lotVisibleCount } from "@/lib/public-layout";
 import type { LotStatus } from "@/lib/api-client/property";
 import { formatMinorUnits } from "@/lib/money";
+import { familyAskHref, LOT_ASK_LABEL } from "@/lib/family/ask";
+import { php2 } from "@/lib/villa-pricing";
 import { LOT_TONE, lotStatusLabel } from "@/lib/lot-labels";
 import {
   EMPTY_LOT_FILTERS,
@@ -307,6 +309,36 @@ export function LotListing({
  * this lot", with the map destination spelled out only where that is where it
  * goes. See docs/08-delivery/lots-cta-consistency-design/README.md.
  */
+/**
+ * One plot's lot inquiry link — the family ask gate (captain, 2026-10-02: a lot
+ * inquiry needs a family account, and the wording is exactly "Ask about this
+ * lot"). It carries the plot's own name and published figure, so the office
+ * receives the exact ask and the family's portal tracks it.
+ */
+function lotAskHref(item: LotListingItem): string {
+  const monthlyPrice = item.monthly
+    ? `${php2(item.monthly.monthly)} / month${
+        item.monthly.total !== null ? ` · total contract price ${php2(item.monthly.total)}` : ""
+      }`
+    : item.contractPriceCents !== null
+      ? formatMinorUnits(item.contractPriceCents, item.currency)
+      : undefined;
+  const amountCents = item.monthly
+    ? item.monthly.total !== null
+      ? item.monthly.total * 100
+      : item.monthly.monthly * 100
+    : item.contractPriceCents ?? undefined;
+  return familyAskHref({
+    kind: "lot",
+    item: `Lot ${item.code} (${item.facts})`,
+    price: monthlyPrice ?? undefined,
+    amountCents: amountCents ?? undefined,
+    note: item.hasLot
+      ? "Asking does not reserve the lot — the office confirms availability."
+      : "The office quotes per plot.",
+  });
+}
+
 function LotCard({ item }: { item: LotListingItem }) {
   const status = item.status as LotStatus;
   return (
@@ -344,8 +376,8 @@ function LotCard({ item }: { item: LotListingItem }) {
       status={{ tone: LOT_TONE[status] ?? "neutral", label: lotStatusLabel(status) }}
       caption={item.photo.caption}
       actions={
-        <Link href={item.href} className="btn btn--accent btn--sm">
-          {item.hasLot ? "View this lot" : "View this lot on the park map"}
+        <Link href={lotAskHref(item)} className="btn btn--accent btn--sm">
+          {LOT_ASK_LABEL}
         </Link>
       }
     />

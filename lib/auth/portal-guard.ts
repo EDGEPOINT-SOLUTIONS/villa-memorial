@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ACCESS_COOKIE, buildSession } from "@/lib/auth/session";
-import { portalForSession, portalHomeForSession } from "@/lib/auth/destination";
+import { portalForSession, portalHomeForSession, safePortalReturnPath } from "@/lib/auth/destination";
 
 type Portal = "family" | "agent";
 
@@ -12,7 +12,7 @@ type Portal = "family" | "agent";
  * portal's sign-in door. Staff may preview both portals; customers never see the
  * agent portal and agents never see the family portal.
  */
-export async function requirePortalSessionOrRedirect(portal: Portal) {
+export async function requirePortalSessionOrRedirect(portal: Portal, next?: string) {
   const jar = await cookies();
   const token = jar.get(ACCESS_COOKIE)?.value;
 
@@ -28,7 +28,12 @@ export async function requirePortalSessionOrRedirect(portal: Portal) {
 
   const session = buildSession(token, user);
   if (!session) {
-    redirect(portal === "family" ? "/client/login" : "/agent/login");
+    const door = portal === "family" ? "/client/login" : "/agent/login";
+    // A family plan/lot inquiry carries WHAT was being asked as the return path,
+    // so the sign-in round trip never loses it (captain, 2026-10-02). Only a
+    // same-portal local path is accepted — never an open redirect.
+    const safeNext = typeof next === "string" ? safePortalReturnPath(next, portal) : null;
+    redirect(safeNext ? `${door}?next=${encodeURIComponent(safeNext)}` : door);
   }
 
   const portalOfSession = portalForSession(session);
