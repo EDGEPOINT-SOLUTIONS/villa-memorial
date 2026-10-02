@@ -9,10 +9,10 @@ The route, the links, the figures and the contact details are unchanged.
 
 | | before (`c7ffd38`) | after |
 |---|---|---|
-| full page @ 1440 | **6692 px** | **4977 px** (−26%) |
-| full page @ 390 | **9703 px** | **7919 px** (−18%) |
-| screenshot weight @ 1440 | 2654 KB | 1507 KB |
-| screenshot weight @ 390 | 1947 KB | 901 KB |
+| full page @ 1440 | **6692 px** | **4935 px** (−26%) |
+| full page @ 390 | **9703 px** | **7829 px** (−19%) |
+| screenshot weight @ 1440 | 2654 KB | 1490 KB |
+| screenshot weight @ 390 | 1947 KB | 887 KB |
 | bands | 7 | 6 |
 | images on the page | 16 | 12 |
 | the h1 | 76.4 px (a 1.5× "gateway type scale") | **35.2 px** (`--text-page-title`) |
@@ -20,6 +20,15 @@ The route, the links, the figures and the contact details are unchanged.
 Files: [`before-1440.png`](before-1440.png) · [`before-390.png`](before-390.png) ·
 [`after-1440.png`](after-1440.png) · [`after-390.png`](after-390.png) — full-page captures of
 `http://localhost:4004/`, production CSS, at 1440×900 and 390×844.
+
+**Landed on `main` as the captain's pick.** The branch was rebased onto `main` (`11e359e`)
+after the merge, and the overlap resolved the way the steer asked: **main's gateway copy and
+its two-row opening** (`We're here for you` / `any hour, any day.`, the lead paragraph not
+printed, the browser-tab title `Villa Funeraria — here for you, any hour`) sitting inside
+**this six-band composition**, with the section-title pass, the dependency pass and the rest of
+`main`'s work untouched. The only contested file was `components/public/home-page.tsx`;
+`app/(public)/page.tsx` merged with both deltas intact. `lib/fixtures/landing/content.json` and
+`lib/fixtures/content/pages.json` are `main`'s, byte for byte.
 
 ---
 
@@ -31,9 +40,12 @@ those questions actually arrive, and **each band leads with exactly one dominant
 never a grid of equal boxes.
 
 **1 · The opening — the words lead, the park's own gate supports.**
-Eyebrow (`ISABELA CITY, BASILAN`) → the one headline at the ladder's own top step → a
-≤25-word lead → the ONE action that matters at 3 a.m. (the 24/7 number, gold) with the plan
-action beside it → three recorded facts under a hairline. The photograph is the client's own
+Eyebrow (`ISABELA CITY, BASILAN`) → the headline at the ladder's own top step, with the
+promise as its second line in the sky ink → the ONE action that matters at 3 a.m. (the 24/7
+number, gold) with the plan action beside it → three recorded facts under a hairline. **Two
+text rows, no lead paragraph** — the captain's own later call on `main` (6dc03dc, *"shorter,
+simpler, just relax"*): the any-hour promise already reads in the promise line, the call button
+and the ribbon, so a third line said it a third time. The photograph is the client's own
 picture of the park gate, at a 3:2 band-lead frame with a 22 rem ceiling, **beside** the words
 it supports. Before, the same picture was a full-bleed 74 rem band of its own — a band whose
 only content was a 1184 px image, which is the "unnecessary large imagery" the brief names.
