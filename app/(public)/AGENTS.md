@@ -7,26 +7,26 @@
 
 ## Landing content model — the `/blog` storefront bands (read before touching "/" or "/blog")
 
-- The public home (`app/(public)/page.tsx`) renders `components/public/home-page.tsx`,
-  the approved seven-section rebuild (root `AGENTS.md`, record in
-  `docs/08-delivery/home-rebuild-design/`). The former `LandingView` is UNROUTED;
-  its BANDS (`LandingBands` in `components/landing/landing-view.tsx` — both rails +
-  the middle sheet, NO chrome) render beneath the blog document on `/blog` (office,
-  inbox 025): landing-content copy, the live park map, the plans-and-lots grid and
-  the storefront bands, in their original order — MINUS the newsfeed band, which
-  repeated the posts the page already lists above it and was removed (office,
-  inbox 048). The blog page's own lead listing reads the BLOG page document; the
-  restored bands read the landing document and the live stores, and the two
-  documents stay independent. The bands never
-  carry a second header, footer, phone bar or closing action band — `PublicShell`
-  owns exactly one of each.
+- The public home (`app/(public)/page.tsx`) renders the blog page's former storefront
+  composition: `HomeStorefront` (`components/landing/home-storefront.tsx`) → `LandingBands`
+  in `components/landing/landing-view.tsx` (both rails + the middle sheet, NO chrome),
+  per the captain's 2026-10-02 brief. Its middle column opens on a banner
+  (`components/landing/home-banner.tsx`: the office's rotating gateway title, the 24/7
+  call, the supporting action and the trust facts beside the park photograph) and its
+  newsfeed band is OFF. The seven-section `components/public/home-page.tsx` rebuild is no
+  longer routed. `/blog` is a dedicated blog page (`app/(public)/blog/page.tsx` →
+  `components/blog/blog-view.tsx`): the BLOG page document's heading, intro and one row per
+  post, and nothing else. The bands read the landing document and the live stores; the two
+  documents stay independent. The bands never carry a second header, footer, phone bar or
+  closing action band — `PublicShell` owns exactly one of each. Evidence:
+  `docs/08-delivery/home-blog-swap-design/`.
 - Content lives in the fixture store like every module: recorded seed at
   `lib/fixtures/landing/content.json` + in-process saves through
   `lib/api-client/landing.ts` (types/validator are the model authority — rails
   hold UNLIMITED items per side — an empty service-card or blog list is legal).
   The LandingView hero machinery is RETIRED from every routed page: its
   `.hero-home*` hero no longer renders anywhere, and `LandingBands` opens on the
-  blog document. The background helpers stay live where the product still uses
+  home banner. The background helpers stay live where the product still uses
   them — the park page's wash (`heroBackgroundLayer`, `lib/landing/hero-background.ts`)
   and the package page's hero text colour (`heroTextColourStyle`); history and
   evidence in `docs/08-delivery/hero-flexible-design/`. The rail's oversized lead
@@ -529,7 +529,7 @@ open question (`docs/07-client-villa/open-questions.md`) and are named on `/memo
 ## Villa park — `/map` hosts TWO connected modes (read before touching the park map)
 
 - The Villa Memorial Park page (`app/(public)/map/page.tsx` → `components/public-park-map.tsx`)
-  opens on the home's GATEWAY band (eyebrow · visible h1 · one-line lead, with the two view
+  opens on the home's GATEWAY band (eyebrow · titleless sr-only h1 · one-line lead, with the two view
   actions **Map** / **Lots** — they replace the old pill tabs; `lib/fixtures/content/pages.json`
   labels the `tab-view` tab “Map”). The map band below it carries a designed `.home-band-head`
   and **3D** as ONE outline action. The 3D mode owns the whole screen: entering requests full

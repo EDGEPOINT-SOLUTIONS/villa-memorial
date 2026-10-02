@@ -259,26 +259,21 @@ prop. Credentials must never go in `NEXT_PUBLIC_*` (inlined into public JS; the 
 
 ## Eye-friendly public surfaces — the minimalist grammar (captain, 2026-09-21)
 
-- **`/` is the approved home-rebuild plan (2026-09-29), not the `LandingView` catalogue.**
-  Seven sections in the office's final order — the gateway · the hero photograph
-  (its title read from the office's own park address) · the first park (the
-  arrangement builder and the two chapels) · the four lot types with every recorded
-  plot pinned on the masterplan · the five rising plan tiers · the five service
-  tiles · contact with the embedded Google map. The home carries NO arch and NO
-  clouds anywhere; band 1 is plain white, and its hierarchy is a FUNNEL BY SIZE,
-  NOT WEIGHT — eyebrow at `--text-micro` (12px) → the band's largest line, the
-  headline at `--text-hero` (fluid 35.2 → 57.6px, weight 500) → the lead at
-  `--text-lg` (16px) → the actions → the icon row, whose facts keep their icon +
-  label only. Every figure is a read (pricing store · live catalogue · 2026 sheets);
-  the services band prints no amount. `components/public/home-page.tsx` is the map,
-  `components/landing/home-sections-editor.tsx` + `/staff/landing/home` is the
-  per-section editor, and **the palette is the sky+gold ramps** in `styles/tokens.css`
-  (the legacy `--ever-*`/`--brass-*` bridges repoint onto them; gold carries dark ink,
-  never white). A priced line lands in the cart (`/cart` + `/checkout`); a quote-only
-  line (services, lots, chapels) lands in the quote basket (`/quote`) — neither
-  basket takes the other's line. Record:
-  `docs/08-delivery/home-rebuild-design/README.md`. The grammar below still
-  describes the interior public pages and the `/blog` catalogue.
+- **`/` is the captain's 2026-10-02 blog-storefront home, not the retired seven-section rebuild.**
+  The public home renders the blog page's former anchored storefront composition
+  (`components/landing/home-storefront.tsx` → `LandingBands`), whose middle column opens
+  on a banner (`components/landing/home-banner.tsx`: the office's rotating gateway title,
+  the 24/7 call, the supporting action and the trust facts beside the park photograph) and
+  whose newsfeed band is OFF. The post list lives on the dedicated `/blog`
+  (`components/blog/blog-view.tsx`), which is the blog page document's heading, intro and
+  one row per post and nothing else. The seven-section `components/public/home-page.tsx`
+  rebuild is no longer routed. Every figure is still a live read (pricing store · live
+  catalogue · 2026 sheets); the services band prints no amount. `styles/tokens.css`'s
+  sky+gold ramps remain the palette (gold carries dark ink, never white). A priced line
+  lands in the cart (`/cart` + `/checkout`); a quote-only line (services, lots, chapels)
+  lands in the quote basket (`/quote`) — neither basket takes the other's line. Evidence:
+  `docs/08-delivery/home-blog-swap-design/`. The grammar below still describes the interior
+  public pages.
 - **The home is the reference pattern; the captain's `public/media/frontend-home.png`
   guides proportion and rhythm only.** The settled grammar (evidence + measured
   before/after: `docs/08-delivery/eye-friendly-sizing-design/`): a hero of one

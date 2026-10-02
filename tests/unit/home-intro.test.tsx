@@ -49,9 +49,11 @@ describe("the home's entrance sign", () => {
     );
     expect(HOME_ROUTE).toContain('from "@/components/public/home-intro"');
     // The overlay is FIRST in the document, so even a slow parse paints the
-    // sign before the home markup it covers.
+    // sign before the home markup it covers. The home body is the storefront
+    // composition now (`HomeStorefront`, captain 2026-10-02), so the sign is
+    // asserted before THAT.
     expect(HOME_ROUTE.indexOf("<HomeSignOverlay")).toBeLessThan(
-      HOME_ROUTE.indexOf("<HomePage"),
+      HOME_ROUTE.indexOf("<HomeStorefront"),
     );
     expect((HOME.match(/home-intro/g) ?? []).length).toBe(0);
     // The sign renders ONE line now (the "Hello," greeting was removed on the

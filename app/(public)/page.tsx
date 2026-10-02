@@ -1,18 +1,12 @@
+import type { ReactNode } from "react";
 import { cookies } from "next/headers";
-import { HomePage } from "@/components/public/home-page";
+import { HomeStorefront } from "@/components/landing/home-storefront";
 import { HomeSignOverlay } from "@/components/public/home-intro";
+import { PublicParkMap } from "@/components/public-park-map";
 import { INTRO_COOKIE } from "@/lib/home-intro";
-import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
-import { getPageDocument } from "@/lib/api-client/content-pages";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { listLots } from "@/lib/api-client/property";
-import { listResources } from "@/lib/api-client/scheduling";
-import { resolveGoogleMapsKey } from "@/lib/api-client/site-config";
-import { homeMapEmbed } from "@/lib/home-model";
-import { planContentFromDocument } from "@/lib/plan-content";
-import { servicePageContentFromDocument } from "@/lib/service-content";
-import { builderCatalog } from "@/lib/service-builder-catalog";
 import { SITE_DESCRIPTION, pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata({
@@ -21,78 +15,57 @@ export const metadata = pageMetadata({
   path: "/",
 });
 
-// Reads the content, pricing, lot and catalogue stores per request — a staff
-// edit must never leave the busiest page in the product serving stale HTML.
+// Reads the landing content, pricing and lot stores per request — a staff edit
+// must never leave the busiest page in the product serving stale HTML.
 export const dynamic = "force-dynamic";
 
 /**
- * The public home — rebuilt to the approved home-rebuild plan (2026-09-29).
+ * The public home (captain, 2026-10-02) — the blog page's design, promoted.
  *
- * This route only GATHERS what the seven sections render, all of it from the
- * stores that own it:
- *   · the landing content document — the sections' words, actions and pictures,
- *     edited per section at /staff/landing/home;
- *   · the pricing store — the five plan monthlies and every lot family figure;
- *   · the live catalogue + the 2026 sheets — the builder's options;
- *   · the plot records — every recorded plot's own outline, for the map pins;
- *   · the server-side site config — the Google Maps key, read HERE and turned
- *     into the embed URL before the page serialises, so the key never reaches
- *     public JavaScript. With no key the map falls back to the keyless classic
- *     embed the plan uses.
+ * "Remove our current Homepage, our blog page will become our homepage" — the
+ * anchored storefront that used to render beneath `/blog`'s post list is the
+ * home now. The middle column opens on a banner (`HomeBanner`) carrying the
+ * office's gateway words, their 24/7 call and the trust facts beside the park
+ * photograph, and the storefront's newsfeed band is OFF: the posts live on the
+ * new dedicated `/blog` page, so the home lists none.
  *
- * It renders inside `app/(public)/layout.tsx`, so it keeps the same header,
- * footer, phone bar and closing action band as every other public page.
+ * The route only GATHERS what the storefront renders, all of it from the stores
+ * that own it: the landing content document (the banner's words and the bands'
+ * copy), the pricing store (the plan monthlies and every lot family figure) and
+ * the live plot records (the map pins). It renders inside `app/(public)/layout.tsx`,
+ * so it keeps the same header, footer, phone bar and closing action band as every
+ * other public page.
  *
  * THE ENTRANCE IS PART OF THIS PAGE (office, inbox 058). The route reads the
- * session cookie BEFORE render: an unseen visitor gets the cloud-sign overlay
- * in the very first paint (motion already running in CSS, home rendered
- * underneath) and a returning visitor gets the home alone. No client-side
- * redirect, so no homepage flash and no blank hop through a second route.
+ * session cookie BEFORE render: an unseen visitor gets the cloud-sign overlay in
+ * the very first paint and a returning visitor gets the home alone.
  */
 export default async function HomeRoute() {
   const cookieStore = await cookies();
   const introSeen = cookieStore.get(INTRO_COOKIE)?.value === "1";
-  const [content, lots, pricing, catalogItems, plansPage, servicesPage, mapsKey, resources] =
-    await Promise.all([
-      listLandingContent(),
-      listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
-      loadPricingDocument(),
-      listCatalogItems().catch(() => []),
-      getPageDocument("plans").catch(() => null),
-      getPageDocument("services").catch(() => null),
-      resolveGoogleMapsKey(),
-      listResources().catch(() => []),
-    ]);
+  const [content, lots, pricing] = await Promise.all([
+    listLandingContent(),
+    listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
+    loadPricingDocument(),
+  ]);
 
-  // The catalogue is the LIVE selling record, so the builder's options quote what
-  // the office actually charges today; the 2026 sheet is the module's fallback.
-  const builder = builderCatalog(pricing, planContentFromDocument(plansPage).notes.contestability, catalogItems);
-  const mapSrc = homeMapEmbed(mapsKey.key, content.contact.parkAddress).src;
-  // The chapel card's capacity is a scheduling fact, not page copy.
-  const chapelResources = resources
-    .filter((resource) => resource.resource_type === "chapel")
-    .map((resource) => ({ id: resource.id, name: resource.name, capacity: resource.capacity }));
+  const sectionCount = new Set(lots.map((lot) => lot.section)).size;
+  const mapNode: ReactNode =
+    lots.length > 0 ? <PublicParkMap lots={lots} initialPark="villa" /> : null;
 
   return (
     <>
       {/* FIRST in the document: the overlay is parsed before the home's own
           markup, so the first paint is the sign even on a slow parse — no
           flash of the home it is covering. */}
-      {introSeen ? null : (
-        <HomeSignOverlay welcome={content.home.intro.welcome} />
-      )}
-      <HomePage
+      {introSeen ? null : <HomeSignOverlay welcome={content.home.intro.welcome} />}
+      <HomeStorefront
         content={content}
-        pricing={pricing.plans}
+        planPricing={pricing.plans}
         lotCategories={pricing.lotCategories}
-        builder={builder}
-        lots={lots}
-        mapSrc={mapSrc}
-        chapelResources={chapelResources}
-        // The home's services band prints the SAME staff-editable one-line
-        // description per a-la-carte service that /services prints — one
-        // content home (the services page document), so the two cannot drift.
-        serviceNotes={servicePageContentFromDocument(servicesPage).alacarteNotes}
+        mapNode={mapNode}
+        mapLive={lots.length > 0}
+        sectionCount={sectionCount}
       />
     </>
   );

@@ -186,7 +186,7 @@ export function AlacarteServiceRates({
                   <img
                     src={photo.src}
                     srcSet={photo.srcSet}
-                    sizes="(max-width: 48rem) 46vw, 19rem"
+                    sizes="(max-width: 48rem) 46vw, 23rem"
                     alt={photo.alt}
                     width={photo.width}
                     height={photo.height}
@@ -378,7 +378,7 @@ export function ChapelRates({
                     <img
                       src={photo.src}
                       srcSet={photo.srcSet}
-                      sizes="(max-width: 48rem) 92vw, 29rem"
+                      sizes="(max-width: 48rem) 92vw, 34rem"
                       alt={classPhotoAlt[chapelClass]}
                       width={photo.width}
                       height={photo.height}

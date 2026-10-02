@@ -52,7 +52,7 @@ export function PlanTierCard({
           <img
             src={photo.src}
             srcSet={photo.srcSet}
-            sizes="(max-width: 40rem) 92vw, (max-width: 60rem) 45vw, (max-width: 72rem) 30vw, (max-width: 86rem) 22vw, 16rem"
+            sizes="(max-width: 40rem) 92vw, (max-width: 60rem) 45vw, (max-width: 72rem) 30vw, (max-width: 86rem) 22vw, 20rem"
             width={photo.width}
             height={photo.height}
             alt={photo.alt}

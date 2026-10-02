@@ -209,20 +209,45 @@ function ContentHero({
   children,
 }: ContentHeroProps) {
   const textStyle = heroTextColourStyle({ textColour }) ?? undefined;
+  // The captain removed the VISIBLE page-title band from every public page
+  // (2026-10-02). The interior opening keeps its copy in the document — the
+  // heading, eyebrow and lead are still rendered (the lead carries facts a
+  // reader and a search engine should still find), but the band's text is
+  // hidden from the eye (`.public-hero--titleless`, declared in
+  // styles/components.css with the sr-only pattern) and only the page's own
+  // actions, its children and its banner photograph stay visible. The h1 is
+  // still exactly one per page. When a page has none of those, the band wrapper
+  // is dropped entirely so no empty panel is left behind.
+  const titleless = variant === "interior";
+  const hasBody = Boolean(primary || secondary || children || image);
+  const copy = (
+    <>
+      {eyebrow ? <p className="public-hero__eyebrow">{eyebrow}</p> : null}
+      <h1 id={id} className="public-hero__title">
+        {title}
+      </h1>
+      {lead ? <p className="public-hero__lead">{lead}</p> : null}
+    </>
+  );
+
+  if (titleless && !hasBody) {
+    return (
+      <div className="public-hero--interior public-hero--titleless" data-public-hero={variant}>
+        {copy}
+      </div>
+    );
+  }
+
   return (
     <section
-      className={`public-hero public-hero--${variant}`}
+      className={`public-hero public-hero--${variant}${titleless ? " public-hero--titleless" : ""}`}
       data-public-hero={variant}
       style={textStyle as CSSProperties | undefined}
       aria-labelledby={id}
     >
       <div className="public-hero__inner">
         <div className="public-hero__copy">
-          {eyebrow ? <p className="public-hero__eyebrow">{eyebrow}</p> : null}
-          <h1 id={id} className="public-hero__title">
-            {title}
-          </h1>
-          {lead ? <p className="public-hero__lead">{lead}</p> : null}
+          {copy}
           {primary || secondary ? (
             <div className="public-hero__actions">
               {primary ? (

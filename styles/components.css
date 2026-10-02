@@ -8121,7 +8121,10 @@ because the shared `.ag-appt` rule comes later in this file. */
 .plan-matrix td img {
   display: block;
   width: 100%;
-  max-width: 92px;
+  /* Captain, 2026-10-02: the matrix photograph renders 1.5x larger (92 -> 138
+     px). On the widened /plans envelope the tier cell has the room; on a phone
+     the table still pans and the image stays cell-bounded. */
+  max-width: 138px;
   height: auto;
   aspect-ratio: 3 / 2;
   object-fit: contain;
@@ -20840,6 +20843,17 @@ a.plan-advisor__phone:hover {
   margin-inline: auto;
 }
 
+/* The /plans listing (captain, 2026-10-02): the captain asked for 1.5x larger
+   plan pictures, and the five-across comparison row is pinned, so the page uses
+   the folio envelope instead of the catalogue one — the pinned 2→3→4→5 wrap
+   stays, every amount and control stays, and the tier photograph grows with its
+   card (measured 180 -> 243 px at 1440; the matrix photograph reaches its own
+   1.5x cap in the room the wider envelope gives it). The package SKU pages
+   carry `.plan-page` alone and are untouched. */
+.plan-flow.plan-page {
+  max-width: var(--layout-folio-w);
+}
+
 .plan-flow--reading {
   max-width: var(--layout-reading-w);
   margin-inline: auto;
@@ -21797,8 +21811,13 @@ a.plan-advisor__phone:hover {
   gap: var(--space-4);
   /* Three plates per row: the row's own width is three plates plus their gaps,
      so the second row's two plates centre under the first instead of hugging
-     the left edge of a wider box. */
-  max-width: calc(45rem + 2 * var(--space-4));
+     the left edge of a wider box.
+
+     Captain, 2026-10-02: the plate pictures render 1.5x larger. The tile basis
+     and the plate cap are 22.5rem (was 15rem) and the row's own cap is scaled
+     with them, so a 3-up desktop row stays sound: 3 x 22.5rem + 2 gaps sits
+     inside `.sv-main`. The phone re-flow below keeps its own smaller caps. */
+  max-width: calc(67.5rem + 2 * var(--space-4));
   margin: 0 auto;
   padding: 0;
   list-style: none;
@@ -21823,14 +21842,15 @@ a.plan-advisor__phone:hover {
 .sv-tile {
   display: flex;
   flex-direction: column;
-  flex: 0 1 15rem;
+  flex: 0 1 22.5rem;
   gap: var(--space-2);
   min-width: 0;
 }
 
 /* One equal plate ratio; the photograph is whole inside it (`contain`), so a
    service picture is never cropped. The plate is capped and centred (captain,
-   2026-09-30) so a 3-up row does not inflate the pictures. */
+   2026-09-30) so a 3-up row does not inflate the pictures — the cap was raised
+   to 22.5rem for the captain's 2026-10-02 "1.5x larger" pass. */
 .sv-tile__plate {
   display: flex;
   align-items: center;
@@ -21838,7 +21858,7 @@ a.plan-advisor__phone:hover {
   aspect-ratio: 3 / 2;
   overflow: hidden;
   width: 100%;
-  max-width: 15rem;
+  max-width: 22.5rem;
   margin-inline: auto;
   background: var(--paper-0);
   border: 1px solid var(--color-border-strong);
@@ -21945,8 +21965,10 @@ a.plan-advisor__phone:hover {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-7);
   /* The reading envelope: a narrower measure gives the two rooms the air the
-     full folio width denied them. */
-  max-width: var(--layout-reading-w);
+     full folio width denied them. Captain, 2026-10-02: the two room pictures
+     render 1.5x larger, so the envelope is 88rem (measured 358px -> 537px at
+     1440) while the two columns stay equal and no picture is cropped. */
+  max-width: 88rem;
   margin-inline: auto;
 }
 
@@ -23657,6 +23679,16 @@ a.plan-advisor__phone:hover {
    container's padding box is the viewport edge at narrow widths. */
 .blog-storefront {
   margin-inline: calc(-1 * var(--space-5));
+}
+
+/* The dedicated blog page (captain, 2026-10-02): the post rows are the whole
+   page now, so they read at the catalogue measure rather than stretching the
+   full storefront folio. The shell owns the gutter; this only bounds the
+   column and gives the first band its top air. */
+.blog-main {
+  max-width: var(--layout-catalogue-w);
+  margin-inline: auto;
+  padding-block: clamp(1.5rem, 3vw, 2.5rem);
 }
 
 @media (max-width: 48rem) {
@@ -29575,4 +29607,59 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   .chat-thread-list__row {
     min-height: 3rem;
   }
+}
+
+/* ============================================================================
+   public: titleless openings (captain, 2026-10-02)
+
+   The captain removed the visible page-title band — "the big heading + lead
+   opening" — from every public page. The shared interior hero
+   (components/public/public-hero.tsx) now renders its eyebrow, h1 and lead
+   sr-only (they stay in the document for assistive tech and search) and keeps
+   only the page's own actions (and any facts a page handed it as children), so
+   the page's first real section is what a visitor reads.
+
+   The band stays a designed, compact action strip rather than a tall empty
+   panel: it tightens its padding, centres what is left and stacks the action
+   column. Declared at the tail so it out-ranks every per-page hero block
+   (`.sv-page`, `.sb-page`, `.park-page`, `.catalogue-page`, `.plan-flow`,
+   `.mem-page`, `.cart-page`, `.checkout-page`) at equal specificity. It adds
+   no type step and no ground.
+   ========================================================================== */
+
+.public-hero.public-hero--titleless {
+  padding-block: clamp(0.75rem, 1.6vw, 1.25rem);
+}
+
+.public-hero.public-hero--titleless .public-hero__inner {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.public-hero.public-hero--titleless .public-hero__copy {
+  align-items: center;
+  justify-items: center;
+  text-align: center;
+}
+
+.public-hero.public-hero--titleless .public-hero__actions {
+  margin-top: 0;
+  justify-content: center;
+}
+
+/* The headed copy leaves the eye but stays in the document: the same sr-only
+   pattern base.css uses for `.visually-hidden`, declared here so the class
+   attributes stay exactly the page-opening grammar the surface tests pin. */
+.public-hero--titleless .public-hero__eyebrow,
+.public-hero--titleless .public-hero__title,
+.public-hero--titleless .public-hero__lead {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
 }

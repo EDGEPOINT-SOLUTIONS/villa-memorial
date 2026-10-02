@@ -6,9 +6,10 @@ import { getPageDocument, savePageDocument } from "@/lib/api-client/content-page
 /**
  * The park page's content catalogue wiring (Phase 1; opening rebuilt 2026-09-30):
  *
- *   · the page opens on the home's gateway grammar — a visible h1, one short
- *     lead and the two view actions **Map** / **Lots** (they replace the old
- *     pill tabs);
+ *   · the page opens on the home's gateway grammar — a titleless, sr-only h1
+ *     (the captain removed the visible page-title band, 2026-10-02), the stored
+ *     lead still in the document, and the two view actions **Map** / **Lots**
+ *     (they replace the old pill tabs);
  *   · the hero words come from the "Villa Memorial Park" page document, so a save
  *     in Pages & content is what the next visitor reads;
  *   · the lots listing is a TAB of the page (and the /lots route still exists);
@@ -43,12 +44,15 @@ function parkSeed(): Record<string, unknown> {
 }
 
 describe("the park page", () => {
-  it("opens on the gateway with the Map / Lots actions and a visible h1", async () => {
+  it("opens on the gateway with the Map / Lots actions and a titleless h1", async () => {
     const html = renderToStaticMarkup(await page());
     expect(html).toContain('data-public-hero="interior"');
-    // The route keeps exactly one h1 — now visible, naming the page.
+    // Captain, 2026-10-02: the VISIBLE page-title band is off every public page.
+    // The route keeps exactly one h1 — the page's name, carried in the
+    // titleless band's sr-only copy — and the two view actions lead.
     expect(html.match(/<h1/g) ?? []).toHaveLength(1);
-    expect(html).not.toContain('class="visually-hidden">Villa Memorial Park</h1>');
+    expect(html).toContain("public-hero--titleless");
+    expect(html).toContain('class="public-hero__title">Villa Memorial Park</h1>');
     expect(html).toContain("Villa Memorial Park");
     // The two view actions replace the old standalone pill tabs.
     expect(html).toContain('href="/map"');

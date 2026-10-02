@@ -212,7 +212,7 @@ export default async function PlansPage() {
                 key={index}
                 src={column.photo.src}
                 srcSet={column.photo.srcSet}
-                sizes="92px"
+                sizes="138px"
                 width={column.photo.width}
                 height={column.photo.height}
                 alt={column.photo.alt}

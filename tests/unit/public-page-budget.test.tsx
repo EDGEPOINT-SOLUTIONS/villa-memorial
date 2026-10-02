@@ -2,14 +2,9 @@ import { describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LandingView } from "@/components/landing/landing-view";
-import { HomePage } from "@/components/public/home-page";
+import { HomeStorefront } from "@/components/landing/home-storefront";
 import { listLandingContent } from "@/lib/api-client/landing";
-import { listLots } from "@/lib/api-client/property";
 import { loadPricingDocument } from "@/lib/api-client/pricing";
-import { homeMapEmbed } from "@/lib/home-model";
-import { getPageDocument } from "@/lib/api-client/content-pages";
-import { servicePageContentFromDocument } from "@/lib/service-content";
-import { builderCatalog } from "@/lib/service-builder-catalog";
 import { LOT_PRICE_CATEGORIES, SENIOR_PAYMENTS, VMP_PAYMENTS } from "@/lib/villa-pricing";
 import { QuoteBasketProvider } from "@/lib/quote-basket/quote-basket-context";
 import { CartProvider } from "@/lib/cart/cart-context";
@@ -87,63 +82,44 @@ type Blueprint = {
 
 const BLUEPRINTS: ReadonlyArray<Blueprint> = [
   {
-    // The REAL home, rebuilt 2026-09-29 to the captain's approved home-rebuild
-    // plan: seven sections in the plan's order. The blueprint is updated to the
-    // new sections in the same PR that changed them (the file's own rule).
+    // The home, rebuilt 2026-10-02: the captain promoted the blog page's
+    // anchored-storefront composition to `/`, opening its middle column on the
+    // banner (`HomeBanner`) and dropping the newsfeed band the new dedicated
+    // `/blog` owns. The blueprint pins the storefront's bands, in order.
     name: "home (/)",
     render: async () => {
-      const [content, pricing, lots, servicesPage] = await Promise.all([
+      const [content, pricing] = await Promise.all([
         listLandingContent(),
         loadPricingDocument(),
-        listLots().catch(() => [] as Awaited<ReturnType<typeof listLots>>),
-        getPageDocument("services").catch(() => null),
       ]);
       return renderToStaticMarkup(
         withBaskets(
-          HomePage({
+          HomeStorefront({
             content,
-            pricing: pricing.plans,
+            planPricing: pricing.plans,
             lotCategories: pricing.lotCategories,
-            builder: builderCatalog(pricing, "", []),
-            lots,
-            mapSrc: homeMapEmbed(null, content.contact.parkAddress).src,
-            chapelResources: [],
-            serviceNotes: servicePageContentFromDocument(servicesPage).alacarteNotes,
+            mapNode: null,
+            mapLive: false,
+            sectionCount: 0,
           }),
         ),
       );
     },
-    // The SIX bands of the 2026-10-02 re-vision, in the order a family needs
-    // them: the opening (the words, the one action, the park's own gate) → the
-    // live cost builder and the two rooms → the pinned masterplan with the four
-    // lot families → the five plan tiers as a rate card → the five service
-    // lines → the enquiry form, the map and the office's real numbers.
-    sections: [
-      "home-open",
-      "home-arrange__grid",
-      "home-lots__grid",
-      "home-rates",
-      "home-service-list",
-      "home-contact__grid",
-    ],
-  },
-  {
-    // The blog (/blog) — inbox 016 + 025: the blog's OWN page document leads
-    // (heading, intro, one horizontal row per post), then the whole former
-    // LandingView layout returns BENEATH it, bands only — the rails, the
-    // plans-and-lots grid, the tier board, the live park map, the About band
-    // and the newsfeed. No second chrome: PublicShell owns header/footer.
-    name: "blog (/blog)",
-    render: async () => renderToStaticMarkup(await BlogRoute()),
     sections: [
       "anchored-rail--left",
-      "blog-head",
-      "blog-rows",
+      "home-open",
       "plan-lot-grid",
       "plan-board",
       "mid-section--map",
       "about-grid",
     ],
+  },
+  {
+    // The blog (/blog), dedicated 2026-10-02: the post list is the whole page
+    // now (the storefront composition moved up to `/`).
+    name: "blog (/blog)",
+    render: async () => renderToStaticMarkup(await BlogRoute()),
+    sections: ["blog-main", "blog-head", "blog-rows"],
   },
   {
     name: "plans (/plans)",

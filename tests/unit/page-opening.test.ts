@@ -145,6 +145,10 @@ describe("the band's composition and lead role", () => {
     expect(html).toContain('class="public-hero__title"');
     expect(html).toContain('class="public-hero__lead"');
     expect(html).toContain('class="public-hero__actions"');
+    // Captain, 2026-10-02: the interior opening is TITLELESS. The copy stays in
+    // the document (the classes above) but the band paints only the page's
+    // actions; styles/components.css owns the sr-only treatment.
+    expect(html).toContain("public-hero--titleless");
   });
 
   it("gives both portals the same band", () => {
