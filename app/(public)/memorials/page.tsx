@@ -4,6 +4,9 @@ import { EyeOff, MapPin, Search } from "lucide-react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { PublicDisclosure, SectionHead } from "@/components/kit";
+import { PageBlocks } from "@/components/villa/page-blocks";
+import { getPageDocument } from "@/lib/api-client/content-pages";
+import { heroOr } from "@/lib/page-hero";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { loadPublishedMemorials } from "@/lib/api-client/memorials";
 import {
@@ -76,6 +79,12 @@ export default async function MemorialSearchPage({
   const { query, error } = parseMemorialSearch(await searchParams);
   const searched = hasMemorialSearch(query);
   const { contact } = await listLandingContent();
+  const memorialsPage = await getPageDocument("memorials").catch(() => null);
+  const hero = heroOr(memorialsPage, {
+    eyebrow: "Memorials",
+    headline: "Find a memorial",
+    lead: "Search the memorials families have chosen to share.",
+  });
 
   let published: PublishedMemorial[] = [];
   let results: PublishedMemorial[] = [];
@@ -91,7 +100,9 @@ export default async function MemorialSearchPage({
     <div className="mem-page">
       {/* The interactive surface leads, so the page's one h1 is for assistive
           tech and SEO only (the `/map` precedent). */}
-      <h1 className="visually-hidden">Find a memorial</h1>
+      <h1 className="visually-hidden">{hero.headline}</h1>
+
+      <PageBlocks blocks={memorialsPage?.blocks ?? []} />
 
       <section id="search" className="mem-open" aria-label="Search memorials">
         <p className="mem-open__eyebrow">Digital memorial search</p>

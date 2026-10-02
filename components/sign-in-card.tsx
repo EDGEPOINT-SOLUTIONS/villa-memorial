@@ -33,19 +33,25 @@ export function SignInCard({
   personas,
   fallbackDestination,
   quickFillPassword = null,
+  heading,
+  lead,
 }: {
   door: SignInDoor;
   personas: PersonaHint[];
   fallbackDestination: string;
   /** Server-resolved per request; null keeps the buttons email-only. */
   quickFillPassword?: string | null;
+  /** The page document's welcome heading, or the shipped default. */
+  heading?: string;
+  /** The page document's one supporting line. */
+  lead?: string;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const title = SIGN_IN_TITLE;
+  const title = heading?.trim() || SIGN_IN_TITLE;
   const fillPassword = quickFillPassword ?? (INLINED_DEMO_PASSWORD || null);
 
   function quickFill(hint: PersonaHint) {
@@ -85,6 +91,7 @@ export function SignInCard({
       <div className="signin-card">
         <div className="signin-card__head">
           <h1 className="signin-card__title">{title}</h1>
+          {lead ? <p className="signin-card__blurb">{lead}</p> : null}
         </div>
 
         {error ? (

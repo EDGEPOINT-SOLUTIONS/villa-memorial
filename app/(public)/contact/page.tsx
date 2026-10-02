@@ -4,6 +4,9 @@ import { Clock, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { CopyAddress } from "@/components/public/copy-address";
 import { PublicHero, PublicImage } from "@/components/kit";
+import { PageBlocks } from "@/components/villa/page-blocks";
+import { getPageDocument } from "@/lib/api-client/content-pages";
+import { heroOr } from "@/lib/page-hero";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
 import {
@@ -63,11 +66,17 @@ export default async function Page({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [prefill, content] = await Promise.all([
+  const [prefill, content, contactPage] = await Promise.all([
     parseRequestPrefill(await searchParams),
     listLandingContent(),
+    getPageDocument("contact").catch(() => null),
   ]);
   const { contact } = content;
+  const hero = heroOr(contactPage, {
+    eyebrow: "Reach us",
+    headline: "Contact us",
+    lead: "Call any hour, or send a message a coordinator answers.",
+  });
   const hasSecondLine =
     contact.secondPhoneDisplay.trim().length > 0 && contact.secondPhoneHref.trim().length > 0;
   const places = locationPlaces(contact);
@@ -87,12 +96,12 @@ export default async function Page({
     <div className="story-page container--reading contact-page">
       <PublicHero
         variant="interior"
-        eyebrow="Reach us"
-        title={prefill ? "Request an order" : "Contact us"}
+        eyebrow={hero.eyebrow}
+        title={prefill ? "Request an order" : hero.headline}
         lead={
           prefill
             ? "The office confirms availability, the final price and the next steps."
-            : "Call any hour, or send a message a coordinator answers."
+            : hero.lead
         }
         primary={{
           label: `Call ${contact.phoneDisplay}`,
@@ -115,6 +124,8 @@ export default async function Page({
           </li>
         </ul>
       </PublicHero>
+
+      <PageBlocks blocks={contactPage?.blocks ?? []} />
 
       {/* Band 2 · the form, with a designed head. The form is why most people
           opened this page; the facts below answer the ones who did not. */}

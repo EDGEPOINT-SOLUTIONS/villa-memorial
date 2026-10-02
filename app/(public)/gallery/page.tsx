@@ -3,6 +3,9 @@ import Link from "next/link";
 import {
 } from "@/lib/gallery";
 import { PublicHero } from "@/components/kit";
+import { PageBlocks } from "@/components/villa/page-blocks";
+import { getPageDocument } from "@/lib/api-client/content-pages";
+import { heroOr } from "@/lib/page-hero";
 import { containerClass } from "@/lib/public-layout";
 import { pageMetadata } from "@/lib/seo";
 import { GalleryListing } from "./gallery-listing";
@@ -29,7 +32,13 @@ export const metadata: Metadata = pageMetadata({
  * second closing band: the shared shell `NextSteps` carries the one call, so
  * the page never prints two.
  */
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const galleryPage = await getPageDocument("gallery").catch(() => null);
+  const hero = heroOr(galleryPage, {
+    eyebrow: "Villa Memorial Park · Gallery",
+    headline: "See the park before you visit",
+    lead: "The park in the client's own photographs.",
+  });
   return (
     <div className={`${containerClass("catalogue")} gal-page`}>
       <nav className="gal-crumbs" aria-label="Breadcrumb">
@@ -46,12 +55,14 @@ export default function GalleryPage() {
           whole, instead of competing with the headline at banner size. */}
       <PublicHero
         variant="interior"
-        eyebrow="Villa Memorial Park · Gallery"
-        title="See the park before you visit"
-        lead="The park in the client's own photographs."
+        eyebrow={hero.eyebrow}
+        title={hero.headline}
+        lead={hero.lead}
         primary={{ label: "View the photographs", href: "#wall" }}
         secondary={{ label: "Plan a visit", href: "/contact" }}
       />
+
+      <PageBlocks blocks={galleryPage?.blocks ?? []} />
 
       <GalleryListing />
 

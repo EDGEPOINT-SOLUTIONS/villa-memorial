@@ -4,6 +4,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
 import { PublicHero } from "@/components/public/public-hero";
 import { PublicDisclosure } from "@/components/public/public-disclosure";
+import { PageBlocks } from "@/components/villa/page-blocks";
+import { heroOr } from "@/lib/page-hero";
 import { ListingShell } from "@/components/kit";
 import { LOGO_VILLA_AGENCY, LOGO_VILLA_GROUP } from "@/lib/media";
 import { PlanPaymentTable } from "@/components/villa/plan-payment-table";
@@ -77,11 +79,17 @@ const BRANCHES: ReadonlyArray<string> = [
  * chapel rates are Request-for-Quote (captain, 2026-09-21) and are NOT here.
  */
 export default async function PriceListPage() {
-  const [pricing, page, packages] = await Promise.all([
+  const [pricing, page, packages, priceListPage] = await Promise.all([
     loadPricingDocument(),
     getPageDocument("plans").catch(() => null),
     listCatalogItems("package").catch(() => null),
+    getPageDocument("priceList").catch(() => null),
   ]);
+  const hero = heroOr(priceListPage, {
+    eyebrow: "Price list 2026",
+    headline: "Every published 2026 amount",
+    lead: "Plans, lots, coffins and the package — one list.",
+  });
   const content = planContentFromDocument(page);
   const groups = collectionGroups(CASKET_MODELS);
 
@@ -136,9 +144,9 @@ export default async function PriceListPage() {
 
       <PublicHero
         variant="interior"
-        eyebrow="Price list 2026"
-        title="Every published 2026 amount"
-        lead="Plans, lots, coffins and the package — one list."
+        eyebrow={hero.eyebrow}
+        title={hero.headline}
+        lead={hero.lead}
       >
         <div className="public-hero__actions">
           <PrintListButton className="btn btn--primary btn--lg">
@@ -179,6 +187,8 @@ export default async function PriceListPage() {
           </p>
         </div>
       </PublicHero>
+
+      <PageBlocks blocks={priceListPage?.blocks ?? []} />
 
       {/* THE STICKY PRICE INDEX (captain's board round 1). `ListingShell`'s rail
           is `position: sticky` under the public header at ≥64rem and becomes the

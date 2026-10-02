@@ -4,11 +4,20 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState } from "@/components/ui/states";
+import { NeedsYou } from "@/components/staff/needs-you";
+import { UnifiedCalendar, type CalendarHrefFor } from "@/components/staff/unified-calendar";
 import { PaymentAlertBand } from "./payment-alert-band";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getDashboardSummary, type DashboardSummary } from "@/lib/api-client/reporting";
 import { listBookings } from "@/lib/api-client/scheduling";
+import { listInquiries, type Inquiry } from "@/lib/api-client/crm";
+import { listFixtureAdminOrders, type AdminOrder } from "@/lib/api-client/order-store";
+import { loadWorkOrders, type WorkOrderList } from "@/lib/api-client/work-orders";
+import { loadStaffCalendar } from "@/lib/api-client/staff-calendar";
+import { buildNeedsYou } from "@/lib/staff-queue";
+import { isCalendarDate } from "@/lib/chapel-booking";
+import { parkToday } from "@/lib/schedule-board";
 import { formatMinorUnits } from "@/lib/money";
 
 export const metadata = { title: "Dashboard — Admin Portal" };
@@ -31,7 +40,11 @@ function Segment({ value, tone }: { value: number; tone: string }) {
   return <span className={`stackbar__seg seg--${tone}`} style={{ width: `${value}%` }} />;
 }
 
-export default async function StaffDashboardPage() {
+export default async function StaffDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ date?: string; calDate?: string }>;
+}) {
   const session = await requireSessionOrRedirect();
   const firstName = session.displayName.split(" ")[0];
 
@@ -39,6 +52,9 @@ export default async function StaffDashboardPage() {
   const canSeeLots = hasAnyScope(session.scopes, ["property:read"]);
   const canSeeFinance = hasAnyScope(session.scopes, ["billing:read", "accounting:read"]);
   const canSeeSchedule = hasAnyScope(session.scopes, ["scheduling:read"]);
+  const canSeeOrders = hasAnyScope(session.scopes, ["orders:read"]);
+
+  const params = await searchParams;
 
   let summary: DashboardSummary | null = null;
   let summaryFailed = false;
@@ -63,6 +79,35 @@ export default async function StaffDashboardPage() {
     }
   }
 
+  // The cross-record queue's sources (admin plan wave 1) — each read only for a
+  // session that could open its own screen, each failing alone.
+  let inquiries: Inquiry[] = [];
+  if (canSeeCases) {
+    try {
+      inquiries = await listInquiries();
+    } catch {
+      inquiries = [];
+    }
+  }
+  let orders: AdminOrder[] = [];
+  if (canSeeOrders) {
+    try {
+      orders = await listFixtureAdminOrders();
+    } catch {
+      orders = [];
+    }
+  }
+  let workOrders: WorkOrderList | null = null;
+  if (canSeeLots) {
+    try {
+      workOrders = await loadWorkOrders();
+    } catch {
+      workOrders = null;
+    }
+  }
+
+  const calendar = canSeeSchedule ? await loadStaffCalendar(session.scopes) : null;
+
   const today = new Date().toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
@@ -75,6 +120,32 @@ export default async function StaffDashboardPage() {
   const finance = summary?.finance;
   const paymentAlerts = summary?.payment_alerts ?? null;
   const casesOther = cases ? cases.total - cases.active - cases.completed : 0;
+
+  const calendarAnchor = calendar?.anchor || parkToday();
+  const selectedDate =
+    params.date && isCalendarDate(params.date) ? params.date : calendarAnchor;
+  const calendarMonth =
+    params.calDate && /^\d{4}-\d{2}$/.test(params.calDate)
+      ? params.calDate
+      : selectedDate.slice(0, 7);
+  const calendarHrefFor: CalendarHrefFor = ({ month: nextMonth, date }) => {
+    const query = new URLSearchParams();
+    query.set("calDate", nextMonth ?? calendarMonth);
+    const day = date ?? selectedDate;
+    if (day) query.set("date", day);
+    return `/staff/dashboard?${query.toString()}`;
+  };
+
+  const servicesToday = (calendar?.items ?? [])
+    .filter((item) => item.kind === "burial" && item.date === selectedDate)
+    .map((item) => ({ id: item.id, title: item.title, detail: item.detail, href: item.href }));
+  const queue = buildNeedsYou({
+    alerts: paymentAlerts,
+    inquiries,
+    orders,
+    workOrders,
+    servicesToday,
+  });
 
   return (
     <>
@@ -145,6 +216,17 @@ export default async function StaffDashboardPage() {
           </Link>
         ) : null}
       </div>
+
+      {/* Needs you today — the cross-record work queue (admin plan wave 1) */}
+      <PageSection>
+        <div className="row row--space row--wrap">
+          <h2 className="page-section-title">Needs you today</h2>
+          <span className="text-sm text-muted">
+            {queue.length} item{queue.length === 1 ? "" : "s"} across payments, requests, orders and tasks
+          </span>
+        </div>
+        <NeedsYou rows={queue} limit={6} />
+      </PageSection>
 
       {/* Business at a glance — visual breakdowns */}
       <PageSection>
@@ -315,6 +397,20 @@ export default async function StaffDashboardPage() {
       {summaryFailed ? (
         <PageSection>
           <ErrorState message="Summary metrics are unavailable — the reporting service is configured but its client is not wired yet. Unset REPORTING_BASE_URL to show recorded demo figures." />
+        </PageSection>
+      ) : null}
+
+      {/* The labelled calendar — every recorded day type, click a day for detail */}
+      {calendar ? (
+        <PageSection>
+          <UnifiedCalendar
+            month={calendarMonth}
+            selectedDate={selectedDate}
+            items={calendar.items}
+            today={parkToday()}
+            hrefFor={calendarHrefFor}
+            heading="The calendar"
+          />
         </PageSection>
       ) : null}
 

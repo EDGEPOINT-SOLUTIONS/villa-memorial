@@ -106,7 +106,21 @@ describe("the page documents are durable", () => {
   it("reads the recorded seed documents when nothing has been saved", async () => {
     const docs = await listPageDocuments();
     // Home is composed from the landing document, the others are stored.
-    expect(docs.map((d) => d.key)).toEqual(["home", "park", "services", "plans", "coffins", "blog"]);
+    expect(docs.map((d) => d.key)).toEqual([
+      "home",
+      "park",
+      "services",
+      "plans",
+      "coffins",
+      "blog",
+      "contact",
+      "memorials",
+      "builder",
+      "facilities",
+      "gallery",
+      "priceList",
+      "login",
+    ]);
     const park = await getPageDocument("park");
     expect(park?.title).toBe("Villa Memorial Park");
   });
@@ -139,8 +153,8 @@ describe("the page documents are durable", () => {
     await savePageDocument("park", { ...park, hero: { ...park!.hero, headline: "Second" } });
 
     const docs = await listPageDocuments();
-    // Still six documents — a save edits one, it does not add one.
-    expect(docs).toHaveLength(6);
+    // Still thirteen documents — a save edits one, it does not add one.
+    expect(docs).toHaveLength(13);
     expect((await getPageDocument("park"))?.hero.headline).toBe("Second");
   });
 
@@ -151,13 +165,41 @@ describe("the page documents are durable", () => {
     expect((await getPageDocument("plans"))?.hero.headline).toBe(before?.hero.headline);
   });
 
+  it("holds a page document and a save path for every corner surface (wave 1)", async () => {
+    // The seven surfaces that shipped with their copy as page constants until
+    // the admin plan: each now has a document the office can edit and read back.
+    for (const key of ["contact", "memorials", "builder", "facilities", "gallery", "priceList", "login"]) {
+      const doc = await getPageDocument(key);
+      expect(doc, key).toBeTruthy();
+      const saved = await savePageDocument(key, {
+        ...doc,
+        hero: { ...doc!.hero, headline: `Edited ${key}` },
+      });
+      expect(saved.hero.headline, key).toBe(`Edited ${key}`);
+      expect((await getPageDocument(key))?.hero.headline, key).toBe(`Edited ${key}`);
+    }
+  });
+
   it("refuses a corrupt journal rather than silently falling back to the seed", async () => {
     await writeFile(contentPagesStorePath(), "not json at all", "utf8");
     await expect(listPageDocuments()).rejects.toBeInstanceOf(ApiError);
   });
 
   it("still exposes the seed for a caller that wants it", () => {
-    expect(seedPageDocuments().map((d) => d.key)).toEqual(["park", "services", "plans", "coffins", "blog"]);
+    expect(seedPageDocuments().map((d) => d.key)).toEqual([
+      "park",
+      "services",
+      "plans",
+      "coffins",
+      "blog",
+      "contact",
+      "memorials",
+      "builder",
+      "facilities",
+      "gallery",
+      "priceList",
+      "login",
+    ]);
   });
 });
 

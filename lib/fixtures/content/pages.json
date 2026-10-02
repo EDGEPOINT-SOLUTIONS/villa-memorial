@@ -616,6 +616,125 @@
       },
       "updated_at": null,
       "updated_by": null
+    },
+    {
+      "key": "contact",
+      "title": "Contact",
+      "hero": {
+        "eyebrow": "Reach us",
+        "headline": "Contact us",
+        "lead": "Call any hour, or send a message a coordinator answers.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "memorials",
+      "title": "Memorials",
+      "hero": {
+        "eyebrow": "Memorials",
+        "headline": "Find a memorial",
+        "lead": "Search the memorials families have chosen to share.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "builder",
+      "title": "Builder",
+      "hero": {
+        "eyebrow": "Smart Service Builder · 2026 prices",
+        "headline": "Build the service you need",
+        "lead": "What you already have, what you need, and the running total.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "facilities",
+      "title": "Facilities",
+      "hero": {
+        "eyebrow": "Facilities",
+        "headline": "The chapels and the grounds",
+        "lead": "Where the wake is held — ask the office for a date.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "gallery",
+      "title": "Gallery",
+      "hero": {
+        "eyebrow": "Villa Memorial Park · Gallery",
+        "headline": "See the park before you visit",
+        "lead": "The park in the client's own photographs.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "priceList",
+      "title": "Price list",
+      "hero": {
+        "eyebrow": "Price list 2026",
+        "headline": "Every published 2026 amount",
+        "lead": "Plans, lots, coffins and the package — one list.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
+    },
+    {
+      "key": "login",
+      "title": "Login",
+      "hero": {
+        "eyebrow": "Sign in",
+        "headline": "Welcome back",
+        "lead": "Sign in to your portal.",
+        "image": null,
+        "background": null,
+        "backgroundTransparency": 100
+      },
+      "tabs": [],
+      "blocks": [],
+      "entries": [],
+      "updated_at": null,
+      "updated_by": null
     }
   ]
 }

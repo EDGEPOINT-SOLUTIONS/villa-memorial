@@ -11,6 +11,8 @@ import { pageMetadata } from "@/lib/seo";
 import { PublicHero } from "@/components/kit";
 import { FacilityRooms } from "@/components/villa/facility-rooms";
 import { GroundsAtlas, type AtlasArea, type AtlasPhoto } from "@/components/villa/grounds-atlas";
+import { PageBlocks } from "@/components/villa/page-blocks";
+import { heroOr } from "@/lib/page-hero";
 
 export const metadata: Metadata = pageMetadata({
   title: "Chapels & grounds — Villa Funeraria",
@@ -153,15 +155,21 @@ const PARK_AREAS: ReadonlyArray<AtlasArea> = POINTS_OF_INTEREST.flatMap((area) =
 
 export default async function FacilitiesPage() {
   const { contact } = await listLandingContent();
-  const [servicesPage, schedule] = await Promise.all([
+  const [servicesPage, schedule, facilitiesPage] = await Promise.all([
     // The chapel copy is shared with /services, so it is read from the SAME
     // document /services renders — a staff edit reaches both, and the two pages
     // cannot drift.
     getPageDocument("services").catch(() => null),
     getChapelSchedule().catch(() => null),
+    getPageDocument("facilities").catch(() => null),
   ]);
   const chapelNotes = servicePageContentFromDocument(servicesPage).chapelNotes;
   const chapels = schedule?.chapels ?? [];
+  const hero = heroOr(facilitiesPage, {
+    eyebrow: "Facilities",
+    headline: "The chapels and the grounds",
+    lead: "Where the wake is held — ask the office for a date.",
+  });
 
   return (
     <div className="fac-page container--catalogue">
@@ -170,12 +178,13 @@ export default async function FacilitiesPage() {
           review, and the grounds band shows the park as PLACES instead). */}
       <PublicHero
         variant="interior"
-        eyebrow="Facilities"
-        title="The chapels and the grounds"
-        lead="Where the wake is held — ask the office for a date."
+        eyebrow={hero.eyebrow}
+        title={hero.headline}
+        lead={hero.lead}
         primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
         secondary={{ label: "See the rooms", href: "#rooms" }}
       />
+      <PageBlocks blocks={facilitiesPage?.blocks ?? []} />
 
       {/* The park at a glance, under a hairline. Every fact is READ: the room
           count and the stay span come from the schedule record and the 2026

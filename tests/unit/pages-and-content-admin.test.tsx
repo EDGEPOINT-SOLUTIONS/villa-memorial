@@ -90,6 +90,44 @@ describe("Pages & content", () => {
     expect(html).toContain('href="/staff/landing/blog"');
   });
 
+  it("lists every corner public surface the captain named, with its editor home", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    const html = renderToStaticMarkup(await PagesAndContentPage());
+    // The seven surfaces that had no page document before wave 1 (admin plan).
+    for (const [key, label] of [
+      ["contact", "Contact"],
+      ["memorials", "Memorials"],
+      ["builder", "Builder"],
+      ["facilities", "Facilities"],
+      ["gallery", "Gallery"],
+      ["priceList", "Price list"],
+      ["login", "Login"],
+    ] as const) {
+      expect(html, key).toContain(label);
+      expect(html, key).toContain(`href="/staff/landing/${key}"`);
+    }
+  });
+
+  it("opens the page-document editor for each corner surface", async () => {
+    sessionHolder.current = session(["catalog:write"]);
+    for (const [key, label] of [
+      ["contact", "Contact"],
+      ["memorials", "Memorials"],
+      ["builder", "Builder"],
+      ["facilities", "Facilities"],
+      ["gallery", "Gallery"],
+      ["priceList", "Price list"],
+      ["login", "Login"],
+    ] as const) {
+      const html = renderToStaticMarkup(await PageDocumentAdminPage(params(key)));
+      // The editor's own title and its hero controls, so a writer can change what
+      // the public page prints; Login ships no block canvas.
+      expect(html, key).toContain(label);
+      expect(html, key).toContain("Headline");
+      expect(html, key).toContain("Save page");
+    }
+  });
+
   it("answers the list with the designed 403 without catalog:write", async () => {
     sessionHolder.current = session(["cases:read"]);
     const html = renderToStaticMarkup(await PagesAndContentPage());

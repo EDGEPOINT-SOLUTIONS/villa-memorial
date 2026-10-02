@@ -4699,6 +4699,244 @@ because the shared `.ag-appt` rule comes later in this file. */
   content: "▴";
 }
 
+/* --- Unified staff calendar (admin plan wave 1) ------------------------------ */
+.unified-cal {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.unified-cal__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.unified-cal__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.unified-cal__title h2 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-section-title);
+}
+
+.unified-cal__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+  gap: var(--space-4);
+}
+
+.unified-cal__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg-surface-raised);
+}
+
+.unified-cal__dow {
+  background: var(--color-bg-surface);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  font-size: var(--text-micro);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  padding: var(--space-1) 0;
+}
+
+.unified-cal__cell {
+  min-height: 5rem;
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-1);
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;
+}
+
+.unified-cal__cell:hover {
+  background: var(--color-bg-subtle);
+}
+
+.unified-cal__cell:nth-child(7n) {
+  border-right: 0;
+}
+
+.unified-cal__cell--pad {
+  background: var(--color-bg-surface);
+}
+
+.unified-cal__cell--today {
+  background: var(--color-bg-subtle);
+}
+
+.unified-cal__cell--selected {
+  outline: 2px solid var(--gold-500);
+  outline-offset: -2px;
+}
+
+.unified-cal__day {
+  font-size: var(--text-micro);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.unified-cal__chips {
+  display: block;
+  margin-top: 2px;
+}
+
+.unified-cal__chip {
+  display: block;
+  font-size: var(--text-micro);
+  line-height: 1.3;
+  border-radius: var(--radius-sm);
+  padding: 1px 3px;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* One named tint per day type, on the product's status washes. */
+.unified-cal__chip--burial { background: var(--color-status-info-bg); color: var(--color-status-info-ink); }
+.unified-cal__chip--light_pickup { background: var(--color-bg-subtle); color: var(--color-text-secondary); }
+.unified-cal__chip--chapel { background: var(--gold-wash-soft); color: var(--color-text-accent); }
+.unified-cal__chip--trip { background: var(--color-bg-subtle); color: var(--color-text-secondary); }
+.unified-cal__chip--payment_due { background: var(--color-status-danger-bg); color: var(--color-status-danger-ink); }
+.unified-cal__chip--work_order { background: var(--color-status-success-bg); color: var(--color-status-success-ink); }
+
+.unified-cal__more {
+  display: block;
+  font-size: var(--text-micro);
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.unified-cal__panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface-raised);
+  padding: var(--space-4);
+  min-width: 0;
+}
+
+.unified-cal__panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-3);
+}
+
+.unified-cal__panel-head h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--text-card-title);
+}
+
+.unified-cal__empty {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  padding: var(--space-3) 0 0;
+}
+
+.unified-cal__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cal-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.cal-item:last-child {
+  border-bottom: 0;
+}
+
+.cal-item__time {
+  flex: none;
+  width: 4.5rem;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.cal-item__body {
+  min-width: 0;
+  flex: 1;
+}
+
+.cal-item__title {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-top: var(--space-1);
+}
+
+.cal-item__detail {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.unified-cal__legend {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.unified-cal__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.unified-cal__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex: none;
+}
+
+.unified-cal__dot--burial { background: var(--color-status-info); }
+.unified-cal__dot--light_pickup { background: var(--ink-400); }
+.unified-cal__dot--chapel { background: var(--gold-400); }
+.unified-cal__dot--trip { background: var(--ink-400); }
+.unified-cal__dot--payment_due { background: var(--color-status-danger); }
+.unified-cal__dot--work_order { background: var(--color-status-success); }
+
+@media (max-width: 52rem) {
+  .unified-cal__body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .unified-cal__cell {
+    min-height: 4rem;
+  }
+}
+
 /* --- Case cards (villa case-list grammar) ------------------------------------- */
 .case-card {
   position: relative;
@@ -22463,6 +22701,12 @@ a.plan-advisor__phone:hover {
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--space-3);
   align-items: end;
+  /* The captain's 2026-10-02 review: this band was the ONE content band with no
+     width envelope, so its five niches stretched to the full folio while the park,
+     lots and services bands capped and centred. 62rem is the lots band's envelope,
+     so the plan band now aligns with the band above and below. */
+  max-width: 62rem;
+  margin-inline: auto;
 }
 
 .home-niche-col {

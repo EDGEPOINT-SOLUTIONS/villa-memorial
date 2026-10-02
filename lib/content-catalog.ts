@@ -43,7 +43,20 @@ import { unrenderableGlyphs } from "@/lib/text-gate";
 
 /* ------------------------------ page documents ----------------------------- */
 
-export type PageDocumentKey = "home" | "park" | "services" | "plans" | "coffins" | "blog";
+export type PageDocumentKey =
+  | "home"
+  | "park"
+  | "services"
+  | "plans"
+  | "coffins"
+  | "blog"
+  | "contact"
+  | "memorials"
+  | "builder"
+  | "facilities"
+  | "gallery"
+  | "priceList"
+  | "login";
 
 export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "home",
@@ -52,6 +65,13 @@ export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "plans",
   "coffins",
   "blog",
+  "contact",
+  "memorials",
+  "builder",
+  "facilities",
+  "gallery",
+  "priceList",
+  "login",
 ] as const;
 
 export type PageDocumentDef = {
@@ -124,6 +144,65 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     editor: "page",
     blocks: false,
     hint: "The blog's own document — its heading, intro and posts (photographs, films and notes from the grounds). One row per post on the page.",
+  },
+  // The corner pages (admin plan wave 1): each had its copy as a constant in the
+  // page; these documents move the hero (and any added blocks) into the store so
+  // the office edits the page it renders.
+  {
+    key: "contact",
+    label: "Contact",
+    route: "/contact",
+    editor: "page",
+    blocks: true,
+    hint: "The contact page's hero and any added sections. The phone, address and form stay live reads.",
+  },
+  {
+    key: "memorials",
+    label: "Memorials",
+    route: "/memorials",
+    editor: "page",
+    blocks: true,
+    hint: "The memorial search page's heading and any added sections. A family's own visibility switch still decides what is published.",
+  },
+  {
+    key: "builder",
+    label: "Builder",
+    route: "/builder",
+    editor: "page",
+    blocks: true,
+    hint: "The service builder's hero and any added sections. The running total stays a live read of the pricing store.",
+  },
+  {
+    key: "facilities",
+    label: "Facilities",
+    route: "/facilities",
+    editor: "page",
+    blocks: true,
+    hint: "The chapels and grounds hero and any added sections. The room list stays a live read.",
+  },
+  {
+    key: "gallery",
+    label: "Gallery",
+    route: "/gallery",
+    editor: "page",
+    blocks: true,
+    hint: "The gallery hero and any added sections. The photographs keep their own honesty rules and captions.",
+  },
+  {
+    key: "priceList",
+    label: "Price list",
+    route: "/price-list",
+    editor: "page",
+    blocks: true,
+    hint: "The price list hero and any added sections. Every rate stays a live read of the pricing store and the 2026 sheets.",
+  },
+  {
+    key: "login",
+    label: "Login",
+    route: "/login",
+    editor: "page",
+    blocks: false,
+    hint: "The sign-in page's welcome copy.",
   },
 ];
 

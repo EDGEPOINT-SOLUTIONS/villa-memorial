@@ -43,19 +43,20 @@ describe("visibleNav", () => {
 
   it("renders role-differentiated navs: staff vs customer", () => {
     const staff = labels(visibleNav(STAFF_SCOPES));
-    expect(staff).toContain("Catalog");
+    expect(staff).toContain("Products");
     expect(staff).toContain("Orders");
     expect(staff).toContain("Billing & collections");
     expect(staff).toContain("Cases");
     expect(staff).toContain("Staff directory");
     expect(staff).toContain("Documents");
-    expect(staff).toContain("Customers"); // Relationships section (cases:read)
+    expect(staff).toContain("Families"); // Families & inquiries section (cases:read)
     expect(staff).toContain("Inquiries");
+    expect(staff).toContain("Calendar"); // the unified calendar (scheduling:read)
     expect(staff).not.toContain("Users & roles");
     expect(staff).not.toContain("Audit trail");
 
     const customer = labels(visibleNav(CUSTOMER_SCOPES));
-    expect(customer).toEqual(["Dashboard", "Catalog"]);
+    expect(customer).toEqual(["Dashboard", "Products"]);
   });
 
   it("always shows scope-free items and hides empty sections", () => {

@@ -93,30 +93,30 @@ describe("every sign-in door passes the server-resolved password to the card", (
     ["agent", AgentLoginPage],
   ] as const;
 
-  it("carries the fixture password when DEMO_QUICK_FILL is on", () => {
+  it("carries the fixture password when DEMO_QUICK_FILL is on", async () => {
     setEnv({ DEMO_QUICK_FILL: "1", DEMO_QUICK_FILL_PASSWORD: undefined, AUTH_BASE_URL: undefined });
     for (const [door, Page] of doors) {
-      const element = Page() as ReactElement<{ quickFillPassword?: string | null }>;
+      const element = (await Page()) as ReactElement<{ quickFillPassword?: string | null }>;
       expect(element.props.quickFillPassword, door).toBe(personas.password);
     }
   });
 
-  it("carries null when the flag is unset", () => {
+  it("carries null when the flag is unset", async () => {
     setEnv({ DEMO_QUICK_FILL: undefined, DEMO_QUICK_FILL_PASSWORD: undefined, AUTH_BASE_URL: undefined });
     for (const [door, Page] of doors) {
-      const element = Page() as ReactElement<{ quickFillPassword?: string | null }>;
+      const element = (await Page()) as ReactElement<{ quickFillPassword?: string | null }>;
       expect(element.props.quickFillPassword, door).toBeNull();
     }
   });
 
-  it("renders the hint label that matches the server gate", () => {
+  it("renders the hint label that matches the server gate", async () => {
     setEnv({ DEMO_QUICK_FILL: "1", DEMO_QUICK_FILL_PASSWORD: undefined, AUTH_BASE_URL: undefined });
-    const enabled = renderToStaticMarkup(LoginPage());
+    const enabled = renderToStaticMarkup(await LoginPage());
     expect(enabled).toContain("Demo account:");
     expect(enabled).not.toContain("Demo account (fill email):");
 
     setEnv({ DEMO_QUICK_FILL: undefined });
-    const disabled = renderToStaticMarkup(LoginPage());
+    const disabled = renderToStaticMarkup(await LoginPage());
     expect(disabled).toContain("Demo account (fill email):");
   });
 });
@@ -150,20 +150,20 @@ describe("persona hints are build-time gated (production ships no demo addresses
     ["agent", AgentLoginPage],
   ] as const;
 
-  it("passes personas while demo hints are on (the unset local-dev default)", () => {
+  it("passes personas while demo hints are on (the unset local-dev default)", async () => {
     setEnv({ NEXT_PUBLIC_DEMO_HINTS: undefined });
     for (const [door, Page] of doors) {
-      const element = Page() as ReactElement<{ personas: unknown[] }>;
+      const element = (await Page()) as ReactElement<{ personas: unknown[] }>;
       expect(element.props.personas.length, door).toBeGreaterThan(0);
     }
   });
 
-  it("passes an EMPTY list when NEXT_PUBLIC_DEMO_HINTS=0, so no address reaches the payload", () => {
+  it("passes an EMPTY list when NEXT_PUBLIC_DEMO_HINTS=0, so no address reaches the payload", async () => {
     setEnv({ NEXT_PUBLIC_DEMO_HINTS: "0", DEMO_QUICK_FILL: undefined });
     for (const [door, Page] of doors) {
-      const element = Page() as ReactElement<{ personas: unknown[] }>;
+      const element = (await Page()) as ReactElement<{ personas: unknown[] }>;
       expect(element.props.personas, door).toEqual([]);
-      expect(renderToStaticMarkup(Page()), door).not.toContain("vm.demo");
+      expect(renderToStaticMarkup(await Page()), door).not.toContain("vm.demo");
     }
   });
 });

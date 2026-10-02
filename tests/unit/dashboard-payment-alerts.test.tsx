@@ -89,7 +89,9 @@ function summaryWith(alerts: PaymentAlertSummary | null): DashboardSummary {
 
 async function render(summary: DashboardSummary): Promise<string> {
   state.summary = summary;
-  return renderToStaticMarkup(await StaffDashboardPage());
+  return renderToStaticMarkup(
+    await StaffDashboardPage({ searchParams: Promise.resolve({}) }),
+  );
 }
 
 describe("the dashboard alert band", () => {

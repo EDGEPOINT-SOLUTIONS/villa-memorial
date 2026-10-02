@@ -8,6 +8,8 @@ import { planContentFromDocument } from "@/lib/plan-content";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { ServiceBuilder } from "@/components/builder/service-builder";
 import { PublicHero } from "@/components/public/public-hero";
+import { PageBlocks } from "@/components/villa/page-blocks";
+import { heroOr } from "@/lib/page-hero";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -57,12 +59,18 @@ export const dynamic = "force-dynamic";
  * component beside it.
  */
 export default async function BuilderPage() {
-  const [pricing, content, plansPage, catalogItems] = await Promise.all([
+  const [pricing, content, plansPage, catalogItems, builderPage] = await Promise.all([
     loadPricingDocument(),
     listLandingContent(),
     getPageDocument("plans").catch(() => null),
     listCatalogItems().catch(() => []),
+    getPageDocument("builder").catch(() => null),
   ]);
+  const hero = heroOr(builderPage, {
+    eyebrow: "Smart Service Builder · 2026 prices",
+    headline: "Build the service you need",
+    lead: "What you already have, what you need, and the running total.",
+  });
   const plan = planContentFromDocument(plansPage);
   // The catalogue is the LIVE selling record, so the estimate quotes what the office
   // actually charges today; the sheet is the module's fallback if it cannot be read.
@@ -73,12 +81,13 @@ export default async function BuilderPage() {
     <div className="sb-page plan-flow">
       <PublicHero
         variant="interior"
-        eyebrow="Smart Service Builder · 2026 prices"
-        title="Build the service you need"
-        lead="What you already have, what you need, and the running total."
+        eyebrow={hero.eyebrow}
+        title={hero.headline}
+        lead={hero.lead}
         primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
         secondary={{ label: "Start with your situation", href: "#sb-step-situation" }}
       />
+      <PageBlocks blocks={builderPage?.blocks ?? []} />
 
       {/* The home gateway's trust row: three facts a family needs before the
           workbench is useful. The casket count is the live catalogue's own;
