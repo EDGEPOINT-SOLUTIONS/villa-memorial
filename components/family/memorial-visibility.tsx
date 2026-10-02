@@ -148,7 +148,7 @@ export function MemorialVisibilityControl({
           personId={personId}
           hasImage={Boolean(portraitSrc)}
           label={portraitSrc ? `Change ${name}’s photo` : `Attach ${name}’s photo`}
-          hint="Private to your family until you also choose to show it."
+          hint="Private until you choose to show it."
         />
         {consent.visible ? (
           <Link className="mem-vis__link" href={publicHref}>

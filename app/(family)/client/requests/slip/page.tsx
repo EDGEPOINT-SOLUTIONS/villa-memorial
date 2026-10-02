@@ -98,7 +98,7 @@ export default async function Page({
       <Answer
         kicker="Your request"
         headline={`A request about ${person.name}’s lot.`}
-        sub="This is exactly what we will write down for the office."
+        sub="Exactly what we will write down."
         actions={
           <>
             <PrimaryAction href="/client/requests" label="Back to your requests" />
@@ -112,7 +112,7 @@ export default async function Page({
       />
       <Section
         title="The printed request"
-        sub="It names the person and the lot it is about. Print it, or call us."
+        sub="It names the person, the lot and the request. Print it, or call us."
       >
         <PaperExportActions blocks={slip.blocks} profile={slip.profile} filename={filename} />
         <PaperSheet blocks={slip.blocks} profile={slip.profile} />

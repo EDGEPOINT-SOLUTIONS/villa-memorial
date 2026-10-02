@@ -63,7 +63,7 @@ export default async function Page() {
       <Answer
         kicker="Your family"
         headline={`${householdName} — everything your family holds.`}
-        sub="The plans, the lots, the papers and the memorial."
+        sub="Plans, lots, papers and remembering."
         chips={
           <>
             <PortalChip>
@@ -133,7 +133,7 @@ export default async function Page() {
             <Row
               icon={<Globe size={22} aria-hidden="true" />}
               title="Family living abroad"
-              meta="Arranged with the office until the family circle is on."
+              meta="Arranged with the office for now."
               action={<QuietAction href={FAMILY_HELP.phoneHref} label="Ask us to arrange it" />}
             />
           </Rows>
@@ -149,25 +149,25 @@ export default async function Page() {
             <Row
               icon={<ScrollText size={22} aria-hidden="true" />}
               title={people.length === 1 ? "The plan" : "The plans"}
-              meta={people.length === 1 ? "Your plan, and what is left on it." : "One plan per loved one."}
+              meta={people.length === 1 ? "Your plan, and what is left." : "One plan per loved one."}
               action={<QuietAction href="/client/plans" label="See the plans" />}
             />
             <Row
               icon={<TreePine size={22} aria-hidden="true" />}
               title="Your family’s places at the park"
-              meta="The park map is real, and open, today."
+              meta="The map is open today."
               action={<QuietAction href="/map" label="Open the park map" />}
             />
             <Row
               icon={<HeartHandshake size={22} aria-hidden="true" />}
               title="Remembering"
-              meta="Nothing is published until your family says yes."
+              meta="Nothing is published until you say yes."
               action={<QuietAction href="/client/memorials" label="See remembering" />}
             />
             <Row
               icon={<FileText size={22} aria-hidden="true" />}
               title={papers === 1 ? "One paper with your family" : `${countWord(papers)} papers with your family`}
-              meta="The rest arrive as the arrangements go on."
+              meta="The rest arrive as arrangements go on."
               action={<QuietAction href="/client/documents" label="See your papers" />}
             />
           </Rows>
@@ -176,7 +176,7 @@ export default async function Page() {
 
       <WhatThisShows>
         Family membership, the lot records and the memorial aren’t connected yet. Call{" "}
-        {FAMILY_HELP.phone} and we’ll arrange anything.
+        {FAMILY_HELP.phone}.
       </WhatThisShows>
     </div>
   );

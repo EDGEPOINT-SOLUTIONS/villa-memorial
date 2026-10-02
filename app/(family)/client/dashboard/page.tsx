@@ -235,7 +235,7 @@ async function PersonCommandCentre({
         }
         sub={
           hasBalance
-            ? `${balance.remaining} still to pay${nextDue ? ` · next due ${longDueDate(nextDue.due_on)}` : ""}.`
+            ? `${balance.remaining} is still to pay.`
             : "Your plan is paid in full."
         }
         actions={
@@ -320,15 +320,15 @@ async function PersonCommandCentre({
               <CaseChain familyCase={familyCase} />
               <CaseSchedule familyCase={familyCase} caption="The funeral, as our office recorded it" />
               <p className="dash-note">
-                From the office’s record. Call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> to change anything.
+                Office record. Call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> to change it.
               </p>
             </>
           ) : (
             <>
               <Chain />
               <p className="dash-state">
-                The funeral times aren’t connected to this page yet. Call{" "}
-                <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> and we’ll tell you.
+                The funeral times aren’t connected yet. Call{" "}
+                <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a>.
               </p>
             </>
           )}
@@ -499,7 +499,7 @@ async function PersonCommandCentre({
           <p className="dash-note">
             {plot.state === "linked"
               ? "Opens the 3D park framed on this plot."
-              : "Ask us and we will point out your plot on the map."}
+              : "Ask us to point it out."}
           </p>
         </DashPanel>
 
@@ -518,13 +518,13 @@ async function PersonCommandCentre({
               <StatusChip tone="neutral">Nothing published</StatusChip>
             </div>
           </div>
-          <p className="dash-note">Private to your family until you choose to publish it.</p>
+          <p className="dash-note">Private until you publish it.</p>
           <FamilyImageUploader
             slot="portrait"
             personId={personId}
             hasImage={Boolean(portraitSrc)}
             label={portraitSrc ? "Change the portrait" : "Attach a portrait"}
-            hint="Only your family sees this picture."
+            hint="Only family sees it."
           />
           <Link className="dash-panel__link" href="/client/memorials">
             Open Remembering →
@@ -558,7 +558,7 @@ async function PersonCommandCentre({
 
       <WhatThisShows>
         The memorial page and your full payment history aren’t connected yet. Call{" "}
-        {FAMILY_HELP.phone} and we’ll tell you what is happening.
+        {FAMILY_HELP.phone}.
       </WhatThisShows>
     </div>
   );
@@ -587,7 +587,7 @@ function EveryoneDashboard({ household }: { household: FamilyHousehold }) {
       <Answer
         kicker={`${today()} · ${householdName}`}
         headline={`You look after ${count} people.`}
-        sub="One summary each — the money is never added together."
+        sub="One summary each."
         chips={
           <>
             <PortalChip>{householdName}</PortalChip>
@@ -617,8 +617,7 @@ function EveryoneDashboard({ household }: { household: FamilyHousehold }) {
       </div>
 
       <WhatThisShows>
-        The funeral times and the memorial aren’t connected yet. Call {FAMILY_HELP.phone} and we’ll tell
-        you.
+        The funeral times and the memorial aren’t connected yet. Call {FAMILY_HELP.phone}.
       </WhatThisShows>
     </div>
   );

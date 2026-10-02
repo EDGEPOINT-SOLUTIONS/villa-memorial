@@ -144,8 +144,8 @@ export function FamilyRequestComposer({
           </a>
         </div>
         <p className="fv-request__note">
-          The request always names {person.name.split(/\s+/)[0] || "your loved one"} and their lot.
-          Nothing is booked until the office confirms it.
+          Names {person.name.split(/\s+/)[0] || "your loved one"} and their lot — the office
+          confirms it.
         </p>
       </div>
     </div>

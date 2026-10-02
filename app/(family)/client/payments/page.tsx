@@ -158,14 +158,14 @@ export default async function ClientPaymentsPage({
             <Row
               icon={<Phone size={22} aria-hidden="true" />}
               title="GCash or Maya"
-              meta="Call us while you send it; we confirm the number and your reference"
+              meta="Call while you send it."
               state="Easiest"
               action={<QuietAction href={FAMILY_HELP.phoneHref} label="Call to pay" />}
             />
             <Row
               icon={<Banknote size={22} aria-hidden="true" />}
               title="Bank transfer"
-              meta="Ask us for the account, then send a photo of the deposit slip"
+              meta="Ask for the account, then send the slip photo."
               action={
                 <QuietAction href={FAMILY_HELP.phoneHref} label="Ask for the details" />
               }
@@ -191,7 +191,7 @@ export default async function ClientPaymentsPage({
           title="If money is tight"
         >
           <p className="dash-state">
-            Tell us before a date passes and we will agree a new schedule.
+            Call before a date passes and we will adjust it.
           </p>
           <QuietLink
             href={FAMILY_HELP.phoneHref}
@@ -202,8 +202,7 @@ export default async function ClientPaymentsPage({
       </div>
 
       <WhatThisShows>
-        Your full payment history isn’t connected yet. Call {FAMILY_HELP.phone} and we’ll read your
-        statement to you.
+        Your full payment history isn’t connected yet. Call {FAMILY_HELP.phone}.
       </WhatThisShows>
     </div>
   );

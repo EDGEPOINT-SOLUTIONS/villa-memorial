@@ -56,7 +56,6 @@ export default async function ClientProfilePage() {
           label="Reading"
           title="Make it easier to read"
         >
-          <p className="dash-note">These three settings work on this device.</p>
           <FamilyReadingPreferences />
         </DashPanel>
 
@@ -65,7 +64,7 @@ export default async function ClientProfilePage() {
             <Row icon={<User size={22} aria-hidden="true" />} title="Name" meta={family.display_name} />
             <Row
               icon={<Mail size={22} aria-hidden="true" />}
-              title="Email — this is also how you sign in"
+              title="Email (your sign-in)"
               meta={email}
             />
             <Row
@@ -74,10 +73,6 @@ export default async function ClientProfilePage() {
               meta={family.primary_contact}
             />
           </Rows>
-          <p className="dash-note">
-            To change any of these, call <a href={FAMILY_HELP.phoneHref}>{FAMILY_HELP.phone}</a> — it
-            takes a minute.
-          </p>
         </DashPanel>
 
         <DashPanel
@@ -90,7 +85,7 @@ export default async function ClientProfilePage() {
             <Row
               icon={<Users size={22} aria-hidden="true" />}
               title="Your family"
-              meta="Who in your family can see this arrangement"
+              meta="Who can see this arrangement"
               action={
                 <QuietLink
                   href="/client/family"
@@ -102,7 +97,7 @@ export default async function ClientProfilePage() {
             <Row
               icon={<Bell size={22} aria-hidden="true" />}
               title="What we tell you about"
-              meta="Change what we send, and when"
+              meta="What we send, and when"
               action={
                 <QuietLink
                   href="/client/notifications"
@@ -114,7 +109,7 @@ export default async function ClientProfilePage() {
             <Row
               icon={<Lock size={22} aria-hidden="true" />}
               title="Privacy Center"
-              meta="What we hold, and who on our staff has looked at it"
+              meta="What we hold, and who looked"
               action={
                 <QuietLink
                   href="/client/privacy"

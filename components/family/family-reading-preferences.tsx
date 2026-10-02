@@ -46,17 +46,17 @@ const ROWS: Array<{ key: keyof Prefs; title: string; detail: string }> = [
   {
     key: "large",
     title: "Bigger writing",
-    detail: "Makes every word on every page larger — helpful in a chapel, or with older eyes.",
+    detail: "Makes every word larger.",
   },
   {
     key: "contrast",
     title: "Stronger colours",
-    detail: "Darker words and firmer lines, on top of whatever your phone already does.",
+    detail: "Darker words and firmer lines.",
   },
   {
     key: "calm",
     title: "Calmer page",
-    detail: "Switches off any movement. Your phone's own setting is always respected too.",
+    detail: "Switches off movement.",
   },
 ];
 
@@ -102,8 +102,7 @@ export function FamilyReadingPreferences() {
         </div>
       ))}
       <p className="ag-note">
-        <strong>Saved on this device only</strong> — nothing is sent to us, and your phone&rsquo;s own
-        accessibility settings always win.
+        <strong>Saved on this device only.</strong>
       </p>
     </div>
   );

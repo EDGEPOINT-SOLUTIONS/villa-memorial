@@ -94,7 +94,7 @@ export default async function Page({
             ? `${countWord(openCount)} ${openCount === 1 ? "request is" : "requests are"} with us right now.`
             : "Nothing is open with us today."
         }
-        sub="Ask us for anything — call and we write it down."
+        sub="Call us and we write it down."
         chips={
           <>
             {openCount > 0 ? (
@@ -157,7 +157,7 @@ export default async function Page({
             </Rows>
           ) : (
             <p className="dash-empty">
-              Nothing has been asked for yet. Call us with anything at all.
+              Nothing has been asked for yet. Call us with anything.
             </p>
           )}
         </DashPanel>

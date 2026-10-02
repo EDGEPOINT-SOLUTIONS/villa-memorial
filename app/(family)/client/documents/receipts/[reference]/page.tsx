@@ -60,7 +60,7 @@ export default async function ClientReceiptPage({
       <Answer
         kicker="Your papers"
         headline={`Official receipt ${receipt.reference}`}
-        sub="This is your family's own copy — open it, print it or download it whenever you need it. You never have to ask us for it."
+        sub="Yours to open, print or download — you never have to ask."
         actions={
           <>
             <PrimaryAction href="/client/documents" label="Back to your papers" />
@@ -75,7 +75,7 @@ export default async function ClientReceiptPage({
       <div className="dash-grid">
         <DashPanel role="place" className="dash-span-12" label="Yours" title="Your receipt">
           <p className="dash-note">
-            Exactly as it is recorded on your family’s account. Print it, or download it as Word or PDF.
+            Exactly as recorded. Print it, or save it as Word or PDF.
           </p>
           <PaperExportActions blocks={paper.blocks} profile={paper.profile} filename={filename} />
           <PaperSheet blocks={paper.blocks} profile={paper.profile} />

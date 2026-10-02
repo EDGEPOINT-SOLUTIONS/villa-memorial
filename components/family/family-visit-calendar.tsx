@@ -205,7 +205,7 @@ export function FamilyVisitCalendar({
           <CalendarDays size={16} aria-hidden="true" />
           <span>
             {monthHasEvents
-              ? "A marked day already holds something — tap it to see what."
+              ? "A marked day holds something — tap it."
               : "Nothing is recorded for this month yet."}
           </span>
         </p>

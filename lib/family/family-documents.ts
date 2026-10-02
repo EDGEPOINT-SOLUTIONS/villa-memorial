@@ -123,8 +123,8 @@ export function ownedPaperNote(paper: FamilyDocument): string {
         : "";
   const copy =
     paper.kind === "official_receipt" && familyReceiptHasCopy(paper)
-      ? "Your family's own copy — always here."
-      : "Your family's own copy; we are getting it ready for this page.";
+      ? "Yours — always here."
+      : "Yours — getting it ready for this page.";
   return [detail, copy, OWNED_PAPER_WORDS].filter(Boolean).join(" · ");
 }
 

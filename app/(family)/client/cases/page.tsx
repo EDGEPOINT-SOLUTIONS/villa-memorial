@@ -60,7 +60,7 @@ export default async function Page({
         }
         sub={
           familyCase
-            ? "The five moments, with the times and places we hold."
+            ? "The five moments, with their times and places."
             : "Call us and we will read you the whole plan."
         }
         actions={
@@ -112,15 +112,14 @@ export default async function Page({
             </Rows>
           ) : (
             <p className="dash-empty">
-              No service contract is recorded here yet. Call us and we will find your copy.
+              No service contract is recorded yet. Call us and we will find it.
             </p>
           )}
         </DashPanel>
       </div>
 
       <WhatThisShows>
-        Nothing else about the funeral is kept online yet. Call {FAMILY_HELP.phone} for anything at
-        all.
+        Nothing else about the funeral is online yet. Call {FAMILY_HELP.phone} for anything.
       </WhatThisShows>
     </div>
   );

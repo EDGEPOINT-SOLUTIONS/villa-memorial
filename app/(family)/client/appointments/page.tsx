@@ -166,15 +166,15 @@ export default async function Page({
               steps={[
                 {
                   title: "Call us",
-                  detail: `Any day, ${FAMILY_HELP.hours} — tell us what you would like to talk about.`,
+                  detail: `Any day, ${FAMILY_HELP.hours} — tell us what you need.`,
                 },
                 {
                   title: "We agree the day with you",
-                  detail: "Call and we will find a day and a time that suits your family.",
+                  detail: "We find a day and time that suits you.",
                 },
                 {
                   title: "We write it down and confirm it",
-                  detail: "It appears here as confirmed, and we call if anything changes.",
+                  detail: "It appears here as confirmed.",
                 },
               ]}
             />

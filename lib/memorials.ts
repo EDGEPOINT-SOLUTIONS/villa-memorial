@@ -97,12 +97,12 @@ export const MEMORIAL_FIELD_CHOICES: ReadonlyArray<{
   {
     key: "birth",
     label: "Show the year they were born",
-    meaning: "Leave it off and the year stays private.",
+    meaning: "Off keeps the year private.",
   },
   {
     key: "death",
     label: "Show the year they died",
-    meaning: "Leave it off and the year stays private.",
+    meaning: "Off keeps the year private.",
   },
   {
     key: "lot",

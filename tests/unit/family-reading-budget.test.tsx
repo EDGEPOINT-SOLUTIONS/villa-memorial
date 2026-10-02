@@ -10,14 +10,22 @@ import { measureProse, textOf, wordsOf } from "@/tests/helpers/prose";
  *
  * The family portal renders the same kit as the public storefront, but for a
  * grieving, often older reader — so it takes a TIGHTER budget than the public
- * pages (tests/unit/reading-budget.test.tsx, 300/30/30/12):
+ * pages (tests/unit/reading-budget.test.tsx, 300/30/30/12). The captain's
+ * 2026-10-02 pass (“still too wordy and confusing”) cut it again, to roughly
+ * HALF the 2026-09-21 ceiling:
  *
- *   · paragraph prose ≤ 150 words per page;
- *   · no paragraph over 25 words;
- *   · no list item over 20 words;
- *   · the opening sentence ≤ 14 words;
+ *   · paragraph prose ≤ 95 words per page (was 150);
+ *   · no paragraph over 20 words (was 25);
+ *   · NO PARAGRAPH OVER TWO SENTENCES — the rule that kills a wall of text;
+ *   · no list item over 16 words (was 20);
+ *   · the opening sentence ≤ 12 words;
  *   · ZERO “About this page.” paragraphs — every honest gap is the ONE shared
  *     `WhatThisShows` disclosure (components/family/family-ui.tsx).
+ *
+ * The word floor on the data-heavy screens (Payments, Requests, Your family) is
+ * the recorded facts themselves — every amount, date, reference and row label —
+ * which this pass keeps. The paragraphs those screens add around that data are
+ * now short labels and one-line notes, not sentences.
  *
  * Every family screen joins the guard in the PR that compresses it; a new page
  * adds itself to PAGES in the same PR. The failure names the screen and its
@@ -42,14 +50,20 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/lib/auth/portal-guard", () => ({
-  requirePortalSessionOrRedirect: async () => ({ email: "customer@vm.demo", scopes: [] }),
+  requirePortalSessionOrRedirect: async () => ({
+    email: "customer@vm.demo",
+    userId: "00000000-0000-4000-8000-0000000000aa",
+    displayName: "Cory Customer",
+    scopes: [],
+  }),
 }));
 
 const BUDGET = {
-  paragraphWords: 150,
-  longestParagraph: 25,
-  longestListItem: 20,
-  openingSentence: 14,
+  paragraphWords: 95,
+  longestParagraph: 20,
+  longestSentences: 2,
+  longestListItem: 16,
+  openingSentence: 12,
 } as const;
 
 /**
@@ -60,7 +74,8 @@ const BUDGET = {
 const DISCLOSED_BUDGET = {
   paragraphWords: 180,
   longestParagraph: 45,
-  longestListItem: 20,
+  longestSentences: 3,
+  longestListItem: 16,
 } as const;
 
 function openPage(html: string): string {
@@ -89,6 +104,7 @@ const { default: RequestsPage } = await import("@/app/(family)/client/requests/p
 const { default: NoticesPage } = await import("@/app/(family)/client/notifications/page");
 const { default: PrivacyPage } = await import("@/app/(family)/client/privacy/page");
 const { default: FamilyDashboardPage } = await import("@/app/(family)/client/family/page");
+const { default: MessagesPage } = await import("@/app/(family)/client/messages/page");
 
 // The receipt detail route is deliberately absent: no recorded receipt carries a
 // number, date and amount, so it has no reachable state to measure yet.
@@ -107,6 +123,7 @@ const PAGES: Array<{ name: string; Page: PageComponent; gap?: boolean }> = [
   { name: "What we tell you about", Page: NoticesPage },
   { name: "Privacy Center", Page: PrivacyPage },
   { name: "Your family", Page: FamilyDashboardPage },
+  { name: "Messages", Page: MessagesPage, gap: false },
 ];
 
 async function render(page: PageComponent): Promise<string> {
@@ -123,6 +140,11 @@ function failures(name: string, stats: ReturnType<typeof measureProse>): string[
   if (stats.longest.words > BUDGET.longestParagraph) {
     out.push(
       `${name}: longest paragraph is ${stats.longest.words} words (limit ${BUDGET.longestParagraph}): "${stats.longest.text}"`,
+    );
+  }
+  if (stats.longestSentences.count > BUDGET.longestSentences) {
+    out.push(
+      `${name}: a paragraph is ${stats.longestSentences.count} sentences (limit ${BUDGET.longestSentences}): "${stats.longestSentences.text}"`,
     );
   }
   if (stats.listItems.longestWords > BUDGET.longestListItem) {
@@ -158,6 +180,11 @@ describe("the family pages keep the family reading budget", () => {
         if (disclosed.longest.words > DISCLOSED_BUDGET.longestParagraph) {
           out.push(
             `${page.name}: longest disclosed paragraph is ${disclosed.longest.words} words (limit ${DISCLOSED_BUDGET.longestParagraph}).`,
+          );
+        }
+        if (disclosed.longestSentences.count > DISCLOSED_BUDGET.longestSentences) {
+          out.push(
+            `${page.name}: a disclosed paragraph is ${disclosed.longestSentences.count} sentences (limit ${DISCLOSED_BUDGET.longestSentences}).`,
           );
         }
         if (disclosed.listItems.longestWords > DISCLOSED_BUDGET.longestListItem) {

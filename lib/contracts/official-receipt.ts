@@ -49,9 +49,8 @@ export type OfficialReceiptCopy = "office" | "family";
  * request path (captain, family portal — the family's papers are never request-gated).
  */
 export const FAMILY_RECEIPT_COPY_NOTE =
-  "This is your family's copy of the official receipt recorded on your account. " +
-  "The office keeps the signed original — call us at any time and we will send you " +
-  "another copy, free of charge.";
+  "This is your family's copy of the official receipt. " +
+  "Call us any time for another, free.";
 
 /** The office's copy line for the same sheet. */
 export const OFFICE_RECEIPT_COPY_NOTE =

@@ -308,7 +308,7 @@ export const CHAT_KIND_LABEL: Record<ChatThreadKind, string> = {
  * other side's own next request — never claimed as a push.
  */
 export const CHAT_TRANSPORT_NOTE =
-  "Messages are saved on the office's server. This page checks for new ones every few seconds — there is no live push service yet.";
+  "Saved on the office's server. New messages appear within seconds.";
 
 /** The reference line on every chat screen: a durable demo record, not a messaging contract. */
 export const CHAT_SERVICE_NOTE =

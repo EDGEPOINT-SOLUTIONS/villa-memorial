@@ -68,7 +68,7 @@ export default async function ClientPlansPage({
             ? `${plan_summary.plan_name} is active. ${balance.remaining} is still open.`
             : `${plan_summary.plan_name} is active. It is fully paid.`
         }
-        sub={`The next date in your agreement is ${plan_summary.next_due}.`}
+        sub={`Next date: ${plan_summary.next_due}.`}
         chips={
           <>
             <PortalChip>{plan_summary.status}</PortalChip>
@@ -124,17 +124,17 @@ export default async function ClientPlansPage({
             <Row
               icon={<ScrollText size={22} aria-hidden="true" />}
               title="Your plan certificate"
-              meta="A copy will be here when the family records service is on"
+              meta="Coming when the records service is on"
             />
             <Row
               icon={<Users size={22} aria-hidden="true" />}
               title="Beneficiaries"
-              meta="Who the plan protects, as recorded by Villa Agency"
+              meta="As recorded by Villa Agency"
             />
             <Row
               icon={<Building2 size={22} aria-hidden="true" />}
               title="Account maturity and claims"
-              meta="Handled by Villa Agency with Eternal Plans, Inc."
+              meta="With Eternal Plans, Inc."
               action={
                 <QuietAction href={FAMILY_HELP.agencyPhoneHref} label="Call Villa Agency" />
               }
@@ -144,7 +144,7 @@ export default async function ClientPlansPage({
       </div>
 
       <WhatThisShows>
-        The plan certificate isn’t connected yet. Call {FAMILY_HELP.phone} and we’ll read it to you.
+        The plan certificate isn’t connected yet. Call {FAMILY_HELP.phone}.
       </WhatThisShows>
     </div>
   );

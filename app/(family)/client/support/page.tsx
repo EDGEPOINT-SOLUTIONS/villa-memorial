@@ -27,7 +27,7 @@ export default async function ClientSupportPage() {
       <Answer
         kicker="Help"
         headline="Call us. Someone is here every day from 7 in the morning to 9 at night."
-        sub="Arrangements, payments, papers, or a question — answered every day."
+        sub="Any question — answered every day."
         actions={
           <>
             <CallAction label={`Call ${FAMILY_HELP.phone}`} />

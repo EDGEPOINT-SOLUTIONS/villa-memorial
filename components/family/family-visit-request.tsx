@@ -153,8 +153,8 @@ export function FamilyVisitRequest({
             </a>
           </div>
           <p className="fv-request__note">
-            We can’t check who is free yet. This asks the office for {familyDayLabel(day)} and they
-            confirm it — nothing is booked until they call you.
+            We can’t check who is free yet. The office confirms {familyDayLabel(day)} — nothing is
+            booked until they call you.
           </p>
         </div>
       </div>

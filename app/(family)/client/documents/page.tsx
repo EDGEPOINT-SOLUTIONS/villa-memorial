@@ -74,7 +74,7 @@ export default async function ClientDocumentsPage({
                 snapshot.recent_documents.length === 1
                   ? "One paper is"
                   : `${countWord(snapshot.recent_documents.length)} papers are`
-              } here for your family today.`
+              } here today.`
             : "Call us if you need something today."
         }
         chips={
@@ -144,8 +144,8 @@ export default async function ClientDocumentsPage({
               ) : null}
               <p className="dash-note">
                 {receipts.length > 0
-                  ? "If you have paid and no receipt shows here, call us and we will give you one today."
-                  : "None listed yet. Call us and we will give you any receipt today."}
+                  ? "If a receipt is missing, call us today."
+                  : "None listed yet. Call us for any receipt."}
               </p>
               <QuietLink
                 href={FAMILY_HELP.phoneHref}
@@ -169,8 +169,7 @@ export default async function ClientDocumentsPage({
                 </Rows>
               ) : (
                 <p className="dash-note">
-                  The death certificate, the burial permit and your lot documents join this page as
-                  the arrangement goes on.
+                  Certificates, permits and lot papers will appear here.
                 </p>
               )}
               <QuietLink
@@ -186,7 +185,7 @@ export default async function ClientDocumentsPage({
               label="Certified copies"
               title="If a bank, SSS or an insurer asks"
             >
-              <p className="dash-state">We prepare a certified copy, usually the same day.</p>
+              <p className="dash-state">Usually ready the same day.</p>
               <QuietLink
                 href={FAMILY_HELP.phoneHref}
                 label="Ask for a certified copy"
@@ -210,8 +209,8 @@ export default async function ClientDocumentsPage({
       </div>
 
       <WhatThisShows>
-        The death certificate, the burial permit and your lot documents arrive here when the records
-        are connected. Call {FAMILY_HELP.phone}.
+        The death certificate, the burial permit and lot documents arrive when records are
+        connected. Call {FAMILY_HELP.phone}.
       </WhatThisShows>
     </div>
   );

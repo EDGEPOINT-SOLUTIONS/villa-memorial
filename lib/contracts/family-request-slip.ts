@@ -108,10 +108,9 @@ export function buildFamilyRequestSlip(input: FamilyRequestSlipInput): FamilyReq
       space(6),
       line(
         input.wanted_on
-          ? "This is a request, not a ticket — the office confirms the day by phone and " +
+          ? "Not a ticket — the office confirms the day by phone; " +
               "nothing is booked until they call you."
-          : "This is a request, not a ticket — nothing is booked until the office confirms it. " +
-              "Call the number above and we will write it down.",
+          : "This is a request, not a ticket — nothing is booked until the office confirms it.",
         { size: 9.5 },
       ),
     ],

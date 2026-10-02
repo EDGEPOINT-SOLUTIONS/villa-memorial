@@ -23,6 +23,8 @@ export type ProseStats = {
   paragraphWords: number;
   /** The longest single paragraph. */
   longest: { words: number; text: string };
+  /** The paragraph with the most sentences (the “two sentences” rule). */
+  longestSentences: { count: number; text: string };
   /** <li> list items: count + longest, so a list cannot smuggle a paragraph. */
   listItems: { count: number; longestWords: number; text: string };
 };
@@ -63,6 +65,18 @@ export function wordsOf(text: string): number {
   return (text.match(/[A-Za-z0-9₱][^\s]*/g) ?? []).filter((t) => /[A-Za-z0-9]/.test(t)).length;
 }
 
+/**
+ * Sentence count of a paragraph. A sentence ends at `.`, `!` or `?` followed by
+ * whitespace or the end of the text; a trailing fragment with no final stop
+ * counts as one. The shorthand “Bldg.,” (period before a comma) is not an end.
+ */
+export function sentencesOf(value: string): number {
+  const text = decodeEntities(value).trim();
+  if (!text) return 0;
+  const ends = text.match(/[.!?]+(?=\s|$)/g);
+  return ends ? ends.length : 1;
+}
+
 /** Strip the parts of the document that are not customer prose. */
 function contentOnly(html: string): string {
   return html
@@ -87,6 +101,11 @@ export function measureProse(html: string): ProseStats {
     (best, p) => (p.words > best.words ? p : best),
     { text: "", words: 0 },
   );
+  const sentenceCounts = paragraphCounts.map((p) => ({ text: p.text, count: sentencesOf(p.text) }));
+  const longestSentences = sentenceCounts.reduce(
+    (best, p) => (p.count > best.count ? p : best),
+    { text: "", count: 0 },
+  );
   // <li> items: drop any nested <p> first so the paragraph budget is not double-counted.
   const listItems = elements(content, "li")
     .map((item) => textOf(item.replace(/<p\b[\s\S]*?<\/p>/gi, " ")))
@@ -100,6 +119,7 @@ export function measureProse(html: string): ProseStats {
     paragraphs: paragraphs.length,
     paragraphWords: paragraphCounts.reduce((n, p) => n + p.words, 0),
     longest,
+    longestSentences,
     listItems: {
       count: listItems.length,
       longestWords: wordsOf(longestItem),

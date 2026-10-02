@@ -51,7 +51,7 @@ export function PersonSummaryCard({ person, now }: { person: FamilyPerson; now?:
         <PortalFigure
           label="Papers"
           value={papers === 1 ? "One" : String(papers)}
-          note="With your family today"
+          note="At home"
         />
       </PortalFigures>
       <Rows>
@@ -61,7 +61,7 @@ export function PersonSummaryCard({ person, now }: { person: FamilyPerson; now?:
           meta={
             visit
               ? `${familyInstantWeekday(visit.starts_at)}, ${familyInstantDateLabel(visit.starts_at)} · ${familyInstantTimeLabel(visit.starts_at)} · ${visit.title}`
-              : "Nothing arranged at the moment."
+              : "Nothing set."
           }
           state={visit ? familyAppointmentState(visit.state) : "None set"}
         />

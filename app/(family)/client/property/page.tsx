@@ -76,7 +76,7 @@ export default async function Page({
       <Answer
         kicker="Your lot"
         headline={`Lot ${lot.lot_number} is your family’s place at the park.`}
-        sub="The map is real, and open to you any time."
+        sub="The map is open to you any time."
         chips={
           <>
             <PortalChip>{lot.plan_name}</PortalChip>
