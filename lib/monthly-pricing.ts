@@ -93,10 +93,42 @@ export function lotFamilyMonthlyPrice(
   family: string,
   product?: string,
 ): MonthlyPrice | null {
+  return lotFamilyMonthlyPrices(categories, family, product)?.regular ?? null;
+}
+
+/** A lot family's recorded amortization in BOTH columns the sheet prints. */
+export type LotFamilyMonthly = {
+  /** The sheet's own product/family name the row is under. */
+  product: string;
+  /** The sheet's own area for the row, in square metres. */
+  area: number;
+  regular: MonthlyPrice;
+  senior: MonthlyPrice;
+};
+
+/**
+ * One lot family's regular AND senior monthly-first prices from the current
+ * document, searched across families in order. The pair is returned together so
+ * a family's own view can show both columns the client's sheet prints without a
+ * second lookup or a second derivation. An unknown family/product returns null
+ * and the view keeps its honest fallback rather than a guessed amount.
+ */
+export function lotFamilyMonthlyPrices(
+  categories: ReadonlyArray<LotCategory>,
+  family: string,
+  product?: string,
+): LotFamilyMonthly | null {
   const wanted = (product ?? family).trim();
   for (const category of categories) {
     const row = category.rows.find((candidate) => candidate.product === wanted);
-    if (row) return lotMonthlyPrice(row.regular);
+    if (row) {
+      return {
+        product: row.product,
+        area: row.area,
+        regular: lotMonthlyPrice(row.regular),
+        senior: lotMonthlyPrice(row.senior),
+      };
+    }
   }
   return null;
 }

@@ -1,9 +1,12 @@
 import { CalendarCheck, MapPin, Phone } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { getFamilyLotRecord, getFamilySnapshot } from "@/lib/api-client/family";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { FAMILY_HELP } from "@/lib/family/contact";
+import { lotAmortization } from "@/lib/family/family-amortization";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { LotAmortizationPanel } from "@/components/family/family-amortization";
 import {
   Answer,
   PrimaryAction,
@@ -35,11 +38,13 @@ export default async function Page({
 }) {
   await requirePortalSessionOrRedirect("family");
   const requested = personIdFrom(await searchParams);
-  const [snapshot, lot] = await Promise.all([
+  const [snapshot, lot, pricing] = await Promise.all([
     getFamilySnapshot(requested),
     getFamilyLotRecord(requested),
+    loadPricingDocument(),
   ]);
   const { plan_summary } = snapshot;
+  const amortization = lotAmortization(lot, pricing.lotCategories);
 
   return (
     <div className="dash">
@@ -102,6 +107,8 @@ export default async function Page({
             />
           </Rows>
         </DashPanel>
+
+        <LotAmortizationPanel amortization={amortization} className="dash-span-12" />
       </div>
 
       <WhatThisShows

@@ -4,7 +4,9 @@ import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
 import { personIdFrom } from "@/lib/family/family-household";
+import { planAmortization } from "@/lib/family/family-amortization";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { PlanAmortizationPanel } from "@/components/family/family-amortization";
 import {
   Answer,
   PrimaryAction,
@@ -44,6 +46,7 @@ export default async function ClientPlansPage({
     balance_cents && balance_cents.total > 0
       ? paidPercent(balance_cents.total, balance_cents.paid)
       : null;
+  const amortization = planAmortization(snapshot.payment_schedule, plan_summary, new Date());
 
   return (
     <div className="dash">
@@ -99,6 +102,8 @@ export default async function ClientPlansPage({
           )}
         </DashPanel>
 
+        <PlanAmortizationPanel plan={amortization} id="amortization" />
+
         <DashPanel
           role="place"
           className="dash-span-12"
@@ -129,8 +134,7 @@ export default async function ClientPlansPage({
       </div>
 
       <WhatThisShows>
-        The instalment schedule and the plan certificate aren’t connected yet. Call {FAMILY_HELP.phone}{" "}
-        and we’ll read it to you.
+        The plan certificate isn’t connected yet. Call {FAMILY_HELP.phone} and we’ll read it to you.
       </WhatThisShows>
     </div>
   );

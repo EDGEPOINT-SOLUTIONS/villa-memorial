@@ -4,7 +4,9 @@ import { getFamilySnapshot } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { paidPercent, percentWords } from "@/lib/family/family-view";
 import { personIdFrom } from "@/lib/family/family-household";
+import { planAmortization } from "@/lib/family/family-amortization";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { PlanAmortizationPanel } from "@/components/family/family-amortization";
 import {
   longDueDate,
   paymentAmountLabel,
@@ -51,6 +53,7 @@ export default async function ClientPaymentsPage({
   const now = new Date();
   const schedule = snapshot.payment_schedule;
   const openPayments = schedule ? unpaidPaymentDues(schedule, now) : [];
+  const amortization = planAmortization(schedule, plan_summary, now);
 
   const hasBalance = (balance_cents?.remaining ?? 0) > 0;
   const percent =
@@ -112,6 +115,8 @@ export default async function ClientPaymentsPage({
             </p>
           )}
         </DashPanel>
+
+        <PlanAmortizationPanel plan={amortization} id="amortization" />
 
         {schedule && openPayments.length > 0 ? (
           <DashPanel

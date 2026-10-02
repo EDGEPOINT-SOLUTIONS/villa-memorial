@@ -150,13 +150,18 @@ describe("My Lots — the lot record beside the family's own plan", () => {
     expect(html).toContain("Held in the name of");
   });
 
-  it("keeps the money on the payments page, with no invented amount here", async () => {
+  it("shows the lot's recorded amortization, never the plan balance again", async () => {
     const html = await render(LotPage);
-    // The lot page no longer reprints the balance (it duplicated Payments); it
-    // links there, and carries no amount of its own that could drift.
+    // The plan's own money stays on Payments; the lot page links there instead
+    // of reprinting the balance it does not own.
     expect(html).toContain('href="/client/payments"');
+    // The only amounts here are the client's recorded lot-sheet amortization
+    // for section A (Prime Lots): regular ₱1,920, senior ₱1,688 and the
+    // ₱128,000 selling total — never the plan balance the Payments page owns.
     const amounts = html.match(/₱[\d,]+/g) ?? [];
-    expect(amounts, `unexpected amount on the lot page: ${amounts.join(", ")}`).toHaveLength(0);
+    expect([...new Set(amounts)].sort()).toEqual(["₱1,688", "₱1,920", "₱128,000"].sort());
+    expect(html).not.toContain("₱42,000");
+    expect(html).not.toContain("₱22,000");
   });
 
   it("lists what the office still holds instead of guessing it", async () => {

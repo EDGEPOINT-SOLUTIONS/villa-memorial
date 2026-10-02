@@ -47,6 +47,7 @@ import { PersonSummaryCard } from "@/components/family/family-household-ui";
 import { PersonSwitcher, PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { PapersTable } from "@/components/family/papers-table";
 import { CaseChain, CaseSchedule, caseDoneWords } from "@/components/family/family-case";
+import { AmortizationLink } from "@/components/family/family-amortization";
 import { FamilyImageUploader } from "@/components/family/family-image-uploader";
 import { Avatar } from "@/components/portal/avatar";
 import { StatusChip, type StatusTone } from "@/components/kit/status-chip";
@@ -429,6 +430,7 @@ async function PersonCommandCentre({
           ) : (
             <p className="dash-empty">No instalment schedule is recorded yet.</p>
           )}
+          <AmortizationLink />
         </DashPanel>
 
         <DashPanel
