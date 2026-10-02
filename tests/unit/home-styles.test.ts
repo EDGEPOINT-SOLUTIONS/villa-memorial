@@ -92,10 +92,12 @@ describe("the home ships its stylesheet", () => {
 const RULES = CSS.replace(/\/\*[\s\S]*?\*\//g, "");
 
 /** Every top-level rule body for an exact selector (a base rule plus any media
- *  or supports re-declaration). */
+ *  or supports re-declaration). A selector inside a GROUP (`.a,\n.b { … }`) is
+ *  matched too — the office's rotating title component stamps its own class on
+ *  the opening's h1, so that class shares this band's title rule. */
 function ruleBodies(selector: string): string[] {
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*${selector.replace(/\./g, "\\.")}\\s*\\{([^}]*)\\}`,
+    `(?:^|\\n)\\s*${selector.replace(/\./g, "\\.")}\\s*(?:,|\\{)([^}]*)\\}`,
     "g",
   );
   return [...RULES.matchAll(pattern)].map((match) => match[1]);
@@ -136,6 +138,14 @@ describe("the re-visioned home (2026-10-02)", () => {
     expect(title).toMatch(/font-size:\s*var\(--text-page-title\)/);
     // The promise is the headline's SECOND line, on the same step.
     expect(promise).toMatch(/display:\s*block/);
+    // The office's rotating title component (captain, 2026-10-02) renders this
+    // band's h1 and stamps ITS class on it — so the same type step and the same
+    // promise line must be declared for the component's class too, or the
+    // rotating title would fall back to an unstyled h1 mid-page.
+    expect(ruleBodies(".home-gateway__title")[0]).toMatch(
+      /font-size:\s*var\(--text-page-title\)/,
+    );
+    expect(ruleBodies(".home-gateway__promise")[0]).toMatch(/display:\s*block/);
     // The retired lead paragraph leaves no rule behind.
     expect(SOURCE).not.toContain("home-open__lead");
     expect(RULES).not.toContain(".home-open__lead");
