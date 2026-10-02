@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { quoteAddedLabel } from "@/lib/basket-guidance";
 import { useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
 import { quoteLineDescriptor } from "@/lib/quote-basket/quote-line";
 
@@ -37,13 +38,14 @@ export function LotQuoteButton({
   const basket = useQuoteBasket();
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const addedLabel = quoteAddedLabel(basket.lines.length);
 
   return (
     <Button
       variant="accent"
       size="sm"
       aria-live="polite"
-      aria-label={`Add to quote: ${product} lot`}
+      aria-label={added ? addedLabel : `Add to quote: ${product} lot`}
       onClick={() => {
         basket.add({
           sku: `LOT-${product.toUpperCase().replace(/[^A-Z0-9]+/g, "-")}`,
@@ -58,7 +60,7 @@ export function LotQuoteButton({
         timer.current = setTimeout(() => setAdded(false), ADDED_LABEL_MS);
       }}
     >
-      {added ? "Added ✓" : "Add to quote"}
+      {added ? addedLabel : "Add to quote"}
     </Button>
   );
 }

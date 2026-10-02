@@ -65,7 +65,6 @@ The board's composition, in reading order:
    vehicle trips · payment dues · work-order dues).
 
 ## 3 · The four added surfaces
-
 - **Inbox** (`/staff/inbox`) — the Today triage surface, one door for both halves of the plan:
   the durable family/agent ↔ office **conversations** (the §9.6 chat that landed on `main` in
   `09c9d3a`, with the office's unread count on the rail) and the cross-record **Needs you today**
@@ -73,6 +72,12 @@ The board's composition, in reading order:
   one typed list. The designed notification catalogue is surfaced below; the catalogue keeps its
   own route and Inbox links to it. This branch rebased onto the chat task and merged the two
   rather than replace it.
+
+  The captain's steering (inbox `001.msg`): the admin must be CLEAN and instantly legible,
+  one obvious path to each tool, no duplicated entries, and no two screens doing the same job
+  silently. So the Inbox's notifications block is a POINTER (state + count + link), not a second
+  catalogue; the rail lists each tool once; and the routes the board does not surface (Notifications,
+  Work orders, AI Copilot) keep their screens and are reached from a clearly named door.
 - **Memorials** (`/staff/memorials`) — each household person with the family's consent switch
   (published / not public) and the fields chosen, read from the same consent store the family page
   writes. Nothing is published by default; no digital-memorial service exists.
@@ -127,7 +132,7 @@ invoice is inside it).
 |---|---|
 | `npm run lint` | 0 errors (4 pre-existing warnings in untouched files) |
 | `npm run typecheck` | pass |
-| `npm test` | **3,154 tests / 286 files pass** (a single timeout on one loaded run was flaky; two clean runs pass) |
+| `npm test` | **3,248 tests / 296 files pass** |
 | `npm run build` | pass; `/staff/inbox`, `/staff/media`, `/staff/memorials`, `/staff/preparation` in the route manifest |
 
 Tests updated/added: `tests/unit/nav.test.ts` (the board's exact groups, items and kept routes),

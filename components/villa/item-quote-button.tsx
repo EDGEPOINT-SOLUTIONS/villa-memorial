@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { quoteAddedLabel } from "@/lib/basket-guidance";
 import { useQuoteBasket } from "@/lib/quote-basket/quote-basket-context";
 import { quoteLineDescriptor, type QuoteLineDescriptor } from "@/lib/quote-basket/quote-line";
 
@@ -50,13 +51,16 @@ export function ItemQuoteButton({
   const basket = useQuoteBasket();
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The header counts quote LINES (a line is what the office quotes); the
+  // confirmation repeats that running count where the visitor pressed.
+  const addedLabel = quoteAddedLabel(basket.lines.length);
 
   return (
     <Button
       variant="accent"
       size="sm"
       aria-live="polite"
-      aria-label={`${label}: ${name}`}
+      aria-label={added ? addedLabel : `${label}: ${name}`}
       onClick={() => {
         for (const line of lines) {
           const kind = line.kind ?? "service";
@@ -74,7 +78,7 @@ export function ItemQuoteButton({
         timer.current = setTimeout(() => setAdded(false), ADDED_LABEL_MS);
       }}
     >
-      {added ? "Added ✓" : label}
+      {added ? addedLabel : label}
     </Button>
   );
 }

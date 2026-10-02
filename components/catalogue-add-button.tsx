@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { cartAddedLabel } from "@/lib/basket-guidance";
 import { useCart, type CartLine } from "@/lib/cart/cart-context";
 
 export type CatalogueAddItem = Omit<CartLine, "quantity">;
@@ -41,6 +42,11 @@ export function CatalogueAddButton({
   const cart = useCart();
   const [added, setAdded] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The header counts cart ITEMS (a quantity is a unit) — the confirmation says
+  // how many are in the cart NOW, so after an add the running count is visible
+  // where the visitor pressed, not only in the header badge.
+  const cartItems = cart.lines.reduce((total, line) => total + line.quantity, 0);
+  const addedLabel = cartAddedLabel(cartItems);
 
   useEffect(
     () => () => {
@@ -57,9 +63,11 @@ export function CatalogueAddButton({
       aria-label={
         // WCAG 2.5.3 — the accessible name starts with the visible label, so a
         // speech user can say what they see ("Add 3 days: Embalming — 3 days").
-        quantity > 1
-          ? `${label}: ${item.name} (quantity ${quantity})`
-          : `${label}: ${item.name}`
+        added
+          ? addedLabel
+          : quantity > 1
+            ? `${label}: ${item.name} (quantity ${quantity})`
+            : `${label}: ${item.name}`
       }
       onClick={() => {
         cart.add(item, quantity);
@@ -68,7 +76,7 @@ export function CatalogueAddButton({
         timer.current = setTimeout(() => setAdded(false), ADDED_LABEL_MS);
       }}
     >
-      {added ? "Added ✓" : label}
+      {added ? addedLabel : label}
     </Button>
   );
 }

@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { StatCard, StatusChip } from "@/components/kit";
-import { Badge } from "@/components/ui/badge";
 import { NeedsYou } from "@/components/staff/needs-you";
 import { ApiError } from "@/lib/api-client/api-error";
 import { listChatThreads } from "@/lib/api-client/chat-store";
@@ -18,12 +17,7 @@ import { loadWorkOrders, type WorkOrderList } from "@/lib/api-client/work-orders
 import { listFamilyRequests, type FamilyRequest } from "@/lib/api-client/family";
 import { listDocuments, type Document } from "@/lib/api-client/documents";
 import { loadNotificationCatalogue } from "@/lib/api-client/notifications";
-import {
-  NOTIFICATION_SERVICE_NOTE,
-  audienceLabel,
-  channelLabel,
-  type NotificationCatalogue,
-} from "@/lib/notifications";
+import { NOTIFICATION_SERVICE_NOTE, type NotificationCatalogue } from "@/lib/notifications";
 import { buildNeedsYou } from "@/lib/staff-queue";
 
 export const metadata = { title: "Inbox — Admin Portal" };
@@ -177,24 +171,13 @@ export default async function InboxPage() {
             </div>
           }
         >
-          <p className="text-sm text-muted">{NOTIFICATION_SERVICE_NOTE}</p>
-          <ul className="stack-2">
-            {templates.map((template) => (
-              <li key={template.id} className="row row--space row--wrap">
-                <span>
-                  <strong>{template.message}</strong>
-                  <span className="text-sm text-muted"> · {template.event}</span>
-                </span>
-                <span className="row row--wrap">
-                  <span className="text-sm text-muted">{audienceLabel(template.audiences)}</span>
-                  <Badge tone="neutral">{channelLabel(template.channels)}</Badge>
-                </span>
-              </li>
-            ))}
-          </ul>
+          <p className="text-sm text-muted">
+            {NOTIFICATION_SERVICE_NOTE} {templates.length} message
+            {templates.length === 1 ? "" : "s"} are designed and waiting on it.
+          </p>
           <p className="mt-4 mb-0">
             <Link href="/staff/notifications" className="link-muted text-sm">
-              Open the full catalogue and the sent log →
+              Open the notification catalogue and the sent log →
             </Link>
           </p>
         </Card>
