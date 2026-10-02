@@ -106,7 +106,6 @@ const { default: AgentClientsPage } = await import("@/app/(agent)/agent/clients/
 const { default: AgentMarketingPage } = await import("@/app/(agent)/agent/marketing/page");
 const { default: CopilotPage } = await import("@/app/(staff)/staff/copilot/page");
 const { default: UsersPage } = await import("@/app/(staff)/staff/users/page");
-const { default: WorkflowsPage } = await import("@/app/(staff)/staff/workflows/page");
 const { default: SettingsPage } = await import("@/app/(staff)/staff/settings/page");
 const { default: DispatchPage } = await import("@/app/(staff)/staff/dispatch/page");
 const { default: WorkOrdersPage } = await import("@/app/(staff)/staff/work-orders/page");
@@ -286,12 +285,7 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },
   {
-    name: "/staff/workflows",
-    render: async () => renderToStaticMarkup(await WorkflowsPage()),
-    openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
-  },
-  {
-    name: "/staff/settings (Tenant settings)",
+    name: "/staff/settings (Park configuration)",
     render: async () => renderToStaticMarkup(await SettingsPage()),
     openingLead: /<p class="page-header__lead">([\s\S]*?)<\/p>/,
   },

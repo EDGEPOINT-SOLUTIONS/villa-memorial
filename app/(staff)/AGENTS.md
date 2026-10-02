@@ -389,14 +389,16 @@
   call shape) and `tests/unit/ops-board-rbac.test.tsx` (401/403/422/404, store effects, page
   render for writer vs reader, live-mode endpoints).
 
-## Operations board screen — `/staff/ops` (read before touching the board)
+## Cases board — `/staff/cases?view=board` (read before touching the board)
 
 - The morning screen: one lane per frozen `case-events-v1` stage, cards per case, and the case
   screen's same two writes on each card (a stage select + one confirm modal; a "Mark … done"
-  tick per open task). Owner: `app/(staff)/staff/ops/` (`page.tsx` + `ops-board-view.tsx`);
-  the pure model is `lib/operations/ops-board.ts` (lanes, wait ages, flags, summary), which the
-  server page builds and passes to the view. Nav "Operations board" under Operations gates on
-  `cases:read` like its siblings; the write controls appear only with `cases:write`. Never build
+  tick per open task). It is the Operations board FOLDED INTO CASES (captain, 2026-10-02): the
+  board renders in `app/(staff)/staff/cases/page.tsx`'s `?view=board` branch through
+  `app/(staff)/staff/ops/ops-board-view.tsx`, and `/staff/ops` redirects here — there is no
+  second page. The pure model is `lib/operations/ops-board.ts` (lanes, wait ages, flags,
+  summary), which the server page builds and passes to the view. Nav "Cases" under Orders &
+  commerce gates on `cases:read`; the write controls appear only with `cases:write`. Never build
   a second write path — both calls are `lib/operations/board-api.ts`.
 - **Urgency is recorded, never invented.** `Awaiting intake` is the service's own
   `deceased_name === "Pending intake"` marker; `N guarantee papers overdue` is the service
@@ -683,13 +685,15 @@
 - The page is in `tests/unit/reading-budget.test.tsx` (a copilot answer is read at a glance too).
   Evidence, Lighthouse numbers and the shot list: `docs/08-delivery/ai-copilot-design/`.
 
-## Admin platform screens — `/staff/users` · `/staff/workflows` · `/staff/settings` (S30–S32; read before touching them)
+## Admin platform screens — `/staff/users` · `/staff/settings` (S30/S32; read before touching them)
 
-- **All three are designed READ-ONLY screens over recorded data, each naming its missing service
+- **Both are designed READ-ONLY screens over recorded data, each naming its missing service
   in one line** — never re-stub them. Users & roles shows the recorded accounts + what each
-  role's permissions mean; Workflows shows the four processes the shipped modules already run
-  with their in-flight records; Tenant settings shows the configuration the product actually
-  applies. Nothing here provisions a user, runs a workflow or writes a setting.
+  role's permissions mean; Park configuration (renamed from "Tenant settings", captain
+  2026-10-02 — the office could not tell what "tenant" governed) shows the configuration the
+  product actually applies. Nothing here provisions a user or writes a setting. The Workflows
+  screen was REMOVED 2026-10-02: its engine was never built and it governed nothing the office
+  edits; the processes live in their own modules' screens.
 - **Users & roles.** The permission model's ONE reading is `lib/rbac/scope-vocabulary.ts` (the
   frozen `rbac-scopes-v1` grants in plain words + the raw token; `tests/fixture-contract/access-control.test.ts`
   fails if the scope set drifts from the contract). Roles are data
@@ -698,19 +702,14 @@
   fixture-only — `accessControlLiveModeEnabled() === false`, because no provisioning API exists
   and no env var may claim one. The people table lists recorded sign-in accounts only; office
   staff stay on `/staff/hr`.
-- **Workflows.** Definitions are recorded in `lib/fixtures/operations/workflows.json` with their
-  steps pinned to the enforcing module (`case-events-v1`'s stage order · the lot record's four
-  clerk states); the in-flight rows are composed live per source by `lib/api-client/workflows.ts`
-  (cases · applications + lot statuses · transfers · chapel bookings), and a source that cannot
-  answer marks only its own process unavailable. Never re-declare a stage or transfer word here.
-- **Tenant settings.** Rule rows read their values from the enforcing module
+- **Park configuration.** Rule rows read their values from the enforcing module
   (`lib/tenant-settings.ts`); identity rows read the landing content document (edited at
   `/staff/landing`); configuration states come from the real stores. `tenancy-config` is not in
   this build, so the screen writes nothing, and platform-only items are named as facts — do not
   add a `/platform/*` link to a product screen.
-- Page tests `tests/unit/{users,workflows,settings}-page.test.tsx` pin one `h1`, no write
-  controls and the honest states; all three are in `tests/unit/reading-budget.test.tsx`, so keep
-  the copy compressed (≤12-word opening, ≤30-word paragraphs/list items). The page titles carry
+- Page tests `tests/unit/{users,settings}-page.test.tsx` pin one `h1`, no write controls and the
+  honest states; both are in `tests/unit/reading-budget.test.tsx`, so keep the copy compressed
+  (≤12-word opening, ≤30-word paragraphs/list items). The page titles carry
   the **Admin Portal** suffix from the parallel portal rename — do not revert them to
   `Staff Portal`. Evidence: `docs/08-delivery/admin-platform-design/`.
 

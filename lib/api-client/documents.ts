@@ -24,6 +24,12 @@ import documentsFile from "@/lib/fixtures/documents/documents.json";
 import { ApiError } from "@/lib/api-client/api-error";
 import { listIssuedReceiptDocuments } from "@/lib/api-client/billing-store";
 import {
+  fileDocumentRecord,
+  findUploadedDocument,
+  listUploadedDocuments,
+  type NewDocumentInput,
+} from "@/lib/api-client/documents-store";
+import {
   getAuthedJson,
   getAuthedText,
   itemsOf,
@@ -125,8 +131,10 @@ export async function listDocuments(filter?: {
     const payload = await getAuthedJson(BASE_URL, `/documents/api/v1/documents${suffix}`);
     return itemsOf(payload).map(toDocument);
   }
-  // Receipts the counter issued are newest, so they lead the repository listing.
+  // Uploads the office filed are newest, then receipts the counter issued, then the
+  // recorded seed.
   const rows: Document[] = [
+    ...(await listUploadedDocuments()),
     ...(await listIssuedReceiptDocuments()),
     ...(documentsFile as unknown as DocumentStore).documents,
   ];
@@ -146,6 +154,8 @@ export async function getDocument(id: string): Promise<Document> {
       await getAuthedJson(BASE_URL, `/documents/api/v1/documents/${encodeURIComponent(id)}`),
     );
   }
+  const uploaded = await findUploadedDocument(id);
+  if (uploaded) return { ...uploaded };
   const issued = (await listIssuedReceiptDocuments()).find((d) => d.id === id);
   if (issued) return { ...issued };
   const store = documentsFile as unknown as DocumentStore;
@@ -170,6 +180,24 @@ export async function renderDocument(id: string): Promise<string> {
     `/documents/api/v1/documents/${encodeURIComponent(id)}/render`,
   );
   return body;
+}
+
+/**
+ * File an uploaded document (scope `documents:write`).
+ *
+ * WHAT "UPLOAD" MEANS HERE. `documents-api-v1` has no object store, so a live file
+ * cannot be kept; this branch refuses with a named 503 rather than pretending. In
+ * fixture mode the office can still file the document's METADATA against a case or an
+ * order (what it is, who filed it), which is a real repository row; `file_size_bytes`
+ * stays 0 and the screen renders "not stored" beside it. The object store is a
+ * dev-authored gap the page names — never a silent success with no paper.
+ */
+export async function uploadDocument(input: NewDocumentInput): Promise<Document> {
+  if (documentsLiveModeEnabled()) {
+    throw new ApiError("DOCUMENTS_UPLOAD_NOT_WIRED", 503);
+  }
+  const seed = (documentsFile as unknown as DocumentStore).documents;
+  return fileDocumentRecord(input, seed);
 }
 
 /**

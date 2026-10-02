@@ -1,8 +1,14 @@
 import { createElement } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { InquiryBoard } from "@/app/(staff)/staff/inquiries/inquiry-board";
 import type { Inquiry } from "@/lib/api-client/crm";
+
+// The board refreshes the server after a successful "Send to case", so it reads the
+// app router; the test renders it outside one and stands the router in.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh: () => undefined, push: () => undefined }),
+}));
 
 /**
  * D6-A: the office receives STRUCTURED line items. These pin the board's own

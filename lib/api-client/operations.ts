@@ -17,6 +17,7 @@
 import casesFile from "@/lib/fixtures/operations/cases.json";
 import { ApiError } from "@/lib/api-client/api-error";
 import {
+  createCaseRecord,
   loadStoredCases,
   setCaseStageRecord,
   setCaseTaskStatusRecord,
@@ -83,6 +84,13 @@ export type Case = {
   updated_at: string;
   tasks: CaseTask[];
   intake: CaseIntake | null;
+  /**
+   * The enquiry this case was opened from (`Send to case`), when there is one.
+   * ADDITIVE to the frozen `Case` shape: present when a case carries a reference,
+   * absent otherwise — the same optional-field posture as `intake`. The case screen
+   * shows the family's words through it instead of making the office retype them.
+   */
+  inquiry_reference?: string | null;
 };
 
 type CaseStore = {
@@ -122,6 +130,9 @@ function toCase(raw: unknown): Case {
       };
     }),
     intake: toIntake(r.intake),
+    ...(typeof r.inquiry_reference === "string" && r.inquiry_reference.trim() !== ""
+      ? { inquiry_reference: r.inquiry_reference }
+      : {}),
   };
 }
 
@@ -168,6 +179,7 @@ function toCaseRecord(stored: StoredCase): Case {
     updated_at: stored.updated_at,
     tasks: stored.tasks.map((t) => ({ ...t })),
     intake: toIntake(stored.intake),
+    ...(stored.inquiry_reference ? { inquiry_reference: stored.inquiry_reference } : {}),
   };
 }
 
@@ -191,17 +203,30 @@ async function caseFromWrite(payload: unknown, caseNumber: string): Promise<Case
 export type CaseIntakeInput = Partial<Omit<CaseIntake, "completed_at">> & {
   deceased_name?: string;
   assigned_coordinator?: string;
+  /** The enquiry the case is opened from, when the office sent one to a case. */
+  inquiry_reference?: string | null;
 };
 
 /**
  * Opens a case at the counter, with no order in front of it — Villa's actual sequence,
  * where a family arrives with a death and the contract is written before anything is paid.
+ *
+ * Fixture mode writes the durable case journal (`createCaseRecord`), so the new case is
+ * what every case screen shows next; it is not a live service, and the journal is not a
+ * claim of one.
  */
 export async function createCase(input: CaseIntakeInput): Promise<Case> {
-  if (!operationsLiveModeEnabled()) {
-    throw new ApiError("operations service not configured", 503);
+  if (operationsLiveModeEnabled()) {
+    return toCase(await postAuthedJson(BASE_URL, "/cases/api/v1/cases", input));
   }
-  return toCase(await postAuthedJson(BASE_URL, "/cases/api/v1/cases", input));
+  return toCaseRecord(
+    await createCaseRecord({
+      deceased_name: input.deceased_name,
+      assigned_coordinator: input.assigned_coordinator,
+      intake: input,
+      inquiry_reference: input.inquiry_reference ?? null,
+    }),
+  );
 }
 
 /** Completes (or corrects) intake on an existing case, addressed by its capability token. */

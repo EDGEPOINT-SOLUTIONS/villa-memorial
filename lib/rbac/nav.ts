@@ -14,6 +14,19 @@
  * AI Copilot from the workspace topbar. Nothing is deleted and no screen is left
  * without a door.
  *
+ * FOLLOW-UP 2026-10-02 (captain's second pass on the live rail). "Families &
+ * inquiries" becomes **Messages & inquiries** (Families · Agents · Inquiries ·
+ * Memberships · Memorials); "Orders & commerce" becomes Orders · Products and
+ * service · Inventory · Cases · Commission. Cases moves up from Park & services
+ * because a case is opened from an inquiry and fulfils an arrangement; its stage
+ * board absorbs the Operations board, which had no job of its own, so `/staff/ops`
+ * now redirects to the board rather than duplicating it. Pricing rules leaves the
+ * rail (the pricing document is edited from the catalogue it prices), and the
+ * Workflows screen is removed — its engine was never built and it governed nothing
+ * the office edits. A single **Forms & documents** group gathers the office's
+ * forms hub and the document repository. Sales pipeline keeps its route and is
+ * opened from Agents.
+ *
  * Scope semantics: an item is visible when the session holds AT LEAST ONE of
  * its required scopes. Scope reuse is provisional (commented) until each
  * module's contract freezes its own codes.
@@ -52,13 +65,17 @@ export const STAFF_NAV: NavSection[] = [
     ],
   },
   {
-    label: "Families & inquiries",
+    label: "Messages & inquiries",
     items: [
       // Permission codes are provisional until crm-families freezes its own RBAC
       // entries; reusing cases:* avoids inventing scopes.
       { href: "/staff/customers", label: "Families", scopes: ["cases:read"] },
+      // The staff-side register of the people who work leads (the offices' own sales
+      // agents), read from the recorded lead file. The pipeline itself is opened
+      // from here; it keeps its route and leaves the curated rail per the captain
+      // (the group's list is Families · Agents · Inquiries · Memberships · Memorials).
+      { href: "/staff/agents", label: "Agents", scopes: ["cases:read"] },
       { href: "/staff/inquiries", label: "Inquiries", scopes: ["cases:read"] },
-      { href: "/staff/pipeline", label: "Sales pipeline", scopes: ["cases:read"] },
       // Membership application folio (F-18 / FORMS_PLAN gap 4). Provisional scope:
       // rbac-scopes-v1 names no membership/plan-holder code, so this reuses the
       // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes.
@@ -72,15 +89,16 @@ export const STAFF_NAV: NavSection[] = [
     label: "Orders & commerce",
     items: [
       { href: "/staff/orders", label: "Orders", scopes: ["orders:read"] },
-      // The item catalogue: casket models · packages · service lines. The label
-      // reads "Products" (the admin's own word); the route and editor are unchanged.
-      { href: "/staff/catalog", label: "Products", scopes: ["catalog:read"] },
-      // ONE rate source: the plan tiers AND the lot families edit one pricing
-      // document. /staff/plans redirects here; the membership folio nests below.
-      { href: "/staff/pricing", label: "Pricing rules", scopes: ["catalog:write"] },
+      // The item catalogue: casket models · packages · service lines. The captain's
+      // word is "Products and service"; the route and editor are unchanged.
+      { href: "/staff/catalog", label: "Products and service", scopes: ["catalog:read"] },
       // Inventory gates on catalog:write (admin-manage) rather than catalog:read —
       // the customer persona holds catalog:read for the storefront.
       { href: "/staff/inventory", label: "Inventory", scopes: ["catalog:write"] },
+      // Cases moved here from Park & services (captain, 2026-10-02 follow-up): a case
+      // is the fulfilment of an order/arrangement, and it is opened from an inquiry.
+      // Its stage board absorbs the Operations board, so no second lane duplicates it.
+      { href: "/staff/cases", label: "Cases", scopes: ["cases:read"] },
       // Commission (F-12): no commission scope exists in rbac-scopes-v1, so the
       // screen reuses billing:read provisionally — statements/payouts are finance.
       { href: "/staff/commission", label: "Commission", scopes: ["billing:read"] },
@@ -104,11 +122,6 @@ export const STAFF_NAV: NavSection[] = [
     items: [
       { href: "/staff/property", label: "Property map", scopes: ["property:read"] },
       { href: "/staff/schedule", label: "Schedule & chapel", scopes: ["scheduling:read"] },
-      { href: "/staff/cases", label: "Cases", scopes: ["cases:read"] },
-      // The morning screen (blueprint §36): every case in the lane of the stage it
-      // is in, with the case screen's own two writes. cases:read like its siblings;
-      // the move/tick controls need cases:write.
-      { href: "/staff/ops", label: "Operations board", scopes: ["cases:read"] },
       // Dispatch reuses scheduling:read (vehicles are scheduling resources) until a
       // dedicated scope freezes.
       { href: "/staff/dispatch", label: "Vehicle dispatch", scopes: ["scheduling:read"] },
@@ -117,6 +130,18 @@ export const STAFF_NAV: NavSection[] = [
       // belongs to.
       { href: "/staff/preparation", label: "Preparation", scopes: ["cases:read"] },
       { href: "/staff/hr", label: "Staff directory", scopes: ["hr:read"] },
+    ],
+  },
+  {
+    label: "Forms & documents",
+    items: [
+      // ONE home for every form the office fills (captain's follow-up): the hub lists
+      // each form and opens its own dedicated capture page. cases:read is the broad
+      // staff read; each form's own page still gates its own write.
+      { href: "/staff/forms", label: "Forms", scopes: ["cases:read"] },
+      // The document repository (frozen documents-api-v1): list, open, and upload
+      // where a store exists.
+      { href: "/staff/documents", label: "Documents", scopes: ["documents:read"] },
     ],
   },
   {
@@ -142,15 +167,14 @@ export const STAFF_NAV: NavSection[] = [
     label: "Settings & admin",
     items: [
       { href: "/staff/users", label: "Users & roles", scopes: ["identity:users:manage"] },
-      // Workflows and Tenant settings are the designed read-only admin screens
-      // (S31/S32). Scopes are provisional until the config-engine contracts freeze;
-      // tenants:manage keeps them admin-only.
-      { href: "/staff/workflows", label: "Workflows", scopes: ["tenancy:tenants:manage"] },
       { href: "/staff/audit", label: "Audit trail", scopes: ["audit:events:read"] },
-      { href: "/staff/settings", label: "Tenant settings", scopes: ["tenancy:tenants:manage"] },
-      // The document repository (frozen documents-api-v1 read): the office's papers
-      // live with the park's configuration, not with the grounds.
-      { href: "/staff/documents", label: "Documents", scopes: ["documents:read"] },
+      // Park configuration (S32, captain renamed from "Tenant settings" — the office
+      // could not tell what "tenant" governed). READ-ONLY: the identity and rules the
+      // product already applies, with one line saying so. The workflow engine was not
+      // built and governed nothing the office edits, so its screen and nav entry are
+      // gone (captain: "remove this if not necessary"); the processes live in their
+      // own modules' screens (cases, transfers, bookings).
+      { href: "/staff/settings", label: "Park configuration", scopes: ["tenancy:tenants:manage"] },
     ],
   },
 ];

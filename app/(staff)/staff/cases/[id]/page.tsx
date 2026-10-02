@@ -144,6 +144,18 @@ export default async function CaseDetailPage({
                   <td>{item.linked_order_number ?? "—"}</td>
                 </tr>
                 <tr>
+                  <th scope="row">From inquiry</th>
+                  <td>
+                    {item.inquiry_reference ? (
+                      <Link href="/staff/inquiries">
+                        <code>{item.inquiry_reference}</code>
+                      </Link>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                </tr>
+                <tr>
                   <th scope="row">Services</th>
                   <td>{item.services.length > 0 ? item.services.join(", ") : "—"}</td>
                 </tr>

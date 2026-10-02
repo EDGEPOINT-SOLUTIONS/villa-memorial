@@ -142,6 +142,18 @@ export default async function SchedulePage({
 
   const chapelIds = new Set(chapelAdmin.chapels.map((chapel) => chapel.id));
   const todayMonth = monthOf(today);
+  // The day board labels each entry's KIND, not just its room: a chapel booking, a
+  // preparation-room slot and a vehicle trip read differently at a glance.
+  const resourceType = new Map(resources.map((resource) => [resource.id, resource.resource_type]));
+  const TYPE_LABEL: Record<string, string> = {
+    chapel: "Chapel",
+    preparation_room: "Preparation room",
+    vehicle: "Vehicle trip",
+  };
+  const typeLabel = (resourceId: string) =>
+    TYPE_LABEL[resourceType.get(resourceId) ?? ""] ??
+    resourceType.get(resourceId) ??
+    "Booking";
 
   // Week at a glance: the same bookings, laid over the next seven days.
   const weekDays: string[] = [];
@@ -153,15 +165,32 @@ export default async function SchedulePage({
   return (
     <>
       <PageHeader
-        eyebrow="Operations"
+        eyebrow="Park & services"
         title="Schedule"
-        lead="Chapel days, bookings and the day's board."
+        lead="What is happening today and this week — then the chapel rooms."
         actions={
           <span className="text-sm text-muted">
             {active} active · {conflicts.length} overlap{conflicts.length === 1 ? "" : "s"}
           </span>
         }
       />
+
+      <PageSection>
+        <nav className="row row--wrap" aria-label="Jump to">
+          <a className="pill-toggle" href="#sched-day-board">
+            Today
+          </a>
+          <a className="pill-toggle" href="#week">
+            This week
+          </a>
+          <a className="pill-toggle" href="#burial-calendar">
+            Burials
+          </a>
+          <a className="pill-toggle" href="#chapel-rooms">
+            Chapel rooms
+          </a>
+        </nav>
+      </PageSection>
 
       {/* Overlap strip: every booking the service has flagged, wherever it sits.
           The flag is booking-events-v1's (cut line #3) — shown, never recomputed. */}
@@ -261,6 +290,7 @@ export default async function SchedulePage({
                     <tr>
                       <th scope="col">Time</th>
                       <th scope="col">Resource</th>
+                      <th scope="col">Type</th>
                       <th scope="col">Booking</th>
                       <th scope="col">Case</th>
                       <th scope="col">State</th>
@@ -274,6 +304,7 @@ export default async function SchedulePage({
                         <td>
                           <strong>{booking.resource_name}</strong>
                         </td>
+                        <td className="text-sm">{typeLabel(booking.resource_id)}</td>
                         <td>
                           {booking.title}
                           {booking.status === "confirmed" && booking.conflicting ? (
@@ -310,7 +341,7 @@ export default async function SchedulePage({
 
       {/* Week at a glance: the same bookings over the next seven days. */}
       <PageSection>
-        <div className="card">
+        <div className="card" id="week">
           <div className="card__header row row--space">
             <h2>Week at a glance</h2>
             <span className="text-sm text-muted">next 7 days · confirmed only</span>
@@ -405,6 +436,15 @@ export default async function SchedulePage({
       ) : null}
 
       {/* The park's chapel surfaces — same store the customer booking step reads. */}
+      <PageSection>
+        <div className="row row--space row--wrap" id="chapel-rooms">
+          <h2 className="page-section-title">Chapel rooms</h2>
+          <span className="text-sm text-muted">
+            Settings · availability · bookings for the park&rsquo;s rooms.
+          </span>
+        </div>
+      </PageSection>
+
       <PageSection>
         <ChapelSettings chapels={chapelAdmin.chapels} canWrite={canWrite} />
       </PageSection>

@@ -222,7 +222,9 @@ describe("the staff pages gate on catalog:write", () => {
     const html = renderToStaticMarkup(
       withBaskets( await PricingStaffPage()),
     );
-    expect(html).toContain("Pricing rules");
+    // The captain renamed the screen off "Pricing rules" (2026-10-02 follow-up): the
+    // rate document now reads by what it holds, and the Products screen links it.
+    expect(html).toContain("Plan rates &amp; lot prices");
     // Plan rates half.
     expect(html).toContain("Plan rates");
     expect(html).toContain("Save plan rates");

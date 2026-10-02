@@ -7,11 +7,14 @@ import { hasAnyScope } from "@/lib/rbac/nav";
 import { PlanRatesEditor } from "../plans/plan-rates-editor";
 import { LotPricesEditor } from "./lot-prices-editor";
 
-export const metadata = { title: "Pricing rules — Admin Portal" };
+export const metadata = { title: "Plan rates & lot prices — Admin Portal" };
 
 /**
- * Pricing rules — the ONE rate source (content-catalogue Phase 4 nav
- * consolidation).
+ * Plan rates & lot prices — the ONE rate source (content-catalogue Phase 4 nav
+ * consolidation). It left the curated rail on the captain's 2026-10-02 follow-up
+ * ("remove the pricing rules" — its content belongs with the catalogue it prices);
+ * the Products and service screen links it, and /staff/plans still redirects here,
+ * so no bookmark and no rate lost its door.
  *
  * The two halves of the edited 2026 price document live here together, as the
  * captain's §6.1 shape asks: the five plan tiers × four payment modes (regular +
@@ -30,7 +33,7 @@ export default async function PricingPage() {
   if (!hasAnyScope(session.scopes, ["catalog:write"])) {
     return (
       <>
-        <PageHeader eyebrow="Commerce" title="Pricing rules" />
+        <PageHeader eyebrow="Orders & commerce" title="Plan rates & lot prices" />
         <PageSection>
           <ForbiddenState requiredScopes={["catalog:write"]} />
         </PageSection>
@@ -45,7 +48,7 @@ export default async function PricingPage() {
   } catch {
     return (
       <>
-        <PageHeader eyebrow="Commerce" title="Pricing rules" />
+        <PageHeader eyebrow="Orders & commerce" title="Plan rates & lot prices" />
         <PageSection>
           <ErrorState message="The pricing store is unavailable right now." />
         </PageSection>
@@ -58,8 +61,8 @@ export default async function PricingPage() {
   return (
     <div className="stack-4">
       <PageHeader
-        eyebrow="Commerce · 2026 price list"
-        title="Pricing rules"
+        eyebrow="Orders & commerce · 2026 price list"
+        title="Plan rates & lot prices"
         lead="One edited 2026 price document feeds every public price on the next request."
         actions={
           <Link href="/plans" target="_blank" rel="noreferrer" className="btn btn--secondary btn--sm">

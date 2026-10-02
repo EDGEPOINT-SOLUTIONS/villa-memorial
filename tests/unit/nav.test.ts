@@ -46,14 +46,16 @@ describe("visibleNav", () => {
 
   it("renders role-differentiated navs: staff vs customer", () => {
     const staff = labels(visibleNav(STAFF_SCOPES));
-    expect(staff).toContain("Products");
+    expect(staff).toContain("Products and service");
     expect(staff).toContain("Orders");
     expect(staff).toContain("Billing & collections");
     expect(staff).toContain("Cases");
     expect(staff).toContain("Staff directory");
     expect(staff).toContain("Documents");
-    expect(staff).toContain("Families"); // Families & inquiries section (cases:read)
+    expect(staff).toContain("Families"); // Messages & inquiries section (cases:read)
+    expect(staff).toContain("Agents"); // the staff agent register (cases:read)
     expect(staff).toContain("Inquiries");
+    expect(staff).toContain("Forms"); // the one forms hub (cases:read)
     expect(staff).toContain("Calendar"); // the unified calendar (scheduling:read)
     expect(staff).toContain("Inbox"); // the triage list (cases:read)
     expect(staff).toContain("Memorials"); // the published memorials (cases:read)
@@ -61,7 +63,7 @@ describe("visibleNav", () => {
     expect(staff).not.toContain("Audit trail");
 
     const customer = labels(visibleNav(CUSTOMER_SCOPES));
-    expect(customer).toEqual(["Dashboard", "Products"]);
+    expect(customer).toEqual(["Dashboard", "Products and service"]);
   });
 
   it("always shows scope-free items and hides empty sections", () => {
@@ -74,57 +76,83 @@ describe("the revisioned IA (admin plan, 2026-10-02)", () => {
   const section = (label: string) =>
     STAFF_NAV.find((s) => s.label === label)?.items.map((i) => i.label) ?? [];
 
-  it("leads with Today and names the seven groups in the board's order", () => {
+  it("leads with Today and names the groups in the captain's follow-up order", () => {
     expect(STAFF_NAV.map((s) => s.label)).toEqual([
       "Today",
-      "Families & inquiries",
+      "Messages & inquiries",
       "Orders & commerce",
       "Pages & content",
       "Park & services",
+      "Forms & documents",
       "Finance",
       "Settings & admin",
     ]);
   });
 
-  it("matches the board's items group by group", () => {
+  it("matches the captain's items group by group", () => {
     expect(section("Today")).toEqual(["Dashboard", "Calendar", "Inbox"]);
-    expect(section("Families & inquiries")).toEqual([
+    // Captain: "Change Families and inquiries to 'Messages and Inquiries' and under
+    // it is 'Families' 'Agents' 'Inquiries' 'Memberships' 'Memorials'."
+    expect(section("Messages & inquiries")).toEqual([
       "Families",
+      "Agents",
       "Inquiries",
-      "Sales pipeline",
       "Memberships",
       "Memorials",
     ]);
+    // Captain: "'Orders' 'Products and Service' 'Inventory' and ... Commission";
+    // Cases moved here from Park & services ("the Cases should be under Orders and
+    // Commerce") and Pricing rules left the rail ("remove the pricing rules").
     expect(section("Orders & commerce")).toEqual([
       "Orders",
-      "Products",
-      "Pricing rules",
+      "Products and service",
       "Inventory",
+      "Cases",
       "Commission",
     ]);
     expect(section("Pages & content")).toEqual(["Every public page", "Media library"]);
+    // Cases and the Operations board left for Orders & commerce; the board folded into
+    // Cases, so Park & services keeps the grounds work.
     expect(section("Park & services")).toEqual([
       "Property map",
       "Schedule & chapel",
-      "Cases",
-      "Operations board",
       "Vehicle dispatch",
       "Preparation",
       "Staff directory",
     ]);
+    // The captain's "single Forms area" plus the document repository it belongs beside.
+    expect(section("Forms & documents")).toEqual(["Forms", "Documents"]);
     expect(section("Finance")).toEqual([
       "Billing & collections",
       "Accounting",
       "Analytics",
       "Reports",
     ]);
+    // Workflows is gone (engine never built, governed nothing); Tenant settings is
+    // renamed to the office's own word, Park configuration.
     expect(section("Settings & admin")).toEqual([
       "Users & roles",
-      "Workflows",
       "Audit trail",
-      "Tenant settings",
-      "Documents",
+      "Park configuration",
     ]);
+  });
+
+  it("has retired the Pricing rules and Workflows rail entries but kept every route", () => {
+    const hrefs = STAFF_NAV.flatMap((s) => s.items.map((i) => i.href));
+    expect(hrefs).not.toContain("/staff/pricing");
+    expect(hrefs).not.toContain("/staff/workflows");
+    expect(hrefs).not.toContain("/staff/ops");
+    expect(hrefs).not.toContain("/staff/pipeline");
+    // The removed routes still resolve on disk where the brief kept them.
+    const root = path.join(
+      fileURLToPath(new URL("../..", import.meta.url)),
+      "app",
+      "(staff)",
+      "staff",
+    );
+    expect(existsSync(path.join(root, "pricing", "page.tsx"))).toBe(true);
+    expect(existsSync(path.join(root, "pipeline", "page.tsx"))).toBe(true);
+    expect(existsSync(path.join(root, "ops", "page.tsx"))).toBe(true);
   });
 
   it("keeps every existing route's page file alive, even when it leaves the rail", () => {

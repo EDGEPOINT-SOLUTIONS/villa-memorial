@@ -56,7 +56,10 @@ vi.mock("@/lib/api-client/operations", async (importOriginal) => {
   };
 });
 
-const { default: OpsPage } = await import("@/app/(staff)/staff/ops/page");
+// The Operations board folded into Cases (captain, 2026-10-02): the board is the
+// Cases page's `?view=board`, and `/staff/ops` redirects here. This suite renders the
+// board view of the real Cases page, which is now the one surface.
+const { default: CasesPage } = await import("@/app/(staff)/staff/cases/page");
 const { getCase, setCaseStage, setCaseTaskStatus } = await import(
   "@/lib/api-client/operations"
 );
@@ -80,7 +83,9 @@ function signInAs(scopes: string[]) {
 }
 
 async function render(): Promise<string> {
-  return renderToStaticMarkup(await OpsPage());
+  return renderToStaticMarkup(
+    await CasesPage({ searchParams: Promise.resolve({ view: "board" }) }),
+  );
 }
 
 /** The markup of ONE lane, so a card's lane membership can be asserted. */

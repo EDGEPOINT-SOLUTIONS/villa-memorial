@@ -7,8 +7,13 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listCases, type Case } from "@/lib/api-client/operations";
+import { loadCaseInstruments } from "@/lib/api-client/guarantee-instruments";
+import { INSTRUMENT_FILING_DAYS, type GuaranteeInstrument } from "@/lib/guarantee-instruments";
 import { CASE_STAGES, STAGE_LABEL, STAGE_TONE, isCaseStage } from "@/lib/operations/case-board";
+import { buildOpsBoard, daysLabel } from "@/lib/operations/ops-board";
+import { parkToday } from "@/lib/schedule-board";
 import { PipelineDots } from "@/components/case-pipeline";
+import { OpsBoardView } from "../ops/ops-board-view";
 
 export const metadata = { title: "Cases — Admin Portal" };
 
@@ -48,10 +53,31 @@ function CaseCard({ kase }: { kase: Case }) {
   );
 }
 
+/**
+ * The guarantee-instrument read per case, exactly as the (now folded) Operations board
+ * did it: a tracker that cannot be read never fails the board — absence is not a claim.
+ */
+async function loadInstrumentsByCase(
+  cases: Case[],
+): Promise<Record<string, GuaranteeInstrument[]>> {
+  const byCase: Record<string, GuaranteeInstrument[]> = {};
+  await Promise.all(
+    cases.map(async (kase) => {
+      try {
+        const read = await loadCaseInstruments(kase.case_number);
+        if (read.state === "recorded") byCase[kase.case_number] = read.instruments;
+      } catch {
+        // A record that cannot be read contributes no paper flag.
+      }
+    }),
+  );
+  return byCase;
+}
+
 export default async function CasesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ stage?: string }>;
+  searchParams: Promise<{ stage?: string; view?: string }>;
 }) {
   const session = await requireSessionOrRedirect();
   if (!hasAnyScope(session.scopes, ["cases:read"])) {
@@ -81,7 +107,8 @@ export default async function CasesPage({
     );
   }
 
-  const { stage } = await searchParams;
+  const { stage, view } = await searchParams;
+  const boardView = (view ?? "") === "board";
   const stageFilter = (stage ?? "").trim();
   const validStage = isCaseStage(stageFilter) ? stageFilter : "";
 
@@ -100,16 +127,110 @@ export default async function CasesPage({
   }
 
   const presentStages = CASE_STAGES.filter((s) => cases.some((c) => c.stage === s));
+  const viewToggle = (
+    <nav className="row row--wrap" aria-label="View">
+      <Link href="/staff/cases" className={`pill-toggle${!boardView ? " pill-toggle--active" : ""}`}>
+        List
+      </Link>
+      <Link
+        href="/staff/cases?view=board"
+        className={`pill-toggle${boardView ? " pill-toggle--active" : ""}`}
+      >
+        Board
+      </Link>
+    </nav>
+  );
+
+  if (boardView) {
+    // The board is the Operations board folded in (captain, 2026-10-02): it shows the
+    // same cases in the lane of their stage — the one job it did that the list did not.
+    const { lanes, summary, hasCases } = buildOpsBoard(
+      cases,
+      await loadInstrumentsByCase(cases),
+      parkToday(),
+    );
+    return (
+      <>
+        <PageHeader
+          eyebrow="Orders & commerce"
+          title="Cases"
+          lead="Every case in the stage it has reached today."
+          actions={
+            <span className="row row--wrap" style={{ gap: "var(--space-3)" }}>
+              <Link href="/staff/schedule" className="btn btn--secondary btn--sm">
+                Today&rsquo;s schedule
+              </Link>
+              {viewToggle}
+            </span>
+          }
+        />
+        {hasCases ? (
+          <>
+            <div className="ops-summary" role="group" aria-label="Board summary">
+              <div className="ops-summary__item">
+                <span className="ops-summary__label">In service</span>
+                <span className="ops-summary__value">{summary.inService}</span>
+                <span className="ops-summary__sub">
+                  {summary.completed > 0 ? `${summary.completed} completed` : "not completed"}
+                </span>
+              </div>
+              <div
+                className={`ops-summary__item${summary.papersOverdue > 0 ? " ops-summary__item--danger" : ""}`}
+              >
+                <span className="ops-summary__label">Papers overdue</span>
+                <span className="ops-summary__value">{summary.papersOverdue}</span>
+                <span className="ops-summary__sub">{INSTRUMENT_FILING_DAYS}-day filing term</span>
+              </div>
+              <div className="ops-summary__item">
+                <span className="ops-summary__label">Awaiting intake</span>
+                <span className="ops-summary__value">{summary.awaitingIntake}</span>
+                <span className="ops-summary__sub">deceased not recorded</span>
+              </div>
+              <div className="ops-summary__item">
+                <span className="ops-summary__label">Longest wait</span>
+                <span className="ops-summary__value">
+                  {summary.oldest ? daysLabel(summary.oldest.days) : "—"}
+                </span>
+                <span className="ops-summary__sub">
+                  {summary.oldest ? summary.oldest.caseNumber : "no recorded age"}
+                </span>
+              </div>
+            </div>
+            {canWriteCases ? null : (
+              <p className="ops-board__readonly text-sm text-muted">
+                Ticking a task or moving a case needs <code>cases:write</code>.
+              </p>
+            )}
+            <PageSection>
+              <OpsBoardView lanes={lanes} canWrite={canWriteCases} />
+            </PageSection>
+            <p className="ops-board__basis text-sm text-muted">
+              Age — days since each case&rsquo;s last recorded change. Overdue — guarantee
+              papers past the service contract&rsquo;s {INSTRUMENT_FILING_DAYS}-day filing
+              term. Lanes order longest wait first; no stage-staleness threshold is agreed.
+            </p>
+          </>
+        ) : (
+          <PageSection>
+            <EmptyState
+              title="No cases on the board"
+              hint="Cases appear here as the office records them."
+            />
+          </PageSection>
+        )}
+      </>
+    );
+  }
 
   return (
     <>
       <PageHeader
-        eyebrow="Operations"
+        eyebrow="Orders & commerce"
         title="Cases"
         lead="Every funeral case the office is handling."
         actions={
-          <span className="row" style={{ gap: "var(--space-3)" }}>
-            <span className="text-sm text-muted">{cases.length} total</span>
+          <span className="row row--wrap" style={{ gap: "var(--space-3)" }}>
+            {viewToggle}
             {canWriteCases ? (
               <Link href="/staff/cases/new" className="btn btn--primary btn--sm">
                 Open a case

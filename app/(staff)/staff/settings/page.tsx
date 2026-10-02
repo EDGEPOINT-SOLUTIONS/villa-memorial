@@ -23,17 +23,18 @@ import {
   type PlatformOnlyItem,
 } from "@/lib/tenant-settings";
 
-export const metadata = { title: "Tenant settings — Admin Portal" };
+export const metadata = { title: "Park configuration — Admin Portal" };
 
 /**
- * Tenant settings (S32) — this park's own configuration.
+ * Park configuration (S32, renamed from "Tenant settings" on the captain's
+ * 2026-10-02 follow-up — the office could not tell what "tenant" governed).
  *
- * READ-ONLY BY DESIGN: `tenancy-config` (the service that would own tenant
- * settings and module flags) is not in this build, so this screen reflects
- * configuration the product actually applies — the identity its public pages
- * publish, the business rules its modules enforce, what is configured versus
- * still waiting — and names in one line what only the platform can change. It
- * provisions nothing.
+ * READ-ONLY BY DESIGN: `tenancy-config` (the service that would own park settings
+ * and module flags) is not in this build, so this screen reflects configuration the
+ * product actually applies — the identity its public pages publish, the business
+ * rules its modules enforce, what is configured versus still waiting — and names in
+ * one line what only the platform can change. It provisions nothing. The lead says
+ * all of that in one line, which is the captain's ask.
  *
  * Layout renders through the component kit (`components/kit`) — the four tables
  * are `DataTable`, the tiles `StatCard`, the state chips `StatusChip`.
@@ -74,7 +75,7 @@ export default async function SettingsPage() {
   if (!hasAnyScope(session.scopes, ["tenancy:tenants:manage"])) {
     return (
       <>
-        <PageHeader eyebrow="Administration" title="Tenant settings" />
+        <PageHeader eyebrow="Settings & admin" title="Park configuration" />
         <PageSection>
           <ForbiddenState requiredScopes={["tenancy:tenants:manage"]} />
         </PageSection>
@@ -88,7 +89,7 @@ export default async function SettingsPage() {
   } catch {
     return (
       <>
-        <PageHeader eyebrow="Administration" title="Tenant settings" />
+        <PageHeader eyebrow="Settings & admin" title="Park configuration" />
         <PageSection>
           <ErrorState message="Unable to load the recorded configuration." />
         </PageSection>
@@ -103,9 +104,9 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Administration"
-        title="Tenant settings"
-        lead="How this park is configured, and what only the platform can change."
+        eyebrow="Settings & admin"
+        title="Park configuration"
+        lead="Read-only: the identity and rules this park already applies."
         actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 

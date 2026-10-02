@@ -77,7 +77,7 @@ export default async function CatalogPage({
   if (!hasAnyScope(session.scopes, ["catalog:read"])) {
     return (
       <>
-        <PageHeader eyebrow="Commerce" title="Catalog" />
+        <PageHeader eyebrow="Orders & commerce" title="Products and service" />
         <PageSection>
           <ForbiddenState requiredScopes={["catalog:read"]} />
         </PageSection>
@@ -91,7 +91,7 @@ export default async function CatalogPage({
   } catch (err) {
     return (
       <>
-        <PageHeader eyebrow="Commerce" title="Catalog" />
+        <PageHeader eyebrow="Orders & commerce" title="Products and service" />
         <PageSection>
           <ErrorState
             message={err instanceof ApiError ? err.message : "Unable to load the catalog just now."}
@@ -118,14 +118,21 @@ export default async function CatalogPage({
   return (
     <>
       <PageHeader
-        eyebrow="Commerce"
-        title="Catalog"
+        eyebrow="Orders & commerce"
+        title="Products and service"
         lead="Everything the storefront sells — models, packages and service lines."
         actions={
           <>
             <span className="text-sm text-muted">
               {records.length} items · {publishedCount} on the storefront
             </span>
+            {canWrite ? (
+              // Pricing rules left the rail (captain, 2026-10-02): the rate document is
+              // edited from the catalogue it prices, so the editor keeps one door.
+              <Link href="/staff/pricing" className="btn btn--secondary btn--sm">
+                Plan rates &amp; lot prices
+              </Link>
+            ) : null}
             {canWrite ? (
               <Link href="/staff/catalog/new" className="btn btn--primary btn--sm">
                 + New catalog item

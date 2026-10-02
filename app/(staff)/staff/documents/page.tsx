@@ -93,9 +93,9 @@ export default async function DocumentsPage({
         title="Documents"
         lead="The office's recorded documents and their states."
         actions={
-          <button className="btn btn--primary btn--sm" disabled>
-            Upload (not wired yet)
-          </button>
+          <Link href="/staff/documents/new" className="btn btn--primary btn--sm">
+            + Upload a document
+          </Link>
         }
       />
 

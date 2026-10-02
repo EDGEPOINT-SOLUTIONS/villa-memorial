@@ -1,27 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field } from "@/components/ui/field";
 import type { Inquiry } from "@/lib/api-client/crm";
 import { formatMinorUnits } from "@/lib/money";
+import { InquiryCaptureForm, SOURCE_LABELS } from "./inquiry-capture";
 
 type Tone = "info" | "warning" | "success" | "neutral";
-
-const SOURCE_LABELS: Array<{ value: Inquiry["source"]; label: string }> = [
-  { value: "walk_in", label: "Walk-in" },
-  { value: "phone", label: "Phone" },
-  { value: "facebook", label: "Facebook" },
-  { value: "messenger", label: "Messenger" },
-  { value: "website", label: "Website" },
-  { value: "referral", label: "Referral" },
-  { value: "agent", label: "Agent" },
-  { value: "event", label: "Event" },
-  { value: "ads", label: "Ads" },
-];
 
 /**
  * The office's enquiry workspace.
@@ -36,33 +26,31 @@ const SOURCE_LABELS: Array<{ value: Inquiry["source"]; label: string }> = [
  * journal (`lib/api-client/inquiry-store.ts`) that `POST /api/inquiries` writes — and
  * the request's own words are rendered under its topic, where a coordinator reads them.
  *
- * The counter's "log a call or walk-in" form posts to the same route, so a call logged
- * at the desk is a record and not a browser note that dies with the tab.
+ * 2026-10-02 — the capture form is now ONE component (`./inquiry-capture.tsx`) shared
+ * with the dedicated `/staff/inquiries/new` page, so the two cannot say different
+ * things. `Send to case` carries a finished enquiry into a case (the same route the
+ * dedicated page uses); once carried, the row links to the case instead of a button.
  */
 export function InquiryBoard({
   initialInquiries,
   statusTone,
   canCapture,
+  linkedCases = {},
 }: {
   initialInquiries: Inquiry[];
   statusTone: Record<string, Tone>;
   canCapture: boolean;
+  /** Enquiry reference → the case it was carried into, when one exists. */
+  linkedCases?: Record<string, string>;
 }) {
   const [inquiries, setInquiries] = useState<Inquiry[]>(initialInquiries);
   const [capturedCount, setCapturedCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [filter, setFilter] = useState("");
-  const [form, setForm] = useState({
-    full_name: "",
-    phone: "",
-    email: "",
-    source: "phone",
-    topic: "",
-    message: "",
-    assigned_to: "",
-  });
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [links, setLinks] = useState<Record<string, string>>(linkedCases);
+  const [sendingId, setSendingId] = useState<string | null>(null);
+  const [caseError, setCaseError] = useState<string | null>(null);
+  const router = useRouter();
 
   const filtered = useMemo(() => {
     const q = filter.trim().toLowerCase();
@@ -75,51 +63,42 @@ export function InquiryBoard({
     );
   }, [inquiries, filter]);
 
-  async function submitCapture(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setValidationError(null);
-    setSaving(true);
+  async function sendToCase(inquiry: Inquiry) {
+    setCaseError(null);
+    setSendingId(inquiry.id);
     try {
-      // The counter's row goes to the SAME durable journal the website writes to, so a
-      // call logged at the desk survives the tab and reaches every staff screen.
-      const response = await fetch("/api/inquiries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind: "log", values: form }),
-      });
+      const response = await fetch(
+        `/api/inquiries/${encodeURIComponent(inquiry.id)}/to-case`,
+        { method: "POST" },
+      );
       const payload: unknown = await response.json().catch(() => null);
-      const body = typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
-
-      if (!response.ok || typeof body.inquiry !== "object" || body.inquiry === null) {
-        setValidationError(
-          typeof body.error === "string" ? body.error : "The enquiry could not be recorded.",
+      const body =
+        typeof payload === "object" && payload !== null
+          ? (payload as Record<string, unknown>)
+          : {};
+      if (!response.ok || typeof body.id !== "string") {
+        setCaseError(
+          typeof body.error === "string" ? body.error : "The case could not be opened.",
         );
         return;
       }
-
-      setInquiries((prev) => [body.inquiry as Inquiry, ...prev]);
-      setCapturedCount((n) => n + 1);
-      setFormOpen(false);
-      setForm({
-        full_name: "",
-        phone: "",
-        email: "",
-        source: "phone",
-        topic: "",
-        message: "",
-        assigned_to: "",
-      });
+      setLinks((prev) => ({ ...prev, [inquiry.reference]: body.id as string }));
+      // Re-read the server so the "Sent to case" figure and the row's link agree.
+      router.refresh();
     } catch {
-      setValidationError(
-        "The enquiry could not be recorded — check your connection and try again.",
-      );
+      setCaseError("The case could not be opened — check your connection and try again.");
     } finally {
-      setSaving(false);
+      setSendingId(null);
     }
   }
 
   return (
     <div className="stack-4">
+      {caseError ? (
+        <Alert tone="danger" title="Could not open the case">
+          {caseError}
+        </Alert>
+      ) : null}
       {capturedCount > 0 ? (
         <Alert tone="success" title="Inquiry recorded.">
           The enquiry is saved in the office&rsquo;s register and appears in the list
@@ -138,146 +117,26 @@ export function InquiryBoard({
           aria-label="Filter inquiries"
         />
         {canCapture ? (
-          <Button
-            onClick={() => setFormOpen((open) => !open)}
-            aria-expanded={formOpen}
-          >
+          <Button onClick={() => setFormOpen((open) => !open)} aria-expanded={formOpen}>
             {formOpen ? "Close quick capture" : "Log an inquiry"}
           </Button>
         ) : null}
       </div>
 
       {canCapture && formOpen ? (
-        <form onSubmit={submitCapture} className="stack" noValidate>
-          {validationError ? (
-            <Alert tone="danger" title="Could not capture">
-              {validationError}
-            </Alert>
-          ) : null}
-
-          {/* 01 — Who is asking */}
-          <section className="card capture-section">
-            <div className="capture-section__head">
-              <span className="capture-section__num" aria-hidden="true">
-                01
-              </span>
-              <div>
-                <h2 className="capture-section__title">Who is asking</h2>
-                <p className="capture-section__blurb">
-                  Enough to call them back — name and contact number are the only
-                  essentials.
-                </p>
-              </div>
-            </div>
-            <div className="capture-section__body">
-              <div className="field-grid field-grid--3">
-                <Field label="Full name" htmlFor="inq-name">
-                  <input
-                    id="inq-name"
-                    value={form.full_name}
-                    onChange={(e) =>
-                      setForm({ ...form, full_name: e.target.value })
-                    }
-                  />
-                </Field>
-                <Field label="Contact number" htmlFor="inq-phone">
-                  <input
-                    id="inq-phone"
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  />
-                </Field>
-                <Field label="Email" htmlFor="inq-email" hint="Optional.">
-                  <input
-                    id="inq-email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  />
-                </Field>
-              </div>
-            </div>
-          </section>
-
-          {/* 02 — What they need */}
-          <section className="card capture-section">
-            <div className="capture-section__head">
-              <span className="capture-section__num" aria-hidden="true">
-                02
-              </span>
-              <div>
-                <h2 className="capture-section__title">What they need</h2>
-                <p className="capture-section__blurb">
-                  The topic is the one thing the inquiries board filters on.
-                </p>
-              </div>
-            </div>
-            <div className="capture-section__body">
-              <div className="field-grid field-grid--2">
-                <Field label="How they reached us" htmlFor="inq-source">
-                  <select
-                    id="inq-source"
-                    value={form.source}
-                    onChange={(e) =>
-                      setForm({ ...form, source: e.target.value as Inquiry["source"] })
-                    }
-                  >
-                    {SOURCE_LABELS.map((s) => (
-                      <option key={s.value} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label="What are they asking about?" htmlFor="inq-topic">
-                  <input
-                    id="inq-topic"
-                    placeholder="e.g. Pre-need plans, pricing, documents…"
-                    value={form.topic}
-                    onChange={(e) => setForm({ ...form, topic: e.target.value })}
-                  />
-                </Field>
-              </div>
-              <div className="field-grid field-grid--2">
-                <Field label="Notes" htmlFor="inq-message" hint="Optional — what they said, in their words.">
-                  <textarea
-                    id="inq-message"
-                    rows={4}
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  />
-                </Field>
-                <Field label="Assign to" htmlFor="inq-assignee">
-                  <input
-                    id="inq-assignee"
-                    placeholder="Unassigned"
-                    value={form.assigned_to}
-                    onChange={(e) =>
-                      setForm({ ...form, assigned_to: e.target.value })
-                    }
-                  />
-                </Field>
-              </div>
-            </div>
-          </section>
-
-          <div className="capture-actions">
-            <Button type="submit" disabled={saving}>
-            {saving ? "Recording…" : "Capture inquiry"}
-          </Button>
-            <Button variant="ghost" type="button" onClick={() => setFormOpen(false)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
+        <InquiryCaptureForm
+          onCaptured={(inquiry) => {
+            setInquiries((prev) => [inquiry, ...prev]);
+            setCapturedCount((n) => n + 1);
+            setFormOpen(false);
+          }}
+          onCancel={() => setFormOpen(false)}
+        />
       ) : null}
 
       {filtered.length === 0 ? (
         <EmptyState
-          title={
-            filter ? "No inquiries match your filter" : "No inquiries logged yet"
-          }
+          title={filter ? "No inquiries match your filter" : "No inquiries logged yet"}
           hint={
             filter
               ? "Clear the filter to see all inquiries."
@@ -295,6 +154,7 @@ export function InquiryBoard({
                 <th scope="col">Source</th>
                 <th scope="col">Assigned</th>
                 <th scope="col">Status</th>
+                <th scope="col">Case</th>
                 <th scope="col">Received</th>
               </tr>
             </thead>
@@ -353,14 +213,30 @@ export function InquiryBoard({
                       <p className="inquiry-board__message">{i.message}</p>
                     ) : null}
                   </td>
-                  <td className="text-sm">{SOURCE_LABELS.find((s) => s.value === i.source)?.label ?? i.source}</td>
+                  <td className="text-sm">
+                    {SOURCE_LABELS.find((s) => s.value === i.source)?.label ?? i.source}
+                  </td>
                   <td className="text-sm">{i.assigned_to}</td>
                   <td>
                     <Badge tone={statusTone[i.status] ?? "neutral"}>{i.status}</Badge>
                   </td>
                   <td className="text-sm">
-                    {new Date(i.received_at).toLocaleString()}
+                    {links[i.reference] ? (
+                      <Link href={`/staff/cases/${links[i.reference]}`}>View case</Link>
+                    ) : canCapture && (i.status === "converted" || i.status === "closed") ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={sendingId === i.id}
+                        onClick={() => sendToCase(i)}
+                      >
+                        {sendingId === i.id ? "Opening…" : "Send to case"}
+                      </Button>
+                    ) : (
+                      <span className="text-muted">—</span>
+                    )}
                   </td>
+                  <td className="text-sm">{new Date(i.received_at).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

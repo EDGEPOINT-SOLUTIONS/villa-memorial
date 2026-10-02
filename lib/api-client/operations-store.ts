@@ -16,17 +16,23 @@
  *   - Path: `OPERATIONS_STORE_PATH` when set (tests), otherwise
  *     `.data/operations-cases.json` under the app's cwd (gitignored).
  *
+ * WHAT IS HERE NOW. Opening a case at the counter (`createCaseRecord`) — the captain's
+ * follow-up needs an inquiry's "Send to case" to produce a real case, and the counter's
+ * own `+ Open a case` form to work in fixture mode, not answer 503. It seats the record
+ * at the `inquiry` stage with that stage's task template and no order, which is Villa's
+ * real sequence (a death arrives before anything is paid).
+ *
  * WHAT IS NOT HERE
- *  · Case creation and intake capture. Those write `deceased_name`/`assigned_coordinator`
- *    and the intake block, they are not the board's two actions, and their fixture path
- *    still answers 503 (`lib/api-client/operations.ts`). Adding them here would widen
- *    this change without a screen that needs it.
- *  · Any upstream contract. The frozen `case-events-v1` names both endpoints, so live
- *    mode calls the real ones — this store is never consulted when `OPERATIONS_BASE_URL`
- *    is set.
+ *  · Intake capture on an EXISTING case. That is a PATCH on the case and still waits on
+ *    the live service (`lib/api-client/operations.ts`); a case opened here carries the
+ *    intake the counter supplied at creation.
+ *  · Any upstream contract. The frozen `case-events-v1` names both write endpoints, so
+ *    live mode calls the real ones — this store is never consulted when
+ *    `OPERATIONS_BASE_URL` is set.
  *  · The service's own rules. The stage template mirror lives in
  *    `lib/operations/case-board.ts` next to the rest of the frozen vocabulary.
  */
+import { randomUUID } from "node:crypto";
 import {
   createJournalLock,
   journalPath,
@@ -39,6 +45,7 @@ import {
   isCaseStage,
   isCaseTaskStatus,
   stageTaskTitlesToAdd,
+  STAGE_TASK_TEMPLATE,
   type CaseTask,
   type CaseTaskStatus,
   type CaseStage,
@@ -62,6 +69,12 @@ export type StoredCase = {
    * is where it is read field by field into the typed `CaseIntake`.
    */
   intake: unknown;
+  /**
+   * The enquiry a case was opened from, when it was opened from one (`Send to case`).
+   * ADDITIVE and optional: the frozen `Case` shape names no enquiry, so the case screen
+   * reads it when present and omits it otherwise — never defaults it.
+   */
+  inquiry_reference?: string | null;
 };
 
 type SeedStore = { tenant_id: string; cases: unknown[] };
@@ -74,7 +87,13 @@ type PersistedEvent =
       task_id: string;
       status: CaseTaskStatus;
     }
-  | { kind: "stage_set"; at: string; case_number: string; stage: CaseStage; tasks: CaseTask[] };
+  | { kind: "stage_set"; at: string; case_number: string; stage: CaseStage; tasks: CaseTask[] }
+  /**
+   * A case opened at the counter (or from an inquiry) in fixture mode. The whole
+   * record is journalled — unlike the two writes above it is not a change to a seed
+   * row, so there is no seed row to fold it onto.
+   */
+  | { kind: "case_created"; at: string; case: StoredCase };
 
 export function operationsStorePath(): string {
   return journalPath("OPERATIONS_STORE_PATH", "operations-cases.json");
@@ -109,8 +128,19 @@ export function toStoredCase(raw: unknown): StoredCase {
     updated_at: requiredString(r.updated_at, "case updated_at"),
     tasks: rows.map(toCaseTask),
     intake: r.intake ?? null,
+    ...(typeof r.inquiry_reference === "string" && r.inquiry_reference.trim() !== ""
+      ? { inquiry_reference: r.inquiry_reference }
+      : {}),
   };
 }
+
+/** What the store needs to open a case; the api-client maps its own input onto this. */
+export type NewCaseInput = {
+  deceased_name?: string;
+  assigned_coordinator?: string;
+  intake?: unknown;
+  inquiry_reference?: string | null;
+};
 
 /**
  * A task row. `id` is required by the frozen contract because it is what
@@ -141,6 +171,9 @@ function toPersistedEvent(raw: unknown): PersistedEvent {
   if (typeof raw !== "object" || raw === null) malformed("store event");
   const r = raw as Record<string, unknown>;
   const at = requiredString(r.at, "event timestamp");
+  if (r.kind === "case_created") {
+    return { kind: "case_created", at, case: toStoredCase(r.case) };
+  }
   const caseNumber = requiredString(r.case_number, "event case number");
   switch (r.kind) {
     case "task_status_set":
@@ -185,6 +218,10 @@ export async function loadStoredCases(): Promise<StoredCase[]> {
   const cases = seed.cases.map(toStoredCase);
 
   for (const event of await readPersistedEvents()) {
+    if (event.kind === "case_created") {
+      cases.push(structuredClone(event.case));
+      continue;
+    }
     const kase = cases.find((c) => c.case_number === event.case_number);
     if (!kase) {
       // A journal that names an unknown case means seed and store drifted.
@@ -224,6 +261,58 @@ function caseByNumber(cases: StoredCase[], caseNumber: string): StoredCase {
     throw new ApiError("not_found", 404);
   }
   return kase;
+}
+
+/**
+ * Opens a case under the store lock. The counter's form and an inquiry's `Send to
+ * case` both land here; ownership of the id, the case number and the timestamp is the
+ * store's, exactly as `receiveInquiry` owns its own.
+ *
+ * Seeded at the `inquiry` stage with that stage's task template and no order: the
+ * family's death is recorded before anything is paid, which is Villa's real sequence.
+ */
+export function createCaseRecord(
+  input: NewCaseInput,
+  at = new Date().toISOString(),
+): Promise<StoredCase> {
+  return withStoreLock(async () => {
+    const cases = await loadStoredCases();
+    const caseNumber = nextCaseNumber(cases);
+    const kase: StoredCase = {
+      id: `case-${randomUUID()}`,
+      case_number: caseNumber,
+      deceased_name: input.deceased_name?.trim() || "Pending intake",
+      stage: "inquiry",
+      assigned_coordinator: input.assigned_coordinator?.trim() || "",
+      linked_order_number: null,
+      services: [],
+      created_at: at,
+      updated_at: at,
+      tasks: STAGE_TASK_TEMPLATE.inquiry.map((title, index) => ({
+        id: `${caseNumber}-t${index + 1}`,
+        title,
+        status: "pending" as const,
+      })),
+      intake: input.intake ?? null,
+      ...(input.inquiry_reference ? { inquiry_reference: input.inquiry_reference } : {}),
+    };
+    const events = await readPersistedEvents();
+    await persistEvents([...events, { kind: "case_created", at, case: kase }]);
+    return structuredClone(kase);
+  });
+}
+
+/** The next free `CASE-<year>-<nnnn>` above every seed and journalled case. */
+function nextCaseNumber(cases: ReadonlyArray<StoredCase>): string {
+  const year = new Date().getUTCFullYear();
+  const prefix = `CASE-${year}-`;
+  let highest = 0;
+  for (const kase of cases) {
+    if (!kase.case_number.startsWith(prefix)) continue;
+    const n = Number.parseInt(kase.case_number.slice(prefix.length), 10);
+    if (Number.isFinite(n) && n > highest) highest = n;
+  }
+  return `${prefix}${String(highest + 1).padStart(4, "0")}`;
 }
 
 /** Next free task id for a case — stable, greppable, and never re-used after an append. */
