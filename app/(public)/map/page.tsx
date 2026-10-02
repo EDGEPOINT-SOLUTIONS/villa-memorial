@@ -35,12 +35,10 @@ export const dynamic = "force-dynamic";
  *   the gateway (Map / Lots actions) → the recorded plots on one plan →
  *   the page document's content blocks.
  *
- * The opening is the home's gateway grammar, the same one /services wears: a
- * centred, plain band with a visible h1 at the page-title step, one ≤12-word
- * lead, and the two view actions as "Map" (the current view) and "Lots". They
- * REPLACE the old standalone pill tabs, so the page has ONE view switch, not
- * two. A three-fact trust row under a hairline gives the family the park at a
- * glance — every fact is a record count, never a claim.
+ * The opening is the home's gateway action row (captain, 2026-10-02: the park
+ * band head was stripped), the two view actions as "Map" (the current view) and
+ * "Lots". They REPLACE the old standalone pill tabs, so the page has ONE view
+ * switch, not two.
  *
  * The Lots listing is a TAB of this page (the captain's direction); the standalone
  * /lots route and the /lots/[id] and /lots/price-list-2026 routes stay, per the
@@ -200,11 +198,6 @@ export default async function PublicMapPage({
           initialPlot={initialPlot}
           initialMode={initialMode}
           enable3d
-          bandHead={{
-            kicker: "The park map",
-            title: "Every recorded plot, on one plan",
-            lead: "Click a plot for its status, size and price.",
-          }}
         />
       )}
 

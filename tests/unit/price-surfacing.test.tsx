@@ -111,7 +111,7 @@ describe("/products publishes the whole 2026 casket catalogue", () => {
 
   it("no longer hides pricing behind 'contact the park office for pricing'", () => {
     expect(html).not.toMatch(/contact the park office for pricing/i);
-    expect(html).toMatch(/published price/i);
+    expect(html).toMatch(/with its price/i);
   });
 
   it("gives every model an Add to cart (exact catalogue SKU) and a Request order link", () => {
@@ -193,7 +193,6 @@ describe("/services offers a Request for Quote instead of a service price", () =
     for (const f of ALACARTE_SERVICE_FEES) {
       expect(html, f.service).toContain(f.service);
     }
-    expect(html).toContain("Ask for the services you need");
     expect(html).toContain("Embalming — quoted by the day");
     expect(html).toContain("Two rooms for your dates");
     expect(html).toContain("How many days will the viewing be open?");

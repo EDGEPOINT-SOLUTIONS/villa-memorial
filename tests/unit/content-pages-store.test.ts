@@ -50,7 +50,6 @@ describe("the page-document store", () => {
       "Memorials",
       "Builder",
       "Facilities",
-      "Gallery",
       "Price list",
       "Login",
     ]);

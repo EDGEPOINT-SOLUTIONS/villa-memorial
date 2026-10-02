@@ -103,9 +103,6 @@ export function MobileQuickMenu({ content }: { content: LandingContent }) {
               <a href="/facilities" onClick={() => setOpen(false)}>
                 Facilities
               </a>
-              <a href="/gallery" onClick={() => setOpen(false)}>
-                Photo gallery
-              </a>
               <a href="/products" onClick={() => setOpen(false)}>
                 Products
               </a>

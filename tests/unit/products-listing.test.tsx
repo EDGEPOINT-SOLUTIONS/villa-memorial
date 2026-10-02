@@ -139,13 +139,15 @@ describe("/products is one Amazon-familiar model listing", () => {
     }
   });
 
-  it("opens with one plain sentence and an action, then the catalogue", () => {
-    const lead = html.match(/<p class="public-hero__lead">([\s\S]*?)<\/p>/);
+  it("opens on the catalogue with one plain sentence, then the listing", () => {
+    // The gateway band was stripped (captain, 2026-10-02): the catalogue head
+    // leads with the page's one short sentence.
+    const lead = html.match(/<p class="section-head__lead">([\s\S]*?)<\/p>/);
     expect(lead).toBeTruthy();
-    expect(wordsOf(textOf(lead![1])), "hero lead words").toBeLessThanOrEqual(12);
-    const hero = html.slice(0, html.indexOf("</section>"));
-    expect(hero).toContain('data-public-hero="interior"');
-    expect(hero).toMatch(/class="[^"]*\bbtn\b[^"]*"/);
+    expect(wordsOf(textOf(lead![1])), "catalogue lead words").toBeLessThanOrEqual(12);
+    expect(html).not.toContain('data-public-hero="interior"');
+    expect(html.indexOf("section-head__lead")).toBeLessThan(html.indexOf("shop-grid"));
+    expect(html).toMatch(/class="[^"]*\bbtn\b[^"]*"/);
   });
 
   it("keeps the page's paragraph prose inside the storefront reading budget", () => {

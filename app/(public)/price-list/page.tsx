@@ -152,6 +152,9 @@ export default async function PriceListPage() {
           <PrintListButton className="btn btn--primary btn--lg">
             Print the 2026 list
           </PrintListButton>
+          <Link className="btn btn--secondary btn--lg" href="/general-price-list">
+            General price list
+          </Link>
           <Link className="btn btn--secondary btn--lg" href="/contact">
             Ask the park office
           </Link>

@@ -27,9 +27,8 @@ function withBaskets(node: React.ReactNode) {
  *  · list items stay short too, so prose cannot move into a list.
  *
  * Scope: the public content pages that joined this guard — /services, /plans,
- * /facilities, /gallery and the digital-memorial
- * search/find/detail screens (F-04) — plus the agent portal's
- * lead record (F-09); each page joined in the PR that added it (a room page is
+ * /facilities and the digital-memorial search/find/detail screens (F-04) — plus
+ * the agent portal's lead record (F-09); each page joined in the PR that added it (a room page is
  * read at a glance; the lead record must answer the person, the state and the
  * next step in the first screenful). All are executed as the real page
  * components (the same render harness the other page tests use). The home
@@ -95,7 +94,6 @@ const { default: PlansPage } = await import("@/app/(public)/plans/page");
 const { default: PriceListPage } = await import("@/app/(public)/price-list/page");
 const { default: CasketDetailPage } = await import("@/app/(public)/products/[sku]/page");
 const { default: FacilitiesPage } = await import("@/app/(public)/facilities/page");
-const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: PublicMapPage } = await import("@/app/(public)/map/page");
 const { default: ContactPage } = await import("@/app/(public)/contact/page");
 const { default: MemorialSearchPage } = await import("@/app/(public)/memorials/page");
@@ -145,12 +143,18 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/services",
     render: async () =>
       renderToStaticMarkup(withBaskets( await ServicesPage())),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+    // The opening band was stripped (captain, 2026-10-02); the first band head
+    // below it (embalming) carries the page's opening line.
+    openingLead: /<p class="sv-band__lead">([\s\S]*?)<\/p>/,
+    openingAction: /<(?:a|button)\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
   },
   {
     name: "/builder",
     render: async () => renderToStaticMarkup(await BuilderPage()),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+    openingLead: /<p class="sb-band__lead">([\s\S]*?)<\/p>/,
+    // No gateway band any more (captain, 2026-10-02): the workbench's first
+    // action is the rate choice.
+    openingAction: /<input\b[^>]*type="radio"/,
   },
   {
     name: "/plans",
@@ -186,13 +190,10 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     // The rooms page's next step is an Add-to-Quote chapel line (office, inbox
     // 047), so it needs the baskets like every other commerce surface.
     render: async () => renderToStaticMarkup(withBaskets( await FacilitiesPage())),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
-  },
-  {
-    name: "/gallery",
-    render: async () =>
-      renderToStaticMarkup(withBaskets( await GalleryPage())),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+    // The opening band was stripped (captain, 2026-10-02); the rooms head below
+    // it carries the page's opening line.
+    openingLead: /<p class="home-band-head__lead">([\s\S]*?)<\/p>/,
+    openingAction: /<(?:a|button)\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
   },
   {
     // The park page opens on the home's gateway (captain 2026-09-30): one
@@ -211,7 +212,10 @@ const PAGES: ReadonlyArray<BudgetPage> = [
     name: "/contact (reach us)",
     render: async () =>
       renderToStaticMarkup(withBaskets( await ContactPage({ searchParams: Promise.resolve({}) }) )),
-    openingLead: /<p class="public-hero__lead">([\s\S]*?)<\/p>/,
+    // The gateway band was stripped (captain, 2026-10-02): the form's own band
+    // head opens the page and the form's submit is the action.
+    openingLead: /<p class="home-band-head__lead">([\s\S]*?)<\/p>/,
+    openingAction: /<button\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
   },
   {
     // Captain 2026-09-30: the SEARCH is the first element, with the privacy
@@ -362,7 +366,12 @@ describe("the public pages keep the reading budget", () => {
       it("keeps an action beside the opening sentence", () => {
         // The lead sits in the opening band; the primary action is its first
         // link (hero pages) or the form's own submit (the memorial search).
-        const hero = html.slice(0, html.indexOf("</section>"));
+        // A page opened by a form slices to the form's end so the submit is in
+        // view; every other page slices to its opening section.
+        const endForm = html.indexOf("</form>");
+        const endSection = html.indexOf("</section>");
+        const end = endForm >= 0 ? endForm : endSection;
+        const hero = html.slice(0, end);
         expect(hero, `${page.name}: no button action in the opening`).toMatch(
           page.openingAction ?? /<a\b[^>]*class="[^"]*\bbtn\b[^"]*"[^>]*>/,
         );

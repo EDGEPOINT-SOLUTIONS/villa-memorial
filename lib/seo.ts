@@ -154,13 +154,15 @@ export const PUBLIC_PAGES: ReadonlyArray<PublicPage> = [
   // the /packages listing all redirect here or to a package detail
   // (next.config.ts) — a redirect is not a public page.
   { path: "/price-list", changeFrequency: "weekly", priority: 0.9 },
+  // The dedicated General Price List (captain, 2026-10-02): the itemised list
+  // and its PDF, built from the same recorded 2026 data.
+  { path: "/general-price-list", changeFrequency: "monthly", priority: 0.8 },
   { path: "/products", changeFrequency: "monthly", priority: 0.8 },
   // The old /lots listing is retired (captain, 2026-09-30): the lots view lives
   // inside the park page at /map?tab=lots, covered by the /map entry below.
   { path: "/lots/price-list-2026", changeFrequency: "monthly", priority: 0.8 },
   { path: "/map", changeFrequency: "weekly", priority: 0.8 },
   { path: "/facilities", changeFrequency: "monthly", priority: 0.8 },
-  { path: "/gallery", changeFrequency: "monthly", priority: 0.7 },
   // The digital-memorial surface (F-04): the search and the family's find path
   // are public pages; a MEMORIAL DETAIL page is never in this table — it enters
   // the sitemap only once its family has published it, and answers noindex

@@ -22,9 +22,10 @@ import type { BlogDocument, BlogPostRecord } from "@/lib/content-catalog";
 export function BlogView({ blog }: { blog: BlogDocument }) {
   return (
     <div className="blog-page">
-      <header className="blog-head">
-        <h1 className="blog-head__title">{blog.heading}</h1>
-        {blog.intro ? <p className="blog-head__lead">{blog.intro}</p> : null}
+      <header className="blog-head blog-head--titleless">
+        {/* The visible title band is GONE (captain, 2026-10-02): the posts lead.
+            The office's heading stays as the page's one h1, hidden. */}
+        <h1 className="visually-hidden">{blog.heading}</h1>
         <Link className="btn btn--secondary blog-head__cta" href="/products">
           Products
         </Link>

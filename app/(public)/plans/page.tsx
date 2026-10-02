@@ -9,7 +9,6 @@ import {
   PlanComparisonMatrix,
   PlanFaq,
   PlanInclusions,
-  PlanOrient,
   type PlanFaqItem,
   type PlanMatrixGroup,
   type PlanMatrixRow,
@@ -49,7 +48,8 @@ export const dynamic = "force-dynamic";
  *
  * THE COMPLETE PRICING SURFACE. The page now carries the whole plan decision in
  * one place, in the home's band grammar:
- *   1 · the opening  — the home gateway (PublicHero) + three orientation facts;
+ *   1 · the opening  — the home gateway's action row (PublicHero), its three
+ *       orientation facts stripped 2026-10-02;
  *   2 · the five tier columns — equal height, one small coffin photograph each,
  *       the regular monthly figure and its annual equivalent, the lid and the
  *       cash assistance, one gold enquiry per column;
@@ -280,8 +280,6 @@ export default async function PlansPage() {
           <Link href="/products">Coffins &amp; caskets</Link>
         </nav>
       </PublicHero>
-
-      <PlanOrient />
 
       <PlanCompare>
         {/* The five tier columns — one height, one coffin photograph each. */}

@@ -53,7 +53,6 @@ const CORNER_KEYS = [
   "memorials",
   "builder",
   "facilities",
-  "gallery",
   "priceList",
   "login",
 ] as const;
@@ -74,7 +73,7 @@ afterEach(async () => {
 });
 
 describe("the corner page documents", () => {
-  it("saves and reads back an edit for each of the seven surfaces", async () => {
+  it("saves and reads back an edit for each of the six surfaces", async () => {
     for (const key of CORNER_KEYS) {
       const doc = await getPageDocument(key);
       expect(doc, key).toBeTruthy();

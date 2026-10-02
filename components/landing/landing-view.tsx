@@ -400,6 +400,7 @@ export function LandingFooter({ content }: { content: LandingContent }) {
               { label: "Builder", href: "/builder" },
               { label: "Packages", href: "/plans/packages" },
               { label: "Price list", href: "/price-list" },
+              { label: "General price list", href: "/general-price-list" },
             ]}
           />
 

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { listLandingContent } from "@/lib/api-client/landing";
 import { assertNoParagraphNesting } from "@/tests/helpers/paragraph-nesting";
 import { measureProse, textOf } from "@/tests/helpers/prose";
 
@@ -102,20 +101,23 @@ describe("the builder is an estimate, and says so", () => {
   it("has one h1 and answers in one short sentence", async () => {
     const html = await renderBuilder();
     expect(html.match(/<h1\b/g)).toHaveLength(1);
-    const lead = html.match(/<p class="public-hero__lead">([\s\S]*?)<\/p>/);
+    // The gateway band was stripped (captain, 2026-10-02): the workbench's own
+    // band head answers.
+    const lead = html.match(/<p class="sb-band__lead">([\s\S]*?)<\/p>/);
     expect(lead).toBeTruthy();
-    expect(textOf(lead![1])).toBe(
-      "What you already have, what you need, and the running total.",
-    );
+    expect(textOf(lead![1])).toBe("Five questions on the left; the total follows on the right.");
   });
 });
 
 describe("the builder ends in the office's hands", () => {
-  it("reads the 24/7 number from the staff-editable content, never a typed one", async () => {
-    const { contact } = await listLandingContent();
+  it("types no phone number of its own — the shell and the request path carry the office", async () => {
     const html = await renderBuilder();
-    expect(html).toContain(`href="${contact.phoneHref}"`);
-    expect(html).toContain(contact.phoneDisplay);
+    // The gateway's Call action was stripped (captain, 2026-10-02); the page's
+    // hand-over is the /contact request path, and the shell's closing band
+    // carries the 24/7 number. Nothing here types one.
+    expect(html).not.toContain("tel:");
+    expect(html).not.toContain("0917");
+    expect(html).toContain("Send this arrangement to the office");
   });
 
   it("hands the arrangement over through the existing request path", async () => {
@@ -176,12 +178,11 @@ describe("the builder's honest states", () => {
 });
 
 describe("the builder wears the home's composition (2026-09-30)", () => {
-  it("opens on the home gateway with the three trust facts", async () => {
+  it("opens on the workbench head — the gateway trust facts were stripped (2026-10-02)", async () => {
     const html = await renderBuilder();
-    expect(html).toContain('class="plan-orient"');
-    expect(html).toContain("24 casket models");
-    expect(html).toContain("Preparation, 3–9 days");
-    expect(html).toContain("An estimate, not a quotation");
+    expect(html).not.toContain('class="plan-orient"');
+    expect(html).toContain('class="sb-band"');
+    expect(html).toContain("The arrangement");
   });
 
   it("heads the workbench and promotes every step under it (no skipped level)", async () => {

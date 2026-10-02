@@ -185,9 +185,9 @@ describe("/facilities reads the staff-editable 24/7 line", () => {
     const telLinks = [...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)].filter(
       (m) => m[1].startsWith("tel:"),
     );
-    // The gateway and the two rooms (the page closing band is gone; the shell
-    // owns the final call).
-    expect(telLinks.length).toBeGreaterThanOrEqual(3);
+    // The two rooms' Call actions (the gateway band was stripped 2026-10-02;
+    // the shell owns the final call).
+    expect(telLinks.length).toBeGreaterThanOrEqual(2);
     for (const [, href] of telLinks) {
       expect(href).toBe(contact.phoneHref);
     }
@@ -245,7 +245,6 @@ describe("/facilities is reachable from the public chrome and stays one page", (
     // No inline styles on this page: colour, size and space come from the
     // token-driven classes in styles/components.css.
     expect(html).not.toContain('style="');
-    expect(html).toContain('class="public-hero__eyebrow"');
     expect(html).toContain('class="fac-room"');
     // The band heads wear the home's grammar (35.2px w500, never bold).
     expect(html).toContain('class="home-band-head__title"');

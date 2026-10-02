@@ -67,7 +67,6 @@ describe("the page documents", () => {
       ["memorials", "Memorials"],
       ["builder", "Builder"],
       ["facilities", "Facilities"],
-      ["gallery", "Gallery"],
       ["priceList", "Price list"],
       ["login", "Login"],
     ]);

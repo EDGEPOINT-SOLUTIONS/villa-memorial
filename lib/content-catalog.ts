@@ -54,7 +54,6 @@ export type PageDocumentKey =
   | "memorials"
   | "builder"
   | "facilities"
-  | "gallery"
   | "priceList"
   | "login";
 
@@ -69,7 +68,6 @@ export const PAGE_DOCUMENT_KEYS: readonly PageDocumentKey[] = [
   "memorials",
   "builder",
   "facilities",
-  "gallery",
   "priceList",
   "login",
 ] as const;
@@ -179,14 +177,6 @@ export const PAGE_DOCUMENTS: readonly PageDocumentDef[] = [
     editor: "page",
     blocks: true,
     hint: "The chapels and grounds hero and any added sections. The room list stays a live read.",
-  },
-  {
-    key: "gallery",
-    label: "Gallery",
-    route: "/gallery",
-    editor: "page",
-    blocks: true,
-    hint: "The gallery hero and any added sections. The photographs keep their own honesty rules and captions.",
   },
   {
     key: "priceList",

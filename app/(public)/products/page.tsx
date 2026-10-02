@@ -1,15 +1,12 @@
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/states";
-import { PublicHero, SectionHead } from "@/components/kit";
+import { SectionHead } from "@/components/kit";
 import { listCatalogItems } from "@/lib/api-client/commerce";
-import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { buildCasketListing, casketFacetIds, parseCasketFilters, parseCasketsSort } from "@/lib/casket-listing";
-import { php } from "@/lib/villa-pricing";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
-import { heroTextColourStyle } from "@/lib/landing/hero-background";
 import { pageMetadata } from "@/lib/seo";
 import { ProductsListing } from "./products-listing";
 
@@ -60,11 +57,7 @@ export default async function ProductsPage({
       </div>
     );
   }
-  const [page, { contact }] = await Promise.all([
-    getPageDocument("coffins").catch(() => null),
-    listLandingContent(),
-  ]);
-  const heroTextStyle = page ? heroTextColourStyle(page.hero) : null;
+  const page = await getPageDocument("coffins").catch(() => null);
 
   const caskets = buildCasketListing(catalogItems);
   const facetIds = casketFacetIds(caskets);
@@ -72,12 +65,6 @@ export default async function ProductsPage({
   const initialSort = parseCasketsSort(typeof params.sort === "string" ? params.sort : undefined);
   const priceBy = new Map(catalogItems.map((line) => [line.sku, line.display_price]));
   const priceOf = (sku: string) => priceBy.get(sku) ?? null;
-  // The "from" figure is the cheapest casket the LIVE catalogue sells, read off the same
-  // listing the cards render. It used to be `Math.min(...CASKET_MODELS.map(m => m.srp))` —
-  // the hardcoded sheet list — so a staff price edit moved every card but not this line.
-  const fromPrice = caskets.length
-    ? php(Math.min(...caskets.map((casket) => casket.priceCents)) / 100)
-    : null;
 
   return (
     // The folio envelope the shared `.public-main` already carries — the same
@@ -87,20 +74,9 @@ export default async function ProductsPage({
     // cards across. The folio width gives the four-column grid room beside the
     // sticky refine rail (captain 2026-09-30: "make it 4 columns").
     <div className="stack-5 catalogue-page">
-      <PublicHero
-        variant="interior"
-        eyebrow={page?.hero.eyebrow.trim() || "Coffins & caskets"}
-        title={page?.hero.headline.trim() || "Coffin options"}
-        lead={page?.hero.lead.trim() || "Every 2026 coffin, with its published price."}
-        textColour={heroTextStyle ? undefined : null}
-        primary={{ label: "See the catalogue", href: "#catalogue-title" }}
-        secondary={{ label: "Call the office", href: contact.phoneHref }}
-      >
-        <p className="catalogue-hero__facts">
-          {caskets.length} model{caskets.length === 1 ? "" : "s"}
-          {fromPrice ? ` · from ${fromPrice}` : ""} · sample photographs labelled
-        </p>
-      </PublicHero>
+      {/* The opening band is GONE (captain, 2026-10-02): the catalogue and its own
+          section head lead. One hidden h1 keeps the page heading. */}
+      <h1 className="visually-hidden">{page?.hero.headline.trim() || "Coffins & caskets"}</h1>
 
       {page && page.blocks.length > 0 ? (
         <ContentBlocks blocks={page.blocks} priceOf={priceOf} mediaBaseUrl={mediaPublicBaseUrl()} />

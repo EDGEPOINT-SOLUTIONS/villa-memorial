@@ -8,11 +8,9 @@ import { PARK_PLACE_PHOTOS, compositionThumbSet } from "@/lib/media";
 import { CHAPEL_RATES } from "@/lib/villa-pricing";
 import { POINTS_OF_INTEREST } from "@/lib/park-3d/masterplan";
 import { pageMetadata } from "@/lib/seo";
-import { PublicHero } from "@/components/kit";
 import { FacilityRooms } from "@/components/villa/facility-rooms";
 import { GroundsAtlas, type AtlasArea, type AtlasPhoto } from "@/components/villa/grounds-atlas";
 import { PageBlocks } from "@/components/villa/page-blocks";
-import { heroOr } from "@/lib/page-hero";
 
 export const metadata: Metadata = pageMetadata({
   title: "Chapels & grounds — Villa Funeraria",
@@ -32,15 +30,16 @@ export const dynamic = "force-dynamic";
  * WHAT THIS PAGE IS FOR: a family choosing WHERE the wake is held. The page is
  * therefore a COMPARISON and a place, not a catalogue:
  *
- *   Band 1 · the gateway      — the home's opening grammar: one sentence, the
- *                               24/7 call, "See the rooms", and three facts.
- *   Band 2 · the rooms        — two photo-headed columns carrying the SAME facts
+ *   Band 1 · the rooms        — two photo-headed columns carrying the SAME facts
  *                               (capacity · stay · who shares it), so a family
  *                               can decide; one gold "Ask for dates" per room.
- *   Band 3 · the grounds      — an area spotlight: pick a place from the client's
+ *   Band 2 · the grounds      — an area spotlight: pick a place from the client's
  *                               own masterplan labels and see its photograph.
  *   (no page closing band)    — the shared shell's "Next step" closes the page;
  *                               the deleted band is the plan's D7.
+ *
+ * The opening gateway band and its three facts were stripped (captain,
+ * 2026-10-02); a visually-hidden h1 keeps the page heading.
  *
  * WHERE EVERY FACT COMES FROM (nothing is authored here):
  *  · the room NAMES and CAPACITY are the park's own schedule record
@@ -69,8 +68,6 @@ export const dynamic = "force-dynamic";
 
 /** The sheet's own stay span, DERIVED (first and last day counts it prices). */
 const STAYED_DAYS_LABEL = `${CHAPEL_RATES[0].days}–${CHAPEL_RATES[CHAPEL_RATES.length - 1].days} days`;
-/** The same span read as a count of days, for the gateway fact ("3–9 day stays"). */
-const STAYED_DAYS_SHORT = `${CHAPEL_RATES[0].days}–${CHAPEL_RATES[CHAPEL_RATES.length - 1].days} day`;
 
 type AreaAsset = AtlasPhoto & { caption: string };
 
@@ -165,48 +162,15 @@ export default async function FacilitiesPage() {
   ]);
   const chapelNotes = servicePageContentFromDocument(servicesPage).chapelNotes;
   const chapels = schedule?.chapels ?? [];
-  const hero = heroOr(facilitiesPage, {
-    eyebrow: "Facilities",
-    headline: "The chapels and the grounds",
-    lead: "Where the wake is held — ask the office for a date.",
-  });
 
   return (
     <div className="fac-page container--catalogue">
-      {/* Band 1 · the gateway — the home's opening grammar, no photograph (the
-          client's park photograph is not on this page: the captain dropped it in
-          review, and the grounds band shows the park as PLACES instead). */}
-      <PublicHero
-        variant="interior"
-        eyebrow={hero.eyebrow}
-        title={hero.headline}
-        lead={hero.lead}
-        primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
-        secondary={{ label: "See the rooms", href: "#rooms" }}
-      />
+      {/* The opening band and its three facts are GONE (captain, 2026-10-02):
+          the rooms and grounds content leads. A hidden h1 keeps the heading. */}
+      <h1 className="visually-hidden">
+        {facilitiesPage?.hero.headline.trim() || "Chapels & grounds"}
+      </h1>
       <PageBlocks blocks={facilitiesPage?.blocks ?? []} />
-
-      {/* The park at a glance, under a hairline. Every fact is READ: the room
-          count and the stay span come from the schedule record and the 2026
-          sheet; the grounds line names the client's own place labels. */}
-      <ul className="fac-facts" aria-label="The park at a glance">
-        <li>
-          <strong>Chapels by the day</strong>
-          <span>
-            {chapels.length
-              ? `${chapels.length} room${chapels.length === 1 ? "" : "s"}, quoted for your dates`
-              : "Quoted for your dates"}
-          </span>
-        </li>
-        <li>
-          <strong>{STAYED_DAYS_SHORT} stays</strong>
-          <span>Every date checked before you book</span>
-        </li>
-        <li>
-          <strong>The grounds</strong>
-          <span>Niches, mausolea and open lawns</span>
-        </li>
-      </ul>
 
       <FacilityRooms
         chapels={chapels}

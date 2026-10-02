@@ -58,18 +58,16 @@ async function renderPage() {
 const RULES = parseCss(readStyle("styles/components.css"));
 
 describe("the /contact reach line", () => {
-  it("opens on the services gateway with one h1 and the call as the first action", async () => {
-    const { html, contact } = await renderPage();
+  it("opens on the message form, one h1, with the gateway band stripped", async () => {
+    const { html } = await renderPage();
     expect((html.match(/<h1\b/g) ?? []).length).toBe(1);
-    expect(html).toContain('class="public-hero__title"');
-    // The call is the hero's first anchor, so it is the first thing a keyboard
-    // or a thumb reaches.
-    const actions = html.slice(html.indexOf('class="public-hero__actions"'));
-    const firstAnchor = actions.slice(0, actions.indexOf("</a>"));
-    expect(firstAnchor).toContain(`href="${contact.phoneHref}"`);
-    expect(firstAnchor).toContain(`Call ${contact.phoneDisplay}`);
-    // …and the message anchor is the support action.
-    expect(actions).toContain('href="#contact-message"');
+    // The captain stripped the visible opening band (2026-10-02): the h1 stays
+    // hidden and the enquiry form is the page's first section.
+    expect(html).not.toContain('class="public-hero__actions"');
+    const messageAt = html.indexOf('id="contact-message"');
+    const factsAt = html.indexOf('id="contact-facts"');
+    expect(messageAt).toBeGreaterThanOrEqual(0);
+    expect(factsAt).toBeGreaterThan(messageAt);
   });
 
   it("paints the opening call in the captain's gold, with dark ink", async () => {

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Clock, MapPin, Phone, ShieldCheck } from "lucide-react";
+import { ArrowRight, Phone } from "lucide-react";
 import { HomeTitleRotator } from "@/components/public/home-title-rotator";
 import { PublicImage } from "@/components/public/public-image";
 import { compositionThumbSet, libraryThumb, libraryThumbSet } from "@/lib/media";
@@ -13,16 +13,14 @@ import type { LandingContent } from "@/lib/api-client/landing";
  * *"in the new homepage make a banner in the middle section and remove the blogs
  * inside that middle sections"*.
  *
- * The banner carries the retired home's opening — the office's place line, their
- * rotating title sets, the 24/7 call, the supporting action and the three trust
- * facts — beside the client's own park photograph. Every figure, link and
- * control the old gateway carried survives here; what is gone is the second
- * page-opening band, because the storefront's middle column already leads.
- *
- * It reuses the gateway's shipped classes (`.home-open*` / `.home-gateway__title`)
- * so the one type ladder, the gold call and the facts ribbon are exactly the ones
- * the product already owns — no second visual language. The heading is the ONE
- * `h1` on the home (the storefront bands below it are all `h2`/`h3`).
+ * REVISED 2026-10-02 (captain's home-page revision): the client's own park
+ * photograph is the band's DOMINANT picture, full width of the middle column
+ * and larger than the old side-by-side frame; the park's name and the band's
+ * two actions sit in an anchored strip at the picture's bottom edge; and the
+ * three-item trust ribbon is gone, so the band is the picture, the rotating
+ * title set and the action row. The face and the register stay the product's:
+ * the rotating title is still the ONE `h1` and the gold call is still the
+ * page-commitment accent.
  */
 
 /** Intrinsic hints for the shipped hero derivative; an unknown asset gets 3:2. */
@@ -47,58 +45,51 @@ export function HomeBanner({ content }: { content: LandingContent }) {
 
   return (
     <section className="mid-section home-banner" aria-labelledby="home-gateway-title">
-      <div className="home-open">
+      <div className="home-open home-open--feature">
         <div className="home-open__words">
           {gateway.place ? <p className="home-open__eyebrow">{gateway.place}</p> : null}
           <HomeTitleRotator
             sets={gateway.titleSets}
             intervalSeconds={gateway.titleIntervalSeconds}
           />
-          <div className="home-open__actions">
-            <a className="btn btn--accent home-call" href={contact.phoneHref}>
-              <Phone size={18} aria-hidden="true" />
-              {contact.phoneDisplay}
-            </a>
-            <Link className="btn btn--secondary btn--gold-outline" href={gateway.secondary.href}>
-              {gateway.secondary.label}
-              <ArrowRight size={18} aria-hidden="true" />
-            </Link>
-          </div>
-          <ul className="home-open__trust">
-            {gateway.facts.map((fact, index) => {
-              const Icon = [Clock, MapPin, ShieldCheck][index % 3];
-              return (
-                <li key={fact.id} className="home-trust__item">
-                  <Icon size={18} aria-hidden="true" />
-                  <b>{fact.label}</b>
-                </li>
-              );
-            })}
-          </ul>
         </div>
+
         <div className="home-open__media">
           {heroPhoto ? (
             <PublicImage
               src={heroPhoto.src}
               srcSet={heroPhoto.srcSet}
-              sizes={heroPhoto.srcSet ? "(max-width: 64rem) 92vw, 26rem" : undefined}
+              sizes={heroPhoto.srcSet ? "(max-width: 64rem) 92vw, 44rem" : undefined}
               alt={home.photo.alt}
-              role="band-lead"
+              role="home-hero"
               width={heroPhoto.width}
               height={heroPhoto.height}
               priority
-              caption={
-                <>
-                  <span className="home-open__caption-kicker">{home.photo.kicker}</span>
-                  <span className="home-open__caption-name">{parkName}</span>
-                </>
-              }
             />
           ) : (
             <div className="home-engraved home-engraved--band" role="img" aria-label={home.photo.alt}>
               {home.photo.alt}
             </div>
           )}
+
+          {/* The anchored bottom row: the park's own name (the picture's title)
+              and the band's two actions, attached to the picture's bottom edge. */}
+          <div className="home-open__strip">
+            <span className="home-open__caption">
+              <span className="home-open__caption-kicker">{home.photo.kicker}</span>
+              <span className="home-open__caption-name">{parkName}</span>
+            </span>
+            <span className="home-open__actions">
+              <a className="btn btn--accent home-call" href={contact.phoneHref}>
+                <Phone size={18} aria-hidden="true" />
+                {contact.phoneDisplay}
+              </a>
+              <Link className="btn btn--secondary btn--gold-outline" href={gateway.secondary.href}>
+                {gateway.secondary.label}
+                <ArrowRight size={18} aria-hidden="true" />
+              </Link>
+            </span>
+          </div>
         </div>
       </div>
     </section>

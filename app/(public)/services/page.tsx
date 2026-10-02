@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Phone, ScrollText, ShieldCheck } from "lucide-react";
 import { pageMetadata } from "@/lib/seo";
 import { ServiceRates2026 } from "@/components/villa/service-rates-2026";
-import { PublicHero } from "@/components/kit";
 import { ContentBlocks } from "@/components/content/content-blocks";
 import { mediaPublicBaseUrl } from "@/lib/media-url";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
 import { getChapelSchedule } from "@/lib/api-client/chapel-reservations";
-import { buildQuoteHref } from "@/lib/public-forms/request-prefill";
 import { isServiceCopyBlockId, servicePageContentFromDocument } from "@/lib/service-content";
 
 export const metadata: Metadata = pageMetadata({
@@ -26,14 +22,11 @@ export const dynamic = "force-dynamic";
 /**
  * Funeraria Memorial Services (content-catalogue Phase 3, captain 2026-09-21).
  *
- * THE OPENING IS THE HOME'S GATEWAY (captain, 2026-09-30: "following how our
- * homepage looks, let's apply the same to services page"). It is a centred,
- * designed band — eyebrow, headline at the page-title step, one-line lead, the
- * gold call and one outline action, then the three orientation facts under a
- * hairline. It carries NO photograph: the client's hero photograph is gone from
- * the opening (the images overwhelmed the page) and the page's own service
- * plates below carry the imagery instead. The eyebrow, headline and lead stay
- * editable in Pages & content; the action reads the staff-editable 24/7 line.
+ * NO OPENING BAND (captain, 2026-10-02): the home's gateway band and its three
+ * orientation facts were stripped, so the page opens on the five service
+ * plates themselves. A visually-hidden h1 keeps the heading. The page's own
+ * service plates carry the imagery; the content document still holds the hero
+ * fields, but they are no longer rendered here.
  *
  * REQUEST-FOR-QUOTE (captain's minutes, 2026-09-21, item 5): the page no longer
  * publishes a price. Every service line offers ONE "Add to Quote" action,
@@ -57,7 +50,6 @@ export default async function ServicesPage() {
   ]);
   const { contact } = content;
   const serviceContent = servicePageContentFromDocument(page);
-  const heroHeadline = page?.hero.headline.trim() ?? "";
 
   // The service descriptions are consumed by the rate cards below; any other
   // block staff add still renders through the shared block renderer. Service
@@ -68,54 +60,13 @@ export default async function ServicesPage() {
   return (
     <div className="sv-page">
       <div className="sv-main">
-        {/* No breadcrumb (captain, 2026-09-30): the page opens directly on the
-            gateway band, exactly as the home does. */}
-
-        {/* The page opens on the home's gateway grammar: one sentence, one gold
-            call, and the three facts a family needs before any list is useful. */}
-        <PublicHero
-          variant="interior"
-          eyebrow={page?.hero.eyebrow.trim() || undefined}
-          title={heroHeadline || "Funeraria Memorial Services"}
-          lead={page?.hero.lead.trim() || undefined}
-          textColour={page?.hero.textColour ?? null}
-          primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
-          secondary={{ label: "Start a quote", href: buildQuoteHref({ item: "Funeral services" }) }}
-        />
-
-        {/* Three boxes, three short facts, one icon each (captain, 2026-09-27:
-            "lesser text … more graphics … use boxes … dont overwhelm visitors").
-            This replaced a paragraph-per-fact strip: same three facts, a third of
-            the words, and a graphic to land each one. A family arriving at an
-            at-need page has to learn these before any list is useful, and none of
-            them were on the page at all. */}
-        <ul className="sv-orient" aria-label="How these services work">
-          <li>
-            <span className="sv-orient__icon" aria-hidden="true">
-              <ScrollText size={20} />
-            </span>
-            <p className="sv-orient__label">Quoted, not listed</p>
-            <p className="sv-orient__text">A written quotation from the office.</p>
-          </li>
-          <li>
-            <span className="sv-orient__icon" aria-hidden="true">
-              <Phone size={20} />
-            </span>
-            <p className="sv-orient__label">A person, any hour</p>
-            <p className="sv-orient__text">
-              Call <a href={contact.phoneHref}>{contact.phoneDisplay}</a>.
-            </p>
-          </li>
-          <li>
-            <span className="sv-orient__icon" aria-hidden="true">
-              <ShieldCheck size={20} />
-            </span>
-            <p className="sv-orient__label">A plan covers these</p>
-            <p className="sv-orient__text">
-              <Link href="/plans">See the plan →</Link>
-            </p>
-          </li>
-        </ul>
+        {/* The opening band is GONE (captain, 2026-10-02): /services opens on the
+            five services themselves. One visually-hidden h1 keeps the page's
+            heading for assistive tech and search; the a-la-carte band below
+            labels itself. */}
+        <h1 className="visually-hidden" id="services-page-title">
+          {page?.hero.headline.trim() || "Funeraria Memorial Services"}
+        </h1>
 
         {/* Straight to the services: the a-la-carte lines, embalming per day and
             the chapel options, each carrying a Request-for-Quote action. */}

@@ -68,10 +68,10 @@ describe("the home opens on the banner and carries no posts", () => {
     expect(html).toContain(content.home.gateway.place);
     expect(html).toContain(content.contact.phoneDisplay);
     expect(html).toContain(content.home.gateway.secondary.label);
-    // The three trust facts survive with their labels.
-    for (const fact of content.home.gateway.facts) {
-      expect(html, fact.id).toContain(fact.label);
-    }
+    // The captain removed the three-item trust ribbon (2026-10-02): it no
+    // longer renders anywhere on the home. The facts stay in the document.
+    expect(html).not.toContain("home-open__trust");
+    expect(html).not.toContain("home-trust__item");
     // Exactly one h1: the office's rotating gateway title.
     expect((html.match(/<h1/g) ?? []).length).toBe(1);
     expect(html).toContain('id="home-gateway-title"');

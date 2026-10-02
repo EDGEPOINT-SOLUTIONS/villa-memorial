@@ -77,7 +77,6 @@ describe("the public header", () => {
     expect(EXPLORE_MORE_LINKS.map((item) => [item.href, item.title])).toEqual([
       ["/builder", "Builder"],
       ["/facilities", "Facilities"],
-      ["/gallery", "Gallery"],
       ["/price-list", "Price list"],
     ]);
     expect(html).not.toContain(">Memorials</strong>");

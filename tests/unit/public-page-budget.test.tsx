@@ -49,7 +49,6 @@ const { default: MemorialPage } = await import("@/app/(public)/memorials/[id]/pa
 // /gallery (plan §5.3/§5.5/§5.8).
 const { default: ProductsPage } = await import("@/app/(public)/products/page");
 const { default: MapPage } = await import("@/app/(public)/map/page");
-const { default: GalleryPage } = await import("@/app/(public)/gallery/page");
 const { default: LotPriceListPage } = await import("@/app/(public)/lots/price-list-2026/page");
 const { default: BlogRoute } = await import("@/app/(public)/blog/page");
 const { default: PublicMapPage } = await import("@/app/(public)/map/page");
@@ -155,14 +154,9 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     name: "builder (/builder)",
     render: async () =>
       renderToStaticMarkup(withBaskets( await BuilderPage())),
-    // The approved 2026-09-30 composition: the gateway opening + the trust
-    // row, the designed band head, then the questions and the one sheet.
-    sections: [
-      'data-public-hero="interior"',
-      'class="plan-orient"',
-      'class="sb-band"',
-      'class="sb-layout"',
-    ],
+    // The approved 2026-09-30 composition with the 2026-10-02 strip: the
+    // designed band head, then the questions and the one sheet.
+    sections: ['class="sb-band"', 'class="sb-layout"'],
     requires: ["data-section-head"],
   },
   {
@@ -222,7 +216,6 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
         ),
       ),
     sections: [
-      'data-public-hero="interior"',
       "listing-layout",
       'class="shop-grid casket-grid"',
     ],
@@ -238,20 +231,6 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
     requires: ["data-public-disclosure"],
   },
   {
-    // plan §5.8: gateway → three bands of whole, right-sized photograph plates
-    // → the one /map entry. Each band carries a designed home-band head; every
-    // plate is a 4:3 whole-image frame.
-    name: "/gallery (grounds)",
-    render: async () => renderToStaticMarkup(await GalleryPage()),
-    sections: [
-      'data-public-hero="interior"',
-      'id="park"',
-      'id="care"',
-      'id="chapels"',
-    ],
-    requires: ["data-public-image"],
-  },
-  {
     // The contact surface (captain's Lavish plan, 2026-09-30): the gateway →
     // the message form → the published lines → the visit spread. The order is
     // the journey guard's own (`contact-message` → `contact-facts` →
@@ -262,7 +241,6 @@ const BLUEPRINTS: ReadonlyArray<Blueprint> = [
         withBaskets( await ContactPage({ searchParams: Promise.resolve({}) }) ),
       ),
     sections: [
-      'data-public-hero="interior"',
       'id="contact-message"',
       'id="contact-facts"',
       "data-location-block",

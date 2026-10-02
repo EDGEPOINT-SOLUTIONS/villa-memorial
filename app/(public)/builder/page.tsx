@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { CalendarDays, Package, ScrollText } from "lucide-react";
 import { listCatalogItems } from "@/lib/api-client/commerce";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { getPageDocument } from "@/lib/api-client/content-pages";
@@ -7,9 +6,7 @@ import { loadPricingDocument } from "@/lib/api-client/pricing";
 import { planContentFromDocument } from "@/lib/plan-content";
 import { builderCatalog } from "@/lib/service-builder-catalog";
 import { ServiceBuilder } from "@/components/builder/service-builder";
-import { PublicHero } from "@/components/public/public-hero";
 import { PageBlocks } from "@/components/villa/page-blocks";
-import { heroOr } from "@/lib/page-hero";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -46,17 +43,10 @@ export const dynamic = "force-dynamic";
  * The screen ends, as it must, on the office: the staff-editable 24/7 number and
  * the existing /contact request path with the arrangement written in.
  *
- * THE OPENING IS THE HOME'S GATEWAY (the approved 2026-09-30 builder plan). It
- * is a centred, designed band — eyebrow, headline at the page-title step, a
- * one-line lead, the gold call and one outline action — then the three
- * orientation facts under a hairline: the catalogue count, the preparation
- * ladder and the page's own "estimate, not a quotation" promise. Every fact is
- * a read from a store or the page's stated rule; none is typed.
- *
- * The hero is the page's own (server) markup so the reading-budget guard can
- * measure the opening sentence and the primary action; everything interactive —
- * the five questions, the running total and the hand-over — is the client
- * component beside it.
+ * NO OPENING BAND (captain, 2026-10-02): the gateway hero and its three
+ * orientation facts were stripped; the workbench's own designed head leads.
+ * Everything interactive — the five questions, the running total and the
+ * hand-over — is the client component below.
  */
 export default async function BuilderPage() {
   const [pricing, content, plansPage, catalogItems, builderPage] = await Promise.all([
@@ -66,11 +56,6 @@ export default async function BuilderPage() {
     listCatalogItems().catch(() => []),
     getPageDocument("builder").catch(() => null),
   ]);
-  const hero = heroOr(builderPage, {
-    eyebrow: "Smart Service Builder · 2026 prices",
-    headline: "Build the service you need",
-    lead: "What you already have, what you need, and the running total.",
-  });
   const plan = planContentFromDocument(plansPage);
   // The catalogue is the LIVE selling record, so the estimate quotes what the office
   // actually charges today; the sheet is the module's fallback if it cannot be read.
@@ -79,42 +64,10 @@ export default async function BuilderPage() {
 
   return (
     <div className="sb-page plan-flow">
-      <PublicHero
-        variant="interior"
-        eyebrow={hero.eyebrow}
-        title={hero.headline}
-        lead={hero.lead}
-        primary={{ label: `Call ${contact.phoneDisplay}`, href: contact.phoneHref }}
-        secondary={{ label: "Start with your situation", href: "#sb-step-situation" }}
-      />
+      {/* The opening band and its three facts are GONE (captain, 2026-10-02): the
+          workbench's own designed head leads. A hidden h1 keeps the heading. */}
+      <h1 className="visually-hidden">{builderPage?.hero.headline.trim() || "Smart Service Builder"}</h1>
       <PageBlocks blocks={builderPage?.blocks ?? []} />
-
-      {/* The home gateway's trust row: three facts a family needs before the
-          workbench is useful. The casket count is the live catalogue's own;
-          the ladder and the promise are the page's stated rules. */}
-      <ul className="plan-orient" aria-label="How the builder works">
-        <li>
-          <span className="plan-orient__icon" aria-hidden="true">
-            <Package size={20} />
-          </span>
-          <p className="plan-orient__label">{catalog.caskets.length} casket models</p>
-          <p className="plan-orient__text">From the 2026 catalogue.</p>
-        </li>
-        <li>
-          <span className="plan-orient__icon" aria-hidden="true">
-            <CalendarDays size={20} />
-          </span>
-          <p className="plan-orient__label">Preparation, 3–9 days</p>
-          <p className="plan-orient__text">Priced by the day.</p>
-        </li>
-        <li>
-          <span className="plan-orient__icon" aria-hidden="true">
-            <ScrollText size={20} />
-          </span>
-          <p className="plan-orient__label">An estimate, not a quotation</p>
-          <p className="plan-orient__text">The office confirms the final figures.</p>
-        </li>
-      </ul>
 
       {/* Band 2's designed opening: the home's band-head grammar (kicker · title
           · one-line lead under a gold hairline). The step titles below promote

@@ -152,7 +152,6 @@ describe("the home renders the anchored catalogue shell", () => {
     const menu = topbar.slice(topbar.indexOf("anchored-header__explore-menu"));
     expect(menu).toContain("Builder");
     expect(menu).toContain("Facilities");
-    expect(menu).toContain("Gallery");
     expect(menu).toContain("Price list");
     expect(menu).not.toContain(">Memorials</strong>");
     expect(nav).not.toContain('href="/builder"');
@@ -182,7 +181,8 @@ describe("the home renders the anchored catalogue shell", () => {
     const labels = links.map((link) => link.label);
     expect(new Set(labels).size).toBe(labels.length);
     // The office's exact columns and wording (inbox 049) — four Explore links
-    // then five Care & Planning links, and nothing else.
+    // then the Care & Planning links, and nothing else. The General price list
+    // joined the footer with the dedicated GPL page (captain, 2026-10-02).
     expect(labels).toEqual([
       "Home",
       "Funeraria Memorial Services",
@@ -193,6 +193,7 @@ describe("the home renders the anchored catalogue shell", () => {
       "Builder",
       "Packages",
       "Price list",
+      "General price list",
     ]);
     expect(links.map((link) => link.href)).toEqual([
       "/",
@@ -204,6 +205,7 @@ describe("the home renders the anchored catalogue shell", () => {
       "/builder",
       "/plans/packages",
       "/price-list",
+      "/general-price-list",
     ]);
   });
 

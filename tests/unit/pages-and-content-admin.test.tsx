@@ -93,13 +93,12 @@ describe("Pages & content", () => {
   it("lists every corner public surface the captain named, with its editor home", async () => {
     sessionHolder.current = session(["catalog:write"]);
     const html = renderToStaticMarkup(await PagesAndContentPage());
-    // The seven surfaces that had no page document before wave 1 (admin plan).
+    // The six surfaces that had no page document before wave 1 (admin plan).
     for (const [key, label] of [
       ["contact", "Contact"],
       ["memorials", "Memorials"],
       ["builder", "Builder"],
       ["facilities", "Facilities"],
-      ["gallery", "Gallery"],
       ["priceList", "Price list"],
       ["login", "Login"],
     ] as const) {
@@ -115,7 +114,6 @@ describe("Pages & content", () => {
       ["memorials", "Memorials"],
       ["builder", "Builder"],
       ["facilities", "Facilities"],
-      ["gallery", "Gallery"],
       ["priceList", "Price list"],
       ["login", "Login"],
     ] as const) {

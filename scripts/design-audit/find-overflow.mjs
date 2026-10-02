@@ -11,7 +11,7 @@ const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, baseURL: "http://localhost:4000", isMobile: true, hasTouch: true });
 const page = await ctx.newPage();
 
-for (const route of ["/", "/services", "/gallery"]) {
+for (const route of ["/", "/services", "/facilities"]) {
   await page.goto(route, { waitUntil: "networkidle", timeout: 45000 });
   await page.waitForTimeout(300);
   const r = await page.evaluate(() => {

@@ -74,8 +74,8 @@ console.log(`classes/elements that declare a margin: ${declaresMargin.size}\n`);
 
 const TARGETS = [
   [null, "/"], [null, "/services"], [null, "/plans"], [null, "/map"], [null, "/products"],
-  [null, "/lots"], [null, "/price-list"], [null, "/gallery"], [null, "/faq"], [null, "/facilities"],
-  [null, "/memorials"], [null, "/contact"], [null, "/builder"], [null, "/immediate-assistance"],
+  [null, "/lots"], [null, "/price-list"], [null, "/faq"], [null, "/facilities"],
+  [null, "/memorials"], [null, "/contact"], [null, "/builder"],
   ["agent@vm.demo", "/agent/dashboard"], ["agent@vm.demo", "/agent/prospects"],
   ["agent@vm.demo", "/agent/clients"], ["agent@vm.demo", "/agent/lots"],
   ["agent@vm.demo", "/agent/applications"], ["agent@vm.demo", "/agent/sales"],

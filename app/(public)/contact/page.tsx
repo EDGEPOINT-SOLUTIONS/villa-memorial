@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, MapPin, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { ContactForm } from "@/components/public-forms/contact-form";
 import { CopyAddress } from "@/components/public/copy-address";
-import { PublicHero, PublicImage } from "@/components/kit";
+import { PublicImage } from "@/components/kit";
 import { PageBlocks } from "@/components/villa/page-blocks";
 import { getPageDocument } from "@/lib/api-client/content-pages";
-import { heroOr } from "@/lib/page-hero";
 import { listLandingContent } from "@/lib/api-client/landing";
 import { parseRequestPrefill } from "@/lib/public-forms/request-prefill";
 import {
@@ -28,27 +27,22 @@ export const metadata: Metadata = pageMetadata({
  * The public contact surface — "the reach line" (captain's Lavish plan,
  * 2026-09-30; approved on the board: "implement this").
  *
- * ONE organizing idea: the first screen makes reaching a person a single tap.
- * The page opens on the shared interior gateway (the same grammar `/services`
- * ships), whose primary action is the 24/7 Call in the captain's gold; a person
- * is one tap away before any content is read. Everything below supports it:
+ * ONE organizing idea: reaching a person stays one tap away. The opening band
+ * was stripped (captain, 2026-10-02), so the page now opens on the reach band
+ * with a visually-hidden h1 and no facts row. Everything below supports it:
  *
- *   Band 1 · the reach line   — gateway: eyebrow · h1 (35.2px / weight 500) ·
- *                               lead · gold Call + outline "Send a message" ·
- *                               the three facts under a hairline.
- *   Band 2 · Send a message   — the enquiry form FIRST (captain, 2026-09-27:
- *                               "put this at the last section" reversed the old
- *                               facts-first order — the order below is the one
- *                               `tests/unit/journey-actions.test.tsx` pins).
- *   Band 3 · By phone         — each published line as the band's FIGURE, with
- *                               one real Call action, then the two other paths.
- *   Band 4 · Visit us         — the client's own gate photograph beside the two
- *                               recorded addresses and their directions.
+ *   Band 1 · Send a message — the enquiry form FIRST (captain, 2026-09-27:
+ *                              "put this at the last section" reversed the old
+ *                              facts-first order — the order below is the one
+ *                              `tests/unit/journey-actions.test.tsx` pins).
+ *   Band 2 · By phone        — each published line as the band's FIGURE, with
+ *                              one real Call action, then the two other paths.
+ *   Band 3 · Visit us        — the client's own gate photograph beside the two
+ *                              recorded addresses and their directions.
  *
  * TYPOGRAPHY (captain, 2026-09-30; inbox 003): every section title on this page
- * is TeX Gyre Bonum, 35.2px, weight 500 — never bold. The gateway h1 and the
- * `.home-band-head__title` heads both carry exactly that; the page adds no bold
- * title of its own.
+ * is TeX Gyre Bonum, 35.2px, weight 500 — never bold. The `.home-band-head__title`
+ * heads carry exactly that; the page adds no bold title of its own.
  *
  * HONESTY: the client's material carries no walk-in office hours, so the page
  * publishes only the availability the 24/7 line keeps ("Answers any hour"), and
@@ -72,58 +66,19 @@ export default async function Page({
     getPageDocument("contact").catch(() => null),
   ]);
   const { contact } = content;
-  const hero = heroOr(contactPage, {
-    eyebrow: "Reach us",
-    headline: "Contact us",
-    lead: "Call any hour, or send a message a coordinator answers.",
-  });
   const hasSecondLine =
     contact.secondPhoneDisplay.trim().length > 0 && contact.secondPhoneHref.trim().length > 0;
   const places = locationPlaces(contact);
   const showTwoLines = hasSecondLine;
 
-  // The opening's three facts, each derived from the store (never a false
-  // count): the availability the 24/7 line keeps, how many lines are published,
-  // and where the park and the office are.
-  const placeFact =
-    places.length > 0
-      ? contact.location
-        ? `Park & office, ${contact.location}`
-        : "Park & office"
-      : contact.location || "Isabela City";
-
   return (
     <div className="story-page container--reading contact-page">
-      <PublicHero
-        variant="interior"
-        eyebrow={hero.eyebrow}
-        title={prefill ? "Request an order" : hero.headline}
-        lead={
-          prefill
-            ? "The office confirms availability, the final price and the next steps."
-            : hero.lead
-        }
-        primary={{
-          label: `Call ${contact.phoneDisplay}`,
-          href: contact.phoneHref,
-        }}
-        secondary={{ label: "Send a message", href: "#contact-message" }}
-      >
-        <ul className="home-gateway__trust contact-trust" aria-label="How to reach the office">
-          <li className="home-trust__item">
-            <Clock size={18} aria-hidden="true" />
-            <b>Answers any hour</b>
-          </li>
-          <li className="home-trust__item">
-            <Phone size={18} aria-hidden="true" />
-            <b>{showTwoLines ? "Two published lines" : "One published line"}</b>
-          </li>
-          <li className="home-trust__item">
-            <MapPin size={18} aria-hidden="true" />
-            <b>{placeFact}</b>
-          </li>
-        </ul>
-      </PublicHero>
+      {/* The opening band is GONE (captain, 2026-10-02): the page opens on the
+          reach band, with no Call/message action row and no trust facts above
+          the form. One visually-hidden h1 keeps the page's heading. */}
+      <h1 className="visually-hidden">
+        {prefill ? "Request an order" : contactPage?.hero.headline.trim() || "Contact us"}
+      </h1>
 
       <PageBlocks blocks={contactPage?.blocks ?? []} />
 
@@ -131,7 +86,7 @@ export default async function Page({
           opened this page; the facts below answer the ones who did not. */}
       <div className="story-band" id="contact-message" aria-labelledby="contact-message-title">
         <div className="home-band-head">
-          <p className="home-band-head__kicker">Send a message</p>
+          <p className="home-band-head__kicker">Your message</p>
           <h2 id="contact-message-title" className="home-band-head__title">
             Tell us what you need
           </h2>

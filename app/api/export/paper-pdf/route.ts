@@ -4,7 +4,46 @@ import { parseAccessTokenClaims, ACCESS_COOKIE } from "@/lib/auth/session";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { paperToPdfBuffer } from "@/lib/export/pdf";
 import { paperProfileById } from "@/lib/export/paper-profile";
+import { buildGeneralPriceListPaper } from "@/lib/general-price-list";
+import { loadPricingDocument } from "@/lib/api-client/pricing";
+import { listLandingContent } from "@/lib/api-client/landing";
 import type { PaperBlock } from "@/lib/export/types";
+
+/**
+ * GET /api/export/paper-pdf?document=general-price-list — the PUBLIC General
+ * Price List as a PDF.
+ *
+ * The price list is public data, so this branch is deliberately unsigned: it
+ * builds the document server-side from the SAME `buildGeneralPriceListPaper`
+ * the /general-price-list page renders, then hands the blocks to the paper
+ * layer. It is a pure renderer — no data is added and no service is reached
+ * beyond the public pricing store. Every other profile stays behind the staff
+ * session in POST below.
+ */
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  if (url.searchParams.get("document") !== "general-price-list") {
+    return NextResponse.json({ error: "unknown document" }, { status: 404 });
+  }
+  try {
+    const [pricing, content] = await Promise.all([
+      loadPricingDocument(),
+      listLandingContent(),
+    ]);
+    const { profile, blocks } = buildGeneralPriceListPaper(pricing, content.contact);
+    const buffer = await paperToPdfBuffer(blocks, profile);
+    return new NextResponse(new Uint8Array(buffer), {
+      status: 200,
+      headers: {
+        "content-type": "application/pdf",
+        "content-disposition": 'attachment; filename="villa-general-price-list.pdf"',
+        "cache-control": "no-store",
+      },
+    });
+  } catch {
+    return NextResponse.json({ error: "pdf rendering failed" }, { status: 500 });
+  }
+}
 
 /**
  * BFF: POST /api/export/paper-pdf — renders the staff's current paper document to a real

@@ -115,8 +115,9 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
   });
 
   it("groups the services into the three quote sections", () => {
-    expect(html).toContain('id="services-rates-title"');
-    expect(html).toContain("Ask for the services you need");
+    // The a-la-carte group's band head was stripped (captain, 2026-10-02); the
+    // group itself leads the page.
+    expect(html).toContain('id="services"');
     expect(html).toContain('id="embalming-title"');
     expect(html).toContain("Embalming — quoted by the day");
     expect(html).toContain('id="chapel-title"');
@@ -197,18 +198,12 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
     expect(html).toContain("Ask for dates");
   });
 
-  it("leads with one hero and a call bar — no subnav or steps (captain 2026-09-21)", () => {
-    // One hero, then straight to the services: the pre-migration sticky subnav
-    // and the "what happens after you call" steps are gone.
+  it("opens on the five services — the gateway band was stripped (captain 2026-10-02)", () => {
+    // No subnav, no steps, and no visible gateway band: the plates lead. The
+    // 24/7 line is still one tap away in the embalming helper.
     expect(html).not.toContain('class="sv-subnav"');
     expect(html).not.toContain('id="first-steps"');
-    expect(html).toContain('class="public-hero__actions"');
-    // The hero's supporting action opens the quote form.
-    expect(html).toContain('href="/quote?');
-    // The 24/7 call stays one thumb away — the client's own line (2026 purchase
-    // application form), read from the seeded content document, and it is the
-    // hero's one page-commitment rung.
-    expect(html).toContain('class="btn btn--primary btn--lg"');
+    expect(html).not.toContain('class="public-hero__actions"');
     expect(html).toMatch(/href="tel:\+639176178489"/);
   });
 
@@ -371,8 +366,9 @@ describe("/services reads the 24/7 line from the landing content document", () =
     const telLinks = [
       ...html.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g),
     ].filter((m) => m[1].startsWith("tel:"));
-    // The hero call, the embalming helper and the closing help band.
-    expect(telLinks.length).toBeGreaterThanOrEqual(3);
+    // The embalming helper's call (the gateway's Call action was stripped
+    // 2026-10-02; the shell's closing band owns the final call).
+    expect(telLinks.length).toBeGreaterThanOrEqual(1);
     for (const [, href] of telLinks) {
       expect(href).toBe(content.contact.phoneHref);
     }

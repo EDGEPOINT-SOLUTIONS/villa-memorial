@@ -154,25 +154,16 @@ export function AlacarteServiceRates({
   notes: Readonly<Record<string, string>>;
 }) {
   return (
-    <section className="story-band sv-band" id="services" aria-labelledby="services-rates-title">
-      <ServiceBandHead
-        id="services-rates-title"
-        kicker="At-need services"
-        title="Ask for the services you need"
-        lead="Five services, each quoted for your family."
-        action={
-          <Link className="btn btn--secondary" href="/plans">
-            See what the plan covers →
-          </Link>
-        }
-      />
+    <section className="story-band sv-band" id="services" aria-label="Services">
+      {/* The band head is GONE (captain, 2026-10-02): the five service plates are
+          the page's first content, so no kicker/title/lead sits above them. */}
 
       {/* FIVE EQUAL PLATES, ONE ROW — the home's own services band (captain,
           2026-09-30). Each plate is the home's 3:2 shape with `object-fit:
           contain`, so no photograph is cropped; the client's one line sits under
           the name and the single gold action closes the tile. At ≤48rem the row
           re-flows to two-up so five services cost three rows, not five. */}
-      <ul className="sv-plates" aria-label="At-need services">
+      <ul className="sv-plates" aria-label="The five services">
         {ALACARTE_LINES.map((fee) => {
           const photo = platePhoto(fee.sku);
           const IconShape = ServiceIcons[fee.service] ?? IconChapel;

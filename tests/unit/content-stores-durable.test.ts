@@ -117,7 +117,6 @@ describe("the page documents are durable", () => {
       "memorials",
       "builder",
       "facilities",
-      "gallery",
       "priceList",
       "login",
     ]);
@@ -153,8 +152,8 @@ describe("the page documents are durable", () => {
     await savePageDocument("park", { ...park, hero: { ...park!.hero, headline: "Second" } });
 
     const docs = await listPageDocuments();
-    // Still thirteen documents — a save edits one, it does not add one.
-    expect(docs).toHaveLength(13);
+    // Still twelve documents — a save edits one, it does not add one.
+    expect(docs).toHaveLength(12);
     expect((await getPageDocument("park"))?.hero.headline).toBe("Second");
   });
 
@@ -166,9 +165,10 @@ describe("the page documents are durable", () => {
   });
 
   it("holds a page document and a save path for every corner surface (wave 1)", async () => {
-    // The seven surfaces that shipped with their copy as page constants until
+    // The corner surfaces that shipped with their copy as page constants until
     // the admin plan: each now has a document the office can edit and read back.
-    for (const key of ["contact", "memorials", "builder", "facilities", "gallery", "priceList", "login"]) {
+    // (The gallery page was removed 2026-10-02, so its document went with it.)
+    for (const key of ["contact", "memorials", "builder", "facilities", "priceList", "login"]) {
       const doc = await getPageDocument(key);
       expect(doc, key).toBeTruthy();
       const saved = await savePageDocument(key, {
@@ -196,7 +196,6 @@ describe("the page documents are durable", () => {
       "memorials",
       "builder",
       "facilities",
-      "gallery",
       "priceList",
       "login",
     ]);
