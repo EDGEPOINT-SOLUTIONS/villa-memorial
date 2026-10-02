@@ -24,7 +24,15 @@ export function SidebarNav({ sections }: { sections: NavSection[] }) {
                 className={`app-sidebar__link${active ? " app-sidebar__link--active" : ""}`}
                 aria-current={active ? "page" : undefined}
               >
-                {item.label}
+                <span className="app-sidebar__link-label">{item.label}</span>
+                {typeof item.badge === "number" && item.badge > 0 ? (
+                  <span
+                    className="app-sidebar__badge"
+                    aria-label={`${item.badge} unread`}
+                  >
+                    {item.badge > 9 ? "9+" : item.badge}
+                  </span>
+                ) : null}
               </Link>
             );
           })}

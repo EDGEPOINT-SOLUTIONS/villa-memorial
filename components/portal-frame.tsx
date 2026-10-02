@@ -40,6 +40,7 @@ import {
   LogOut,
   Megaphone,
   Menu,
+  MessageSquare,
   Phone,
   Plus,
   ScrollText,
@@ -84,6 +85,7 @@ const ICONS: Record<string, LucideIcon> = {
   marketing: Megaphone,
   lots: TreePine,
   capture: Plus,
+  messages: MessageSquare,
 };
 
 /** Mobile tab descriptor — `more` opens the drawer instead of navigating. */

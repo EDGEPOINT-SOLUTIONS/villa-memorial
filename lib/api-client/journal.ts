@@ -129,3 +129,26 @@ export function createJournalLock(): <T>(task: () => Promise<T>) => Promise<T> {
     return run;
   };
 }
+
+/**
+ * The journal FILES in a directory, sorted, without their suffix.
+ *
+ * The per-thread chat store keeps one journal per conversation and must enumerate them
+ * to build the office Inbox. The directory read belongs here, with the rest of the file
+ * mechanics, so a store never grows its own `node:fs` import (the rule this module's
+ * header states; `tests/unit/journal-single-source.test.ts` enforces it). A missing
+ * directory is the normal empty state, not an error.
+ */
+export async function listJournalFiles(dir: string, suffix = ".json"): Promise<string[]> {
+  let names: string[];
+  try {
+    names = await fs.readdir(dir);
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
+    throw new ApiError("the store directory could not be read", 500);
+  }
+  return names
+    .filter((name) => name.endsWith(suffix) && name.length > suffix.length)
+    .map((name) => name.slice(0, -suffix.length))
+    .sort();
+}

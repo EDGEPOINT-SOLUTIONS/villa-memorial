@@ -1,0 +1,26 @@
+{
+  "_provenance": "Recorded sample files for the chat board's attached thread (data/villa-admin-plan/report.md \u00a79.6). App-authored demo files, content-addressed by sha256; lib/chat-attachment-store.ts copies each into .data/attachments on first read and tests/fixture-contract/chat.test.ts pins every hash to its bytes.",
+  "files": [
+    {
+      "id": "4675e4aef27238ad7bf3361a26c6d976ce1c4279fba43f13a0d889f8974b2941",
+      "name": "application-santos.pdf",
+      "mime": "application/pdf",
+      "file": "application-santos.pdf",
+      "size": 615
+    },
+    {
+      "id": "bdff0e0944f020878bfc277e5977ae6a598422812b68cbe67620c6de85e45045",
+      "name": "id-front.jpg",
+      "mime": "image/jpeg",
+      "file": "id-front.jpg",
+      "size": 160
+    },
+    {
+      "id": "bde090afc4d5ca8f44d02ca97432bf0388ba80c84314b1f98183c39c09d28948",
+      "name": "schedule.xlsx",
+      "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "file": "schedule.xlsx",
+      "size": 1609
+    }
+  ]
+}

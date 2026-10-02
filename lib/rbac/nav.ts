@@ -10,8 +10,9 @@
  * changes are group names/order, four renames (Customers→Families,
  * Catalog→Products, Schedule→Schedule & chapel, and Reports moved from Overview
  * into Finance beside the money it reads) and one new destination, Calendar.
- * The plan's brand-new admin screens (Inbox, Media library, Memorials admin,
- * Preparation list) land in wave 2; none is added here as a dead link.
+ * Wave 2 added Inbox (`/staff/inbox`, §9.6); the plan's remaining brand-new admin
+ * screens (Media library, Memorials admin, Preparation list) land as they are built;
+ * none is added here as a dead link.
  *
  * Scope semantics: an item is visible when the session holds AT LEAST ONE of
  * its required scopes. Scope reuse is provisional (commented) until each
@@ -23,6 +24,8 @@ export type NavItem = {
   label: string;
   /** Any-of: visible if the session holds at least one of these scopes. */
   scopes: string[];
+  /** An optional unread count the shell renders beside the label (the Inbox). */
+  badge?: number;
 };
 
 export type NavSection = {
@@ -42,6 +45,11 @@ export const STAFF_NAV: NavSection[] = [
       // No frozen notification scope yet — reuses cases:read provisionally (same
       // precedent as Relationships) until the notification contract brings its scope.
       { href: "/staff/notifications", label: "Notifications", scopes: ["cases:read"] },
+      // The Admin Inbox (the admin plan's chat, §9.6): the durable family/agent ↔
+      // office threads. cases:read lists; cases:write sends (both provisional reuses
+      // while rbac-scopes-v1 names no messaging code). The layout decorates this item
+      // with the office's unread count; the item itself declares none.
+      { href: "/staff/inbox", label: "Inbox", scopes: ["cases:read"] },
       // AI Copilot (PRD S29) — the DESIGNED surface only: no model provider is
       // configured and the governance contract that would attach one is an open client
       // question (lib/copilot.ts carries the boundary; the screen prints it). Provisional

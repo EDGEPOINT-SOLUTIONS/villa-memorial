@@ -61,6 +61,7 @@ export const FAMILY_PORTAL_GROUPS: PortalNavGroup[] = [
     items: [
       { key: "support", label: "Help and requests", to: "/client/support" },
       { key: "requests", label: "Ask us for something", to: "/client/requests" },
+      { key: "messages", label: "Messages", to: "/client/messages" },
     ],
   },
   {
@@ -109,6 +110,7 @@ export const AGENT_PORTAL_GROUPS: PortalNavGroup[] = [
       { key: "prospects", label: "Prospects", to: "/agent/prospects" },
       { key: "clients", label: "Clients", to: "/agent/clients" },
       { key: "appointments", label: "Appointments & tasks", to: "/agent/appointments" },
+      { key: "messages", label: "Messages", to: "/agent/messages" },
     ],
   },
   {

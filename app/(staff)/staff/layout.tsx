@@ -3,6 +3,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { PortalSwitch } from "@/components/portal-switch";
 import { SignOutButton } from "@/components/ui/sign-out-button";
 import { TenantSwitcher } from "@/components/tenant-switcher";
+import { totalOfficeUnread } from "@/lib/api-client/chat-store";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { portalForSession, portalHomeForSession } from "@/lib/auth/destination";
 import { BRAND_NAME } from "@/lib/brand";
@@ -23,11 +24,30 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   }
   const sections = visibleNav(session.scopes);
 
+  // The Inbox badge: the office's unread family/agent messages. Best-effort — a store
+  // that cannot be read must never take down every staff screen, so it degrades to no
+  // badge rather than an error.
+  let unread = 0;
+  try {
+    unread = await totalOfficeUnread();
+  } catch {
+    unread = 0;
+  }
+  const decorated =
+    unread > 0
+      ? sections.map((section) => ({
+          ...section,
+          items: section.items.map((item) =>
+            item.href === "/staff/inbox" ? { ...item, badge: unread } : item,
+          ),
+        }))
+      : sections;
+
   return (
     <AppShell
       brandEyebrow={BRAND_NAME}
       brandTitle="Admin Portal"
-      sections={sections}
+      sections={decorated}
       topbar={
         <div className="app-topbar__group">
           <span className="app-topbar__context">Workspace</span>

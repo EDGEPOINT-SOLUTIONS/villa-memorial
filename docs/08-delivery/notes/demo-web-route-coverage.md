@@ -73,6 +73,7 @@ one BFF, separate doors because the JWT carries scopes but no role/portal claim.
 | `/staff/workflows`, `/new` | ✅ the four processes the shipped modules already run (service contract · purchase application · lot transfer · chapel booking) with their REAL steps and the recorded records at each current step, owner included where recorded; each source reads independently (the property-backed process says “cannot be read” in property live mode). The workflow engine's absence is named in one line; `/new` stays the honest not-wired door |
 | `/staff/settings` | ✅ the park's configuration: the identity its public pages publish (read from the landing document), the business rules its modules apply (filing window · booking window · plan/lot terms · senior rules), what is configured/placeholder/waiting, and what only the platform can change. Read-only — `tenancy-config` is not in this build |
 | `/staff/audit` | ✅ frozen audit-events read |
+| `/staff/inbox`, `/staff/inbox/[id]` | ✅ the durable family/agent ↔ office threads (the admin plan's chat, §9.6): the list leads with who and the last line plus the office unread count (decorating the nav Inbox badge), and a conversation is the board's own screen — the sender's messages on the right, the other side's on the left, each with its recorded state (sent · delivered · read), attachments as chips, and the composer's Attach/Send. One append-only journal per thread (`CHAT_STORE_DIR` / `.data/chat/<thread>.json`) folds onto the recorded seed `lib/fixtures/chat/threads.json`; attachments are content-addressed under `.data/attachments/<sha256>` (`docx · xlsx · pdf · png/jpg/webp`, 10 MB per file, 50 MB per thread). Delivery/read are recorded from the other side's own next request — no live push exists, and the screen says so. `cases:read` lists, `cases:write` sends (provisional). Record: [`admin-chat-design/`](../admin-chat-design/README.md) |
 
 Every ⚠ page renders the shared `NotWiredState` with the unblocking contract named, after a
 scope gate that renders the designed `ForbiddenState` when the session lacks it
@@ -95,6 +96,7 @@ the deliverable, not a leftover.
 | `/client/property`, `/requests`, `/memorials` | ⚠ the three record-backed screens (2026-09-18): each shows the office's own record through the recorded workspace fixture and ends in a calm note naming the contract it still waits on, inventing no figure, chapel or ticket number. Remembering now has ONE switch per loved one (2026-09-30) that publishes to the real consent store the public memorial surface reads; the office's own memorial service (stories, messages, moderation) still waits on its contract (`lib/family/portal-coverage.ts`, pinned by test) |
 | `/client/documents`, `/client/documents/receipts/[reference]` | ⚠ the family's own papers (service contract, official receipts) always show; a receipt copy prints only from a record that carries number+date+amount, else 404. The dashboard's Papers box opens a popup listing every paper, each readable as the shared `PaperSheet` HTML and, when the record is whole, as the family's own guarded PDF (`/api/family/papers/receipt/<ref>`, inline, `private, no-store`) |
 | `/client/support` | ✅ the client's real numbers/places with the office call as the action |
+| `/client/messages` | ✅ the family's own durable thread with the office (the admin plan's chat, §9.6): the recorded seed + the family's sent messages, with file attachments, through the guarded `GET/POST /api/chat/threads/<id>`; the thread is the one whose participant is this account, so a family can only open its own. Server-rendered + a short poll — the screen states there is no live push. Record: [`admin-chat-design/`](../admin-chat-design/README.md) |
 | `/client/profile` | ⚠ partial; device-local reading preferences are real |
 
 ## Platform operator surface — `app/(platform)/platform`
@@ -173,6 +175,11 @@ fold — the count of open plans and the next open thing, with a link to the day
 (`/agent/appointments?day=…`). No availability is invented and no office sync exists — the
 office still confirms every slot.
 Record: [agent day planner](../agent-day-planning-design/README.md);
+
+`/agent/messages` is the agent's own durable thread with the office (the same chat store, §9.6),
+the admin↔agent half of the board. It reads and writes the thread whose participant is this
+agent, with the composer's Attach/Send and the same honest transport line; `AGENT_PORTAL_GROUPS`
+carries the rail entry. Record: [admin chat](../admin-chat-design/README.md).
 [agent appointments calendar](../agent-calendar-design/README.md).
 
 The `/agent/sales` money page is a statement **table** now (line · basis · credited · state ·

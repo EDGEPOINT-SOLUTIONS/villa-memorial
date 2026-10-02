@@ -71,6 +71,17 @@ if (!process.env.FAMILY_IMAGE_DIR) {
   process.env.FAMILY_IMAGE_DIR = path.join(dir, "family-images");
 }
 
+// The chat store is a DIRECTORY of one journal per thread (the plan's
+// `.data/chat/<thread>.json`), and its attachments are a content-addressed
+// DIRECTORY. Point both at throwaway dirs so a demo conversation sent in the dev
+// server never changes what a chat test reads (or publishes a seeded file).
+if (!process.env.CHAT_STORE_DIR) {
+  process.env.CHAT_STORE_DIR = path.join(dir, "chat");
+}
+if (!process.env.CHAT_ATTACHMENTS_DIR) {
+  process.env.CHAT_ATTACHMENTS_DIR = path.join(dir, "attachments");
+}
+
 // 2026-09-27: the `globalThis` reset that stood here is GONE, because the two seams it
 // reset are gone. Landing content and the page documents were the last two stores keeping
 // an edit in process memory; both are durable journals now (`LANDING_STORE_PATH` /
