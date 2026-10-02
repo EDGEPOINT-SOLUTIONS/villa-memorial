@@ -158,11 +158,11 @@ export function AlacarteServiceRates({
       <ServiceBandHead
         id="services-rates-title"
         kicker="At-need services"
-        title="Services we provide"
-        lead="Five services — ask for the ones you need."
+        title="Ask for the services you need"
+        lead="Five services, each quoted for your family."
         action={
           <Link className="btn btn--secondary" href="/plans">
-            A Villa Memorial Plan already includes all five · See what the plan covers →
+            See what the plan covers →
           </Link>
         }
       />
@@ -351,7 +351,7 @@ export function ChapelRates({
       <ServiceBandHead
         id="chapel-title"
         kicker="The chapel"
-        title="Chapel — two rooms for your dates"
+        title="Two rooms for your dates"
         lead="A shared hall, or a room for your family alone."
         action={
           <Link className="btn btn--secondary" href="/facilities#rooms">

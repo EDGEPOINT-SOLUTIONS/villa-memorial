@@ -328,8 +328,8 @@ export default async function PlansPage() {
         <PlanBandHead
           id="plan-included-title"
           kicker="Included with every tier"
-          title="Every plan already includes all of this"
-          lead="The same on every tier."
+          title="Every plan includes the same"
+          lead="One list, every tier."
         />
         <PlanInclusions items={sharedItems} packageInclusions={plan.packageInclusions} />
       </section>
@@ -347,7 +347,7 @@ export default async function PlansPage() {
         <PlanBandHead
           id="plan-faq-title"
           kicker="Questions families ask"
-          title="Frequently asked questions"
+          title="Your questions, answered"
           lead="Open a question to read the answer."
         />
         <PlanFaq items={faqs} />

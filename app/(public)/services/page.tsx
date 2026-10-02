@@ -128,7 +128,7 @@ export default async function ServicesPage() {
 
         {otherBlocks.length > 0 ? (
           <section className="story-band" aria-labelledby="services-more-title">
-            <h2 id="services-more-title">More about the service</h2>
+            <h2 id="services-more-title">More from the office</h2>
             <ContentBlocks
               blocks={otherBlocks}
               priceOf={() => null}

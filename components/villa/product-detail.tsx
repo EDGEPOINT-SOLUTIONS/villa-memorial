@@ -287,7 +287,7 @@ export function ProductDetail({
           {variant.description ? (
             <section className="pdp-section" aria-labelledby="pdp-about">
               <h2 className="pdp-section__title" id="pdp-about">
-                About this model
+                The model in detail
               </h2>
               <RichText doc={variant.description} />
             </section>
@@ -318,7 +318,7 @@ export function ProductDetail({
           {variant.specs && variant.specs.columns.length > 0 ? (
             <section className="pdp-section" aria-labelledby="pdp-specs">
               <h2 className="pdp-section__title" id="pdp-specs">
-                Specifications
+                Recorded details
               </h2>
               <SpecsTable
                 specs={variant.specs}
@@ -330,7 +330,7 @@ export function ProductDetail({
           {otherBlocks.length > 0 ? (
             <section className="pdp-section" aria-labelledby="pdp-more">
               <h2 className="pdp-section__title" id="pdp-more">
-                More about this model
+                More from the office
               </h2>
               <ContentBlocks
                 blocks={otherBlocks}

@@ -425,7 +425,7 @@ export default async function PriceListPage() {
           <PriceBandHead
             id="branches-title"
             kicker="5 · Where"
-            title="Branches &amp; affiliated locations"
+            title="Where you&rsquo;ll find us"
           />
           <ul className="plan-branch-row">
             {BRANCHES.map((branch) => (

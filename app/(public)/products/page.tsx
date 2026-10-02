@@ -111,7 +111,7 @@ export default async function ProductsPage({
           id="catalogue-title"
           kicker="The 2026 catalogue"
           title="Every model, with its price"
-          lead="Photographs are illustrative samples; the office confirms the exact model and availability."
+          lead="Illustrative samples; the office confirms the model."
         />
         {caskets.length === 0 ? (
           <EmptyState

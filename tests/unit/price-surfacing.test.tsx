@@ -193,9 +193,9 @@ describe("/services offers a Request for Quote instead of a service price", () =
     for (const f of ALACARTE_SERVICE_FEES) {
       expect(html, f.service).toContain(f.service);
     }
-    expect(html).toContain("Services we provide");
+    expect(html).toContain("Ask for the services you need");
     expect(html).toContain("Embalming — quoted by the day");
-    expect(html).toContain("Chapel — two rooms for your dates");
+    expect(html).toContain("Two rooms for your dates");
     expect(html).toContain("How many days will the viewing be open?");
     expect(html).toMatch(/More than 9/);
   });

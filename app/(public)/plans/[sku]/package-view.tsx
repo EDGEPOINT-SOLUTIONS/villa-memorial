@@ -177,7 +177,7 @@ export async function renderItemPage(sku: string) {
             {authored.blocks.length > 0 ? (
               <section className="mid-section" aria-labelledby="pkg-authored">
                 <p className="mid-kicker">From the office</p>
-                <h2 id="pkg-authored">More about this package</h2>
+                <h2 id="pkg-authored">More from the office</h2>
                 <ContentBlocks
                   blocks={authored.blocks}
                   priceOf={priceOf}

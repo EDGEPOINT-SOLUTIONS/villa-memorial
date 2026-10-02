@@ -116,11 +116,11 @@ describe("/services is a Request-for-Quote page, not a price list", () => {
 
   it("groups the services into the three quote sections", () => {
     expect(html).toContain('id="services-rates-title"');
-    expect(html).toContain("Services we provide");
+    expect(html).toContain("Ask for the services you need");
     expect(html).toContain('id="embalming-title"');
     expect(html).toContain("Embalming — quoted by the day");
     expect(html).toContain('id="chapel-title"');
-    expect(html).toContain("Chapel — two rooms for your dates");
+    expect(html).toContain("Two rooms for your dates");
     // Each block is a `.story-band` (the story-lane section grammar) wearing the
     // reworked, centred `.sv-band` shape (captain, 2026-09-30).
     expect((html.match(/class="story-band sv-band"/g) ?? []).length).toBeGreaterThanOrEqual(3);
