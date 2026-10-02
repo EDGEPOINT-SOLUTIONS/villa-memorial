@@ -81,6 +81,8 @@ export type LineChartProps = {
   footnote?: string;
   /** The record this chart waits on, named in the empty state. */
   needLabel: string;
+  /** A caller's own one-line empty message, used instead of "Needs {needLabel}." */
+  emptyNote?: string;
   height?: number;
   dataTestId?: string;
 };
@@ -93,6 +95,7 @@ export function LineChart({
   unitLabel,
   footnote,
   needLabel,
+  emptyNote,
   height = DEFAULT_HEIGHT,
   dataTestId,
 }: LineChartProps) {
@@ -116,9 +119,10 @@ export function LineChart({
         <div className="chart__empty">
           <p className="chart__empty-figure">{latest ? formatChartFigure(kind, latest.value) : "—"}</p>
           <p className="chart__empty-note">
-            {latest
-              ? `Needs ${needLabel} for a line.`
-              : `Needs ${needLabel}.`}
+            {emptyNote ??
+              (latest
+                ? `Needs ${needLabel} for a line.`
+                : `Needs ${needLabel}.`)}
           </p>
         </div>
         {footnote ? <p className="chart__foot">{footnote}</p> : null}

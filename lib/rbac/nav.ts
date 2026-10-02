@@ -122,6 +122,14 @@ export const STAFF_NAV: NavSection[] = [
     items: [
       { href: "/staff/billing", label: "Billing & collections", scopes: ["billing:read"] },
       { href: "/staff/accounting", label: "Accounting", scopes: ["accounting:read"] },
+      // Analytics (admin plan §9.1): collections, dues, sales and the pipeline. No
+      // analytics scope exists in rbac-scopes-v1, so it reuses the finance reads it
+      // aggregates (the same any-of gate `/staff/reports` carries).
+      {
+        href: "/staff/analytics",
+        label: "Analytics",
+        scopes: ["accounting:read", "billing:read"],
+      },
       // Reports moved here from Overview (admin plan): the office looks for it
       // beside the money it reads. Gates on finance scopes provisionally until
       // reporting-analytics freezes its own scope (the page says as much).

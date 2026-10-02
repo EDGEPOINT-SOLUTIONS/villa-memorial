@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   DataTable,
+  EmptyState,
   StatCard,
   StatusChip,
   type DataTableColumn,
@@ -18,31 +19,44 @@ import {
   type JournalEntry,
   type TrialBalanceRow,
 } from "@/lib/accounting";
+import { listFixturePayments } from "@/lib/api-client/billing-store";
+import { listInvoices, type Invoice } from "@/lib/api-client/finance";
+import { listProvisionalReceipts } from "@/lib/api-client/provisional-receipts";
+import {
+  INSTRUMENT_LABEL,
+  businessToday,
+} from "@/lib/contracts/payment-capture";
+import type { ProvisionalReceiptRecord } from "@/lib/contracts/provisional-receipt-capture";
+import { duesAging, outstandingTotal, overdueTotal, receivedInPeriod } from "@/lib/receivables";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { formatMinorUnits } from "@/lib/money";
-import { datePeriod, periodIsAll, periodLabel } from "@/lib/period";
+import { datePeriod, monthBoundsOf, periodIsAll, periodLabel } from "@/lib/period";
 import { hasAnyScope } from "@/lib/rbac/nav";
 
 export const metadata = { title: "Accounting — Admin Portal" };
 
 /**
- * Staff Accounting — the ledger, read-only.
+ * Staff Accounting — the ledger, read-only, plus the money the office is owed and has taken.
  *
- * WHY IT READS LIKE A BOOK AND NOT LIKE A SERVICE: the platform's accounting
- * service exists and its posting-rule contract is frozen, but no staff-facing
- * ledger API has frozen. This screen therefore shows the office's recorded ledger
- * (`lib/api-client/accounting.ts`) and names the missing API in one line. The
- * trial balance is DERIVED from the journal entries (`lib/accounting.ts`), never
- * stored beside them, so the two halves of the screen cannot disagree; each
- * amount prints exactly as the record carries it (integer centavos through
+ * WHY IT READS LIKE A BOOK AND NOT LIKE A SERVICE: the platform's accounting service exists
+ * and its posting-rule contract is frozen, but no staff-facing ledger API has frozen. This
+ * screen therefore shows the office's recorded ledger (`lib/api-client/accounting.ts`) and
+ * names the missing API in one line. The trial balance is DERIVED from the journal entries
+ * (`lib/accounting.ts`), never stored beside them, so the two halves of the screen cannot
+ * disagree; each amount prints exactly as the record carries it (integer centavos through
  * `formatMinorUnits`), and an entry with no case or order prints "—".
  *
- * POSTING IS NOT HERE, and must not be added: the app displays accounting, the
- * accounting service keeps it. No write control exists on this route.
+ * THE MONEY TILES ARE BILLING RECORDS. Received / outstanding / overdue / aging derive from
+ * the counter's payment journal and the recorded invoices (`lib/receivables.ts` on top of
+ * the ONE overdue rule in `lib/payment-alerts.ts`); they render only for a session that may
+ * read billing, and each fails alone. A figure with no record is named, never a ₱0 that
+ * reads as recorded money.
  *
- * Layout renders through the component kit (`components/kit`) — the two tables are
- * `DataTable`, the tiles `StatCard`, the read-only chip `StatusChip` — with the
- * same markup as before, now from one home.
+ * POSTING IS NOT HERE, and must not be added: the app displays accounting, the accounting
+ * service keeps it. No write control exists on this route.
+ *
+ * Layout renders through the component kit (`components/kit`) — the tables are `DataTable`,
+ * the tiles `StatCard`, the read-only chip `StatusChip`.
  */
 
 type AccountingSearch = {
@@ -75,6 +89,32 @@ function formatDay(date: string): string {
     month: "short",
     day: "numeric",
   }).format(parsed);
+}
+
+/** One official receipt issued with a recorded payment: the payment's own document row. */
+type OfficialReceiptRow = {
+  document_number: string;
+  document_id: string;
+  received_on: string;
+  payer: string;
+  amount_cents: number;
+};
+
+function officialReceipts(
+  payments: Awaited<ReturnType<typeof listFixturePayments>>,
+  invoices: readonly Invoice[],
+): OfficialReceiptRow[] {
+  const byNumber = new Map(invoices.map((invoice) => [invoice.invoice_number, invoice]));
+  return payments
+    .filter((payment) => payment.receipt_document !== null)
+    .map((payment) => ({
+      document_number: payment.receipt_document?.document_number ?? "",
+      document_id: payment.receipt_document?.id ?? "",
+      received_on: payment.received_on,
+      payer: byNumber.get(payment.invoice_number)?.customer_name ?? "",
+      amount_cents: payment.amount_cents,
+    }))
+    .sort((a, b) => b.received_on.localeCompare(a.received_on));
 }
 
 export default async function AccountingPage({
@@ -126,12 +166,39 @@ export default async function AccountingPage({
     a.date === b.date ? a.id.localeCompare(b.id) : b.date.localeCompare(a.date),
   );
 
+  // ---- the money the office is owed and has taken (billing records) ----
+  const now = new Date();
+  const canSeeBilling = hasAnyScope(session.scopes, ["billing:read"]);
+  const currentMonth = monthBoundsOf(businessToday(now));
+
+  const [invoicesResult, paymentsResult, provisionalResult] = canSeeBilling
+    ? await Promise.allSettled([
+        listInvoices(now),
+        listFixturePayments(),
+        listProvisionalReceipts(),
+      ])
+    : ([null, null, null] as const);
+
+  const invoices = invoicesResult?.status === "fulfilled" ? invoicesResult.value : null;
+  const payments = paymentsResult?.status === "fulfilled" ? paymentsResult.value : null;
+  const provisional =
+    provisionalResult?.status === "fulfilled" ? provisionalResult.value : null;
+
+  const received = payments ? receivedInPeriod(payments, currentMonth) : null;
+  const hasRecordedPayments = payments !== null && payments.length > 0;
+  const outstanding = invoices ? outstandingTotal(invoices) : null;
+  const overdue = invoices ? overdueTotal(invoices, now) : null;
+  const aging = invoices ? duesAging(invoices, now) : null;
+  const receipts = payments && invoices ? officialReceipts(payments, invoices) : null;
+
+  const moneyUnavailable = "unavailable — this session cannot read billing";
+
   return (
     <>
       <PageHeader
         eyebrow="Finance"
         title="Accounting"
-        lead="The recorded journal, its trial balance and the current period."
+        lead="The recorded journal, its trial balance, and the money received, owed and outstanding."
         actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 
@@ -142,6 +209,45 @@ export default async function AccountingPage({
       </PageSection>
 
       <PageSection>
+        <h2 className="page-section-title">Money at a glance</h2>
+        <div className="kpi-grid">
+          <StatCard
+            label="Received this month"
+            value={
+              received === null
+                ? "—"
+                : hasRecordedPayments
+                  ? formatMinorUnits(received.total_cents)
+                  : "—"
+            }
+            sub={
+              received === null
+                ? moneyUnavailable
+                : hasRecordedPayments
+                  ? `${received.count} payments from the counter journal`
+                  : "no payment recorded yet"
+            }
+          />
+          <StatCard
+            label="Outstanding"
+            value={outstanding === null ? "—" : formatMinorUnits(outstanding)}
+            sub={invoices ? `${invoices.length} recorded invoices` : moneyUnavailable}
+          />
+          <StatCard
+            label="Overdue"
+            value={overdue === null ? "—" : formatMinorUnits(overdue.amount_cents)}
+            sub={overdue ? `${overdue.count} accounts past due` : moneyUnavailable}
+          />
+          <StatCard
+            label="Reconciliation flags"
+            value="—"
+            sub="not available — needs a bank/gateway feed"
+          />
+        </div>
+      </PageSection>
+
+      <PageSection>
+        <h2 className="page-section-title">The recorded ledger</h2>
         <div className="kpi-grid">
           <StatCard
             label="Entries in period"
@@ -170,6 +276,34 @@ export default async function AccountingPage({
             sub="debits = credits, per entry"
           />
         </div>
+      </PageSection>
+
+      <PageSection>
+        <h2 className="page-section-title">Dues aging</h2>
+        <p className="text-sm text-muted">
+          Derived from each invoice&rsquo;s due date and balance — never a stored bucket.
+        </p>
+        {aging === null ? (
+          <Alert tone="info">
+            <p className="mb-0">
+              {canSeeBilling
+                ? "The invoices could not be read just now, so aging is unavailable."
+                : "Aging needs billing:read — the invoices live in the billing records."}
+            </p>
+          </Alert>
+        ) : (
+          <ul className="aging" data-testid="accounting-aging">
+            {aging.map((row) => (
+              <li key={row.bucket} className="aging__row">
+                <span className="aging__label">{row.label}</span>
+                <strong className="aging__amount">{formatMinorUnits(row.amount_cents)}</strong>
+                <span className="aging__count">
+                  {row.count} {row.count === 1 ? "account" : "accounts"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </PageSection>
 
       <PageSection>
@@ -316,6 +450,157 @@ export default async function AccountingPage({
           />
         </PageSection>
       ) : null}
+
+      <PageSection>
+        <h2 className="page-section-title">Receipts</h2>
+        <p className="text-sm text-muted">
+          Official receipts the counter issued with each recorded payment, and the provisional
+          slips that have not yet become one.
+        </p>
+        {receipts === null ? (
+          <Alert tone="info">
+            <p className="mb-0">
+              {canSeeBilling
+                ? "The payment journal could not be read just now."
+                : "Receipts need billing:read — they live in the billing records."}
+            </p>
+          </Alert>
+        ) : receipts.length === 0 ? (
+          <EmptyState
+            title="No official receipt recorded"
+            hint="An official receipt appears here with the payment that recorded it."
+          />
+        ) : (
+          <DataTable<OfficialReceiptRow>
+            columns={[
+              { key: "number", header: "Receipt" },
+              { key: "date", header: "Date", className: "nowrap" },
+              { key: "payer", header: "Payer" },
+              { key: "amount", header: "Amount", numeric: true },
+            ]}
+            rows={receipts}
+            rowKey={(row) => row.document_id}
+            renderCell={(row, column) => {
+              switch (column.key) {
+                case "number":
+                  return (
+                    <Link href={`/staff/documents/${encodeURIComponent(row.document_id)}`}>
+                      <code>{row.document_number}</code>
+                    </Link>
+                  );
+                case "date":
+                  return formatDay(row.received_on);
+                case "payer":
+                  return row.payer || <span className="text-muted">—</span>;
+                case "amount":
+                  return formatMinorUnits(row.amount_cents);
+                default:
+                  return null;
+              }
+            }}
+            caption={<>Official receipts issued with a recorded payment — one event, one receipt.</>}
+            emptyTitle="No official receipt recorded"
+            emptyHint="An official receipt appears here with the payment that recorded it."
+          />
+        )}
+
+        <h3 className="page-section-title mt-4">Provisional receipts</h3>
+        {provisional === null ? (
+          <Alert tone="info">
+            <p className="mb-0">
+              {canSeeBilling
+                ? "The provisional-receipt journal could not be read just now."
+                : "Provisional receipts need billing:read."}
+            </p>
+          </Alert>
+        ) : provisional.length === 0 ? (
+          <EmptyState
+            title="No provisional receipt recorded"
+            hint="A slip the counter issues before the official receipt appears here."
+          />
+        ) : (
+          <DataTable<ProvisionalReceiptRecord>
+            columns={[
+              { key: "date", header: "Date", className: "nowrap" },
+              { key: "payer", header: "Payer" },
+              { key: "invoice", header: "Invoice" },
+              { key: "instrument", header: "Instrument" },
+              { key: "amount", header: "Amount", numeric: true },
+            ]}
+            rows={provisional}
+            rowKey={(row) => row.id}
+            renderCell={(row, column) => {
+              switch (column.key) {
+                case "date":
+                  return formatDay(row.received_on);
+                case "payer":
+                  return row.payer;
+                case "invoice":
+                  return <code>{row.invoice_number}</code>;
+                case "instrument":
+                  return INSTRUMENT_LABEL[row.instrument] ?? row.instrument;
+                case "amount":
+                  return (
+                    <Link href={`/staff/billing/provisional-receipts/${encodeURIComponent(row.id)}`}>
+                      {formatMinorUnits(row.amount_cents)}
+                    </Link>
+                  );
+                default:
+                  return null;
+              }
+            }}
+            caption={<>The counter&rsquo;s slips — the marked paper, never an official receipt.</>}
+            emptyTitle="No provisional receipt recorded"
+            emptyHint="A slip the counter issues before the official receipt appears here."
+          />
+        )}
+      </PageSection>
+
+      <PageSection>
+        <h2 className="page-section-title">Reconciliation flags</h2>
+        <p className="text-sm text-muted">
+          What the office must look at, each with the exact gap. No flag can be listed until a
+          feed exists, so none is shown as ₱0.
+        </p>
+        <div className="table-wrapper" tabIndex={0}>
+          <table className="table">
+            <caption>Reconciliation is not available — the two flag types and their missing feed.</caption>
+            <tbody>
+              <tr>
+                <th scope="row">
+                  <StatusChip tone="warning">unposted</StatusChip>
+                </th>
+                <td>
+                  <div className="table__name">Not available</div>
+                  <div className="table__sub">
+                    Needs the accounting service&rsquo;s posting API (posting-instruction-v1).
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <StatusChip tone="danger">unmatched</StatusChip>
+                </th>
+                <td>
+                  <div className="table__name">Not available</div>
+                  <div className="table__sub">
+                    Needs a live bank/gateway feed — name the payment gateway and accounting
+                    service.
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <Alert tone="danger" title="Not built (named, not zeroed)">
+          <p className="mb-0">
+            <strong>Expenses</strong> and <strong>statements</strong> have no record shape here.
+            Expenses need the accounting service&rsquo;s expense/journal write API; statements need
+            E2 reporting-analytics. Neither renders an empty table that reads as ₱0.
+          </p>
+        </Alert>
+      </PageSection>
     </>
   );
 }
