@@ -7,7 +7,7 @@ of them produced a much better output"*
 This is the record of that re-vision: the same product and the same truth, composed better.
 The route, the links, the figures and the contact details are unchanged.
 
-| | before (`main` @ `b250513`) | after |
+| | before (`main` @ `b250513`, the title-rotator head) | after |
 |---|---|---|
 | full page @ 1440 | **6741 px** | **4953 px** (−27%) |
 | full page @ 390 | **9642 px** | **7877 px** (−18%) |
@@ -23,10 +23,13 @@ the running site, production CSS, at 1440×900 and 390×844. Both pairs were **r
 rebased head**: `before` is `main` @ `b250513` served on its own port, `after` is this branch
 served on `:4004`. The title set is frozen on set 1 in both, so the two captures are comparable.
 
-**Where this branch sits.** Rebased onto `main` @ `b250513`, so the merge is a clean
-fast-forward. Two files conflicted (`components/public/home-page.tsx`,
-`styles/components.css`) and both were resolved the way the steer asked — see **the rotating
-title** below. Everything else on `main` is untouched, fixtures included.
+**Where this branch sits.** Rebased onto current `main` (over the title-rotator commit
+`b250513` and the dependency pass `b865039`), so the merge is a clean fast-forward. Two files
+conflicted at that rebase (`components/public/home-page.tsx`, `styles/components.css`) and both
+were resolved the way the steer asked — see **the rotating title** below. Everything else on
+`main` is untouched, fixtures included. Gates on this head: lint 0 errors (4 pre-existing
+warnings in `lib/agent/acquisition.ts` and `tests/unit/gallery-page.test.tsx`), typecheck clean,
+**281 files / 3113 tests passed**, `next build` exit 0.
 
 ## The rotating title (the office's, kept — `main` `b250513`)
 
@@ -48,6 +51,9 @@ to get a cleaner opening.
 - Measured: **one `h1`**, all three seeded sets in the DOM and stacked in one grid cell, the
   inactive ones `aria-hidden`; 35.2 px at 1440 and 25.6 px at 390 — the ladder's own top step,
   under the brief's ~40 px ceiling. The rotation changes no visual decision on this page.
+- Driven in a real browser on this head: the set advances on the office's interval, a pointer
+  resting anywhere on band 1 holds it, leaving resumes it, and under
+  `prefers-reduced-motion: reduce` the first set shows and never moves.
 
 ---
 
