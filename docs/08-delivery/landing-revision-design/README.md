@@ -12,7 +12,7 @@ The route, the links, the figures and the contact details are unchanged.
 | full page @ 1440 | **6741 px** | **4953 px** (−27%) |
 | full page @ 390 | **9642 px** | **7877 px** (−18%) |
 | screenshot weight @ 1440 | 1475 KB | 932 KB |
-| screenshot weight @ 390 | 1003 KB | 523 KB |
+| screenshot weight @ 390 | 1003 KB | 537 KB |
 | bands | 7 | 6 |
 | the h1 @ 1440 | 76.4 px (a 1.5× "gateway type scale") | **35.2 px** (`--text-page-title`) |
 | horizontal overflow @ 1440 / 390 | 0 / 0 | 0 / 0 |
@@ -24,12 +24,28 @@ rebased head**: `before` is `main` @ `b250513` served on its own port, `after` i
 served on `:4004`. The title set is frozen on set 1 in both, so the two captures are comparable.
 
 **Where this branch sits.** Rebased onto current `main` (over the title-rotator commit
-`b250513` and the dependency pass `b865039`), so the merge is a clean fast-forward. Two files
-conflicted at that rebase (`components/public/home-page.tsx`, `styles/components.css`) and both
-were resolved the way the steer asked — see **the rotating title** below. Everything else on
-`main` is untouched, fixtures included. Gates on this head: lint 0 errors (4 pre-existing
-warnings in `lib/agent/acquisition.ts` and `tests/unit/gallery-page.test.tsx`), typecheck clean,
-**281 files / 3113 tests passed**, `next build` exit 0.
+`b250513`, the dependency pass `b865039` and the admin wave 1 / agent-hover merge `3f28dff`), so
+the merge is a clean fast-forward. Conflicts and how each was resolved:
+
+| file | conflict | resolution |
+|---|---|---|
+| `components/public/home-page.tsx` | main's static `h1` vs this band's | **this band's** markup, with the office's `HomeTitleRotator` in the heading's place |
+| `styles/components.css` (1st rebase) | main's gateway rules vs the renamed band | **this band's** rules, plus the rotator's classes declared alongside it (one rule, two selectors) |
+| `styles/components.css` (this rebase) | the whole old home block — band-head, niches, services, "6 · the four lot types" | **this band's** block, which is the re-vision of exactly that block |
+
+The last one is worth stating plainly. `81476a4` capped the old `.home-niches` plan band at
+62 rem so it would align with the band above and below — the same uniform-width complaint this
+task was given, answered on the page that still existed. **This re-vision answers it once for
+the whole page instead**: there is no narrower band left to align with, all six bands are direct
+children of `.home` at the folio envelope, and `home-styles.test.ts` fails the next band that
+reaches for its own measure. The other home classes that went with it (`.home-niche*`,
+`.home-plates`, the tile-size `.home-service*`) are the shapes the re-vision cut; nothing outside
+the home rendered them. `.home-band-head*` is **kept** — four public pages still use it, and
+this branch moved its rules out of the home block into the shared public grammar.
+
+Gates on this head: lint 0 errors (4 pre-existing warnings in `lib/agent/acquisition.ts` and
+`tests/unit/gallery-page.test.tsx`), typecheck clean, **285 files / 3146 tests passed**,
+`next build` exit 0.
 
 ## The rotating title (the office's, kept — `main` `b250513`)
 
@@ -70,7 +86,9 @@ step, each set's promise as its second line in the sky ink → the ONE action th
 3 a.m. (the 24/7 number, gold) with the plan action beside it → three recorded facts under a
 hairline. **Two text rows, no lead paragraph** — the captain's own later call on `main` (6dc03dc,
 *"shorter, simpler, just relax"*): the any-hour promise already reads in the promise line, the
-call button and the ribbon, so a third line said it a third time. The photograph is the client's
+call button and the ribbon, so a third line said it a third time. The short gateway copy is kept
+exactly as `main` has it: `We're here for you` / `any hour, any day.` as set 1, with the
+office's two calm alternates behind it. The photograph is the client's
 own picture of the park gate, at a 3:2 band-lead frame with a 22 rem ceiling, **beside** the
 words it supports. Before, the same picture was a full-bleed 74 rem band of its own — a band
 whose only content was a 1184 px image, which is the "unnecessary large imagery" the brief
@@ -136,8 +154,9 @@ The brief's follow-up: *the 2nd, 5th and 6th sections must share the same conten
 others.* Every band is a direct child of `.home`, no band/grid/inner panel declares a second
 measure, and the only `max-width` left in the block bounds a **paragraph**, never a band's
 content. Measured at 1440, all six bands are **1222 px at left 109**; at 390, all six are
-**345 px at left 22**, and `document.scrollWidth === 390` — no sideways scroll (re-measured on
-the rebased head: 0 px of overflow at both widths).
+**345 px at left 22**, and `document.scrollWidth === 390` — no sideways scroll (re-measured per
+band on this head: `open · arrange · lots · plans · services · contact` all read 1222/109 at
+1440 and 345/22 at 390; 0 px of overflow at both widths).
 
 `tests/unit/home-styles.test.ts` now pins this ("gives every band the SAME content width"), so
 the next band that reaches for its own envelope fails the gate.
