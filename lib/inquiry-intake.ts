@@ -240,3 +240,50 @@ export function readInquirySubmission(
   if (Object.keys(errors).length > 0) return { ok: false, errors };
   return { ok: true, intake: logInquiryInput(values) };
 }
+
+/* ------------------------- the office's own moves ------------------------ */
+
+/**
+ * The inquiry STATUS the office moves on the board: New → Contacted → Converted.
+ * (`qualified` is the board's own recorded word and is treated as “already
+ * contacted”, so a qualified enquiry may convert; `closed` is terminal.)
+ */
+export const INQUIRY_STATUS_MOVES = ["new", "contacted", "qualified", "converted", "closed"] as const;
+export type InquiryStatusMove = (typeof INQUIRY_STATUS_MOVES)[number];
+
+const STATUS_RANK: Record<InquiryStatusMove, number> = {
+  new: 0,
+  contacted: 1,
+  qualified: 1,
+  converted: 2,
+  closed: 3,
+};
+
+export type InquiryStatusIntake =
+  | { ok: true; status: "contacted" | "converted" }
+  | { ok: false; errors: Record<string, string> };
+
+/**
+ * The one reading of an inquiry status move. The office only moves an enquiry
+ * FORWARD along New → Contacted → Converted — a status the record has already
+ * passed is not a correction this screen offers (that is a different job, and a
+ * different contract), and `closed` is reached by the convert action, not here.
+ */
+export function readInquiryStatusMove(input: {
+  currentStatus: string;
+  status: unknown;
+}): InquiryStatusIntake {
+  const status = input.status;
+  if (status !== "contacted" && status !== "converted") {
+    return { ok: false, errors: { status: "Choose Contacted or Converted." } };
+  }
+  const current = input.currentStatus as InquiryStatusMove;
+  const currentRank = STATUS_RANK[current];
+  if (currentRank === undefined) {
+    return { ok: false, errors: { status: "That enquiry has no status to move." } };
+  }
+  if (STATUS_RANK[status] <= currentRank) {
+    return { ok: false, errors: { status: "The enquiry only moves forward." } };
+  }
+  return { ok: true, status };
+}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { listAgentProspects, type Prospect } from "@/lib/api-client/agent";
+import { listAgentProspects, listAssignmentNotices, type Prospect } from "@/lib/api-client/agent";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
 import { orderProspects, WORKBENCH_HELP } from "@/lib/agent/agent-dashboard";
 import {
@@ -162,12 +162,15 @@ export default async function AgentProspectsPage({
 }: {
   searchParams?: Promise<Search>;
 }) {
-  await requirePortalSessionOrRedirect("agent");
+  const session = await requirePortalSessionOrRedirect("agent");
   const params = (await searchParams) ?? {};
   const filter = params.filter ?? "all";
   const view: "list" | "board" = params.view === "board" ? "board" : "list";
 
   const all = await listAgentProspects();
+  // The office's hand-offs reach the agent here: a durable notice on the SAME
+  // journal the pipeline folds, never a toast that dies with the tab.
+  const assigned = (await listAssignmentNotices(session.displayName)).slice(0, 5);
   const filtered = orderProspects(applyFilters(all, params));
   const shown = params.show === "all" ? filtered : filtered.slice(0, 12);
   const needs = needsYou(all);
@@ -205,6 +208,25 @@ export default async function AgentProspectsPage({
           </a>
         </div>
       </header>
+
+      {assigned.length > 0 ? (
+        <section className="wb-panel" aria-label="Assigned to you by the office">
+          <div className="wb-panel__body">
+            <h2 className="wb-panel__title">Assigned to you by the office</h2>
+            <ul className="wb-assignments">
+              {assigned.map((notice) => (
+                <li key={`${notice.prospect_id}-${notice.at}`}>
+                  <Link href={`/agent/prospects/${notice.prospect_id}`}>{notice.name}</Link>
+                  <span className="wb-table__sub">
+                    {manilaDay(notice.at)} · by {notice.by}
+                    {notice.note ? ` · ${notice.note}` : ""}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section className="wb-panel" aria-label="Prospect filters">
         <div className="wb-panel__body">

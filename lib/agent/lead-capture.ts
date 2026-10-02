@@ -25,6 +25,7 @@ export type LeadCaptureSource = (typeof LEAD_CAPTURE_SOURCES)[number];
 
 export const LEAD_CAPTURE_NAME_MAX = 120;
 export const LEAD_CAPTURE_PHONE_MAX = 40;
+export const LEAD_CAPTURE_EMAIL_MAX = 160;
 export const LEAD_CAPTURE_CALLBACK_MAX = 120;
 export const LEAD_CAPTURE_NOTE_MAX = 500;
 
@@ -75,6 +76,7 @@ export function readLeadCapture(values: unknown): LeadCaptureIntake {
     value: {
       name: text(record.name, LEAD_CAPTURE_NAME_MAX),
       phone,
+      email: text(record.email, LEAD_CAPTURE_EMAIL_MAX),
       source: cleanSource,
       interest: label.interest,
       want: label.want,

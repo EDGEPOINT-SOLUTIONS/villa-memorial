@@ -76,6 +76,12 @@ export const STAFF_NAV: NavSection[] = [
       // (the group's list is Families · Agents · Inquiries · Memberships · Memorials).
       { href: "/staff/agents", label: "Agents", scopes: ["cases:read"] },
       { href: "/staff/inquiries", label: "Inquiries", scopes: ["cases:read"] },
+      // Prospects (2026-10-02): the client lifecycle an enquiry becomes. The
+      // office works it (call · email · assign) and one state moves New →
+      // Contacted → Converted on the SAME journal the agent portal folds, so an
+      // agent's capture and the office's change cannot disagree. cases:read lists,
+      // cases:write changes it — the inquiries area's own provisional reuse.
+      { href: "/staff/prospects", label: "Prospects", scopes: ["cases:read"] },
       // Membership application folio (F-18 / FORMS_PLAN gap 4). Provisional scope:
       // rbac-scopes-v1 names no membership/plan-holder code, so this reuses the
       // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes.

@@ -273,6 +273,30 @@ gap in place.
 data and the DPA retention question already held in
 [`07-client-villa/open-questions.md`](../07-client-villa/open-questions.md).
 
+## 10. Platform asks — the office's Prospects lifecycle (2026-10-02)
+
+**Status: OPEN — platform-owned.** The captain asked for a dedicated Prospects page: every
+enquiry becomes a prospect, the office works it (call · email · email-blast · assign), the state
+moves New → Contacted → Converted, and an assigned agent is notified in their portal with the two
+sides reading one record. The villa build ships it on the durable demo journal
+(`lib/api-client/agent-store.ts`) the agent portal already folds, with the four writes behind
+`app/api/staff/prospects/**` and the enquiry moves behind `app/api/staff/inquiries/[id]`. Nothing
+here invents a contract, and the screen states the demo posture in one line
+(`PROSPECT_SERVICE_NOTE`). Two asks travel with it:
+
+| Ask | What it needs |
+|---|---|
+| The **customer-records** service | a prospect/lead record with the office's lifecycle state (new · contacted · converted), an assignment field, and write endpoints for the office's create / state-move / assign — the same service the staff lead record (`/staff/pipeline`) already names. Until it freezes, `lib/api-client/crm.ts` refuses live mode with a named 503 and the Prospects screen serves the shared journal. |
+| An **agent-roster read** | `lib/api-client/agent-roster.ts` composes the assignment dropdown from the recorded agent-portal accounts (`lib/fixtures/auth/access-control.json`) and the recorded HR sales staff (`lib/fixtures/hr/employees.json`), because identity-access publishes no user list. A frozen user-list (or agent-list) read replaces that composition with the live branch; the screen does not change. |
+
+**What stays honest either way.** No outward mail path exists (the platform notification service
+is P4), so the email blast records the message and its recipients on the journal and hands it to
+the office's own mail client — the screen says the notification service is not connected rather
+than claiming delivery. That ask is already §9's notification service; no new one is opened here.
+
+**Who can act.** The platform (freeze the customer-records read/write and the roster/user-list
+read).
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
@@ -281,6 +305,7 @@ payment-due-notification pass. Updated 2026-09-28 — §3 rows 6–7 and §7 add
 phases 4–7). Updated 2026-09-30 — §8 added (the provisional structured quote lines from the
 quote-page revisioning, captain D6-A) and §9 added (the contracts the family command centre
 exposes). Updated 2026-10-01 — §9's funeral row and the route coverage updated: the family
-arrangement is connected to the office's recorded case fixture. The audit and the linked
-documents remain the authoritative
+arrangement is connected to the office's recorded case fixture. Updated 2026-10-02 — §10 added
+(the Prospects lifecycle's customer-records write/read and the agent-roster read). The audit and
+the linked documents remain the authoritative
 record.*

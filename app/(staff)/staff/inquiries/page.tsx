@@ -7,6 +7,7 @@ import { StatCard } from "@/components/kit";
 import { InquiryBoard } from "./inquiry-board";
 import { listInquiries } from "@/lib/api-client/crm";
 import { listCases } from "@/lib/api-client/operations";
+import { listOfficeAgents } from "@/lib/api-client/agent-roster";
 
 export const metadata = { title: "Inquiries — Admin Portal" };
 
@@ -39,7 +40,7 @@ export default async function InquiriesPage() {
     );
   }
 
-  const inquiries = await listInquiries();
+  const [inquiries, agents] = await Promise.all([listInquiries(), listOfficeAgents()]);
   // The enquiry's case, when one was opened from it: the case carries the same
   // `inquiry_reference`, so this is the one link both screens read.
   let linkedCases: Record<string, string> = {};
@@ -78,6 +79,7 @@ export default async function InquiriesPage() {
           statusTone={STATUS_TONE}
           canCapture={hasAnyScope(session.scopes, ["cases:write"])}
           linkedCases={linkedCases}
+          agents={agents}
         />
       </PageSection>
     </>

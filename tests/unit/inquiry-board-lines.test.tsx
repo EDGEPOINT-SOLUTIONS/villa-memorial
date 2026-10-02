@@ -57,6 +57,7 @@ describe("the office board renders structured quote lines (D6-A)", () => {
         initialInquiries: [inquiry],
         statusTone: { new: "info" },
         canCapture: false,
+        agents: [],
       }),
     );
     expect(html).toContain("Quote request — 2 items");

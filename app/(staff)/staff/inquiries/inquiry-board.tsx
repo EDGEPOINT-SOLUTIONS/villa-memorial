@@ -7,7 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Field } from "@/components/ui/field";
+import { useModalFocus } from "@/components/ui/use-modal-focus";
 import type { Inquiry } from "@/lib/api-client/crm";
+import type { OfficeAgent } from "@/lib/api-client/agent-roster";
+import { PROSPECT_INTERESTS } from "@/lib/crm/prospect-actions";
 import { formatMinorUnits } from "@/lib/money";
 import { InquiryCaptureForm, SOURCE_LABELS } from "./inquiry-capture";
 
@@ -36,14 +40,19 @@ export function InquiryBoard({
   statusTone,
   canCapture,
   linkedCases = {},
+  agents,
 }: {
   initialInquiries: Inquiry[];
   statusTone: Record<string, Tone>;
   canCapture: boolean;
   /** Enquiry reference → the case it was carried into, when one exists. */
   linkedCases?: Record<string, string>;
+  agents: OfficeAgent[];
 }) {
   const [inquiries, setInquiries] = useState<Inquiry[]>(initialInquiries);
+  const [converting, setConverting] = useState<Inquiry | null>(null);
+  const [convertingBusy, setConvertingBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [capturedCount, setCapturedCount] = useState(0);
   const [formOpen, setFormOpen] = useState(false);
   const [filter, setFilter] = useState("");
@@ -92,11 +101,66 @@ export function InquiryBoard({
     }
   }
 
+  async function moveStatus(inquiry: Inquiry, status: "contacted" | "converted") {
+    setActionError(null);
+    try {
+      const response = await fetch(`/api/staff/inquiries/${inquiry.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "status", status }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const body =
+        typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
+      if (!response.ok || typeof body.inquiry !== "object" || body.inquiry === null) {
+        setActionError(typeof body.error === "string" ? body.error : "The status could not be moved.");
+        return;
+      }
+      setInquiries((prev) => prev.map((i) => (i.id === inquiry.id ? (body.inquiry as Inquiry) : i)));
+    } catch {
+      setActionError("The status could not be moved — check your connection.");
+    }
+  }
+
+  async function convertInquiry(values: { need: string; agent: string; note: string }) {
+    if (!converting) return;
+    setActionError(null);
+    setConvertingBusy(true);
+    try {
+      const response = await fetch(`/api/staff/inquiries/${converting.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "convert", ...values }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const body =
+        typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
+      if (!response.ok || typeof body.inquiry !== "object" || body.inquiry === null) {
+        setActionError(
+          typeof body.error === "string" ? body.error : "The enquiry could not become a prospect.",
+        );
+        return;
+      }
+      const updated = body.inquiry as Inquiry;
+      setInquiries((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      setConverting(null);
+    } catch {
+      setActionError("The enquiry could not become a prospect — check your connection.");
+    } finally {
+      setConvertingBusy(false);
+    }
+  }
+
   return (
     <div className="stack-4">
       {caseError ? (
         <Alert tone="danger" title="Could not open the case">
           {caseError}
+        </Alert>
+      ) : null}
+      {actionError ? (
+        <Alert tone="danger" title="Could not save">
+          {actionError}
         </Alert>
       ) : null}
       {capturedCount > 0 ? (
@@ -156,6 +220,11 @@ export function InquiryBoard({
                 <th scope="col">Status</th>
                 <th scope="col">Case</th>
                 <th scope="col">Received</th>
+                {canCapture ? (
+                  <th scope="col">
+                    <span className="visually-hidden">Actions</span>
+                  </th>
+                ) : null}
               </tr>
             </thead>
             <tbody>
@@ -237,12 +306,137 @@ export function InquiryBoard({
                     )}
                   </td>
                   <td className="text-sm">{new Date(i.received_at).toLocaleString()}</td>
+                  {canCapture ? (
+                    <td>
+                      <div className="row row--wrap">
+                        {i.status === "new" ? (
+                          <Button variant="secondary" size="sm" onClick={() => moveStatus(i, "contacted")}>
+                            Mark contacted
+                          </Button>
+                        ) : null}
+                        {i.status !== "converted" && i.status !== "closed" ? (
+                          <Button size="sm" onClick={() => setConverting(i)}>
+                            Convert to prospect
+                          </Button>
+                        ) : null}
+                      </div>
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
+
+      {converting ? (
+        <ConvertDialog
+          inquiry={converting}
+          agents={agents}
+          busy={convertingBusy}
+          onClose={() => setConverting(null)}
+          onConvert={convertInquiry}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * The one-step enquiry → prospect dialog: what the person is considering, and
+ * who will handle them. The office's own vocabulary throughout.
+ */
+function ConvertDialog({
+  inquiry,
+  agents,
+  busy,
+  onClose,
+  onConvert,
+}: {
+  inquiry: Inquiry;
+  agents: OfficeAgent[];
+  busy: boolean;
+  onClose: () => void;
+  onConvert: (values: { need: string; agent: string; note: string }) => void;
+}) {
+  const [need, setNeed] = useState<string>("unsure");
+  const [agent, setAgent] = useState("");
+  const [note, setNote] = useState("");
+  const { panelRef } = useModalFocus<HTMLDivElement>(true, onClose);
+
+  const NEED_LABELS: Record<(typeof PROSPECT_INTERESTS)[number], string> = {
+    plan: "A pre-need plan",
+    lot: "A memorial lot",
+    services: "Funeral services",
+    unsure: "Not sure yet",
+  };
+
+  return (
+    <div className="ops-modal" role="presentation">
+      <div className="ops-modal__backdrop" onClick={onClose} />
+      <div
+        className="ops-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Convert ${inquiry.person.full_name} to a prospect`}
+        ref={panelRef}
+        tabIndex={-1}
+      >
+        <div className="ops-modal__head">
+          <div>
+            <p className="ops-modal__eyebrow">Inquiries</p>
+            <h2>Convert to a prospect</h2>
+          </div>
+          <Button variant="ghost" onClick={onClose} aria-label="Close">
+            Close
+          </Button>
+        </div>
+        <div className="ops-modal__body">
+          <form
+            className="stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onConvert({ need, agent, note });
+            }}
+          >
+            <p className="text-sm">
+              {inquiry.person.full_name} · {inquiry.reference}
+            </p>
+            <div className="field-grid field-grid--2">
+              <Field label="What they are considering" htmlFor="convert-need">
+                <select id="convert-need" value={need} onChange={(e) => setNeed(e.target.value)}>
+                  {PROSPECT_INTERESTS.map((value) => (
+                    <option key={value} value={value}>
+                      {NEED_LABELS[value]}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Assign to" htmlFor="convert-agent" hint="Optional — notifies the agent.">
+                <select id="convert-agent" value={agent} onChange={(e) => setAgent(e.target.value)}>
+                  <option value="">Unassigned</option>
+                  {agents.map((option) => (
+                    <option key={option.email} value={option.name}>
+                      {option.name} — {option.role_label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+            <Field label="Note" htmlFor="convert-note" hint="Optional — travels with the assignment.">
+              <input id="convert-note" value={note} onChange={(e) => setNote(e.target.value)} />
+            </Field>
+            <div className="ops-modal__actions">
+              <Button type="submit" disabled={busy}>
+                {busy ? "Converting…" : "Convert to prospect"}
+              </Button>
+              <Button variant="ghost" type="button" onClick={onClose}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

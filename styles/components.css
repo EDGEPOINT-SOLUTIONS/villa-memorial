@@ -29729,3 +29729,90 @@ actions sit at its end, vertically centred — so Home opens on a band, not on t
   white-space: nowrap !important;
   border: 0 !important;
 }
+
+/* ============================================================================
+   staff: the Prospects workspace (captain, 2026-10-02)
+
+   ONE block for the office's client-lifecycle screen. The list itself is the
+   component kit's DataTable; these are the small record pieces the one detail
+   panel and the agent's notice band add — a fact grid, two hairline lists and
+   the assignment notices. Tokens only, no new type step (the type ladder is in
+   styles/tokens.css), and every list is a hairline-separated row rather than a
+   second card.
+   ========================================================================== */
+
+.prospect-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3) var(--space-4);
+  margin: 0;
+}
+
+.prospect-facts > div {
+  min-width: 0;
+}
+
+.prospect-facts dt {
+  font-size: var(--text-caption);
+  color: var(--color-text-muted);
+}
+
+.prospect-facts dd {
+  margin: var(--space-1) 0 0;
+  overflow-wrap: anywhere;
+}
+
+.prospect-history,
+.prospect-recipients {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prospect-history > li,
+.prospect-recipients > li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.prospect-history > li:last-child,
+.prospect-recipients > li:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.wb-assignments {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wb-assignments > li {
+  display: grid;
+  gap: var(--space-1);
+}
+
+@media (max-width: 40rem) {
+  .prospect-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.prospect-cell {
+  display: grid;
+  gap: var(--space-1);
+}
+
+@media (max-width: 40rem) {
+  .prospect-cell {
+    gap: 0;
+  }
+}

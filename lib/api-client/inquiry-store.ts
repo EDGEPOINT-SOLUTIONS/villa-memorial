@@ -46,7 +46,14 @@ import type { Inquiry, InquiryLine } from "@/lib/api-client/crm";
 import type { InquiryIntake } from "@/lib/inquiry-intake";
 import seedFile from "@/lib/fixtures/crm/inquiries.json";
 
-type PersistedEvent = { kind: "inquiry_received"; at: string; inquiry: Inquiry };
+/**
+ * One journalled enquiry event. A receipt carries the whole row; a status move
+ * carries only the change, so the office's own state advances without rewriting
+ * the recorded enquiry.
+ */
+type PersistedEvent =
+  | { kind: "inquiry_received"; at: string; inquiry: Inquiry }
+  | { kind: "inquiry_status"; at: string; inquiry_id: string; status: Inquiry["status"]; by: string };
 
 export function inquiriesStorePath(): string {
   return journalPath("INQUIRIES_STORE_PATH", "crm-inquiries.json");
@@ -112,9 +119,30 @@ function toInquiry(raw: unknown): Inquiry {
   };
 }
 
+const INQUIRY_STATUSES: ReadonlyArray<Inquiry["status"]> = [
+  "new",
+  "contacted",
+  "qualified",
+  "converted",
+  "closed",
+];
+
 function toPersistedEvent(raw: unknown): PersistedEvent {
   if (typeof raw !== "object" || raw === null) malformed("store event");
   const r = raw as Record<string, unknown>;
+  if (r.kind === "inquiry_status") {
+    const status = r.status;
+    if (typeof status !== "string" || !INQUIRY_STATUSES.includes(status as Inquiry["status"])) {
+      malformed("status event status");
+    }
+    return {
+      kind: "inquiry_status",
+      at: requiredString(r.at, "event timestamp"),
+      inquiry_id: requiredString(r.inquiry_id, "status inquiry id"),
+      status: status as Inquiry["status"],
+      by: typeof r.by === "string" ? r.by : "",
+    };
+  }
   if (r.kind !== "inquiry_received") malformed(`store event kind ${String(r.kind)}`);
   return {
     kind: "inquiry_received",
@@ -157,8 +185,52 @@ export function seedInquiries(): Inquiry[] {
  */
 export async function listFixtureInquiries(): Promise<Inquiry[]> {
   const events = await readPersistedEvents();
-  const rows = [...events.map((event) => structuredClone(event.inquiry)), ...seedInquiries()];
+  const rows = [
+    ...events
+      .filter((event): event is Extract<PersistedEvent, { kind: "inquiry_received" }> =>
+        event.kind === "inquiry_received",
+      )
+      .map((event) => structuredClone(event.inquiry)),
+    ...seedInquiries(),
+  ];
+  // The office's own status moves fold onto the rows, oldest first, so a board
+  // read is one record and the seed is never rewritten.
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  for (const event of events) {
+    if (event.kind !== "inquiry_status") continue;
+    const row = byId.get(event.inquiry_id);
+    if (row) row.status = event.status;
+  }
   return rows.sort((a, b) => b.received_at.localeCompare(a.received_at));
+}
+
+/** One enquiry by id, folded, or null — the convert action's own read. */
+export async function getFixtureInquiry(id: string): Promise<Inquiry | null> {
+  return (await listFixtureInquiries()).find((row) => row.id === id) ?? null;
+}
+
+/**
+ * Record an office status move (New → Contacted → Converted) for one enquiry.
+ * Serialized with every other write, so a submission and a move never interleave.
+ */
+export function recordInquiryStatus(args: {
+  inquiryId: string;
+  status: Inquiry["status"];
+  by: string;
+  now?: Date;
+}): Promise<Inquiry> {
+  const now = args.now ?? new Date();
+  return withStoreLock(async () => {
+    const events = await readPersistedEvents();
+    const at = now.toISOString();
+    await persistEvents([
+      ...events,
+      { kind: "inquiry_status", at, inquiry_id: args.inquiryId, status: args.status, by: args.by },
+    ]);
+    const updated = await getFixtureInquiry(args.inquiryId);
+    if (!updated) throw new ApiError("no such enquiry", 404);
+    return structuredClone(updated);
+  });
 }
 
 /** Allocate the next reference above both the seed and the journal. */
@@ -188,7 +260,14 @@ export function receiveInquiry(args: {
   const now = args.now ?? new Date();
   return withStoreLock(async () => {
     const events = await readPersistedEvents();
-    const known: Inquiry[] = [...events.map((e) => e.inquiry), ...seedInquiries()];
+    const known: Inquiry[] = [
+      ...events
+        .filter((event): event is Extract<PersistedEvent, { kind: "inquiry_received" }> =>
+          event.kind === "inquiry_received",
+        )
+        .map((event) => event.inquiry),
+      ...seedInquiries(),
+    ];
     const at = now.toISOString();
     const inquiry: Inquiry = {
       id: `inq-${randomUUID()}`,

@@ -34,19 +34,29 @@ import { getFamilyHousehold } from "@/lib/api-client/family";
 import { familyDocumentReleased } from "@/lib/family/family-view";
 import { nextPaymentDue, nextPaymentDueLabel } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
-import { listProspectCaptureEvents, listStageMoveEvents } from "@/lib/api-client/agent-store";
+import {
+  listAssignmentEvents,
+  listBlastEvents,
+  listProspectCaptureEvents,
+  listStageMoveEvents,
+} from "@/lib/api-client/agent-store";
 import { listPlanEvents } from "@/lib/api-client/agent-plan-store";
 import {
   applyPlanEvents,
   type AgentPlan,
 } from "@/lib/agent/agent-plans";
 import {
+  applyAssignments,
   applyStageMoves,
+  assignmentNotices,
   capturedProspects,
   conversionFromProspects,
   convertedClients,
   pipelineValueCents,
   soldTotals,
+  type AssignmentNotice,
+  type ProspectAssignment,
+  type ProspectBlast,
 } from "@/lib/agent/acquisition";
 
 /** The agent's own day-planner record; the fold lives in `lib/agent/agent-plans.ts`. */
@@ -463,16 +473,18 @@ async function toClient(raw: Client): Promise<Client> {
  */
 async function readWorkspace(): Promise<AgentWorkspace> {
   const seed = readWorkspaceSeed();
-  const [events, planEvents, captures] = await Promise.all([
+  const [events, planEvents, captures, assignments] = await Promise.all([
     listStageMoveEvents(),
     listPlanEvents(),
     listProspectCaptureEvents(),
+    listAssignmentEvents(),
   ]);
   // A lead captured at /agent/new is folded in beside the seed, then the stage
   // moves apply to both, so a captured person reaches the list, the board and
-  // the funnel exactly like a recorded one.
+  // the funnel exactly like a recorded one. The office's assignments apply last,
+  // so the agent reads the owner the office set — one record, two portals.
   const seedProspects = [...capturedProspects(captures), ...seed.prospects.map(toProspect)];
-  const prospects = applyStageMoves(seedProspects, events);
+  const prospects = applyAssignments(applyStageMoves(seedProspects, events), assignments);
   const seedClients = seed.clients.map((c) => ({
     ...c,
     holdings: (c.holdings ?? []).map((h) => ({ ...h })),
@@ -514,6 +526,26 @@ export async function getAgentToday(): Promise<AgentWorkspace["today"] & { agent
 export async function listAgentProspects(): Promise<Prospect[]> {
   const ws = await readWorkspace();
   return ws.prospects.map(toProspect);
+}
+
+/**
+ * Every assignment the office recorded, oldest first — the same journal the
+ * pipeline folds. The staff Prospects screen reads this to show who assigned
+ * what, and the agent portal reads it for the durable notice.
+ */
+export async function listProspectAssignments(): Promise<ProspectAssignment[]> {
+  return listAssignmentEvents();
+}
+
+/** Every email blast the office recorded, oldest first. */
+export async function listProspectBlasts(): Promise<ProspectBlast[]> {
+  return listBlastEvents();
+}
+
+/** The assignments addressed to one agent, newest first — the agent's notices. */
+export async function listAssignmentNotices(agentName: string): Promise<AssignmentNotice[]> {
+  const ws = await readWorkspace();
+  return assignmentNotices(ws.prospects, await listAssignmentEvents(), agentName);
 }
 
 export async function getAgentProspect(

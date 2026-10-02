@@ -97,6 +97,7 @@ describe("the revisioned IA (admin plan, 2026-10-02)", () => {
       "Families",
       "Agents",
       "Inquiries",
+      "Prospects",
       "Memberships",
       "Memorials",
     ]);

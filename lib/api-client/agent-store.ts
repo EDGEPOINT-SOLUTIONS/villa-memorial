@@ -39,7 +39,12 @@ import {
   readJournalEvents,
   writeJournalEvents,
 } from "@/lib/api-client/journal";
-import type { CapturedLead, StageMoveEvent } from "@/lib/agent/acquisition";
+import type {
+  CapturedLead,
+  ProspectAssignment,
+  ProspectBlast,
+  StageMoveEvent,
+} from "@/lib/agent/acquisition";
 
 export function agentPipelineStorePath(): string {
   return journalPath("AGENT_STORE_PATH", "agent-pipeline.json");
@@ -84,6 +89,7 @@ function toCapturedLead(raw: Record<string, unknown>): CapturedLead {
     id: requiredString(raw.id, "capture id"),
     name: typeof raw.name === "string" ? raw.name : "",
     phone: requiredString(raw.phone, "capture phone"),
+    email: typeof raw.email === "string" ? raw.email : "",
     source: requiredString(raw.source, "capture source"),
     interest: knownInterest,
     want: typeof raw.want === "string" ? raw.want : "",
@@ -94,16 +100,63 @@ function toCapturedLead(raw: Record<string, unknown>): CapturedLead {
   };
 }
 
+/** Field-by-field reader for one persisted assignment. */
+function toProspectAssignment(raw: unknown): ProspectAssignment {
+  if (typeof raw !== "object" || raw === null) malformed("assignment row");
+  const r = raw as Record<string, unknown>;
+  return {
+    prospect_id: requiredString(r.prospect_id, "assignment prospect_id"),
+    agent: requiredString(r.agent, "assignment agent"),
+    by: requiredString(r.by, "assignment author"),
+    at: requiredString(r.at, "assignment timestamp"),
+    note: typeof r.note === "string" ? r.note : "",
+  };
+}
+
+function requiredStringArray(value: unknown, what: string): string[] {
+  if (!Array.isArray(value)) malformed(what);
+  return value.map((entry, index) => requiredString(entry, `${what}[${index}]`));
+}
+
+/** Field-by-field reader for one persisted blast. */
+function toProspectBlast(raw: unknown): ProspectBlast {
+  if (typeof raw !== "object" || raw === null) malformed("blast row");
+  const r = raw as Record<string, unknown>;
+  const channel = r.channel === "email" ? "email" : null;
+  const state = r.state === "queued" ? "queued" : null;
+  if (!channel) malformed("blast channel");
+  if (!state) malformed("blast state");
+  return {
+    id: requiredString(r.id, "blast id"),
+    subject: requiredString(r.subject, "blast subject"),
+    message: requiredString(r.message, "blast message"),
+    channel,
+    prospect_ids: requiredStringArray(r.prospect_ids, "blast prospect_ids"),
+    recipients: requiredStringArray(r.recipients, "blast recipients"),
+    by: requiredString(r.by, "blast author"),
+    at: requiredString(r.at, "blast timestamp"),
+    state,
+  };
+}
+
 /** One journalled row, discriminated by its `kind`. */
 type StoredEvent =
   | { kind: "stage_move"; move: StageMoveEvent }
-  | { kind: "prospect_captured"; capture: CapturedLead };
+  | { kind: "prospect_captured"; capture: CapturedLead }
+  | { kind: "prospect_assigned"; assignment: ProspectAssignment }
+  | { kind: "prospect_blast"; blast: ProspectBlast };
 
 function toStoredEvent(raw: unknown): StoredEvent {
   if (typeof raw !== "object" || raw === null) malformed("event row");
   const r = raw as Record<string, unknown>;
   if (r.kind === "prospect_captured") {
     return { kind: "prospect_captured", capture: toCapturedLead(r) };
+  }
+  if (r.kind === "prospect_assigned") {
+    return { kind: "prospect_assigned", assignment: toProspectAssignment(r.assignment ?? r) };
+  }
+  if (r.kind === "prospect_blast") {
+    return { kind: "prospect_blast", blast: toProspectBlast(r.blast ?? r) };
   }
   // A stage move predates the discriminator and carries no `kind`; it is the
   // default row shape, so the existing journal keeps reading unchanged. A row
@@ -138,6 +191,26 @@ export async function listProspectCaptureEvents(): Promise<CapturedLead[]> {
         event.kind === "prospect_captured",
     )
     .map((event) => event.capture);
+}
+
+/** Every assignment the office recorded, oldest first. */
+export async function listAssignmentEvents(): Promise<ProspectAssignment[]> {
+  return (await readStoredEvents())
+    .filter(
+      (event): event is Extract<StoredEvent, { kind: "prospect_assigned" }> =>
+        event.kind === "prospect_assigned",
+    )
+    .map((event) => event.assignment);
+}
+
+/** Every blast the office recorded, oldest first. */
+export async function listBlastEvents(): Promise<ProspectBlast[]> {
+  return (await readStoredEvents())
+    .filter(
+      (event): event is Extract<StoredEvent, { kind: "prospect_blast" }> =>
+        event.kind === "prospect_blast",
+    )
+    .map((event) => event.blast);
 }
 
 /** Append one move and return it. Serialized with every other write to this store. */
@@ -185,5 +258,48 @@ export function recordProspectCapture(args: {
       { kind: "prospect_captured", ...capture },
     ]);
     return capture;
+  });
+}
+
+/** Append one assignment and return it. Serialized with every other write. */
+export function recordProspectAssignment(args: {
+  prospectId: string;
+  agent: string;
+  by: string;
+  note: string;
+  now?: Date;
+}): Promise<ProspectAssignment> {
+  const now = args.now ?? new Date();
+  return withStoreLock(async () => {
+    const events = await readRawEvents();
+    const assignment: ProspectAssignment = {
+      prospect_id: args.prospectId,
+      agent: args.agent,
+      by: args.by,
+      at: now.toISOString(),
+      note: args.note,
+    };
+    await writeJournalEvents(agentPipelineStorePath(), "agent pipeline", [
+      ...events,
+      { kind: "prospect_assigned", assignment },
+    ]);
+    return assignment;
+  });
+}
+
+/** Append one email blast and return it. Serialized with every other write. */
+export function recordProspectBlast(args: {
+  blast: Omit<ProspectBlast, "at" | "state">;
+  now?: Date;
+}): Promise<ProspectBlast> {
+  const now = args.now ?? new Date();
+  return withStoreLock(async () => {
+    const events = await readRawEvents();
+    const blast: ProspectBlast = { ...args.blast, at: now.toISOString(), state: "queued" };
+    await writeJournalEvents(agentPipelineStorePath(), "agent pipeline", [
+      ...events,
+      { kind: "prospect_blast", blast },
+    ]);
+    return blast;
   });
 }

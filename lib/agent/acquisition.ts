@@ -39,6 +39,49 @@ export type StageMoveEvent = {
 };
 
 /**
+ * One journalled assignment of a prospect to an agent (the office's own write).
+ *
+ * The office assigns from `/staff/prospects`; the event is appended to the SAME
+ * journal the pipeline uses (`lib/api-client/agent-store.ts`), so the agent's
+ * `owner`, the office's list and the agent's notice all fold one record. An
+ * assignment is a durable fact, not a UI preference: the last event for a
+ * prospect wins (`applyAssignments`), and the agent portal renders every event
+ * addressed to the signed-in agent as a notice.
+ */
+export type ProspectAssignment = {
+  prospect_id: string;
+  /** The agent's display name — the value `Prospect.owner` carries. */
+  agent: string;
+  /** Who assigned the prospect (the signed-in office user). */
+  by: string;
+  at: string;
+  note: string;
+};
+
+/**
+ * One journalled email blast to a selected set of prospects.
+ *
+ * HONEST ABOUT THE TRANSPORT: the platform's notification service (P4) is not
+ * connected, so the server cannot send mail. The blast is recorded here as the
+ * office's outbox — what was written, to whom, by whom and when — and the screen
+ * hand the message to the office's own mail client. `state` is `queued` because
+ * that is the only honest word: the server queued a record, it did not deliver.
+ */
+export type ProspectBlast = {
+  id: string;
+  subject: string;
+  message: string;
+  channel: "email";
+  /** The prospects addressed, by prospect id. */
+  prospect_ids: string[];
+  /** The email addresses addressed, in the order recorded. */
+  recipients: string[];
+  by: string;
+  at: string;
+  state: "queued";
+};
+
+/**
  * One lead captured in the field (`POST /api/agent/prospects`). The store owns
  * persistence; this is the shape it persists and the fold reads. A captured
  * lead is the pipeline's own `Prospect` from the moment it exists — its first
@@ -48,6 +91,8 @@ export type CapturedLead = {
   id: string;
   name: string;
   phone: string;
+  /** Optional: a field capture may have no address; the office's form asks for one. */
+  email?: string;
   source: string;
   interest: Prospect["interest"];
   want: string;
@@ -69,7 +114,7 @@ export function capturedProspects(captures: CapturedLead[]): Prospect[] {
     id: capture.id,
     name: capture.name.trim() || capture.phone,
     phone: capture.phone,
-    email: "",
+    email: capture.email?.trim() ?? "",
     source: capture.source,
     interest: capture.interest,
     want: capture.want,
@@ -96,6 +141,60 @@ export function capturedProspects(captures: CapturedLead[]): Prospect[] {
 /** Stable client id for a prospect converted by a sale. */
 export function convertedClientId(prospectId: string): string {
   return `client-${prospectId}`;
+}
+
+/**
+ * Apply the assignment journal to the prospects: the LAST recorded assignment
+ * for a prospect is its owner. An unassigned prospect keeps whatever the record
+ * already carried (a captured lead is owned by the agent who met them).
+ */
+export function applyAssignments(
+  prospects: Prospect[],
+  assignments: ProspectAssignment[],
+): Prospect[] {
+  const latest = new Map<string, ProspectAssignment>();
+  for (const assignment of assignments) {
+    const previous = latest.get(assignment.prospect_id);
+    if (!previous || assignment.at >= previous.at) {
+      latest.set(assignment.prospect_id, assignment);
+    }
+  }
+  return prospects.map((prospect) => {
+    const assignment = latest.get(prospect.id);
+    return assignment ? { ...prospect, owner: assignment.agent } : prospect;
+  });
+}
+
+/** One assignment as the agent portal's own notice: who, when and by whom. */
+export type AssignmentNotice = {
+  prospect_id: string;
+  name: string;
+  by: string;
+  at: string;
+  note: string;
+};
+
+/**
+ * The assignments addressed to one agent, newest first, joined to the prospect's
+ * current name. The agent portal renders these as durable notices — the record of
+ * the office's hand-off, not a toast that dies with the tab.
+ */
+export function assignmentNotices(
+  prospects: Prospect[],
+  assignments: ProspectAssignment[],
+  agentName: string,
+): AssignmentNotice[] {
+  const byId = new Map(prospects.map((prospect) => [prospect.id, prospect]));
+  return assignments
+    .filter((assignment) => assignment.agent === agentName)
+    .map((assignment) => ({
+      prospect_id: assignment.prospect_id,
+      name: byId.get(assignment.prospect_id)?.name ?? assignment.prospect_id,
+      by: assignment.by,
+      at: assignment.at,
+      note: assignment.note,
+    }))
+    .sort((a, b) => b.at.localeCompare(a.at));
 }
 
 /**
