@@ -37,7 +37,7 @@ export default async function ClientReceiptPage({
   const { reference } = await params;
   const requested = personIdFrom(await searchParams);
   const snapshot = await getFamilySnapshot(requested);
-  const { receipts } = familyPapers(snapshot.recent_documents);
+  const { receipts } = familyPapers(snapshot?.recent_documents ?? []);
   const decoded = decodeURIComponent(reference);
   const receipt = receipts.find(
     (entry) =>

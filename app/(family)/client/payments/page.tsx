@@ -7,6 +7,7 @@ import { personIdFrom } from "@/lib/family/family-household";
 import { planAmortization } from "@/lib/family/family-amortization";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { PlanAmortizationPanel } from "@/components/family/family-amortization";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   longDueDate,
   paymentAmountLabel,
@@ -48,6 +49,15 @@ export default async function ClientPaymentsPage({
   await requirePortalSessionOrRedirect("family");
   const requested = personIdFrom(await searchParams);
   const snapshot = await getFamilySnapshot(requested);
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="Payments"
+        headline="No payments are on your account yet."
+        sub="Add the person you look after and their plan will appear here."
+      />
+    );
+  }
   const { balance, balance_cents, plan_summary } = snapshot;
 
   const now = new Date();

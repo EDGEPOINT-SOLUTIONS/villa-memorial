@@ -7,8 +7,10 @@ import { lotAmortization } from "@/lib/family/family-amortization";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { LotAmortizationPanel } from "@/components/family/family-amortization";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   Answer,
+  CallAction,
   PrimaryAction,
   QuietLink,
   Row,
@@ -43,6 +45,28 @@ export default async function Page({
     getFamilyLotRecord(requested),
     loadPricingDocument(),
   ]);
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="Your lot"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after and their lot will appear here."
+      />
+    );
+  }
+  if (!lot) {
+    return (
+      <div className="dash">
+        <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/property" />
+        <Answer
+          kicker="Your lot"
+          headline="No lot is recorded for this person yet."
+          sub="If you hold a lot with us, call and we will connect it to this account."
+          actions={<CallAction label={`Call ${FAMILY_HELP.phone}`} />}
+        />
+      </div>
+    );
+  }
   const { plan_summary } = snapshot;
   const amortization = lotAmortization(lot, pricing.lotCategories);
 

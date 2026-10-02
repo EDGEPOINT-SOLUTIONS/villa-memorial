@@ -1,0 +1,105 @@
+{
+  "_provenance": {
+    "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
+    "recorded": "2026-09-16",
+    "note": "Display-level family snapshot. THE HOUSEHOLD SHAPE (captain, 2026-09-30): one account (the manager `family`) holds MANY loved ones, and `loved_ones[]` keys the same records the pages always read — name, life dates, plan, balance, payment schedule and papers — per person. `balance_cents` mirrors the display strings as integer minor units so views never parse a display price (repo money rule); tests/fixture-contract/family.test.ts pins that the two agree per loved one. `recent_documents[].kind` is the family-safe classification (service_contract / official_receipt / other): the first two are the family's own papers, the portal never asks them to request those, and `lib/api-client/family.ts::toFamilyDocument` drops every field a document record carries beyond title/status/kind/reference/issued_on/amount/covers. Each recorded official receipt is the family's copy of an instalment the payment_schedule records as paid — the amount is the recorded instalment's own, never a new figure — so the Papers popup can open a real sheet (HTML + the guarded PDF route). Their numbers are recorded fixture values in the family portal's own receipt namespace; when the payments/AR projection freezes they are replaced by the service's receipts. `payment_schedule` is each loved one's own plan instalments (client minute 2026-09-21, item 1): it records the payment mode, the first due date and each instalment's amount/paid in integer minor units; `lib/payment-schedule.ts` DERIVES every due date and the due-soon/overdue state, and the two-days-before notice. The dates are recorded data and age with the clock exactly like the billing seed; tests pin the boundary with explicit clocks so they never rot. Every loved one's record keeps this provisional marker; nothing here is a live record.",
+    "household_note": "TWO loved ones (Ernesto and Aurora Dela Cruz) so the household feature is visible end to end. They are APP-AUTHORED demo records in the same provisional spirit as lib/fixtures/family/workspace.json: the manager Cory Customer holds both, each plan/payment/papers record is internally consistent (schedule installments sum to its own balance_cents, next_due equals the first open installment's derived label) and grounded in the client's own recorded 2026 sheets, and no figure is invented beyond the office's own data."
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "family": {
+    "display_name": "Cory Customer",
+    "email": "customer@vm.demo",
+    "primary_contact": "0917 000 1234"
+  },
+  "loved_ones": [
+    {
+      "id": "ernesto-dela-cruz",
+      "name": "Ernesto Dela Cruz",
+      "life_dates": "1948 – 2026",
+      "plan_summary": {
+        "plan_name": "Premium Lawn · Lawn A-01",
+        "status": "Active",
+        "term": "5 years",
+        "next_due": "Sep 27, 2026 · ₱12,000"
+      },
+      "payment_schedule": {
+        "reference": "VM-PLAN-2026-0188",
+        "term": "monthly",
+        "first_due_on": "2026-07-27",
+        "installments": [
+          { "seq": 1, "amount_cents": 1000000, "paid_cents": 1000000 },
+          { "seq": 2, "amount_cents": 1000000, "paid_cents": 1000000 },
+          { "seq": 3, "amount_cents": 1200000, "paid_cents": 0 },
+          { "seq": 4, "amount_cents": 1000000, "paid_cents": 0 }
+        ]
+      },
+      "balance": {
+        "total": "₱42,000",
+        "paid": "₱20,000",
+        "remaining": "₱22,000"
+      },
+      "balance_cents": {
+        "total": 4200000,
+        "paid": 2000000,
+        "remaining": 2200000
+      },
+      "recent_documents": [
+        { "title": "Service contract", "status": "Generated", "kind": "service_contract" },
+        {
+          "title": "Official receipt",
+          "status": "Sent",
+          "kind": "official_receipt",
+          "reference": "OR-2026-00201",
+          "issued_on": "2026-07-27",
+          "amount": "₱10,000",
+          "covers": "payment 1 of 4"
+        }
+      ]
+    },
+    {
+      "id": "aurora-dela-cruz",
+      "name": "Aurora Dela Cruz",
+      "life_dates": "1951 – 2024",
+      "plan_summary": {
+        "plan_name": "Garden Niche · Niche C-02",
+        "status": "Active",
+        "term": "5 years",
+        "next_due": "Oct 5, 2026 · ₱8,505"
+      },
+      "payment_schedule": {
+        "reference": "VM-PLAN-2026-0241",
+        "term": "monthly",
+        "first_due_on": "2026-08-05",
+        "installments": [
+          { "seq": 1, "amount_cents": 850500, "paid_cents": 850500 },
+          { "seq": 2, "amount_cents": 850500, "paid_cents": 850500 },
+          { "seq": 3, "amount_cents": 850500, "paid_cents": 0 },
+          { "seq": 4, "amount_cents": 850500, "paid_cents": 0 }
+        ]
+      },
+      "balance": {
+        "total": "₱34,020",
+        "paid": "₱17,010",
+        "remaining": "₱17,010"
+      },
+      "balance_cents": {
+        "total": 3402000,
+        "paid": 1701000,
+        "remaining": 1701000
+      },
+      "recent_documents": [
+        { "title": "Service contract", "status": "Generated", "kind": "service_contract" },
+        {
+          "title": "Official receipt",
+          "status": "Sent",
+          "kind": "official_receipt",
+          "reference": "OR-2026-00241",
+          "issued_on": "2026-08-05",
+          "amount": "₱8,505",
+          "covers": "payment 1 of 4"
+        },
+        { "title": "Death certificate", "status": "pending_review", "kind": "other" }
+      ]
+    }
+  ]
+}

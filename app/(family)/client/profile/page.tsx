@@ -1,6 +1,6 @@
 import { Bell, ChevronRight, Lock, Mail, Phone, User, Users } from "lucide-react";
 import { requirePortalSessionOrRedirect } from "@/lib/auth/portal-guard";
-import { getFamilySnapshot } from "@/lib/api-client/family";
+import { getFamilyHousehold } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import {
   Answer,
@@ -23,8 +23,11 @@ export const metadata = { title: "Your details — Villa Funeraria" };
  */
 export default async function ClientProfilePage() {
   const session = await requirePortalSessionOrRedirect("family");
-  const snapshot = await getFamilySnapshot();
-  const { family } = snapshot;
+  // The account details exist even when nobody is on the account yet, so this
+  // page reads the household (which always carries `family`) rather than a
+  // loved one's snapshot.
+  const household = await getFamilyHousehold();
+  const { family } = household;
   const email = session.email ?? family.email;
 
   return (

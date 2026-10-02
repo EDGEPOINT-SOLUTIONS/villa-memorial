@@ -6,6 +6,7 @@ import { monogram } from "@/lib/family/family-view";
 import { familyImageUrl, readFamilyImage } from "@/lib/family-image-store";
 import { MEMORIAL_CONSENT_DEFAULT } from "@/lib/memorials";
 import { Answer, CallAction, WhatThisShows } from "@/components/family/family-ui";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import { MemorialVisibilityControl } from "@/components/family/memorial-visibility";
 import { PortalChip } from "@/components/portal/portal-ui";
 
@@ -32,6 +33,15 @@ export const metadata = { title: "Remembering — Villa Funeraria" };
 export default async function Page() {
   const session = await requirePortalSessionOrRedirect("family");
   const household = await getFamilyHousehold();
+  if (household.people.length === 0) {
+    return (
+      <FamilyEmptyState
+        kicker="Remembering"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after, then choose whether their memorial is shown."
+      />
+    );
+  }
   const consents = await readMemorialConsents();
   const consentByPerson = new Map(consents.map((record) => [record.person_id, record]));
   const people = await Promise.all(

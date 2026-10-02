@@ -115,3 +115,19 @@ describe("/agent/sales — the statement table", () => {
     expect(stats.listItems.longestWords, stats.listItems.text).toBeLessThanOrEqual(30);
   });
 });
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02).
+// This suite exercises the recorded records through a test-only copy, so the
+// pages keep their content-bearing contract tests without restoring demo data.
+vi.mock("@/lib/fixtures/agent/workspace.json", async () => ({
+  default: (await import("../fixtures/agent-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/case.json", async () => ({
+  default: (await import("../fixtures/family-case-demo.json")).default,
+}));

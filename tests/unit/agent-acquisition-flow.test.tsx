@@ -32,6 +32,12 @@ vi.mock("@/lib/auth/portal-guard", () => ({
   requirePortalSessionOrRedirect: async () => ({ email: "agent@vm.demo", scopes: [] }),
 }));
 
+// The product fixture starts clean (captain, 2026-10-02); this suite still pins
+// the acquisition fold against the recorded demo workspace (test-only copy).
+vi.mock("@/lib/fixtures/agent/workspace.json", async () => ({
+  default: (await import("../fixtures/agent-workspace-demo.json")).default,
+}));
+
 const { default: AgentLeadPage } = await import("@/app/(agent)/agent/prospects/[id]/page");
 const { default: AgentClientsPage } = await import("@/app/(agent)/agent/clients/page");
 const { default: AgentDashboardPage } = await import("@/app/(agent)/agent/dashboard/page");

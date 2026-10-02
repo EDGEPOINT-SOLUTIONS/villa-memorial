@@ -14,6 +14,7 @@ import {
   type FamilyHousehold,
   type FamilyLotRecord,
   type FamilyRequest,
+  type FamilySnapshot,
 } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import {
@@ -45,6 +46,7 @@ import { PortalChip } from "@/components/portal/portal-ui";
 import { AttentionStrip, DashFacts, DashKpi, DashPanel } from "@/components/family/dash-ui";
 import { PersonSummaryCard } from "@/components/family/family-household-ui";
 import { PersonSwitcher, PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import { PapersTable } from "@/components/family/papers-table";
 import { CaseChain, CaseSchedule, caseDoneWords } from "@/components/family/family-case";
 import { AmortizationLink } from "@/components/family/family-amortization";
@@ -145,6 +147,18 @@ export default async function ClientDashboardPage({
     );
   }
 
+  // THE CLEAN START (captain, 2026-10-02): an account with nobody on it gets the
+  // one action that starts the workflow — add a loved one.
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="Home"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after and their whole arrangement will appear here."
+      />
+    );
+  }
+
   // THE HOUSEHOLD (captain, 2026-09-30): several loved ones and no person named
   // in the address gives the “everyone” reading — one summary each, never a
   // blended total. One loved one (or a named one) gives that person's command
@@ -162,7 +176,7 @@ async function PersonCommandCentre({
   snapshot,
   session,
 }: {
-  snapshot: Awaited<ReturnType<typeof getFamilySnapshot>>;
+  snapshot: FamilySnapshot;
   session: Session;
 }) {
   const personId = snapshot.person_id;

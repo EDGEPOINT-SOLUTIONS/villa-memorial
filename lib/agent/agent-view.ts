@@ -217,6 +217,7 @@ export function activityKindLabel(kind: string): string {
 export function interestLabel(interest: Prospect["interest"]): string {
   if (interest === "plan") return "Plan";
   if (interest === "lot") return "Lot";
+  if (interest === "unsure") return "Still deciding";
   return "Services";
 }
 

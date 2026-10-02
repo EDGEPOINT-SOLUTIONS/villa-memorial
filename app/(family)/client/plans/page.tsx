@@ -7,6 +7,7 @@ import { personIdFrom } from "@/lib/family/family-household";
 import { planAmortization } from "@/lib/family/family-amortization";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
 import { PlanAmortizationPanel } from "@/components/family/family-amortization";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   Answer,
   PrimaryAction,
@@ -39,6 +40,15 @@ export default async function ClientPlansPage({
   await requirePortalSessionOrRedirect("family");
   const requested = personIdFrom(await searchParams);
   const snapshot = await getFamilySnapshot(requested);
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="Your plan"
+        headline="No plan is on your account yet."
+        sub="Add the person you look after and their plan will appear here."
+      />
+    );
+  }
   const { plan_summary, balance, balance_cents } = snapshot;
 
   const hasBalance = (balance_cents?.remaining ?? 0) > 0;

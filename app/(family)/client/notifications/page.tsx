@@ -5,6 +5,7 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord } from "@/lib/family/family-view";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   longDueDate,
   paymentAmountLabel,
@@ -46,6 +47,15 @@ export default async function Page({
   await requirePortalSessionOrRedirect("family");
   const requested = personIdFrom(await searchParams);
   const snapshot = await getFamilySnapshot(requested);
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="What we tell you about"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after and every message about them will be listed here."
+      />
+    );
+  }
   const schedule = snapshot.payment_schedule;
   const notices = schedule
     ? paymentDueNotices(schedule, { client: snapshot.family.display_name, now: new Date() })

@@ -39,7 +39,7 @@ import {
   readJournalEvents,
   writeJournalEvents,
 } from "@/lib/api-client/journal";
-import type { StageMoveEvent } from "@/lib/agent/acquisition";
+import type { CapturedLead, StageMoveEvent } from "@/lib/agent/acquisition";
 
 export function agentPipelineStorePath(): string {
   return journalPath("AGENT_STORE_PATH", "agent-pipeline.json");
@@ -69,9 +69,75 @@ function toStageMoveEvent(raw: unknown): StageMoveEvent {
   };
 }
 
+/**
+ * Field-by-field reader for one persisted capture. The record's own interest is
+ * checked against the pipeline vocabulary rather than trusted; an unknown value
+ * is the honest “still deciding”, never a fabricated plan.
+ */
+function toCapturedLead(raw: Record<string, unknown>): CapturedLead {
+  const interest = raw.interest;
+  const knownInterest =
+    interest === "plan" || interest === "lot" || interest === "services" || interest === "unsure"
+      ? interest
+      : "unsure";
+  return {
+    id: requiredString(raw.id, "capture id"),
+    name: typeof raw.name === "string" ? raw.name : "",
+    phone: requiredString(raw.phone, "capture phone"),
+    source: requiredString(raw.source, "capture source"),
+    interest: knownInterest,
+    want: typeof raw.want === "string" ? raw.want : "",
+    callback: typeof raw.callback === "string" ? raw.callback : "",
+    note: typeof raw.note === "string" ? raw.note : "",
+    captured_at: requiredString(raw.captured_at, "capture captured_at"),
+    captured_by: typeof raw.captured_by === "string" ? raw.captured_by : "",
+  };
+}
+
+/** One journalled row, discriminated by its `kind`. */
+type StoredEvent =
+  | { kind: "stage_move"; move: StageMoveEvent }
+  | { kind: "prospect_captured"; capture: CapturedLead };
+
+function toStoredEvent(raw: unknown): StoredEvent {
+  if (typeof raw !== "object" || raw === null) malformed("event row");
+  const r = raw as Record<string, unknown>;
+  if (r.kind === "prospect_captured") {
+    return { kind: "prospect_captured", capture: toCapturedLead(r) };
+  }
+  // A stage move predates the discriminator and carries no `kind`; it is the
+  // default row shape, so the existing journal keeps reading unchanged. A row
+  // that nested its move under `move` (a transient dev-store shape) is read the
+  // same way rather than taking the whole pipeline down.
+  if (r.kind === "stage_move" && typeof r.move === "object" && r.move !== null) {
+    return { kind: "stage_move", move: toStageMoveEvent(r.move) };
+  }
+  return { kind: "stage_move", move: toStageMoveEvent(raw) };
+}
+
+/** The journal exactly as persisted — writes append these rows, never wrappers. */
+async function readRawEvents(): Promise<unknown[]> {
+  return readJournalEvents(agentPipelineStorePath(), "agent pipeline");
+}
+
+async function readStoredEvents(): Promise<StoredEvent[]> {
+  return (await readRawEvents()).map(toStoredEvent);
+}
+
 export async function listStageMoveEvents(): Promise<StageMoveEvent[]> {
-  const events = await readJournalEvents(agentPipelineStorePath(), "agent pipeline");
-  return events.map(toStageMoveEvent);
+  return (await readStoredEvents())
+    .filter((event): event is Extract<StoredEvent, { kind: "stage_move" }> => event.kind === "stage_move")
+    .map((event) => event.move);
+}
+
+/** Every lead captured in the field, oldest first. */
+export async function listProspectCaptureEvents(): Promise<CapturedLead[]> {
+  return (await readStoredEvents())
+    .filter(
+      (event): event is Extract<StoredEvent, { kind: "prospect_captured" }> =>
+        event.kind === "prospect_captured",
+    )
+    .map((event) => event.capture);
 }
 
 /** Append one move and return it. Serialized with every other write to this store. */
@@ -86,7 +152,7 @@ export function recordStageMove(args: {
 }): Promise<StageMoveEvent> {
   const now = args.now ?? new Date();
   return withStoreLock(async () => {
-    const events = await listStageMoveEvents();
+    const events = await readRawEvents();
     const event: StageMoveEvent = {
       prospect_id: args.prospectId,
       stage: args.stage,
@@ -94,7 +160,30 @@ export function recordStageMove(args: {
       by: args.by,
       note: args.note,
     };
-    await writeJournalEvents(agentPipelineStorePath(), "agent pipeline", [...events, event]);
+    await writeJournalEvents(agentPipelineStorePath(), "agent pipeline", [
+      ...events,
+      { kind: "stage_move", ...event },
+    ]);
     return event;
+  });
+}
+
+/**
+ * Append one field capture and return it. Serialized with every other write to
+ * this store, so a capture and a stage move can never interleave.
+ */
+export function recordProspectCapture(args: {
+  capture: Omit<CapturedLead, "captured_at">;
+  now?: Date;
+}): Promise<CapturedLead> {
+  const now = args.now ?? new Date();
+  return withStoreLock(async () => {
+    const events = await readRawEvents();
+    const capture: CapturedLead = { ...args.capture, captured_at: now.toISOString() };
+    await writeJournalEvents(agentPipelineStorePath(), "agent pipeline", [
+      ...events,
+      { kind: "prospect_captured", ...capture },
+    ]);
+    return capture;
   });
 }

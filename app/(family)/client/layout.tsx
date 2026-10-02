@@ -66,8 +66,10 @@ export default async function FamilyLayout({ children }: { children: React.React
   let accountName = "your account";
   try {
     const snapshot = await getFamilySnapshot();
-    household = familyHousehold(snapshot.loved_one?.name, snapshot.family?.display_name);
-    accountName = snapshot.family?.display_name?.trim() || "your account";
+    accountName = snapshot?.family?.display_name?.trim() || "your account";
+    household = snapshot
+      ? familyHousehold(snapshot.loved_one?.name, snapshot.family?.display_name)
+      : "your family";
   } catch {
     household = "your family";
   }

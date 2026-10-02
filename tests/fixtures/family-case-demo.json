@@ -1,0 +1,101 @@
+{
+  "_provenance": {
+    "status": "PROVISIONAL — no frozen family API contract exists (see lib/api-client/family.ts)",
+    "recorded": "2026-10-01",
+    "source": "The office's own case sheet for the demo family, as the approved family-portal design records it (docs/08-delivery/family-portal-design/page-02-home.html · page-03-funeral.html).",
+    "note": [
+      "WHAT THIS IS: the office's recorded arrangement for each loved one — the five moments the family portal's chain names (arrangement · viewing · funeral · burial · papers), each with the recorded instant or day, the place and the state. The staff case service (case-events-v1) has no family-facing read, so this is a provisional family fixture exactly like lib/fixtures/family/snapshot.json; live mode is not claimed and lib/api-client/family.ts::getFamilyCase is the only reader.",
+      "THE HOUSEHOLD SHAPE (captain, 2026-09-30): one account manages MANY loved ones, so `loved_ones[]` carries one recorded arrangement per person, keyed by the same `id` as snapshot.json and workspace.json.",
+      "WHERE THE FACTS COME FROM (pinned by tests/fixture-contract/family-case.test.ts): each arrangement instant and place cross-references that loved one's recorded office visit in lib/fixtures/family/workspace.json; the loved one's name is snapshot.json#loved_ones[].name; the burial place is the lot the loved one's plan names at the client's own park (lib/family/contact.ts#park); the viewing and funeral places and the days are the approved design sample's own recorded demo arrangement. The instants are true ISO instants (Asia/Manila) and render back to the design's own day and time labels through lib/family/family-view.ts.",
+      "NEVER INVENTED: no amount, no family-facing case number and no coordinator name appears — the office's case numbering and assignment are internal. A step the record does not carry is marked not_recorded and the page says so in a few words rather than guessing a time.",
+      "DEMO DATA ONLY: the family API has no live branch; a loved one whose record carries no case renders the honest 'not connected' state instead of a guessed schedule."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "loved_ones": [
+    {
+      "id": "ernesto-dela-cruz",
+      "case": {
+        "loved_one": "Ernesto Dela Cruz",
+        "steps": [
+          {
+            "key": "arrangement",
+            "starts_at": "2026-09-12T05:00:00Z",
+            "place": "The office · Sunrise, Isabela City",
+            "note": "The meeting where your family chose the plan and the service.",
+            "status": "done"
+          },
+          {
+            "key": "viewing",
+            "starts_at": "2026-09-16T01:00:00Z",
+            "ends_at": "2026-09-18T13:00:00Z",
+            "place": "St. Joseph Chapel · Funeraria Villa, Aguada",
+            "note": "Open every day, 9:00 AM – 9:00 PM; the last night is Friday.",
+            "status": "done"
+          },
+          {
+            "key": "funeral",
+            "starts_at": "2026-09-19T02:00:00Z",
+            "place": "Sanctuario de Mercedes y Gloria, Begang",
+            "note": "The family gathers before the service.",
+            "status": "done"
+          },
+          {
+            "key": "burial",
+            "starts_at": "2026-09-19T03:30:00Z",
+            "place": "Your family’s lot · Lawn A-01",
+            "status": "done"
+          },
+          {
+            "key": "papers",
+            "on": "2026-09-19",
+            "note": "The burial permit, certificates and receipts — your copies stay on your Papers page.",
+            "status": "done"
+          }
+        ]
+      }
+    },
+    {
+      "id": "aurora-dela-cruz",
+      "case": {
+        "loved_one": "Aurora Dela Cruz",
+        "steps": [
+          {
+            "key": "arrangement",
+            "starts_at": "2026-09-19T02:00:00Z",
+            "place": "The office · Sunrise, Isabela City",
+            "note": "The meeting where your family chose the plan and the service.",
+            "status": "done"
+          },
+          {
+            "key": "viewing",
+            "starts_at": "2026-09-23T01:00:00Z",
+            "ends_at": "2026-09-25T13:00:00Z",
+            "place": "St. Joseph Chapel · Funeraria Villa, Aguada",
+            "note": "Open every day, 9:00 AM – 9:00 PM; the last night is Friday.",
+            "status": "done"
+          },
+          {
+            "key": "funeral",
+            "starts_at": "2026-09-26T02:00:00Z",
+            "place": "Sanctuario de Mercedes y Gloria, Begang",
+            "note": "The family gathers before the service.",
+            "status": "done"
+          },
+          {
+            "key": "burial",
+            "starts_at": "2026-09-26T03:30:00Z",
+            "place": "Your family’s lot · Niche C-02",
+            "status": "done"
+          },
+          {
+            "key": "papers",
+            "on": "2026-09-26",
+            "note": "The burial permit, certificates and receipts — your copies stay on your Papers page.",
+            "status": "done"
+          }
+        ]
+      }
+    }
+  ]
+}

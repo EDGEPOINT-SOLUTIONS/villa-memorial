@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   familyPeople,
   getFamilyCase,
@@ -45,13 +45,13 @@ describe("the household model", () => {
     const second = household.people[1];
 
     const defaultSnapshot = await getFamilySnapshot();
-    expect(defaultSnapshot.loved_one.name).toBe(first.name);
-    expect(defaultSnapshot.person_id).toBe(first.id);
+    expect(defaultSnapshot!.loved_one.name).toBe(first.name);
+    expect(defaultSnapshot!.person_id).toBe(first.id);
 
     const secondSnapshot = await getFamilySnapshot(second.id);
-    expect(secondSnapshot.loved_one.name).toBe(second.name);
-    expect(secondSnapshot.person_id).toBe(second.id);
-    expect(secondSnapshot.household?.map((one) => one.id)).toEqual(
+    expect(secondSnapshot!.loved_one.name).toBe(second.name);
+    expect(secondSnapshot!.person_id).toBe(second.id);
+    expect(secondSnapshot!.household?.map((one) => one.id)).toEqual(
       household.people.map((one) => one.id),
     );
   });
@@ -59,7 +59,7 @@ describe("the household model", () => {
   it("keeps an unknown person id on the first loved one rather than 404ing", async () => {
     const household = await getFamilyHousehold();
     const snapshot = await getFamilySnapshot("not-a-person");
-    expect(snapshot.person_id).toBe(household.people[0].id);
+    expect(snapshot!.person_id).toBe(household.people[0].id);
   });
 
   it("gives every page the chosen person's own records", async () => {
@@ -73,8 +73,8 @@ describe("the household model", () => {
       listFamilyAppointments(second.id),
       getFamilyCase(second.id),
     ]);
-    expect(snapshot.loved_one.name).toBe(second.name);
-    expect(lot.lot_number).toBe(second.lot?.lot_number);
+    expect(snapshot!.loved_one.name).toBe(second.name);
+    expect(lot!.lot_number).toBe(second.lot?.lot_number);
     expect(requests.map((request) => request.id)).toEqual(
       second.requests.map((request) => request.id),
     );
@@ -146,3 +146,16 @@ describe("next obligation and next visit stay per person", () => {
     expect(nextFamilyObligation(person, FIXED_NOW)).toBeNull();
   });
 });
+
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02);
+// this suite still exercises the recorded household through a test-only copy.
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/case.json", async () => ({
+  default: (await import("../fixtures/family-case-demo.json")).default,
+}));

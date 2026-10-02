@@ -127,7 +127,11 @@ describe("the lead record answers the four questions", () => {
   });
 
   it("keeps the conversation timeline entries equal to the recorded fixture", async () => {
-    const recorded = workspace.prospect_activity["prospect-cecilia"];
+    const recorded = (
+      workspace as unknown as {
+        prospect_activity: Record<string, Array<{ title: string; detail: string }>>;
+      }
+    ).prospect_activity["prospect-cecilia"];
     const html = await renderLead("prospect-cecilia");
     const timeline = html.slice(
       html.indexOf('aria-label="Stage history"'),
@@ -174,3 +178,19 @@ describe("the lead record answers the four questions", () => {
     await expect(renderLead("prospect-nobody")).rejects.toThrow("NEXT_NOT_FOUND");
   });
 });
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02).
+// This suite exercises the recorded records through a test-only copy, so the
+// pages keep their content-bearing contract tests without restoring demo data.
+vi.mock("@/lib/fixtures/agent/workspace.json", async () => ({
+  default: (await import("../fixtures/agent-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/case.json", async () => ({
+  default: (await import("../fixtures/family-case-demo.json")).default,
+}));

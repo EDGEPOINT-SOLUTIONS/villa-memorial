@@ -5,6 +5,7 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { familyPapers } from "@/lib/family/family-documents";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import { Answer, PrimaryAction, QuietLink, Rows, WhatThisShows } from "@/components/family/family-ui";
 import { DashPanel } from "@/components/family/dash-ui";
 import { CaseChain, CaseSchedule, caseDoneWords } from "@/components/family/family-case";
@@ -35,14 +36,21 @@ export default async function Page({
   const requested = personIdFrom(await searchParams);
   const snapshot = await getFamilySnapshot(requested).catch(() => null);
   const familyCase = await getFamilyCase(requested).catch(() => null);
-  const firstName = snapshot?.loved_one.name.split(/\s+/)[0] || "Your loved one";
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="The funeral"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after and the arrangement we hold will appear here."
+      />
+    );
+  }
+  const firstName = snapshot.loved_one.name.split(/\s+/)[0] || "Your loved one";
   const contract = familyPapers(snapshot?.recent_documents ?? []).contract;
 
   return (
     <div className="dash">
-      {snapshot ? (
-        <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/cases" />
-      ) : null}
+      <PersonSwitcherForSnapshot snapshot={snapshot} basePath="/client/cases" />
       <Answer
         kicker="The funeral"
         headline={

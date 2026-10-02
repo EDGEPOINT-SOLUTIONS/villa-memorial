@@ -116,3 +116,14 @@ describe("the honest missing-record state", () => {
     assertNoParagraphNesting(html, "missing lot amortization");
   });
 });
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02).
+// This suite exercises the recorded plan/lot records through a test-only copy, so
+// the real pages keep their content-bearing contract tests without restoring demo
+// data. The pages read the snapshot (plan schedule) and the workspace (lot record).
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));

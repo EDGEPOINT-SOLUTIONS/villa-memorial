@@ -175,7 +175,7 @@ describe("the dashboard's own word budget (plan §12)", () => {
 describe("the Papers popup's states", () => {
   it("gives a complete receipt a private PDF route, never a public path", async () => {
     const snapshot = await getFamilySnapshot();
-    const items = familyPaperPopupItems(snapshot.recent_documents);
+    const items = familyPaperPopupItems(snapshot!.recent_documents);
     const receipt = items.find((item) => item.typeLabel === "Receipt");
     expect(receipt, "the recorded receipt is listed").toBeTruthy();
     expect(receipt!.paper, "the receipt can be rendered").toBeTruthy();
@@ -185,7 +185,7 @@ describe("the Papers popup's states", () => {
 
   it("renders the list, the sheet and the PDF / download / print actions", async () => {
     const snapshot = await getFamilySnapshot();
-    const items = familyPaperPopupItems(snapshot.recent_documents);
+    const items = familyPaperPopupItems(snapshot!.recent_documents);
     const receipt = items.find((item) => item.typeLabel === "Receipt")!;
     const html = renderToStaticMarkup(
       createElement(PapersDialog, {
@@ -224,3 +224,19 @@ describe("the Papers popup's states", () => {
     expect(html).toContain("0917 617 8489");
   });
 });
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02).
+// This suite exercises the recorded records through a test-only copy, so the
+// pages keep their content-bearing contract tests without restoring demo data.
+vi.mock("@/lib/fixtures/agent/workspace.json", async () => ({
+  default: (await import("../fixtures/agent-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/case.json", async () => ({
+  default: (await import("../fixtures/family-case-demo.json")).default,
+}));

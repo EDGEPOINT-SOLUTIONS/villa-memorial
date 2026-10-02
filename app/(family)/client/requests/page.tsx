@@ -15,6 +15,7 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyDayLabel, familyRequestState } from "@/lib/family/family-view";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   FamilyRequestComposer,
   type ComposerPerson,
@@ -58,6 +59,16 @@ export default async function Page({
     listFamilyAskFor(),
     getFamilyHousehold(),
   ]);
+
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="Requests"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after, then ask us for anything on their behalf."
+      />
+    );
+  }
 
   const open = requests.filter((request) => request.state !== "done");
   const waiting = requests.filter((request) => request.state === "waiting_on_you");

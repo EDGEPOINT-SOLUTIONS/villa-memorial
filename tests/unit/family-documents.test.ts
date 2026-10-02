@@ -238,7 +238,7 @@ describe("getFamilySnapshot projects documents at the seam", () => {
     expect(serialized).not.toContain("Elena Villanueva");
     expect(serialized).not.toContain("245000");
     expect(serialized).not.toContain("staff eyes only");
-    expect(snapshot.recent_documents[0]).toEqual({
+    expect(snapshot!.recent_documents[0]).toEqual({
       title: "Service contract",
       status: "Generated",
       kind: "service_contract",
@@ -252,13 +252,19 @@ describe("getFamilySnapshot projects documents at the seam", () => {
   it("keeps the family-safe receipt cells intact", async () => {
     const { getFamilySnapshot } = await import("@/lib/api-client/family");
     const snapshot = await getFamilySnapshot();
-    expect(snapshot.recent_documents[1]).toMatchObject({
+    expect(snapshot!.recent_documents[1]).toMatchObject({
       kind: "official_receipt",
       reference: "OR-2026-00412",
       issued_on: "2026-09-12",
       amount: "₱12,000",
       covers: "Villa Memorial Plan",
     });
-    expect(familyReceiptHasCopy(snapshot.recent_documents[1])).toBe(true);
+    expect(familyReceiptHasCopy(snapshot!.recent_documents[1])).toBe(true);
   });
 });
+
+// The suite's own snapshot seed carries one loved one, so the household reader
+// still needs that person's workspace record (the product workspace starts clean).
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));

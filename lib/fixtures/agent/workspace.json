@@ -1,17 +1,18 @@
 {
   "_provenance": {
     "status": "PROVISIONAL — no frozen agent-workspace API contract exists (see lib/api-client/agent.ts)",
-    "recorded": "2026-09-16",
+    "recorded": "2026-10-02",
     "note": [
+      "CLEAN START (captain, 2026-10-02): the demo people and records are REMOVED. `prospects`, `clients`, `appointments`, `tasks`, `applications`, `prospect_activity`, `prospect_shares` and the commission statement are empty; the pipeline starts from a lead the agent captures. The office's reference data (the agent identity, the quick actions, the marketing material links, the lot-availability rows and the unconfigured commission vocabulary) is kept.",
       "Fixture data for the agent portal (Module: finance-billing §16-21 agent dashboard + commission engine; crm-cases lead/customer; commerce-catalog §33 pipeline; facilities-scheduling §35 appointments).",
-      "Cross-references: customers 101-105 and lots D01-D03 exist in lib/fixtures/crm/customers.json and lib/fixtures/property/lots.json; every other record is UI demo data shaped for the approved agent-portal design (docs/08-delivery/agent-portal-design).",
       "THE DEMO HOUSEHOLD (client-cory) IS DERIVED, NOT COPIED: its fixture row carries only agent-only fields plus `household_ref`; its name, phone, email, each loved one's plan, money, lot, the office-released papers and the visits are read at render time from the family's own record (lib/fixtures/family/snapshot.json and workspace.json) by lib/api-client/agent.ts, so the family portal and the agent portal cannot tell two stories. A paper still being checked is not among the released copies (familyDocumentReleased). tests/unit/demo-consistency.test.tsx pins the derivation.",
       "COMMISSION IS UNCONFIGURED BY DESIGN: every commission/target amount is null and `configured` is false — the client has not fixed rates (docs/07-client-villa/open-questions.md:26). Never fill these with invented figures.",
       "Money is integer minor units (`*_cents`) only; views format through lib/money.ts and never parse display strings.",
       "`possible_value_cents` is the full contract value (the 2026 sheet's monthly figure × the term), never a monthly quote — a monthly amount entered as cents reads 100× too small.",
       "`first_contact_at` and `stage_history` are each lead's recorded movement: the first stage is `new` at `first_contact_at`, the last move is where the lead stands and lands on `last_contact_at`, and the dates line up with `prospect_activity` where an entry records the same conversation.",
       "Appointment `starts_at` values are true instants: rendering them through lib/agent/agent-view.ts manilaTime() must reproduce the fixture's own `time_label`; lead-record dates render through manilaDay() the same way.",
-      "`example_*` records exist so the review design stays legible; they are labelled as examples in the UI and are not a live record."
+      "`example_*` records exist so the review design stays legible; they are labelled as examples in the UI and are not a live record.",
+      "CAPTURED LEADS (2026-10-02): a lead captured at /agent/new is written by lib/api-client/agent-store.ts and folded onto this seed by lib/api-client/agent.ts, so a captured person reaches the pipeline, the board and the funnel without editing this file."
     ]
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
@@ -23,91 +24,13 @@
   },
   "today": {
     "greeting": "Good morning, Alex.",
-    "lead": "Two follow-ups need you today, and the Ramos family is meeting you at the park at 10:30.",
-    "next_action": {
-      "work_item_id": "work-cecilia",
-      "title": "Start with Cecilia Ramos",
-      "detail": "2 days overdue · met at the office · wants a pre-need plan for her mother (Bronze 2, monthly).",
-      "primary_label": "Call Cecilia",
-      "secondary_label": "Text instead",
-      "quiet_label": "Log a visit"
-    },
-    "work_items": [
-      {
-        "id": "work-cecilia",
-        "kind": "follow_up",
-        "contact_id": "prospect-cecilia",
-        "contact_name": "Cecilia Ramos",
-        "title": "Call Cecilia Ramos back",
-        "detail": "She asked for the monthly amount on Bronze 2 and whether her mother (68) still qualifies.",
-        "meta": [
-          "Plan · pre-need",
-          "Last talked 14 Sep",
-          "Source: walk-in"
-        ],
-        "due_at": "2026-09-14T16:00:00Z",
-        "state": "open",
-        "primary_action": "Call",
-        "secondary_action": "Text",
-        "snooze": "Snooze to 4 PM"
-      },
-      {
-        "id": "work-paolo",
-        "kind": "send",
-        "contact_id": "prospect-paolo",
-        "contact_name": "Paolo Mendoza",
-        "title": "Send Paolo the 2026 price list",
-        "detail": "He asked for the casket and services price list last night. It sends as a link that shows you when he opens it.",
-        "meta": [
-          "Services · at-need possibility",
-          "Source: Facebook"
-        ],
-        "due_at": "2026-09-16T09:00:00Z",
-        "state": "open",
-        "primary_action": "Send the price list",
-        "secondary_action": "Preview first",
-        "snooze": null
-      },
-      {
-        "id": "work-jun",
-        "kind": "document",
-        "contact_id": "prospect-jun",
-        "contact_name": "Jun Villanueva",
-        "title": "Jun Villanueva — senior ID photo",
-        "detail": "The application cannot be filed until the senior ID photo arrives. Jun said “this week”.",
-        "meta": [
-          "Plan · senior rate",
-          "Waiting 3 days"
-        ],
-        "due_at": "2026-09-18T09:00:00Z",
-        "state": "waiting",
-        "primary_action": "Remind him",
-        "secondary_action": "The office can help",
-        "snooze": null
-      },
-      {
-        "id": "work-lorna",
-        "kind": "first_call",
-        "contact_id": "prospect-lorna",
-        "contact_name": "Lorna Castro",
-        "title": "Lorna Castro — first call completed",
-        "detail": "Walk-in from Monday. Interested in a lawn lot for her parents. Next: choose a date for a park visit.",
-        "meta": [
-          "Lot · memorial property",
-          "Next action set for Friday"
-        ],
-        "due_at": "2026-09-16T08:00:00Z",
-        "state": "done",
-        "primary_action": "Open Lorna",
-        "secondary_action": null,
-        "snooze": null
-      }
-    ],
+    "lead": "Capture the first lead, then work the pipeline from the top.",
+    "work_items": [],
     "numbers": {
-      "sales_count": 2,
-      "sales_total_cents": 8600000,
-      "pipeline_total_cents": 54304000,
-      "example": true
+      "sales_count": 0,
+      "sales_total_cents": 0,
+      "pipeline_total_cents": 0,
+      "example": false
     },
     "quick_actions": [
       {
@@ -140,686 +63,13 @@
       }
     ]
   },
-  "prospects": [
-    {
-      "id": "prospect-lorna",
-      "name": "Lorna Castro",
-      "phone": "+63 916 402 1188",
-      "email": "lorna.castro@example.com",
-      "source": "walk_in",
-      "interest": "lot",
-      "want": "Lawn lot for her parents · asked about monthly payments",
-      "stage": "new",
-      "owner": "Alex Agent",
-      "possible_value_cents": 12800000,
-      "first_contact_at": "2026-09-14T09:00:00Z",
-      "last_contact_at": "2026-09-14T09:00:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-14T09:00:00Z",
-          "by": "Alex Agent",
-          "note": "Walked in and asked about a lawn lot for her parents."
-        }
-      ],
-      "next_action": "Call about a park visit this Friday",
-      "urgency": "today",
-      "best_time": "Mornings, by call",
-      "notes": "Walked in after the Sunday service. Brother helps decide."
-    },
-    {
-      "id": "prospect-boyet",
-      "name": "Boyet Salazar",
-      "phone": "+63 917 388 2201",
-      "email": "boyet.salazar@example.com",
-      "source": "facebook",
-      "interest": "services",
-      "want": "Embalming only, no package · asked on Facebook last night",
-      "stage": "new",
-      "owner": "Alex Agent",
-      "possible_value_cents": 1200000,
-      "first_contact_at": "2026-09-15T13:40:00Z",
-      "last_contact_at": "2026-09-15T13:40:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-15T13:40:00Z",
-          "by": "Alex Agent",
-          "note": "Messaged the Facebook page about embalming only."
-        }
-      ],
-      "next_action": "First call",
-      "urgency": "new",
-      "best_time": "Any time after 6 PM",
-      "notes": "At-need possibility, no date yet."
-    },
-    {
-      "id": "prospect-paolo",
-      "name": "Paolo Mendoza",
-      "phone": "+63 918 220 7714",
-      "email": "paolo.mendoza@example.com",
-      "source": "facebook",
-      "interest": "services",
-      "want": "Price list sent today · at-need possibility, no date yet",
-      "stage": "contacted",
-      "owner": "Alex Agent",
-      "possible_value_cents": 4500000,
-      "first_contact_at": "2026-09-15T13:10:00Z",
-      "last_contact_at": "2026-09-16T08:42:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-15T13:10:00Z",
-          "by": "Alex Agent",
-          "note": "Messaged the Facebook page and asked for the price list."
-        },
-        {
-          "stage": "contacted",
-          "at": "2026-09-16T08:42:00Z",
-          "by": "Alex Agent",
-          "note": "Sent the 2026 price list; waiting for him to open it."
-        }
-      ],
-      "next_action": "Call back tomorrow if he does not open it",
-      "urgency": "today",
-      "best_time": "Lunchtime",
-      "notes": "Requested the current price list via page message."
-    },
-    {
-      "id": "prospect-maricel",
-      "name": "Maricel Tan",
-      "phone": "+63 916 512 3388",
-      "email": "maricel.tan@example.com",
-      "source": "referral",
-      "interest": "lot",
-      "want": "Family lot · budget around ₱150,000 · wants the park map",
-      "stage": "contacted",
-      "owner": "Alex Agent",
-      "possible_value_cents": 16100000,
-      "first_contact_at": "2026-09-10T08:00:00Z",
-      "last_contact_at": "2026-09-12T11:20:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-10T08:00:00Z",
-          "by": "Alex Agent",
-          "note": "Referred by the Santos family; wants the park map."
-        },
-        {
-          "stage": "contacted",
-          "at": "2026-09-12T11:20:00Z",
-          "by": "Alex Agent",
-          "note": "First call; asked for the map and the lot price list."
-        }
-      ],
-      "next_action": "Send the park map and the lot price list",
-      "urgency": "warm",
-      "best_time": "Weekends",
-      "notes": "Referred by the Santos family."
-    },
-    {
-      "id": "prospect-cecilia",
-      "name": "Cecilia Ramos",
-      "phone": "+63 917 654 0091",
-      "email": "cecilia.ramos@example.com",
-      "source": "walk_in",
-      "interest": "plan",
-      "want": "Bronze 2 plan for her mother, 68 · monthly · wants to start in October",
-      "stage": "qualified",
-      "owner": "Alex Agent",
-      "possible_value_cents": 5544000,
-      "first_contact_at": "2026-09-08T10:30:00Z",
-      "last_contact_at": "2026-09-14T11:42:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-08T10:30:00Z",
-          "by": "Alex Agent",
-          "note": "Walked in after the Sunday service; wants cover for her mother."
-        },
-        {
-          "stage": "contacted",
-          "at": "2026-09-12T08:30:00Z",
-          "by": "Alex Agent",
-          "note": "First call; asked for the monthly amount in writing."
-        },
-        {
-          "stage": "qualified",
-          "at": "2026-09-14T11:42:00Z",
-          "by": "Alex Agent",
-          "note": "Opened the payment-mode sheet again; senior rate may apply."
-        }
-      ],
-      "next_action": "Call about Bronze 2 (or the senior plan for age 68)",
-      "urgency": "hot",
-      "best_time": "After 4 PM, by call",
-      "notes": "Prefers the figure in writing. Brother in Manila helps decide."
-    },
-    {
-      "id": "prospect-jun",
-      "name": "Jun Villanueva",
-      "phone": "+63 915 226 7744",
-      "email": "jun.villanueva@example.com",
-      "source": "walk_in",
-      "interest": "plan",
-      "want": "Senior plan at ₱700 / month · waiting for the ID photo",
-      "stage": "qualified",
-      "owner": "Alex Agent",
-      "possible_value_cents": 5040000,
-      "first_contact_at": "2026-09-08T09:00:00Z",
-      "last_contact_at": "2026-09-13T10:10:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-08T09:00:00Z",
-          "by": "Alex Agent",
-          "note": "Walked in and asked about the senior-rate plan."
-        },
-        {
-          "stage": "contacted",
-          "at": "2026-09-10T10:00:00Z",
-          "by": "Alex Agent",
-          "note": "Started the application by phone."
-        },
-        {
-          "stage": "qualified",
-          "at": "2026-09-13T10:10:00Z",
-          "by": "Alex Agent",
-          "note": "Application complete except the senior ID photo."
-        }
-      ],
-      "next_action": "Remind about the senior ID photo",
-      "urgency": "waiting",
-      "best_time": "Mornings",
-      "notes": "Application complete except the ID photo."
-    },
-    {
-      "id": "prospect-rosa",
-      "name": "Rosa Lim",
-      "phone": "+63 918 771 0032",
-      "email": "rosa.lim@example.com",
-      "source": "event",
-      "interest": "plan",
-      "want": "Gold plan · ready since 12 Sep · waiting on a family decision",
-      "stage": "proposal",
-      "owner": "Alex Agent",
-      "possible_value_cents": 9120000,
-      "first_contact_at": "2026-09-02T10:00:00Z",
-      "last_contact_at": "2026-09-13T09:05:00Z",
-      "stage_history": [
-        {
-          "stage": "new",
-          "at": "2026-09-02T10:00:00Z",
-          "by": "Alex Agent",
-          "note": "Met at the community event; asked about the Gold plan."
-        },
-        {
-          "stage": "contacted",
-          "at": "2026-09-06T08:00:00Z",
-          "by": "Alex Agent",
-          "note": "First call; sent the plan flyer after."
-        },
-        {
-          "stage": "qualified",
-          "at": "2026-09-09T11:00:00Z",
-          "by": "Alex Agent",
-          "note": "Chose the Gold plan; the family still decides."
-        },
-        {
-          "stage": "presentation",
-          "at": "2026-09-11T08:00:00Z",
-          "by": "Alex Agent",
-          "note": "Met at the park; walked through the payment modes."
-        },
-        {
-          "stage": "proposal",
-          "at": "2026-09-13T09:05:00Z",
-          "by": "Alex Agent",
-          "note": "Left the proposal with the family; decision Saturday."
-        }
-      ],
-      "next_action": "Call Rosa — decision day Saturday",
-      "urgency": "warm",
-      "best_time": "Evenings",
-      "notes": "Ready to sign; the family meets Saturday."
-    }
-  ],
-  "prospect_activity": {
-    "prospect-cecilia": [
-      {
-        "id": "act-c1",
-        "kind": "link",
-        "at": "2026-09-14T11:42:00Z",
-        "title": "She opened the payment-mode sheet for the second time",
-        "detail": "No message sent. A good moment to call tomorrow morning."
-      },
-      {
-        "id": "act-c2",
-        "kind": "call",
-        "at": "2026-09-12T08:30:00Z",
-        "title": "Called about the Bronze 2 monthly",
-        "detail": "“Magkano kada buwan?” She wants the figure in writing. Sent the sheet right after the call. Senior rate may apply — her mother is 68."
-      },
-      {
-        "id": "act-c3",
-        "kind": "visit",
-        "at": "2026-09-08T10:30:00Z",
-        "title": "Walked in after the Sunday service",
-        "detail": "Wants cover for her mother; brother in Manila helps decide. Prefers calls after 4 PM."
-      }
-    ],
-    "prospect-paolo": [
-      {
-        "id": "act-p1",
-        "kind": "link",
-        "at": "2026-09-16T08:42:00Z",
-        "title": "Sent the 2026 price list",
-        "detail": "Link sent by SMS. We will tell you when he opens it."
-      },
-      {
-        "id": "act-p2",
-        "kind": "message",
-        "at": "2026-09-15T13:10:00Z",
-        "title": "Messaged the Facebook page",
-        "detail": "“Pwede po ba makahingi ng price list?” — asked for the casket and services list."
-      }
-    ]
-  },
-  "prospect_shares": {
-    "prospect-cecilia": [
-      {
-        "id": "share-c1",
-        "title": "Plan payment-mode sheet",
-        "sent_at": "2026-09-12T08:35:00Z",
-        "opens": 2,
-        "last_open": "2026-09-14T11:42:00Z"
-      },
-      {
-        "id": "share-c2",
-        "title": "Villa Memorial Plan flyer",
-        "sent_at": "2026-09-08T11:00:00Z",
-        "opens": 1,
-        "last_open": "2026-09-09T09:12:00Z"
-      }
-    ]
-  },
-  "clients": [
-    {
-      "id": "client-marites",
-      "customer_id": "00000000-0000-4000-8000-000000000101",
-      "name": "Marites Santos",
-      "household": "The Santos family — daughter of the family, mother in the picture",
-      "phone": "+63 917 210 4455",
-      "email": "marites.santos@example.com",
-      "since": "2024",
-      "holdings": [
-        {
-          "kind": "lot",
-          "label": "Memorial lot A-002",
-          "detail": "Individual · 3.5 sqm · Section A, Block 1 · reserved, not yet fully paid",
-          "lot_id": "00000000-0000-4000-8000-000000000D02"
-        }
-      ],
-      "co_decider": {
-        "name": "Roberto Santos",
-        "note": "Her father · signs with Marites on the lot papers"
-      },
-      "next_amount": {
-        "amount_cents": 850000,
-        "due_at": "2026-09-30"
-      },
-      "next_events": [
-        {
-          "label": "Reservation period",
-          "value": "Ends 10 February 2027 — the office extends it if payments continue"
-        },
-        {
-          "label": "The rule that matters most",
-          "value": "No interment until the lot is fully paid — say it early, kindly"
-        },
-        {
-          "label": "Care fund",
-          "value": "Current"
-        },
-        {
-          "label": "Last visit",
-          "value": "2 August 2026 — you saw the plot together"
-        }
-      ],
-      "check_in": "Check-in this month",
-      "ask": "She asked for a visit before the end of the month",
-      "papers": [
-        "Reservation receipt copy",
-        "Lot plan & masterplan excerpt"
-      ]
-    },
-    {
-      "id": "client-liwayway",
-      "customer_id": "00000000-0000-4000-8000-000000000103",
-      "name": "Liwayway Cruz",
-      "household": "Plan holder · pays on time since 2024",
-      "phone": "+63 916 887 2299",
-      "email": "liwayway.cruz@example.com",
-      "since": "2024",
-      "holdings": [
-        {
-          "kind": "plan",
-          "label": "Villa Memorial Plan · Silver 1",
-          "detail": "₱1,000 / month · active · next due 30 September"
-        }
-      ],
-      "co_decider": null,
-      "next_amount": {
-        "amount_cents": 100000,
-        "due_at": "2026-09-30"
-      },
-      "next_events": [
-        {
-          "label": "Plan status",
-          "value": "Active — good time for a thank-you call"
-        },
-        {
-          "label": "Next due",
-          "value": "30 September · office confirms before you promise"
-        }
-      ],
-      "check_in": "Check-in this month",
-      "ask": "No open ask — a thank-you call keeps the relationship",
-      "papers": [
-        "Plan payment-mode sheet"
-      ]
-    },
-    {
-      "id": "client-danilo",
-      "customer_id": "00000000-0000-4000-8000-000000000104",
-      "name": "Danilo Reyes",
-      "household": "The Reyes family — being served now",
-      "phone": "+63 915 442 7788",
-      "email": "danilo.reyes@example.com",
-      "since": "2024",
-      "holdings": [
-        {
-          "kind": "case",
-          "label": "Funeral service this week",
-          "detail": "Viewing until Thursday · the office is handling the arrangement"
-        }
-      ],
-      "co_decider": null,
-      "next_amount": null,
-      "next_events": [
-        {
-          "label": "Service",
-          "value": "Viewing until Thursday — not a sales call this week"
-        }
-      ],
-      "check_in": "Being served now",
-      "ask": "Keep space for the family — the office leads",
-      "papers": []
-    },
-    {
-      "id": "client-roberto",
-      "customer_id": "00000000-0000-4000-8000-000000000102",
-      "name": "Roberto Santos",
-      "household": "The Santos family — patriarch, co-decider on lot A-002",
-      "phone": "+63 918 553 1120",
-      "email": "roberto.santos@example.com",
-      "since": "2025",
-      "holdings": [
-        {
-          "kind": "lot",
-          "label": "Memorial lot A-003",
-          "detail": "Family · 7 sqm · Section A, Block 1 · sold",
-          "lot_id": "00000000-0000-4000-8000-000000000D03"
-        }
-      ],
-      "co_decider": null,
-      "next_amount": null,
-      "next_events": [
-        {
-          "label": "Lot status",
-          "value": "Sold — papers with the family"
-        }
-      ],
-      "check_in": "No check-in needed",
-      "ask": null,
-      "papers": [
-        "Deed of sale copy (office-released)"
-      ]
-    },
-    {
-      "id": "client-teodoro",
-      "customer_id": null,
-      "name": "Teodoro Cruz",
-      "household": "The Cruz family — lot fully paid",
-      "phone": "+63 917 990 4455",
-      "email": "teodoro.cruz@example.com",
-      "since": "2023",
-      "holdings": [
-        {
-          "kind": "lot",
-          "label": "Memorial lot A-004",
-          "detail": "Individual · 2.5 sqm · fully paid since March · care fund current"
-        }
-      ],
-      "co_decider": null,
-      "next_amount": null,
-      "next_events": [
-        {
-          "label": "Anniversary",
-          "value": "12 November — a remembrance date the family opted into"
-        }
-      ],
-      "check_in": "No check-in needed",
-      "ask": null,
-      "papers": [
-        "Certificate of ownership copy"
-      ]
-    },
-    {
-      "id": "client-gracia",
-      "customer_id": null,
-      "name": "Gracia Villanueva",
-      "household": "Referred the Lim family",
-      "phone": "+63 916 512 3388",
-      "email": "gracia.villanueva@example.com",
-      "since": "2025",
-      "holdings": [
-        {
-          "kind": "referral",
-          "label": "Referral",
-          "detail": "Recommended you to the Lim family — a small thank-you keeps referrals flowing"
-        }
-      ],
-      "co_decider": null,
-      "next_amount": null,
-      "next_events": [
-        {
-          "label": "Last contact",
-          "value": "19 August 2026"
-        }
-      ],
-      "check_in": "Referral",
-      "ask": null,
-      "papers": []
-    },
-    {
-      "id": "client-cory",
-      "customer_id": "00000000-0000-4000-8000-000000000105",
-      "household": "The Dela Cruz family — Cory holds the plans for Ernesto and Aurora",
-      "since": "2026",
-      "check_in": "Being served now",
-      "co_decider": null,
-      "ask": null,
-      "household_ref": "family/snapshot.json#family"
-    }
-  ],
-  "appointments": [
-    {
-      "id": "appt-ramos",
-      "day": "today",
-      "starts_at": "2026-09-16T02:30:00Z",
-      "time_label": "10:30 AM",
-      "time_note": "park · 20 min drive",
-      "title": "Lot viewing · the Ramos family",
-      "reason": "Visit a memorial lot",
-      "where": "Sanctuario de Mercedes y Gloria · meet at the chapel entrance",
-      "bring": [
-        "Park map",
-        "2026 lot price list"
-      ],
-      "status": "confirmed",
-      "contact_id": "prospect-cecilia"
-    },
-    {
-      "id": "appt-lorna",
-      "day": "today",
-      "starts_at": "2026-09-16T06:30:00Z",
-      "time_label": "2:30 PM",
-      "time_note": "Sunrise · 15 min drive",
-      "title": "Planning consultation · Lorna Castro",
-      "reason": "Planning consultation (pre-need)",
-      "where": "Their home · discuss a lawn lot for her parents",
-      "bring": [
-        "Plan flyer"
-      ],
-      "status": "waiting",
-      "contact_id": "prospect-lorna"
-    },
-    {
-      "id": "appt-call-cecilia",
-      "day": "today",
-      "starts_at": "2026-09-16T08:00:00Z",
-      "time_label": "4:00 PM",
-      "time_note": "call",
-      "title": "Call · Cecilia Ramos",
-      "reason": "Sales consultation",
-      "where": "Her number · the Bronze 2 monthly she asked for",
-      "bring": [],
-      "status": "confirmed",
-      "contact_id": "prospect-cecilia"
-    },
-    {
-      "id": "appt-thu",
-      "day": "week",
-      "starts_at": "2026-09-17T01:00:00Z",
-      "time_label": "Thursday 17",
-      "time_note": "office day",
-      "title": "Office day — pick up papers, file Jun's application",
-      "reason": "Contract signing",
-      "where": "Villa office · Sunrise",
-      "bring": [],
-      "status": "confirmed",
-      "contact_id": null
-    },
-    {
-      "id": "appt-fri",
-      "day": "week",
-      "starts_at": "2026-09-18T02:00:00Z",
-      "time_label": "Friday 18",
-      "time_note": "10:00 AM",
-      "title": "Park visit with Lorna (to book)",
-      "reason": "Visit a memorial lot",
-      "where": "Sanctuario de Mercedes y Gloria",
-      "bring": [
-        "Park map"
-      ],
-      "status": "waiting",
-      "contact_id": "prospect-lorna"
-    },
-    {
-      "id": "appt-sat",
-      "day": "week",
-      "starts_at": "2026-09-19T07:00:00Z",
-      "time_label": "Saturday 19",
-      "time_note": "afternoon",
-      "title": "Rosa Lim's family meeting — decision day on the Gold plan",
-      "reason": "Contract signing",
-      "where": "Their home",
-      "bring": [
-        "Plan payment-mode sheet"
-      ],
-      "status": "confirmed",
-      "contact_id": "prospect-rosa"
-    }
-  ],
-  "tasks": [
-    {
-      "id": "task-1",
-      "title": "Send Paolo the 2026 price list",
-      "meta": "Done 8:42 AM · link sent · we will tell you when he opens it",
-      "done": true
-    },
-    {
-      "id": "task-2",
-      "title": "Pick up the Ramos reservation form from the office",
-      "meta": "Before Friday · you will pass the office tomorrow",
-      "done": false
-    },
-    {
-      "id": "task-3",
-      "title": "Text Jun about the senior ID photo",
-      "meta": "He said “this week” — a gentle reminder today, 4 days after",
-      "done": false
-    }
-  ],
-  "applications": [
-    {
-      "id": "app-jun",
-      "client_id": "prospect-jun",
-      "client_name": "Jun Villanueva",
-      "product": "Senior plan",
-      "detail": "Filed 11 Sep · ₱700.00 / month · first payment when approved",
-      "stage": "waiting_you",
-      "stage_label": "Waiting on you",
-      "waits_on": "Senior ID photo — you asked on 13 Sep",
-      "owner": "You",
-      "promised_by": "Friday 18 Sep",
-      "action": "Upload the photo",
-      "secondary": "Text Jun again"
-    },
-    {
-      "id": "app-liwayway",
-      "client_id": "client-liwayway",
-      "client_name": "Liwayway Cruz",
-      "product": "Villa Memorial Plan, Silver 1",
-      "detail": "Filed 9 Sep · ₱1,000 / month · active once the first payment clears",
-      "stage": "approved",
-      "stage_label": "Approved",
-      "waits_on": "Nothing — the office issued the plan on 12 Sep",
-      "owner": "The office (accounting)",
-      "promised_by": null,
-      "action": "Open",
-      "secondary": "Tell the family it is done"
-    },
-    {
-      "id": "app-ramos",
-      "client_id": "prospect-cecilia",
-      "client_name": "The Ramos family",
-      "product": "Prime Lot A-005",
-      "detail": "Filed 15 Sep · reservation fee ₱5,000 paid · contract signing next",
-      "stage": "office",
-      "stage_label": "With the office",
-      "waits_on": "The office checks the reservation and prepares the contract",
-      "owner": "The office (property desk)",
-      "promised_by": "22 Sep · filed 7 days ago",
-      "action": "Call the office",
-      "secondary": "Tell the family where it is"
-    },
-    {
-      "id": "app-maricel",
-      "client_id": "prospect-maricel",
-      "client_name": "Maricel Tan",
-      "product": "Garden Niche",
-      "detail": "Filed 2 Sep · ₱567,000 or ₱8,505 / month, 6 yrs · papers incomplete",
-      "stage": "waiting_family",
-      "stage_label": "Waiting on the family",
-      "waits_on": "Two valid IDs and the beneficiary details — asked 5 Sep",
-      "owner": "The family",
-      "promised_by": "Stalled 11 days — the office will call them this week",
-      "action": "Help them finish it",
-      "secondary": "Open"
-    }
-  ],
+  "prospects": [],
+  "prospect_activity": {},
+  "prospect_shares": {},
+  "clients": [],
+  "appointments": [],
+  "tasks": [],
+  "applications": [],
   "commission": {
     "configured": false,
     "placeholder_note": "Rates are not configured yet — the client has not fixed commission rules (docs/07-client-villa/open-questions.md:26).",
@@ -863,50 +113,16 @@
         "detail": "Referral, coordinator and closer each carry a share."
       }
     ],
-    "statement": [
-      {
-        "id": "stmt-liwayway",
-        "title": "Villa Memorial Plan · Silver 1 · Liwayway Cruz",
-        "detail": "Sold 9 Sep · monthly, ₱1,000 for 6 years",
-        "basis": "fixed_percent",
-        "basis_label": "fixed % of sale",
-        "credited": "you alone",
-        "state": "pending_approval",
-        "state_label": "Pending approval",
-        "amount_cents": null
-      },
-      {
-        "id": "stmt-danilo",
-        "title": "Funeral package · Reyes family",
-        "detail": "Sold 3 Sep · at-need package",
-        "basis": "fixed_peso",
-        "basis_label": "fixed ₱ per sale",
-        "credited": "split 70 / 30 with Marlon (coordinator referral)",
-        "state": "approved",
-        "state_label": "Approved — scheduled for the 30 Sep cycle",
-        "amount_cents": null
-      },
-      {
-        "id": "stmt-reversal",
-        "title": "Cancelled service · floral add-on for Reyes",
-        "detail": "Cancelled 14 Sep · the reversal is shown here with the contract reference — a cancelled service never quietly reduces your next payout.",
-        "basis": null,
-        "basis_label": null,
-        "credited": null,
-        "state": "reversed",
-        "state_label": "Reversed with the order",
-        "amount_cents": null
-      }
-    ],
+    "statement": [],
     "target": {
       "amount_cents": null,
       "current_cents": 0
     },
     "conversion": {
-      "contacted": 6,
-      "presentations": 3,
-      "sales": 2,
-      "example": true
+      "contacted": 0,
+      "presentations": 0,
+      "sales": 0,
+      "example": false
     }
   },
   "materials": [
@@ -916,8 +132,8 @@
       "description": "Tiers and payment modes, who can be covered, what the plan includes. The page families read before they decide.",
       "href": "/price-list",
       "cover": "/media/plan-packages.png",
-      "shares": 6,
-      "opens": 9,
+      "shares": 0,
+      "opens": 0,
       "example": true
     },
     {
@@ -926,8 +142,8 @@
       "description": "Funeral services, caskets, embalming and chapel rates — exactly as the client's sheet prints them.",
       "href": "/lots/price-list-2026",
       "cover": "/media/doc-price-list-2026-III.jpg",
-      "shares": 4,
-      "opens": 5,
+      "shares": 0,
+      "opens": 0,
       "example": true
     },
     {
@@ -936,8 +152,8 @@
       "description": "The 24 models by collection, with the sample photos the client supplied. Illustrations only — the office confirms the model.",
       "href": "/products",
       "cover": "/media/doc-types-of-coffin.jpg",
-      "shares": 2,
-      "opens": 2,
+      "shares": 0,
+      "opens": 0,
       "example": true
     },
     {
@@ -946,7 +162,7 @@
       "description": "At-need services, embalming, chapels and transport — what the family can arrange, with the 2026 rates.",
       "href": "/services",
       "cover": "/media/viewing-care.jpg",
-      "shares": 1,
+      "shares": 0,
       "opens": 0,
       "example": true
     },
@@ -956,8 +172,8 @@
       "description": "The chapels, rooms and amenities — sample photos labelled as illustrations, rates on the 2026 sheet.",
       "href": "/services",
       "cover": "/media/chapel-common.jpg",
-      "shares": 1,
-      "opens": 1,
+      "shares": 0,
+      "opens": 0,
       "example": true
     },
     {
@@ -966,8 +182,8 @@
       "description": "The masterplan with the lots available today and the 2026 lot prices — the link you send before a park visit.",
       "href": "/map",
       "cover": "/media/the very first memorial park in basilan.jpg",
-      "shares": 3,
-      "opens": 4,
+      "shares": 0,
+      "opens": 0,
       "example": true
     }
   ],

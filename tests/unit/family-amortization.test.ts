@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import snapshot from "@/lib/fixtures/family/snapshot.json";
 import {
   lotAmortization,
@@ -140,3 +140,10 @@ describe("a held lot's recorded six-year amortization", () => {
     expect(lotAmortization({ section: "A" }, [])).toBeNull();
   });
 });
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02).
+// This suite pins the recorded plan schedule through a test-only copy, so the
+// arithmetic keeps its recorded contract without restoring demo data.
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));

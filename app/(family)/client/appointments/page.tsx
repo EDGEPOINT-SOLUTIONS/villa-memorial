@@ -5,6 +5,7 @@ import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyTodayKey } from "@/lib/family/family-view";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcher } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   FamilyVisitCalendar,
   type CalendarPerson,
@@ -52,6 +53,15 @@ export default async function Page({
   const requested = personIdFrom(await searchParams);
   const household = await getFamilyHousehold();
   const people = household.people;
+  if (people.length === 0) {
+    return (
+      <FamilyEmptyState
+        kicker="Ask for a visit"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after, then ask for a visit — we come to you."
+      />
+    );
+  }
 
   // The household shape that just landed: a multi-person account opens on
   // “Everyone” (the whole month), and `?person=<id>` narrows to one loved one.

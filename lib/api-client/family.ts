@@ -47,6 +47,7 @@ import snapshotFile from "@/lib/fixtures/family/snapshot.json";
 import workspaceFile from "@/lib/fixtures/family/workspace.json";
 import caseFile from "@/lib/fixtures/family/case.json";
 import { ApiError } from "@/lib/api-client/api-error";
+import { listAddedLovedOnes, type AddedLovedOne } from "@/lib/api-client/family-household-store";
 import { parsePaymentSchedule, type PaymentSchedule } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
 
@@ -404,7 +405,6 @@ function readFamilySnapshot(): {
         .filter((doc): doc is FamilyDocument => doc !== null),
     };
   });
-  if (lovedOnes.length === 0) throw new ApiError("family snapshot has no loved ones", 500);
   return {
     tenant_id: String(record.tenant_id ?? ""),
     family: record.family as FamilySnapshot["family"],
@@ -467,16 +467,42 @@ function readFamilyCases(): { tenant_id: string; loved_ones: Array<{ id: string;
 /* ------------------------------------------------------------- the household --- */
 
 /**
+ * A loved one the family added, as the household reader serves them. They carry only
+ * what the family typed (a name and life dates); the office's records (plan, money,
+ * papers, lot, arrangement) are absent and each screen keeps its honest empty state.
+ */
+function addedPerson(lovedOne: AddedLovedOne): FamilyPerson {
+  return {
+    id: lovedOne.id,
+    name: lovedOne.name,
+    life_dates: lovedOne.life_dates,
+    plan_summary: { plan_name: "", status: "", term: "", next_due: "" },
+    balance: { total: "₱0", paid: "₱0", remaining: "₱0" },
+    balance_cents: { total: 0, paid: 0, remaining: 0 },
+    payment_schedule: undefined,
+    recent_documents: [],
+    lot: null,
+    requests: [],
+    appointments: [],
+    familyCase: null,
+  };
+}
+
+/**
  * The whole household: every loved one's plan/money/papers (snapshot) merged with their
  * lot/requests/appointments (workspace) and their arrangement (case), keyed by the same
- * id. The fixtures must carry the same people — a missing counterpart is a malformed
- * record, not an empty one. A missing lot/case is the honest null (a loved one with no
- * recorded lot or arrangement), never a crash.
+ * id, plus every person the family added through `/api/family/loved-ones`.
+ *
+ * THE CLEAN START (captain, 2026-10-02): the recorded snapshot now carries NO loved
+ * ones, so an account with nothing recorded is EMPTY, not a 500 — the family adds its
+ * own. A recorded loved one still requires a workspace counterpart (a missing one is a
+ * malformed record, not an empty one). A missing lot/case is the honest null.
  */
 export async function getFamilyHousehold(): Promise<FamilyHousehold> {
   const snapshot = readFamilySnapshot();
   const workspace = readFamilyWorkspace();
   const cases = readFamilyCases();
+  const added = await listAddedLovedOnes();
   const workspaceById = new Map(workspace.loved_ones.map((person) => [person.id, person]));
   const caseById = new Map(cases.loved_ones.map((person) => [person.id, person.case]));
   const people: FamilyPerson[] = snapshot.loved_ones.map((lovedOne) => {
@@ -498,7 +524,11 @@ export async function getFamilyHousehold(): Promise<FamilyHousehold> {
       familyCase: caseById.get(lovedOne.id) ?? null,
     };
   });
-  return { tenant_id: snapshot.tenant_id, family: snapshot.family, people };
+  return {
+    tenant_id: snapshot.tenant_id,
+    family: snapshot.family,
+    people: [...people, ...added.map(addedPerson)],
+  };
 }
 
 /** The people the switcher shows, in the snapshot's own order. */
@@ -510,8 +540,8 @@ export function familyPeople(household: FamilyHousehold): FamilyPersonSummary[] 
   }));
 }
 
-function selectPerson(people: FamilyPerson[], personId?: string): FamilyPerson {
-  if (people.length === 0) throw new ApiError("family household has no loved ones", 500);
+function selectPerson(people: FamilyPerson[], personId?: string): FamilyPerson | null {
+  if (people.length === 0) return null;
   const found = personId ? people.find((person) => person.id === personId) : undefined;
   return found ?? people[0];
 }
@@ -522,9 +552,10 @@ function selectPerson(people: FamilyPerson[], personId?: string): FamilyPerson {
  * a stale link still shows the family their records. The returned `household` summary is
  * what the switcher renders (a single loved one → no switcher).
  */
-export async function getFamilySnapshot(personId?: string): Promise<FamilySnapshot> {
+export async function getFamilySnapshot(personId?: string): Promise<FamilySnapshot | null> {
   const household = await getFamilyHousehold();
   const person = selectPerson(household.people, personId);
+  if (!person) return null;
   return {
     tenant_id: household.tenant_id,
     family: household.family,
@@ -539,24 +570,30 @@ export async function getFamilySnapshot(personId?: string): Promise<FamilySnapsh
   };
 }
 
-/** The selected loved one's lot record — what the office holds and cannot show yet. */
-export async function getFamilyLotRecord(personId?: string): Promise<FamilyLotRecord> {
+/**
+ * The selected loved one's lot record — what the office holds and cannot show yet.
+ * `null` when there is no loved one (an empty household) or the person has no lot.
+ */
+export async function getFamilyLotRecord(personId?: string): Promise<FamilyLotRecord | null> {
   const household = await getFamilyHousehold();
   const person = selectPerson(household.people, personId);
-  if (!person.lot) throw new ApiError(`family lot record is missing for ${person.id}`, 500);
+  if (!person?.lot) return null;
   return { ...person.lot, with_office: [...person.lot.with_office] };
 }
 
 /** The selected loved one's own requests, in the order the office wrote them down. */
 export async function listFamilyRequests(personId?: string): Promise<FamilyRequest[]> {
   const household = await getFamilyHousehold();
-  return selectPerson(household.people, personId).requests.map((request) => ({ ...request }));
+  const person = selectPerson(household.people, personId);
+  return person ? person.requests.map((request) => ({ ...request })) : [];
 }
 
 /** The selected loved one's appointments: what is coming, waits, or has happened. */
 export async function listFamilyAppointments(personId?: string): Promise<FamilyAppointment[]> {
   const household = await getFamilyHousehold();
-  return selectPerson(household.people, personId).appointments.map((appointment) => ({
+  const person = selectPerson(household.people, personId);
+  if (!person) return [];
+  return person.appointments.map((appointment) => ({
     ...appointment,
     bring: Array.isArray(appointment.bring) ? [...appointment.bring] : [],
   }));
@@ -574,5 +611,5 @@ export async function listFamilyAskFor(): Promise<FamilyAskFor[]> {
  */
 export async function getFamilyCase(personId?: string): Promise<FamilyCase | null> {
   const household = await getFamilyHousehold();
-  return selectPerson(household.people, personId).familyCase;
+  return selectPerson(household.people, personId)?.familyCase ?? null;
 }

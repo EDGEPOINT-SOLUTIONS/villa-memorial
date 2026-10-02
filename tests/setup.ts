@@ -52,6 +52,10 @@ const STORE_PATH_ENV_VARS = [
   // Added 2026-10-02 with the agent day-planner store. Its omission would let an
   // agent's demo plan leak into every suite that renders the calendar or dashboard.
   "AGENT_PLAN_STORE_PATH",
+  // Added 2026-10-02 with the family household store (the clean start). Its
+  // omission would let a loved one added by one suite appear on the empty-state
+  // pages of every later suite.
+  "FAMILY_HOUSEHOLD_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {

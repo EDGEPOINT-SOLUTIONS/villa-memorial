@@ -2,10 +2,15 @@
 
 /**
  * Field capture form (approved design page 12) — one question at a time, one
- * hand, one big Save. The capture itself is real: it writes to the demo-local
- * store on this device (lib/demo-agent-captures.ts) so a lead at the door
- * survives closing the app; the sync to the office waits on the crm-families
- * write contract, and the form says so.
+ * hand, one big Save.
+ *
+ * THE CAPTURE REACHES THE PIPELINE (captain, 2026-10-02). Save posts to the
+ * agent BFF (`POST /api/agent/prospects`), which records the lead in the demo
+ * pipeline journal every agent surface reads, so a person captured at the door
+ * appears in the list, the board and the funnel and can be moved through the
+ * stages. A LEAD WITH NO SIGNAL falls back to the device store
+ * (lib/demo-agent-captures.ts), and the confirmation says plainly where it is.
+ * The crm-families write contract is still unbuilt; the journal is demo-local.
  */
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -13,7 +18,6 @@ import {
   NEED_OPTIONS,
   SOURCE_OPTIONS,
   saveAgentLead,
-  type AgentLeadCapture,
   type AgentLeadNeed,
   type AgentLeadSource,
 } from "@/lib/demo-agent-captures";
@@ -27,9 +31,14 @@ export function LeadCaptureForm() {
   const [note, setNote] = useState("");
   const [photoName, setPhotoName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState<AgentLeadCapture | null>(null);
-  const [duplicate, setDuplicate] = useState(false);
+  const [saved, setSaved] = useState<{
+    label: string;
+    displayName: string;
+    synced: boolean;
+    duplicate: boolean;
+  } | null>(null);
   const [online, setOnline] = useState(true);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const sync = () => setOnline(navigator.onLine);
@@ -42,7 +51,7 @@ export function LeadCaptureForm() {
     };
   }, []);
 
-  function submit(e: React.FormEvent<HTMLFormElement>) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     if (!phone.trim()) {
@@ -53,22 +62,48 @@ export function LeadCaptureForm() {
       setError("Choose what they need — even “not sure yet” counts.");
       return;
     }
-    const result = saveAgentLead({
-      name,
-      phone,
-      need,
-      source,
-      callback,
-      note,
-      has_photo: Boolean(photoName),
-    });
-    setSaved(result.capture);
-    setDuplicate(result.duplicate);
+    const label = NEED_OPTIONS.find((o) => o.value === need)?.label.toLowerCase() ?? "";
+    setBusy(true);
+    try {
+      const response = await fetch("/api/agent/prospects", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, phone, need, source, callback, note }),
+      });
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+      if (!response.ok) {
+        throw new Error(payload?.error ?? "The lead could not be saved.");
+      }
+      setSaved({ label, displayName: name.trim() || phone.trim(), synced: true, duplicate: false });
+    } catch (err) {
+      // A rejected fetch is no signal, not a bad lead: keep it on this device
+      // so it is never lost. A readable refusal is shown in the office's words.
+      if (err instanceof TypeError) {
+        const result = saveAgentLead({
+          name,
+          phone,
+          need,
+          source,
+          callback,
+          note,
+          has_photo: Boolean(photoName),
+        });
+        setSaved({
+          label,
+          displayName: result.capture.name || result.capture.phone,
+          synced: false,
+          duplicate: result.duplicate,
+        });
+      } else {
+        setError(err instanceof Error ? err.message : "The lead could not be saved.");
+      }
+    } finally {
+      setBusy(false);
+    }
   }
 
   function another() {
     setSaved(null);
-    setDuplicate(false);
     setName("");
     setPhone("");
     setNeed(null);
@@ -80,18 +115,21 @@ export function LeadCaptureForm() {
   }
 
   if (saved) {
-    const displayName = saved.name || saved.phone;
     return (
       <div className="ag-capture">
         <div className="ag-card">
           <div className="ag-card__body">
             <p style={{ margin: 0 }}>
-              <span className="badge badge--success">{duplicate ? "Already yours" : "Saved on this phone"}</span>
+              <span className={`badge badge--${saved.synced ? "success" : "warning"}`}>
+                {saved.duplicate ? "Already yours" : saved.synced ? "In your pipeline" : "Saved on this phone"}
+              </span>
             </p>
             <p className="ag-note" style={{ marginTop: "var(--space-2)" }}>
-              {duplicate
-                ? `${displayName} is already in your queue with this number — we kept the first record rather than making a second one.`
-                : `${displayName} is queued on this device as “${NEED_OPTIONS.find((o) => o.value === saved.need)?.label.toLowerCase()}”. They will appear in your pipeline when the CRM write contract lands — nothing is sent to the office yet.`}
+              {saved.duplicate
+                ? `${saved.displayName} is already in your pipeline with this number — we kept the first record rather than making a second one.`
+                : saved.synced
+                  ? `${saved.displayName} is in your pipeline now as “${saved.label}”. Open the record to move them through the stages.`
+                  : `${saved.displayName} is queued on this device as “${saved.label}”. It reaches the pipeline when you are back online — nothing is lost.`}
             </p>
             <div className="ag-actions">
               <Link className="btn btn--primary btn--sm" href="/agent/prospects">
@@ -104,8 +142,8 @@ export function LeadCaptureForm() {
           </div>
         </div>
         <p className="ag-note">
-          Honest wording, per the repo rule: this is a demo-local capture, not delivery. When the crm-families
-          write route lands, this confirmation becomes a real receipt.
+          The pipeline is the demo record (no crm-families write contract exists yet) — every agent screen
+          reads this one capture the moment it is saved.
         </p>
       </div>
     );
@@ -247,11 +285,11 @@ export function LeadCaptureForm() {
             </p>
           ) : null}
 
-          <button className="btn btn--primary ag-btn-xl btn--block" type="submit">
-            Save this lead
+          <button className="btn btn--primary ag-btn-xl btn--block" type="submit" disabled={busy}>
+            {busy ? "Saving…" : "Save this lead"}
           </button>
           <p className="ag-note ag-note--center">
-            Saved on this phone. Nothing is sent to the office yet — the CRM write contract is not built.
+            Saved to your pipeline. With no signal it is kept on this phone instead — the confirmation says which.
           </p>
         </div>
       </div>

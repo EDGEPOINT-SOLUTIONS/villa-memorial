@@ -11,6 +11,7 @@ import accountingFile from "@/lib/fixtures/finance/accounting.json";
 import memorialsFile from "@/lib/fixtures/memorials/memorials.json";
 import { readShape } from "@/lib/contracts/validate";
 import { PROPOSED_SHAPES, type ProposedShapeKey } from "@/lib/contracts/proposed-shapes";
+import { capturedProspects } from "@/lib/agent/acquisition";
 
 /**
  * The proposed contract packets, made executable (platform-contract pre-wire, P3).
@@ -46,21 +47,34 @@ describe("proposed contract shapes validate today's recorded fixtures", () => {
     assertRows(employeesFile.employees as unknown[], "hr.employee");
   });
 
-  it("C8 family — the household snapshot envelope and its loved ones", () => {
+  it("C8 family — the household snapshot envelope (the clean start has no loved ones)", () => {
     expect(() =>
       readShape(familySnapshotFile, "family.snapshot", PROPOSED_SHAPES["family.snapshot"]),
     ).not.toThrow();
-    const lovedOnes = (familySnapshotFile as { loved_ones: unknown[] }).loved_ones;
-    expect(lovedOnes.length).toBeGreaterThan(0);
-    for (const lovedOne of lovedOnes) {
-      expect(() =>
-        readShape(lovedOne, "family.loved_one", PROPOSED_SHAPES["family.loved_one"]),
-      ).not.toThrow();
-    }
+    // The demo household is removed (captain, 2026-10-02): the envelope is valid
+    // and its loved-one list is honestly empty.
+    expect((familySnapshotFile as { loved_ones: unknown[] }).loved_ones).toEqual([]);
   });
 
-  it("C9 agent — prospects", () => {
-    assertRows(agentWorkspaceFile.prospects as unknown[], "agent.prospect");
+  it("C9 agent — a captured prospect validates against the proposed shape", () => {
+    // The clean workspace carries no recorded prospects; the shape the pipeline
+    // folds from a field capture is the row that must satisfy the packet.
+    const rows = capturedProspects([
+      {
+        id: "prospect-captured",
+        name: "Nena Bautista",
+        phone: "+63 917 000 0000",
+        source: "walk_in",
+        interest: "plan",
+        want: "A pre-need plan",
+        callback: "After 4 PM",
+        note: "Met at the door.",
+        captured_at: "2026-10-02T02:00:00Z",
+        captured_by: "Alex Agent",
+      },
+    ]);
+    assertRows(rows as unknown[], "agent.prospect");
+    expect((agentWorkspaceFile as { prospects: unknown[] }).prospects).toEqual([]);
   });
 
   it("C15 commission — the recorded engine state", () => {

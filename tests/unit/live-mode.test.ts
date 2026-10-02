@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi} from "vitest";
 import {
   LIVE_MODE_SERVICES,
   liveModeEnabled,
@@ -88,7 +88,7 @@ describe("a 'none' service never enters live mode", () => {
     expect(notificationsLiveModeEnabled()).toBe(false);
 
     const snapshot = await getFamilySnapshot();
-    expect(snapshot.family.display_name.length).toBeGreaterThan(0);
+    expect(snapshot!.family.display_name.length).toBeGreaterThan(0);
     const stock = await loadInventory();
     expect(stock.items.length).toBeGreaterThan(0);
     const books = await loadAccountingLedger();
@@ -115,3 +115,19 @@ describe("a 'none' service never enters live mode", () => {
     expect(crmLiveModeEnabled()).toBe(false);
   });
 });
+
+// Test-only demo seed: the product fixtures start clean (captain, 2026-10-02).
+// This suite exercises the recorded records through a test-only copy, so the
+// pages keep their content-bearing contract tests without restoring demo data.
+vi.mock("@/lib/fixtures/agent/workspace.json", async () => ({
+  default: (await import("../fixtures/agent-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/snapshot.json", async () => ({
+  default: (await import("../fixtures/family-snapshot-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/workspace.json", async () => ({
+  default: (await import("../fixtures/family-workspace-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/family/case.json", async () => ({
+  default: (await import("../fixtures/family-case-demo.json")).default,
+}));

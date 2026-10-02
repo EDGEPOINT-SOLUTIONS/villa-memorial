@@ -26,13 +26,7 @@
  * stage, a value or a client that no move created.
  */
 import type { Client, Prospect, ProspectStageEvent } from "@/lib/api-client/agent";
-import {
-  interestLabel,
-  manilaDay,
-  manilaYear,
-  PIPELINE_STAGES,
-  stageIndex,
-} from "@/lib/agent/agent-view";
+import { interestLabel, manilaDay, manilaYear, stageIndex } from "@/lib/agent/agent-view";
 import { formatMinorUnits } from "@/lib/money";
 
 /** One journalled move of a lead through the pipeline. */
@@ -43,6 +37,61 @@ export type StageMoveEvent = {
   by: string;
   note: string;
 };
+
+/**
+ * One lead captured in the field (`POST /api/agent/prospects`). The store owns
+ * persistence; this is the shape it persists and the fold reads. A captured
+ * lead is the pipeline's own `Prospect` from the moment it exists — its first
+ * stage move is the capture itself, dated and signed by the agent who met them.
+ */
+export type CapturedLead = {
+  id: string;
+  name: string;
+  phone: string;
+  source: string;
+  interest: Prospect["interest"];
+  want: string;
+  callback: string;
+  note: string;
+  captured_at: string;
+  captured_by: string;
+};
+
+/**
+ * The captured leads as pipeline prospects. Nothing is invented beyond what the
+ * agent typed: an unknown value is a zero value (an unnamed lead is the phone
+ * number, an unstated value is ₱0.00 and “Still deciding”), never a guess at a
+ * plan or an amount. `urgency: "today"` is the one policy — a new enquiry is
+ * work for today — and the record's own first stage move is the capture.
+ */
+export function capturedProspects(captures: CapturedLead[]): Prospect[] {
+  return captures.map((capture) => ({
+    id: capture.id,
+    name: capture.name.trim() || capture.phone,
+    phone: capture.phone,
+    email: "",
+    source: capture.source,
+    interest: capture.interest,
+    want: capture.want,
+    stage: "new",
+    owner: capture.captured_by,
+    possible_value_cents: 0,
+    first_contact_at: capture.captured_at,
+    last_contact_at: capture.captured_at,
+    stage_history: [
+      {
+        stage: "new",
+        at: capture.captured_at,
+        by: capture.captured_by,
+        note: capture.note || "Captured in the field.",
+      },
+    ],
+    next_action: capture.callback ? `Call back ${capture.callback}` : "Make the first call",
+    urgency: "today",
+    best_time: capture.callback,
+    notes: capture.note,
+  }));
+}
 
 /** Stable client id for a prospect converted by a sale. */
 export function convertedClientId(prospectId: string): string {

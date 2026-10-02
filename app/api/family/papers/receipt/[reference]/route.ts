@@ -43,7 +43,7 @@ export async function GET(
   const { reference } = await params;
   const decoded = decodeURIComponent(reference);
   const snapshot = await getFamilySnapshot();
-  const { receipts } = familyPapers(snapshot.recent_documents);
+  const { receipts } = familyPapers(snapshot?.recent_documents ?? []);
   const receipt = receipts.find((entry) => entry.reference === decoded);
   if (!receipt || !familyReceiptHasCopy(receipt)) {
     return new NextResponse("Not found", { status: 404 });

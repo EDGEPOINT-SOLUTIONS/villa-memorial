@@ -34,7 +34,7 @@ import { getFamilyHousehold } from "@/lib/api-client/family";
 import { familyDocumentReleased } from "@/lib/family/family-view";
 import { nextPaymentDue, nextPaymentDueLabel } from "@/lib/payment-schedule";
 import { liveModeEnabled } from "@/lib/live-mode";
-import { listStageMoveEvents } from "@/lib/api-client/agent-store";
+import { listProspectCaptureEvents, listStageMoveEvents } from "@/lib/api-client/agent-store";
 import { listPlanEvents } from "@/lib/api-client/agent-plan-store";
 import {
   applyPlanEvents,
@@ -42,6 +42,7 @@ import {
 } from "@/lib/agent/agent-plans";
 import {
   applyStageMoves,
+  capturedProspects,
   conversionFromProspects,
   convertedClients,
   pipelineValueCents,
@@ -79,7 +80,7 @@ export type Prospect = {
   phone: string;
   email: string;
   source: string;
-  interest: "plan" | "lot" | "services";
+  interest: "plan" | "lot" | "services" | "unsure";
   want: string;
   stage: string;
   owner: string;
@@ -260,7 +261,8 @@ export type AgentWorkspace = {
   today: {
     greeting: string;
     lead: string;
-    next_action: {
+    /** The next thing the workbench names, when the record carries one. */
+    next_action?: {
       work_item_id: string;
       title: string;
       detail: string;
@@ -461,8 +463,15 @@ async function toClient(raw: Client): Promise<Client> {
  */
 async function readWorkspace(): Promise<AgentWorkspace> {
   const seed = readWorkspaceSeed();
-  const [events, planEvents] = await Promise.all([listStageMoveEvents(), listPlanEvents()]);
-  const seedProspects = seed.prospects.map(toProspect);
+  const [events, planEvents, captures] = await Promise.all([
+    listStageMoveEvents(),
+    listPlanEvents(),
+    listProspectCaptureEvents(),
+  ]);
+  // A lead captured at /agent/new is folded in beside the seed, then the stage
+  // moves apply to both, so a captured person reaches the list, the board and
+  // the funnel exactly like a recorded one.
+  const seedProspects = [...capturedProspects(captures), ...seed.prospects.map(toProspect)];
   const prospects = applyStageMoves(seedProspects, events);
   const seedClients = seed.clients.map((c) => ({
     ...c,

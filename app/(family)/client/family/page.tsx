@@ -4,6 +4,7 @@ import { getFamilyHousehold } from "@/lib/api-client/family";
 import { FAMILY_HELP } from "@/lib/family/contact";
 import { countWord, familyHousehold } from "@/lib/family/family-view";
 import { PersonSwitcher } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import {
   Answer,
   PrimaryAction,
@@ -37,6 +38,15 @@ export default async function Page() {
   await requirePortalSessionOrRedirect("family");
   const household = await getFamilyHousehold();
   const people = household.people;
+  if (people.length === 0) {
+    return (
+      <FamilyEmptyState
+        kicker="Your family"
+        headline="Nobody is on your account yet."
+        sub="Add the person you look after to keep their plans, papers and memorial together here."
+      />
+    );
+  }
   const householdName = familyHousehold(people[0]?.name, household.family.display_name);
   const papers = people.reduce((sum, person) => sum + person.recent_documents.length, 0);
 

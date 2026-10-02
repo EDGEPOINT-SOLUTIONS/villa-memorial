@@ -6,6 +6,7 @@ import { countWord, familyDocumentView } from "@/lib/family/family-view";
 import { familyPapers } from "@/lib/family/family-documents";
 import { personIdFrom } from "@/lib/family/family-household";
 import { PersonSwitcherForSnapshot } from "@/components/family/family-person-switcher";
+import { FamilyEmptyState } from "@/components/family/family-empty";
 import { OwnedPaperRow, RequestPaperRow } from "@/components/family/family-papers";
 import {
   Answer,
@@ -40,6 +41,15 @@ export default async function ClientDocumentsPage({
   await requirePortalSessionOrRedirect("family");
   const requested = personIdFrom(await searchParams);
   const snapshot = await getFamilySnapshot(requested);
+  if (!snapshot) {
+    return (
+      <FamilyEmptyState
+        kicker="Papers"
+        headline="No papers are on your account yet."
+        sub="Add the person you look after and their papers will appear here."
+      />
+    );
+  }
   const documents = snapshot.recent_documents.map((doc) =>
     familyDocumentView(doc.title, doc.status),
   );
