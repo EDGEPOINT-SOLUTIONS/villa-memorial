@@ -7,28 +7,47 @@ of them produced a much better output"*
 This is the record of that re-vision: the same product and the same truth, composed better.
 The route, the links, the figures and the contact details are unchanged.
 
-| | before (`c7ffd38`) | after |
+| | before (`main` @ `b250513`) | after |
 |---|---|---|
-| full page @ 1440 | **6692 px** | **4935 px** (−26%) |
-| full page @ 390 | **9703 px** | **7829 px** (−19%) |
-| screenshot weight @ 1440 | 2654 KB | 1490 KB |
-| screenshot weight @ 390 | 1947 KB | 887 KB |
+| full page @ 1440 | **6741 px** | **4953 px** (−27%) |
+| full page @ 390 | **9642 px** | **7877 px** (−18%) |
+| screenshot weight @ 1440 | 1475 KB | 932 KB |
+| screenshot weight @ 390 | 1003 KB | 523 KB |
 | bands | 7 | 6 |
-| images on the page | 16 | 12 |
-| the h1 | 76.4 px (a 1.5× "gateway type scale") | **35.2 px** (`--text-page-title`) |
+| the h1 @ 1440 | 76.4 px (a 1.5× "gateway type scale") | **35.2 px** (`--text-page-title`) |
+| horizontal overflow @ 1440 / 390 | 0 / 0 | 0 / 0 |
 
 Files: [`before-1440.png`](before-1440.png) · [`before-390.png`](before-390.png) ·
 [`after-1440.png`](after-1440.png) · [`after-390.png`](after-390.png) — full-page captures of
-`http://localhost:4004/`, production CSS, at 1440×900 and 390×844.
+the running site, production CSS, at 1440×900 and 390×844. Both pairs were **recaptured on the
+rebased head**: `before` is `main` @ `b250513` served on its own port, `after` is this branch
+served on `:4004`. The title set is frozen on set 1 in both, so the two captures are comparable.
 
-**Landed on `main` as the captain's pick.** The branch was rebased onto `main` (`11e359e`)
-after the merge, and the overlap resolved the way the steer asked: **main's gateway copy and
-its two-row opening** (`We're here for you` / `any hour, any day.`, the lead paragraph not
-printed, the browser-tab title `Villa Funeraria — here for you, any hour`) sitting inside
-**this six-band composition**, with the section-title pass, the dependency pass and the rest of
-`main`'s work untouched. The only contested file was `components/public/home-page.tsx`;
-`app/(public)/page.tsx` merged with both deltas intact. `lib/fixtures/landing/content.json` and
-`lib/fixtures/content/pages.json` are `main`'s, byte for byte.
+**Where this branch sits.** Rebased onto `main` @ `b250513`, so the merge is a clean
+fast-forward. Two files conflicted (`components/public/home-page.tsx`,
+`styles/components.css`) and both were resolved the way the steer asked — see **the rotating
+title** below. Everything else on `main` is untouched, fixtures included.
+
+## The rotating title (the office's, kept — `main` `b250513`)
+
+`main` turned the gateway title into an **unlimited, ordered set of title pairs** the office
+edits at `/staff/landing/home`, one at a time on an interval it sets, with the timing owned by
+`lib/home-title-rotation.ts` and the cross-fade by `components/public/home-title-rotator.tsx`.
+The re-vision **keeps it, and it is the band's h1** — the composition did not drop a feature
+to get a cleaner opening.
+
+- Band 1 renders `HomeTitleRotator` where the old static `<h1>` was. The band is
+  `aria-labelledby="home-gateway-title"`, the id the component stamps on the heading, so the
+  label still resolves to the office's own words.
+- The re-vision renames the band `.home-gateway` → `.home-open`, so the type step and the
+  promise line are declared for **both** the band's class and the component's
+  (`.home-open__title, .home-gateway__title { … }`) — **one rule, two selectors**. A rotating
+  title can never fall back to an unstyled `h1` mid-page; `home-styles.test.ts` pins it.
+- The component's band-pause now climbs to the enclosing `<section>` rather than to a class
+  name, so a renamed or re-visioned band still pauses the rotation on hover.
+- Measured: **one `h1`**, all three seeded sets in the DOM and stacked in one grid cell, the
+  inactive ones `aria-hidden`; 35.2 px at 1440 and 25.6 px at 390 — the ladder's own top step,
+  under the brief's ~40 px ceiling. The rotation changes no visual decision on this page.
 
 ---
 
@@ -40,15 +59,16 @@ those questions actually arrive, and **each band leads with exactly one dominant
 never a grid of equal boxes.
 
 **1 · The opening — the words lead, the park's own gate supports.**
-Eyebrow (`ISABELA CITY, BASILAN`) → the headline at the ladder's own top step, with the
-promise as its second line in the sky ink → the ONE action that matters at 3 a.m. (the 24/7
-number, gold) with the plan action beside it → three recorded facts under a hairline. **Two
-text rows, no lead paragraph** — the captain's own later call on `main` (6dc03dc, *"shorter,
-simpler, just relax"*): the any-hour promise already reads in the promise line, the call button
-and the ribbon, so a third line said it a third time. The photograph is the client's own
-picture of the park gate, at a 3:2 band-lead frame with a 22 rem ceiling, **beside** the words
-it supports. Before, the same picture was a full-bleed 74 rem band of its own — a band whose
-only content was a 1184 px image, which is the "unnecessary large imagery" the brief names.
+Eyebrow (`ISABELA CITY, BASILAN`) → the office's **rotating title set** at the ladder's own top
+step, each set's promise as its second line in the sky ink → the ONE action that matters at
+3 a.m. (the 24/7 number, gold) with the plan action beside it → three recorded facts under a
+hairline. **Two text rows, no lead paragraph** — the captain's own later call on `main` (6dc03dc,
+*"shorter, simpler, just relax"*): the any-hour promise already reads in the promise line, the
+call button and the ribbon, so a third line said it a third time. The photograph is the client's
+own picture of the park gate, at a 3:2 band-lead frame with a 22 rem ceiling, **beside** the
+words it supports. Before, the same picture was a full-bleed 74 rem band of its own — a band
+whose only content was a 1184 px image, which is the "unnecessary large imagery" the brief
+names.
 
 **2 · Arrange it — the live cost builder leads.**
 The builder is the only element on the page that answers *"what will this cost"* with the
@@ -101,7 +121,8 @@ client JS.
   the shared `SectionHead` shape — kicker, title, one action at the right — and each band has
   exactly one dominant element.
 - **The 1.5× "gateway type scale"** (76.4 px rendered) and with it the last type above the
-  ladder's top step. Hierarchy is weight, colour and space.
+  ladder's top step. Hierarchy is weight, colour and space. (The title it scaled is still here —
+  it just rotates now, at 35.2 px.)
 
 ## Uniform section width (captain, 2026-10-02)
 
@@ -109,7 +130,8 @@ The brief's follow-up: *the 2nd, 5th and 6th sections must share the same conten
 others.* Every band is a direct child of `.home`, no band/grid/inner panel declares a second
 measure, and the only `max-width` left in the block bounds a **paragraph**, never a band's
 content. Measured at 1440, all six bands are **1222 px at left 109**; at 390, all six are
-**345 px at left 22**, and `document.scrollWidth === 390` — no sideways scroll.
+**345 px at left 22**, and `document.scrollWidth === 390` — no sideways scroll (re-measured on
+the rebased head: 0 px of overflow at both widths).
 
 `tests/unit/home-styles.test.ts` now pins this ("gives every band the SAME content width"), so
 the next band that reaches for its own envelope fails the gate.
