@@ -126,16 +126,24 @@ describe("the re-visioned home (2026-10-02)", () => {
     }
   });
 
-  it("runs the opening as a funnel by SIZE, not weight (captain 2026-10-02)", () => {
-    // Row 1 smallest, row 2 the band's LARGEST — scale carries the hierarchy,
-    // never weight, and nothing rides a raw rung. There is no third text row:
-    // the captain cut the lead paragraph (main, 6dc03dc), so the band is the
-    // eyebrow, the headline + its promise line, the actions and the facts.
+  it("sets the gateway title at the section-head step, in the same face (captain 2026-10-02)", () => {
+    // The office's rotating title is the band's one h1, but the captain asked
+    // for it to speak in the same voice and size as the "Memorial plans & garden
+    // lots" head: the section-title step in the display serif, centred, and
+    // smaller than the old page-title size. The eyebrow stays the micro label
+    // above it; there is no third text row (the lead paragraph was cut, main
+    // 6dc03dc), so the band is the eyebrow, the headline + its promise line and
+    // the actions.
     const eyebrow = ruleBodies(".home-open__eyebrow")[0];
     const title = ruleBodies(".home-open__title")[0];
     const promise = ruleBodies(".home-open__promise")[0];
     expect(eyebrow).toMatch(/font-size:\s*var\(--text-micro\)/);
-    expect(title).toMatch(/font-size:\s*var\(--text-page-title\)/);
+    expect(title).toMatch(/font-size:\s*var\(--text-section-title\)/);
+    // The same face the section heads use — the family is the "font" the captain
+    // matched, not a second typeface.
+    const sectionHead = ruleBodies(".section-head__title")[0];
+    expect(title).toMatch(/font-family:\s*var\(--font-serif\)/);
+    expect(sectionHead).toMatch(/font-family:\s*var\(--font-serif\)/);
     // The promise is the headline's SECOND line, on the same step.
     expect(promise).toMatch(/display:\s*block/);
     // The office's rotating title component (captain, 2026-10-02) renders this
@@ -143,7 +151,7 @@ describe("the re-visioned home (2026-10-02)", () => {
     // promise line must be declared for the component's class too, or the
     // rotating title would fall back to an unstyled h1 mid-page.
     expect(ruleBodies(".home-gateway__title")[0]).toMatch(
-      /font-size:\s*var\(--text-page-title\)/,
+      /font-size:\s*var\(--text-section-title\)/,
     );
     expect(ruleBodies(".home-gateway__promise")[0]).toMatch(/display:\s*block/);
     // The retired lead paragraph leaves no rule behind.
@@ -154,12 +162,13 @@ describe("the re-visioned home (2026-10-02)", () => {
     expect(RULES).not.toContain(".home-trust__note");
   });
 
-  it("types NOTHING above the ladder's own top step (captain 2026-10-02)", () => {
-    // The retired 1.5× gateway scale is gone: the page's one display size is
-    // the ladder's `--text-page-title`, and no band declares its own scale.
+  it("types nothing above the section-head step (captain 2026-10-02 second pass)", () => {
+    // The retired 1.5× gateway scale is gone, and so is the page-title rung on
+    // this band: the gateway title now rides the section-title step and no band
+    // declares a scale of its own.
     expect(RULES).not.toContain("--gateway-type-scale");
     for (const body of ruleBodies(".home-open__title")) {
-      expect(body).toMatch(/font-size:\s*var\(--text-page-title\)/);
+      expect(body).toMatch(/font-size:\s*var\(--text-section-title\)/);
       expect(body).not.toMatch(/font-size:\s*\d+(\.\d+)?px/);
     }
   });

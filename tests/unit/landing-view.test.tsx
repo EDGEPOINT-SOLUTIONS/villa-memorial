@@ -209,23 +209,21 @@ describe("the home renders the anchored catalogue shell", () => {
     ]);
   });
 
-  it("the left rail leads with the always-reachable help card (captain, 2026-09-25)", async () => {
+  it("no longer carries the help card in the left rail (captain, 2026-10-02)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
     );
-    // The retired 2026-09-21 rail-call class stays retired, but the captain's
-    // 2026-09-25 storefront pass reintroduces the help card under a new name.
-    expect(html).toContain("rail-assist");
-    expect(html).toContain("Need help now?");
+    // The captain removed the "Need help now?" card from the home entirely
+    // (2026-10-02); the retired 2026-09-21 rail-call class stays retired too.
+    expect(html).not.toContain("rail-assist");
+    expect(html).not.toContain("Need help now?");
     expect(html).not.toContain("rail-call");
+    // The left rail still opens on the staff-pinned departments list.
     expect(html).toContain("rail-heading");
-    // The number is read from the content document, never typed.
-    expect(html).toContain(content.contact.phoneDisplay);
-    expect(html).toContain(`href="${content.contact.phoneHref}"`);
   });
 
-  it("the right rail leads with the four quick actions (captain, 2026-09-25)", async () => {
+  it("carries the four quick actions at the right rail's very bottom (captain, 2026-10-02)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       view({ content, mapNode: null, mapLive: false, sectionCount: 0 }),
@@ -239,6 +237,12 @@ describe("the home renders the anchored catalogue shell", () => {
       expect(html, label).toContain(`class="rail-action" href="${href}"`);
       expect(html, label).toContain(label);
     }
+    // The pinned list leads the rail; the quick doors sit BELOW it.
+    const asideStart = html.indexOf("anchored-rail--right");
+    const aside = html.slice(asideStart, html.indexOf("</aside>", asideStart));
+    expect(aside.indexOf("rail-action")).toBeGreaterThan(
+      aside.indexOf(content.rails.right.heading),
+    );
   });
 
   it("middle sections render products first, story after (Amazon order, captain 2026-09-25)", async () => {
@@ -450,11 +454,12 @@ describe("the rails fit without a vertical scrollbar", () => {
     expect(text).toContain("position: static");
   });
 
-  it("keeps the retired 24/7 call card CSS out while the new help card ships", () => {
+  it("keeps the retired help cards' CSS out while the quick actions ship", () => {
     const css = readFileSync(new URL("../../styles/components.css", import.meta.url), "utf8");
     expect(css).not.toContain(".rail-call");
     expect(css).not.toContain("rail-pulse");
-    expect(css).toContain(".rail-assist");
+    // The "Need help now?" card was removed 2026-10-02; its rules are gone too.
+    expect(css).not.toContain(".rail-assist");
     expect(css).toContain(".rail-action");
   });
 });

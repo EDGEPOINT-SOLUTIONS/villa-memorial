@@ -59,7 +59,7 @@ export function HomeBanner({ content }: { content: LandingContent }) {
             <PublicImage
               src={heroPhoto.src}
               srcSet={heroPhoto.srcSet}
-              sizes={heroPhoto.srcSet ? "(max-width: 64rem) 92vw, 44rem" : undefined}
+              sizes={heroPhoto.srcSet ? "(max-width: 64rem) 94vw, 53rem" : undefined}
               alt={home.photo.alt}
               role="home-hero"
               width={heroPhoto.width}

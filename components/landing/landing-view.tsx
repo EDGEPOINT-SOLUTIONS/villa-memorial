@@ -13,10 +13,9 @@
  */
 /* eslint-disable @next/next/no-html-link-for-pages -- see note above: framework-free view */
 import type { ReactNode } from "react";
-import { ArrowRight, Calculator, FileText, MapPin, MessageCircle, Phone } from "lucide-react";
+import { ArrowRight, Calculator, FileText, MapPin, MessageCircle } from "lucide-react";
 import type {
   BlogPost,
-  ContactInfo,
   LandingContent,
   MediaItem,
   RailConfig,
@@ -124,20 +123,19 @@ function RailItemLink({ item }: { item: RailItem }) {
 }
 
 /**
- * One fixed rail: an optional fixed lead card (the help/call card on the left,
- * the quick-actions card on the right) + a staff-editable heading and any
- * number of pinned items (staff can pin as many products/services/plans/links
- * per rail as they want — the rail scrolls internally, so an unlimited list
- * never breaks the page).
+ * One fixed rail: a staff-editable heading and any number of pinned items
+ * (staff can pin as many products/services/plans/links per rail as they want —
+ * the rail scrolls internally, so an unlimited list never breaks the page),
+ * with an optional `foot` block pinned beneath the list (the right rail's
+ * quick actions sit there now — captain, 2026-10-02).
  */
-export function RailPanel({ config, lead }: { config: RailConfig; lead?: ReactNode }) {
+export function RailPanel({ config, foot }: { config: RailConfig; foot?: ReactNode }) {
   // The rail's ONE featured item always OPENS the list (captain, 2026-09-30):
   // the office pins the product it wants seen, so a visitor meets it at the
   // very top. Every other item keeps the order the office set.
   const items = [...config.items].sort((a, b) => Number(b.featured) - Number(a.featured));
   return (
     <div className="rail-panel">
-      {lead}
       <h2 className="rail-heading">{config.heading}</h2>
       {config.items.length === 0 ? (
         <p className="rail-empty">Nothing pinned here yet.</p>
@@ -150,36 +148,17 @@ export function RailPanel({ config, lead }: { config: RailConfig; lead?: ReactNo
           ))}
         </ul>
       )}
+      {foot}
     </div>
   );
 }
 
 /**
- * The left rail's always-reachable help card (captain, 2026-09-25): a grieving
- * visitor should never have to hunt for the phone. The big call action leads,
- * the office's own line and place sit under it. The number is read from the
- * landing content document — never typed here.
- */
-function RailAssist({ contact }: { contact: ContactInfo }) {
-  return (
-    <div className="rail-assist">
-      <p className="rail-assist__kicker">Need help now?</p>
-      <a className="rail-assist__call" href={contact.phoneHref}>
-        <Phone size={16} aria-hidden="true" />
-        Call {contact.phoneDisplay}
-      </a>
-      <p className="rail-assist__note">
-        Every hour, every day · {contact.location}
-      </p>
-    </div>
-  );
-}
-
-/**
- * The right rail's quick actions (captain, 2026-09-25): four real doors — the
- * published price list, a quote request, the plan finder and directions to the
- * park — so the rail is useful from any scroll depth. App-authored, not
- * content-pinned: these are the storefront's own destinations.
+ * The right rail's quick actions (captain, 2026-09-25; moved to the rail's very
+ * bottom 2026-10-02): four real doors — the published price list, a quote
+ * request, the plan finder and directions to the park. App-authored, not
+ * content-pinned: these are the storefront's own destinations, rendered under
+ * the staff-pinned list so the pinned products lead the rail.
  */
 const RAIL_ACTIONS = [
   { href: "/price-list", label: "Price list", hint: "2026 coffins, services & plans", Icon: FileText },
@@ -710,8 +689,6 @@ export function LandingBands({
   open,
   posts,
   newsfeed = true,
-  railAssist = true,
-  railActions = true,
 }: LandingViewProps & {
   midElement?: "main" | "div";
   open?: ReactNode;
@@ -720,12 +697,6 @@ export function LandingBands({
    *  own lead listing already shows those posts (office, inbox 048) — the band
    *  there was a duplicate. LandingView keeps it. */
   newsfeed?: boolean;
-  /** The left rail's always-reachable help/24-7 card. OFF on `/blog` — the
-   *  captain removed it there (2026-09-30). */
-  railAssist?: boolean;
-  /** The right rail's quick-action list. OFF on `/blog` — the captain removed
-   *  it there (2026-09-30). */
-  railActions?: boolean;
 }) {
   const mid = (
     <div className="anchored-mid__inner">
@@ -744,12 +715,10 @@ export function LandingBands({
   return (
     <div className="anchored-grid">
       {/* Amazon-familiar storefront (captain, 2026-09-25): the left rail is
-          the departments list, led by the always-reachable help card. */}
+          the departments list. The always-reachable help card that used to lead
+          it was removed (captain, 2026-10-02). */}
       <aside className="anchored-rail anchored-rail--left" aria-label="Departments">
-        <RailPanel
-          config={content.rails.left}
-          lead={railAssist ? <RailAssist contact={content.contact} /> : undefined}
-        />
+        <RailPanel config={content.rails.left} />
       </aside>
 
       {midElement === "main" ? (
@@ -760,10 +729,11 @@ export function LandingBands({
         <div className="anchored-mid">{mid}</div>
       )}
 
-      {/* The right rail is the short, useful action list (price list, quote,
-          plan finder, directions) above the staff-pinned plans & lots. */}
-      <aside className="anchored-rail anchored-rail--right" aria-label="Quick actions">
-        <RailPanel config={content.rails.right} lead={railActions ? <RailActions /> : undefined} />
+      {/* The right rail is the staff-pinned plans & lots, with the short action
+          list (price list, quote, plan finder, directions) at its very bottom
+          (captain, 2026-10-02 — it used to lead the rail). */}
+      <aside className="anchored-rail anchored-rail--right" aria-label="Plans & lots">
+        <RailPanel config={content.rails.right} foot={<RailActions />} />
       </aside>
     </div>
   );

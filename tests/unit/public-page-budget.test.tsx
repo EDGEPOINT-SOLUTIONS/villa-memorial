@@ -313,7 +313,7 @@ describe("the public page budget / section blueprint", () => {
 });
 
 describe("the home's named Phase 0 changes", () => {
-  it("the left rail leads with the always-reachable help card (captain 2026-09-25)", async () => {
+  it("the home's left rail no longer carries a help card (captain 2026-10-02)", async () => {
     const content = await listLandingContent();
     const html = renderToStaticMarkup(
       LandingView({
@@ -325,10 +325,11 @@ describe("the home's named Phase 0 changes", () => {
         lotCategories: LOT_PRICE_CATEGORIES,
       }),
     );
-    // The retired rail-call class stays retired; the help card ships as .rail-assist.
+    // The "Need help now?" card is removed; the retired rail-call class stays
+    // retired alongside it.
     expect(html).not.toContain("rail-call");
-    expect(html).toContain("rail-assist");
-    // The right rail is the short action list.
+    expect(html).not.toContain("rail-assist");
+    // The right rail keeps the short action list at its bottom.
     expect(html).toContain("rail-action");
   });
 
