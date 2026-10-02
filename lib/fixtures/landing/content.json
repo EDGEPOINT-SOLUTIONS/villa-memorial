@@ -248,9 +248,9 @@
       },
       "gateway": {
         "place": "Isabela City, Basilan",
-        "headline": "When you lose someone you love",
-        "promise": "we are here for you, day or night.",
-        "lead": "A coordinator answers any hour, day or night. We come to you, and we stay with you until the burial is done.",
+        "headline": "We're here for you",
+        "promise": "any hour, any day.",
+        "lead": "We answer any hour. We come to you, and we stay until the burial is done.",
         "secondary": {
           "label": "Future plan",
           "href": "/builder"

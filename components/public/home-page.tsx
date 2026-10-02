@@ -188,7 +188,6 @@ export function HomePage({
             {gateway.headline}{" "}
             <span className="home-gateway__promise">{gateway.promise}</span>
           </h1>
-          <p className="home-gateway__lead">{gateway.lead}</p>
           <div className="home-gateway__actions">
             <a className="btn btn--accent home-call" href={contact.phoneHref}>
               <Phone size={18} aria-hidden="true" />
