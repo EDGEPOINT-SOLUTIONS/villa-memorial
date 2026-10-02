@@ -35,6 +35,11 @@ docker compose --env-file .env.production -f docker-compose.production.yml up -d
 ```
 
 - The image is built from `Dockerfile` (`npm ci` → `next build` → standalone runtime).
+- The **run stage copies `node_modules/pdfkit` by hand and asserts it resolves**: the paper PDF
+  renderer bundles pdfkit's JS, but the package's standard fonts are reached through a runtime
+  `createRequire` the standalone tracer cannot see, so a plain standalone image 500s the PDF
+  exports. The build fails if the copy or the resolution check is dropped. Record:
+  [`gpl-pdf-production-design/`](gpl-pdf-production-design/README.md).
 - The container listens on **3000**; `WEB_PORT` in `.env.production` chooses the host
   port. If a reverse proxy already owns 80/443, publish on 127.0.0.1 and proxy.
 - `restart: unless-stopped`, `init: true`, a container `HEALTHCHECK` on `/`, and a

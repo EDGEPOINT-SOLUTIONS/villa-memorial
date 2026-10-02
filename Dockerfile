@@ -49,6 +49,20 @@ COPY --from=build --chown=node:node /app/.next/standalone ./
 COPY --from=build --chown=node:node /app/.next/static ./.next/static
 # Public assets folder is empty today; copied so future additions need no Dockerfile change.
 COPY --from=build --chown=node:node /app/public ./public
+# pdfkit is imported by lib/export/pdf.ts, but Next bundles its JavaScript into a server
+# chunk whose one remaining runtime dependency is a createRequire() pointed at
+# node_modules/pdfkit — the standard-font subpath exports (`#standard-fonts/*`) that the
+# tracer never sees. The package is therefore absent from .next/standalone, and the PDF
+# export routes (/api/export/paper-pdf, /api/family/papers/receipt/*) 500 in production
+# even though they render in dev, where node_modules is still on disk. Carry the package
+# whole (its js/standard-fonts/*.cjs and data/*.afm live beside it), node-owned like the
+# rest. The next Dockerfile RUN proves the run stage can resolve it.
+COPY --from=deps --chown=node:node /app/node_modules/pdfkit ./node_modules/pdfkit
+# Guard, not configuration: the bundled renderer resolves its standard fonts through a
+# createRequire() on node_modules/pdfkit/js/pdfkit.node.mjs and then requires the
+# `#standard-fonts/*` subpaths. If the COPY above is removed or the package layout moves,
+# this fails the image build instead of shipping a PDF route that 500s.
+RUN node -e 'const { createRequire } = require("module"); const path = require("path"); const req = createRequire(path.join(process.cwd(), "node_modules/pdfkit/js/pdfkit.node.mjs")); for (const face of ["TimesRoman", "TimesBold", "TimesBoldItalic", "TimesItalic", "Helvetica", "HelveticaBold", "HelveticaBoldOblique", "HelveticaOblique", "Courier", "CourierBold", "CourierBoldOblique", "CourierOblique", "Symbol", "ZapfDingbats"]) req("#standard-fonts/" + face); console.log("pdfkit standard fonts resolve in the run stage");'
 # Fixture-mode durable stores (lib/api-client/*-store.ts) write under .data/. Create it
 # node-owned so a freshly mounted volume inherits a writable owner on first use.
 RUN mkdir -p /app/.data && chown node:node /app/.data

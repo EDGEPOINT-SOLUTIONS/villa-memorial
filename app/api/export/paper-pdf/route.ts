@@ -40,7 +40,8 @@ export async function GET(request: Request) {
         "cache-control": "no-store",
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("[paper-pdf] general price list render failed:", error);
     return NextResponse.json({ error: "pdf rendering failed" }, { status: 500 });
   }
 }
@@ -100,7 +101,8 @@ export async function POST(request: Request) {
         "cache-control": "no-store",
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("[paper-pdf] render failed:", error);
     return NextResponse.json({ error: "pdf rendering failed" }, { status: 500 });
   }
 }
