@@ -32,7 +32,7 @@ describe("the staff area has one content editor", () => {
     );
     expect(contentEditors).toHaveLength(1);
     expect(contentEditors[0].href).toBe("/staff/landing");
-    expect(contentEditors[0].label).toBe("Pages & content");
+    expect(contentEditors[0].label).toBe("Every public page");
     expect(contentEditors[0].scopes).toEqual(["catalog:write"]);
   });
 

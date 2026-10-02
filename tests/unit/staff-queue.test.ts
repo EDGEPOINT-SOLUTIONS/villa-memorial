@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { buildNeedsYou, needsYouCount, QUEUE_KIND_LABEL } from "@/lib/staff-queue";
 import type { PaymentAlertSummary } from "@/lib/payment-alerts";
 import type { Inquiry } from "@/lib/api-client/crm";
+import type { FamilyRequest } from "@/lib/api-client/family";
+import type { Document } from "@/lib/api-client/documents";
 import type { AdminOrder } from "@/lib/api-client/order-store";
 import type { WorkOrder } from "@/lib/work-orders";
 import type { WorkOrderList } from "@/lib/api-client/work-orders";
@@ -107,8 +109,42 @@ describe("buildNeedsYou", () => {
 
   it("ranks overdue money and overdue work above a new order", () => {
     const rankOf = (kind: string) => rows.find((row) => row.kind === kind)!.rank;
-    expect(rankOf("payment")).toBeLessThan(rankOf("family"));
+    expect(rankOf("payment")).toBeLessThan(rankOf("inquiry"));
     expect(rankOf("task")).toBeLessThan(rankOf("order"));
+  });
+
+  it("carries the family's own requests and documents still in review", () => {
+    const request: FamilyRequest = {
+      id: "req-1",
+      title: "Cut the grass around your lot",
+      detail: "The grass along the path has grown over the marker.",
+      asked_on: "2026-09-12",
+      state: "with_office",
+      next: "The park team has it.",
+      action_label: "Call for the latest",
+    };
+    const document: Document = {
+      id: "doc-1",
+      document_number: "DOC-2026-0001",
+      title: "Service Agreement",
+      document_type: "contract",
+      related_case_number: "CASE-2026-0001",
+      related_order_number: null,
+      status: "pending_review",
+      uploaded_by: "Ada",
+      uploaded_at: "2026-09-20T00:00:00Z",
+      file_size_bytes: 1000,
+    };
+    const extra = buildNeedsYou({ familyRequests: [request], documents: [document] });
+    expect(extra.find((row) => row.kind === "family")?.title).toBe(request.title);
+    expect(extra.find((row) => row.kind === "document")?.href).toBe("/staff/documents");
+    // A finished request and an approved document never queue.
+    expect(
+      buildNeedsYou({
+        familyRequests: [{ ...request, state: "done" }],
+        documents: [{ ...document, status: "approved" }],
+      }),
+    ).toEqual([]);
   });
 
   it("drops a fulfilled order and keeps the open one", () => {

@@ -426,7 +426,11 @@
   an invented SLA; live mode answers 503 (field-ops unbuilt). **Notifications**
   (`/staff/notifications`, `cases:read` provisional): the four designed message types + audiences
   + channels, with the sent log EMPTY — the P4 notification service has no contract and no
-  outward API, so no message may be fabricated (the family page takes the same line).
+  outward API, so no message may be fabricated (the family page takes the same line). In the
+  2026-10-02 revision the rail's notice entry is **Inbox** (`/staff/inbox`), which folds
+  notifications into one triaged list; this catalogue keeps its route and is reached from the
+  topbar bell and from Inbox. **Work orders** left the curated rail in the same revision and is
+  reached from the calendar's work-order days and the dashboard queue.
 - Pure rules homes: `lib/dispatch.ts` · `lib/work-orders.ts` · `lib/notifications.ts`; tolerant
   readers `lib/api-client/dispatch.ts` · `work-orders.ts` · `notifications.ts` (502 on a malformed
   record, 503 live). Fixture-contract tests pin every cross-reference (cases, HR employees, the
@@ -674,7 +678,8 @@
   link goes to `/staff/ops`, where the work actually happens.
 - **Scope**: `cases:read` PROVISIONALLY (no `ai:*` token exists; the capability is the platform's
   `ai-orchestration` service). A reader without `scheduling:read` gets the chapel calendar named
-  as missing, never as an empty day. Nav entry is in *Overview* after Reports.
+  as missing, never as an empty day. AI Copilot left the curated rail in the 2026-10-02 revision
+  and is reached from the workspace-topbar `Copilot` chip.
 - The page is in `tests/unit/reading-budget.test.tsx` (a copilot answer is read at a glance too).
   Evidence, Lighthouse numbers and the shot list: `docs/08-delivery/ai-copilot-design/`.
 

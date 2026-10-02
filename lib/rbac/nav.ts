@@ -3,16 +3,16 @@
  * `scopes: [{module}:{action}]`). Nav gating is UX only — authorization is
  * enforced at service boundaries regardless of what renders here.
  *
- * REVISIONED 2026-10-02 (the admin portal plan, wave 1). The groups are now
- * named by the question the admin is asking — Today · Families & inquiries ·
- * Orders & commerce · Pages & content · Park & services · Finance · Settings &
- * admin — and Today leads. Every route that existed before still exists; the
- * changes are group names/order, four renames (Customers→Families,
- * Catalog→Products, Schedule→Schedule & chapel, and Reports moved from Overview
- * into Finance beside the money it reads) and one new destination, Calendar.
- * Wave 2 added Inbox (`/staff/inbox`, §9.6); the plan's remaining brand-new admin
- * screens (Media library, Memorials admin, Preparation list) land as they are built;
- * none is added here as a dead link.
+ * REVISIONED 2026-10-02 (the admin portal plan; the captain asked for the plan's
+ * own revision, not just a regroup). The seven groups are named by the question
+ * the admin is asking and Today leads. Every route that existed before still
+ * resolves — the changes are group names/order, the merge of Notifications into
+ * the Inbox (the durable family/agent threads, §9.6), Reports moving into Finance
+ * beside the money, and the plan additions (Inbox · Memorials · Media library ·
+ * Preparation). Work orders and AI Copilot leave the curated rail but keep their
+ * routes: work orders are opened from the calendar and the needs-you queue, and
+ * AI Copilot from the workspace topbar. Nothing is deleted and no screen is left
+ * without a door.
  *
  * Scope semantics: an item is visible when the session holds AT LEAST ONE of
  * its required scopes. Scope reuse is provisional (commented) until each
@@ -38,41 +38,34 @@ export const STAFF_NAV: NavSection[] = [
     label: "Today",
     items: [
       { href: "/staff/dashboard", label: "Dashboard", scopes: [] },
-      // The unified calendar (admin plan wave 1). It reads the scheduling,
-      // dispatch, burial, billing and work-order stores, so the scheduling
-      // scope is the one it needs; the page prints what it could not read.
+      // The unified calendar: the scheduling, dispatch, burial, billing and
+      // work-order stores, so the scheduling scope is the one it needs; the page
+      // prints what it could not read.
       { href: "/staff/calendar", label: "Calendar", scopes: ["scheduling:read"] },
-      // No frozen notification scope yet — reuses cases:read provisionally (same
-      // precedent as Relationships) until the notification contract brings its scope.
-      { href: "/staff/notifications", label: "Notifications", scopes: ["cases:read"] },
-      // The Admin Inbox (the admin plan's chat, §9.6): the durable family/agent ↔
-      // office threads. cases:read lists; cases:write sends (both provisional reuses
-      // while rbac-scopes-v1 names no messaging code). The layout decorates this item
-      // with the office's unread count; the item itself declares none.
+      // The Inbox (the admin plan's chat, §9.6): the durable family/agent ↔ office
+      // threads, which the layout decorates with the office's unread count. It is
+      // also the notice surface the dashboard's triaged queue feeds (notifications ·
+      // family requests · inquiries · payments), so a family's message and a due
+      // payment share one door. cases:read lists; cases:write sends (both provisional
+      // reuses while rbac-scopes-v1 names no messaging code).
       { href: "/staff/inbox", label: "Inbox", scopes: ["cases:read"] },
-      // AI Copilot (PRD S29) — the DESIGNED surface only: no model provider is
-      // configured and the governance contract that would attach one is an open client
-      // question (lib/copilot.ts carries the boundary; the screen prints it). Provisional
-      // scope: rbac-scopes-v1 names no ai:* code and the capability belongs to the
-      // platform's ai-orchestration service, so this reuses cases:read — every answer the
-      // page gives is a statement about case records. The chapel calendar inside it needs
-      // scheduling:read on top, and the page says so when a reader lacks it.
-      { href: "/staff/copilot", label: "AI Copilot", scopes: ["cases:read"] },
     ],
   },
   {
     label: "Families & inquiries",
     items: [
-      // NOTE: permission codes are provisional until the crm-families contract
-      // freezes its own RBAC entries; reusing cases:* avoids inventing scopes.
+      // Permission codes are provisional until crm-families freezes its own RBAC
+      // entries; reusing cases:* avoids inventing scopes.
       { href: "/staff/customers", label: "Families", scopes: ["cases:read"] },
       { href: "/staff/inquiries", label: "Inquiries", scopes: ["cases:read"] },
       { href: "/staff/pipeline", label: "Sales pipeline", scopes: ["cases:read"] },
       // Membership application folio (F-18 / FORMS_PLAN gap 4). Provisional scope:
       // rbac-scopes-v1 names no membership/plan-holder code, so this reuses the
-      // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes
-      // (the page says so). Never invent a token the guard cannot match.
+      // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes.
       { href: "/staff/plans/membership", label: "Memberships", scopes: ["catalog:write"] },
+      // The published memorials the office holds — the family's consent switch is
+      // the reader's gate, so this is a family record; it reuses cases:read.
+      { href: "/staff/memorials", label: "Memorials", scopes: ["cases:read"] },
     ],
   },
   {
@@ -82,29 +75,28 @@ export const STAFF_NAV: NavSection[] = [
       // The item catalogue: casket models · packages · service lines. The label
       // reads "Products" (the admin's own word); the route and editor are unchanged.
       { href: "/staff/catalog", label: "Products", scopes: ["catalog:read"] },
-      // ONE rate source (Phase 4 nav consolidation): the plan tiers AND the lot
-      // families edit one pricing document, so they share this home. /staff/plans
-      // redirects here; the membership folio keeps its own nested route below.
+      // ONE rate source: the plan tiers AND the lot families edit one pricing
+      // document. /staff/plans redirects here; the membership folio nests below.
       { href: "/staff/pricing", label: "Pricing rules", scopes: ["catalog:write"] },
       // Inventory gates on catalog:write (admin-manage) rather than catalog:read —
       // the customer persona holds catalog:read for the storefront.
       { href: "/staff/inventory", label: "Inventory", scopes: ["catalog:write"] },
-      // Commission (captain checklist F-12): no commission scope exists in
-      // rbac-scopes-v1 and the engine is deferred platform scope, so the screen
-      // reuses billing:read provisionally — commission statements/payouts are
-      // the finance module (finance-billing.md §Commissions).
+      // Commission (F-12): no commission scope exists in rbac-scopes-v1, so the
+      // screen reuses billing:read provisionally — statements/payouts are finance.
       { href: "/staff/commission", label: "Commission", scopes: ["billing:read"] },
     ],
   },
   {
     label: "Pages & content",
     items: [
-      // The page home: every public surface's page document (content-catalogue
-      // Phase 1 + the admin plan's seven new surfaces). ONE content editor
+      // The page home: every public surface's page document. ONE content editor
       // (captain, 2026-09-18): /staff/store redirects here. Gates on catalog:write
       // provisionally (front-end CMS seam) until the content contract freezes its
-      // own scope. The label stays "Pages & content" (captain-approved).
-      { href: "/staff/landing", label: "Pages & content", scopes: ["catalog:write"] },
+      // own scope.
+      { href: "/staff/landing", label: "Every public page", scopes: ["catalog:write"] },
+      // The shipped assets a staff editor may attach: upload once, reference by
+      // URL. Media uploads otherwise need D7 public-web media.
+      { href: "/staff/media", label: "Media library", scopes: ["catalog:write"] },
     ],
   },
   {
@@ -112,17 +104,19 @@ export const STAFF_NAV: NavSection[] = [
     items: [
       { href: "/staff/property", label: "Property map", scopes: ["property:read"] },
       { href: "/staff/schedule", label: "Schedule & chapel", scopes: ["scheduling:read"] },
-      // The morning screen (blueprint §36, facilities-scheduling.md): every case in the
-      // lane of the stage it is in, with the case screen's own two writes. Gates on
-      // cases:read like its siblings; the move/tick controls need cases:write.
-      { href: "/staff/ops", label: "Operations board", scopes: ["cases:read"] },
       { href: "/staff/cases", label: "Cases", scopes: ["cases:read"] },
+      // The morning screen (blueprint §36): every case in the lane of the stage it
+      // is in, with the case screen's own two writes. cases:read like its siblings;
+      // the move/tick controls need cases:write.
+      { href: "/staff/ops", label: "Operations board", scopes: ["cases:read"] },
       // Dispatch reuses scheduling:read (vehicles are scheduling resources) until a
-      // dedicated scope freezes; work orders reuse property:read (lot maintenance).
+      // dedicated scope freezes.
       { href: "/staff/dispatch", label: "Vehicle dispatch", scopes: ["scheduling:read"] },
-      { href: "/staff/work-orders", label: "Work orders", scopes: ["property:read"] },
+      // The embalming / preparation lane across every open case (PROVISIONAL
+      // recorded fixture; no preparation contract). cases:read, like the case it
+      // belongs to.
+      { href: "/staff/preparation", label: "Preparation", scopes: ["cases:read"] },
       { href: "/staff/hr", label: "Staff directory", scopes: ["hr:read"] },
-      { href: "/staff/documents", label: "Documents", scopes: ["documents:read"] },
     ],
   },
   {
@@ -148,13 +142,15 @@ export const STAFF_NAV: NavSection[] = [
     label: "Settings & admin",
     items: [
       { href: "/staff/users", label: "Users & roles", scopes: ["identity:users:manage"] },
-      // Workflows and Tenant settings are the designed read-only admin screens (S31/S32):
-      // recorded process definitions + in-flight records, and the park's applied
-      // configuration. Scopes are provisional until the config-engine contracts freeze;
+      // Workflows and Tenant settings are the designed read-only admin screens
+      // (S31/S32). Scopes are provisional until the config-engine contracts freeze;
       // tenants:manage keeps them admin-only.
       { href: "/staff/workflows", label: "Workflows", scopes: ["tenancy:tenants:manage"] },
       { href: "/staff/audit", label: "Audit trail", scopes: ["audit:events:read"] },
       { href: "/staff/settings", label: "Tenant settings", scopes: ["tenancy:tenants:manage"] },
+      // The document repository (frozen documents-api-v1 read): the office's papers
+      // live with the park's configuration, not with the grounds.
+      { href: "/staff/documents", label: "Documents", scopes: ["documents:read"] },
     ],
   },
 ];

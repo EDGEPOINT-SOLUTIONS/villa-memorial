@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { ErrorState } from "@/components/ui/states";
 import { NeedsYou } from "@/components/staff/needs-you";
@@ -10,10 +8,11 @@ import { PaymentAlertBand } from "./payment-alert-band";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { getDashboardSummary, type DashboardSummary } from "@/lib/api-client/reporting";
-import { listBookings } from "@/lib/api-client/scheduling";
 import { listInquiries, type Inquiry } from "@/lib/api-client/crm";
 import { listFixtureAdminOrders, type AdminOrder } from "@/lib/api-client/order-store";
 import { loadWorkOrders, type WorkOrderList } from "@/lib/api-client/work-orders";
+import { listFamilyRequests, type FamilyRequest } from "@/lib/api-client/family";
+import { listDocuments, type Document } from "@/lib/api-client/documents";
 import { loadStaffCalendar } from "@/lib/api-client/staff-calendar";
 import { buildNeedsYou } from "@/lib/staff-queue";
 import { isCalendarDate } from "@/lib/chapel-booking";
@@ -23,21 +22,76 @@ import { formatMinorUnits } from "@/lib/money";
 export const metadata = { title: "Dashboard — Admin Portal" };
 
 /**
- * Staff dashboard — villa-memorial design grammar: clickable KPI tiles, a
- * "business at a glance" visual strip (status breakdown bars + finance), then
- * glance tables (upcoming services / active cases). Everything is aggregated
- * from the SAME clients the screens use, so the dashboard can never contradict
- * a screen. Permission-gated: each figure only renders for a session that could
- * open its source screen.
+ * Staff dashboard — the admin-plan board's composition (captain, 2026-10-02).
+ *
+ * One screen answers the office's morning questions in reading order: the
+ * greeting and its quick actions, five figures that lead, the cross-record
+ * “Needs you today” queue, the payment notification bands, then the labelled
+ * calendar whose days open their whole detail. Figures lead and records follow;
+ * there is no paragraph wall and no decorative chart.
+ *
+ * Every figure is a read of the SAME client its own screen uses, so the dashboard
+ * can never contradict a screen, and each source is read only for a session that
+ * could open it — a store that fails contributes nothing rather than a guess.
  */
 
-function pct(part: number, whole: number): number {
-  return whole > 0 ? Math.round((part / whole) * 1000) / 10 : 0;
+function parkDateLabel(now: Date): string {
+  return new Intl.DateTimeFormat("en-PH", {
+    timeZone: "Asia/Manila",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(now);
 }
 
-function Segment({ value, tone }: { value: number; tone: string }) {
-  if (value <= 0) return null;
-  return <span className={`stackbar__seg seg--${tone}`} style={{ width: `${value}%` }} />;
+function parkGreeting(now: Date): string {
+  const hour = Number(
+    new Intl.DateTimeFormat("en-GB", {
+      timeZone: "Asia/Manila",
+      hour: "2-digit",
+      hour12: false,
+    }).format(now),
+  );
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+}
+
+/** How long a record has waited, from its own recorded instant. */
+function ageLabel(iso: string, now: Date): string {
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return "unknown";
+  const hours = Math.max(0, Math.floor((now.getTime() - t) / 3_600_000));
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function KpiTile({
+  href,
+  label,
+  value,
+  sub,
+  badge,
+  tone,
+}: {
+  href: string;
+  label: string;
+  value: string | number;
+  sub: string;
+  badge?: string;
+  tone?: "neutral" | "success" | "warning" | "danger" | "info";
+}) {
+  return (
+    <Link href={href} className="card kpi-card">
+      <div className="kpi-card__body">
+        <div className="kpi-card__label">{label}</div>
+        <div className="kpi-card__value">{value}</div>
+        <div className="kpi-card__sub">{sub}</div>
+      </div>
+      {badge ? <Badge tone={tone ?? "neutral"}>{badge}</Badge> : null}
+    </Link>
+  );
 }
 
 export default async function StaffDashboardPage({
@@ -53,8 +107,10 @@ export default async function StaffDashboardPage({
   const canSeeFinance = hasAnyScope(session.scopes, ["billing:read", "accounting:read"]);
   const canSeeSchedule = hasAnyScope(session.scopes, ["scheduling:read"]);
   const canSeeOrders = hasAnyScope(session.scopes, ["orders:read"]);
+  const canSeeDocuments = hasAnyScope(session.scopes, ["documents:read"]);
 
   const params = await searchParams;
+  const now = new Date();
 
   let summary: DashboardSummary | null = null;
   let summaryFailed = false;
@@ -66,21 +122,6 @@ export default async function StaffDashboardPage({
     }
   }
 
-  let upcoming: Awaited<ReturnType<typeof listBookings>> | null = null;
-  if (canSeeSchedule) {
-    try {
-      const all = await listBookings();
-      upcoming = all
-        .filter((b) => b.status === "confirmed" && new Date(b.ends_at) >= new Date())
-        .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
-        .slice(0, 5);
-    } catch {
-      upcoming = null;
-    }
-  }
-
-  // The cross-record queue's sources (admin plan wave 1) — each read only for a
-  // session that could open its own screen, each failing alone.
   let inquiries: Inquiry[] = [];
   if (canSeeCases) {
     try {
@@ -105,21 +146,27 @@ export default async function StaffDashboardPage({
       workOrders = null;
     }
   }
+  let familyRequests: FamilyRequest[] = [];
+  if (canSeeCases) {
+    try {
+      familyRequests = await listFamilyRequests();
+    } catch {
+      familyRequests = [];
+    }
+  }
+  let documents: Document[] = [];
+  if (canSeeDocuments) {
+    try {
+      documents = await listDocuments();
+    } catch {
+      documents = [];
+    }
+  }
 
   const calendar = canSeeSchedule ? await loadStaffCalendar(session.scopes) : null;
 
-  const today = new Date().toLocaleDateString(undefined, {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
-  const lots = summary?.lots;
-  const cases = summary?.cases;
   const finance = summary?.finance;
   const paymentAlerts = summary?.payment_alerts ?? null;
-  const casesOther = cases ? cases.total - cases.active - cases.completed : 0;
 
   const calendarAnchor = calendar?.anchor || parkToday();
   const selectedDate =
@@ -144,253 +191,148 @@ export default async function StaffDashboardPage({
     inquiries,
     orders,
     workOrders,
+    familyRequests,
+    documents,
     servicesToday,
   });
+
+  // The five figures, derived from the same records the queue reads.
+  const openRequests = familyRequests.filter((r) => r.state !== "done");
+  const waitingOnYou = openRequests.filter((r) => r.state === "waiting_on_you").length;
+  const newInquiries = inquiries.filter((i) => i.status === "new");
+  const fulfilOrders = orders.filter(
+    (o) => o.lifecycle_status === "new" || o.lifecycle_status === "confirmed",
+  );
+  const newOrders = orders.filter((o) => o.lifecycle_status === "new").length;
+  const confirmedOrders = orders.filter((o) => o.lifecycle_status === "confirmed").length;
+  const dueNearest = paymentAlerts?.due_soon.length
+    ? Math.min(...paymentAlerts.due_soon.map((a) => a.days_until_due))
+    : null;
+  const overdueWorst = paymentAlerts?.overdue.length
+    ? Math.max(...paymentAlerts.overdue.map((a) => Math.abs(a.days_until_due)))
+    : null;
+
+  const dateLabel = parkDateLabel(now);
+  const needsCount = queue.length;
+  const needsLabel =
+    needsCount === 0
+      ? "nothing needs you today"
+      : needsCount === 1
+        ? "1 thing needs you today"
+        : `${needsCount} things need you today`;
 
   return (
     <>
       <PageHeader
         eyebrow="Overview"
-        title={`Good day, ${firstName}`}
-        lead="Today's work across cases, lots, finance and the chapel."
+        title={`${parkGreeting(now)}, ${firstName}`}
+        lead={`${dateLabel} · ${needsLabel}`}
         actions={
-          <span className="text-sm text-muted">
-            {today} ·{" "}
-            <Badge tone="accent">Admin view</Badge>
-          </span>
+          <div className="row row--wrap">
+            <Link href="/staff/cases/new" className="btn btn--primary btn--sm">
+              + New case
+            </Link>
+            <Link href="/staff/billing/record-payment" className="btn btn--secondary btn--sm">
+              Record a payment
+            </Link>
+          </div>
         }
       />
 
-      {/* Red payment alert — dues two days out and past, from the shared two-day rule */}
-      {canSeeFinance && paymentAlerts ? <PaymentAlertBand summary={paymentAlerts} /> : null}
-
-      {/* KPI tiles — at-a-glance numbers */}
+      {/* Five figures lead — each the same read its own screen makes. */}
       <div className="kpi-grid">
-        {canSeeCases && cases ? (
-          <Link href="/staff/cases" className="card kpi-card">
-            <div className="kpi-card__body">
-              <div className="kpi-card__label">Active cases</div>
-              <div className="kpi-card__value">{cases.active}</div>
-              <div className="kpi-card__sub">
-                {cases.completed} completed · {cases.new_today} new today
-              </div>
-            </div>
-            <ArrowUpRight size={18} className="kpi-card__arrow" aria-hidden="true" />
-          </Link>
+        {canSeeCases ? (
+          <KpiTile
+            href="/staff/customers"
+            label="Family requests"
+            value={openRequests.length}
+            sub={`${waitingOnYou} waiting on the family`}
+            badge={openRequests.length > 0 ? "needs you" : undefined}
+            tone="warning"
+          />
         ) : null}
-
-        {canSeeLots && lots ? (
-          <Link href="/staff/property" className="card kpi-card">
-            <div className="kpi-card__body">
-              <div className="kpi-card__label">Available lots</div>
-              <div className="kpi-card__value">{lots.available}</div>
-              <div className="kpi-card__sub">
-                of {lots.total} lots · {lots.reserved} reserved
-              </div>
-            </div>
-            <ArrowUpRight size={18} className="kpi-card__arrow" aria-hidden="true" />
-          </Link>
+        {canSeeCases ? (
+          <KpiTile
+            href="/staff/inquiries"
+            label="New inquiries"
+            value={newInquiries.length}
+            sub={
+              newInquiries.length > 0
+                ? `oldest ${ageLabel(newInquiries[0].received_at, now)}`
+                : "none waiting"
+            }
+            badge={newInquiries.length > 0 ? "new" : undefined}
+            tone="info"
+          />
         ) : null}
-
+        {canSeeOrders ? (
+          <KpiTile
+            href="/staff/orders"
+            label="Orders to fulfil"
+            value={fulfilOrders.length}
+            sub={`${newOrders} new · ${confirmedOrders} confirmed`}
+            badge={fulfilOrders.length > 0 ? "queue" : undefined}
+            tone="neutral"
+          />
+        ) : null}
         {canSeeFinance && finance ? (
-          <Link href="/staff/billing" className="card kpi-card">
-            <div className="kpi-card__body">
-              <div className="kpi-card__label">Overdue accounts</div>
-              <div className="kpi-card__value">{finance.overdue_count}</div>
-              <div className="kpi-card__sub">of {finance.total_invoices} invoices</div>
-            </div>
-            <ArrowUpRight size={18} className="kpi-card__arrow" aria-hidden="true" />
-          </Link>
+          <KpiTile
+            href="/staff/billing"
+            label="Payments due"
+            value={
+              paymentAlerts ? formatMinorUnits(paymentAlerts.due_soon_cents, finance.currency) : "—"
+            }
+            sub={
+              paymentAlerts && paymentAlerts.due_soon_count > 0
+                ? `${paymentAlerts.due_soon_count} account${paymentAlerts.due_soon_count === 1 ? "" : "s"} · nearest ${dueNearest} day${dueNearest === 1 ? "" : "s"}`
+                : "nothing in the two-day window"
+            }
+            badge={paymentAlerts && paymentAlerts.due_soon_count > 0 ? "due soon" : undefined}
+            tone="warning"
+          />
         ) : null}
-
         {canSeeFinance && finance ? (
-          <Link href="/staff/billing" className="card kpi-card">
-            <div className="kpi-card__body">
-              <div className="kpi-card__label">Receivables</div>
-              <div className="kpi-card__value">
-                {formatMinorUnits(finance.total_outstanding_cents, finance.currency)}
-              </div>
-              <div className="kpi-card__sub">total outstanding balance</div>
-            </div>
-            <ArrowUpRight size={18} className="kpi-card__arrow" aria-hidden="true" />
-          </Link>
+          <KpiTile
+            href="/staff/billing"
+            label="Overdue"
+            value={paymentAlerts ? formatMinorUnits(paymentAlerts.overdue_cents, finance.currency) : "—"}
+            sub={
+              paymentAlerts && paymentAlerts.overdue_count > 0
+                ? `${paymentAlerts.overdue_count} account${paymentAlerts.overdue_count === 1 ? "" : "s"} · worst ${overdueWorst} day${overdueWorst === 1 ? "" : "s"}`
+                : "nothing overdue"
+            }
+            badge={paymentAlerts && paymentAlerts.overdue_count > 0 ? "overdue" : undefined}
+            tone="danger"
+          />
         ) : null}
       </div>
 
-      {/* Needs you today — the cross-record work queue (admin plan wave 1) */}
+      {/* Needs you today — the cross-record work queue. */}
       <PageSection>
         <div className="row row--space row--wrap">
           <h2 className="page-section-title">Needs you today</h2>
           <span className="text-sm text-muted">
-            {queue.length} item{queue.length === 1 ? "" : "s"} across payments, requests, orders and tasks
+            {queue.length} item{queue.length === 1 ? "" : "s"} across payments, requests,
+            inquiries, orders and documents
           </span>
         </div>
-        <NeedsYou rows={queue} limit={6} />
+        <NeedsYou rows={queue} limit={8} />
       </PageSection>
 
-      {/* Business at a glance — visual breakdowns */}
-      <PageSection>
-        <h2 className="page-section-title">Business at a glance</h2>
-        <div className="glance-grid">
-          {canSeeCases && cases ? (
-            <Card header={<h3>Cases</h3>}>
-              <div className="stackbar" role="img" aria-label="Case status breakdown">
-                <Segment value={pct(cases.active, cases.total)} tone="info" />
-                <Segment value={pct(cases.completed, cases.total)} tone="success" />
-                <Segment value={pct(casesOther, cases.total)} tone="neutral" />
-              </div>
-              <div className="legend">
-                <span className="legend__item">
-                  <i className="dot dot--info" /> Active · {cases.active}
-                </span>
-                <span className="legend__item">
-                  <i className="dot dot--success" /> Completed · {cases.completed}
-                </span>
-                {casesOther > 0 ? (
-                  <span className="legend__item">
-                    <i className="dot dot--neutral" /> Other · {casesOther}
-                  </span>
-                ) : null}
-              </div>
-            </Card>
-          ) : null}
+      {/* Payment notifications — the two bands the board draws. */}
+      {canSeeFinance && paymentAlerts ? <PaymentAlertBand summary={paymentAlerts} /> : null}
 
-          {canSeeLots && lots ? (
-            <Card header={<h3>Memorial lots</h3>}>
-              <div className="stackbar" role="img" aria-label="Lot status breakdown">
-                <Segment value={pct(lots.available, lots.total)} tone="success" />
-                <Segment value={pct(lots.reserved, lots.total)} tone="warning" />
-                <Segment value={pct(lots.sold, lots.total)} tone="info" />
-                <Segment value={pct(lots.occupied, lots.total)} tone="neutral" />
-              </div>
-              <div className="legend">
-                <span className="legend__item">
-                  <i className="dot dot--success" /> Available · {lots.available}
-                </span>
-                <span className="legend__item">
-                  <i className="dot dot--warning" /> Reserved · {lots.reserved}
-                </span>
-                <span className="legend__item">
-                  <i className="dot dot--info" /> Sold · {lots.sold}
-                </span>
-                <span className="legend__item">
-                  <i className="dot dot--neutral" /> Occupied · {lots.occupied}
-                </span>
-              </div>
-            </Card>
-          ) : null}
-
-          {canSeeFinance && finance ? (
-            <Card header={<h3>Finance</h3>}>
-              <div className="finance-glance">
-                <div className="finance-glance__main">
-                  <span className="finance-glance__label">Outstanding</span>
-                  <strong className="finance-glance__amount">
-                    {formatMinorUnits(finance.total_outstanding_cents, finance.currency)}
-                  </strong>
-                </div>
-                <div className="finance-glance__row">
-                  <span>Invoices</span>
-                  <strong>{finance.total_invoices}</strong>
-                </div>
-                <div className="finance-glance__row">
-                  <span>Overdue</span>
-                  <strong>{finance.overdue_count}</strong>
-                </div>
-                <div className="finance-glance__row">
-                  <span>Collected this month</span>
-                  <strong>
-                    {finance.collections_this_month_cents === null ? (
-                      <span className="text-muted" title="Needs payment history — the invoice list does not carry it">
-                        —
-                      </span>
-                    ) : (
-                      formatMinorUnits(finance.collections_this_month_cents, finance.currency)
-                    )}
-                  </strong>
-                </div>
-              </div>
-            </Card>
-          ) : null}
-        </div>
-      </PageSection>
-
-      {/* Glance tables */}
-      {canSeeSchedule && upcoming && upcoming.length > 0 ? (
+      {/* The labelled calendar — every recorded day type, click a day for detail. */}
+      {calendar ? (
         <PageSection>
-          <div className="split-grid">
-            <Card
-              header={
-                <div className="row row--space">
-                  <h3>Upcoming services</h3>
-                  <Link href="/staff/schedule" className="text-sm link-muted">
-                    View schedule
-                  </Link>
-                </div>
-              }
-            >
-              <div className="table-wrapper" tabIndex={0}>
-                <table className="table">
-                  <tbody>
-                    {upcoming.map((b) => (
-                      <tr key={b.id}>
-                        <td>
-                          <div className="table__name">{b.title}</div>
-                          <div className="table__sub">{b.resource_name}</div>
-                        </td>
-                        <td className="nowrap">
-                          {new Date(b.starts_at).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                          })}{" "}
-                          ·{" "}
-                          {new Date(b.starts_at).toLocaleTimeString(undefined, {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
-                        </td>
-                        <td>
-                          {b.conflicting ? <Badge tone="danger">overlap</Badge> : <Badge tone="info">booked</Badge>}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            {canSeeCases && cases ? (
-              <Card
-                header={
-                  <div className="row row--space">
-                    <h3>Active cases</h3>
-                    <Link href="/staff/cases" className="text-sm link-muted">
-                      View cases
-                    </Link>
-                  </div>
-                }
-              >
-                <div className="finance-glance">
-                  <div className="finance-glance__row">
-                    <span>Active now</span>
-                    <strong>{cases.active}</strong>
-                  </div>
-                  <div className="finance-glance__row">
-                    <span>Completed</span>
-                    <strong>{cases.completed}</strong>
-                  </div>
-                  <div className="finance-glance__row">
-                    <span>New today</span>
-                    <strong>{cases.new_today}</strong>
-                  </div>
-                  <div className="finance-glance__row">
-                    <span>Total</span>
-                    <strong>{cases.total}</strong>
-                  </div>
-                </div>
-              </Card>
-            ) : null}
-          </div>
+          <UnifiedCalendar
+            month={calendarMonth}
+            selectedDate={selectedDate}
+            items={calendar.items}
+            today={parkToday()}
+            hrefFor={calendarHrefFor}
+            heading="The calendar, with every day type named"
+          />
         </PageSection>
       ) : null}
 
@@ -400,21 +342,7 @@ export default async function StaffDashboardPage({
         </PageSection>
       ) : null}
 
-      {/* The labelled calendar — every recorded day type, click a day for detail */}
-      {calendar ? (
-        <PageSection>
-          <UnifiedCalendar
-            month={calendarMonth}
-            selectedDate={selectedDate}
-            items={calendar.items}
-            today={parkToday()}
-            hrefFor={calendarHrefFor}
-            heading="The calendar"
-          />
-        </PageSection>
-      ) : null}
-
-      {/* Session details — kept compact at the bottom */}
+      {/* Session details — kept compact at the bottom. */}
       <PageSection>
         <details className="card details-card">
           <summary className="card__header">

@@ -12,16 +12,20 @@
  */
 import type { PaymentAlertSummary } from "@/lib/payment-alerts";
 import type { Inquiry } from "@/lib/api-client/crm";
+import type { FamilyRequest } from "@/lib/api-client/family";
+import type { Document } from "@/lib/api-client/documents";
 import { ORDER_LIFECYCLE_LABEL, type AdminOrder } from "@/lib/api-client/order-store";
 import { workOrderList } from "@/lib/work-orders";
 import type { WorkOrderList } from "@/lib/api-client/work-orders";
 
-export type QueueKind = "payment" | "family" | "order" | "task" | "service";
+export type QueueKind = "payment" | "family" | "inquiry" | "order" | "document" | "task" | "service";
 
 export const QUEUE_KIND_LABEL: Record<QueueKind, string> = {
   payment: "Payment",
   family: "Family request",
+  inquiry: "Inquiry",
   order: "Order",
+  document: "Document",
   task: "Task",
   service: "Service",
 };
@@ -31,7 +35,9 @@ export type QueueTone = "danger" | "warning" | "info" | "neutral" | "success";
 export const QUEUE_KIND_TONE: Record<QueueKind, QueueTone> = {
   payment: "danger",
   family: "warning",
+  inquiry: "info",
   order: "neutral",
+  document: "success",
   task: "info",
   service: "success",
 };
@@ -58,6 +64,8 @@ export type NeedsYouInput = {
   inquiries?: readonly Inquiry[];
   orders?: readonly AdminOrder[];
   workOrders?: WorkOrderList | null;
+  familyRequests?: readonly FamilyRequest[];
+  documents?: readonly Document[];
   servicesToday?: ReadonlyArray<{ id: string; title: string; detail: string; href: string | null }>;
 };
 
@@ -106,7 +114,7 @@ export function buildNeedsYou(input: NeedsYouInput): QueueRow[] {
     if (!OPEN_INQUIRY_STATES.includes(inquiry.status)) continue;
     rows.push({
       id: `inquiry-${inquiry.id}`,
-      kind: "family",
+      kind: "inquiry",
       title: inquiry.person.full_name,
       detail: inquiry.topic || inquiry.message.slice(0, 60),
       waiting: inquiry.status === "new" ? "new" : inquiry.status,
@@ -114,6 +122,40 @@ export function buildNeedsYou(input: NeedsYouInput): QueueRow[] {
       href: "/staff/inquiries",
       tone: inquiry.status === "new" ? "warning" : "info",
       rank: inquiry.status === "new" ? 2 : 6,
+    });
+  }
+
+  // The family's own recorded requests (listFamilyRequests) — a request the office
+  // has not finished is the office's to close. A finished request never queues.
+  for (const request of input.familyRequests ?? []) {
+    if (request.state === "done") continue;
+    rows.push({
+      id: `request-${request.id}`,
+      kind: "family",
+      title: request.title,
+      detail: request.detail,
+      waiting: request.state === "waiting_on_you" ? "waiting on you" : "with the office",
+      owner: request.state === "waiting_on_you" ? "Family" : "Office",
+      href: "/staff/customers",
+      tone: request.state === "waiting_on_you" ? "warning" : "info",
+      rank: 2,
+    });
+  }
+
+  // A document still in review is a filing the office must clear; an approved or
+  // uploaded one is not a queue item.
+  for (const document of input.documents ?? []) {
+    if (document.status !== "pending_review") continue;
+    rows.push({
+      id: `document-${document.id}`,
+      kind: "document",
+      title: document.document_number,
+      detail: document.title,
+      waiting: "pending review",
+      owner: document.uploaded_by || "Documents",
+      href: "/staff/documents",
+      tone: "success",
+      rank: 5,
     });
   }
 

@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { activeNavHref, hasAnyScope, STAFF_NAV, visibleNav } from "@/lib/rbac/nav";
 
 const STAFF_SCOPES = [
@@ -52,6 +55,8 @@ describe("visibleNav", () => {
     expect(staff).toContain("Families"); // Families & inquiries section (cases:read)
     expect(staff).toContain("Inquiries");
     expect(staff).toContain("Calendar"); // the unified calendar (scheduling:read)
+    expect(staff).toContain("Inbox"); // the triage list (cases:read)
+    expect(staff).toContain("Memorials"); // the published memorials (cases:read)
     expect(staff).not.toContain("Users & roles");
     expect(staff).not.toContain("Audit trail");
 
@@ -62,6 +67,85 @@ describe("visibleNav", () => {
   it("always shows scope-free items and hides empty sections", () => {
     const none = visibleNav([]);
     expect(labels(none)).toEqual(["Dashboard"]);
+  });
+});
+
+describe("the revisioned IA (admin plan, 2026-10-02)", () => {
+  const section = (label: string) =>
+    STAFF_NAV.find((s) => s.label === label)?.items.map((i) => i.label) ?? [];
+
+  it("leads with Today and names the seven groups in the board's order", () => {
+    expect(STAFF_NAV.map((s) => s.label)).toEqual([
+      "Today",
+      "Families & inquiries",
+      "Orders & commerce",
+      "Pages & content",
+      "Park & services",
+      "Finance",
+      "Settings & admin",
+    ]);
+  });
+
+  it("matches the board's items group by group", () => {
+    expect(section("Today")).toEqual(["Dashboard", "Calendar", "Inbox"]);
+    expect(section("Families & inquiries")).toEqual([
+      "Families",
+      "Inquiries",
+      "Sales pipeline",
+      "Memberships",
+      "Memorials",
+    ]);
+    expect(section("Orders & commerce")).toEqual([
+      "Orders",
+      "Products",
+      "Pricing rules",
+      "Inventory",
+      "Commission",
+    ]);
+    expect(section("Pages & content")).toEqual(["Every public page", "Media library"]);
+    expect(section("Park & services")).toEqual([
+      "Property map",
+      "Schedule & chapel",
+      "Cases",
+      "Operations board",
+      "Vehicle dispatch",
+      "Preparation",
+      "Staff directory",
+    ]);
+    expect(section("Finance")).toEqual([
+      "Billing & collections",
+      "Accounting",
+      "Analytics",
+      "Reports",
+    ]);
+    expect(section("Settings & admin")).toEqual([
+      "Users & roles",
+      "Workflows",
+      "Audit trail",
+      "Tenant settings",
+      "Documents",
+    ]);
+  });
+
+  it("keeps every existing route's page file alive, even when it leaves the rail", () => {
+    const root = path.join(
+      fileURLToPath(new URL("../..", import.meta.url)),
+      "app",
+      "(staff)",
+      "staff",
+    );
+    for (const href of [
+      "/staff/dashboard",
+      "/staff/calendar",
+      "/staff/notifications",
+      "/staff/copilot",
+      "/staff/work-orders",
+      "/staff/cases",
+      "/staff/documents",
+    ]) {
+      const rel = href.replace("/staff/", "");
+      expect(existsSync(path.join(root, rel, "page.tsx")), href).toBe(true);
+    }
   });
 });
 

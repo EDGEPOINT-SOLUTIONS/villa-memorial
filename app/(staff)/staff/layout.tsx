@@ -9,6 +9,7 @@ import { portalForSession, portalHomeForSession } from "@/lib/auth/destination";
 import { BRAND_NAME } from "@/lib/brand";
 import { STAFF_NOTICES } from "@/lib/demo-notices";
 import { visibleNav } from "@/lib/rbac/nav";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 /**
@@ -54,6 +55,11 @@ export default async function StaffLayout({ children }: { children: React.ReactN
           <TenantSwitcher />
           <span className="chip">Demo</span>
           <NotificationBell to="/staff/notifications" notices={STAFF_NOTICES} />
+          {/* AI Copilot (PRD S29) left the curated rail in the 2026-10-02 revision
+              but keeps its route: the workspace topbar is its door, beside the bell. */}
+          <Link href="/staff/copilot" className="chip" aria-label="AI Copilot">
+            Copilot
+          </Link>
           <span className="topbar-avatar" aria-hidden="true">
             {session.displayName.charAt(0)}
           </span>

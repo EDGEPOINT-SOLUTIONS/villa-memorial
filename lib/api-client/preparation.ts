@@ -148,3 +148,17 @@ export async function getPreparationRecord(caseNumber: string): Promise<Preparat
   );
   return raw ? toPreparationRecord(raw) : null;
 }
+
+/**
+ * Every recorded preparation record, in the store's own order. This is the read
+ * the staff Preparation list uses; it is the same tolerant reader as the per-case
+ * screen and the same PROVISIONAL fixture, and live mode answers 503 for the same
+ * reason (no preparation contract is frozen).
+ */
+export async function listPreparationRecords(): Promise<PreparationRecord[]> {
+  if (operationsLiveModeEnabled()) {
+    throw new ApiError(PREPARATION_NOT_WIRED, 503);
+  }
+  const store = preparationFile as unknown as PreparationStore;
+  return (Array.isArray(store.records) ? store.records : []).map(toPreparationRecord);
+}
