@@ -4,7 +4,7 @@
  * enforced at service boundaries regardless of what renders here.
  *
  * REVISIONED 2026-10-02 (the admin portal plan; the captain asked for the plan's
- * own revision, not just a regroup). The seven groups are named by the question
+ * own revision, not just a regroup). The eight groups are named by the question
  * the admin is asking and Today leads. Every route that existed before still
  * resolves — the changes are group names/order, the merge of Notifications into
  * the Inbox (the durable family/agent threads, §9.6), Reports moving into Finance
@@ -26,6 +26,13 @@
  * the office edits. A single **Forms & documents** group gathers the office's
  * forms hub and the document repository. Sales pipeline keeps its route and is
  * opened from Agents.
+ *
+ * ADDED 2026-10-03 (the post-Prospect lifecycle). A new **Clients & records**
+ * group gathers the four outcomes a prospect becomes — Members · Services ·
+ * Garden lots · Products bought — each its own register of a plan membership, a
+ * booked service, a monthly-paid lot or a one-time sale. The group sits after
+ * Messages & inquiries and before Orders & commerce, so the office follows one
+ * person from enquiry to outcome without leaving the rail.
  *
  * Scope semantics: an item is visible when the session holds AT LEAST ONE of
  * its required scopes. Scope reuse is provisional (commented) until each
@@ -89,6 +96,21 @@ export const STAFF_NAV: NavSection[] = [
       // The published memorials the office holds — the family's consent switch is
       // the reader's gate, so this is a family record; it reuses cases:read.
       { href: "/staff/memorials", label: "Memorials", scopes: ["cases:read"] },
+    ],
+  },
+  {
+    label: "Clients & records",
+    items: [
+      // The post-Prospect lifecycle (captain, 2026-10-03): what a prospect became.
+      // Members is the plan register; Services the availed-service register (with its
+      // calendar sync); Garden lots the monthly-paid lot register; Products bought the
+      // one-time sales. All four read the one lifecycle store the Prospects conversion
+      // feeds, so a fact has one source. cases:read is the inquiries area's own
+      // provisional reuse; no lifecycle contract is frozen.
+      { href: "/staff/members", label: "Members", scopes: ["cases:read"] },
+      { href: "/staff/services", label: "Services", scopes: ["cases:read"] },
+      { href: "/staff/lots", label: "Garden lots", scopes: ["cases:read"] },
+      { href: "/staff/products", label: "Products bought", scopes: ["cases:read"] },
     ],
   },
   {

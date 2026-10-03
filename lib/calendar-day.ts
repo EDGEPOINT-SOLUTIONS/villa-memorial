@@ -39,6 +39,7 @@ export const CALENDAR_KINDS = [
   "light_pickup",
   "chapel",
   "trip",
+  "service",
   "payment_due",
   "work_order",
 ] as const;
@@ -50,6 +51,7 @@ export const CALENDAR_KIND_LABEL: Record<CalendarKind, string> = {
   light_pickup: "Light pickup",
   chapel: "Chapel booking",
   trip: "Vehicle trip",
+  service: "Service",
   payment_due: "Payment due",
   work_order: "Work order due",
 };
@@ -62,6 +64,7 @@ export const CALENDAR_KIND_TONE: Record<CalendarKind, CalendarTone> = {
   light_pickup: "neutral",
   chapel: "warning",
   trip: "neutral",
+  service: "success",
   payment_due: "danger",
   work_order: "success",
 };
@@ -72,8 +75,9 @@ export const CALENDAR_KIND_ORDER: Readonly<Record<CalendarKind, number>> = {
   light_pickup: 1,
   chapel: 2,
   trip: 3,
-  work_order: 4,
-  payment_due: 5,
+  service: 4,
+  work_order: 5,
+  payment_due: 6,
 };
 
 export type CalendarItem = {
@@ -96,10 +100,21 @@ export type CalendarComposeInput = {
   burials?: readonly BurialEntry[];
   bookings?: readonly Booking[];
   trips?: readonly DispatchTrip[];
+  /** Lifecycle service engagements: a booked service's own day and resource. */
+  services?: readonly CalendarService[];
   invoices?: readonly Invoice[];
   workOrders?: readonly WorkOrder[];
   /** The day the work-order overdue rule reads (the list's recorded `as_of`). */
   workOrderAsOf?: string;
+};
+
+/** The slice of a lifecycle engagement the calendar needs (one booked service). */
+export type CalendarService = {
+  id: string;
+  reference: string;
+  client: { name: string };
+  item: { name: string };
+  schedule: { on: string; time: string; resource_name: string; case_number: string | null } | null;
 };
 
 /* ------------------------------------------------------------------ */
@@ -176,6 +191,24 @@ export function composeCalendar(input: CalendarComposeInput): CalendarItem[] {
       detail: `${booking.resource_name}${booking.status === "cancelled" ? " · cancelled" : ""}`,
       href: "/staff/schedule",
       tone: CALENDAR_KIND_TONE.chapel,
+    });
+  }
+
+  for (const service of input.services ?? []) {
+    const schedule = service.schedule;
+    if (!schedule || !isCalendarDate(schedule.on)) continue;
+    items.push({
+      id: `service-${service.id}`,
+      date: schedule.on,
+      time: schedule.time || null,
+      kind: "service",
+      title: service.client.name,
+      detail: `${service.item.name} · ${schedule.resource_name}${
+        schedule.case_number ? ` · ${schedule.case_number}` : ""
+      }`,
+      // The calendar entry opens the client's service record (captain, 2026-10-03).
+      href: `/staff/lifecycle/${service.id}`,
+      tone: CALENDAR_KIND_TONE.service,
     });
   }
 

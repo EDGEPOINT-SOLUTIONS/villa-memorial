@@ -80,6 +80,7 @@ describe("the revisioned IA (admin plan, 2026-10-02)", () => {
     expect(STAFF_NAV.map((s) => s.label)).toEqual([
       "Today",
       "Messages & inquiries",
+      "Clients & records",
       "Orders & commerce",
       "Pages & content",
       "Park & services",
@@ -100,6 +101,16 @@ describe("the revisioned IA (admin plan, 2026-10-02)", () => {
       "Prospects",
       "Memberships",
       "Memorials",
+    ]);
+    // The post-Prospect lifecycle (captain, 2026-10-03): what a prospect became.
+    // Members is the plan register, Services the booked-service register (with its
+    // calendar sync), Garden lots the monthly-paid lot register, and Products bought
+    // the one-time sales. All four read the one lifecycle store.
+    expect(section("Clients & records")).toEqual([
+      "Members",
+      "Services",
+      "Garden lots",
+      "Products bought",
     ]);
     // Captain: "'Orders' 'Products and Service' 'Inventory' and ... Commission";
     // Cases moved here from Park & services ("the Cases should be under Orders and

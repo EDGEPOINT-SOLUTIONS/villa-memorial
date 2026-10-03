@@ -315,6 +315,32 @@ shape to this one and no screen changes.
 
 **Who can act.** The platform (freeze the field on `crm-families`).
 
+## 12. Platform ask — the post-Prospect lifecycle record (2026-10-03)
+
+**Status: OPEN — platform-owned.** The captain drew the line past the Prospect: an outcome is a
+plan membership, a booked service, a product sale or a monthly-paid garden lot, each with an
+amount, a payment term, an amortization and modular notices. No contract under
+`docs/08-delivery/contracts/` names such a record (crm-families, billing and scheduling each own
+only part of the picture — an inquiry/account, an invoice/installment, a booking), so the villa
+build added the app-authored lifecycle store (`lib/api-client/lifecycle-store.ts`, seed +
+append-only journal) with the pure model in `lib/lifecycle.ts`, read by the four registers
+(`/staff/members` · `/staff/services` · `/staff/lots` · `/staff/products`) and one shared
+accounting page (`/staff/lifecycle/[id]`). The engagement carries a `prospect_id` and `agent`, and
+`soldProspectsAwaiting()` folds the agent journal, so the pipeline and the register share one
+fact. `lifecycleLiveModeEnabled()` is always false — there is no live branch to fake. Record:
+[`admin-lifecycle-design/`](./admin-lifecycle-design/README.md).
+
+**What waits.** A frozen lifecycle / engagement resource (or, at minimum, a documented mapping
+onto the existing crm-families customer + billing installments + scheduling booking) naming the
+amount, the payment term, the installment schedule and the notice rules, plus a live read/write
+endpoint. When it lands, the store's live branch (or a validator over the wire shape) is written
+behind the flag and the screens are unchanged. The scope vocabulary should also gain a real
+`memberships:*` / `services:*` / `lots:*` code; the pages reuse `cases:read` / `cases:write`
+provisionally until then.
+
+**Who can act.** The platform (freeze the lifecycle record and its read/write contract, and the
+scope codes).
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
@@ -325,6 +351,8 @@ quote-page revisioning, captain D6-A) and §9 added (the contracts the family co
 exposes). Updated 2026-10-01 — §9's funeral row and the route coverage updated: the family
 arrangement is connected to the office's recorded case fixture. Updated 2026-10-02 — §10 added
 (the Prospects lifecycle's customer-records write/read and the agent-roster read); §11 added
-(the family account link a plan/lot inquiry needs, and its gate). The audit and
+(the family account link a plan/lot inquiry needs, and its gate). Updated 2026-10-03 — §12 added
+(the post-Prospect lifecycle record and its amortization/notices, fixture-mode pending a
+contract). The audit and
 the linked documents remain the authoritative
 record.*

@@ -56,6 +56,10 @@ const STORE_PATH_ENV_VARS = [
   // omission would let a loved one added by one suite appear on the empty-state
   // pages of every later suite.
   "FAMILY_HOUSEHOLD_STORE_PATH",
+  // Added 2026-10-03 with the post-Prospect lifecycle store (members · services ·
+  // lots · products). Its omission would let an outcome recorded by one suite leak
+  // into every suite that renders a lifecycle register.
+  "LIFECYCLE_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {

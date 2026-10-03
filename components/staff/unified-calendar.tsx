@@ -22,6 +22,7 @@ const CHIP_SHORT: Record<CalendarKind, string> = {
   light_pickup: "Light pickup",
   chapel: "Chapel",
   trip: "Vehicle trip",
+  service: "Service",
   payment_due: "Payment due",
   work_order: "Work order",
 };
