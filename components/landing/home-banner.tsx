@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, Phone } from "lucide-react";
-import { HomeTitleRotator } from "@/components/public/home-title-rotator";
 import { PublicImage } from "@/components/public/public-image";
 import { compositionThumbSet, libraryThumb, libraryThumbSet } from "@/lib/media";
 import type { LandingContent } from "@/lib/api-client/landing";
@@ -16,11 +15,23 @@ import type { LandingContent } from "@/lib/api-client/landing";
  * REVISED 2026-10-02 (captain's home-page revision): the client's own park
  * photograph is the band's DOMINANT picture, full width of the middle column
  * and larger than the old side-by-side frame; the park's name and the band's
- * two actions sit in an anchored strip at the picture's bottom edge; and the
- * three-item trust ribbon is gone, so the band is the picture, the rotating
- * title set and the action row. The face and the register stay the product's:
- * the rotating title is still the ONE `h1` and the gold call is still the
- * page-commitment accent.
+ * two actions sit in an anchored strip at the picture's bottom edge.
+ *
+ * REVISED 2026-10-03 (captain): the gateway block is removed from the home.
+ * *"remove this Isabela City, Basilan / We're here for you / any hour, any day.
+ * / We come to you / and stay until the burial is done. / The first park in
+ * Basilan / family-run, in Isabela City."* — the place line and the rotating
+ * title sets are OFF this page entirely, so the band is the client's photograph
+ * (uncropped) and the two anchored actions, nothing else. The words stay in the
+ * landing store and its editor (`content.home.gateway`), so the office can turn
+ * them back on later; only this rendering changed.
+ *
+ * THE HEADING STAYS. Removing the rotating title took the page's only `h1` with
+ * it, so the band now carries the page's honest title in a visually-hidden `h1`
+ * (the site's own wordmark, exactly the "one h1 per route" contract F-16 pins —
+ * the same sr-only pattern the titleless interior heroes use). It is the band's
+ * `aria-labelledby` target and gives search and screen readers the heading the
+ * page would otherwise be missing.
  */
 
 /** Intrinsic hints for the shipped hero derivative; an unknown asset gets 3:2. */
@@ -42,18 +53,19 @@ export function HomeBanner({ content }: { content: LandingContent }) {
   const heroPhoto = home.photo.image ? photo(home.photo.image) : null;
   const parkName =
     contact.parkAddress.split(",")[0]?.trim() || contact.location || "Villa Memorial Park";
+  // The page's honest title: the office's own wordmark (the store defaults it to
+  // "Villa Funeraria"), never one of the retired marketing lines.
+  const pageTitle = content.logo.wordmark || "Villa Funeraria";
 
   return (
-    <section className="mid-section home-banner" aria-labelledby="home-gateway-title">
-      <div className="home-open home-open--feature">
-        <div className="home-open__words">
-          {gateway.place ? <p className="home-open__eyebrow">{gateway.place}</p> : null}
-          <HomeTitleRotator
-            sets={gateway.titleSets}
-            intervalSeconds={gateway.titleIntervalSeconds}
-          />
-        </div>
+    <section className="mid-section home-banner" aria-labelledby="home-title">
+      {/* The page's ONE h1 — visually hidden, so it names the route for search
+          and screen readers without adding a word back to the band. */}
+      <h1 id="home-title" className="visually-hidden">
+        {pageTitle}
+      </h1>
 
+      <div className="home-open home-open--feature">
         <div className="home-open__media">
           {heroPhoto ? (
             <PublicImage

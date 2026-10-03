@@ -60,21 +60,38 @@ async function home(): Promise<{ html: string; content: Awaited<ReturnType<typeo
 }
 
 describe("the home opens on the banner and carries no posts", () => {
-  it("renders the banner lead with the office's place line and one h1", async () => {
+  it("renders the banner with the two actions and one hidden honest h1", async () => {
     const { html, content } = await home();
     expect(html).toContain("home-open");
     expect(html).toContain("home-banner");
-    // The office's own words and the live 24/7 line, never a typed string.
-    expect(html).toContain(content.home.gateway.place);
+    // The live 24/7 line and the supporting action, never a typed string.
     expect(html).toContain(content.contact.phoneDisplay);
     expect(html).toContain(content.home.gateway.secondary.label);
     // The captain removed the three-item trust ribbon (2026-10-02): it no
     // longer renders anywhere on the home. The facts stay in the document.
     expect(html).not.toContain("home-open__trust");
     expect(html).not.toContain("home-trust__item");
-    // Exactly one h1: the office's rotating gateway title.
+    // Removed 2026-10-03: the place line and the rotating title sets are OFF
+    // the home's banner, so no word from the gateway stands in that position.
+    // (The place line still appears in other bands — the About lead publishes
+    // the park's Isabela City address — so the check is scoped to the band.)
+    const bannerStart = html.indexOf('class="mid-section home-banner"');
+    const bannerEnd = html.indexOf("</section>", bannerStart);
+    expect(bannerStart).toBeGreaterThanOrEqual(0);
+    const banner = html.slice(bannerStart, bannerEnd);
+    expect(banner).not.toContain("home-open__words");
+    expect(banner).not.toContain("home-open__eyebrow");
+    expect(banner).not.toContain("home-gateway__title");
+    expect(banner).not.toContain(content.home.gateway.place);
+    for (const set of content.home.gateway.titleSets) {
+      expect(banner).not.toContain(set.headline);
+      expect(banner).not.toContain(set.promise);
+    }
+    // Exactly one h1, visually hidden, reading the page's honest title.
     expect((html.match(/<h1/g) ?? []).length).toBe(1);
-    expect(html).toContain('id="home-gateway-title"');
+    expect(html).toContain('id="home-title"');
+    expect(html).toContain('class="visually-hidden"');
+    expect(html).toContain(content.logo.wordmark);
   });
 
   it("still renders the anchored storefront bands", async () => {
