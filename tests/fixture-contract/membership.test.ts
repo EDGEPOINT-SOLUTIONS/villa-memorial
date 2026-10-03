@@ -35,17 +35,9 @@ const FIXTURE = path.join(
 type RawSeed = { applications: Array<Record<string, unknown>> };
 
 describe("membership application seed — figures are the published plan rates", () => {
-  it("pins every row's rate to planRateOf on the pricing seed", async () => {
+  it("starts clean — no recorded application to rate (captain, 2026-10-02)", async () => {
     const applications = await listMembershipApplications();
-    expect(applications.length).toBeGreaterThan(0);
-    for (const app of applications) {
-      expect(
-        app.rate_cents,
-        `${planHolderFullName(app)} (${app.plan_tier} × ${app.plan_term}, ${
-          app.senior ? "senior" : "regular"
-        })`,
-      ).toBe(planRateOf(SEED_PRICING.plans, app.plan_tier, app.plan_term, app.senior) * 100);
-    }
+    expect(applications).toEqual([]);
   });
 
   it("classifies each holder by the age the plan's own rate classes use", async () => {
@@ -90,12 +82,14 @@ describe("membership application seed — vocabulary and absence of issuance fie
 
   it("carries no COC number, coverage window or clause text in any row", () => {
     const raw = JSON.parse(readFileSync(FIXTURE, "utf8")) as RawSeed;
-    expect(raw.applications.length).toBeGreaterThan(0);
+    expect(raw.applications).toEqual([]);
     for (const row of raw.applications) {
       for (const key of Object.keys(row)) {
         expect(key).not.toMatch(/coc|coverage|clause|policy|start|end/i);
       }
     }
+    // The published-rate reader still resolves a real tier × term from the seed.
+    expect(planRateOf(SEED_PRICING.plans, "silver2", "monthly", false)).toBeGreaterThan(0);
   });
 
   it("keeps the fixture's provenance comment stating the paper is not archived", () => {

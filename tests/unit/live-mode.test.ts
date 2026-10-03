@@ -90,9 +90,13 @@ describe("a 'none' service never enters live mode", () => {
     const snapshot = await getFamilySnapshot();
     expect(snapshot!.family.display_name.length).toBeGreaterThan(0);
     const stock = await loadInventory();
-    expect(stock.items.length).toBeGreaterThan(0);
+    // Clean start (captain, 2026-10-02): the recorded demo stock is removed, so
+    // inventory fixture mode serves an empty list rather than a demo one.
+    expect(stock.items).toEqual([]);
     const books = await loadAccountingLedger();
+    // The chart of accounts is reference data and stays; journal entries start empty.
     expect(books.accounts.length).toBeGreaterThan(0);
+    expect(books.entries).toEqual([]);
   });
 
   it("selects live mode for a 'refuses' service and names the refusal", () => {

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -44,6 +44,12 @@ import { paperToDocxBuffer } from "@/lib/export/docx";
 import { paperToPdfBuffer } from "@/lib/export/pdf";
 import { planRateOf, type PlanPricing } from "@/lib/pricing-model";
 import { SEED_PRICING } from "@/lib/villa-pricing";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/commerce/membership-applications.json", async () => ({
+  default: (await import("../fixtures/membership-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The Villa Memorial Plan membership application — the enrolment folio's rules home, its
@@ -511,7 +517,8 @@ describe("seed fixture (recorded demo records)", () => {
         "utf8",
       ),
     ) as { applications: Array<Record<string, unknown>> };
-    expect(raw.applications.length).toBeGreaterThan(0);
+    // Clean start (captain, 2026-10-02): the shipped seed carries no recorded rows.
+    expect(raw.applications).toEqual([]);
     for (const row of raw.applications) {
       for (const key of Object.keys(row)) {
         expect(key).not.toMatch(/coc|coverage|clause|policy|start|end/i);

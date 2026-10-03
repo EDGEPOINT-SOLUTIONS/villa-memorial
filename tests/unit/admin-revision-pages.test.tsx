@@ -2,6 +2,21 @@ import { describe, expect, it, vi } from "vitest";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/commerce/orders.json", async () => ({
+  default: (await import("../fixtures/orders-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
+  default: (await import("../fixtures/invoices-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/operations/preparation-records.json", async () => ({
+  default: (await import("../fixtures/operations-preparation-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The admin revision's four added surfaces (2026-10-02).

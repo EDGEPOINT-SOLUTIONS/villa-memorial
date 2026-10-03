@@ -54,7 +54,8 @@ function instrumentRows(): RawInstrument[] {
 describe("the recorded guarantee-instrument tracker", () => {
   it("rides on the same tenant and the real case records", () => {
     expect(instrumentsFile.tenant_id).toBe(casesFile.tenant_id);
-    expect(TRACKERS.length).toBeGreaterThan(0);
+    // Clean start (captain, 2026-10-02): no recorded cases and no recorded trackers.
+    expect(TRACKERS).toEqual([]);
     const numbers = new Set(CASES.map((c) => c.case_number));
     for (const tracker of TRACKERS) {
       expect(numbers.has(tracker.case_number)).toBe(true);
@@ -65,23 +66,12 @@ describe("the recorded guarantee-instrument tracker", () => {
 
   it("keeps every instrument inside the tracked vocabulary, with a unique id", () => {
     const rows = instrumentRows();
-    expect(rows.length).toBeGreaterThan(0);
+    expect(rows).toEqual([]);
     const ids = rows.map((row) => row.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const row of rows) {
-      expect(typeof row.id).toBe("string");
-      expect(typeof row.coverage).toBe("string");
-      expect((row.coverage as string).length).toBeGreaterThan(0);
-      expect(typeof row.claimed_from).toBe("string");
-      expect((row.claimed_from as string).length).toBeGreaterThan(0);
-      expect(isInstrumentKind(row.kind)).toBe(true);
-      expect(isInstrumentStatus(row.status)).toBe(true);
-      expect(row.amount_cents === null || Number.isInteger(row.amount_cents)).toBe(true);
-      expect(row.amount_cents === null || (row.amount_cents as number) >= 0).toBe(true);
-      for (const date of [row.filed_on, row.response_on]) {
-        expect(date === null || ISO_DATE.test(date as string)).toBe(true);
-      }
-    }
+    // The tracker's own vocabulary still resolves.
+    expect(isInstrumentKind("lgu")).toBe(true);
+    expect(isInstrumentStatus("not_filed")).toBe(true);
   });
 
   it("records coherent steps: a filed instrument has its date, a decided one its response", () => {
@@ -117,46 +107,28 @@ describe("the recorded guarantee-instrument tracker", () => {
   });
 
   it("keys the deadline to the case's recorded contract date, never a stored countdown", () => {
-    // The fixture stores no deadline on any row: it is derived from the case's own contract
-    // date, so this suite pins the two demo states the screens must show.
+    // The fixture stores no deadline on any row; the demo rows are removed at the
+    // clean start, so the reader answers absent for every case.
     for (const row of instrumentRows()) {
       expect(Object.hasOwn(row as object, "deadline")).toBe(false);
     }
-
-    const contractDate = CASES.find((c) => c.case_number === "CASE-2026-0001")!.intake
-      ?.contract_date;
-    expect(contractDate).toBe("2026-08-28");
-    const read = caseInstrumentsFor("CASE-2026-0001");
-    expect(read.state).toBe("recorded");
-    const summary = summariseCaseInstruments(
-      read.state === "recorded" ? read.instruments : [],
-      contractDate,
-      "2026-09-18",
-    );
-    expect(summary.deadline).toMatchObject({ date: "2026-08-31", state: "passed" });
-    expect(summary).toMatchObject({ total: 4, filed: 3, unfiled: 1, overdue: 1 });
-
-    const untimed = CASES.find((c) => c.case_number === "CASE-2026-0003")!;
-    expect(untimed.intake?.contract_date ?? null).toBeNull();
+    expect(instrumentRows()).toEqual([]);
+    expect(caseInstrumentsFor("CASE-2026-0001").state).toBe("absent");
+    // The read into the clean seed still answers absent, not an error.
+    expect(summariseCaseInstruments([], null, "2026-09-18")).toMatchObject({
+      total: 0,
+      filed: 0,
+      unfiled: 0,
+      overdue: 0,
+    });
   });
 });
 
 describe("the tracker reader answers honestly", () => {
   it("returns the recorded rows for a tracked case", async () => {
+    // Clean start: no case carries recorded instruments, so every read is absent.
     const read = await loadCaseInstruments("CASE-2026-0001");
-    expect(read.state).toBe("recorded");
-    if (read.state === "recorded") {
-      expect(read.instruments.length).toBe(4);
-      expect(read.instruments[0]).toMatchObject({
-        kind: "lgu",
-        coverage: "LGU guarantee — coffin",
-        status: "not_filed",
-        amount_cents: 2500000,
-        filed_on: null,
-      });
-      // The one null amount in the recording must stay null — an em dash, not a zero.
-      expect(read.instruments.some((i) => i.amount_cents === null)).toBe(true);
-    }
+    expect(read).toEqual({ state: "absent" });
   });
 
   it("says absent — not an error — for a case with no recorded instruments", async () => {

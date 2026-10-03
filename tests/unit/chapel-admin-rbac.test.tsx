@@ -7,6 +7,12 @@ import { getChapelSchedule, reserveChapelStay } from "@/lib/api-client/chapel-re
 import { getChapelAdminView } from "@/lib/api-client/chapel-admin";
 import { listBookings } from "@/lib/api-client/scheduling";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/bookings.json", async () => ({
+  default: (await import("../fixtures/scheduling-bookings-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * RBAC gating for the staff chapel screens and their BFF routes:

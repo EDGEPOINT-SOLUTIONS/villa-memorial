@@ -11,6 +11,15 @@ import {
 } from "@/lib/api-client/provisional-receipts-store";
 import { recordFixturePayment } from "@/lib/api-client/billing-store";
 import { getProvisionalReceiptView } from "@/lib/api-client/provisional-receipts";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
+  default: (await import("../fixtures/invoices-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/documents/documents.json", async () => ({
+  default: (await import("../fixtures/documents-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The counter's provisional-receipt journal: durable, append-only and validated under the

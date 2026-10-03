@@ -1,0 +1,263 @@
+{
+  "comment": [
+    "Recorded demo orders for the staff Orders admin (phase 1 of the admin-commerce plan).",
+    "",
+    "SHAPE: each record WRAPS the FROZEN order-payment-api-v1 envelope (`order`, exactly the",
+    "docs/08-delivery/contracts/order-payment-api-v1.md response shape — number, status,",
+    "customer_name, total_cents, currency, items, placed_at, event_uuid) with fields the frozen",
+    "contract does not carry and the admin needs: the customer's checkout contact details",
+    "(`customer`) and an APP-AUTHORED fulfilment lifecycle (`lifecycle_status` + `timeline`).",
+    "NO frozen contract names an order-admin record — this wrapper is a fixture/demo shape",
+    "(same status as lib/fixtures/property/purchase-applications.json), to be replaced when a",
+    "service contract freezes an order-admin surface. The admin write route answers 503 in live",
+    "mode rather than inventing one (lib/api-client/order-store.ts).",
+    "",
+    "LIFECYCLE vs FROZEN STATUS: `lifecycle_status` (new → confirmed → fulfilled, or cancelled)",
+    "is the counter's fulfilment decision; it never rewrites the frozen payment `status`",
+    "(all rows settled `paid` via the M0 sandbox adapter). Phase 1 does no payment processing,",
+    "so cancelling an order here closes the fulfilment, not a refund.",
+    "",
+    "PRICES: every line carries a real catalogue SKU from commerce/catalog-items.json",
+    "(which transcribes the client's 2026 sheets via lib/villa-pricing.ts) with that item's",
+    "unit_price_cents; totals are the sum of the lines. tests/fixture-contract/orders.test.ts",
+    "pins SKUs, prices and totals against the catalogue.",
+    "",
+    "WITHDRAWN SKUs (2026-09-18): the demo orders used to sell SRV-LIGHTS, ADD-COFFIN-LIZO-SR,",
+    "ADD-FLOWERS and ADD-URN — the four upstream items no 2026 client sheet prices. Those",
+    "lines were replaced with real client-sourced lines (see lib/catalog-sources.ts) so the",
+    "order admin never publishes an invented figure either; each affected order's total was",
+    "re-summed and its billing invoice (lib/fixtures/finance/invoices.json) follows.",
+    "",
+    "BILLING COHERENCE: the order numbers, customers and totals line up with the billing",
+    "fixture's invoices (lib/fixtures/finance/invoices.json) — e.g. ORD-2026-00001 /",
+    "INV-2026-00001 / Marites Santos / ₱63,520.00 — so a demo session can follow one order",
+    "from the storefront into billing without meeting two different stories.",
+    "",
+    "DEMO DATA ONLY: names, emails and phone numbers are invented .test placeholders."
+  ],
+  "orders": [
+    {
+      "order": {
+        "number": "ORD-2026-00001",
+        "status": "paid",
+        "customer_name": "Marites Santos",
+        "total_cents": 6352000,
+        "currency": "PHP",
+        "items": [
+          {
+            "catalog_item_id": 103,
+            "item_type": "package",
+            "sku": "PKG-PREMIUM",
+            "name": "Premium Package",
+            "quantity": 1,
+            "unit_price_cents": 152000
+          },
+          {
+            "catalog_item_id": 124,
+            "item_type": "add_on",
+            "sku": "CSK-WHITE-ROSE-HALF",
+            "name": "White Rose Half casket",
+            "quantity": 1,
+            "unit_price_cents": 6200000
+          }
+        ],
+        "placed_at": "2026-07-01T08:15:00.000Z",
+        "event_uuid": "fixture-event-00001"
+      },
+      "customer": {
+        "name": "Marites Santos",
+        "email": "marites.santos@example.test",
+        "phone": "+63 917 123 4501"
+      },
+      "lifecycle_status": "new",
+      "timeline": [
+        {
+          "status": "new",
+          "at": "2026-07-01T08:15:00.000Z",
+          "by": "Online checkout"
+        }
+      ]
+    },
+    {
+      "order": {
+        "number": "ORD-2026-00002",
+        "status": "paid",
+        "customer_name": "Roberto Santos",
+        "total_cents": 460000,
+        "currency": "PHP",
+        "items": [
+          {
+            "catalog_item_id": 101,
+            "item_type": "package",
+            "sku": "PKG-BASIC",
+            "name": "Basic Package",
+            "quantity": 1,
+            "unit_price_cents": 60000
+          },
+          {
+            "catalog_item_id": 104,
+            "item_type": "service",
+            "sku": "SRV-EMBALM-D",
+            "name": "Additional embalming day",
+            "quantity": 1,
+            "unit_price_cents": 150000
+          },
+          {
+            "catalog_item_id": 106,
+            "item_type": "service",
+            "sku": "SRV-DELIVERY",
+            "name": "Delivery",
+            "quantity": 1,
+            "unit_price_cents": 250000
+          }
+        ],
+        "placed_at": "2026-06-15T09:40:00.000Z",
+        "event_uuid": "fixture-event-00002"
+      },
+      "customer": {
+        "name": "Roberto Santos",
+        "email": "roberto.santos@example.test",
+        "phone": "+63 917 123 4502"
+      },
+      "lifecycle_status": "confirmed",
+      "timeline": [
+        {
+          "status": "new",
+          "at": "2026-06-15T09:40:00.000Z",
+          "by": "Online checkout"
+        },
+        {
+          "status": "confirmed",
+          "at": "2026-06-16T02:10:00.000Z",
+          "by": "Sam Staff"
+        }
+      ]
+    },
+    {
+      "order": {
+        "number": "ORD-2026-00004",
+        "status": "paid",
+        "customer_name": "Danilo Reyes",
+        "total_cents": 350000,
+        "currency": "PHP",
+        "items": [
+          {
+            "catalog_item_id": 122,
+            "item_type": "service",
+            "sku": "CHP-PRIVATE-DAY",
+            "name": "Chapel use — private chapel, per day",
+            "quantity": 1,
+            "unit_price_cents": 350000
+          }
+        ],
+        "placed_at": "2026-08-01T07:55:00.000Z",
+        "event_uuid": "fixture-event-00004"
+      },
+      "customer": {
+        "name": "Danilo Reyes",
+        "email": "danilo.reyes@example.test",
+        "phone": "+63 917 123 4504"
+      },
+      "lifecycle_status": "fulfilled",
+      "timeline": [
+        {
+          "status": "new",
+          "at": "2026-08-01T07:55:00.000Z",
+          "by": "Online checkout"
+        },
+        {
+          "status": "confirmed",
+          "at": "2026-08-01T09:20:00.000Z",
+          "by": "Sam Staff"
+        },
+        {
+          "status": "fulfilled",
+          "at": "2026-08-06T05:45:00.000Z",
+          "by": "Ada Admin"
+        }
+      ]
+    },
+    {
+      "order": {
+        "number": "ORD-2026-00006",
+        "status": "paid",
+        "customer_name": "Ana Gonzales",
+        "total_cents": 100000,
+        "currency": "PHP",
+        "items": [
+          {
+            "catalog_item_id": 102,
+            "item_type": "package",
+            "sku": "PKG-STANDARD",
+            "name": "Standard Package",
+            "quantity": 1,
+            "unit_price_cents": 100000
+          }
+        ],
+        "placed_at": "2026-08-05T10:20:00.000Z",
+        "event_uuid": "fixture-event-00006"
+      },
+      "customer": {
+        "name": "Ana Gonzales",
+        "email": "ana.gonzales@example.test",
+        "phone": "+63 917 123 4506"
+      },
+      "lifecycle_status": "cancelled",
+      "timeline": [
+        {
+          "status": "new",
+          "at": "2026-08-05T10:20:00.000Z",
+          "by": "Online checkout"
+        },
+        {
+          "status": "cancelled",
+          "at": "2026-08-05T11:05:00.000Z",
+          "by": "Sam Staff",
+          "reason": "Family rearranged through the office; the order was closed before any chapel schedule was set."
+        }
+      ]
+    },
+    {
+      "order": {
+        "number": "ORD-2026-00007",
+        "status": "paid",
+        "customer_name": "Marites Santos",
+        "total_cents": 450000,
+        "currency": "PHP",
+        "items": [
+          {
+            "catalog_item_id": 102,
+            "item_type": "package",
+            "sku": "PKG-STANDARD",
+            "name": "Standard Package",
+            "quantity": 1,
+            "unit_price_cents": 100000
+          },
+          {
+            "catalog_item_id": 122,
+            "item_type": "service",
+            "sku": "CHP-PRIVATE-DAY",
+            "name": "Chapel use — private chapel, per day",
+            "quantity": 1,
+            "unit_price_cents": 350000
+          }
+        ],
+        "placed_at": "2026-07-20T03:30:00.000Z",
+        "event_uuid": "fixture-event-00007"
+      },
+      "customer": {
+        "name": "Marites Santos",
+        "email": "marites.santos@example.test",
+        "phone": "+63 917 123 4501"
+      },
+      "lifecycle_status": "new",
+      "timeline": [
+        {
+          "status": "new",
+          "at": "2026-07-20T03:30:00.000Z",
+          "by": "Online checkout"
+        }
+      ]
+    }
+  ]
+}

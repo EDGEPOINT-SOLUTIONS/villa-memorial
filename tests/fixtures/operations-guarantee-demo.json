@@ -1,0 +1,135 @@
+{
+  "comment": [
+    "Guarantee-instrument tracker records (FORMS_PLAN gap 5 / checklist F-18).",
+    "Shape: APP-AUTHORED, PROVISIONAL — no contract under docs/08-delivery/contracts/",
+    "names a guarantee-instrument record; the sub-ledger, deduction math and posting are",
+    "dev-owned (issue #54), so live mode answers 503/not-wired and fixture mode serves this.",
+    "Each case's rows are the deductions its Funeral Service Contract records (the paper's",
+    "Less: LIFE PLANS / INSURANCES / BURIAL ASSISTANCE / GUARANTEES block, captured in",
+    "lib/contracts/service-contract-capture.ts), plus the office's filing state, the agency",
+    "response and the supporting-document checklist. The tracker never creates an instrument",
+    "the contract did not record.",
+    "PROVENANCE OF THE FIGURES: the deduction amounts and every reference here are EXAMPLE",
+    "demo values — no client document in this repo prices a family's guarantee instrument,",
+    "and the service-contract capture deliberately holds no amount column. Rows render what",
+    "the record carries and an em dash when amount_cents is null; nothing derives a figure.",
+    "The three-day filing deadline is NOT stored here: it is derived from the case's recorded",
+    "contract date (lib/guarantee-instruments.ts, paper clause 2). CASE-2026-0003 carries no",
+    "intake contract date on purpose, so the honest 'no contract date recorded' state demos.",
+    "Case numbers key to lib/fixtures/operations/cases.json; pinned by",
+    "tests/fixture-contract/guarantee-instruments.test.ts."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "trackers": [
+    {
+      "case_number": "CASE-2026-0001",
+      "instruments": [
+        {
+          "id": "CASE-2026-0001-g1",
+          "kind": "lgu",
+          "coverage": "LGU guarantee — coffin",
+          "claimed_from": "Isabela City LGU — local burial assistance",
+          "amount_cents": 2500000,
+          "reference": null,
+          "status": "not_filed",
+          "filed_on": null,
+          "response_on": null,
+          "note": null,
+          "documents": [
+            { "label": "Signed funeral service contract", "state": "received" },
+            { "label": "Barangay certificate of indigency", "state": "needed" },
+            { "label": "Claimant's valid ID", "state": "received" }
+          ]
+        },
+        {
+          "id": "CASE-2026-0001-g2",
+          "kind": "dswd",
+          "coverage": "DSWD / Senior Citizen",
+          "claimed_from": "DSWD — burial assistance",
+          "amount_cents": 1000000,
+          "reference": null,
+          "status": "awaiting_agency",
+          "filed_on": "2026-08-29",
+          "response_on": null,
+          "note": "Received by the social welfare desk; no release schedule given yet.",
+          "documents": [
+            { "label": "Signed funeral service contract", "state": "received" },
+            { "label": "Senior citizen ID", "state": "received" },
+            { "label": "Certificate of death", "state": "received" }
+          ]
+        },
+        {
+          "id": "CASE-2026-0001-g3",
+          "kind": "sss",
+          "coverage": "SSS burial benefit",
+          "claimed_from": "SSS — Social Security System",
+          "amount_cents": 2000000,
+          "reference": "34-5678901-2",
+          "status": "confirmed",
+          "filed_on": "2026-08-29",
+          "response_on": "2026-09-05",
+          "note": null,
+          "documents": [
+            { "label": "Signed funeral service contract", "state": "received" },
+            { "label": "SSS claim form", "state": "received" },
+            { "label": "Certificate of death", "state": "received" }
+          ]
+        },
+        {
+          "id": "CASE-2026-0001-g4",
+          "kind": "life_plan",
+          "coverage": "Life plan / insurance",
+          "claimed_from": "Eternal Plans, Inc.",
+          "amount_cents": null,
+          "reference": "VMP-2024-0871",
+          "status": "rejected",
+          "filed_on": "2026-08-30",
+          "response_on": "2026-09-08",
+          "note": "The plan's coverage had lapsed before the death; the office has asked the family for the current policy.",
+          "documents": [
+            { "label": "Signed funeral service contract", "state": "received" },
+            { "label": "Plan certificate / COC", "state": "needed" }
+          ]
+        }
+      ]
+    },
+    {
+      "case_number": "CASE-2026-0003",
+      "instruments": [
+        {
+          "id": "CASE-2026-0003-g1",
+          "kind": "sss",
+          "coverage": "SSS burial benefit",
+          "claimed_from": "SSS — Social Security System",
+          "amount_cents": 2000000,
+          "reference": "34-1122334-5",
+          "status": "awaiting_agency",
+          "filed_on": "2026-08-20",
+          "response_on": null,
+          "note": null,
+          "documents": [
+            { "label": "Signed funeral service contract", "state": "received" },
+            { "label": "SSS claim form", "state": "received" }
+          ]
+        },
+        {
+          "id": "CASE-2026-0003-g2",
+          "kind": "lgu",
+          "coverage": "LGU guarantee — embalming (3 days)",
+          "claimed_from": "Isabela City LGU — local burial assistance",
+          "amount_cents": 800000,
+          "reference": null,
+          "status": "not_filed",
+          "filed_on": null,
+          "response_on": null,
+          "note": null,
+          "documents": [
+            { "label": "Signed funeral service contract", "state": "received" },
+            { "label": "Barangay certificate of indigency", "state": "needed" },
+            { "label": "Claimant's valid ID", "state": "needed" }
+          ]
+        }
+      ]
+    }
+  ]
+}

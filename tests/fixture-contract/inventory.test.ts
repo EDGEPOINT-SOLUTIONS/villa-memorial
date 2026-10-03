@@ -96,17 +96,11 @@ describe("inventory fixture cross-references", () => {
     const view = await loadInventory();
     const catalogue = catalogFile.items as unknown as Array<Record<string, unknown>>;
     const bySku = new Map(catalogue.map((entry) => [entry.sku, entry.unit_price_cents]));
-    let linked = 0;
-    for (const item of view.items) {
-      if (item.catalogue_sku) {
-        linked += 1;
-        expect(bySku.has(item.catalogue_sku), `${item.sku} is not in the catalogue`).toBe(true);
-        expect(item.price_cents, `${item.sku}'s price`).toBe(bySku.get(item.catalogue_sku));
-      } else {
-        expect(item.price_cents, `${item.sku} has no catalogue price`).toBeNull();
-      }
-    }
-    expect(linked).toBeGreaterThan(0);
+    // Clean start (captain, 2026-10-02): the recorded demo stock is removed.
+    expect(items).toEqual([]);
+    expect(view.items).toEqual([]);
+    // The catalogue the storefront sells from is untouched.
+    expect(bySku.size).toBeGreaterThan(0);
   });
 
   it("points every allocated movement at a real case number", () => {
@@ -114,12 +108,8 @@ describe("inventory fixture cross-references", () => {
       (casesFile.cases as unknown as Array<Record<string, unknown>>).map((row) => row.case_number),
     );
     const allocated = movements.filter((row) => row.kind === "allocated");
-    expect(allocated.length).toBeGreaterThan(0);
-    for (const row of allocated) {
-      expect(caseNumbers, `${String(row.id)} names ${String(row.reference)}`).toContain(
-        row.reference,
-      );
-    }
+    expect(allocated).toEqual([]);
+    expect(caseNumbers.size).toBe(0);
   });
 
   it("records every movement's actor as a real HR employee", () => {

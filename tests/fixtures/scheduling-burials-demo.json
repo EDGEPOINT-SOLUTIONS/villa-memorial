@@ -1,0 +1,71 @@
+{
+  "_provenance": {
+    "status": "APP-AUTHORED example records — no service owns them (see lib/api-client/burial-schedule.ts)",
+    "recorded": "2026-09-25",
+    "brief": [
+      "Client minutes of meeting (Villa Memorial, 2026-09-21), item 2 — Calendar Integration for Light Pickup and Burial Schedule: 'Integrate a calendar into the system to record and manage burial schedules. The calendar shall include the pickup schedule of lights, corresponding to the date of burial.'",
+      "The staff Schedule surface (/staff/schedule) renders this recorded sheet as a month/week calendar: each burial carries its own light-pickup entry, tied to the burial's own date, so preparation and coordination staff see what is coming and where a pickup conflicts."
+    ],
+    "note": [
+      "WHAT THIS IS: the office's recorded burial + light-pickup sheet, as the staff calendar shows it today. A burial's identity (deceased name, case, coordinator) comes from the recorded case; the lot comes from the property record. The APP-AUTHORED half is the schedule itself (date, time, and the light pickup's time/crew/state), which no platform service serves: scheduling-resources owns bookings, interments belong to property, and NO contract names a burial-schedule or light-pickup record.",
+      "WHAT IT CROSS-REFERENCES (pinned by tests/fixture-contract/burial-schedule.test.ts): every burial's case_number is a lib/fixtures/operations/cases.json case and its deceased_name/coordinator agree with that case; every lot_number/section is a lib/fixtures/property/lots.json row and agrees with the interment record in lib/fixtures/property/lot-lifecycle.json; the light-pickup crew is an office ROLE label, never a named person (no individual is invented).",
+      "NEVER INVENTED: no amount, price or fee appears anywhere; no identity is invented (deceased and coordinator are the case's own words). One demo conflict is present on 2026-09-30 — the Delivery crew is recorded for two light pickups at the same 3:00 PM — so the calendar's conflict flag can be seen; it is described here, not hidden.",
+      "DEMO DATA ONLY: fixture mode only. Live mode (SCHEDULING_BASE_URL set) answers 503 BURIAL_SCHEDULE_NOT_WIRED rather than dressing these rows up as service data."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "as_of": "2026-09-28",
+  "burials": [
+    {
+      "id": "bur-2026-0003-reyes",
+      "date": "2026-08-18",
+      "time": "09:00",
+      "case_number": "CASE-2026-0003",
+      "deceased_name": "Antonio Reyes",
+      "lot_number": "C-001",
+      "section": "C",
+      "coordinator": "Elena Villanueva",
+      "light_pickup": {
+        "time": "14:00",
+        "state": "done",
+        "crew": "Delivery crew",
+        "note": "Lights collected after the interment."
+      },
+      "note": "Interment completed."
+    },
+    {
+      "id": "bur-2026-0001-santos",
+      "date": "2026-09-30",
+      "time": "09:00",
+      "case_number": "CASE-2026-0001",
+      "deceased_name": "Pedro Santos",
+      "lot_number": "A-003",
+      "section": "A",
+      "coordinator": "Elena Villanueva",
+      "light_pickup": {
+        "time": "15:00",
+        "state": "scheduled",
+        "crew": "Delivery crew",
+        "note": null
+      },
+      "note": null
+    },
+    {
+      "id": "bur-2026-0004-gonzales",
+      "date": "2026-09-30",
+      "time": "14:00",
+      "case_number": "CASE-2026-0004",
+      "deceased_name": "Rosario Gonzales",
+      "lot_number": "C-004",
+      "section": "C",
+      "coordinator": "Jose Mendoza",
+      "light_pickup": {
+        "time": "15:00",
+        "state": "scheduled",
+        "crew": "Delivery crew",
+        "note": null
+      },
+      "note": null
+    }
+  ]
+}

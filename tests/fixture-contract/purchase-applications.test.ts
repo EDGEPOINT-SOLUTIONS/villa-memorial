@@ -25,39 +25,13 @@ const A002 = "00000000-0000-4000-8000-000000000D02"; // reserved for Marites San
 const A003 = "00000000-0000-4000-8000-000000000D03"; // sold to Roberto Santos
 const A001 = "00000000-0000-4000-8000-000000000D01"; // available, no application
 
-describe("seeded purchase applications mirror the lots fixture's owners", () => {
-  it("carries an application for every seeded reserved/sold demo lot", async () => {
-    const marites = await getPurchaseApplicationForLot(A002);
-    expect(marites).not.toBeNull();
-    expect(buyerFullName(marites!)).toBe("Marites R. Santos");
+describe("purchase applications start clean", () => {
+  it("carries no seeded application, but keeps the lots fixture's owners", async () => {
+    // Clean start (captain, 2026-10-02): the recorded demo applications are removed.
+    expect(await getPurchaseApplicationForLot(A002)).toBeNull();
+    expect(await getPurchaseApplicationForLot(A003)).toBeNull();
     expect((await getLot(A002)).owner_name).toBe("Marites Santos");
-
-    const roberto = await getPurchaseApplicationForLot(A003);
-    expect(roberto).not.toBeNull();
-    expect(buyerFullName(roberto!)).toBe("Roberto D. Santos");
-  });
-
-  it("records the structured capture: buyer, beneficiaries, classification, money rows", async () => {
-    const app = await getPurchaseApplicationForLot(A002);
-    expect(app).toMatchObject({
-      lot_number: "A-002",
-      application_date: "2026-08-10",
-      classification: "Lawn Lot Prime",
-      mode_of_payment: "monthly",
-      amortization_value: 24,
-      amortization_unit: "months",
-      mcf_cents: 1_116_000,
-      vat_cents: 1_077_860,
-      total_contract_price_cents: 10_116_000,
-      dpa_consent: true,
-      sales_agent_name: "Elena Villanueva",
-    });
-    expect(app?.beneficiaries).toHaveLength(2);
-    expect(app?.beneficiaries[0]).toEqual({
-      name: "Alyanna Santos",
-      age: 16,
-      relationship: "Daughter",
-    });
+    expect((await getLot(A003)).owner_name).toBe("Roberto Santos");
   });
 
   it("answers null for a lot with no application", async () => {
@@ -172,10 +146,29 @@ describe("invalid written figures surface instead of printing blank", () => {
   });
 });
 
-describe("a seeded application feeds the agreement generator real values", () => {
-  it("prints Marites's written figures on her lot's agreement", async () => {
+describe("a captured application feeds the agreement generator real values", () => {
+  it("prints the office's written figures on the lot's agreement", async () => {
+    const input = purchaseApplicationFromForm({
+      application_date: "2026-08-10",
+      first_name: "Marites",
+      middle_name: "R.",
+      last_name: "Santos",
+      classification: "Lawn Lot Prime",
+      basic_price_cents: "90000",
+      total_contract_price_cents: "101160",
+      mcf_cents: "11160",
+      vat_cents: "10778.60",
+      mode_of_payment: "monthly",
+      amortization_value: 24,
+      amortization_unit: "months",
+      dpa_consent: true,
+      sales_agent_name: "Elena Villanueva",
+      beneficiaries: [{ name: "Alyanna Santos", age: "16", relationship: "Daughter" }],
+    });
+    await savePurchaseApplication(A002, "A-002", input);
     const lot = await getLot(A002);
     const app = await getPurchaseApplicationForLot(A002);
+    expect(buyerFullName(app!)).toBe("Marites R. Santos");
     const payload = buildPurchaseAgreement({
       lot,
       application: app,

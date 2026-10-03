@@ -10,7 +10,8 @@
       "WHAT THIS IS: the office's own recorded dispatch sheet — the fleet, the drivers on duty and the trips tied to cases — as the staff board shows it today. Vehicle dispatch belongs to D5 scheduling-resources (docs/02-architecture/microservices.md:51, the `dispatch.completed` event), which is unbuilt: no dispatch contract exists, so live mode answers 503 and only fixture mode serves these records (lib/api-client/dispatch.ts).",
       "WHAT IT CROSS-REFERENCES (pinned by tests/fixture-contract/dispatch.test.ts): every trip's `case_number` is a case in lib/fixtures/operations/cases.json; every driver's `employee_number` and name are an HR directory employee (lib/fixtures/hr/employees.json); `veh-hearse-1` is the scheduling fixture's Hearse 1 resource (lib/fixtures/scheduling/resources.json, id 10000000-0000-4000-8000-0000000000c4). The other vehicles are recorded before a scheduling resource exists for them and carry `resource_id: null` — the day board is not a scheduling booking.",
       "DEMO DATA ONLY: plates, routes and times are example values. No amount (fare, rate, fuel) may ever be added here — a trip is a movement of a vehicle, not a sale.",
-      "A trip's day is the park's own calendar day (Asia/Manila) of `starts_at`, not a stored field; `as_of` is the day the board was recorded and the day it opens on."
+      "A trip's day is the park's own calendar day (Asia/Manila) of `starts_at`, not a stored field; `as_of` is the day the board was recorded and the day it opens on.",
+      "CLEAN START (captain, 2026-10-02): the recorded demo records are REMOVED. The office's reference data is kept; a record is written only when the office actually records one."
     ]
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
@@ -65,71 +66,5 @@
       "employee_number": "EMP-001"
     }
   ],
-  "trips": [
-    {
-      "id": "trip-2026-09-10-1",
-      "case_number": "CASE-2026-0002",
-      "kind": "pickup",
-      "origin": "Isabela City Medical Center — morgue",
-      "destination": "Sanctuario de Mercedes y Gloria — preparation room",
-      "starts_at": "2026-09-10T00:00:00Z",
-      "ends_at": "2026-09-10T01:00:00Z",
-      "status": "completed",
-      "vehicle_id": "veh-hearse-1",
-      "driver_id": "driver-miguel-torres",
-      "note": "Retrieval team of two; no family transport needed."
-    },
-    {
-      "id": "trip-2026-09-10-2",
-      "case_number": "CASE-2026-0001",
-      "kind": "transfer",
-      "origin": "Aguada, Isabela City — family residence",
-      "destination": "Sanctuario de Mercedes y Gloria — Chapel A",
-      "starts_at": "2026-09-10T02:00:00Z",
-      "ends_at": "2026-09-10T03:30:00Z",
-      "status": "en_route",
-      "vehicle_id": "veh-hearse-2",
-      "driver_id": "driver-miguel-torres",
-      "note": null
-    },
-    {
-      "id": "trip-2026-09-10-3",
-      "case_number": "CASE-2026-0005",
-      "kind": "service",
-      "origin": "Sanctuario de Mercedes y Gloria — Chapel A",
-      "destination": "Sanctuario de Mercedes y Gloria — Section B",
-      "starts_at": "2026-09-10T05:00:00Z",
-      "ends_at": "2026-09-10T06:30:00Z",
-      "status": "scheduled",
-      "vehicle_id": "veh-hearse-1",
-      "driver_id": "driver-elena-villanueva",
-      "note": "Ceremony cortege — hearse leads the family cars."
-    },
-    {
-      "id": "trip-2026-09-10-4",
-      "case_number": "CASE-2026-0004",
-      "kind": "pickup",
-      "origin": "Aguada health center, Isabela City",
-      "destination": "Sanctuario de Mercedes y Gloria — preparation room",
-      "starts_at": "2026-09-10T07:00:00Z",
-      "ends_at": "2026-09-10T08:00:00Z",
-      "status": "scheduled",
-      "vehicle_id": "veh-service-van",
-      "driver_id": "driver-miguel-torres",
-      "note": null
-    },
-    {
-      "id": "trip-2026-09-11-1",
-      "case_number": "CASE-2026-0005",
-      "kind": "service",
-      "origin": "Sanctuario de Mercedes y Gloria — Chapel A",
-      "destination": "Sanctuario de Mercedes y Gloria — Section B",
-      "starts_at": "2026-09-11T01:00:00Z",
-      "ends_at": "2026-09-11T03:00:00Z",
-      "status": "scheduled",
-      "vehicle_id": "veh-hearse-1",
-      "driver_id": "driver-miguel-torres",
-      "note": "Interment service."
-    }
-  ]
+  "trips": []
 }

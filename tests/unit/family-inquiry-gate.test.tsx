@@ -131,7 +131,8 @@ describe("POST /api/family/inquiries", () => {
       }),
     );
     expect(res.status).toBe(401);
-    expect(await listInquiries()).toHaveLength(3); // the recorded front-desk seed only
+    // Clean start: no recorded front-desk seed, so a refused ask leaves the board empty.
+    expect(await listInquiries()).toHaveLength(0);
   });
 
   it("records a signed-in lot ask against the account, where the office board finds it", async () => {

@@ -6,74 +6,10 @@
       "WHAT THIS IS: the embalming/preparation record the staff case screen links to (Module H, crm-cases.md §12 — embalmer assignment · schedule · embalming record · dressing · cosmetics · completion checklist · staff notes; statuses scheduled / in progress / completed / cancelled). No service stores it; lib/api-client/preparation.ts answers 503 in live mode instead of inventing an endpoint.",
       "WHAT IT CROSS-REFERENCES (pinned by tests/fixture-contract/preparation-records.test.ts): every `case_number` exists in operations/cases.json and sits at stage `preparation` or later; `embalmer` and `assistant` are employees in hr/employees.json (first + last name); the work window falls inside the case's own created_at…updated_at; each record carries exactly the four steps in work order and a completed step always carries the instant it was recorded.",
       "NEVER INVENTED: no location, no cause of death, no amount, and no identity beyond the facts the case itself already carries. The screen copies the case's own intake fields and renders an honest `no intake yet` state when a case has none.",
-      "When a preparation contract freezes, replace this file with recorded contract fixtures and add the live branch to lib/api-client/preparation.ts."
+      "When a preparation contract freezes, replace this file with recorded contract fixtures and add the live branch to lib/api-client/preparation.ts.",
+      "CLEAN START (captain, 2026-10-02): the recorded demo records are REMOVED. The office's reference data is kept; a record is written only when the office actually records one."
     ]
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",
-  "records": [
-    {
-      "case_number": "CASE-2026-0001",
-      "state": "completed",
-      "scheduled_for": "2026-08-27T12:30:00Z",
-      "started_at": "2026-08-27T12:40:00Z",
-      "completed_at": "2026-08-27T13:30:00Z",
-      "embalmer": "Ricardo Bautista",
-      "assistant": "Miguel Torres",
-      "steps": [
-        { "key": "embalming", "state": "completed", "at": "2026-08-27T12:55:00Z", "note": null },
-        { "key": "dressing", "state": "completed", "at": "2026-08-27T13:10:00Z", "note": null },
-        { "key": "cosmetics", "state": "completed", "at": "2026-08-27T13:20:00Z", "note": null },
-        { "key": "casketing", "state": "completed", "at": "2026-08-27T13:30:00Z", "note": null }
-      ],
-      "notes": "Family asked for the barong; no restorative work needed."
-    },
-    {
-      "case_number": "CASE-2026-0003",
-      "state": "completed",
-      "scheduled_for": "2026-08-11T01:00:00Z",
-      "started_at": "2026-08-11T01:05:00Z",
-      "completed_at": "2026-08-11T03:20:00Z",
-      "embalmer": "Ricardo Bautista",
-      "assistant": null,
-      "steps": [
-        { "key": "embalming", "state": "completed", "at": "2026-08-11T02:00:00Z", "note": null },
-        { "key": "dressing", "state": "completed", "at": "2026-08-11T02:50:00Z", "note": null },
-        { "key": "cosmetics", "state": "completed", "at": "2026-08-11T03:05:00Z", "note": null },
-        { "key": "casketing", "state": "completed", "at": "2026-08-11T03:20:00Z", "note": null }
-      ],
-      "notes": null
-    },
-    {
-      "case_number": "CASE-2026-0004",
-      "state": "in_progress",
-      "scheduled_for": "2026-08-27T08:00:00Z",
-      "started_at": "2026-08-27T08:15:00Z",
-      "completed_at": null,
-      "embalmer": "Ricardo Bautista",
-      "assistant": null,
-      "steps": [
-        { "key": "embalming", "state": "in_progress", "at": null, "note": null },
-        { "key": "dressing", "state": "scheduled", "at": null, "note": null },
-        { "key": "cosmetics", "state": "scheduled", "at": null, "note": null },
-        { "key": "casketing", "state": "scheduled", "at": null, "note": null }
-      ],
-      "notes": null
-    },
-    {
-      "case_number": "CASE-2026-0005",
-      "state": "completed",
-      "scheduled_for": "2026-08-24T00:00:00Z",
-      "started_at": "2026-08-24T00:10:00Z",
-      "completed_at": "2026-08-24T02:00:00Z",
-      "embalmer": "Ricardo Bautista",
-      "assistant": "Miguel Torres",
-      "steps": [
-        { "key": "embalming", "state": "completed", "at": "2026-08-24T01:00:00Z", "note": null },
-        { "key": "dressing", "state": "completed", "at": "2026-08-24T01:35:00Z", "note": null },
-        { "key": "cosmetics", "state": "completed", "at": "2026-08-24T01:50:00Z", "note": null },
-        { "key": "casketing", "state": "completed", "at": "2026-08-24T02:00:00Z", "note": null }
-      ],
-      "notes": null
-    }
-  ]
+  "records": []
 }

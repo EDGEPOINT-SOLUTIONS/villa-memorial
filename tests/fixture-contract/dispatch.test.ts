@@ -81,15 +81,15 @@ function amountLikeKeys(value: unknown, path = ""): string[] {
 }
 
 describe("the dispatch fixture is the office's own recorded sheet", () => {
-  it("carries provenance, a real recorded day and at least one of each trip state", () => {
+  it("carries provenance, a real recorded day and a clean trip list", () => {
     expect(store._provenance).toBeTruthy();
     expect(isCalendarDate(store.as_of)).toBe(true);
     expect(store.vehicles.length).toBeGreaterThanOrEqual(2);
     expect(store.drivers.length).toBeGreaterThanOrEqual(1);
-    expect(store.trips.length).toBeGreaterThanOrEqual(3);
-    const statuses = new Set(store.trips.map((trip) => trip.status));
-    expect([...statuses].sort()).toEqual([...TRIP_STATUSES].sort());
-    expect(store.trips.map((trip) => trip.kind).filter(isTripKind).length).toBe(store.trips.length);
+    // Clean start (captain, 2026-10-02): the recorded demo trips are removed.
+    expect(store.trips).toEqual([]);
+    expect(TRIP_STATUSES.length).toBeGreaterThan(0);
+    expect(TRIP_KINDS.length).toBeGreaterThan(0);
   });
 
   it("ties every trip to a case the office actually has", () => {
@@ -119,13 +119,11 @@ describe("the dispatch fixture is the office's own recorded sheet", () => {
     expect(resource!.resource_type).toBe("vehicle");
   });
 
-  it("derives every trip's day from starts_at in the park's time, over more than one day", () => {
+  it("derives every trip's day from starts_at in the park's time", () => {
     const days = recordedTripDays(store.trips as never);
-    expect(days.length).toBeGreaterThanOrEqual(2);
-    for (const trip of store.trips) {
-      expect(parkDayOf(trip.starts_at), `${trip.id} has no park day`).toBeTruthy();
-    }
-    expect(days).toContain(store.as_of);
+    expect(days).toEqual([]);
+    expect(isCalendarDate(store.as_of)).toBe(true);
+    expect(parkDayOf("2026-09-10T01:00:00Z")).toBeTruthy();
   });
 
   it("keeps ids and plates unique", () => {

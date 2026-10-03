@@ -5,6 +5,12 @@ import path from "node:path";
 import { getAgentProspect, listAgentProspects, listProspectBlasts } from "@/lib/api-client/agent";
 import { listAssignmentEvents } from "@/lib/api-client/agent-store";
 import { getFixtureInquiry } from "@/lib/api-client/inquiry-store";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/crm/inquiries.json", async () => ({
+  default: (await import("../fixtures/inquiries-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The office's Prospect + Inquiry BFF routes.

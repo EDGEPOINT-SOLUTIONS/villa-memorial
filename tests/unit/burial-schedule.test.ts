@@ -10,6 +10,12 @@ import {
   toLightPickup,
 } from "@/lib/api-client/burial-schedule";
 import burialsFile from "@/lib/fixtures/scheduling/burials.json";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/burials.json", async () => ({
+  default: (await import("../fixtures/scheduling-burials-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The burial-schedule reader: a tolerant, field-by-field read that refuses a row

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   BURIAL_WEEKDAY_LABELS,
   burialConflicts,
@@ -15,6 +15,12 @@ import {
   type BurialEntry,
 } from "@/lib/burial-calendar";
 import { burialScheduleFromFixture } from "@/lib/api-client/burial-schedule";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/burials.json", async () => ({
+  default: (await import("../fixtures/scheduling-burials-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The burial calendar's pure rules — the client's minutes item 2. What this

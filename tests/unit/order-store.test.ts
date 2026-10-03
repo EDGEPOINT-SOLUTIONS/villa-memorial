@@ -9,6 +9,12 @@ import {
   listOrders,
   transitionOrder,
 } from "@/lib/api-client/commerce";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/commerce/orders.json", async () => ({
+  default: (await import("../fixtures/orders-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The durable fixture order store (lib/api-client/order-store.ts): create → list → fetch

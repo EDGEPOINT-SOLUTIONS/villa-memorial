@@ -3,6 +3,8 @@ import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { listCases } from "@/lib/api-client/operations";
+import { receiveInquiry } from "@/lib/api-client/inquiry-store";
+import { readInquirySubmission } from "@/lib/inquiry-intake";
 
 /**
  * `POST /api/inquiries/:id/to-case` — the captain's "Send to case".
@@ -25,9 +27,9 @@ vi.mock("next/headers", () => ({
 
 const USER_ID = "00000000-0000-4000-8000-000000000012";
 const TENANT_ID = "00000000-0000-4000-8000-000000000001";
-/** A recorded CONVERTED enquiry (INQ-2026-00038) — the "done" state the button shows. */
-const INQUIRY_ID = "00000000-0000-4000-8000-000000000303";
-const INQUIRY_REFERENCE = "INQ-2026-00038";
+/** The enquiry the office just received — recorded the way a visitor's form does. */
+let INQUIRY_ID = "";
+let INQUIRY_REFERENCE = "";
 
 function b64url(value: unknown): string {
   return Buffer.from(JSON.stringify(value), "utf8")
@@ -69,6 +71,20 @@ beforeEach(async () => {
   process.env.OPERATIONS_STORE_PATH = path.join(dir, "cases.json");
   delete cookieJar.values.im_at;
   delete process.env.CRM_BASE_URL;
+
+  // The clean start removed the recorded enquiries, so record one the way the
+  // public Contact form does and let the send carry THAT row into a case.
+  const verdict = readInquirySubmission("contact", {
+    full_name: "Sample Lot Enquiry",
+    email: "sample.lot@example.com",
+    phone: "+63 917 000 0003",
+    message: "Asking about a memorial lot.",
+    consent: true,
+  });
+  if (!verdict.ok) throw new Error("the sample enquiry was refused");
+  const inquiry = await receiveInquiry({ intake: verdict.intake });
+  INQUIRY_ID = inquiry.id;
+  INQUIRY_REFERENCE = inquiry.reference;
 });
 
 afterEach(async () => {

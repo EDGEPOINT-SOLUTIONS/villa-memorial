@@ -245,11 +245,11 @@ describe("the preparation-record fixture", () => {
     }
   });
 
-  it("keeps the reader and the raw fixture agreeing on the seeded record shape", async () => {
+  it("keeps the reader and the raw fixture agreeing on the clean record shape", async () => {
     const cases = await listCases();
-    expect(cases.length).toBeGreaterThan(0);
-    const first = await getPreparationRecord("CASE-2026-0001");
-    expect(first!.notes).toContain("barong");
-    expect(first!.steps.find((s) => s.key === "cosmetics")!.state).toBe("completed");
+    // Clean start (captain, 2026-10-02): no recorded cases and no preparation records.
+    expect(cases).toEqual([]);
+    expect(fixture.records).toEqual([]);
+    expect(await getPreparationRecord("CASE-2026-0001")).toBeNull();
   });
 });

@@ -36,6 +36,16 @@ vi.mock("@/lib/auth/guard", () => ({
   requireSessionOrRedirect: async () => sessionHolder.current,
 }));
 
+// Clean start (captain, 2026-10-02): the recorded demo leads are removed from the
+// shipped fixture, so this suite pins the record's content-bearing chrome over a
+// test-only copy.
+vi.mock("@/lib/fixtures/crm/lead-records.json", async () => ({
+  default: (await import("../fixtures/crm-lead-records-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/crm/customers.json", async () => ({
+  default: (await import("../fixtures/customers-demo.json")).default,
+}));
+
 const { default: LeadRecordPage } = await import("@/app/(staff)/staff/pipeline/[id]/page");
 const { default: PipelinePage } = await import("@/app/(staff)/staff/pipeline/page");
 const { default: CustomersPage } = await import("@/app/(staff)/staff/customers/page");

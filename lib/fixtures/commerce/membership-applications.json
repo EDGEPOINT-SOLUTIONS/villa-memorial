@@ -19,61 +19,9 @@
     "make a test pass.",
     "Branch values are free text as the office writes them: the park's branch structure is an",
     "open client question (docs/07-client-villa/open-questions.md), so no branch list is",
-    "invented here."
+    "invented here.",
+    "CLEAN START (captain, 2026-10-02): the recorded demo records are REMOVED. The office's reference data is kept; a record is written only when the office actually records one."
   ],
   "tenant_id": "00000000-0000-4000-8000-000000000001",
-  "applications": [
-    {
-      "id": 1,
-      "application_date": "2026-09-10",
-      "last_name": "Lim",
-      "first_name": "Rosa",
-      "middle_name": "Tan",
-      "date_of_birth": "1974-06-12",
-      "contact_number": "0917 555 0177",
-      "email": "rosa.lim@example.com",
-      "address": "Sunrise, Isabela City, Basilan",
-      "beneficiaries": [
-        { "name": "Antonio Lim", "relationship": "legal_spouse" },
-        { "name": "Bea Lim", "relationship": "child_of_legal_age" }
-      ],
-      "branch": "Isabela City",
-      "plan_tier": "silver2",
-      "plan_term": "monthly",
-      "senior": false,
-      "rate_cents": 112000,
-      "pricing_updated_at": null,
-      "health_declaration": true,
-      "dpa_consent": true,
-      "dpa_consented_at": "2026-09-10T03:20:00Z",
-      "recorded_by": "Sam Staff",
-      "created_at": "2026-09-10T03:20:00Z"
-    },
-    {
-      "id": 2,
-      "application_date": "2026-08-22",
-      "last_name": "Cruz",
-      "first_name": "Teodoro",
-      "middle_name": "M.",
-      "date_of_birth": "1958-01-20",
-      "contact_number": "0918 555 0190",
-      "email": null,
-      "address": "Aguada, Isabela City, Basilan",
-      "beneficiaries": [
-        { "name": "Liwayway Cruz", "relationship": "legal_spouse" },
-        { "name": "Danilo Cruz", "relationship": "sibling" }
-      ],
-      "branch": "Zamboanga City",
-      "plan_tier": "gold",
-      "plan_term": "monthly",
-      "senior": true,
-      "rate_cents": 150000,
-      "pricing_updated_at": null,
-      "health_declaration": true,
-      "dpa_consent": true,
-      "dpa_consented_at": "2026-08-22T05:40:00Z",
-      "recorded_by": "Sam Staff",
-      "created_at": "2026-08-22T05:40:00Z"
-    }
-  ]
+  "applications": []
 }

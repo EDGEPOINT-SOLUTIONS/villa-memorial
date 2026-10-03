@@ -1,6 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/burials.json", async () => ({
+  default: (await import("../fixtures/scheduling-burials-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/scheduling/bookings.json", async () => ({
+  default: (await import("../fixtures/scheduling-bookings-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The staff Schedule screen's BURIAL CALENDAR (`/staff/schedule`) — the client's

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -9,6 +9,15 @@ import {
   recordFixturePayment,
 } from "@/lib/api-client/billing-store";
 import { getDocument, listDocuments } from "@/lib/api-client/documents";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
+  default: (await import("../fixtures/invoices-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/documents/documents.json", async () => ({
+  default: (await import("../fixtures/documents-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The durable billing store — recording a payment and the official receipt it issues.

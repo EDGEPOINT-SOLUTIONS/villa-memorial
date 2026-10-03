@@ -1,3 +1,8 @@
+/* --- test-only demo fixtures (clean start, captain 2026-10-02/03) --- */
+vi.mock("@/lib/fixtures/lifecycle/engagements.json", async () => ({
+  default: (await import("../fixtures/lifecycle-engagements-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";

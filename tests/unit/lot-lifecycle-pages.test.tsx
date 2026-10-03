@@ -3,6 +3,24 @@ import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
 import { assertNoParagraphNesting } from "../helpers/paragraph-nesting";
 import { measureProse } from "../helpers/prose";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/property/lot-lifecycle.json", async () => ({
+  default: (await import("../fixtures/lot-lifecycle-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/documents/documents.json", async () => ({
+  default: (await import("../fixtures/documents-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/property/purchase-applications.json", async () => ({
+  default: (await import("../fixtures/purchase-applications-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/crm/customers.json", async () => ({
+  default: (await import("../fixtures/customers-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The four lot-record screens (captain checklist F-11), rendered as the real page

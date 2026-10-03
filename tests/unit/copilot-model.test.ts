@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import casesFile from "@/lib/fixtures/operations/cases.json";
 import instrumentsFile from "@/lib/fixtures/operations/guarantee-instruments.json";
 import {
@@ -18,6 +18,15 @@ import {
 import type { GuaranteeInstrument } from "@/lib/guarantee-instruments";
 import type { OpsCaseInput } from "@/lib/operations/ops-board";
 import type { Booking } from "@/lib/api-client/scheduling";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/operations/guarantee-instruments.json", async () => ({
+  default: (await import("../fixtures/operations-guarantee-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The AI Copilot's model (`lib/copilot.ts`) — the pure half, and the half that carries

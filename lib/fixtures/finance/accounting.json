@@ -19,343 +19,90 @@
     " · Every entry's debit side equals its credit side; the trial balance is DERIVED from",
     "   these lines by lib/accounting.ts, never stored here.",
     "",
-    "READ-ONLY: no posting, reversal, closing or write path exists on the screen."
+    "READ-ONLY: no posting, reversal, closing or write path exists on the screen.",
+    "CLEAN START (captain, 2026-10-02): the recorded demo records are REMOVED. The office's reference data is kept; a record is written only when the office actually records one."
   ],
   "tenant_id": "00000000-0000-4000-8000-000000000001",
-  "recorded_period": { "from": "2026-03-01", "to": "2026-08-31" },
+  "recorded_period": {
+    "from": "2026-03-01",
+    "to": "2026-08-31"
+  },
   "accounts": [
-    { "code": "1010", "name": "Cash on hand", "type": "asset" },
-    { "code": "1020", "name": "Cash in bank", "type": "asset" },
-    { "code": "1100", "name": "Accounts receivable", "type": "asset" },
-    { "code": "1200", "name": "Inventory — memorial goods", "type": "asset" },
-    { "code": "2010", "name": "Accounts payable", "type": "liability" },
-    { "code": "3010", "name": "Owner's capital", "type": "equity" },
-    { "code": "4010", "name": "Funeral service revenue", "type": "income" },
-    { "code": "4020", "name": "Merchandise sales", "type": "income" },
-    { "code": "4030", "name": "Plan membership revenue", "type": "income" },
-    { "code": "5010", "name": "Cost of goods sold", "type": "expense" },
-    { "code": "5020", "name": "Salaries and wages", "type": "expense" },
-    { "code": "5030", "name": "Utilities", "type": "expense" },
-    { "code": "5040", "name": "Rent", "type": "expense" },
-    { "code": "5050", "name": "Repairs and maintenance", "type": "expense" },
-    { "code": "5060", "name": "Supplies expense", "type": "expense" }
-  ],
-  "entries": [
     {
-      "id": "je-001",
-      "date": "2026-03-01",
-      "reference": "OB-2026",
-      "description": "Opening balances",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "1010", "debit_cents": 15000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 85000000, "credit_cents": 0 },
-        { "account_code": "1100", "debit_cents": 12000000, "credit_cents": 0 },
-        { "account_code": "1200", "debit_cents": 18000000, "credit_cents": 0 },
-        { "account_code": "2010", "debit_cents": 0, "credit_cents": 9000000 },
-        { "account_code": "3010", "debit_cents": 0, "credit_cents": 121000000 }
-      ]
+      "code": "1010",
+      "name": "Cash on hand",
+      "type": "asset"
     },
     {
-      "id": "je-002",
-      "date": "2026-03-05",
-      "reference": "CHK-2026-0311",
-      "description": "March office rent",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5040", "debit_cents": 4500000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 4500000 }
-      ]
+      "code": "1020",
+      "name": "Cash in bank",
+      "type": "asset"
     },
     {
-      "id": "je-003",
-      "date": "2026-03-12",
-      "reference": "PO-2026-0041",
-      "description": "Casket stock on account",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "1200", "debit_cents": 32000000, "credit_cents": 0 },
-        { "account_code": "2010", "debit_cents": 0, "credit_cents": 32000000 }
-      ]
+      "code": "1100",
+      "name": "Accounts receivable",
+      "type": "asset"
     },
     {
-      "id": "je-004",
-      "date": "2026-03-31",
-      "reference": "PR-2026-03",
-      "description": "March payroll",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5020", "debit_cents": 28000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 28000000 }
-      ]
+      "code": "1200",
+      "name": "Inventory — memorial goods",
+      "type": "asset"
     },
     {
-      "id": "je-005",
-      "date": "2026-03-31",
-      "reference": "UTIL-2026-03",
-      "description": "March utilities",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5030", "debit_cents": 620000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 620000 }
-      ]
+      "code": "2010",
+      "name": "Accounts payable",
+      "type": "liability"
     },
     {
-      "id": "je-006",
-      "date": "2026-04-02",
-      "reference": "MER-2026-04",
-      "description": "April embalming supplies purchase",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5060", "debit_cents": 1800000, "credit_cents": 0 },
-        { "account_code": "1010", "debit_cents": 0, "credit_cents": 1800000 }
-      ]
+      "code": "3010",
+      "name": "Owner's capital",
+      "type": "equity"
     },
     {
-      "id": "je-007",
-      "date": "2026-04-05",
-      "reference": "CHK-2026-0405",
-      "description": "April office rent",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5040", "debit_cents": 4500000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 4500000 }
-      ]
+      "code": "4010",
+      "name": "Funeral service revenue",
+      "type": "income"
     },
     {
-      "id": "je-008",
-      "date": "2026-04-30",
-      "reference": "PR-2026-04",
-      "description": "April payroll",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5020", "debit_cents": 28000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 28000000 }
-      ]
+      "code": "4020",
+      "name": "Merchandise sales",
+      "type": "income"
     },
     {
-      "id": "je-009",
-      "date": "2026-05-18",
-      "reference": "REP-2026-011",
-      "description": "Chapel roof repair",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5050", "debit_cents": 1250000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 1250000 }
-      ]
+      "code": "4030",
+      "name": "Plan membership revenue",
+      "type": "income"
     },
     {
-      "id": "je-010",
-      "date": "2026-05-31",
-      "reference": "PR-2026-05",
-      "description": "May payroll",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5020", "debit_cents": 28000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 28000000 }
-      ]
+      "code": "5010",
+      "name": "Cost of goods sold",
+      "type": "expense"
     },
     {
-      "id": "je-011",
-      "date": "2026-06-01",
-      "reference": "CHK-2026-0601",
-      "description": "June office rent",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5040", "debit_cents": 4500000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 4500000 }
-      ]
+      "code": "5020",
+      "name": "Salaries and wages",
+      "type": "expense"
     },
     {
-      "id": "je-012",
-      "date": "2026-06-15",
-      "reference": "ORD-2026-00002",
-      "description": "Sale on account — ORD-2026-00002",
-      "case_number": null,
-      "order_number": "ORD-2026-00002",
-      "lines": [
-        { "account_code": "1100", "debit_cents": 460000, "credit_cents": 0 },
-        { "account_code": "4010", "debit_cents": 0, "credit_cents": 460000 }
-      ]
+      "code": "5030",
+      "name": "Utilities",
+      "type": "expense"
     },
     {
-      "id": "je-013",
-      "date": "2026-06-20",
-      "reference": "PAY-2026-0033",
-      "description": "Supplier payment — PO-2026-0041",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "2010", "debit_cents": 20000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 20000000 }
-      ]
+      "code": "5040",
+      "name": "Rent",
+      "type": "expense"
     },
     {
-      "id": "je-014",
-      "date": "2026-06-30",
-      "reference": "PR-2026-06",
-      "description": "June payroll",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5020", "debit_cents": 28000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 28000000 }
-      ]
+      "code": "5050",
+      "name": "Repairs and maintenance",
+      "type": "expense"
     },
     {
-      "id": "je-015",
-      "date": "2026-06-30",
-      "reference": "UTIL-2026-06",
-      "description": "June utilities",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5030", "debit_cents": 740000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 740000 }
-      ]
-    },
-    {
-      "id": "je-016",
-      "date": "2026-07-01",
-      "reference": "ORD-2026-00001",
-      "description": "Sale — ORD-2026-00001",
-      "case_number": null,
-      "order_number": "ORD-2026-00001",
-      "lines": [
-        { "account_code": "1100", "debit_cents": 6352000, "credit_cents": 0 },
-        { "account_code": "4010", "debit_cents": 0, "credit_cents": 6352000 }
-      ]
-    },
-    {
-      "id": "je-017",
-      "date": "2026-07-02",
-      "reference": "ORD-2026-00001",
-      "description": "Collection — ORD-2026-00001",
-      "case_number": null,
-      "order_number": "ORD-2026-00001",
-      "lines": [
-        { "account_code": "1020", "debit_cents": 6352000, "credit_cents": 0 },
-        { "account_code": "1100", "debit_cents": 0, "credit_cents": 6352000 }
-      ]
-    },
-    {
-      "id": "je-018",
-      "date": "2026-07-20",
-      "reference": "ORD-2026-00007",
-      "description": "Sale on account — ORD-2026-00007",
-      "case_number": null,
-      "order_number": "ORD-2026-00007",
-      "lines": [
-        { "account_code": "1100", "debit_cents": 450000, "credit_cents": 0 },
-        { "account_code": "4010", "debit_cents": 0, "credit_cents": 450000 }
-      ]
-    },
-    {
-      "id": "je-019",
-      "date": "2026-07-31",
-      "reference": "PR-2026-07",
-      "description": "July payroll",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5020", "debit_cents": 28000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 28000000 }
-      ]
-    },
-    {
-      "id": "je-020",
-      "date": "2026-08-01",
-      "reference": "ORD-2026-00004",
-      "description": "Sale — ORD-2026-00004",
-      "case_number": null,
-      "order_number": "ORD-2026-00004",
-      "lines": [
-        { "account_code": "1010", "debit_cents": 350000, "credit_cents": 0 },
-        { "account_code": "4010", "debit_cents": 0, "credit_cents": 350000 }
-      ]
-    },
-    {
-      "id": "je-021",
-      "date": "2026-08-05",
-      "reference": "ORD-2026-00006",
-      "description": "Sale on account — ORD-2026-00006",
-      "case_number": null,
-      "order_number": "ORD-2026-00006",
-      "lines": [
-        { "account_code": "1100", "debit_cents": 100000, "credit_cents": 0 },
-        { "account_code": "4010", "debit_cents": 0, "credit_cents": 100000 }
-      ]
-    },
-    {
-      "id": "je-022",
-      "date": "2026-08-06",
-      "reference": "ORD-2026-00006",
-      "description": "Cancellation — ORD-2026-00006",
-      "case_number": null,
-      "order_number": "ORD-2026-00006",
-      "lines": [
-        { "account_code": "4010", "debit_cents": 100000, "credit_cents": 0 },
-        { "account_code": "1100", "debit_cents": 0, "credit_cents": 100000 }
-      ]
-    },
-    {
-      "id": "je-023",
-      "date": "2026-08-10",
-      "reference": "CS-2026-014",
-      "description": "Cost of goods sold — August",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5010", "debit_cents": 8500000, "credit_cents": 0 },
-        { "account_code": "1200", "debit_cents": 0, "credit_cents": 8500000 }
-      ]
-    },
-    {
-      "id": "je-024",
-      "date": "2026-08-27",
-      "reference": "PAY-2026-0058",
-      "description": "Retrieval crew advance — CASE-2026-0002",
-      "case_number": "CASE-2026-0002",
-      "order_number": null,
-      "lines": [
-        { "account_code": "5060", "debit_cents": 250000, "credit_cents": 0 },
-        { "account_code": "1010", "debit_cents": 0, "credit_cents": 250000 }
-      ]
-    },
-    {
-      "id": "je-025",
-      "date": "2026-08-31",
-      "reference": "PR-2026-08",
-      "description": "August payroll",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5020", "debit_cents": 28000000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 28000000 }
-      ]
-    },
-    {
-      "id": "je-026",
-      "date": "2026-08-31",
-      "reference": "UTIL-2026-08",
-      "description": "August utilities",
-      "case_number": null,
-      "order_number": null,
-      "lines": [
-        { "account_code": "5030", "debit_cents": 690000, "credit_cents": 0 },
-        { "account_code": "1020", "debit_cents": 0, "credit_cents": 690000 }
-      ]
+      "code": "5060",
+      "name": "Supplies expense",
+      "type": "expense"
     }
-  ]
+  ],
+  "entries": []
 }

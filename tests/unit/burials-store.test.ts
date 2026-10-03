@@ -11,6 +11,12 @@ import {
   updatePickup,
 } from "@/lib/api-client/burials-store";
 import type { BurialDraft, BurialFields } from "@/lib/burial-admin";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/burials.json", async () => ({
+  default: (await import("../fixtures/scheduling-burials-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The durable burial store (client minute 2026-09-21, item 2). Every test points

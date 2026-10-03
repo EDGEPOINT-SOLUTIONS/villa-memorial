@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/crm/lead-records.json", async () => ({
+  default: (await import("../fixtures/crm-lead-records-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * Staff Agents (`/staff/agents`) — the captain put "Agents" under Messages &

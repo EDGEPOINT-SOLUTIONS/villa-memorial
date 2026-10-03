@@ -75,7 +75,7 @@ describe("accounting fixture double-entry rules", () => {
     }
   });
 
-  it("balances every entry and the book as a whole", () => {
+  it("balances the book (no recorded entries on the clean start)", () => {
     const typed: JournalEntry[] = entries.map((row) => ({
       id: String(row.id),
       date: String(row.date),
@@ -89,14 +89,17 @@ describe("accounting fixture double-entry rules", () => {
         credit_cents: Number(line.credit_cents),
       })),
     }));
+    // Clean start (captain, 2026-10-02): the recorded demo journal entries are
+    // removed; the chart of accounts is kept.
+    expect(entries).toEqual([]);
     for (const entry of typed) {
       expect(isBalancedEntry(entry), `${entry.id} does not balance`).toBe(true);
     }
     const balance = buildTrialBalance(accounts as unknown as LedgerAccount[], typed);
-    expect(balance.rows.length).toBeGreaterThan(0);
+    // No entries → no trial-balance rows; there is nothing to balance yet.
+    expect(balance.rows).toEqual([]);
     expect(balance.total_debit_cents).toBe(balance.total_credit_cents);
-    expect(balance.balanced).toBe(true);
-    expect(balance.total_debit_cents).toBeGreaterThan(0);
+    expect(balance.balanced).toBe(false);
   });
 });
 

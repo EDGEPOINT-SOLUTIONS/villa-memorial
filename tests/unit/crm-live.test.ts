@@ -58,21 +58,17 @@ describe("crm live mode refuses rather than pretending", () => {
 });
 
 describe("crm fixture path is unchanged", () => {
-  it("serves the recorded fixtures with CRM_BASE_URL unset and never fetches", async () => {
+  it("serves the clean fixtures with CRM_BASE_URL unset and never fetches", async () => {
     const fetchSpy = noFetch();
     globalThis.fetch = fetchSpy;
     const crm = await load(undefined);
 
     expect(crm.crmLiveModeEnabled()).toBe(false);
 
-    const customers = await crm.listCustomers();
-    const inquiries = await crm.listInquiries();
-    expect(customers.length).toBeGreaterThan(0);
-    expect(inquiries.length).toBeGreaterThan(0);
-
-    const { customer, family } = await crm.getCustomer(customers[0].id);
-    expect(customer.id).toBe(customers[0].id);
-    if (family !== null) expect(family.members.length).toBeGreaterThan(0);
+    // Clean start (captain, 2026-10-02): the recorded demo customers and
+    // enquiries are removed, so fixture mode serves empty lists.
+    expect(await crm.listCustomers()).toEqual([]);
+    expect(await crm.listInquiries()).toEqual([]);
 
     await expect(crm.getCustomer("missing")).rejects.toMatchObject({
       status: 404,

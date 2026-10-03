@@ -15,6 +15,12 @@ import {
   preparationWindowLabel,
   preparationWorkLabel,
 } from "@/lib/preparation-record";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/preparation-records.json", async () => ({
+  default: (await import("../fixtures/operations-preparation-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The preparation record's pure answers: step order and words, the honest "no time

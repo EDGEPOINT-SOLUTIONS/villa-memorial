@@ -13,6 +13,12 @@ import { listMembershipApplications as listStoredApplications } from "@/lib/api-
 import { planRateOf } from "@/lib/pricing-model";
 import { SEED_PRICING } from "@/lib/villa-pricing";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/commerce/membership-applications.json", async () => ({
+  default: (await import("../fixtures/membership-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * RBAC gating and server rendering for the Villa Memorial Plan membership folio:

@@ -57,10 +57,12 @@ afterEach(async () => {
 });
 
 describe("the enquiry journal", () => {
-  it("starts from the recorded front-desk seed when nothing has arrived", async () => {
+  it("starts from an empty front-desk seed when nothing has arrived (clean start)", async () => {
     const rows = await listFixtureInquiries();
-    expect(rows).toHaveLength(seedInquiries().length);
-    expect(rows.map((r) => r.reference)).toContain("INQ-2026-00042");
+    // Captain, 2026-10-02: the recorded front-desk enquiries are removed, so the
+    // board lists only what the public forms and the family gate actually recorded.
+    expect(seedInquiries()).toEqual([]);
+    expect(rows).toEqual([]);
   });
 
   it("records a website enquiry and reads it back at the top of the board", async () => {
@@ -73,12 +75,12 @@ describe("the enquiry journal", () => {
     expect(recorded.person.full_name).toBe("Maria Dela Cruz");
     // The reference is minted above every existing one, never a browser-local counter.
     expect(recorded.reference).toMatch(/^INQ-2026-\d{5}$/);
-    expect(recorded.reference).toBe("INQ-2026-00043");
+    expect(recorded.reference).toBe("INQ-2026-00001");
 
     const rows = await listFixtureInquiries();
     // Newest first, so a coordinator sees it without scrolling.
     expect(rows[0].id).toBe(recorded.id);
-    expect(rows).toHaveLength(seedInquiries().length + 1);
+    expect(rows).toHaveLength(1);
   });
 
   it("keeps the family's own note in the row the board renders", async () => {
@@ -150,7 +152,7 @@ describe("the enquiry journal", () => {
     const first = await receiveInquiry({ intake: intakeOf(QUOTE), now: NOW });
     const second = await receiveInquiry({ intake: intakeOf(QUOTE), now: NOW });
     expect(first.reference).not.toBe(second.reference);
-    expect(second.reference).toBe("INQ-2026-00044");
+    expect(second.reference).toBe("INQ-2026-00002");
   });
 
   /**

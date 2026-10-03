@@ -3,6 +3,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { measureProse } from "@/tests/helpers/prose";
 import { parkToday, scheduleDayLabel } from "@/lib/schedule-board";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/bookings.json", async () => ({
+  default: (await import("../fixtures/scheduling-bookings-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The staff Schedule screen (`/staff/schedule`), rendered as the real page over

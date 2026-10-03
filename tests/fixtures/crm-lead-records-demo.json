@@ -1,0 +1,157 @@
+{
+  "_provenance": {
+    "status": "PROVISIONAL — no crm-families/lead contract exists (see lib/api-client/crm-leads.ts)",
+    "recorded": "2026-09-18",
+    "what_this_is": [
+      "The office's own lead file for the CRM area (Relationships → Sales pipeline), as the staff lead record shows it today: the person and the enquiry, the recorded pipeline movement, the recorded contact history, the recorded next step and who is handling the lead.",
+      "APP-AUTHORED example records with provenance. crm-families (leads, pipeline, customer sync, lead assignment) is unbuilt — docs/02-architecture/microservices.md — so no service response is being recorded here, the same pattern as lib/fixtures/family/workspace.json and lib/fixtures/property/lot-lifecycle.json. When a lead/customer-records contract freezes, this file is replaced by recorded contract fixtures and lib/api-client/crm-leads.ts gains the live branch."
+    ],
+    "cross_references": [
+      "Person fields (name, phone, email, source, topic, message) for a record with an `inquiry_reference` are that recorded row of lib/fixtures/crm/inquiries.json — pinned by tests/fixture-contract/crm-leads.test.ts.",
+      "For a person who is also an agent-portal prospect, `owner`, `stage`, `first_contact_at`, `last_contact_at`, `stage_history`, `next_action` and `activity` mirror lib/fixtures/agent/workspace.json exactly, so the office's record and the agent's record can never tell different stories about the same lead. The fixture-contract test fails on any drift.",
+      "`activity[].id` values are the agent workspace's own contact-entry ids where the entry exists there.",
+      "No amount, fee or commission figure appears anywhere: the lead's value is not this file's business (the recorded pricing/finance fixtures own money), and nothing here is quoted to a family.",
+      "The office's front-desk assignment (the inquiry's `assigned_to`) is deliberately NOT copied as the lead owner: lead assignment waits on the customer-records service, and `owner` is the recorded agent working the lead."
+    ],
+    "dates": [
+      "Every `at` / `first_contact_at` / `last_contact_at` is a true instant (ISO-8601 UTC). The record renders them in Asia/Manila through lib/agent/agent-view.ts manilaDay() / manilaTime() — the same helpers the agent record uses.",
+      "The first stage move is `new` at `first_contact_at`; the last move is the current `stage` at `last_contact_at`; moves are in chronological order."
+    ],
+    "stages": [
+      "The PRD pipeline stages (commerce-catalog §33), the same vocabulary the agent record renders: new → contacted → qualified → presentation → proposal → reserved → sold."
+    ]
+  },
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "leads": [
+    {
+      "id": "prospect-cecilia",
+      "inquiry_reference": "INQ-2026-00042",
+      "name": "Cecilia Ramos",
+      "phone": "+63 917 654 0091",
+      "email": "cecilia.ramos@example.com",
+      "source": "walk_in",
+      "topic": "Advance planning consultation",
+      "message": "Asked about pre-arrangement packages and payment terms for a parent.",
+      "interest": "plan",
+      "stage": "qualified",
+      "owner": "Alex Agent",
+      "first_contact_at": "2026-09-08T10:30:00Z",
+      "last_contact_at": "2026-09-14T11:42:00Z",
+      "next_action": "Call about Bronze 2 (or the senior plan for age 68)",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-08T10:30:00Z",
+          "by": "Alex Agent",
+          "note": "Walked in after the Sunday service; wants cover for her mother."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-12T08:30:00Z",
+          "by": "Alex Agent",
+          "note": "First call; asked for the monthly amount in writing."
+        },
+        {
+          "stage": "qualified",
+          "at": "2026-09-14T11:42:00Z",
+          "by": "Alex Agent",
+          "note": "Opened the payment-mode sheet again; senior rate may apply."
+        }
+      ],
+      "activity": [
+        {
+          "id": "act-c1",
+          "kind": "link",
+          "at": "2026-09-14T11:42:00Z",
+          "title": "She opened the payment-mode sheet for the second time",
+          "detail": "No message sent. A good moment to call tomorrow morning."
+        },
+        {
+          "id": "act-c2",
+          "kind": "call",
+          "at": "2026-09-12T08:30:00Z",
+          "title": "Called about the Bronze 2 monthly",
+          "detail": "“Magkano kada buwan?” She wants the figure in writing. Sent the sheet right after the call. Senior rate may apply — her mother is 68."
+        },
+        {
+          "id": "act-c3",
+          "kind": "visit",
+          "at": "2026-09-08T10:30:00Z",
+          "title": "Walked in after the Sunday service",
+          "detail": "Wants cover for her mother; brother in Manila helps decide. Prefers calls after 4 PM."
+        }
+      ]
+    },
+    {
+      "id": "prospect-paolo",
+      "inquiry_reference": "INQ-2026-00041",
+      "name": "Paolo Mendoza",
+      "phone": "+63 918 220 7714",
+      "email": "paolo.mendoza@example.com",
+      "source": "facebook",
+      "topic": "Service package pricing",
+      "message": "Requested the current price list via page message.",
+      "interest": "services",
+      "stage": "contacted",
+      "owner": "Alex Agent",
+      "first_contact_at": "2026-09-15T13:10:00Z",
+      "last_contact_at": "2026-09-16T08:42:00Z",
+      "next_action": "Call back tomorrow if he does not open it",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-15T13:10:00Z",
+          "by": "Alex Agent",
+          "note": "Messaged the Facebook page and asked for the price list."
+        },
+        {
+          "stage": "contacted",
+          "at": "2026-09-16T08:42:00Z",
+          "by": "Alex Agent",
+          "note": "Sent the 2026 price list; waiting for him to open it."
+        }
+      ],
+      "activity": [
+        {
+          "id": "act-p1",
+          "kind": "link",
+          "at": "2026-09-16T08:42:00Z",
+          "title": "Sent the 2026 price list",
+          "detail": "Link sent by SMS. We will tell you when he opens it."
+        },
+        {
+          "id": "act-p2",
+          "kind": "message",
+          "at": "2026-09-15T13:10:00Z",
+          "title": "Messaged the Facebook page",
+          "detail": "“Pwede po ba makahingi ng price list?” — asked for the casket and services list."
+        }
+      ]
+    },
+    {
+      "id": "prospect-boyet",
+      "inquiry_reference": null,
+      "name": "Boyet Salazar",
+      "phone": "+63 917 388 2201",
+      "email": "boyet.salazar@example.com",
+      "source": "facebook",
+      "topic": "Embalming only, no package",
+      "message": "Messaged the Facebook page about embalming only, no package.",
+      "interest": "services",
+      "stage": "new",
+      "owner": "Alex Agent",
+      "first_contact_at": "2026-09-15T13:40:00Z",
+      "last_contact_at": "2026-09-15T13:40:00Z",
+      "next_action": "First call",
+      "stage_history": [
+        {
+          "stage": "new",
+          "at": "2026-09-15T13:40:00Z",
+          "by": "Alex Agent",
+          "note": "Messaged the Facebook page about embalming only."
+        }
+      ],
+      "activity": []
+    }
+  ]
+}

@@ -60,9 +60,14 @@ describe("dashboard summary reconciles with the sources it summarises", () => {
       invoices.filter((i) => invoiceOverdue(i, now)).length,
     );
     expect(summary.finance!.total_outstanding_cents).toBe(outstanding);
-    expect([...new Set(invoices.map((i) => i.currency))]).toContain(
-      summary.finance!.currency,
-    );
+    if (invoices.length > 0) {
+      expect([...new Set(invoices.map((i) => i.currency))]).toContain(
+        summary.finance!.currency,
+      );
+    } else {
+      // Clean start (captain, 2026-10-02): no recorded invoices.
+      expect(summary.finance!.total_invoices).toBe(0);
+    }
   });
 
   it("outstanding is a non-negative integer of minor units", async () => {
@@ -102,17 +107,14 @@ describe("dashboard summary reconciles with the sources it summarises", () => {
   });
 
   it("splits upcoming from overdue with an explicit clock (the two-day window)", async () => {
-    // At 2026-09-01 the recorded seed carries one payment due in exactly two days
-    // (INV-2026-00006, due 2026-09-03) and five already past their date.
+    // Clean start: the recorded demo invoices are removed, so no payment is due
+    // soon and none is overdue; the classification rule is unchanged.
     const now = new Date("2026-09-01T00:00:00Z");
     const summary = await getDashboardSummary(now);
 
-    expect(summary.payment_alerts!.due_soon_count).toBe(1);
-    expect(summary.payment_alerts!.due_soon[0].reference).toBe("INV-2026-00006");
-    expect(summary.payment_alerts!.due_soon[0].days_until_due).toBe(2);
-    expect(summary.payment_alerts!.overdue_count).toBe(5);
-    expect(summary.payment_alerts!.total).toBe(6);
-    expect(summary.payment_alerts!.overdue.every((a) => a.days_until_due < 0)).toBe(true);
+    expect(summary.payment_alerts!.due_soon_count).toBe(0);
+    expect(summary.payment_alerts!.overdue_count).toBe(0);
+    expect(summary.payment_alerts!.total).toBe(0);
   });
 
   it("a failing source nulls only its own section", async () => {

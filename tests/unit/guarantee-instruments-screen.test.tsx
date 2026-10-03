@@ -1,6 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/guarantee-instruments.json", async () => ({
+  default: (await import("../fixtures/operations-guarantee-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The guarantee-instrument tracker's screens (F-18 / FORMS_PLAN gap 5).

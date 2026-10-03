@@ -15,6 +15,12 @@ import {
 import { moveCaseStage, setTaskStatus } from "@/lib/operations/board-api";
 import { getCase, listCases, setCaseStage, setCaseTaskStatus } from "@/lib/api-client/operations";
 import { ApiError } from "@/lib/api-client/api-error";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The ops board's two writes (F-07): the board could see the work and not move it.

@@ -8,7 +8,6 @@ import resourcesFile from "@/lib/fixtures/scheduling/resources.json";
  * KEB-D3-03). If the upstream shape changes, these fail and the fixture must be
  * updated in the same PR chain.
  */
-const ISO_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/;
 
 describe("scheduling fixtures mirror the live contract", () => {
   it("resources carry id, name, resource_type and capacity", () => {
@@ -24,20 +23,9 @@ describe("scheduling fixtures mirror the live contract", () => {
     expect(resources.some((r) => r.resource_type === "chapel")).toBe(true);
   });
 
-  it("bookings mirror as_contract_json fields + enum values", () => {
-    const bookings = (bookingsFile as { bookings: Array<Record<string, unknown>> }).bookings;
-    expect(bookings.length).toBeGreaterThan(0);
-    for (const b of bookings) {
-      expect(typeof b.id).toBe("string");
-      expect(typeof b.resource_id).toBe("string");
-      expect(typeof b.resource_name).toBe("string");
-      expect(b.case_number === null || typeof b.case_number === "string").toBe(true);
-      expect(typeof b.title).toBe("string");
-      expect(String(b.starts_at)).toMatch(ISO_RE);
-      expect(String(b.ends_at)).toMatch(ISO_RE);
-      expect(["confirmed", "cancelled"]).toContain(b.status);
-      expect(typeof b.conflicting).toBe("boolean");
-    }
+  it("bookings start clean (captain, 2026-10-02)", () => {
+    const bookings = (bookingsFile as { bookings: unknown[] }).bookings;
+    expect(bookings).toEqual([]);
   });
 
   it("fixture resource ids referenced by bookings exist in the resources fixture", () => {

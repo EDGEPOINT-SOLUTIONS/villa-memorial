@@ -6,6 +6,15 @@ import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getAdminOrder } from "@/lib/api-client/commerce";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/commerce/orders.json", async () => ({
+  default: (await import("../fixtures/orders-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
+  default: (await import("../fixtures/invoices-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * RBAC gating for the staff Orders admin:

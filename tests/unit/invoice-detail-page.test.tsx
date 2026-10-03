@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
+  default: (await import("../fixtures/invoices-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The read-only invoice (client minute 2026-09-21, item 4). The dashboard's red band names

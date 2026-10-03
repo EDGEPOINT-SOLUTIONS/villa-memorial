@@ -23,6 +23,12 @@ import {
   type DispatchTrip,
 } from "@/lib/dispatch";
 import { ApiError } from "@/lib/api-client/api-error";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/dispatch.json", async () => ({
+  default: (await import("../fixtures/operations-dispatch-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The dispatch board's pure answers: day grouping and order, the derived driver state,

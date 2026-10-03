@@ -250,11 +250,14 @@ describe("the demo household is ONE record — fixture consistency", () => {
     );
   });
 
-  it("points the household at a real recorded customer, and keeps the memorial unpublished", () => {
+  it("keeps the demo account holder out of the clean customer master, and the memorial unpublished", () => {
     const cory = (customersFile.customers as Array<{ id: string; email: string }>).find(
       (customer) => customer.email === snapshot.family.email,
     );
-    expect(cory, "the account holder is not in the office's customer record").toBeTruthy();
+    // Clean start (captain, 2026-10-02): the demo household is removed from the
+    // office's customer master; a customer row is recorded only when the office
+    // works a real enquiry into one.
+    expect(cory, "the demo household must not be in the clean customer record").toBeUndefined();
 
     // No loved one's memorial has chosen a visibility: nothing may be published.
     expect((memorialsFile as unknown as { consents: unknown[] }).consents).toEqual([]);

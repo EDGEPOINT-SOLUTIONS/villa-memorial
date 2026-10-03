@@ -5,6 +5,12 @@ import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import { getCase } from "@/lib/api-client/operations";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/operations/cases.json", async () => ({
+  default: (await import("../fixtures/operations-cases-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * RBAC + wiring for the ops board's two writes (F-07).

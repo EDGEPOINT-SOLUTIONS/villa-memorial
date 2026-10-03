@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -16,6 +16,15 @@ import {
 } from "@/lib/api-client/chapel-admin";
 import { listResources } from "@/lib/api-client/scheduling";
 import { chapelMonthView } from "@/lib/chapel-admin";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/bookings.json", async () => ({
+  default: (await import("../fixtures/scheduling-bookings-demo.json")).default,
+}));
+vi.mock("@/lib/fixtures/commerce/orders.json", async () => ({
+  default: (await import("../fixtures/orders-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * Staff chapel administration (Schedule → chapels / availability / bookings):

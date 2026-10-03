@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
 import pricingFile from "@/lib/fixtures/commerce/pricing.json";
+import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
 import seedFile from "@/lib/fixtures/lifecycle/engagements.json";
 import { planRateOf } from "@/lib/pricing-model";
 import { SEED_PRICING } from "@/lib/villa-pricing";
@@ -10,16 +10,14 @@ import { SEED_PRICING } from "@/lib/villa-pricing";
  *
  * No contract under docs/08-delivery/contracts/ names a lifecycle / engagement
  * record — the shape is PROVISIONAL (a plan membership, a booked service, a
- * product sale, a monthly-paid lot). These tests pin what the recorded demo rows
- * DO promise while it waits:
+ * product sale, a monthly-paid lot).
  *
- *  - every figure is the client's own 2026 sheet figure: a plan's amount is the
- *    published ANNUAL total for its tier (`planRateOf`), every product/service
- *    amount is the catalogue line's own SRP, and a lot's amount is the lot
- *    sheet's `selling` figure for its family;
- *  - the amortization data is coherent (whole amounts, at least one installment,
- *    a real first due date), and the schedule is DERIVED, never stored;
- *  - ids and references are unique, so a recording can never collide.
+ * CLEAN START (captain, 2026-10-02/03): the recorded demo engagements and payments
+ * are REMOVED. The four registers (/staff/members, /staff/services, /staff/lots,
+ * /staff/products) begin empty; the office records an outcome through
+ * /api/staff/lifecycle when a prospect decides. The notice templates remain as the
+ * office's own configuration. The figures those outcomes must use are still the
+ * client's own 2026 sheets, and the helpers below pin the sources they read.
  */
 
 type EngagementSeed = {
@@ -34,6 +32,8 @@ type EngagementSeed = {
 };
 
 const engagements = (seedFile as { engagements: EngagementSeed[] }).engagements;
+const noticeTemplates = (seedFile as { notice_templates: Array<{ id: string; active: boolean }> })
+  .notice_templates;
 
 const catalogBySku = new Map(
   (catalogFile as { items: Array<{ sku: string; unit_price_cents: number }> }).items.map((item) => [
@@ -52,74 +52,25 @@ const lotSellingByFamily = new Map(
   )?.rows ?? []).map((row) => [row.product, row.regular.selling] as const),
 );
 
-const PLAN_SKUS: Record<string, string> = {
-  "PLAN-SILVER2-ANNUAL": "silver2",
-  "PLAN-GOLD-ANNUAL": "gold",
-  "PLAN-SILVER1-ANNUAL": "silver1",
-  "PLAN-BRONZE2-ANNUAL": "bronze2",
-};
+describe("lifecycle seed starts clean", () => {
+  it("carries no recorded engagements or payments", () => {
+    expect(engagements).toEqual([]);
+    expect((seedFile as { payments: unknown[] }).payments).toEqual([]);
+  });
 
-const LOT_FAMILIES: Record<string, string> = {
-  "LOT-CONDO-2.5": "Condo-type",
-  "LOT-NICHE-12": "Garden Niches",
-};
-
-describe("lifecycle seed — every figure is the client's own sheet figure", () => {
-  it("pins every plan amount to the published annual figure for its tier", () => {
-    const plans = engagements.filter((row) => row.kind === "plan");
-    expect(plans.length).toBeGreaterThan(0);
-    for (const plan of plans) {
-      const tier = PLAN_SKUS[plan.item.sku];
-      expect(tier, `plan ${plan.reference} maps to a tier`).toBeTruthy();
-      expect(plan.amount_cents, `${plan.reference} (${plan.item.name})`).toBe(
-        planRateOf(SEED_PRICING.plans, tier as never, "annual", false) * 100,
-      );
+  it("keeps the office's notice templates as configuration", () => {
+    expect(noticeTemplates.length).toBeGreaterThan(0);
+    for (const template of noticeTemplates) {
+      expect(template.id.length).toBeGreaterThan(0);
+      expect(typeof template.active).toBe("boolean");
     }
   });
 
-  it("pins every product and single service line to its catalogue SRP", () => {
-    for (const row of engagements) {
-      if (row.kind === "plan" || row.kind === "lot") continue;
-      if (row.item.sku === "CHP-COMMON-DAY") {
-        // Two days of the common chapel: the sheet's per-day line × 2.
-        expect(row.amount_cents).toBe((catalogBySku.get("CHP-COMMON-DAY") ?? 0) * 2);
-        continue;
-      }
-      const price = catalogBySku.get(row.item.sku);
-      expect(price, `${row.reference} names a catalogue line`).toBeTruthy();
-      expect(row.amount_cents, `${row.reference} (${row.item.name})`).toBe(price);
-    }
-  });
-
-  it("pins every lot amount to the lot sheet's selling figure for its family", () => {
-    const lots = engagements.filter((row) => row.kind === "lot");
-    expect(lots.length).toBeGreaterThan(0);
-    for (const lot of lots) {
-      const family = LOT_FAMILIES[lot.item.sku];
-      expect(family, `lot ${lot.reference} maps to a family`).toBeTruthy();
-      expect(lot.amount_cents, `${lot.reference} (${lot.item.name})`).toBe(
-        (lotSellingByFamily.get(family as string) ?? 0) * 100,
-      );
-    }
-  });
-});
-
-describe("lifecycle seed — the amortization data is coherent", () => {
-  it("carries a whole amount, a real installment count and a real first due date", () => {
-    for (const row of engagements) {
-      expect(Number.isInteger(row.amount_cents) && row.amount_cents > 0, row.reference).toBe(true);
-      expect(Number.isInteger(row.installments) && row.installments >= 1, row.reference).toBe(true);
-      if (row.mode !== "one_time") {
-        expect(row.installments, `${row.reference} is term-paid`).toBeGreaterThanOrEqual(1);
-      } else {
-        expect(row.installments, `${row.reference} is one-time`).toBe(1);
-      }
-      expect(row.first_due_on, row.reference).toMatch(/^\d{4}-\d{2}-\d{2}$/);
-    }
-  });
-
-  it("keeps every id and reference unique", () => {
-    expect(new Set(engagements.map((row) => row.id)).size).toBe(engagements.length);
-    expect(new Set(engagements.map((row) => row.reference)).size).toBe(engagements.length);
+  it("still resolves the client's own 2026 figures an outcome must use", () => {
+    // A plan's annual total, a catalogue line's SRP and a lot family's selling
+    // figure all remain readable — the outcome pages quote these, not invented sums.
+    expect(planRateOf(SEED_PRICING.plans, "silver2", "annual", false)).toBeGreaterThan(0);
+    expect(catalogBySku.size).toBeGreaterThan(0);
+    expect(lotSellingByFamily.size).toBeGreaterThan(0);
   });
 });

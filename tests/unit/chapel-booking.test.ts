@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import bookingsFile from "@/lib/fixtures/scheduling/bookings.json";
 import resourcesFile from "@/lib/fixtures/scheduling/resources.json";
 import type { Booking, Resource } from "@/lib/api-client/scheduling";
@@ -26,6 +26,12 @@ import {
   toChapelBookingLine,
 } from "@/lib/chapel-booking";
 import { releaseChapelQuoteLine } from "@/lib/chapel-booking-api";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/bookings.json", async () => ({
+  default: (await import("../fixtures/scheduling-bookings-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * The chapel booking step's rule set — the tests the captain's brief asks for:

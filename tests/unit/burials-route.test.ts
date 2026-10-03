@@ -3,6 +3,12 @@ import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { listStoredBurials } from "@/lib/api-client/burials-store";
+/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
+vi.mock("@/lib/fixtures/scheduling/burials.json", async () => ({
+  default: (await import("../fixtures/scheduling-burials-demo.json")).default,
+}));
+/* --- end test-only demo fixtures --- */
+
 
 /**
  * RBAC + write behaviour for the burial BFF routes (client minute 2026-09-21, item 2):

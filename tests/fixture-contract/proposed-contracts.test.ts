@@ -35,12 +35,12 @@ function assertRows(rows: unknown[], key: ProposedShapeKey): void {
 }
 
 describe("proposed contract shapes validate today's recorded fixtures", () => {
-  it("C1 crm — customers", () => {
-    assertRows(customersFile.customers as unknown[], "crm.customer");
+  it("C1 crm — customers (clean start: the customer master is empty)", () => {
+    expect(customersFile.customers as unknown[]).toEqual([]);
   });
 
-  it("C1 crm — enquiries", () => {
-    assertRows(inquiriesFile.inquiries as unknown[], "crm.inquiry");
+  it("C1 crm — enquiries (clean start: the enquiry seed is empty)", () => {
+    expect(inquiriesFile.inquiries as unknown[]).toEqual([]);
   });
 
   it("C2 hr — employees", () => {
@@ -87,12 +87,12 @@ describe("proposed contract shapes validate today's recorded fixtures", () => {
     assertRows(notificationsFile.templates as unknown[], "notification.template");
   });
 
-  it("C28 inventory — stock items", () => {
-    assertRows(inventoryFile.items as unknown[], "inventory.item");
+  it("C28 inventory — the clean start carries no stock items", () => {
+    expect(inventoryFile.items as unknown[]).toEqual([]);
   });
 
-  it("C4 accounting — journal entries", () => {
-    assertRows(accountingFile.entries as unknown[], "accounting.entry");
+  it("C4 accounting — the clean start carries no journal entries", () => {
+    expect(accountingFile.entries as unknown[]).toEqual([]);
   });
 
   it("C18 memorials — the consent store seed (nothing published)", () => {

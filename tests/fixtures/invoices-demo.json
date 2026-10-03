@@ -1,0 +1,119 @@
+{
+  "comment": [
+    "Fixture records for Module E billing/collections screens. Shapes follow docs/04-modules/",
+    "finance-billing.md (payments, billing, AR aging buckets). NO frozen API contract exists",
+    "for billing list endpoints yet — finance-billing service seeds only arrive via events;",
+    "these records are UI demo data with provenance, to be replaced by recorded contract",
+    "fixtures once Keb freezes the billing contract. IDs are deterministic UUIDs; tenant",
+    "matches identity seeds. Totals of the invoices that name an order follow that order's",
+    "seeded total in commerce/orders.json (the demo-coherence rule pinned by",
+    "tests/fixture-contract/orders.test.ts)."
+  ],
+  "tenant_id": "00000000-0000-4000-8000-000000000001",
+  "invoices": [
+    {
+      "id": "00000000-0000-4000-8000-000000000E01",
+      "invoice_number": "INV-2026-00001",
+      "customer_name": "Marites Santos",
+      "order_number": "ORD-2026-00001",
+      "total_cents": 6352000,
+      "paid_cents": 6352000,
+      "currency": "PHP",
+      "status": "paid",
+      "issued_at": "2026-07-01T08:00:00Z",
+      "due_at": "2026-07-15T08:00:00Z",
+      "aging_bucket": "current"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E02",
+      "invoice_number": "INV-2026-00002",
+      "customer_name": "Roberto Santos",
+      "order_number": "ORD-2026-00002",
+      "total_cents": 460000,
+      "paid_cents": 260000,
+      "currency": "PHP",
+      "status": "partial",
+      "issued_at": "2026-06-15T08:00:00Z",
+      "due_at": "2026-07-15T08:00:00Z",
+      "aging_bucket": "31-60"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E03",
+      "invoice_number": "INV-2026-00003",
+      "customer_name": "Liwayway Cruz",
+      "order_number": null,
+      "total_cents": 180000,
+      "paid_cents": 0,
+      "currency": "PHP",
+      "status": "overdue",
+      "issued_at": "2026-05-01T08:00:00Z",
+      "due_at": "2026-05-15T08:00:00Z",
+      "aging_bucket": "61-90"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E04",
+      "invoice_number": "INV-2026-00004",
+      "customer_name": "Danilo Reyes",
+      "order_number": "ORD-2026-00004",
+      "total_cents": 350000,
+      "paid_cents": 350000,
+      "currency": "PHP",
+      "status": "paid",
+      "issued_at": "2026-08-01T08:00:00Z",
+      "due_at": "2026-08-15T08:00:00Z",
+      "aging_bucket": "current"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E05",
+      "invoice_number": "INV-2026-00005",
+      "customer_name": "Juan Dela Cruz",
+      "order_number": null,
+      "total_cents": 920000,
+      "paid_cents": 300000,
+      "currency": "PHP",
+      "status": "partial",
+      "issued_at": "2026-04-10T08:00:00Z",
+      "due_at": "2026-05-10T08:00:00Z",
+      "aging_bucket": "91-120"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E06",
+      "invoice_number": "INV-2026-00006",
+      "customer_name": "Ana Gonzales",
+      "order_number": "ORD-2026-00006",
+      "total_cents": 100000,
+      "paid_cents": 0,
+      "currency": "PHP",
+      "status": "pending",
+      "issued_at": "2026-08-20T08:00:00Z",
+      "due_at": "2026-09-03T08:00:00Z",
+      "aging_bucket": "current"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E07",
+      "invoice_number": "INV-2026-00007",
+      "customer_name": "Marites Santos",
+      "order_number": "ORD-2026-00007",
+      "total_cents": 450000,
+      "paid_cents": 150000,
+      "currency": "PHP",
+      "status": "partial",
+      "issued_at": "2026-07-20T08:00:00Z",
+      "due_at": "2026-08-03T08:00:00Z",
+      "aging_bucket": "1-30"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000E08",
+      "invoice_number": "INV-2026-00008",
+      "customer_name": "Roberto Santos",
+      "order_number": null,
+      "total_cents": 600000,
+      "paid_cents": 0,
+      "currency": "PHP",
+      "status": "overdue",
+      "issued_at": "2026-03-01T08:00:00Z",
+      "due_at": "2026-03-15T08:00:00Z",
+      "aging_bucket": "120+"
+    }
+  ]
+}

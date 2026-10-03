@@ -120,13 +120,12 @@ describe("the burial schedule is app-authored and cross-referenced", () => {
 describe("the light pickup is a recorded schedule on its own burial", () => {
   it("gives every present pickup a clock time, a crew role and a vocabulary state", () => {
     const withPickup = store.burials.filter((b) => b.light_pickup !== null);
-    expect(withPickup.length).toBeGreaterThan(0);
-    for (const burial of withPickup) {
-      const pickup = burial.light_pickup as NonNullable<typeof burial.light_pickup>;
-      expect(isTimeOfDay(pickup.time), `${burial.id} pickup time`).toBe(true);
-      expect(pickup.crew.trim().length, `${burial.id} pickup crew`).toBeGreaterThan(0);
-      expect(LIGHT_PICKUP_STATES).toContain(pickup.state);
-    }
+    // Clean start (captain, 2026-10-02): the recorded demo burials are removed, so
+    // there is no pickup to schedule until the office records a burial.
+    expect(store.burials).toEqual([]);
+    expect(withPickup).toEqual([]);
+    expect(isTimeOfDay("08:00")).toBe(true);
+    expect(LIGHT_PICKUP_STATES.length).toBeGreaterThan(0);
   });
 
   it("keeps the pickup crew a role label, never a person's name", () => {

@@ -1,55 +1,13 @@
 {
   "comment": [
-    "Fixture inquiries for Module A quick-capture screens.",
-    "Lifecycle per docs/04-modules/crm-cases.md: Lead → Inquiry → Consultation → …",
+    "CLEAN START (captain, 2026-10-02): the recorded front-desk enquiries are REMOVED.",
+    "The office's enquiry journal starts empty. A submission through the public forms",
+    "(`POST /api/inquiries`) or the family plan/lot gate (`POST /api/family/inquiries`) is",
+    "what the board lists — lib/api-client/inquiry-store.ts folds the durable journal over",
+    "this (empty) seed, so the board, the family portal and the prospects screen read one",
+    "record. Lifecycle per docs/04-modules/crm-cases.md: Lead → Inquiry → Consultation → …",
     "Sources enum from docs/04-modules/commerce-catalog.md §33 (lead sources).",
     "NO frozen API exists yet — UI demo data pending the D3 crm-families contract."
   ],
-  "inquiries": [
-    {
-      "id": "00000000-0000-4000-8000-000000000301",
-      "reference": "INQ-2026-00042",
-      "person": {
-        "full_name": "Cecilia Ramos",
-        "email": "cecilia.ramos@example.com",
-        "phone": "+63 917 654 0091"
-      },
-      "source": "walk_in",
-      "topic": "Advance planning consultation",
-      "message": "Asked about pre-arrangement packages and payment terms for a parent.",
-      "assigned_to": "Sam Staff",
-      "status": "new",
-      "received_at": "2026-08-25T08:47:00Z"
-    },
-    {
-      "id": "00000000-0000-4000-8000-000000000302",
-      "reference": "INQ-2026-00041",
-      "person": {
-        "full_name": "Paolo Mendoza",
-        "email": "paolo.mendoza@example.com",
-        "phone": "+63 918 220 7714"
-      },
-      "source": "facebook",
-      "topic": "Service package pricing",
-      "message": "Requested the current price list via page message.",
-      "assigned_to": "Alex Agent",
-      "status": "contacted",
-      "received_at": "2026-08-24T16:03:00Z"
-    },
-    {
-      "id": "00000000-0000-4000-8000-000000000303",
-      "reference": "INQ-2026-00038",
-      "person": {
-        "full_name": "Gracia Villanueva",
-        "email": "gracia.villanueva@example.com",
-        "phone": "+63 916 512 3388"
-      },
-      "source": "referral",
-      "topic": "Document request",
-      "message": "Referred by the Santos family; needs copies of previous documents.",
-      "assigned_to": "Sam Staff",
-      "status": "converted",
-      "received_at": "2026-08-19T11:26:00Z"
-    }
-  ]
+  "inquiries": []
 }
