@@ -1,122 +1,167 @@
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { PageHeader, PageSection } from "@/components/ui/page";
-import { EmptyState } from "@/components/ui/empty-state";
+import { DataTable, StatCard, StatusChip, type DataTableColumn } from "@/components/kit";
+import { ReceivablesAging } from "@/components/staff/receivables-aging";
+import { PageHeader } from "@/components/ui/page";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
-import { StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { listInvoices, type Invoice } from "@/lib/api-client/finance";
 import { INVOICE_STATUS_LABEL, INVOICE_STATUS_TONE } from "@/lib/api-client/billing-derive";
+import { listFixturePayments } from "@/lib/api-client/billing-store";
 import { outstandingCents } from "@/lib/billing-payments";
 import { invoiceOverdue } from "@/lib/payment-alerts";
+import {
+  agingBucketFor,
+  AGING_BUCKET_LABEL,
+  duesAging,
+  outstandingTotal,
+  overdueTotal,
+  receivedInPeriod,
+} from "@/lib/receivables";
 import { formatMinorUnits } from "@/lib/money";
+import { monthBoundsOf } from "@/lib/period";
+import { businessToday } from "@/lib/contracts/payment-capture";
+import type { RecordedPayment } from "@/lib/billing-payments";
 
 export const metadata = { title: "Billing & collections — Admin Portal" };
 
-const AGING_BUCKETS: string[] = ["current", "1-30", "31-60", "61-90", "91-120", "120+"];
+/**
+ * Billing & collections — the office's collections desk.
+ *
+ * WHAT LEADS: the figures. What is owed (outstanding), what is late (overdue), what
+ * the counter received this month, and how many invoices are open. The aging strip
+ * answers "since when": each bucket is DERIVED from the invoice's own due date and
+ * balance (`lib/receivables.ts`), the same rule Accounting prints, never the seed's
+ * stored bucket.
+ *
+ * THE WORK LIST: every recorded invoice, newest money first, with ONE action per row
+ * — record a payment against an open invoice when the session may write, open the
+ * record otherwise. The customer name opens the invoice that names them.
+ *
+ * WHAT WAS RECEIVED: the counter payment journal with the official receipt each
+ * payment issued. A receipt is printed only where one was recorded.
+ *
+ * HONESTY. A figure with no record prints "—", never "₱0.00" — an absent number must
+ * not read as recorded money. Nothing here writes: recording is the record-payment
+ * screen's own action, reached from the row.
+ */
 
-function agingTone(bucket: string): "success" | "warning" | "danger" {
-  if (bucket === "current") return "success";
-  if (bucket === "1-30" || bucket === "31-60") return "warning";
-  return "danger";
+type BillingSearch = { status?: string };
+
+type ReceiptRow = {
+  document_number: string;
+  document_id: string;
+  received_on: string;
+  payer: string;
+  invoice_number: string;
+  amount_cents: number;
+};
+
+/** One official receipt per recorded payment that issued one. */
+function officialReceipts(
+  payments: readonly RecordedPayment[],
+  invoices: readonly Invoice[],
+): ReceiptRow[] {
+  const byNumber = new Map(invoices.map((invoice) => [invoice.invoice_number, invoice]));
+  return payments
+    .filter((payment) => payment.receipt_document !== null)
+    .map((payment) => ({
+      document_number: payment.receipt_document?.document_number ?? "",
+      document_id: payment.receipt_document?.id ?? "",
+      received_on: payment.received_on,
+      payer: byNumber.get(payment.invoice_number)?.customer_name ?? "",
+      invoice_number: payment.invoice_number,
+      amount_cents: payment.amount_cents,
+    }))
+    .sort((a, b) => b.received_on.localeCompare(a.received_on));
 }
 
-function agingLabel(bucket: string): string {
-  return bucket === "current" ? "Current" : bucket + " days";
+const RECEIPT_COLUMNS: ReadonlyArray<DataTableColumn<ReceiptRow>> = [
+  { key: "received", header: "Received", className: "nowrap" },
+  { key: "payer", header: "Payer" },
+  { key: "invoice", header: "Invoice" },
+  { key: "receipt", header: "Receipt" },
+  { key: "amount", header: "Amount", numeric: true },
+];
+
+/** A day as the office writes it, or the raw value when it cannot be parsed. */
+function shortDay(value: string): string {
+  const parsed = new Date(value.length === 10 ? `${value}T00:00:00Z` : value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("en-PH", {
+    timeZone: "UTC",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(parsed);
 }
 
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<BillingSearch>;
 }) {
   const session = await requireSessionOrRedirect();
   if (!hasAnyScope(session.scopes, ["billing:read"])) {
     return (
       <>
-        <PageHeader eyebrow="Finance" title="Billing & collections" />
-        <PageSection>
-          <ForbiddenState requiredScopes={["billing:read"]} />
-        </PageSection>
+        <PageHeader title="Billing & collections" />
+        <ForbiddenState requiredScopes={["billing:read"]} />
       </>
     );
   }
 
   const now = new Date();
-  let invoices;
-  try {
-    invoices = await listInvoices(now);
-  } catch {
+  const [invoicesResult, paymentsResult] = await Promise.allSettled([
+    listInvoices(now),
+    listFixturePayments(),
+  ]);
+
+  const invoices = invoicesResult.status === "fulfilled" ? invoicesResult.value : null;
+  const payments = paymentsResult.status === "fulfilled" ? paymentsResult.value : null;
+
+  if (invoices === null) {
     return (
       <>
-        <PageHeader eyebrow="Finance" title="Billing & collections" />
-        <PageSection>
-          <ErrorState message="Unable to load billing records." />
-        </PageSection>
+        <PageHeader title="Billing & collections" />
+        <ErrorState message="Unable to load the billing records." />
       </>
     );
   }
 
   const { status } = await searchParams;
   const statusFilter = (status ?? "").trim();
-
-  // Recording a payment is a write: the entry points appear only for sessions holding the
-  // frozen payments scope (billing:write), which the capture screen itself enforces.
   const canRecordPayments = hasAnyScope(session.scopes, ["billing:write"]);
 
-  let filtered = invoices;
-  if (statusFilter === "overdue") {
-    // "Overdue" means the one thing everywhere on this screen: still owed, past its due
-    // date. The stored status leaves a part-paid invoice `partial`, so filtering on the
-    // status would hide late part-payments the dashboard counts (2026-09-21 review).
-    filtered = filtered.filter((i) => invoiceOverdue(i, now));
-  } else if (statusFilter) {
-    filtered = filtered.filter((i) => i.status === statusFilter);
-  }
+  const month = monthBoundsOf(businessToday(now));
+  const balanceOf = (invoice: Invoice) => outstandingCents(invoice);
+  const openInvoices = invoices.filter((invoice) => balanceOf(invoice) > 0);
+  const aging = duesAging(invoices, now);
+  const outstanding = outstandingTotal(invoices);
+  const overdue = overdueTotal(invoices, now);
+  const received = payments ? receivedInPeriod(payments, month) : null;
+  const receipts = payments ? officialReceipts(payments, invoices) : null;
 
-  // Outstanding means "still owed": an overpaid invoice (a credit) contributes
-  // zero rather than a negative balance, which formatMinorUnits rejects by the
-  // money-discipline rule. Totals are grouped by the invoice's own currency —
-  // summing across currencies would produce a meaningless figure.
-  const balanceOf = (i: Invoice) => outstandingCents(i);
-
-  const unpaid = invoices.filter((i) => i.status !== "paid");
-
-  const outstandingByCurrency = unpaid.reduce(
-    (acc, i) => {
-      acc[i.currency] = (acc[i.currency] ?? 0) + balanceOf(i);
-      return acc;
-    },
-    {} as Record<string, number>,
-  );
-
-  const agingByCurrency = unpaid.reduce(
-    (acc, i) => {
-      const buckets = acc[i.currency] ?? {};
-      buckets[i.aging_bucket] = (buckets[i.aging_bucket] ?? 0) + balanceOf(i);
-      acc[i.currency] = buckets;
-      return acc;
-    },
-    {} as Record<string, Record<string, number>>,
-  );
-
-  const currencies = Object.keys(outstandingByCurrency).sort();
-
-  const overdueCount = invoices.filter((i) => invoiceOverdue(i, now)).length;
+  const filtered = openInvoices
+    .filter((invoice) => {
+      if (statusFilter === "overdue") return invoiceOverdue(invoice, now);
+      if (statusFilter) return invoice.status === statusFilter;
+      return true;
+    })
+    .sort((a, b) => {
+      const aOver = invoiceOverdue(a, now) ? 1 : 0;
+      const bOver = invoiceOverdue(b, now) ? 1 : 0;
+      if (aOver !== bOver) return bOver - aOver;
+      return a.due_at.localeCompare(b.due_at);
+    });
 
   return (
-    <>
+    <div className="stack-4">
       <PageHeader
-        eyebrow="Finance"
         title="Billing & collections"
-        lead="Invoices, what is still owed, and the payments recorded against them."
+        lead="The collections desk."
         actions={
           <>
-            <span className="text-sm text-muted">
-              {invoices.length} invoices
-            </span>
             <Link
               href="/staff/billing/provisional-receipts"
               className="btn btn--secondary btn--sm"
@@ -134,75 +179,70 @@ export default async function BillingPage({
 
       <div className="kpi-grid">
         <StatCard
-          label="Invoices"
-          value={invoices.length}
-          sub={`${invoices.filter((i) => i.status === "paid").length} paid`}
+          label="Outstanding"
+          value={
+            invoices.length === 0 || openInvoices.length === 0
+              ? "—"
+              : formatMinorUnits(outstanding)
+          }
+          sub={
+            invoices.length === 0
+              ? "no invoice recorded"
+              : openInvoices.length === 0
+                ? "nothing owed"
+                : `${openInvoices.length} open invoice${openInvoices.length === 1 ? "" : "s"}`
+          }
         />
         <StatCard
-          label="Overdue accounts"
-          value={overdueCount}
-          sub="past their due date"
-          href="/staff/billing?status=overdue"
+          label="Overdue"
+          value={overdue.count === 0 ? "—" : formatMinorUnits(overdue.amount_cents)}
+          sub={
+            invoices.length === 0
+              ? "no invoice recorded"
+              : overdue.count === 0
+                ? "nothing past due"
+                : `${overdue.count} account${overdue.count === 1 ? "" : "s"} past due`
+          }
         />
-        {currencies.length > 0 ? (
-          <StatCard
-            label="Outstanding"
-            value={formatMinorUnits(outstandingByCurrency[currencies[0]], currencies[0])}
-            sub={currencies.length > 1 ? "see aging per currency below" : "total still owed"}
-          />
-        ) : (
-          <StatCard label="Outstanding" value="—" sub="nothing owed" />
-        )}
+        <StatCard
+          label="Received this month"
+          value={received === null || received.count === 0 ? "—" : formatMinorUnits(received.total_cents)}
+          sub={
+            received === null
+              ? "the payment journal could not be read"
+              : received.count === 0
+                ? "no payment recorded this month"
+                : `${received.count} payment${received.count === 1 ? "" : "s"} at the counter`
+          }
+        />
+        <StatCard
+          label="Open invoices"
+          value={openInvoices.length}
+          sub={`of ${invoices.length} on record`}
+        />
       </div>
 
-      <PageSection>
-        {currencies.length === 0 ? (
-          <Card header={<h2>Aging at a glance</h2>}>
-            <p className="text-sm text-muted">No outstanding balances.</p>
-          </Card>
-        ) : (
-          currencies.map((c) => {
-            const aging = agingByCurrency[c];
-            const total: number = Object.values(aging).reduce((n: number, v: number) => n + v, 0);
-            const width = (v: number) => (total > 0 ? Math.round((v / total) * 1000) / 10 : 0);
-            return (
-              <Card key={c} header={<h2>Aging at a glance{currencies.length > 1 ? ` — ${c}` : ""}</h2>}>
-                <div className="stackbar" role="img" aria-label="Aging breakdown">
-                  {AGING_BUCKETS.map((bk) => (
-                    <span
-                      key={bk}
-                      className={"stackbar__seg seg--" + agingTone(bk)}
-                      style={{ width: width(aging[bk] ?? 0) + "%" }}
-                    />
-                  ))}
-                </div>
-                <div className="legend">
-                  {AGING_BUCKETS.filter((bk) => (aging[bk] ?? 0) > 0).map((bk) => (
-                    <span key={bk} className="legend__item">
-                      <i className={"dot dot--" + agingTone(bk)} />
-                      {agingLabel(bk)} · {formatMinorUnits(aging[bk] ?? 0, c)}
-                    </span>
-                  ))}
-                </div>
-              </Card>
-            );
-          })
-        )}
-      </PageSection>
+      <section className="card">
+        <div className="card__header">
+          <h2>Since when</h2>
+        </div>
+        <div className="card__body">
+          <ReceivablesAging rows={aging} testId="billing-aging" />
+        </div>
+      </section>
 
-      <PageSection>
+      <section>
         <form className="filter-bar" role="search">
           <select
             className="select"
             name="status"
             defaultValue={statusFilter}
-            aria-label="Filter by status"
+            aria-label="Filter open invoices"
           >
-            <option value="">All statuses</option>
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-            <option value="partial">Partial</option>
+            <option value="">All open</option>
             <option value="overdue">Overdue</option>
+            <option value="pending">Pending</option>
+            <option value="partial">Part paid</option>
           </select>
           <button className="btn btn--primary btn--sm" type="submit">
             Filter
@@ -214,66 +254,124 @@ export default async function BillingPage({
           ) : null}
         </form>
 
-        {filtered.length === 0 ? (
-          <EmptyState
-            title={statusFilter ? "No invoices match your filter" : "No invoices found"}
-            hint={
-              statusFilter
-                ? "Try a different filter."
-                : "Invoices will appear here once the finance-billing service is live."
+        <DataTable<Invoice>
+          label="Open invoices"
+          columns={[
+            { key: "customer", header: "Customer" },
+            { key: "invoice", header: "Invoice" },
+            { key: "order", header: "Order" },
+            { key: "due", header: "Due", className: "nowrap" },
+            { key: "age", header: "Age" },
+            { key: "outstanding", header: "Outstanding", numeric: true },
+            { key: "status", header: "Status" },
+            { key: "action", header: "", className: "nowrap" },
+          ]}
+          rows={filtered}
+          rowKey={(invoice) => invoice.id}
+          renderCell={(invoice, column) => {
+            switch (column.key) {
+              case "customer":
+                return invoice.customer_name || "—";
+              case "invoice":
+                return (
+                  <Link
+                    href={`/staff/billing/invoices/${encodeURIComponent(invoice.invoice_number)}`}
+                    aria-label={`Open invoice ${invoice.invoice_number}`}
+                  >
+                    <code>{invoice.invoice_number}</code>
+                  </Link>
+                );
+              case "order":
+                return invoice.order_number ? (
+                  <code>{invoice.order_number}</code>
+                ) : (
+                  <span className="text-muted">—</span>
+                );
+              case "due":
+                return shortDay(invoice.due_at);
+              case "age":
+                return AGING_BUCKET_LABEL[agingBucketFor(invoice.due_at, now)];
+              case "outstanding":
+                return formatMinorUnits(balanceOf(invoice), invoice.currency);
+              case "status":
+                return (
+                  <StatusChip tone={INVOICE_STATUS_TONE[invoice.status]}>
+                    {INVOICE_STATUS_LABEL[invoice.status]}
+                  </StatusChip>
+                );
+              case "action":
+                return canRecordPayments ? (
+                  <Link
+                    href={`/staff/billing/record-payment?invoice=${encodeURIComponent(invoice.invoice_number)}`}
+                    className="btn btn--primary btn--sm"
+                  >
+                    Record payment
+                  </Link>
+                ) : (
+                  <Link
+                    href={`/staff/billing/invoices/${encodeURIComponent(invoice.invoice_number)}`}
+                    className="btn btn--secondary btn--sm"
+                  >
+                    Open
+                  </Link>
+                );
+              default:
+                return null;
             }
-          />
+          }}
+          caption={
+            <>
+              Every invoice that still owes money, past due first, then nearest due date.
+              Aging is derived from the invoice&rsquo;s own due date.
+            </>
+          }
+          emptyTitle={statusFilter ? "No open invoice matches" : "No invoice owes money"}
+          emptyHint={
+            statusFilter
+              ? "Clear the filter to see every open invoice."
+              : "An invoice appears here once an order is billed; a settled one leaves the list."
+          }
+        />
+      </section>
+
+      <section>
+        <h2 className="page-section-title">Received</h2>
+        {receipts === null ? (
+          <ErrorState message="The counter payment journal could not be read." />
         ) : (
-          <div className="table-wrapper" tabIndex={0}>
-            <table className="table">
-              <thead>
-                <tr>
-                  <th scope="col">Invoice</th>
-                  <th scope="col">Customer</th>
-                  <th scope="col">Order</th>
-                  <th scope="col">Total</th>
-                  <th scope="col">Paid</th>
-                  <th scope="col">Outstanding</th>
-                  <th scope="col">Status</th>
-                  <th scope="col">Due</th>
-                  <th scope="col">Aging</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((inv) => (
-                  <tr key={inv.id}>
-                    <td>
-                      {/* The invoice opens read-only, so a reader without billing:write can
-                          still see the payment; recording is an action on that screen. */}
-                      <Link
-                        href={`/staff/billing/invoices/${encodeURIComponent(inv.invoice_number)}`}
-                        title={`Open ${inv.invoice_number}`}
-                        aria-label={`Open invoice ${inv.invoice_number}`}
-                      >
-                        <code>{inv.invoice_number}</code>
-                      </Link>
-                    </td>
-                    <td>{inv.customer_name}</td>
-                    <td className="text-sm">{inv.order_number ?? "—"}</td>
-                    <td className="text-sm">{formatMinorUnits(inv.total_cents, inv.currency)}</td>
-                    <td className="text-sm">{formatMinorUnits(inv.paid_cents, inv.currency)}</td>
-                    <td className="text-sm">
-                      {formatMinorUnits(balanceOf(inv), inv.currency)}
-                    </td>
-                    <td>
-                      <Badge tone={INVOICE_STATUS_TONE[inv.status]}>
-                        {INVOICE_STATUS_LABEL[inv.status]}
-                      </Badge>
-                    </td>
-                    <td className="text-sm">{new Date(inv.due_at).toLocaleDateString()}</td>
-                    <td className="text-sm">{inv.aging_bucket}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable<ReceiptRow>
+            label="Received payments"
+            columns={RECEIPT_COLUMNS}
+            rows={receipts}
+            rowKey={(row) => row.document_id || `${row.invoice_number}-${row.received_on}`}
+            renderCell={(row, column) => {
+              switch (column.key) {
+                case "received":
+                  return shortDay(row.received_on);
+                case "payer":
+                  return row.payer || <span className="text-muted">—</span>;
+                case "invoice":
+                  return <code>{row.invoice_number}</code>;
+                case "receipt":
+                  return row.document_id ? (
+                    <Link href={`/staff/documents/${encodeURIComponent(row.document_id)}`}>
+                      <code>{row.document_number}</code>
+                    </Link>
+                  ) : (
+                    <span className="text-muted">—</span>
+                  );
+                case "amount":
+                  return formatMinorUnits(row.amount_cents);
+                default:
+                  return null;
+              }
+            }}
+            caption={<>Every payment the counter recorded, with the official receipt it issued.</>}
+            emptyTitle="No payment recorded yet"
+            emptyHint="A payment taken at the counter appears here with its official receipt."
+          />
         )}
-      </PageSection>
-    </>
+      </section>
+    </div>
   );
 }

@@ -19,13 +19,13 @@ vi.mock("@/lib/fixtures/crm/inquiries.json", async () => ({
 
 
 /**
- * The Analytics screen.
+ * The Analytics screen — how the business is doing, at a glance.
  *
- * The lead line is a REAL recorded series: the durable order store's own months. The
- * collections line plots the counter's payment journal and shows the journal's named empty
- * state when no payment exists — never a zero line. Dues aging, lot availability and the
- * conversion figure each derive from their recorded source, and the source table says where
- * every number comes from and which service will produce it live.
+ * FOUR figures and TWO charts, nothing else. The sales line is a REAL recorded series
+ * (the durable order store's own months); the collections line plots the counter's
+ * payment journal and shows the journal's named empty state when no payment exists —
+ * never a zero line. The screen carries no source table and no rules note: the figure
+ * and the chart say what they are.
  */
 
 const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
@@ -99,34 +99,36 @@ describe("staff Analytics page gating", () => {
     setSession(["cases:read"]);
     const html = await renderAnalytics();
     expect(html).toContain("permissions this screen needs");
-    expect(html).not.toContain("Trends");
+    expect(html).not.toContain("Collections");
   });
 });
 
 describe("staff Analytics page — the figures and the line", () => {
   beforeEach(() => setSession(FULL_SCOPES));
 
-  it("leads with the recorded figure tiles and one h1", async () => {
+  it("leads with the four figures and one h1", async () => {
     const html = await renderAnalytics();
     expect(html.match(/<h1[\s>]/g) ?? []).toHaveLength(1);
-    expect(html).toContain("<h1>The money and the pipeline</h1>");
-    for (const label of [
-      "Collections",
-      "Outstanding",
-      "Overdue",
-      "Sales",
-      "Inquiry → order",
-      "Lots available",
-    ]) {
+    expect(html).toContain("<h1>Analytics</h1>");
+    for (const label of ["Collections", "Sales", "Outstanding", "Overdue"]) {
       expect(html, label).toContain(label);
     }
+  });
+
+  it("carries no source table, no rules note and no second heading", async () => {
+    const html = await renderAnalytics();
+    expect(html).not.toContain("Where every number comes from");
+    expect(html).not.toContain("The chart rules");
+    expect(html).not.toContain("Trends");
+    expect(html).not.toContain("Lots available");
+    expect(html).not.toContain("Inquiry → order");
   });
 
   it("draws sales as a real recorded series from the order store", async () => {
     const html = await renderAnalytics();
     expect(html).toContain('data-testid="analytics-sales-chart"');
     expect(html).toContain("chart__line");
-    expect(html).toContain("Sales by month");
+    expect(html).toContain("Sales · last 6 months");
     // The seed orders span June–August 2026, all inside the trailing window.
     expect(html).toContain(">Jun<");
     expect(html).toContain(">Aug<");
@@ -171,32 +173,10 @@ describe("staff Analytics page — the figures and the line", () => {
     expect(html).toContain("₱1,000.00");
   });
 
-  it("renders the aging buckets and the lot availability from their recorded sources", async () => {
-    const html = await renderAnalytics();
-    expect(html).toContain('data-testid="analytics-aging"');
-    for (const bucket of ["0–30 days", "31–60 days", "61–90 days", "90+ days"]) {
-      expect(html, bucket).toContain(bucket);
-    }
-    // 12 recorded lots: 8 available, 2 reserved, 2 sold.
-    expect(html).toContain("Available · 8");
-    expect(html).toContain("Reserved · 2");
-    expect(html).toContain("Sold · 2");
-  });
-
-  it("sums the selected range and names the conversion denominator", async () => {
+  it("sums the selected range", async () => {
     const html = await renderAnalytics({ range: "year" });
     expect(html).toContain("₱77,120.00"); // the year's recorded orders
-    expect(html).toContain("33%");
-    expect(html).toContain("1 of 3 converted");
+    expect(html).toContain("5 orders in the period");
     expect(html).toContain('aria-current="page"');
-  });
-
-  it("prints the source of every metric and the chart rules", async () => {
-    const html = await renderAnalytics();
-    expect(html).toContain("Where every number comes from");
-    expect(html).toContain("order-events-v1");
-    expect(html).toContain("D8 finance-billing");
-    expect(html).toContain("Zero baseline");
-    expect(html).toContain("prefers-reduced-motion");
   });
 });

@@ -148,10 +148,17 @@ export type TrialBalance = {
  * file, so a stale printed balance cannot disagree with the journal. Accounts with
  * no movement in the window are real accounts but carry no row here (a trial
  * balance lists what moved).
+ *
+ * `includeZeroMovement` renders the CHART OF ACCOUNTS instead: every account the
+ * chart defines keeps its row, with zero movement shown as no movement (— on the
+ * screen), so the office can see the whole chart beside the journal. The amounts
+ * are still derived from the entries alone — the flag only decides whether an
+ * account with no lines is listed.
  */
 export function buildTrialBalance(
   accounts: readonly LedgerAccount[],
   entries: readonly JournalEntry[],
+  options: { includeZeroMovement?: boolean } = {},
 ): TrialBalance {
   const byCode = new Map(accounts.map((account) => [account.code, account]));
   const totals = new Map<string, { debit: number; credit: number }>();
@@ -162,6 +169,12 @@ export function buildTrialBalance(
       sum.debit += line.debit_cents;
       sum.credit += line.credit_cents;
       totals.set(line.account_code, sum);
+    }
+  }
+
+  if (options.includeZeroMovement) {
+    for (const account of accounts) {
+      if (!totals.has(account.code)) totals.set(account.code, { debit: 0, credit: 0 });
     }
   }
 
@@ -189,11 +202,14 @@ export function buildTrialBalance(
 
   const totalDebit = rows.reduce((sum, row) => sum + row.debit_cents, 0);
   const totalCredit = rows.reduce((sum, row) => sum + row.credit_cents, 0);
+  // Movement is what a balance is judged on: a chart rendered with all accounts
+  // still only balances when the ledger moved and both sides are equal.
+  const moved = rows.some((row) => row.debit_cents > 0 || row.credit_cents > 0);
 
   return {
     rows,
     total_debit_cents: totalDebit,
     total_credit_cents: totalCredit,
-    balanced: totalDebit === totalCredit && rows.length > 0,
+    balanced: totalDebit === totalCredit && moved,
   };
 }

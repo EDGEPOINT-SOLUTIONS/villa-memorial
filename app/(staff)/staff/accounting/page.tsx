@@ -6,7 +6,8 @@ import {
   StatusChip,
   type DataTableColumn,
 } from "@/components/kit";
-import { PageHeader, PageSection } from "@/components/ui/page";
+import { ReceivablesAging } from "@/components/staff/receivables-aging";
+import { PageHeader } from "@/components/ui/page";
 import { Alert } from "@/components/ui/alert";
 import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { ACCOUNTING_NOT_WIRED, loadAccountingLedger } from "@/lib/api-client/accounting";
@@ -22,49 +23,75 @@ import {
 import { listFixturePayments } from "@/lib/api-client/billing-store";
 import { listInvoices, type Invoice } from "@/lib/api-client/finance";
 import { listProvisionalReceipts } from "@/lib/api-client/provisional-receipts";
-import {
-  INSTRUMENT_LABEL,
-  businessToday,
-} from "@/lib/contracts/payment-capture";
+import { listEngagementViews, type EngagementView } from "@/lib/api-client/lifecycle";
+import { INSTRUMENT_LABEL, businessToday } from "@/lib/contracts/payment-capture";
 import type { ProvisionalReceiptRecord } from "@/lib/contracts/provisional-receipt-capture";
-import { duesAging, outstandingTotal, overdueTotal, receivedInPeriod } from "@/lib/receivables";
+import {
+  agingBucketFor,
+  AGING_BUCKET_LABEL,
+  duesAging,
+  outstandingCents,
+  outstandingTotal,
+  overdueTotal,
+  receivedInPeriod,
+} from "@/lib/receivables";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
+import { hasAnyScope } from "@/lib/rbac/nav";
 import { formatMinorUnits } from "@/lib/money";
 import { datePeriod, monthBoundsOf, periodIsAll, periodLabel } from "@/lib/period";
-import { hasAnyScope } from "@/lib/rbac/nav";
+import {
+  ENGAGEMENT_KIND_LABEL,
+  balanceLine,
+  engagementStateLabel,
+  engagementTone,
+  nextDueLine,
+} from "@/lib/lifecycle";
+import type { RecordedPayment } from "@/lib/billing-payments";
 
 export const metadata = { title: "Accounting — Admin Portal" };
 
 /**
- * Staff Accounting — the ledger, read-only, plus the money the office is owed and has taken.
+ * Staff Accounting — the office's books as a working tool, not a display page.
  *
- * WHY IT READS LIKE A BOOK AND NOT LIKE A SERVICE: the platform's accounting service exists
- * and its posting-rule contract is frozen, but no staff-facing ledger API has frozen. This
- * screen therefore shows the office's recorded ledger (`lib/api-client/accounting.ts`) and
- * names the missing API in one line. The trial balance is DERIVED from the journal entries
- * (`lib/accounting.ts`), never stored beside them, so the two halves of the screen cannot
- * disagree; each amount prints exactly as the record carries it (integer centavos through
- * `formatMinorUnits`), and an entry with no case or order prints "—".
+ * THREE READS, ONE HONESTY. Every figure comes from a recorded source: the ledger
+ * (`lib/accounting.ts`, app-authored books with provenance), the counter payment
+ * journal and the billing invoices, and the lifecycle store the member/client
+ * registers fold. The trial balance and the chart of accounts are DERIVED from the
+ * journal — never stored beside it — so the two halves cannot disagree. A figure
+ * with no record prints "—", never "₱0.00".
  *
- * THE MONEY TILES ARE BILLING RECORDS. Received / outstanding / overdue / aging derive from
- * the counter's payment journal and the recorded invoices (`lib/receivables.ts` on top of
- * the ONE overdue rule in `lib/payment-alerts.ts`); they render only for a session that may
- * read billing, and each fails alone. A figure with no record is named, never a ₱0 that
- * reads as recorded money.
+ * THE FOUR VIEWS (query-param tabs, server-rendered):
+ *   · Books — the whole chart of accounts with the window's movement, the journal,
+ *     and the period filter;
+ *   · Receivables — dues aging derived from each invoice's due date, the open
+ *     invoices, and every member/client whose own accounting opens from here
+ *     (`/staff/lifecycle/[id]`: recorded payments + the amortization schedule);
+ *   · Receipts — the official receipts a recorded payment issued, and the counter's
+ *     provisional slips;
+ *   · Reconciliation — the two flag types the office must look at, each naming the
+ *     feed it needs; no flag is fabricated as ₱0.
  *
- * POSTING IS NOT HERE, and must not be added: the app displays accounting, the accounting
- * service keeps it. No write control exists on this route.
- *
- * Layout renders through the component kit (`components/kit`) — the tables are `DataTable`,
- * the tiles `StatCard`, the read-only chip `StatusChip`.
+ * POSTING IS NOT HERE. No staff-facing ledger API has frozen, so there is no
+ * posting control and the screen says so. The missing surfaces (expenses, statements)
+ * are named rather than rendered as empty tables that read as ₱0.
  */
 
-type AccountingSearch = {
-  from?: string;
-  to?: string;
-};
+type AccountingTab = "books" | "receivables" | "receipts" | "reconciliation";
 
-const TRIAL_BALANCE_COLUMNS: ReadonlyArray<DataTableColumn<TrialBalanceRow>> = [
+const TABS: ReadonlyArray<{ key: AccountingTab; label: string }> = [
+  { key: "books", label: "Books" },
+  { key: "receivables", label: "Receivables" },
+  { key: "receipts", label: "Receipts" },
+  { key: "reconciliation", label: "Reconciliation" },
+];
+
+function isTab(value: unknown): value is AccountingTab {
+  return typeof value === "string" && TABS.some((tab) => tab.key === value);
+}
+
+type AccountingSearch = { view?: string; from?: string; to?: string };
+
+const ACCOUNT_COLUMNS: ReadonlyArray<DataTableColumn<TrialBalanceRow>> = [
   { key: "account", header: "Account" },
   { key: "type", header: "Type" },
   { key: "debit", header: "Debit", numeric: true },
@@ -80,8 +107,9 @@ const JOURNAL_COLUMNS: ReadonlyArray<DataTableColumn<JournalEntry>> = [
   { key: "against", header: "Against" },
 ];
 
+/** A calendar day or an ISO instant as the office writes it, or the raw value. */
 function formatDay(date: string): string {
-  const parsed = new Date(`${date}T00:00:00Z`);
+  const parsed = new Date(date.length === 10 ? `${date}T00:00:00Z` : date);
   if (Number.isNaN(parsed.getTime())) return date;
   return new Intl.DateTimeFormat("en-PH", {
     timeZone: "UTC",
@@ -91,17 +119,23 @@ function formatDay(date: string): string {
   }).format(parsed);
 }
 
-/** One official receipt issued with a recorded payment: the payment's own document row. */
+/** A money cell that names an absent figure instead of printing a zero. */
+function moneyOrBlank(cents: number): string {
+  return cents > 0 ? formatMinorUnits(cents) : "—";
+}
+
+/** One official receipt issued with a recorded payment: the payment's own document. */
 type OfficialReceiptRow = {
   document_number: string;
   document_id: string;
   received_on: string;
   payer: string;
+  invoice_number: string;
   amount_cents: number;
 };
 
 function officialReceipts(
-  payments: Awaited<ReturnType<typeof listFixturePayments>>,
+  payments: readonly RecordedPayment[],
   invoices: readonly Invoice[],
 ): OfficialReceiptRow[] {
   const byNumber = new Map(invoices.map((invoice) => [invoice.invoice_number, invoice]));
@@ -112,6 +146,7 @@ function officialReceipts(
       document_id: payment.receipt_document?.id ?? "",
       received_on: payment.received_on,
       payer: byNumber.get(payment.invoice_number)?.customer_name ?? "",
+      invoice_number: payment.invoice_number,
       amount_cents: payment.amount_cents,
     }))
     .sort((a, b) => b.received_on.localeCompare(a.received_on));
@@ -126,10 +161,8 @@ export default async function AccountingPage({
   if (!hasAnyScope(session.scopes, ["accounting:read"])) {
     return (
       <>
-        <PageHeader eyebrow="Finance" title="Accounting" />
-        <PageSection>
-          <ForbiddenState requiredScopes={["accounting:read"]} />
-        </PageSection>
+        <PageHeader title="Accounting" />
+        <ForbiddenState requiredScopes={["accounting:read"]} />
       </>
     );
   }
@@ -140,174 +173,175 @@ export default async function AccountingPage({
   } catch (err) {
     return (
       <>
-        <PageHeader eyebrow="Finance" title="Accounting" />
-        <PageSection>
-          <ErrorState
-            message={
-              err instanceof ApiError ? err.message : "Unable to load the recorded ledger."
-            }
-          />
-        </PageSection>
+        <PageHeader title="Accounting" />
+        <ErrorState
+          message={err instanceof ApiError ? err.message : "Unable to load the recorded ledger."}
+        />
       </>
     );
   }
 
   const params = await searchParams;
+  const tab: AccountingTab = isTab(params.view) ? params.view : "books";
   const period = datePeriod(params.from, params.to);
   const entries = filterEntriesByPeriod(ledger.entries, period);
-  const trialBalance = buildTrialBalance(ledger.accounts, entries);
-
-  // A case/order link opens a screen gated on its own scope; without it the
-  // reference stays plain text rather than a dead end.
-  const canOpenCases = hasAnyScope(session.scopes, ["cases:read"]);
-  const canOpenOrders = hasAnyScope(session.scopes, ["orders:read"]);
-
+  // The chart lists EVERY account; the amount columns still derive from the entries.
+  const chart = buildTrialBalance(ledger.accounts, entries, { includeZeroMovement: true });
   const journalEntries = [...entries].sort((a, b) =>
     a.date === b.date ? a.id.localeCompare(b.id) : b.date.localeCompare(a.date),
   );
 
-  // ---- the money the office is owed and has taken (billing records) ----
-  const now = new Date();
+  const canOpenCases = hasAnyScope(session.scopes, ["cases:read"]);
+  const canOpenOrders = hasAnyScope(session.scopes, ["orders:read"]);
   const canSeeBilling = hasAnyScope(session.scopes, ["billing:read"]);
-  const currentMonth = monthBoundsOf(businessToday(now));
+  const canSeeClients = hasAnyScope(session.scopes, ["cases:read"]);
 
-  const [invoicesResult, paymentsResult, provisionalResult] = canSeeBilling
-    ? await Promise.allSettled([
-        listInvoices(now),
-        listFixturePayments(),
-        listProvisionalReceipts(),
-      ])
-    : ([null, null, null] as const);
+  const now = new Date();
+  const month = monthBoundsOf(businessToday(now));
 
-  const invoices = invoicesResult?.status === "fulfilled" ? invoicesResult.value : null;
-  const payments = paymentsResult?.status === "fulfilled" ? paymentsResult.value : null;
-  const provisional =
-    provisionalResult?.status === "fulfilled" ? provisionalResult.value : null;
+  const [invoicesResult, paymentsResult, provisionalResult, clientsResult] = await Promise.allSettled([
+    canSeeBilling ? listInvoices(now) : Promise.resolve(null),
+    canSeeBilling ? listFixturePayments() : Promise.resolve(null),
+    canSeeBilling ? listProvisionalReceipts() : Promise.resolve(null),
+    canSeeClients ? listEngagementViews(now) : Promise.resolve(null),
+  ]);
 
-  const received = payments ? receivedInPeriod(payments, currentMonth) : null;
-  const hasRecordedPayments = payments !== null && payments.length > 0;
+  const invoices = invoicesResult.status === "fulfilled" ? invoicesResult.value : null;
+  const payments = paymentsResult.status === "fulfilled" ? paymentsResult.value : null;
+  const provisional = provisionalResult.status === "fulfilled" ? provisionalResult.value : null;
+  const clients = clientsResult.status === "fulfilled" ? clientsResult.value : null;
+
+  const openInvoices = invoices ? invoices.filter((invoice) => outstandingCents(invoice) > 0) : null;
+  const aging = invoices ? duesAging(invoices, now) : null;
   const outstanding = invoices ? outstandingTotal(invoices) : null;
   const overdue = invoices ? overdueTotal(invoices, now) : null;
-  const aging = invoices ? duesAging(invoices, now) : null;
+  const received = payments ? receivedInPeriod(payments, month) : null;
   const receipts = payments && invoices ? officialReceipts(payments, invoices) : null;
 
-  const moneyUnavailable = "unavailable — this session cannot read billing";
+  const tabHref = (key: AccountingTab) =>
+    key === "books" ? "/staff/accounting" : `/staff/accounting?view=${key}`;
+  const moved = entries.length > 0;
 
   return (
-    <>
+    <div className="stack-4">
       <PageHeader
-        eyebrow="Finance"
         title="Accounting"
-        lead="The recorded journal, its trial balance, and the money received, owed and outstanding."
+        lead="The office's books."
         actions={<StatusChip tone="neutral">Read-only</StatusChip>}
       />
 
-      <PageSection>
-        <Alert tone="warning">
-          <p className="mb-0">{ACCOUNTING_NOT_WIRED}</p>
-        </Alert>
-      </PageSection>
+      <p className="text-sm text-muted" style={{ margin: 0 }}>
+        {ACCOUNTING_NOT_WIRED}
+      </p>
 
-      <PageSection>
-        <h2 className="page-section-title">Money at a glance</h2>
-        <div className="kpi-grid">
-          <StatCard
-            label="Received this month"
-            value={
-              received === null
-                ? "—"
-                : hasRecordedPayments
-                  ? formatMinorUnits(received.total_cents)
-                  : "—"
-            }
-            sub={
-              received === null
-                ? moneyUnavailable
-                : hasRecordedPayments
-                  ? `${received.count} payments from the counter journal`
-                  : "no payment recorded yet"
-            }
-          />
-          <StatCard
-            label="Outstanding"
-            value={outstanding === null ? "—" : formatMinorUnits(outstanding)}
-            sub={invoices ? `${invoices.length} recorded invoices` : moneyUnavailable}
-          />
-          <StatCard
-            label="Overdue"
-            value={overdue === null ? "—" : formatMinorUnits(overdue.amount_cents)}
-            sub={overdue ? `${overdue.count} accounts past due` : moneyUnavailable}
-          />
-          <StatCard
-            label="Reconciliation flags"
-            value="—"
-            sub="not available — needs a bank/gateway feed"
-          />
-        </div>
-      </PageSection>
+      <nav className="lot-rec-tabs" aria-label="Accounting views">
+        <ul>
+          {TABS.map((item) => (
+            <li key={item.key}>
+              <Link href={tabHref(item.key)} aria-current={item.key === tab ? "page" : undefined}>
+                {item.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
-      <PageSection>
-        <h2 className="page-section-title">The recorded ledger</h2>
-        <div className="kpi-grid">
-          <StatCard
-            label="Entries in period"
-            value={entries.length}
-            sub={`of ${ledger.entries.length} recorded`}
-          />
-          <StatCard
-            label="Total debits"
-            value={formatMinorUnits(trialBalance.total_debit_cents)}
-            sub={`over ${trialBalance.rows.length} accounts`}
-          />
-          <StatCard
-            label="Total credits"
-            value={formatMinorUnits(trialBalance.total_credit_cents)}
-            sub="must equal debits"
-          />
-          <StatCard
-            label="Books"
-            value={
-              trialBalance.balanced ? (
-                <StatusChip tone="success">Balanced</StatusChip>
-              ) : (
-                <StatusChip tone="danger">Out of balance</StatusChip>
-              )
-            }
-            sub="debits = credits, per entry"
-          />
-        </div>
-      </PageSection>
+      {tab === "books" ? (
+        <BooksView
+          chart={chart}
+          journalEntries={journalEntries}
+          moved={moved}
+          period={period}
+          recordedPeriod={ledger.recorded_period}
+          totalRecorded={ledger.entries.length}
+          canOpenCases={canOpenCases}
+          canOpenOrders={canOpenOrders}
+        />
+      ) : null}
 
-      <PageSection>
-        <h2 className="page-section-title">Dues aging</h2>
-        <p className="text-sm text-muted">
-          Derived from each invoice&rsquo;s due date and balance — never a stored bucket.
-        </p>
-        {aging === null ? (
-          <Alert tone="info">
-            <p className="mb-0">
-              {canSeeBilling
-                ? "The invoices could not be read just now, so aging is unavailable."
-                : "Aging needs billing:read — the invoices live in the billing records."}
-            </p>
-          </Alert>
-        ) : (
-          <ul className="aging" data-testid="accounting-aging">
-            {aging.map((row) => (
-              <li key={row.bucket} className="aging__row">
-                <span className="aging__label">{row.label}</span>
-                <strong className="aging__amount">{formatMinorUnits(row.amount_cents)}</strong>
-                <span className="aging__count">
-                  {row.count} {row.count === 1 ? "account" : "accounts"}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </PageSection>
+      {tab === "receivables" ? (
+        <ReceivablesView
+          canSeeBilling={canSeeBilling}
+          canSeeClients={canSeeClients}
+          aging={aging}
+          openInvoices={openInvoices}
+          outstanding={outstanding}
+          overdue={overdue}
+          received={received}
+          receivedCount={received?.count ?? null}
+          clients={clients}
+          now={now}
+        />
+      ) : null}
 
-      <PageSection>
-        <h2 className="page-section-title">Trial balance</h2>
+      {tab === "receipts" ? (
+        <ReceiptsView
+          canSeeBilling={canSeeBilling}
+          receipts={receipts}
+          provisional={provisional}
+        />
+      ) : null}
+
+      {tab === "reconciliation" ? <ReconciliationView /> : null}
+    </div>
+  );
+}
+
+/* -------------------------------- Books ---------------------------------- */
+
+function BooksView({
+  chart,
+  journalEntries,
+  moved,
+  period,
+  recordedPeriod,
+  totalRecorded,
+  canOpenCases,
+  canOpenOrders,
+}: {
+  chart: ReturnType<typeof buildTrialBalance>;
+  journalEntries: JournalEntry[];
+  moved: boolean;
+  period: ReturnType<typeof datePeriod>;
+  recordedPeriod: { from: string | null; to: string | null };
+  totalRecorded: number;
+  canOpenCases: boolean;
+  canOpenOrders: boolean;
+}) {
+  return (
+    <>
+      <div className="kpi-grid">
+        <StatCard
+          label="Entries in period"
+          value={journalEntries.length}
+          sub={`of ${totalRecorded} recorded`}
+        />
+        <StatCard
+          label="Total debits"
+          value={moneyOrBlank(chart.total_debit_cents)}
+          sub={`over ${chart.rows.filter((row) => row.debit_cents > 0 || row.credit_cents > 0).length} accounts moved`}
+        />
+        <StatCard
+          label="Total credits"
+          value={moneyOrBlank(chart.total_credit_cents)}
+          sub="must equal debits"
+        />
+        <StatCard
+          label="Books"
+          value={
+            !moved ? (
+              <StatusChip tone="neutral">Nothing posted</StatusChip>
+            ) : chart.balanced ? (
+              <StatusChip tone="success">Balanced</StatusChip>
+            ) : (
+              <StatusChip tone="danger">Out of balance</StatusChip>
+            )
+          }
+          sub="debits = credits, per entry"
+        />
+      </div>
+
+      <section>
         <form className="filter-bar" role="search">
           <input
             className="input"
@@ -333,14 +367,14 @@ export default async function AccountingPage({
           ) : null}
         </form>
         <p className="text-sm text-muted">
-          Showing {periodLabel(period)}. The recorded books cover{" "}
-          {periodLabel(ledger.recorded_period)} and every balance below is the sum of the
-          entries shown.
+          Showing {periodLabel(period)}. The recorded books cover {periodLabel(recordedPeriod)}.
         </p>
 
+        <h2 className="page-section-title">Chart of accounts</h2>
         <DataTable<TrialBalanceRow>
-          columns={TRIAL_BALANCE_COLUMNS}
-          rows={trialBalance.rows}
+          label="Chart of accounts"
+          columns={ACCOUNT_COLUMNS}
+          rows={chart.rows}
           rowKey={(row) => row.code}
           renderCell={(row, column) => {
             switch (column.key) {
@@ -356,9 +390,9 @@ export default async function AccountingPage({
               case "type":
                 return row.type ? ACCOUNT_TYPE_LABEL[row.type] : "—";
               case "debit":
-                return row.debit_cents > 0 ? formatMinorUnits(row.debit_cents) : "—";
+                return moneyOrBlank(row.debit_cents);
               case "credit":
-                return row.credit_cents > 0 ? formatMinorUnits(row.credit_cents) : "—";
+                return moneyOrBlank(row.credit_cents);
               case "balance":
                 return row.balance_side === null
                   ? "—"
@@ -369,38 +403,26 @@ export default async function AccountingPage({
                 return null;
             }
           }}
-          caption={
-            <>
-              Trial balance derived from the journal below — debit, credit and the net
-              balance with its side.
-            </>
-          }
-          emptyTitle="No entries in this period"
-          emptyHint="Widen the dates or clear the period to see the recorded ledger."
+          caption={<>Every account the chart defines; the amounts are the period&rsquo;s movement.</>}
+          emptyTitle="No account in the chart"
+          emptyHint="The chart of accounts is empty; there is nothing to balance."
           footer={
             <tr>
               <th scope="row">Total</th>
               <td />
-              <td className="table__numeric">
-                {formatMinorUnits(trialBalance.total_debit_cents)}
-              </td>
-              <td className="table__numeric">
-                {formatMinorUnits(trialBalance.total_credit_cents)}
-              </td>
+              <td className="table__numeric">{moneyOrBlank(chart.total_debit_cents)}</td>
+              <td className="table__numeric">{moneyOrBlank(chart.total_credit_cents)}</td>
               <td className="table__numeric">—</td>
             </tr>
           }
         />
-      </PageSection>
+      </section>
 
-      {entries.length > 0 ? (
-        <PageSection>
-          <h2 className="page-section-title">Journal entries</h2>
-          <p className="text-sm text-muted">
-            Every line the office recorded in the period, newest first, with what it was
-            against.
-          </p>
+      {journalEntries.length > 0 ? (
+        <section>
+          <h2 className="page-section-title">Journal</h2>
           <DataTable<JournalEntry>
+            label="Journal entries"
             columns={JOURNAL_COLUMNS}
             rows={journalEntries}
             rowKey={(entry) => entry.id}
@@ -448,15 +470,228 @@ export default async function AccountingPage({
             emptyTitle="No entries in this period"
             emptyHint="Widen the dates or clear the period to see the recorded ledger."
           />
-        </PageSection>
+        </section>
       ) : null}
+    </>
+  );
+}
 
-      <PageSection>
-        <h2 className="page-section-title">Receipts</h2>
+/* ------------------------------ Receivables ------------------------------ */
+
+function ReceivablesView({
+  canSeeBilling,
+  canSeeClients,
+  aging,
+  openInvoices,
+  outstanding,
+  overdue,
+  received,
+  receivedCount,
+  clients,
+  now,
+}: {
+  canSeeBilling: boolean;
+  canSeeClients: boolean;
+  aging: ReturnType<typeof duesAging> | null;
+  openInvoices: Invoice[] | null;
+  outstanding: number | null;
+  overdue: ReturnType<typeof overdueTotal> | null;
+  received: ReturnType<typeof receivedInPeriod> | null;
+  receivedCount: number | null;
+  clients: EngagementView[] | null;
+  now: Date;
+}) {
+  return (
+    <>
+      <div className="kpi-grid">
+        <StatCard
+          label="Outstanding"
+          value={outstanding === null || !openInvoices || openInvoices.length === 0 ? "—" : formatMinorUnits(outstanding)}
+          sub={
+            !canSeeBilling
+              ? "needs billing:read"
+              : openInvoices && openInvoices.length > 0
+                ? `${openInvoices.length} open invoice${openInvoices.length === 1 ? "" : "s"}`
+                : "nothing owed"
+          }
+        />
+        <StatCard
+          label="Overdue"
+          value={overdue === null || overdue.count === 0 ? "—" : formatMinorUnits(overdue.amount_cents)}
+          sub={
+            !canSeeBilling
+              ? "needs billing:read"
+              : overdue && overdue.count > 0
+                ? `${overdue.count} account${overdue.count === 1 ? "" : "s"} past due`
+                : "nothing past due"
+          }
+        />
+        <StatCard
+          label="Received this month"
+          value={received === null || receivedCount === 0 ? "—" : formatMinorUnits(received.total_cents)}
+          sub={
+            !canSeeBilling
+              ? "needs billing:read"
+              : receivedCount && receivedCount > 0
+                ? `${receivedCount} payment${receivedCount === 1 ? "" : "s"} at the counter`
+                : "no payment recorded this month"
+          }
+        />
+        <StatCard
+          label="Client accounts"
+          value={clients?.length ?? "—"}
+          sub={canSeeClients ? "open one for its schedule" : "needs cases:read"}
+        />
+      </div>
+
+      <section className="card">
+        <div className="card__header">
+          <h2>Dues aging</h2>
+        </div>
+        <div className="card__body">
+          {aging === null ? (
+            <Alert tone="info">
+              <p className="mb-0">
+                {canSeeBilling
+                  ? "The invoices could not be read just now, so aging is unavailable."
+                  : "Aging needs billing:read — the invoices live in the billing records."}
+              </p>
+            </Alert>
+          ) : (
+            <ReceivablesAging rows={aging} testId="accounting-aging" />
+          )}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="page-section-title">Open invoices</h2>
+        {openInvoices === null ? (
+          <Alert tone="info">
+            <p className="mb-0">
+              {canSeeBilling
+                ? "The invoices could not be read just now."
+                : "Open invoices need billing:read."}
+            </p>
+          </Alert>
+        ) : (
+          <DataTable<Invoice>
+            label="Open invoices"
+            columns={[
+              { key: "customer", header: "Client" },
+              { key: "invoice", header: "Invoice" },
+              { key: "due", header: "Due", className: "nowrap" },
+              { key: "age", header: "Age" },
+              { key: "outstanding", header: "Outstanding", numeric: true },
+            ]}
+            rows={openInvoices}
+            rowKey={(invoice) => invoice.id}
+            renderCell={(invoice, column) => {
+              switch (column.key) {
+                case "customer":
+                  return (
+                    <Link
+                      href={`/staff/billing/invoices/${encodeURIComponent(invoice.invoice_number)}`}
+                    >
+                      {invoice.customer_name || invoice.invoice_number}
+                    </Link>
+                  );
+                case "invoice":
+                  return <code>{invoice.invoice_number}</code>;
+                case "due":
+                  return formatDay(invoice.due_at);
+                case "age":
+                  return AGING_BUCKET_LABEL[agingBucketFor(invoice.due_at, now)];
+                case "outstanding":
+                  return formatMinorUnits(outstandingCents(invoice), invoice.currency);
+                default:
+                  return null;
+              }
+            }}
+            caption={<>Every invoice that still owes money. The client opens the invoice record.</>}
+            emptyTitle="No invoice owes money"
+            emptyHint="An invoice appears here once an order is billed; a settled one leaves the list."
+          />
+        )}
+      </section>
+
+      <section>
+        <h2 className="page-section-title">Client accounts</h2>
         <p className="text-sm text-muted">
-          Official receipts the counter issued with each recorded payment, and the provisional
-          slips that have not yet become one.
+          Every recorded plan, service, lot and product buyer. Opening one shows every recorded
+          payment and its amortization schedule.
         </p>
+        {clients === null ? (
+          <Alert tone="info">
+            <p className="mb-0">
+              {canSeeClients
+                ? "The client records could not be read just now."
+                : "Client accounts need cases:read — they live in the client register."}
+            </p>
+          </Alert>
+        ) : (
+          <DataTable<EngagementView>
+            label="Client accounts"
+            columns={[
+              { key: "client", header: "Client" },
+              { key: "kind", header: "Record" },
+              { key: "balance", header: "Paid" },
+              { key: "outstanding", header: "Outstanding", numeric: true },
+              { key: "next", header: "Next" },
+              { key: "state", header: "State" },
+            ]}
+            rows={clients}
+            rowKey={(view) => view.engagement.id}
+            renderCell={(view, column) => {
+              switch (column.key) {
+                case "client":
+                  return (
+                    <Link href={`/staff/lifecycle/${encodeURIComponent(view.engagement.id)}`}>
+                      {view.engagement.client.name || view.engagement.reference}
+                    </Link>
+                  );
+                case "kind":
+                  return `${ENGAGEMENT_KIND_LABEL[view.engagement.kind]} · ${view.engagement.reference}`;
+                case "balance":
+                  return balanceLine(view.totals);
+                case "outstanding":
+                  return formatMinorUnits(view.totals.outstanding_cents);
+                case "next":
+                  return nextDueLine(view.totals);
+                case "state":
+                  return (
+                    <StatusChip tone={engagementTone(view.totals)}>
+                      {engagementStateLabel(view.totals)}
+                    </StatusChip>
+                  );
+                default:
+                  return null;
+              }
+            }}
+            caption={<>One row per recorded client outcome; the client opens their own accounting.</>}
+            emptyTitle="No client account recorded"
+            emptyHint="A plan, service, lot or product recorded by the office appears here."
+          />
+        )}
+      </section>
+    </>
+  );
+}
+
+/* -------------------------------- Receipts ------------------------------- */
+
+function ReceiptsView({
+  canSeeBilling,
+  receipts,
+  provisional,
+}: {
+  canSeeBilling: boolean;
+  receipts: OfficialReceiptRow[] | null;
+  provisional: ProvisionalReceiptRecord[] | null;
+}) {
+  return (
+    <>
+      <section>
+        <h2 className="page-section-title">Official receipts</h2>
         {receipts === null ? (
           <Alert tone="info">
             <p className="mb-0">
@@ -465,33 +700,34 @@ export default async function AccountingPage({
                 : "Receipts need billing:read — they live in the billing records."}
             </p>
           </Alert>
-        ) : receipts.length === 0 ? (
-          <EmptyState
-            title="No official receipt recorded"
-            hint="An official receipt appears here with the payment that recorded it."
-          />
         ) : (
           <DataTable<OfficialReceiptRow>
+            label="Official receipts"
             columns={[
               { key: "number", header: "Receipt" },
               { key: "date", header: "Date", className: "nowrap" },
               { key: "payer", header: "Payer" },
+              { key: "invoice", header: "Invoice" },
               { key: "amount", header: "Amount", numeric: true },
             ]}
             rows={receipts}
-            rowKey={(row) => row.document_id}
+            rowKey={(row) => row.document_id || `${row.invoice_number}-${row.received_on}`}
             renderCell={(row, column) => {
               switch (column.key) {
                 case "number":
-                  return (
+                  return row.document_id ? (
                     <Link href={`/staff/documents/${encodeURIComponent(row.document_id)}`}>
                       <code>{row.document_number}</code>
                     </Link>
+                  ) : (
+                    <span className="text-muted">—</span>
                   );
                 case "date":
                   return formatDay(row.received_on);
                 case "payer":
                   return row.payer || <span className="text-muted">—</span>;
+                case "invoice":
+                  return <code>{row.invoice_number}</code>;
                 case "amount":
                   return formatMinorUnits(row.amount_cents);
                 default:
@@ -503,8 +739,10 @@ export default async function AccountingPage({
             emptyHint="An official receipt appears here with the payment that recorded it."
           />
         )}
+      </section>
 
-        <h3 className="page-section-title mt-4">Provisional receipts</h3>
+      <section>
+        <h2 className="page-section-title">Provisional receipts</h2>
         {provisional === null ? (
           <Alert tone="info">
             <p className="mb-0">
@@ -513,13 +751,9 @@ export default async function AccountingPage({
                 : "Provisional receipts need billing:read."}
             </p>
           </Alert>
-        ) : provisional.length === 0 ? (
-          <EmptyState
-            title="No provisional receipt recorded"
-            hint="A slip the counter issues before the official receipt appears here."
-          />
         ) : (
           <DataTable<ProvisionalReceiptRecord>
+            label="Provisional receipts"
             columns={[
               { key: "date", header: "Date", className: "nowrap" },
               { key: "payer", header: "Payer" },
@@ -541,7 +775,9 @@ export default async function AccountingPage({
                   return INSTRUMENT_LABEL[row.instrument] ?? row.instrument;
                 case "amount":
                   return (
-                    <Link href={`/staff/billing/provisional-receipts/${encodeURIComponent(row.id)}`}>
+                    <Link
+                      href={`/staff/billing/provisional-receipts/${encodeURIComponent(row.id)}`}
+                    >
                       {formatMinorUnits(row.amount_cents)}
                     </Link>
                   );
@@ -554,53 +790,61 @@ export default async function AccountingPage({
             emptyHint="A slip the counter issues before the official receipt appears here."
           />
         )}
-      </PageSection>
-
-      <PageSection>
-        <h2 className="page-section-title">Reconciliation flags</h2>
-        <p className="text-sm text-muted">
-          What the office must look at, each with the exact gap. No flag can be listed until a
-          feed exists, so none is shown as ₱0.
-        </p>
-        <div className="table-wrapper" tabIndex={0}>
-          <table className="table">
-            <caption>Reconciliation is not available — the two flag types and their missing feed.</caption>
-            <tbody>
-              <tr>
-                <th scope="row">
-                  <StatusChip tone="warning">unposted</StatusChip>
-                </th>
-                <td>
-                  <div className="table__name">Not available</div>
-                  <div className="table__sub">
-                    Needs the accounting service&rsquo;s posting API (posting-instruction-v1).
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">
-                  <StatusChip tone="danger">unmatched</StatusChip>
-                </th>
-                <td>
-                  <div className="table__name">Not available</div>
-                  <div className="table__sub">
-                    Needs a live bank/gateway feed — name the payment gateway and accounting
-                    service.
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <Alert tone="danger" title="Not built (named, not zeroed)">
-          <p className="mb-0">
-            <strong>Expenses</strong> and <strong>statements</strong> have no record shape here.
-            Expenses need the accounting service&rsquo;s expense/journal write API; statements need
-            E2 reporting-analytics. Neither renders an empty table that reads as ₱0.
-          </p>
-        </Alert>
-      </PageSection>
+      </section>
     </>
+  );
+}
+
+/* ----------------------------- Reconciliation ---------------------------- */
+
+function ReconciliationView() {
+  return (
+    <section>
+      <div className="table-wrapper" tabIndex={0}>
+        <table className="table">
+          <caption>What must be reconciled, and the feed each flag needs.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Flag</th>
+              <th scope="col">State</th>
+              <th scope="col">Needs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">
+                <StatusChip tone="warning">unposted</StatusChip>
+              </th>
+              <td>
+                <div className="table__name">Not available</div>
+              </td>
+              <td>
+                <div className="table__sub">
+                  The accounting service&rsquo;s posting API (posting-instruction-v1).
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">
+                <StatusChip tone="danger">unmatched</StatusChip>
+              </th>
+              <td>
+                <div className="table__name">Not available</div>
+              </td>
+              <td>
+                <div className="table__sub">
+                  A live bank/gateway feed naming the payment service.
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <EmptyState
+        title="Expenses and statements are not recorded"
+        hint="Expenses need the accounting service's expense write API; statements need E2 reporting-analytics. Neither renders an empty table that would read as ₱0."
+      />
+    </section>
   );
 }

@@ -19,13 +19,12 @@ vi.mock("@/lib/fixtures/commerce/orders.json", async () => ({
 
 
 /**
- * The Accounting screen.
+ * The Accounting screen — the four tool views.
  *
- * It leads with a real trial balance derived from the recorded journal, names the
- * missing staff-facing API once, and stays read-only: no posting control exists.
- * The period filter applies to both halves; a period with no entries is an honest
- * empty state. Case/order references only become links when the session can open
- * the screen behind them.
+ * Books leads with the chart of accounts DERIVED from the recorded journal (every
+ * account, movement or not), then the journal. A period with no entries is an honest
+ * state, never an "out of balance" verdict. The other views carry the receivables, the
+ * receipts and the reconciliation gaps. The screen stays read-only: no posting control.
  */
 
 const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
@@ -61,7 +60,9 @@ function setSession(scopes: string[]) {
   };
 }
 
-async function renderAccounting(params: { from?: string; to?: string } = {}): Promise<string> {
+async function renderAccounting(
+  params: { from?: string; to?: string; view?: string } = {},
+): Promise<string> {
   return renderToStaticMarkup(await AccountingPage({ searchParams: Promise.resolve(params) }));
 }
 
@@ -70,23 +71,23 @@ describe("staff Accounting page gating", () => {
     setSession(["billing:read"]);
     const html = await renderAccounting();
     expect(html).toContain("permissions this screen needs");
-    expect(html).not.toContain("Trial balance");
+    expect(html).not.toContain("Chart of accounts");
   });
 });
 
-describe("staff Accounting page — the ledger", () => {
+describe("staff Accounting page — the books", () => {
   beforeEach(() => setSession(["accounting:read", "cases:read", "orders:read"]));
 
   it("names the missing API once, before the first balance", async () => {
     const html = await renderAccounting();
     const stateIndex = html.indexOf("No staff-facing ledger API exists yet");
     expect(stateIndex).toBeGreaterThan(-1);
-    expect(stateIndex).toBeLessThan(html.indexOf("Trial balance"));
+    expect(stateIndex).toBeLessThan(html.indexOf("Chart of accounts"));
   });
 
-  it("derives and prints the trial balance with equal sides", async () => {
+  it("renders the whole chart of accounts derived from the journal, sides equal", async () => {
     const html = await renderAccounting();
-    expect(html).toContain("Trial balance");
+    expect(html).toContain("Chart of accounts");
     expect(html).toContain("Balanced");
     // The recorded ledger's own totals: ₱3,915,140.00 on each side.
     expect(html).toContain("₱3,915,140.00");
@@ -96,9 +97,16 @@ describe("staff Accounting page — the ledger", () => {
     expect(html).toMatch(/₱[\d,]+\.\d\d (Dr|Cr)/);
   });
 
+  it("lists every chart account in the tool view, movement or not", async () => {
+    const html = await renderAccounting();
+    // 15 recorded accounts; the cash account with no movement still has a row.
+    expect((html.match(/table__name/g) ?? []).length).toBeGreaterThanOrEqual(15);
+    expect(html).toContain("Cash on hand");
+  });
+
   it("lists the journal with its amounts and links the case/order it is against", async () => {
     const html = await renderAccounting();
-    expect(html).toContain("Journal entries");
+    expect(html).toContain("Journal");
     expect(html).toContain("Sale — ORD-2026-00001");
     expect(html).toContain('href="/staff/orders/ORD-2026-00001"');
     expect(html).toContain("Retrieval crew advance — CASE-2026-0002");
@@ -113,7 +121,7 @@ describe("staff Accounting page — the ledger", () => {
     expect(html).not.toContain('href="/staff/cases/CASE-2026-0002"');
   });
 
-  it("applies the period to both the trial balance and the journal", async () => {
+  it("applies the period to both the chart and the journal", async () => {
     const html = await renderAccounting({ from: "2026-03-01", to: "2026-03-31" });
     expect(html).toContain("March office rent");
     expect(html).not.toContain("August payroll");
@@ -123,14 +131,13 @@ describe("staff Accounting page — the ledger", () => {
 
   it("shows the honest empty state for a period with no entries", async () => {
     const html = await renderAccounting({ from: "2027-01-01", to: "2027-01-31" });
-    expect(html).toContain("No entries in this period");
-    expect(html).not.toContain("Journal entries");
+    expect(html).toContain("Nothing posted");
+    expect(html).not.toContain("Journal");
   });
 
   it("is read-only: it says so and carries no posting control", async () => {
     const html = await renderAccounting();
     expect(html).toContain("Read-only");
-    expect(html).toContain("it does not post to it");
     expect(html).not.toMatch(/>Post\b/);
   });
 
@@ -138,5 +145,29 @@ describe("staff Accounting page — the ledger", () => {
     const html = await renderAccounting();
     expect(html.match(/<h1[\s>]/g) ?? []).toHaveLength(1);
     expect(html).toContain("<h1>Accounting</h1>");
+  });
+});
+
+describe("staff Accounting page — the tool views", () => {
+  beforeEach(() => setSession(["accounting:read", "billing:read", "cases:read", "orders:read"]));
+
+  it("opens receivables with aging, open invoices and the client accounts", async () => {
+    const html = await renderAccounting({ view: "receivables" });
+    expect(html).toContain('data-testid="accounting-aging"');
+    expect(html).toContain("Client accounts");
+    expect(html).toContain("Open invoices");
+  });
+
+  it("opens receipts with the official and provisional journals", async () => {
+    const html = await renderAccounting({ view: "receipts" });
+    expect(html).toContain("Official receipts");
+    expect(html).toContain("Provisional receipts");
+  });
+
+  it("opens reconciliation with the two named flag feeds", async () => {
+    const html = await renderAccounting({ view: "reconciliation" });
+    expect(html).toContain("unposted");
+    expect(html).toContain("unmatched");
+    expect(html).toContain("posting-instruction-v1");
   });
 });

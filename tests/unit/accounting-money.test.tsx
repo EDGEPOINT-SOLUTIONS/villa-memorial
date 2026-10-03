@@ -15,10 +15,9 @@ vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
 /**
  * The Accounting screen's money half.
  *
- * The received/outstanding/overdue tiles, the aging buckets, the receipts and the
- * reconciliation flags all read recorded billing/ledger records. A figure with no record is
- * a named blank or a named gap — never a ₱0 that reads as recorded money — and the screen
- * stays read-only.
+ * The receivables view's tiles, the aging buckets and the receipts all read recorded
+ * billing/ledger records. A figure with no record is a named blank or a named gap —
+ * never a ₱0 that reads as recorded money — and the screen stays read-only.
  */
 
 const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
@@ -55,7 +54,9 @@ function setSession(scopes: string[]) {
   };
 }
 
-async function renderAccounting(params: { from?: string; to?: string } = {}): Promise<string> {
+async function renderAccounting(
+  params: { from?: string; to?: string; view?: string } = {},
+): Promise<string> {
   return renderToStaticMarkup(await AccountingPage({ searchParams: Promise.resolve(params) }));
 }
 
@@ -77,15 +78,25 @@ afterEach(async () => {
   await rm(dir, { recursive: true, force: true });
 });
 
-describe("staff Accounting — the money tiles and states", () => {
+describe("staff Accounting — the money view", () => {
   beforeEach(() => setSession(["accounting:read", "billing:read", "orders:read", "cases:read"]));
 
   it("names a blank, never a ₱0, when the counter has recorded nothing", async () => {
-    const html = await renderAccounting();
+    const html = await renderAccounting({ view: "receivables" });
     expect(html).toContain("Received this month");
-    expect(html).toContain("no payment recorded yet");
-    expect(html).toContain("Reconciliation flags");
-    expect(html).toContain("not available — needs a bank/gateway feed");
+    expect(html).toContain("no payment recorded this month");
+    // The received tile's figure is a named blank, not a zero.
+    expect(html).toMatch(/Received this month<\/span><span class="kpi-card__value">—</);
+  });
+
+  it("names each reconciliation flag's missing feed and the records not built", async () => {
+    const html = await renderAccounting({ view: "reconciliation" });
+    expect(html).toContain("unposted");
+    expect(html).toContain("unmatched");
+    expect(html).toContain("posting-instruction-v1");
+    expect(html).toContain("Expenses");
+    expect(html).toContain("statements");
+    expect(html).toContain("reporting-analytics");
   });
 
   it("shows the recorded receipt and the derived dues once a payment exists", async () => {
@@ -101,34 +112,26 @@ describe("staff Accounting — the money tiles and states", () => {
         notes: "",
       },
     });
-    const html = await renderAccounting();
-    // Received this month = the ₱1,000 payment; outstanding falls to ₱19,000.
-    expect(html).toContain("₱1,000.00");
-    expect(html).toContain("₱19,000.00");
-    expect(html).toContain('data-testid="accounting-aging"');
-    // The payment issued an official receipt whose number the receipts table prints.
-    expect(html).toContain("Receipts");
-    expect(html).toMatch(/DOC-\d{4}-\d{5}/);
-    expect(html).toContain('href="/staff/documents/');
-    // The provisional journal is still honestly empty.
-    expect(html).toContain("No provisional receipt recorded");
-  });
 
-  it("names each reconciliation flag's missing feed and the records not built", async () => {
-    const html = await renderAccounting();
-    expect(html).toContain("unposted");
-    expect(html).toContain("unmatched");
-    expect(html).toContain("posting-instruction-v1");
-    expect(html).toContain("Expenses");
-    expect(html).toContain("statements");
-    expect(html).toContain("reporting-analytics");
+    const receivables = await renderAccounting({ view: "receivables" });
+    // Received this month = the ₱1,000 payment; outstanding falls to ₱19,000.
+    expect(receivables).toContain("₱1,000.00");
+    expect(receivables).toContain("₱19,000.00");
+    expect(receivables).toContain('data-testid="accounting-aging"');
+
+    const receipts = await renderAccounting({ view: "receipts" });
+    // The payment issued an official receipt whose number the receipts table prints.
+    expect(receipts).toMatch(/DOC-\d{4}-\d{5}/);
+    expect(receipts).toContain('href="/staff/documents/');
+    // The provisional journal is still honestly empty.
+    expect(receipts).toContain("No provisional receipt recorded");
   });
 
   it("names the billing scope when the session cannot read the money records", async () => {
     setSession(["accounting:read"]);
-    const html = await renderAccounting();
+    const html = await renderAccounting({ view: "receivables" });
     expect(html).toContain("Aging needs billing:read");
-    expect(html).toContain("Trial balance");
+    expect(html).toContain("Open invoices need billing:read");
   });
 
   it("keeps exactly one h1 and stays read-only", async () => {
