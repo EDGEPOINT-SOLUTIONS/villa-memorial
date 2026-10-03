@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import { getAgentProspect } from "@/lib/api-client/agent";
 import { listOfficeAgentNames } from "@/lib/api-client/agent-roster";
 import { recordProspectAssignment, recordProspectCapture, recordStageMove } from "@/lib/api-client/agent-store";
-import { getFixtureInquiry, recordInquiryStatus } from "@/lib/api-client/inquiry-store";
+import {
+  getFixtureInquiry,
+  recordInquiryContact,
+  recordInquiryStatus,
+} from "@/lib/api-client/inquiry-store";
 import { readProspectAssignment, readProspectIntake } from "@/lib/crm/prospect-actions";
 import { readInquiryStatusMove } from "@/lib/inquiry-intake";
 import { errorResponse, firstError, readJsonBody, requireStaffScope } from "../../_guard";
@@ -51,6 +55,24 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const updated = await recordInquiryStatus({
         inquiryId: id,
         status: verdict.status,
+        by: auth.actor,
+      });
+      return NextResponse.json({ inquiry: updated }, { status: 201 });
+    }
+
+    if (record.action === "contact") {
+      // The office adds or corrects the number the family left (2026-10-03): the
+      // plan/lot gate is optional, so a record may reach the office with no phone.
+      const phone = typeof record.phone === "string" ? record.phone.trim() : "";
+      if (!phone) {
+        return NextResponse.json({ error: "Enter the contact number." }, { status: 422 });
+      }
+      if (phone.length > 40) {
+        return NextResponse.json({ error: "That contact number is too long." }, { status: 422 });
+      }
+      const updated = await recordInquiryContact({
+        inquiryId: id,
+        phone,
         by: auth.actor,
       });
       return NextResponse.json({ inquiry: updated }, { status: 201 });

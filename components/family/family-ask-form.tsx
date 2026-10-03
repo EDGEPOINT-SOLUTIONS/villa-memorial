@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
 import type { FamilyAsk } from "@/lib/family/ask";
 
 /**
@@ -22,6 +23,7 @@ export function FamilyAskForm({ ask }: { ask: FamilyAsk }) {
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
   const [reference, setReference] = useState<string | null>(null);
+  const [phone, setPhone] = useState("");
 
   async function send() {
     setState("sending");
@@ -33,6 +35,7 @@ export function FamilyAskForm({ ask }: { ask: FamilyAsk }) {
         body: JSON.stringify({
           kind: ask.kind,
           item: ask.item,
+          ...(phone.trim() ? { phone: phone.trim() } : {}),
           ...(ask.sku ? { sku: ask.sku } : {}),
           ...(ask.price ? { price: ask.price } : {}),
           ...(ask.amountCents != null ? { amountCents: ask.amountCents } : {}),
@@ -71,6 +74,20 @@ export function FamilyAskForm({ ask }: { ask: FamilyAsk }) {
   return (
     <div className="stack-3">
       {error ? <Alert tone="danger">{error}</Alert> : null}
+      <Field
+        label="Contact number"
+        htmlFor="ask-phone"
+        hint="So the office can call you about this — optional."
+      >
+        <input
+          id="ask-phone"
+          type="tel"
+          inputMode="tel"
+          autoComplete="tel"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
+        />
+      </Field>
       <Button
         type="button"
         className="ag-btn-xl"

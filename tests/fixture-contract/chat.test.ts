@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+/* --- test-only demo fixture (clean start, captain 2026-10-03) --- */
+vi.mock("@/lib/fixtures/chat/threads.json", async () => ({
+  default: (await import("../fixtures/chat-threads-demo.json")).default,
+}));
+/* --- end test-only demo fixture --- */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";

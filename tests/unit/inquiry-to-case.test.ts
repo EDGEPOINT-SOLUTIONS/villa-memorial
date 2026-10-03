@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mkdtemp, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { listCases } from "@/lib/api-client/operations";
+import { getCase, listCases } from "@/lib/api-client/operations";
 import { receiveInquiry } from "@/lib/api-client/inquiry-store";
 import { readInquirySubmission } from "@/lib/inquiry-intake";
 
@@ -117,6 +117,36 @@ describe("Send to case", () => {
     expect(recorded, "the case the office opens next must be readable").toBeDefined();
     expect(recorded!.inquiry_reference).toBe(INQUIRY_REFERENCE);
     expect(recorded!.intake?.client_name).toBeTruthy();
+
+    // THE FLOW-AUDIT REGRESSION: the office's own "View case" link asks for the
+    // case by id. Fixture mode used to check the recorded seed only and answer
+    // "Case not found" for the case it had just opened.
+    const detail = await getCase(kase.id);
+    expect(detail.case_number).toBe(kase.case_number);
+    expect(detail.inquiry_reference).toBe(INQUIRY_REFERENCE);
+    await expect(getCase("case-not-recorded")).rejects.toThrow();
+  });
+
+  it("refuses a case with no contact number and writes nothing", async () => {
+    signInAs(["cases:write"]);
+    // A family plan/lot ask may arrive with no phone (the gate's contact is
+    // optional); the case is where a reachable person is required.
+    const verdict = readInquirySubmission("contact", {
+      full_name: "No Number",
+      email: "no.number@example.com",
+      phone: "",
+      message: "Asking with no number.",
+      consent: true,
+    });
+    if (!verdict.ok) throw new Error("the sample enquiry was refused");
+    const phoneLess = await receiveInquiry({ intake: verdict.intake });
+    const before = await listCases();
+
+    const response = await send(phoneLess.id);
+    expect(response.status).toBe(422);
+    const body = (await response.json()) as { error: string };
+    expect(body.error).toContain("contact number");
+    expect(await listCases()).toHaveLength(before.length);
   });
 
   it("is idempotent — a second send returns the same case, not a twin", async () => {

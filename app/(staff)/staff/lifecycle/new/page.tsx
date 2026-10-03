@@ -64,7 +64,12 @@ export default async function NewOutcomePage({
       </PageSection>
 
       <PageSection>
+        {/* The kind is part of the form's identity: without the key, switching
+            Plan → Service keeps the plan's payment mode and its hidden First due
+            date, and a service outcome refuses with a field no longer on screen
+            (flow audit, 2026-10-03). */}
         <EngagementForm
+          key={kind}
           kind={kind}
           defaultName={params.name ?? ""}
           prospectId={params.prospect ?? null}

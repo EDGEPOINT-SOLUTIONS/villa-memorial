@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { PageHeader, PageSection } from "@/components/ui/page";
 import { DataTable, StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
 import { ForbiddenState } from "@/components/ui/states";
 import { listCustomers } from "@/lib/api-client/crm";
-import { listCrmLeads } from "@/lib/api-client/crm-leads";
-import { LeadRecordsPanel } from "@/components/crm/lead-records-panel";
 
 export const metadata = { title: "Customers — Admin Portal" };
 
@@ -32,7 +29,6 @@ export default async function CustomersPage({
   const { q } = await searchParams;
   const query = (q ?? "").trim().toLowerCase();
   const customers = await listCustomers();
-  const leads = await listCrmLeads();
   const activeCount = customers.filter((c) => c.status === "active").length;
   const filtered = query
     ? customers.filter((c) =>
@@ -137,15 +133,6 @@ export default async function CustomersPage({
             }
           }}
         />
-      </PageSection>
-
-      {/* The CRM area's other record: the recorded leads (PRD Lead Detail). The
-          customer list itself is unchanged; this is the Customers screen's way
-          into a lead record, shared with the Sales pipeline screen. */}
-      <PageSection>
-        <Card header={<h2>Lead records</h2>}>
-          <LeadRecordsPanel leads={leads} />
-        </Card>
       </PageSection>
     </>
   );

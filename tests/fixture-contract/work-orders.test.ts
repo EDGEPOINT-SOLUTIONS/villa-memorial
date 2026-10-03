@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+/* --- test-only demo fixture (clean start, captain 2026-10-03) --- */
+vi.mock("@/lib/fixtures/operations/work-orders.json", async () => ({
+  default: (await import("../fixtures/work-orders-demo.json")).default,
+}));
+/* --- end test-only demo fixture --- */
 import workOrdersFile from "@/lib/fixtures/operations/work-orders.json";
 import dispatchFile from "@/lib/fixtures/operations/dispatch.json";
 import lotsFile from "@/lib/fixtures/property/lots.json";

@@ -14,7 +14,6 @@
  * complete intake — order.fulfilled carries the purchaser, not the deceased. See the
  * contract's Known gap section.
  */
-import casesFile from "@/lib/fixtures/operations/cases.json";
 import { ApiError } from "@/lib/api-client/api-error";
 import {
   createCaseRecord,
@@ -91,11 +90,6 @@ export type Case = {
    * shows the family's words through it instead of making the office retype them.
    */
   inquiry_reference?: string | null;
-};
-
-type CaseStore = {
-  tenant_id: string;
-  cases: Case[];
 };
 
 /** Tolerant reader: extra upstream fields are ignored; `tasks[].id` is the contract's
@@ -300,6 +294,11 @@ export async function listCases(): Promise<Case[]> {
  * cases by their capability token (`case_number`), so the live branch resolves through the
  * list. A by-id endpoint would need a contract change — the screens only ever pass ids
  * they received from listCases(), so a single extra hop is the honest v1 answer.
+ *
+ * 2026-10-03 (flow audit): fixture mode used to check the RECORDED SEED only and throw
+ * 404 before it ever read the durable store, so the case "Send to case" had just opened
+ * answered "Case not found" on its own detail page. The fold IS the record, so one read
+ * of it now answers both the seed and the journalled case.
  */
 export async function getCase(id: string): Promise<Case> {
   if (operationsLiveModeEnabled()) {
@@ -308,10 +307,6 @@ export async function getCase(id: string): Promise<Case> {
       throw new ApiError("not_found", 404);
     }
     return found;
-  }
-  const store = casesFile as unknown as CaseStore;
-  if (!store.cases.some((c) => c.id === id)) {
-    throw new ApiError("not_found", 404);
   }
   const stored = (await loadStoredCases()).find((c) => c.id === id);
   if (!stored) {

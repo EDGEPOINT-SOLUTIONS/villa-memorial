@@ -168,9 +168,10 @@ export default async function StaffDashboardPage({
   const finance = summary?.finance;
   const paymentAlerts = summary?.payment_alerts ?? null;
 
-  const calendarAnchor = calendar?.anchor || parkToday();
+  // Today is the day the office opens on (flow audit, 2026-10-03); the recorded
+  // fixture `as_of` day is no longer the landing day.
   const selectedDate =
-    params.date && isCalendarDate(params.date) ? params.date : calendarAnchor;
+    params.date && isCalendarDate(params.date) ? params.date : parkToday();
   const calendarMonth =
     params.calDate && /^\d{4}-\d{2}$/.test(params.calDate)
       ? params.calDate

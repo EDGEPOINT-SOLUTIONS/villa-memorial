@@ -42,6 +42,17 @@ export async function POST(
       return NextResponse.json({ error: "inquiry not found" }, { status: 404 });
     }
 
+    // A case is an arrangement with a person, so it needs a number the office can
+    // call (captain, 2026-10-03). This is the ONLY hard contact requirement: a
+    // plan/lot enquiry may become a prospect without one, and the office adds it
+    // on the enquiry before opening the case.
+    if (!inquiry.person.phone.trim()) {
+      return NextResponse.json(
+        { error: "Add a contact number for this enquiry before opening a case." },
+        { status: 422 },
+      );
+    }
+
     // One record, no duplicate entry: a second send returns the case already carrying
     // this enquiry rather than opening a twin.
     const existing = (await listCases()).find(

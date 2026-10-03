@@ -115,11 +115,22 @@ describe("the staff gate", () => {
 });
 
 describe("creating a prospect", () => {
-  it("422s an incomplete prospect and writes nothing", async () => {
+  it("422s a prospect with an unknown need and writes nothing", async () => {
     signInAs(STAFF_WRITE);
-    const res = await createRoute.POST(request("/api/staff/prospects", { phone: "", need: "plan" }));
+    const res = await createRoute.POST(
+      request("/api/staff/prospects", { phone: "", need: "wishlist" }),
+    );
     expect(res.status).toBe(422);
     expect(await listAgentProspects()).toHaveLength(0);
+  });
+
+  it("201s a phone-less prospect — the case, not the prospect, requires a contact", async () => {
+    signInAs(STAFF_WRITE);
+    const res = await createRoute.POST(
+      request("/api/staff/prospects", { phone: "", need: "plan" }),
+    );
+    expect(res.status).toBe(201);
+    expect(await listAgentProspects()).toHaveLength(1);
   });
 
   it("201s a valid prospect that the agent pipeline reads immediately", async () => {

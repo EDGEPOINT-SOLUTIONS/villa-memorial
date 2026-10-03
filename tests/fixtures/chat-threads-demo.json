@@ -1,0 +1,137 @@
+{
+  "_provenance": {
+    "status": "PROVISIONAL — no messaging/communications service contract is frozen (see lib/api-client/chat-store.ts and data/villa-admin-plan/report.md §9.6)",
+    "recorded": "2026-10-02",
+    "note": [
+      "The recorded half of the durable chat store. Each thread folds onto one append-only journal at `.data/chat/<thread>.json` (CHAT_STORE_DIR), and every later message/state is a journal event — this file is never edited by the app.",
+      "WHAT THIS IS: app-authored demo conversations for the board's chat mockup, in the same provisional spirit as lib/fixtures/family/*.json and lib/fixtures/agent/workspace.json. The Santos thread reproduces the board's own example (a signed application + ID, the office's balance schedule, 'attachments kept'). The Cory Customer thread is the one the signed-in family account (customer@vm.demo, the household the family portal renders) can open and answer; the Alex Agent thread is the signed-in agent's. participant_id is the account's identity: the family account's user_id or the agent's workspace id (lib/fixtures/agent/workspace.json `agent.id`).",
+      "ATTACHMENTS: each attachment row carries the sha256 of bytes committed under lib/fixtures/chat/files/ (see that folder's manifest.json); lib/chat-attachment-store.ts copies each into .data/attachments on first read. tests/fixture-contract/chat.test.ts pins every hash to its file's bytes and every file to the allow-list.",
+      "NEVER INVENTED: no delivery state is asserted as live. States are the office's recorded read/delivered marks from a past session; the app appends only the states its own requests observe. No amount, no contract number and no case reference is fabricated.",
+      "The recorded instants are true UTC instants; every screen prints them in Asia/Manila through lib/agent/agent-view.ts (manilaDay/manilaTime)."
+    ]
+  },
+  "threads": [
+    {
+      "id": "family-00000000-0000-4000-8000-000000000201",
+      "kind": "family",
+      "participant_id": "00000000-0000-4000-8000-000000000201",
+      "participant_name": "Marites Santos",
+      "subject": "Santos family",
+      "created_at": "2026-10-01T02:02:00Z",
+      "messages": [
+        {
+          "id": "msg-santos-0001",
+          "author": "participant",
+          "author_name": "Marites Santos",
+          "body": "Here is the signed application and the ID.",
+          "at": "2026-10-01T02:02:00Z",
+          "state": "read",
+          "attachments": [
+            {
+              "id": "4675e4aef27238ad7bf3361a26c6d976ce1c4279fba43f13a0d889f8974b2941",
+              "name": "application-santos.pdf",
+              "mime": "application/pdf",
+              "size": 615
+            },
+            {
+              "id": "bdff0e0944f020878bfc277e5977ae6a598422812b68cbe67620c6de85e45045",
+              "name": "id-front.jpg",
+              "mime": "image/jpeg",
+              "size": 160
+            }
+          ]
+        },
+        {
+          "id": "msg-santos-0002",
+          "author": "office",
+          "author_name": "Ada Admin",
+          "body": "Received. Your balance schedule is attached.",
+          "at": "2026-10-01T02:11:00Z",
+          "state": "delivered",
+          "attachments": [
+            {
+              "id": "bde090afc4d5ca8f44d02ca97432bf0388ba80c84314b1f98183c39c09d28948",
+              "name": "schedule.xlsx",
+              "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              "size": 1609
+            }
+          ]
+        },
+        {
+          "id": "msg-santos-0003",
+          "author": "participant",
+          "author_name": "Marites Santos",
+          "body": "Thank you!",
+          "at": "2026-10-01T02:12:00Z",
+          "state": "sent",
+          "attachments": []
+        }
+      ]
+    },
+    {
+      "id": "family-00000000-0000-4000-8000-000000000014",
+      "kind": "family",
+      "participant_id": "00000000-0000-4000-8000-000000000014",
+      "participant_name": "Cory Customer",
+      "subject": "Cory Customer · Dela Cruz family",
+      "created_at": "2026-09-30T01:15:00Z",
+      "messages": [
+        {
+          "id": "msg-delacruz-0001",
+          "author": "participant",
+          "author_name": "Cory Customer",
+          "body": "Good morning — is the viewing still on for Friday?",
+          "at": "2026-09-30T01:15:00Z",
+          "state": "read",
+          "attachments": []
+        },
+        {
+          "id": "msg-delacruz-0002",
+          "author": "office",
+          "author_name": "Ada Admin",
+          "body": "Yes — Friday 3 PM is held for you. Bring the signed application if you can.",
+          "at": "2026-09-30T01:22:00Z",
+          "state": "read",
+          "attachments": []
+        },
+        {
+          "id": "msg-delacruz-0003",
+          "author": "participant",
+          "author_name": "Cory Customer",
+          "body": "We will. Thank you.",
+          "at": "2026-09-30T01:26:00Z",
+          "state": "read",
+          "attachments": []
+        }
+      ]
+    },
+    {
+      "id": "agent-00000000-0000-4000-8000-000000000013",
+      "kind": "agent",
+      "participant_id": "00000000-0000-4000-8000-000000000013",
+      "participant_name": "Alex Agent",
+      "subject": "Alex Agent",
+      "created_at": "2026-10-01T00:14:00Z",
+      "messages": [
+        {
+          "id": "msg-agent-0001",
+          "author": "participant",
+          "author_name": "Alex Agent",
+          "body": "The Mendoza family wants the corner lot. Can I hold it until Friday?",
+          "at": "2026-10-01T00:14:00Z",
+          "state": "read",
+          "attachments": []
+        },
+        {
+          "id": "msg-agent-0002",
+          "author": "office",
+          "author_name": "Ada Admin",
+          "body": "Hold it — send the application today and I'll take the reservation.",
+          "at": "2026-10-01T00:20:00Z",
+          "state": "read",
+          "attachments": []
+        }
+      ]
+    }
+  ]
+}

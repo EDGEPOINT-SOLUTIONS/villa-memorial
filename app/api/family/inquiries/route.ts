@@ -3,7 +3,11 @@ import { ApiError } from "@/lib/api-client/api-error";
 import { crmLiveModeEnabled } from "@/lib/api-client/crm";
 import { receiveInquiry } from "@/lib/api-client/inquiry-store";
 import { familySessionOrNull } from "@/lib/auth/family-session";
-import { familyAskInquiryInput, readFamilyAskSubmission } from "@/lib/family/ask";
+import {
+  familyAskInquiryInput,
+  readFamilyAskContact,
+  readFamilyAskSubmission,
+} from "@/lib/family/ask";
 
 /**
  * BFF: POST /api/family/inquiries — a signed-in family asks about a PLAN or a LOT.
@@ -56,12 +60,25 @@ export async function POST(request: Request) {
     );
   }
 
+  // The contact the family left at the gate (2026-10-03). Optional here; the office
+  // can add one later and the hard requirement is the case.
+  const contact = readFamilyAskContact(body);
+  if (!contact.ok) {
+    return NextResponse.json(
+      {
+        error: Object.values(contact.errors)[0] ?? "The contact number could not be read.",
+        fieldErrors: contact.errors,
+      },
+      { status: 422 },
+    );
+  }
+
   try {
     const inquiry = await receiveInquiry({
       intake: familyAskInquiryInput(verdict.ask, {
         full_name: session.displayName,
         email: session.email,
-        phone: "",
+        phone: contact.phone,
       }),
       user_id: session.userId,
     });

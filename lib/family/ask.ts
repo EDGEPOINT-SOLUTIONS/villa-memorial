@@ -50,6 +50,8 @@ const MAX_SKU = 60;
 const MAX_PRICE = 60;
 const MAX_AMOUNT = 1_000_000_000_000; // ₱10 billion in centavos — far above any real figure
 const MAX_NOTE = 200;
+/** The family's own contact number, collected at the gate (2026-10-03). */
+const MAX_PHONE = 40;
 
 function clamp(value: string, max: number): string {
   const trimmed = value.trim();
@@ -78,6 +80,28 @@ export function familyAskHref(ask: FamilyAsk): string {
 }
 
 type SearchParamsLike = URLSearchParams | Record<string, string | string[] | undefined>;
+
+/**
+ * The CONTACT the family leaves at the gate (captain, 2026-10-03).
+ *
+ * The family account is created with a display name and an email and no phone,
+ * which is why two of the three sample enquiries could never become prospects.
+ * The gate now asks for the number the office should call; it stays optional here
+ * (the hard requirement is the case, where a person must be reachable), so a
+ * family without a number can still ask.
+ */
+export type FamilyAskContact = { phone: string };
+
+export function readFamilyAskContact(
+  raw: unknown,
+): { ok: true; phone: string } | { ok: false; errors: Record<string, string> } {
+  const record = typeof raw === "object" && raw !== null ? (raw as Record<string, unknown>) : {};
+  const phone = typeof record.phone === "string" ? record.phone.trim() : "";
+  if (phone.length > MAX_PHONE) {
+    return { ok: false, errors: { phone: "That contact number is too long." } };
+  }
+  return { ok: true, phone };
+}
 
 /**
  * Tolerant reader for the gate link's params (a URLSearchParams or Next's page

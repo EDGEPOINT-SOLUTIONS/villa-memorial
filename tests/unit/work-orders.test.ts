@@ -1,4 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+/* --- test-only demo fixture (clean start, captain 2026-10-03) --- */
+vi.mock("@/lib/fixtures/operations/work-orders.json", async () => ({
+  default: (await import("../fixtures/work-orders-demo.json")).default,
+}));
+/* --- end test-only demo fixture --- */
 import {
   loadWorkOrders,
   toWorkOrder,

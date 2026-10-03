@@ -216,7 +216,11 @@ export function AddProspectDialog({
               ))}
             </select>
           </Field>
-          <Field label="Assign to" htmlFor="prospect-agent" hint="Optional — notifies the agent.">
+          <Field
+            label="Assign to"
+            htmlFor="prospect-agent"
+            hint="Optional — recorded on the assignment. No notice is sent yet."
+          >
             <select
               id="prospect-agent"
               value={form.agent}
@@ -447,7 +451,11 @@ export function ProspectDetailPanel({
                     ))}
                   </select>
                 </Field>
-                <Field label="Note" htmlFor="assign-note" hint="Optional — travels with the notice.">
+                <Field
+                  label="Note"
+                  htmlFor="assign-note"
+                  hint="Optional — recorded with the assignment. No notice is sent yet."
+                >
                   <input
                     id="assign-note"
                     value={assignNote}

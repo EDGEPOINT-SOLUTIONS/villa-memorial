@@ -76,11 +76,13 @@ describe("the pure prospect readings", () => {
     expect(verdict.value.interest).toBe("lot");
   });
 
-  it("refuses a prospect with no phone or no need", () => {
-    const verdict = readProspectIntake({ phone: "", need: "plan" });
-    expect(verdict.ok).toBe(false);
-    if (verdict.ok) return;
-    expect(verdict.errors.phone).toBeTruthy();
+  it("accepts a prospect with no phone but refuses an unknown need", () => {
+    // 2026-10-03 flow audit: phone is optional now; the case is where a
+    // reachable contact is required.
+    const noPhone = readProspectIntake({ phone: "", need: "plan" });
+    expect(noPhone.ok).toBe(true);
+    if (!noPhone.ok) return;
+    expect(noPhone.value.phone).toBe("");
 
     const noNeed = readProspectIntake({ phone: "0917", need: "wishlist" });
     expect(noNeed.ok).toBe(false);

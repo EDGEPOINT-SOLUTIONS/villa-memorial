@@ -3,6 +3,12 @@ import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react"
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
 
+/* --- test-only demo fixture (clean start, captain 2026-10-03) --- */
+vi.mock("@/lib/fixtures/chat/threads.json", async () => ({
+  default: (await import("../fixtures/chat-threads-demo.json")).default,
+}));
+/* --- end test-only demo fixture --- */
+
 /**
  * The three chat screens render for real: the Admin Inbox list, the office conversation,
  * and the family/agent own-thread page — one h1 each, the composed thread on screen, and

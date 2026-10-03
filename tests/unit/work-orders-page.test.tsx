@@ -1,6 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
+/* --- test-only demo fixture (clean start, captain 2026-10-03) --- */
+vi.mock("@/lib/fixtures/operations/work-orders.json", async () => ({
+  default: (await import("../fixtures/work-orders-demo.json")).default,
+}));
+/* --- end test-only demo fixture --- */
 
 /**
  * The Work orders list (`/staff/work-orders`), rendered over the recorded fixture.

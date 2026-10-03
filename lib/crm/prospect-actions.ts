@@ -68,9 +68,12 @@ export type ProspectIntake =
   | { ok: false; errors: Record<string, string> };
 
 /**
- * The office's own "add a prospect" reading. Phone is required (it is how the
- * office reaches the person); a name is helpful but the number stands in for it.
- * The source defaults to the front desk's `walk_in` when none is chosen.
+ * The office's own "add a prospect" reading. Phone is OPTIONAL (captain,
+ * 2026-10-03): a family plan/lot ask arrives with the account's name and email
+ * and no number, and the office must still be able to work it. The contact
+ * requirement lands where it belongs — on the case, which is an arrangement with
+ * a person — not on the prospect. A name is helpful; the source defaults to the
+ * front desk's `walk_in` when none is chosen.
  */
 export function readProspectIntake(values: unknown): ProspectIntake {
   const record =
@@ -78,7 +81,6 @@ export function readProspectIntake(values: unknown): ProspectIntake {
   const errors: Record<string, string> = {};
 
   const phone = text(record.phone, PROSPECT_PHONE_MAX);
-  if (phone.length === 0) errors.phone = "Enter the phone number — it is how the office reaches them.";
 
   const need = record.need;
   if (!isProspectInterest(need)) {

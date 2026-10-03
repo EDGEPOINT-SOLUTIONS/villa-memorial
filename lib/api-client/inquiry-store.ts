@@ -53,7 +53,11 @@ import seedFile from "@/lib/fixtures/crm/inquiries.json";
  */
 type PersistedEvent =
   | { kind: "inquiry_received"; at: string; inquiry: Inquiry }
-  | { kind: "inquiry_status"; at: string; inquiry_id: string; status: Inquiry["status"]; by: string };
+  | { kind: "inquiry_status"; at: string; inquiry_id: string; status: Inquiry["status"]; by: string }
+  // The office's own contact correction (2026-10-03): a family plan/lot ask
+  // arrives without a phone, and the office must be able to add one on the
+  // enquiry — the hard requirement is the case, not the conversion.
+  | { kind: "inquiry_contact"; at: string; inquiry_id: string; phone: string; by: string };
 
 export function inquiriesStorePath(): string {
   return journalPath("INQUIRIES_STORE_PATH", "crm-inquiries.json");
@@ -144,6 +148,15 @@ function toPersistedEvent(raw: unknown): PersistedEvent {
       by: typeof r.by === "string" ? r.by : "",
     };
   }
+  if (r.kind === "inquiry_contact") {
+    return {
+      kind: "inquiry_contact",
+      at: requiredString(r.at, "event timestamp"),
+      inquiry_id: requiredString(r.inquiry_id, "contact inquiry id"),
+      phone: requiredString(r.phone, "contact phone"),
+      by: typeof r.by === "string" ? r.by : "",
+    };
+  }
   if (r.kind !== "inquiry_received") malformed(`store event kind ${String(r.kind)}`);
   return {
     kind: "inquiry_received",
@@ -194,13 +207,17 @@ export async function listFixtureInquiries(): Promise<Inquiry[]> {
       .map((event) => structuredClone(event.inquiry)),
     ...seedInquiries(),
   ];
-  // The office's own status moves fold onto the rows, oldest first, so a board
-  // read is one record and the seed is never rewritten.
+  // The office's own status moves and contact corrections fold onto the rows,
+  // oldest first, so a board read is one record and the seed is never rewritten.
   const byId = new Map(rows.map((row) => [row.id, row]));
   for (const event of events) {
-    if (event.kind !== "inquiry_status") continue;
-    const row = byId.get(event.inquiry_id);
-    if (row) row.status = event.status;
+    if (event.kind === "inquiry_status") {
+      const row = byId.get(event.inquiry_id);
+      if (row) row.status = event.status;
+    } else if (event.kind === "inquiry_contact") {
+      const row = byId.get(event.inquiry_id);
+      if (row) row.person.phone = event.phone;
+    }
   }
   return rows.sort((a, b) => b.received_at.localeCompare(a.received_at));
 }
@@ -229,6 +246,31 @@ export async function listFixtureInquiriesForUser(userId: string): Promise<Inqui
  * Record an office status move (New → Contacted → Converted) for one enquiry.
  * Serialized with every other write, so a submission and a move never interleave.
  */
+/**
+ * Record an office contact correction (New → Contacted → Converted) for one
+ * enquiry. Serialized with every other write, so a submission and a move never
+ * interleave.
+ */
+export function recordInquiryContact(args: {
+  inquiryId: string;
+  phone: string;
+  by: string;
+  now?: Date;
+}): Promise<Inquiry> {
+  const now = args.now ?? new Date();
+  return withStoreLock(async () => {
+    const events = await readPersistedEvents();
+    const at = now.toISOString();
+    await persistEvents([
+      ...events,
+      { kind: "inquiry_contact", at, inquiry_id: args.inquiryId, phone: args.phone, by: args.by },
+    ]);
+    const updated = await getFixtureInquiry(args.inquiryId);
+    if (!updated) throw new ApiError("no such enquiry", 404);
+    return structuredClone(updated);
+  });
+}
+
 export function recordInquiryStatus(args: {
   inquiryId: string;
   status: Inquiry["status"];

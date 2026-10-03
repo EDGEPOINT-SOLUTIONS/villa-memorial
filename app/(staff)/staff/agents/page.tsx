@@ -6,8 +6,8 @@ import { ErrorState, ForbiddenState } from "@/components/ui/states";
 import { StatCard } from "@/components/kit";
 import { requireSessionOrRedirect } from "@/lib/auth/guard";
 import { hasAnyScope } from "@/lib/rbac/nav";
-import { listCrmLeads, type CrmLead } from "@/lib/api-client/crm-leads";
-import { manilaDay, stageMeta } from "@/lib/agent/agent-view";
+import { listAgentProspects, type Prospect } from "@/lib/api-client/agent";
+import { interestLabel, manilaDay, stageMeta } from "@/lib/agent/agent-view";
 
 export const metadata = { title: "Agents — Admin Portal" };
 
@@ -24,14 +24,12 @@ function stageTone(stage: string): Tone {
  * Staff Agents (`/staff/agents`) — the people working Villa's leads, and each
  * one's book.
  *
- * WHY IT IS READ FROM THE LEAD FILE. crm-families (agents, lead assignment,
- * customer sync) is unbuilt, so there is no agent register to read. What the
- * product genuinely records is the lead's `owner` — the agent working it — in
- * `lib/fixtures/crm/lead-records.json`. This screen groups that recorded file by
- * owner, so an administrator sees each agent's open book and where each lead
- * stands without a second copy of the data. It invents no agent, no target and no
- * amount; a lead with no owner is shown once as "Unassigned". The full lead list
- * is one link away (the Sales pipeline keeps its own route).
+ * 2026-10-03 (flow audit): this screen used to read the recorded
+ * `lead-records.json` file, a SECOND pipeline that the office's own convert
+ * action never wrote. It now reads the same durable agent journal the Prospects
+ * board and the agent portal fold (`lib/api-client/agent`), so an agent's book
+ * here is the one record everyone else sees. It invents no agent, target or
+ * amount; a prospect with no owner shows once as "Unassigned".
  */
 export default async function AgentsPage() {
   const session = await requireSessionOrRedirect();
@@ -46,27 +44,29 @@ export default async function AgentsPage() {
     );
   }
 
-  let leads: CrmLead[];
+  let prospects: Prospect[];
   try {
-    leads = await listCrmLeads();
+    prospects = await listAgentProspects();
   } catch {
     return (
       <>
         <PageHeader eyebrow="Messages & inquiries" title="Agents" />
         <PageSection>
-          <ErrorState message="Unable to load the recorded lead file." />
+          <ErrorState message="Unable to load the shared lead journal." />
         </PageSection>
       </>
     );
   }
 
-  const byOwner = new Map<string, CrmLead[]>();
-  for (const lead of leads) {
-    const owner = lead.owner.trim() || "Unassigned";
-    byOwner.set(owner, [...(byOwner.get(owner) ?? []), lead]);
+  const byOwner = new Map<string, Prospect[]>();
+  for (const prospect of prospects) {
+    const owner = prospect.owner.trim() || "Unassigned";
+    byOwner.set(owner, [...(byOwner.get(owner) ?? []), prospect]);
   }
   const agents = [...byOwner.entries()].sort(([a], [b]) => a.localeCompare(b));
-  const openLeads = leads.filter((l) => l.stage !== "sold" && l.stage !== "reserved").length;
+  const openProspects = prospects.filter(
+    (p) => p.stage !== "sold" && p.stage !== "reserved",
+  ).length;
 
   return (
     <>
@@ -75,23 +75,23 @@ export default async function AgentsPage() {
         title="Agents"
         lead="The people working Villa's leads, and each one's book."
         actions={
-          <Link href="/staff/pipeline" className="btn btn--secondary btn--sm">
+          <Link href="/staff/prospects" className="btn btn--secondary btn--sm">
             Open the sales pipeline
           </Link>
         }
       />
 
       <div className="kpi-grid" style={{ marginBottom: "var(--space-5)" }}>
-        <StatCard label="Agents" value={agents.length} sub="recorded lead owners" />
-        <StatCard label="Leads" value={leads.length} sub="in the recorded file" />
-        <StatCard label="Open" value={openLeads} sub="not yet reserved or sold" />
+        <StatCard label="Agents" value={agents.length} sub="recorded prospect owners" />
+        <StatCard label="Prospects" value={prospects.length} sub="in the shared journal" />
+        <StatCard label="Open" value={openProspects} sub="not yet reserved or sold" />
       </div>
 
       {agents.length === 0 ? (
         <PageSection>
           <EmptyState
             title="No agents on record"
-            hint="A lead's owner appears here once a lead is recorded with one."
+            hint="A prospect's owner appears here once one is assigned on the pipeline."
           />
         </PageSection>
       ) : (
@@ -102,13 +102,13 @@ export default async function AgentsPage() {
                 <div>
                   <h2>{owner}</h2>
                   <span className="text-sm text-muted">
-                    {book.length} lead{book.length === 1 ? "" : "s"} on record
+                    {book.length} prospect{book.length === 1 ? "" : "s"} on record
                   </span>
                 </div>
                 <div className="row row--wrap" style={{ gap: "var(--space-2)" }}>
-                  {[...new Set(book.map((l) => l.stage))].map((stage) => (
+                  {[...new Set(book.map((p) => p.stage))].map((stage) => (
                     <Badge key={stage} tone={stageTone(stage)}>
-                      {stageMeta(stage).label} · {book.filter((l) => l.stage === stage).length}
+                      {stageMeta(stage).label} · {book.filter((p) => p.stage === stage).length}
                     </Badge>
                   ))}
                 </div>
@@ -118,7 +118,7 @@ export default async function AgentsPage() {
                   <table className="table">
                     <thead>
                       <tr>
-                        <th scope="col">Lead</th>
+                        <th scope="col">Prospect</th>
                         <th scope="col">Interested in</th>
                         <th scope="col">Stage</th>
                         <th scope="col">Last contact</th>
@@ -126,22 +126,22 @@ export default async function AgentsPage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {book.map((lead) => (
-                        <tr key={lead.id}>
+                      {book.map((prospect) => (
+                        <tr key={prospect.id}>
                           <td>
-                            <Link href={`/staff/pipeline/${lead.id}`}>
-                              <strong>{lead.name}</strong>
+                            <Link href="/staff/prospects">
+                              <strong>{prospect.name}</strong>
                             </Link>
-                            <div className="text-sm text-muted">{lead.topic}</div>
+                            <div className="text-sm text-muted">{prospect.want}</div>
                           </td>
-                          <td className="text-sm">{lead.interest}</td>
+                          <td className="text-sm">{interestLabel(prospect.interest)}</td>
                           <td>
-                            <Badge tone={stageTone(lead.stage)}>
-                              {stageMeta(lead.stage).label}
+                            <Badge tone={stageTone(prospect.stage)}>
+                              {stageMeta(prospect.stage).label}
                             </Badge>
                           </td>
-                          <td className="text-sm">{manilaDay(lead.last_contact_at)}</td>
-                          <td className="text-sm">{lead.next_action}</td>
+                          <td className="text-sm">{manilaDay(prospect.last_contact_at)}</td>
+                          <td className="text-sm">{prospect.next_action}</td>
                         </tr>
                       ))}
                     </tbody>

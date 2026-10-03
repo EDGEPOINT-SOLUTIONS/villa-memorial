@@ -24,8 +24,9 @@
  * rail (the pricing document is edited from the catalogue it prices), and the
  * Workflows screen is removed — its engine was never built and it governed nothing
  * the office edits. A single **Forms & documents** group gathers the office's
- * forms hub and the document repository. Sales pipeline keeps its route and is
- * opened from Agents.
+ * forms hub and the document repository. Sales pipeline was retired to the one
+ * Prospects board on 2026-10-03 (it read a duplicate recorded lead file) and now
+ * sits in the rail by its own name.
  *
  * ADDED 2026-10-03 (the post-Prospect lifecycle). A new **Clients & records**
  * group gathers the four outcomes a prospect becomes — Members · Services ·
@@ -83,12 +84,13 @@ export const STAFF_NAV: NavSection[] = [
       // (the group's list is Families · Agents · Inquiries · Memberships · Memorials).
       { href: "/staff/agents", label: "Agents", scopes: ["cases:read"] },
       { href: "/staff/inquiries", label: "Inquiries", scopes: ["cases:read"] },
-      // Prospects (2026-10-02): the client lifecycle an enquiry becomes. The
-      // office works it (call · email · assign) and one state moves New →
-      // Contacted → Converted on the SAME journal the agent portal folds, so an
-      // agent's capture and the office's change cannot disagree. cases:read lists,
-      // cases:write changes it — the inquiries area's own provisional reuse.
-      { href: "/staff/prospects", label: "Prospects", scopes: ["cases:read"] },
+      // Sales pipeline (2026-10-03): the ONE pipeline. The Prospects board is the
+      // client lifecycle an enquiry becomes — the office works it (call · email ·
+      // assign) and one state moves New → Contacted → Converted on the SAME journal
+      // the agent portal folds, so an agent's capture and the office's change cannot
+      // disagree. The retired `/staff/pipeline` route redirects here. cases:read
+      // lists, cases:write changes it — the inquiries area's own provisional reuse.
+      { href: "/staff/prospects", label: "Sales pipeline", scopes: ["cases:read"] },
       // Membership application folio (F-18 / FORMS_PLAN gap 4). Provisional scope:
       // rbac-scopes-v1 names no membership/plan-holder code, so this reuses the
       // Commerce plans' catalog:write until a plans:*/memberships:* scope freezes.

@@ -36,11 +36,13 @@ export default async function StaffCalendarPage({
   }
 
   const params = await searchParams;
-  const { items, unreadable, anchor } = await loadStaffCalendar(session.scopes);
+  const { items, unreadable } = await loadStaffCalendar(session.scopes);
 
   const today = parkToday();
-  const recorded = anchor || today;
-  const selectedDate = params.date && isCalendarDate(params.date) ? params.date : recorded;
+  // The calendar opens on TODAY (flow audit, 2026-10-03). It used to open on the
+  // recorded fixture's `as_of` day, so the office landed on a stale date with
+  // "Nothing recorded" and had to navigate to the live day by hand.
+  const selectedDate = params.date && isCalendarDate(params.date) ? params.date : today;
   const month =
     params.calDate && /^\d{4}-\d{2}$/.test(params.calDate) ? params.calDate : selectedDate.slice(0, 7);
 

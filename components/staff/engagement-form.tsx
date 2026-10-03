@@ -90,7 +90,9 @@ export function EngagementForm({
           detail: form.detail,
           price_basis: form.price_basis,
           amount: form.amount,
-          mode,
+          // A one-time kind never carries a term, even if the mode state is stale
+          // from a kind switch (flow audit, 2026-10-03).
+          mode: termPaid ? mode : "one_time",
           installments: form.installments,
           first_due_on: form.first_due_on,
           prospect_id: prospectId ?? "",

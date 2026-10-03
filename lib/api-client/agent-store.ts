@@ -88,7 +88,10 @@ function toCapturedLead(raw: Record<string, unknown>): CapturedLead {
   return {
     id: requiredString(raw.id, "capture id"),
     name: typeof raw.name === "string" ? raw.name : "",
-    phone: requiredString(raw.phone, "capture phone"),
+    // Phone is optional since the 2026-10-03 flow audit: a family plan/lot ask
+    // arrives with the account's name and email and no number, and the office
+    // adds one before a case.
+    phone: typeof raw.phone === "string" ? raw.phone : "",
     email: typeof raw.email === "string" ? raw.email : "",
     source: requiredString(raw.source, "capture source"),
     interest: knownInterest,

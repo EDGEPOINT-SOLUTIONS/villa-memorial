@@ -1,19 +1,18 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { renderToStaticMarkup } from "react-dom/server";
 import type { Session } from "@/lib/auth/types";
-/* --- test-only demo fixtures (clean start, captain 2026-10-02) --- */
-vi.mock("@/lib/fixtures/crm/lead-records.json", async () => ({
-  default: (await import("../fixtures/crm-lead-records-demo.json")).default,
-}));
-/* --- end test-only demo fixtures --- */
-
+import { recordProspectAssignment, recordProspectCapture } from "@/lib/api-client/agent-store";
 
 /**
  * Staff Agents (`/staff/agents`) — the captain put "Agents" under Messages &
- * inquiries. crm-families (agents, assignment) is unbuilt, so the screen groups the
- * recorded lead file by owner: each agent and their book. This pins that the page
- * renders one section per recorded owner, links every lead to its record, and gates
- * gracefully.
+ * inquiries. crm-families (agents, assignment) is unbuilt, so the screen groups
+ * the ONE shared lead journal by owner: each agent and their book. This pins that
+ * the page reads the same record the Prospects board and the agent portal fold
+ * (the old recorded lead file is retired), links each prospect to the pipeline,
+ * and gates gracefully.
  */
 
 const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
@@ -41,8 +40,17 @@ async function render(): Promise<string> {
   return renderToStaticMarkup(await AgentsPage());
 }
 
-beforeEach(() => {
+let dir: string;
+
+beforeEach(async () => {
+  dir = await mkdtemp(path.join(os.tmpdir(), "vm-agents-page-"));
+  process.env.AGENT_STORE_PATH = path.join(dir, "agent-pipeline.json");
   sessionHolder.current = null;
+});
+
+afterEach(async () => {
+  delete process.env.AGENT_STORE_PATH;
+  await rm(dir, { recursive: true, force: true });
 });
 
 describe("the agents register", () => {
@@ -52,14 +60,42 @@ describe("the agents register", () => {
     expect(html).toContain("permissions this screen needs");
   });
 
-  it("groups the recorded leads by their owner and links each lead", async () => {
+  it("groups the shared prospect journal by owner and links to the one pipeline", async () => {
     signIn(["cases:read"]);
+    await recordProspectCapture({
+      capture: {
+        id: "prospect-cecilia",
+        name: "Cecilia Ramos",
+        phone: "+63 917 654 0091",
+        email: "cecilia.ramos@example.com",
+        source: "walk_in",
+        interest: "plan",
+        want: "A pre-need plan",
+        callback: "",
+        note: "Walked in after the Sunday service.",
+        captured_by: "Sam Staff",
+      },
+    });
+    await recordProspectAssignment({
+      prospectId: "prospect-cecilia",
+      agent: "Alex Agent",
+      by: "Sam Staff",
+      note: "Please call.",
+    });
+
     const html = await render();
     expect((html.match(/<h1[\s>]/g) ?? []).length).toBe(1);
-    expect(html).toContain("Alex Agent"); // the recorded lead owner
-    expect(html).toContain("prospect-cecilia"); // a lead, linked to its record
-    expect(html).toContain('href="/staff/pipeline/prospect-cecilia"');
-    // One link keeps the full pipeline reachable though it left the curated rail.
-    expect(html).toContain('href="/staff/pipeline"');
+    expect(html).toContain("Alex Agent"); // the assigned owner
+    expect(html).toContain("Cecilia Ramos"); // the prospect
+    expect(html).toContain("A pre-need plan");
+    expect(html).toContain('href="/staff/prospects"');
+    // The retired duplicate read must not come back.
+    expect(html).not.toContain("/staff/pipeline");
+  });
+
+  it("shows the honest empty state when no prospect is on record", async () => {
+    signIn(["cases:read"]);
+    const html = await render();
+    expect(html).toContain("No agents on record");
   });
 });

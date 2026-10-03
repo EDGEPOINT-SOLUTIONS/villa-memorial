@@ -190,6 +190,40 @@ describe("POST /api/family/inquiries", () => {
     expect(mine[0].title).toBe("Bronze 2 plan — Monthly");
     expect(mine[0].status).toBe("With the office");
   });
+
+  it("records the contact number the family leaves at the gate (flow audit, 2026-10-03)", async () => {
+    await signInFamily();
+    const { POST } = await import("@/app/api/family/inquiries/route");
+    const res = await POST(
+      new Request("http://localhost/api/family/inquiries", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          kind: "plan",
+          item: "Silver 1 plan — Monthly",
+          phone: "0917 000 0002",
+        }),
+      }),
+    );
+    expect(res.status).toBe(201);
+    const board = await listInquiries();
+    expect(board[0].person.phone).toBe("0917 000 0002");
+  });
+
+  it("still accepts an ask without a number — the case requires it, not the gate", async () => {
+    await signInFamily();
+    const { POST } = await import("@/app/api/family/inquiries/route");
+    const res = await POST(
+      new Request("http://localhost/api/family/inquiries", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ kind: "lot", item: "Lot B-002" }),
+      }),
+    );
+    expect(res.status).toBe(201);
+    const board = await listInquiries();
+    expect(board[0].person.phone).toBe("");
+  });
 });
 
 describe("the family portal's own read", () => {

@@ -15,6 +15,9 @@ vi.mock("@/lib/fixtures/finance/invoices.json", async () => ({
 vi.mock("@/lib/fixtures/operations/preparation-records.json", async () => ({
   default: (await import("../fixtures/operations-preparation-demo.json")).default,
 }));
+vi.mock("@/lib/fixtures/chat/threads.json", async () => ({
+  default: (await import("../fixtures/chat-threads-demo.json")).default,
+}));
 /* --- end test-only demo fixtures --- */
 
 

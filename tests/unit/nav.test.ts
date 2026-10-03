@@ -94,11 +94,14 @@ describe("the revisioned IA (admin plan, 2026-10-02)", () => {
     expect(section("Today")).toEqual(["Dashboard", "Calendar", "Inbox"]);
     // Captain: "Change Families and inquiries to 'Messages and Inquiries' and under
     // it is 'Families' 'Agents' 'Inquiries' 'Memberships' 'Memorials'."
+    // 2026-10-03 flow audit: the retired Sales-pipeline route was folded into
+    // the Prospects board, so the rail names the one pipeline by the office's
+    // own word. The route itself still resolves (redirect) below.
     expect(section("Messages & inquiries")).toEqual([
       "Families",
       "Agents",
       "Inquiries",
-      "Prospects",
+      "Sales pipeline",
       "Memberships",
       "Memorials",
     ]);

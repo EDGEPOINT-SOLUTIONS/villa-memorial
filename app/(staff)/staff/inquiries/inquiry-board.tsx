@@ -17,6 +17,17 @@ import { InquiryCaptureForm, SOURCE_LABELS } from "./inquiry-capture";
 
 type Tone = "info" | "warning" | "success" | "neutral";
 
+/** The lifecycle kind an enquiry's outcome belongs to, for the "Record outcome" link. */
+function outcomeKind(inquiry: Inquiry): "plan" | "service" | "lot" | "product" {
+  const lineKind = inquiry.lines?.[0]?.kind;
+  if (lineKind === "plan" || lineKind === "lot" || lineKind === "product") return lineKind;
+  if (lineKind === "service") return "service";
+  if (/plan/i.test(inquiry.topic)) return "plan";
+  if (/lot/i.test(inquiry.topic)) return "lot";
+  if (/product|casket|coffin/i.test(inquiry.topic)) return "product";
+  return "service";
+}
+
 /**
  * The office's enquiry workspace.
  *
@@ -59,6 +70,8 @@ export function InquiryBoard({
   const [links, setLinks] = useState<Record<string, string>>(linkedCases);
   const [sendingId, setSendingId] = useState<string | null>(null);
   const [caseError, setCaseError] = useState<string | null>(null);
+  const [contacting, setContacting] = useState<Inquiry | null>(null);
+  const [contactBusy, setContactBusy] = useState(false);
   const router = useRouter();
 
   const filtered = useMemo(() => {
@@ -148,6 +161,35 @@ export function InquiryBoard({
       setActionError("The enquiry could not become a prospect — check your connection.");
     } finally {
       setConvertingBusy(false);
+    }
+  }
+
+  async function saveContact(phone: string) {
+    if (!contacting) return;
+    setActionError(null);
+    setContactBusy(true);
+    try {
+      const response = await fetch(`/api/staff/inquiries/${contacting.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "contact", phone }),
+      });
+      const payload: unknown = await response.json().catch(() => null);
+      const body =
+        typeof payload === "object" && payload !== null ? (payload as Record<string, unknown>) : {};
+      if (!response.ok || typeof body.inquiry !== "object" || body.inquiry === null) {
+        setActionError(
+          typeof body.error === "string" ? body.error : "The contact number could not be saved.",
+        );
+        return;
+      }
+      const updated = body.inquiry as Inquiry;
+      setInquiries((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
+      setContacting(null);
+    } catch {
+      setActionError("The contact number could not be saved — check your connection.");
+    } finally {
+      setContactBusy(false);
     }
   }
 
@@ -292,17 +334,19 @@ export function InquiryBoard({
                   <td className="text-sm">
                     {links[i.reference] ? (
                       <Link href={`/staff/cases/${links[i.reference]}`}>View case</Link>
-                    ) : canCapture && (i.status === "converted" || i.status === "closed") ? (
+                    ) : !canCapture ? (
+                      <span className="text-muted">—</span>
+                    ) : i.person.phone.trim() ? (
                       <Button
                         variant="secondary"
                         size="sm"
                         disabled={sendingId === i.id}
                         onClick={() => sendToCase(i)}
                       >
-                        {sendingId === i.id ? "Opening…" : "Send to case"}
+                        {sendingId === i.id ? "Opening…" : "Open case"}
                       </Button>
                     ) : (
-                      <span className="text-muted">—</span>
+                      <span className="text-muted">Add a contact number</span>
                     )}
                   </td>
                   <td className="text-sm">{new Date(i.received_at).toLocaleString()}</td>
@@ -319,6 +363,23 @@ export function InquiryBoard({
                             Convert to prospect
                           </Button>
                         ) : null}
+                        {i.person.phone.trim() ? null : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => setContacting(i)}
+                          >
+                            Add contact number
+                          </Button>
+                        )}
+                        <Link
+                          className="btn btn--ghost btn--sm"
+                          href={`/staff/lifecycle/new?kind=${outcomeKind(i)}&name=${encodeURIComponent(
+                            i.person.full_name,
+                          )}`}
+                        >
+                          Record outcome
+                        </Link>
                       </div>
                     </td>
                   ) : null}
@@ -338,6 +399,94 @@ export function InquiryBoard({
           onConvert={convertInquiry}
         />
       ) : null}
+
+      {contacting ? (
+        <ContactDialog
+          inquiry={contacting}
+          busy={contactBusy}
+          onClose={() => setContacting(null)}
+          onSave={saveContact}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * The office's "add a contact number" dialog (captain, 2026-10-03). A plan/lot
+ * enquiry whose family left no number can still be worked; the office adds the
+ * number the case will need without leaving the board.
+ */
+function ContactDialog({
+  inquiry,
+  busy,
+  onClose,
+  onSave,
+}: {
+  inquiry: Inquiry;
+  busy: boolean;
+  onClose: () => void;
+  onSave: (phone: string) => void;
+}) {
+  const [phone, setPhone] = useState(inquiry.person.phone);
+  const { panelRef } = useModalFocus<HTMLDivElement>(true, onClose);
+
+  return (
+    <div className="ops-modal" role="presentation">
+      <div className="ops-modal__backdrop" onClick={onClose} />
+      <div
+        className="ops-modal__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Add a contact number for ${inquiry.person.full_name}`}
+        ref={panelRef}
+        tabIndex={-1}
+      >
+        <div className="ops-modal__head">
+          <div>
+            <p className="ops-modal__eyebrow">Inquiries</p>
+            <h2>Contact number</h2>
+          </div>
+          <Button variant="ghost" onClick={onClose} aria-label="Close">
+            Close
+          </Button>
+        </div>
+        <div className="ops-modal__body">
+          <form
+            className="stack"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSave(phone);
+            }}
+          >
+            <p className="text-sm">
+              {inquiry.person.full_name} · {inquiry.reference}
+            </p>
+            <Field
+              label="Contact number"
+              htmlFor="inquiry-phone"
+              hint="How the office reaches this person; a case cannot be opened without one."
+            >
+              <input
+                id="inquiry-phone"
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(event) => setPhone(event.target.value)}
+              />
+            </Field>
+            <div className="ops-modal__actions">
+              <Button type="submit" disabled={busy || phone.trim().length === 0}>
+                {busy ? "Saving…" : "Save contact number"}
+              </Button>
+              <Button variant="ghost" type="button" onClick={onClose}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }
@@ -412,7 +561,11 @@ function ConvertDialog({
                   ))}
                 </select>
               </Field>
-              <Field label="Assign to" htmlFor="convert-agent" hint="Optional — notifies the agent.">
+              <Field
+                label="Assign to"
+                htmlFor="convert-agent"
+                hint="Optional — recorded on the assignment. No notice is sent yet."
+              >
                 <select id="convert-agent" value={agent} onChange={(e) => setAgent(e.target.value)}>
                   <option value="">Unassigned</option>
                   {agents.map((option) => (
