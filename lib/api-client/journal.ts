@@ -33,6 +33,45 @@ import path from "node:path";
 import { ApiError } from "@/lib/api-client/api-error";
 
 /**
+ * One journal event a fold could not apply because the record it names is gone.
+ *
+ * A write cut off by a full disk, or a seed the journal outlived, can leave an event
+ * that names a parent the fold does not have (a task event naming a case no case
+ * carries). The fold SKIPS it, keeps every good record, and names it on the server
+ * log — it never throws for an orphan, and it never silently discards one. A genuinely
+ * unreadable or malformed journal still refuses loudly (that is `readJournalEvents`,
+ * not this), because that is corruption rather than a missing parent.
+ */
+export type SkippedJournalEvent = {
+  /** The store's own event kind (`task_status_set`, `block_removed`, …). */
+  kind: string;
+  /** The event's own timestamp when it carries one, else null. */
+  at: string | null;
+  /** The reference the fold could not resolve, e.g. `case_number` / `task_id`. */
+  parent: string;
+  /** That reference's value, e.g. `CASE-2026-0006`. */
+  reference: string;
+};
+
+/**
+ * Name every orphan event on the server log (id, kind, referenced parent). The read that
+ * produced them stays usable; this is the diagnosable note that replaces the dead screen.
+ * The count stays on the returned `skipped` array for a developer who reads it there.
+ */
+export function logSkippedJournalEvents(
+  label: string,
+  skipped: readonly SkippedJournalEvent[],
+): void {
+  for (const event of skipped) {
+    console.error(
+      `[${label} store] skipped orphan journal event: kind=${event.kind}` +
+        `${event.at ? ` at=${event.at}` : ""}` +
+        ` parent=${event.parent} reference=${event.reference}`,
+    );
+  }
+}
+
+/**
  * The journal file a store reads and writes: its own env var when set (tests point it
  * at a throwaway directory), otherwise `.data/<filename>` under the app's cwd.
  */
@@ -60,7 +99,8 @@ export async function readJournalEvents(
     raw = await fs.readFile(storePath, "utf8");
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw new ApiError(`the ${label} store could not be read`, 500);
+    console.error(`[${label} store] the journal could not be read`, err);
+    throw new ApiError(`the ${label} store could not be read`, 500, undefined, { cause: err });
   }
   let parsed: unknown;
   try {
@@ -90,9 +130,14 @@ export async function writeJournalEvents(
   label: string,
   events: unknown[],
 ): Promise<void> {
-  await fs.mkdir(path.dirname(storePath), { recursive: true }).catch(() => {
-    throw new ApiError(`the ${label} store directory could not be created`, 500);
-  });
+  try {
+    await fs.mkdir(path.dirname(storePath), { recursive: true });
+  } catch (err) {
+    console.error(`[${label} store] the journal directory could not be created`, err);
+    throw new ApiError(`the ${label} store directory could not be created`, 500, undefined, {
+      cause: err,
+    });
+  }
   const temp = `${storePath}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
   const payload = JSON.stringify({ version: 1, events }, null, 2) + "\n";
   try {
@@ -105,9 +150,10 @@ export async function writeJournalEvents(
       await handle.close();
     }
     await fs.rename(temp, storePath);
-  } catch {
+  } catch (err) {
     await fs.rm(temp, { force: true }).catch(() => undefined);
-    throw new ApiError(`the ${label} store could not be written`, 500);
+    console.error(`[${label} store] the journal could not be written`, err);
+    throw new ApiError(`the ${label} store could not be written`, 500, undefined, { cause: err });
   }
 }
 
@@ -145,7 +191,8 @@ export async function listJournalFiles(dir: string, suffix = ".json"): Promise<s
     names = await fs.readdir(dir);
   } catch (err) {
     if ((err as NodeJS.ErrnoException).code === "ENOENT") return [];
-    throw new ApiError("the store directory could not be read", 500);
+    console.error("[store] the journal directory could not be read", err);
+    throw new ApiError("the store directory could not be read", 500, undefined, { cause: err });
   }
   return names
     .filter((name) => name.endsWith(suffix) && name.length > suffix.length)

@@ -35,8 +35,10 @@
 import {
   createJournalLock,
   journalPath,
+  logSkippedJournalEvents,
   readJournalEvents,
   writeJournalEvents,
+  type SkippedJournalEvent,
 } from "@/lib/api-client/journal";
 import { ApiError } from "@/lib/api-client/api-error";
 import { listPublishedCatalogRecords } from "@/lib/api-client/catalog-store";
@@ -237,10 +239,16 @@ function persistEvents(events: PersistedEvent[]): Promise<void> {
 }
 
 /** Seed + journal folded into the current admin records, newest order first. */
-async function loadState(): Promise<{ orders: AdminOrder[]; events: PersistedEvent[] }> {
+async function loadState(): Promise<{
+  orders: AdminOrder[];
+  events: PersistedEvent[];
+  /** Status changes skipped because they named an order the fold does not have. */
+  skipped: SkippedJournalEvent[];
+}> {
   const seed = (ordersFile as unknown as { orders: unknown[] }).orders.map(toAdminOrder);
   const events = await readPersistedEvents();
   const byNumber = new Map(seed.map((order) => [order.order.number, structuredClone(order)]));
+  const skipped: SkippedJournalEvent[] = [];
   for (const event of events) {
     if (event.kind === "order_created") {
       byNumber.set(event.order.order.number, structuredClone(event.order));
@@ -248,15 +256,19 @@ async function loadState(): Promise<{ orders: AdminOrder[]; events: PersistedEve
     }
     const current = byNumber.get(event.number);
     if (!current) {
-      throw new ApiError(`the order store references unknown order ${event.number}`, 500);
+      // An orphan status change (a write cut off, or a seed the journal outlived): skip
+      // it, keep every order we do have, and name it on the server log.
+      skipped.push({ kind: event.kind, at: event.at, parent: "order_number", reference: event.number });
+      continue;
     }
     current.timeline = [...current.timeline, event.event];
     current.lifecycle_status = event.event.status;
   }
+  if (skipped.length > 0) logSkippedJournalEvents("order", skipped);
   const orders = [...byNumber.values()].sort((a, b) =>
     (b.order.placed_at ?? "").localeCompare(a.order.placed_at ?? ""),
   );
-  return { orders, events };
+  return { orders, events, skipped };
 }
 
 /* ------------------------------ store API ------------------------------- */

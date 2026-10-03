@@ -36,8 +36,10 @@ import { randomUUID } from "node:crypto";
 import {
   createJournalLock,
   journalPath,
+  logSkippedJournalEvents,
   readJournalEvents,
   writeJournalEvents,
+  type SkippedJournalEvent,
 } from "@/lib/api-client/journal";
 import { ApiError } from "@/lib/api-client/api-error";
 import casesFile from "@/lib/fixtures/operations/cases.json";
@@ -212,10 +214,30 @@ const withStoreLock = createJournalLock();
 
 /* ------------------------------ store API ------------------------------- */
 
-/** Seed + journal folded into the current case records. */
-export async function loadStoredCases(): Promise<StoredCase[]> {
+/** Seed + journal folded into the current case records, tolerating orphan events. */
+export type CaseFold = {
+  cases: StoredCase[];
+  /**
+   * Events skipped because they named a case or task this fold does not have. Every one
+   * is also named on the server log (`logSkippedJournalEvents`); the count is here for a
+   * developer who reads it. The good records are still returned — that is the point.
+   */
+  skipped: SkippedJournalEvent[];
+};
+
+/**
+ * Seed + journal folded into the current case records.
+ *
+ * An event naming a case (or a task inside one) the fold does not carry is an ORPHAN, not
+ * a reason to kill the board: a write interrupted by a full disk, or a seed the journal
+ * outlived, leaves one. The fold skips it, keeps every good record, names it on the server
+ * log and counts it in `skipped`. The journal itself is never rewritten, so the orphan row
+ * survives for diagnosis; a malformed event still refuses loudly in `toPersistedEvent`.
+ */
+export async function loadStoredCaseFold(): Promise<CaseFold> {
   const seed = casesFile as unknown as SeedStore;
   const cases = seed.cases.map(toStoredCase);
+  const skipped: SkippedJournalEvent[] = [];
 
   for (const event of await readPersistedEvents()) {
     if (event.kind === "case_created") {
@@ -224,19 +246,33 @@ export async function loadStoredCases(): Promise<StoredCase[]> {
     }
     const kase = cases.find((c) => c.case_number === event.case_number);
     if (!kase) {
-      // A journal that names an unknown case means seed and store drifted.
-      throw new ApiError("the case store references an unknown case", 500);
+      // A journal that names an unknown case: seed and store drifted. Skip the event,
+      // keep the cases we do have, and let the caller read the count.
+      skipped.push({
+        kind: event.kind,
+        at: event.at,
+        parent: "case_number",
+        reference: event.case_number,
+      });
+      continue;
     }
-    // The fold's last word on when the record changed, so a reload cannot answer
-    // the seed's `updated_at` for a case the board has since moved.
-    kase.updated_at = event.at;
     switch (event.kind) {
       case "task_status_set": {
         const task = kase.tasks.find((t) => t.id === event.task_id);
         if (!task) {
-          throw new ApiError("the case store references an unknown task", 500);
+          // Same tolerance one level down: the case is here, the task is not.
+          skipped.push({
+            kind: event.kind,
+            at: event.at,
+            parent: "task_id",
+            reference: event.task_id,
+          });
+          break;
         }
         task.status = event.status;
+        // The fold's last word on when the record changed, so a reload cannot answer
+        // the seed's `updated_at` for a case the board has since moved.
+        kase.updated_at = event.at;
         break;
       }
       case "stage_set":
@@ -248,11 +284,18 @@ export async function loadStoredCases(): Promise<StoredCase[]> {
             kase.tasks.push({ ...task });
           }
         }
+        kase.updated_at = event.at;
         break;
     }
   }
 
-  return cases;
+  if (skipped.length > 0) logSkippedJournalEvents("case", skipped);
+  return { cases, skipped };
+}
+
+/** The case records only — the shape every screen and writer consumes. */
+export async function loadStoredCases(): Promise<StoredCase[]> {
+  return (await loadStoredCaseFold()).cases;
 }
 
 function caseByNumber(cases: StoredCase[], caseNumber: string): StoredCase {

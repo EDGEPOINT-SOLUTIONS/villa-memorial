@@ -38,8 +38,10 @@
 import {
   createJournalLock,
   journalPath,
+  logSkippedJournalEvents,
   readJournalEvents,
   writeJournalEvents,
+  type SkippedJournalEvent,
 } from "@/lib/api-client/journal";
 import { ApiError } from "@/lib/api-client/api-error";
 import catalogFile from "@/lib/fixtures/commerce/catalog-items.json";
@@ -206,7 +208,12 @@ function persistEvents(events: PersistedEvent[]): Promise<void> {
 const withStoreLock = createJournalLock();
 
 /** Seed + journal folded into the current records, in recorded order. */
-async function loadState(): Promise<{ records: AdminCatalogItem[]; events: PersistedEvent[] }> {
+async function loadState(): Promise<{
+  records: AdminCatalogItem[];
+  events: PersistedEvent[];
+  /** Updates skipped because they named an item the fold does not have. */
+  skipped: SkippedJournalEvent[];
+}> {
   const seed = (catalogFile as unknown as SeedShape).items.map(toSeedCatalogItem);
   const records: AdminCatalogItem[] = [];
   const indexById = new Map<number, number>();
@@ -220,6 +227,7 @@ async function loadState(): Promise<{ records: AdminCatalogItem[]; events: Persi
   }
 
   const events = await readPersistedEvents();
+  const skipped: SkippedJournalEvent[] = [];
   for (const event of events) {
     const id = event.item.item.id;
     const at = indexById.get(id);
@@ -234,8 +242,10 @@ async function loadState(): Promise<{ records: AdminCatalogItem[]; events: Persi
       continue;
     }
     if (at === undefined) {
-      // A journal that updates an unknown id means the seed and store drifted.
-      throw new ApiError(`the catalogue store references unknown item ${id}`, 500);
+      // An update naming an item the fold does not have (a write cut off, or a seed the
+      // journal outlived): skip it, keep the rest of the catalogue, name it on the log.
+      skipped.push({ kind: event.kind, at: event.at, parent: "item_id", reference: String(id) });
+      continue;
     }
     // A rename can only collide through a journal the store itself would not write.
     if (
@@ -249,7 +259,8 @@ async function loadState(): Promise<{ records: AdminCatalogItem[]; events: Persi
     }
     records[at] = event.item;
   }
-  return { records, events };
+  if (skipped.length > 0) logSkippedJournalEvents("catalogue", skipped);
+  return { records, events, skipped };
 }
 
 /* ------------------------------ store API ------------------------------- */

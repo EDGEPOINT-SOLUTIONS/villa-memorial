@@ -33,8 +33,10 @@
 import {
   createJournalLock,
   journalPath,
+  logSkippedJournalEvents,
   readJournalEvents,
   writeJournalEvents,
+  type SkippedJournalEvent,
 } from "@/lib/api-client/journal";
 import { ApiError } from "@/lib/api-client/api-error";
 import chapelAdminFile from "@/lib/fixtures/scheduling/chapel-admin.json";
@@ -164,9 +166,20 @@ export type ChapelAdminState = {
   blocks: ChapelBlock[];
   /** Keyed by scheduling booking id. */
   bookingStates: Map<string, ChapelBookingState>;
+  /**
+   * Orphan events the fold skipped — a removal naming a block that is not there. Named
+   * on the server log; here for a developer who reads the count.
+   */
+  skipped: SkippedJournalEvent[];
 };
 
-/** Seed + journal folded into the current chapel administration state. */
+/**
+ * Seed + journal folded into the current chapel administration state.
+ *
+ * A `block_removed` naming a block the fold does not carry is an ORPHAN (a write cut off,
+ * or a seed that outlived its journal): it is skipped, named on the server log and counted
+ * rather than killing every chapel read. Added/saved rows are upserts and cannot orphan.
+ */
 export async function loadChapelAdminState(): Promise<ChapelAdminState> {
   const seed = chapelAdminFile as unknown as SeedShape;
   const chapels = new Map<string, ChapelRecord>();
@@ -185,6 +198,7 @@ export async function loadChapelAdminState(): Promise<ChapelAdminState> {
     bookingStates.set(state.booking_id, state);
   }
 
+  const skipped: SkippedJournalEvent[] = [];
   for (const event of await readPersistedEvents()) {
     switch (event.kind) {
       case "chapel_saved":
@@ -195,8 +209,8 @@ export async function loadChapelAdminState(): Promise<ChapelAdminState> {
         break;
       case "block_removed":
         if (!blocks.delete(event.id)) {
-          // A journal that removes an unknown block means seed and store drifted.
-          throw new ApiError("the chapel store references an unknown closure", 500);
+          // Seed and store drifted: skip the removal, keep every other block.
+          skipped.push({ kind: event.kind, at: event.at, parent: "block_id", reference: event.id });
         }
         break;
       case "booking_state_set":
@@ -205,7 +219,8 @@ export async function loadChapelAdminState(): Promise<ChapelAdminState> {
     }
   }
 
-  return { chapels: [...chapels.values()], blocks: [...blocks.values()], bookingStates };
+  if (skipped.length > 0) logSkippedJournalEvents("chapel", skipped);
+  return { chapels: [...chapels.values()], blocks: [...blocks.values()], bookingStates, skipped };
 }
 
 /** Just the chapel records (the customer schedule's class/active filter). */
