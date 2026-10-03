@@ -22457,6 +22457,34 @@ a.plan-advisor__phone:hover {
   padding-top: 0;
 }
 
+/* Balance the storefront's first row (captain, 2026-10-03): *"please level it
+   to the margin top of both left and right rail 1st image so that it's
+   balance."* The rails open with a heading block above their first picture
+   (`.rail-panel`'s padding-top, the `.rail-heading` line box plus its rule and
+   padding-bottom, and the panel's flex gap); the middle sheet's banner has no
+   such block, so after the top trim the hero photograph sat ~42px above the
+   rails' first pictures and the three columns did not line up. The offset below
+   is that heading block MEASURED in the rail's own tokens, never a guessed
+   pixel: the sheet's and media's 1px frames cancel the panel's and the lead
+   card's, so this is exactly the extra top padding the banner needs. Applied
+   only where the three columns are side by side — below 75rem `.anchored-rail`
+   is `display: none`, so the single-column home keeps its clean top there. */
+@media (min-width: 75rem) {
+  .blog-storefront .home-banner {
+    /* The rail heading block, token by token: `.rail-panel`'s padding-top, the
+       `.rail-heading` line box, its padding-bottom and its 1px rule, and the
+       panel's flex gap. */
+    --rail-lead-offset: calc(
+      var(--space-3) +
+      (var(--text-md) * var(--leading-tight)) +
+      var(--space-2) +
+      1px +
+      var(--space-3)
+    );
+    padding-top: var(--rail-lead-offset);
+  }
+}
+
 /* --- the authored empty state (an image the office has not set) ----------- */
 .home-engraved {
   display: flex;
