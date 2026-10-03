@@ -22434,6 +22434,29 @@ a.plan-advisor__phone:hover {
   color: var(--color-text-primary);
 }
 
+/* The storefront home's top trim (captain, 2026-10-03): *"remove the margin
+   top space gap because it's too far."* On `/` the page's own padding
+   (`.public-main`, `--space-7`), the middle sheet's padding and the banner
+   section's padding stacked to ~146px of empty space between the header and the
+   hero photograph. Three of those four layers are removed here; the storefront
+   grid's own `--space-5` gutter stays as the ONE gap under the header (~23px at
+   the 80% root). `.blog-storefront` wraps the home's bands and nothing else now
+   (`/blog` is its own reading page since 2026-10-02), so the trim lands on `/`
+   alone and every other public page keeps its own top spacing. Nothing in the
+   band moves: the picture, its bottom caption strip and the flanking rails are
+   untouched. */
+.public-main:has(> .blog-storefront) {
+  padding-top: 0;
+}
+
+.blog-storefront .anchored-mid__inner {
+  padding-top: 0;
+}
+
+.blog-storefront .home-banner {
+  padding-top: 0;
+}
+
 /* --- the authored empty state (an image the office has not set) ----------- */
 .home-engraved {
   display: flex;
