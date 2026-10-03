@@ -130,3 +130,16 @@ export function grantsByGroup(scopes: ReadonlyArray<string>): GroupedGrants[] {
   }
   return groups;
 }
+
+/**
+ * The scopes in the contract's own order — the order a saved role records and
+ * the order the permission checkboxes render. Unknown tokens are dropped, so a
+ * caller must validate against `isFrozenScope` (or `scopeSelectionProblem`)
+ * first; the store refuses a set that carries one.
+ */
+export function orderScopes(scopes: ReadonlyArray<string>): string[] {
+  const wanted = new Set(scopes);
+  return SCOPE_VOCABULARY.filter((entry) => wanted.has(entry.scope)).map(
+    (entry) => entry.scope,
+  );
+}

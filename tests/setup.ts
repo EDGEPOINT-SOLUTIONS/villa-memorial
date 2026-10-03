@@ -60,6 +60,10 @@ const STORE_PATH_ENV_VARS = [
   // lots · products). Its omission would let an outcome recorded by one suite leak
   // into every suite that renders a lifecycle register.
   "LIFECYCLE_STORE_PATH",
+  // Added 2026-10-03 with the role-permission checkbox write on Users & roles. Its
+  // omission would let a role scope set ticked in one suite change the roster the
+  // fixture-contract suite reads.
+  "ACCESS_CONTROL_STORE_PATH",
 ] as const;
 
 for (const name of STORE_PATH_ENV_VARS) {

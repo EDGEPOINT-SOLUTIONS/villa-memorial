@@ -5,17 +5,18 @@ import { assertNoParagraphNesting } from "@/tests/helpers/paragraph-nesting";
 
 /**
  * Users & roles (`/staff/users`, S30), rendered as the real page over the
- * recorded access-control fixture. What this pins:
+ * recorded access-control fixture. What this pins (captain, 2026-10-02: "we
+ * should be able to check checkboxes for permissions"):
  *
- *  · the permission model is legible — the four recorded roles, every
- *    permission in plain words, the raw frozen scope token beside it, and who
- *    holds each role;
- *  · the honest state is on the page: the missing provisioning API in one
- *    line, and NO form that cannot submit;
+ *  · each recorded role carries its frozen permission set as REAL checkboxes,
+ *    grouped by module, with the boxes of the recorded scopes TICKED;
+ *  · every account's own permission view uses the same checkbox groups,
+ *    read-only (a person's scopes come from their role);
+ *  · the honest state is on the page: user provisioning is still missing, and
+ *    the missing invite API is named — but the role editor CAN now save;
  *  · the durable guard — a session without `identity:users:manage` gets the
  *    graceful forbidden state;
- *  · house rules: one h1, no skipped heading level, no nested paragraphs,
- *    tokens/classes only.
+ *  · house rules: one h1, no skipped heading level, no nested paragraphs.
  */
 
 const sessionHolder = vi.hoisted(() => ({ current: null as Session | null }));
@@ -47,7 +48,7 @@ beforeEach(() => {
   sessionHolder.current = null;
 });
 
-describe("the permission model, answered at a glance", () => {
+describe("the permission checkboxes, answered at a glance", () => {
   it("is forbidden without the provisioning scope", async () => {
     signIn(["cases:read"]);
     const html = await render();
@@ -79,35 +80,60 @@ describe("the permission model, answered at a glance", () => {
     }
   });
 
-  it("prints every permission in plain words and keeps the frozen token", async () => {
+  it("renders one checkbox per frozen permission per role, grouped by module", async () => {
     signIn(["identity:users:manage"]);
     const html = await render();
+    // A real checkbox, one for every role and every frozen scope.
+    expect(html).toContain('type="checkbox"');
+    expect(html).toContain("Identity &amp; access");
+    expect(html).toContain("Catalog &amp; orders");
+    expect(html).toContain("Cases &amp; operations");
+    // The plain-words grant AND the frozen token ride the same box.
     expect(html).toContain("Add people and give them a role");
-    expect(html).toContain("See funeral cases, stages and tasks");
-    expect(html).toContain("Read the record of who changed what");
-    // The raw token is the frozen vocabulary, printed beside the plain words.
     expect(html).toContain("identity:users:manage");
+    expect(html).toContain("See funeral cases, stages and tasks");
     expect(html).toContain("cases:read");
+    expect(html).toContain("Read the record of who changed what");
+    expect(html).toContain("audit:events:read");
   });
 
-  it("names the missing provisioning API and offers no form", async () => {
+  it("ticks the recorded scopes and leaves the rest unticked", async () => {
+    signIn(["identity:users:manage"]);
+    const html = await render();
+    // The administrator's own permissions are ticked (seed state); the agent
+    // role does not carry the audit scope.
+    const adminAudit = /id="role-administrator-audit-events-read"[^>]*checked/;
+    const agentAudit = /id="role-agent-audit-events-read"[^>]*checked/;
+    expect(html).toMatch(adminAudit);
+    expect(html).not.toMatch(agentAudit);
+    expect(html).toContain("Save permissions");
+  });
+
+  it("applies the same checkbox view to a person's own scopes, read-only", async () => {
+    signIn(["identity:users:manage"]);
+    const html = await render();
+    // The person's grid is disabled — permissions come from the role.
+    const userAdmin = /id="user-00000000-0000-4000-8000-000000000011-cases-read"[^>]*disabled/;
+    expect(html).toMatch(userAdmin);
+    expect(html).toContain("A person&#x27;s permissions come from their role");
+  });
+
+  it("names the missing provisioning and invite APIs", async () => {
     signIn(["identity:users:manage"]);
     const html = await render();
     expect(html).toContain("User provisioning is not wired");
     expect(html).toContain(
-      "identity-access signs people in, but it has no API to list, invite or assign roles.",
+      "identity-access signs people in, but it has no API to list, invite or assign users.",
     );
     expect(html).toContain("No invitation can be sent from this screen");
-    expect(html).not.toContain("<form");
-    expect(html).not.toMatch(/<button\b/);
+    // The role editor IS a real save; only the invite form does not exist.
+    expect(html).toContain("/staff/users/new");
   });
 
-  it("shows the invite path the office will use", async () => {
+  it("states that sign-in gates are unchanged", async () => {
     signIn(["identity:users:manage"]);
     const html = await render();
-    for (const step of ["Add the person", "Give them a role", "Send the invitation"]) {
-      expect(html, `missing invite step ${step}`).toContain(step);
-    }
+    expect(html).toContain("Sign-in gates keep using the identity provider");
   });
 });
 

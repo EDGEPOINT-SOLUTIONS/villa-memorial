@@ -341,6 +341,22 @@ provisionally until then.
 **Who can act.** The platform (freeze the lifecycle record and its read/write contract, and the
 scope codes).
 
+## 13. Platform ask — role read/write and user provisioning (2026-10-03)
+
+**Status: OPEN — platform-owned.** The captain asked to check a role's permissions with
+checkboxes (`/staff/users`, S30). `rbac-scopes-v1` freezes the vocabulary but names no role read
+or role-write endpoint, and identity-access publishes no user list, role assignment or invite
+endpoint, so the build edits the role RECORD locally (`lib/api-client/access-control.ts`, seed +
+append-only `role_scopes_set` journal) and still refuses to provision a user. The saved set never
+reaches a sign-in gate: the app gates on the verified session claims only (`rbac-scopes-v1` rule
+1). Record: [`admin-users-permissions-design/`](./admin-users-permissions-design/README.md).
+
+**What waits.** A frozen role read/write contract (list roles with their scope sets; assign a
+scope set to a role) and a user-provisioning/invite contract. When the role endpoint lands, the
+store gains its live branch and the screen's shape does not change.
+
+**Who can act.** The platform (freeze the role and provisioning endpoints).
+
 ---
 
 *Raised 2026-09-17 from the audit review; updated 2026-09-19 — items 2 and 4 closed, item 1 kept
@@ -353,6 +369,7 @@ arrangement is connected to the office's recorded case fixture. Updated 2026-10-
 (the Prospects lifecycle's customer-records write/read and the agent-roster read); §11 added
 (the family account link a plan/lot inquiry needs, and its gate). Updated 2026-10-03 — §12 added
 (the post-Prospect lifecycle record and its amortization/notices, fixture-mode pending a
-contract). The audit and
+contract); §13 added (the role read/write and user-provisioning endpoints behind the permission
+checkboxes). The audit and
 the linked documents remain the authoritative
 record.*

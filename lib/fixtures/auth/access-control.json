@@ -4,8 +4,8 @@
     "recorded": "2026-09-19",
     "note": [
       "rbac-scopes-v1 rule 4: roles are data, not code. No role/permission endpoint or contract is frozen, so this file records the four roles the identity-access seed actually grants (lib/fixtures/auth/personas.json, which mirrors identity-access/db/seeds.rb).",
-      "Each role's scope list is EXACTLY the seeded persona's scope list — admin@vm.demo, staff@vm.demo, agent@vm.demo, customer@vm.demo — in the same order; the role labels read the seed accounts' own names. tests/fixture-contract/access-control.test.ts fails on any drift, and on a scope outside docs/08-delivery/contracts/rbac-scopes-v1.md.",
-      "The roles screen (/staff/users) reads this file through lib/api-client/access-control.ts. The provisioning API that would create users and assign roles does not exist; the file is display data with provenance, never a write path."
+      "Each role's scope list is EXACTLY the seeded persona's scope list — admin@vm.demo, staff@vm.demo, agent@vm.demo, customer@vm.demo — in the same order; the role labels read the seed accounts' own names. tests/fixture-contract/access-control.test.ts fails on any drift, and on a scope outside docs/08-delivery/contracts/rbac-scopes-v1.md. This SEED is read-only; an office edit is a durable journal laid over it (lib/api-client/access-control.ts, ACCESS_CONTROL_STORE_PATH), so the screen shows the recorded seed plus the saved role-scope events.",
+      "The roles screen (/staff/users) reads this file through lib/api-client/access-control.ts and edits a role's permission set as checkboxes (POST /api/access-control/roles). The provisioning API that would create users and assign roles does not exist; the file remains display data with provenance, and no saved edit reaches a sign-in gate."
     ]
   },
   "tenant_id": "00000000-0000-4000-8000-000000000001",

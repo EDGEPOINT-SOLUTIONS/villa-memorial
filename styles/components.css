@@ -290,6 +290,51 @@ input[type="checkbox"] {
   color: var(--color-text-secondary);
 }
 
+/* --- Permission checkboxes (Users & roles) --------------------------------- */
+/* Each role's frozen permissions, grouped by module, as real checkboxes. The
+   grid stacks on a phone; a group is a labelled block, not a boxed fieldset. */
+.perm-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.perm-grid__group {
+  min-width: 0;
+}
+
+.perm-grid__title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.perm-grid__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.perm-grid__item + .perm-grid__item {
+  margin-top: var(--space-2);
+}
+
+.perm-grid__item .checkbox {
+  align-items: flex-start;
+}
+
+.perm-grid__item input[type="checkbox"] {
+  margin-top: 0.15rem;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 60rem) {
+  .perm-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .field__hint {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
